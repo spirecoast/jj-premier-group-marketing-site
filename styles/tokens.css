@@ -1,0 +1,91 @@
+/* =============================================================================
+   Design tokens — single source of truth.
+   Components reference these via var(--*), never hardcoded values.
+   Themes in /styles/themes override these under :root[data-theme="..."].
+   ============================================================================= */
+
+:root {
+  /* ---- Color (semantic, not literal) -------------------------------------- */
+  --color-bg: oklch(0.98 0.005 80);
+  --color-surface: oklch(1 0 0);
+  --color-surface-elevated: oklch(0.99 0.005 80);
+  --color-border: oklch(0.92 0.01 80);
+  --color-border-strong: oklch(0.85 0.015 80);
+
+  --color-text-primary: oklch(0.18 0.02 250);
+  --color-text-secondary: oklch(0.45 0.02 250);
+  --color-text-muted: oklch(0.62 0.02 250);
+  --color-text-inverse: oklch(0.98 0.005 80);
+
+  --color-brand: oklch(0.32 0.08 250);
+  --color-brand-hover: oklch(0.28 0.08 250);
+  --color-brand-muted: oklch(0.92 0.02 250);
+
+  --color-accent: oklch(0.68 0.12 70);
+  --color-accent-hover: oklch(0.62 0.12 70);
+  --color-accent-muted: oklch(0.94 0.04 70);
+
+  --color-success: oklch(0.55 0.13 145);
+  --color-warning: oklch(0.72 0.15 75);
+  --color-danger: oklch(0.55 0.20 25);
+  --color-info: oklch(0.55 0.13 230);
+
+  /* ---- Typography --------------------------------------------------------- */
+  /* next/font sets --font-fraunces / --font-inter; we fall back to named families. */
+  --font-display: var(--font-fraunces, "Fraunces"), "Tiempos", Georgia, serif;
+  --font-body: var(--font-inter, "Inter"), -apple-system, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3.5rem;
+  --text-6xl: 5rem;
+  --text-display: 7rem;
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.1em;
+
+  /* ---- Spacing — 4px base ------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* ---- Radii -------------------------------------------------------------- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ---- Shadows ------------------------------------------------------------ */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.12), 0 4px 12px -4px rgb(0 0 0 / 0.06);
+  --shadow-xl: 0 24px 60px -16px rgb(0 0 0 / 0.16), 0 8px 24px -8px rgb(0 0 0 / 0.08);
+
+  /* ---- Logo references (Phase 1 placeholders; swap when brand exists) ----- */
+  --logo-primary: url("/brand/logo-primary.svg");
+  --logo-mark: url("/brand/logo-mark.svg");
+  --logo-wordmark: url("/brand/logo-wordmark.svg");
+}

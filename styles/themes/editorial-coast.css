@@ -1,0 +1,24 @@
+/* Editorial Coast — sophisticated coastal Florida, magazine feel. Default. */
+
+:root[data-theme="editorial-coast"] {
+  --color-bg: oklch(0.97 0.008 75);
+  --color-surface: oklch(1 0 0);
+  --color-surface-elevated: oklch(0.98 0.006 75);
+  --color-border: oklch(0.91 0.012 75);
+  --color-border-strong: oklch(0.82 0.018 75);
+
+  --color-text-primary: oklch(0.22 0.025 240);
+  --color-text-secondary: oklch(0.45 0.02 240);
+  --color-text-muted: oklch(0.6 0.018 240);
+
+  --color-brand: oklch(0.28 0.06 245);
+  --color-brand-hover: oklch(0.22 0.07 245);
+  --color-brand-muted: oklch(0.92 0.02 245);
+
+  --color-accent: oklch(0.68 0.1 65);
+  --color-accent-hover: oklch(0.6 0.12 65);
+  --color-accent-muted: oklch(0.94 0.035 65);
+
+  --font-display: var(--font-fraunces, "Fraunces"), "GT Sectra", Georgia, serif;
+  --font-body: var(--font-inter, "Inter"), system-ui, sans-serif;
+}

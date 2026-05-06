@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@import "../styles/tokens.css";
+@import "../styles/themes/editorial-coast.css";
+@import "../styles/themes/modern-luxe.css";
+@import "../styles/themes/coastal-soft.css";
+
+/* -----------------------------------------------------------------------------
+   Expose design tokens to Tailwind utilities.
+   `inline` keeps the var() reference (so theme switches re-skin live), instead
+   of inlining the literal value at build time.
+   ----------------------------------------------------------------------------- */
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text-primary);
+
+  --color-surface: var(--color-surface);
+  --color-surface-elevated: var(--color-surface-elevated);
+
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  --color-muted: var(--color-text-muted);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-inverse: var(--color-text-inverse);
+
+  --color-brand: var(--color-brand);
+  --color-brand-hover: var(--color-brand-hover);
+  --color-brand-muted: var(--color-brand-muted);
+
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-muted: var(--color-accent-muted);
+
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+}
+
+/* -----------------------------------------------------------------------------
+   Base layer — typographic defaults driven by tokens.
+   ----------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: var(--leading-normal);
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-text-inverse);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Typography utilities (theme-agnostic; reference tokens).
+   ----------------------------------------------------------------------------- */
+@utility text-display {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, var(--text-display));
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+}
+
+@utility text-section {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, var(--text-5xl));
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+@utility text-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  font-weight: 500;
+}
+
+@utility text-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  font-weight: 500;
+}
