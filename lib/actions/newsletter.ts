@@ -6,6 +6,7 @@ import { getDb } from "@/lib/db";
 import { contacts, events } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { newsletterConfirmationEmail } from "@/lib/email/templates";
+import { routeLead } from "@/lib/lead-routing";
 
 const newsletterSchema = z.object({
   email: z.string().trim().email("A valid email is required").max(320),
@@ -62,9 +63,21 @@ export async function subscribeToNewsletter(
         })
         .where(eq(contacts.id, row.id));
     } else {
+      let agentId: string | null = null;
+      try {
+        agentId = await routeLead({
+          email,
+          source: "organic",
+          sourceDetail: "newsletter",
+        });
+      } catch (err) {
+        console.error("[newsletter] routing failed; unassigned", err);
+      }
+
       const [row] = await db
         .insert(contacts)
         .values({
+          primaryAgentId: agentId,
           email,
           type: ["lead"],
           lifecycleStage: "new",

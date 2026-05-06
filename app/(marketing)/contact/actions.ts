@@ -8,6 +8,7 @@ import {
   leadConfirmationEmail,
   leadInternalNotifyEmail,
 } from "@/lib/email/templates";
+import { routeLead } from "@/lib/lead-routing";
 
 const contactFormSchema = z.object({
   name: z.string().trim().min(1, "Please share your name").max(200),
@@ -63,11 +64,23 @@ export async function submitContactForm(
   const now = new Date();
   const db = getDb();
 
+  let agentId: string | null = null;
+  try {
+    agentId = await routeLead({
+      email: data.email,
+      source: "organic",
+      sourceDetail: "contact_form",
+    });
+  } catch (err) {
+    console.error("[contact form] routing failed; leaving unassigned", err);
+  }
+
   let contactId: string;
   try {
     const [row] = await db
       .insert(contacts)
       .values({
+        primaryAgentId: agentId,
         fullName: data.name,
         email: data.email,
         phone: data.phone ?? null,
@@ -86,10 +99,12 @@ export async function submitContactForm(
     await db.insert(events).values({
       eventType: "form_submit",
       contactId,
+      agentId,
       payload: {
         form: "contact",
         message: data.message,
         consent_email: data.consentEmail,
+        routed_to: agentId,
       },
     });
   } catch (err) {
