@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -38,9 +36,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );
