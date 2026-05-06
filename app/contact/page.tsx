@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactForm } from "./contact-form";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -20,54 +21,7 @@ export default function Contact() {
 
       <section className="px-6 lg:px-12 py-16 border-t border-border">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
-          <form className="space-y-4" aria-label="Contact form">
-            <label className="block">
-              <span className="text-sm font-medium block mb-2">Name</span>
-              <input
-                type="text"
-                name="name"
-                className="w-full px-4 py-3 bg-surface border border-border rounded-sm focus:border-brand focus:outline-none"
-                placeholder="Your name"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium block mb-2">Email</span>
-              <input
-                type="email"
-                name="email"
-                className="w-full px-4 py-3 bg-surface border border-border rounded-sm focus:border-brand focus:outline-none"
-                placeholder="you@example.com"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium block mb-2">Phone (optional)</span>
-              <input
-                type="tel"
-                name="phone"
-                className="w-full px-4 py-3 bg-surface border border-border rounded-sm focus:border-brand focus:outline-none"
-                placeholder="(555) 555-5555"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium block mb-2">Message</span>
-              <textarea
-                name="message"
-                rows={5}
-                className="w-full px-4 py-3 bg-surface border border-border rounded-sm focus:border-brand focus:outline-none"
-                placeholder="Tell us a bit about what you&rsquo;re looking for"
-              />
-            </label>
-            <button
-              type="button"
-              disabled
-              className="inline-flex items-center px-6 py-3 bg-brand text-inverse rounded-sm font-medium opacity-60 cursor-not-allowed"
-            >
-              Send (wired in Phase 2)
-            </button>
-            <p className="text-xs text-muted-foreground">
-              [Consent and privacy disclosure placeholder — added in Phase 6.]
-            </p>
-          </form>
+          <ContactForm />
 
           <aside className="space-y-6">
             <div>

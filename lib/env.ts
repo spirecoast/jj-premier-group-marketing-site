@@ -6,6 +6,8 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   DATABASE_URL: z.string().url(),
   RESEND_API_KEY: z.string().min(1),
+  RESEND_FROM_EMAIL: z.string().email(),
+  TEAM_NOTIFY_EMAIL: z.string().email(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
 });
 
