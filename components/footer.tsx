@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 const exploreLinks = [
   { href: "/buy", label: "Buy" },
@@ -12,13 +13,21 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-surface-elevated mt-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16 grid md:grid-cols-4 gap-10">
-        <div className="md:col-span-2">
-          <p className="font-display text-lg tracking-tight mb-3">
-            [YOUR PLACEHOLDER]
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-            Real estate in Lakewood Ranch, Sarasota, and Manatee County, Florida.
-          </p>
+        <div className="md:col-span-2 space-y-6">
+          <div>
+            <p className="font-display text-lg tracking-tight mb-3">
+              [YOUR PLACEHOLDER]
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+              Real estate in Lakewood Ranch, Sarasota, and Manatee County, Florida.
+            </p>
+          </div>
+          <div className="max-w-sm">
+            <p className="text-eyebrow text-muted-foreground mb-3">
+              Stay in the loop
+            </p>
+            <NewsletterForm />
+          </div>
         </div>
 
         <div>

@@ -34,6 +34,27 @@ export function leadConfirmationEmail(args: {
   };
 }
 
+export function newsletterConfirmationEmail(args: {
+  email: string;
+}): { subject: string; html: string } {
+  return {
+    subject: `You're on the list`,
+    html: wrap(`
+      <p style="font-size:16px;margin:0 0 16px;">Welcome.</p>
+      <p style="margin:0 0 16px;">
+        ${escapeHtml(args.email)} is now subscribed to the ${BRAND} list.
+        Expect a market update once a month, plus the occasional new-listing
+        spotlight.
+      </p>
+      <p style="margin:0 0 16px;">
+        Not what you signed up for? Reply to this email and we&rsquo;ll take you
+        off immediately.
+      </p>
+      <p style="margin:0;">— ${BRAND}</p>
+    `),
+  };
+}
+
 export function leadInternalNotifyEmail(args: {
   name: string;
   email: string;

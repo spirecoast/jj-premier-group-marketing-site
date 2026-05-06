@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
   jsonb,
   pgTable,
   text,
@@ -10,22 +11,44 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
+ * agents — the team. Two rows for now (mom + girlfriend) but the table scales.
+ * `auth_user_id` links to Supabase auth.users(id) at the app layer (no DB FK,
+ * since auth schema is Supabase-managed).
+ */
+export const agents = pgTable("agents", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  authUserId: uuid("auth_user_id"),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  licenseNumber: text("license_number").notNull(),
+  brokerage: text("brokerage"),
+  bio: text("bio"),
+  headshotUrl: text("headshot_url"),
+  phone: text("phone"),
+  callRailPhoneId: text("call_rail_phone_id"),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+/**
  * contacts — every person the team has touched (lead, buyer, seller, sphere).
- * Phase 2 slice from ARCHITECTURE.md §5; deferred fields (score, buyer_profile,
- * current_address, pre-approval, personal context) land in Phase 4/5.
  */
 export const contacts = pgTable(
   "contacts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    primaryAgentId: uuid("primary_agent_id"), // FK added when agents table lands
+    primaryAgentId: uuid("primary_agent_id").references(() => agents.id, {
+      onDelete: "set null",
+    }),
 
     fullName: text("full_name"),
     firstName: text("first_name"),
     lastName: text("last_name"),
     email: text("email"),
     phone: text("phone"),
-    preferredChannel: text("preferred_channel"), // 'email' | 'sms' | 'phone'
+    preferredChannel: text("preferred_channel"),
 
     type: text("type")
       .array()
@@ -64,8 +87,6 @@ export const contacts = pgTable(
 
 /**
  * events — append-only canonical activity log (ARCHITECTURE.md §5).
- * Distinct from `interactions` (Phase 5+), which is the human-readable view of
- * email/sms/call/meeting threads. `events` is for analytics + reconstruction.
  */
 export const events = pgTable(
   "events",
@@ -75,7 +96,9 @@ export const events = pgTable(
     contactId: uuid("contact_id").references(() => contacts.id, {
       onDelete: "cascade",
     }),
-    agentId: uuid("agent_id"),
+    agentId: uuid("agent_id").references(() => agents.id, {
+      onDelete: "set null",
+    }),
     listingId: uuid("listing_id"),
     transactionId: uuid("transaction_id"),
     payload: jsonb("payload"),
@@ -89,7 +112,99 @@ export const events = pgTable(
   ],
 );
 
+/**
+ * sequences — nurture campaign templates (welcome series, cold reactivation, etc.).
+ * `steps` is a jsonb array: [{day_offset, channel, template_key, condition?}].
+ */
+export const sequences = pgTable("sequences", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  key: text("key").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  trigger: text("trigger").notNull(),
+  steps: jsonb("steps").notNull(),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+/**
+ * sequence_enrollments — a contact's progress through a sequence.
+ * Inngest schedules step delivery; this table holds state.
+ */
+export const sequenceEnrollments = pgTable(
+  "sequence_enrollments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contactId: uuid("contact_id")
+      .references(() => contacts.id, { onDelete: "cascade" })
+      .notNull(),
+    sequenceId: uuid("sequence_id")
+      .references(() => sequences.id, { onDelete: "cascade" })
+      .notNull(),
+    currentStep: integer("current_step").notNull().default(0),
+    enrolledAt: timestamp("enrolled_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    paused: boolean("paused").notNull().default(false),
+    pausedReason: text("paused_reason"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    unenrolledAt: timestamp("unenrolled_at", { withTimezone: true }),
+    unenrolledReason: text("unenrolled_reason"),
+  },
+  (table) => [
+    index("sequence_enrollments_contact_idx").on(table.contactId),
+    index("sequence_enrollments_sequence_idx").on(table.sequenceId),
+    index("sequence_enrollments_active_idx")
+      .on(table.contactId, table.sequenceId)
+      .where(
+        sql`${table.completedAt} is null and ${table.unenrolledAt} is null`,
+      ),
+  ],
+);
+
+/**
+ * lead_routing_rules — priority-ordered match rules that assign primary_agent_id
+ * at contact creation. Per ARCHITECTURE.md §10:
+ *   Existing relationship (handled in code) → location → intent → load → fallback.
+ *
+ * `match_conditions` is a jsonb predicate evaluated by the routing engine, e.g.
+ *   { "intent": "buy" }
+ *   { "neighborhood_in": ["country-club-east", "esplanade"] }
+ *   { "source_in": ["organic", "paid_search"] }
+ */
+export const leadRoutingRules = pgTable(
+  "lead_routing_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    priority: integer("priority").notNull().default(100),
+    matchConditions: jsonb("match_conditions").notNull(),
+    agentId: uuid("agent_id")
+      .references(() => agents.id, { onDelete: "cascade" })
+      .notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("lead_routing_rules_priority_idx")
+      .on(table.priority)
+      .where(sql`${table.active} = true`),
+  ],
+);
+
+export type Agent = typeof agents.$inferSelect;
+export type NewAgent = typeof agents.$inferInsert;
 export type Contact = typeof contacts.$inferSelect;
 export type NewContact = typeof contacts.$inferInsert;
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
+export type Sequence = typeof sequences.$inferSelect;
+export type NewSequence = typeof sequences.$inferInsert;
+export type SequenceEnrollment = typeof sequenceEnrollments.$inferSelect;
+export type NewSequenceEnrollment = typeof sequenceEnrollments.$inferInsert;
+export type LeadRoutingRule = typeof leadRoutingRules.$inferSelect;
+export type NewLeadRoutingRule = typeof leadRoutingRules.$inferInsert;
