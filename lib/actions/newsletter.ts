@@ -7,6 +7,7 @@ import { contacts, events } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { newsletterConfirmationEmail } from "@/lib/email/templates";
 import { routeLead } from "@/lib/lead-routing";
+import { inngest } from "@/lib/inngest/client";
 
 const newsletterSchema = z.object({
   email: z.string().trim().email("A valid email is required").max(320),
@@ -113,6 +114,20 @@ export async function subscribeToNewsletter(
   });
   if (!result.ok) {
     console.error("[newsletter] confirmation email failed", result.error);
+  }
+
+  // Newsletter signup is the consent — enroll in the welcome series.
+  try {
+    await inngest.send({
+      name: "lead.captured",
+      data: {
+        contactId,
+        source: "organic",
+        sourceDetail: "newsletter",
+      },
+    });
+  } catch (err) {
+    console.error("[newsletter] inngest send failed", err);
   }
 
   return { ok: true };

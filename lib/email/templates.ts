@@ -34,6 +34,80 @@ export function leadConfirmationEmail(args: {
   };
 }
 
+/**
+ * Welcome series — 5 transactional/marketing emails over 2 weeks.
+ *
+ * Per ARCHITECTURE.md §17, every piece of marketing content goes through Fair
+ * Housing review before send. The copy here is intentionally minimal/structural
+ * (placeholders) so the FH-sensitive editorial pass happens in a follow-up slice
+ * with explicit human review.
+ */
+export function welcomeSeriesEmail(
+  step: 1 | 2 | 3 | 4 | 5,
+  args: { name: string | null },
+): { subject: string; html: string } {
+  const greeting = args.name ? `Hi ${escapeHtml(args.name.split(" ")[0])},` : "Hi,";
+  const sign = `<p style="margin:0;">— ${BRAND}</p>`;
+
+  switch (step) {
+    case 1:
+      return {
+        subject: `Welcome — here's what to expect`,
+        html: wrap(`
+          <p>${greeting}</p>
+          <p>Thanks for joining the ${BRAND} list. Over the next two weeks
+          we&rsquo;ll send a handful of short notes — how we work, what&rsquo;s
+          going on in the local market, and the tools we&rsquo;ve built that
+          you can use whenever you want.</p>
+          <p>[Welcome paragraph placeholder.]</p>
+          ${sign}
+        `),
+      };
+    case 2:
+      return {
+        subject: `How we work`,
+        html: wrap(`
+          <p>${greeting}</p>
+          <p>[How-we-work paragraph placeholder — covers the team, brokerage,
+          and the way we run buying and selling engagements.]</p>
+          <p>[Process placeholder.]</p>
+          ${sign}
+        `),
+      };
+    case 3:
+      return {
+        subject: `This month in Lakewood Ranch`,
+        html: wrap(`
+          <p>${greeting}</p>
+          <p>[Market snapshot placeholder — median price, days on market,
+          inventory, year-over-year change. Pulled from MLS data once Phase 3
+          ships; for now this is a manual paragraph reviewed before send.]</p>
+          ${sign}
+        `),
+      };
+    case 4:
+      return {
+        subject: `Tools you can use`,
+        html: wrap(`
+          <p>${greeting}</p>
+          <p>[Tools paragraph placeholder — Home Value, Affordability,
+          Neighborhood Match. Linked once Phase 4 ships.]</p>
+          ${sign}
+        `),
+      };
+    case 5:
+      return {
+        subject: `Anything else?`,
+        html: wrap(`
+          <p>${greeting}</p>
+          <p>[Wrap-up paragraph placeholder — invite a reply with questions,
+          and explain that we&rsquo;ll shift to the monthly cadence from here.]</p>
+          ${sign}
+        `),
+      };
+  }
+}
+
 export function newsletterConfirmationEmail(args: {
   email: string;
 }): { subject: string; html: string } {

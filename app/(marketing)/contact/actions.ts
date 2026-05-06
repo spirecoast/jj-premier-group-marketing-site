@@ -9,6 +9,7 @@ import {
   leadInternalNotifyEmail,
 } from "@/lib/email/templates";
 import { routeLead } from "@/lib/lead-routing";
+import { inngest } from "@/lib/inngest/client";
 
 const contactFormSchema = z.object({
   name: z.string().trim().min(1, "Please share your name").max(200),
@@ -161,6 +162,23 @@ export async function submitContactForm(
       console.error("[contact form] email send rejected", r.reason);
     } else if (r.value && typeof r.value === "object" && "ok" in r.value && !r.value.ok) {
       console.error("[contact form] email send failed", r.value);
+    }
+  }
+
+  // Welcome series — only enrol contacts who explicitly opted into email
+  // marketing. The transactional confirmation above ships regardless.
+  if (data.consentEmail) {
+    try {
+      await inngest.send({
+        name: "lead.captured",
+        data: {
+          contactId,
+          source: "organic",
+          sourceDetail: "contact_form",
+        },
+      });
+    } catch (err) {
+      console.error("[contact form] inngest send failed", err);
     }
   }
 
