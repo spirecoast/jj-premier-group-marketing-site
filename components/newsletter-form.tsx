@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { readUtm } from "@/components/utm-tracker";
 import {
   initialNewsletterState,
   subscribeToNewsletter,
@@ -12,6 +13,10 @@ export function NewsletterForm() {
     NewsletterState,
     FormData
   >(subscribeToNewsletter, initialNewsletterState);
+  const [utm, setUtm] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setUtm(readUtm());
+  }, []);
 
   if (state.ok) {
     return (
@@ -23,6 +28,9 @@ export function NewsletterForm() {
 
   return (
     <form action={formAction} className="space-y-2" noValidate>
+      {Object.entries(utm).map(([k, v]) => (
+        <input key={k} type="hidden" name={`utm__${k}`} value={v} />
+      ))}
       <div
         aria-hidden="true"
         style={{

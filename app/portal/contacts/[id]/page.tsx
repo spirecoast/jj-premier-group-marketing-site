@@ -6,6 +6,7 @@ import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
 import { agents, contacts, events } from "@/lib/db/schema";
 import { formatDateTime, formatRelative } from "@/lib/format";
+import { NoteForm, StageEditor } from "./edit-controls";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -84,13 +85,16 @@ export default async function ContactDetail({
 
           <Card title="Pipeline">
             <DL items={[
-              ["Stage", c.lifecycleStage ?? "—"],
               ["Source", c.sourceDetail ?? c.source ?? "—"],
               ["Owner", row.agent?.name ?? "(unassigned)"],
               ["First touch", formatDateTime(c.firstTouchAt)],
               ["Last touch", formatDateTime(c.lastTouchAt)],
               ["Created", formatDateTime(c.createdAt)],
             ]} />
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-eyebrow text-muted-foreground mb-2">Stage</p>
+              <StageEditor contactId={c.id} currentStage={c.lifecycleStage} />
+            </div>
           </Card>
 
           <Card title="Consent">
@@ -123,6 +127,12 @@ export default async function ContactDetail({
             ]} />
           </Card>
         </div>
+
+        <section>
+          <Card title="Add a note">
+            <NoteForm contactId={c.id} />
+          </Card>
+        </section>
 
         <section>
           <h2 className="text-heading mb-4">Activity</h2>

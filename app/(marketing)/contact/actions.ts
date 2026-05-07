@@ -41,11 +41,22 @@ export type ContactFormState = {
 
 export const initialContactFormState: ContactFormState = { ok: false };
 
+function extractUtm(formData: FormData): Record<string, string> | null {
+  const utm: Record<string, string> = {};
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith("utm__") && typeof value === "string" && value) {
+      utm[key.slice("utm__".length)] = value;
+    }
+  }
+  return Object.keys(utm).length > 0 ? utm : null;
+}
+
 export async function submitContactForm(
   _prev: ContactFormState,
   formData: FormData,
 ): Promise<ContactFormState> {
   const raw = Object.fromEntries(formData);
+  const utm = extractUtm(formData);
 
   const parsed = contactFormSchema.safeParse(raw);
   if (!parsed.success) {
@@ -87,8 +98,9 @@ export async function submitContactForm(
         phone: data.phone ?? null,
         type: ["lead"],
         lifecycleStage: "new",
-        source: "organic",
+        source: utm?.utm_source ?? "organic",
         sourceDetail: "contact_form",
+        utm,
         consentEmail: data.consentEmail,
         consentEmailAt: data.consentEmail ? now : null,
         firstTouchAt: now,

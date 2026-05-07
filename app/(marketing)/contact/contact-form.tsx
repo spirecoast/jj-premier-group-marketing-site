@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { readUtm } from "@/components/utm-tracker";
 import {
   initialContactFormState,
   submitContactForm,
@@ -21,6 +22,10 @@ export function ContactForm() {
     ContactFormState,
     FormData
   >(submitContactForm, initialContactFormState);
+  const [utm, setUtm] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setUtm(readUtm());
+  }, []);
 
   if (state.ok) {
     return (
@@ -37,6 +42,9 @@ export function ContactForm() {
 
   return (
     <form action={formAction} className="space-y-4" noValidate>
+      {Object.entries(utm).map(([k, v]) => (
+        <input key={k} type="hidden" name={`utm__${k}`} value={v} />
+      ))}
       {/* Honeypot — visually hidden from humans, present for bots. */}
       <div
         aria-hidden="true"

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireAgent } from "@/lib/auth/server";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export default async function PortalLayout({
   children,
@@ -35,6 +36,7 @@ export default async function PortalLayout({
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">
+            <ThemeSwitcher />
             <span className="text-muted-foreground hidden sm:inline">
               {agent.name}
             </span>

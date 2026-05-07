@@ -23,11 +23,22 @@ export type NewsletterState = {
 
 export const initialNewsletterState: NewsletterState = { ok: false };
 
+function extractUtm(formData: FormData): Record<string, string> | null {
+  const utm: Record<string, string> = {};
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith("utm__") && typeof value === "string" && value) {
+      utm[key.slice("utm__".length)] = value;
+    }
+  }
+  return Object.keys(utm).length > 0 ? utm : null;
+}
+
 export async function subscribeToNewsletter(
   _prev: NewsletterState,
   formData: FormData,
 ): Promise<NewsletterState> {
   const parsed = newsletterSchema.safeParse(Object.fromEntries(formData));
+  const utm = extractUtm(formData);
   if (!parsed.success) {
     return {
       ok: false,
@@ -83,8 +94,9 @@ export async function subscribeToNewsletter(
           email,
           type: ["lead"],
           lifecycleStage: "new",
-          source: "organic",
+          source: utm?.utm_source ?? "organic",
           sourceDetail: "newsletter",
+          utm,
           consentEmail: true,
           consentEmailAt: now,
           firstTouchAt: now,
