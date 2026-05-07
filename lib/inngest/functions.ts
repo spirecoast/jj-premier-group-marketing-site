@@ -1,10 +1,59 @@
-import { and, eq, inArray, isNull, lte } from "drizzle-orm";
+import { and, eq, inArray, isNull, lte, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { contacts, events, tasks } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { welcomeSeriesEmail } from "@/lib/email/templates";
 import { unsubscribeUrl } from "@/lib/unsubscribe";
 import { inngest } from "./client";
+
+/**
+ * Shared helper: create a failsafe task for a contact, with dedup against
+ * any open task of the same failsafe_type for that contact. Idempotent —
+ * safe to call from re-running cron jobs.
+ *
+ * Returns true if a task was created, false if one was already open.
+ */
+async function createFailsafeTaskIfMissing(args: {
+  contactId: string;
+  agentId: string | null;
+  failsafeType: string;
+  title: string;
+  description: string;
+  priority: "low" | "normal" | "high" | "urgent";
+}): Promise<boolean> {
+  const db = getDb();
+  const existing = await db
+    .select({ id: tasks.id })
+    .from(tasks)
+    .where(
+      and(
+        eq(tasks.contactId, args.contactId),
+        eq(tasks.failsafeType, args.failsafeType),
+        isNull(tasks.completedAt),
+      ),
+    )
+    .limit(1);
+  if (existing.length > 0) return false;
+
+  await db.insert(tasks).values({
+    agentId: args.agentId,
+    contactId: args.contactId,
+    title: args.title,
+    description: args.description,
+    priority: args.priority,
+    source: "failsafe",
+    failsafeType: args.failsafeType,
+    dueAt: new Date(),
+  });
+
+  await db.insert(events).values({
+    eventType: "failsafe_fired",
+    contactId: args.contactId,
+    payload: { type: args.failsafeType },
+  });
+
+  return true;
+}
 
 const WELCOME_STEPS = [
   { stepNumber: 1, dayOffset: 0 },
@@ -208,4 +257,228 @@ export const newLeadNoContactFailsafe = inngest.createFunction(
   },
 );
 
-export const functions = [welcomeSeries, newLeadNoContactFailsafe];
+/**
+ * Failsafe: a qualified lead hasn't been touched in 5 days.
+ * Per §11. Daily 9am scan.
+ */
+export const qualifiedNoTouchFailsafe = inngest.createFunction(
+  {
+    id: "failsafe-qualified-no-touch-5d",
+    name: "Failsafe: qualified lead, no touch in 5d",
+    triggers: [{ cron: "0 9 * * *" }],
+  },
+  async ({ step, logger }) => {
+    return await step.run("scan", async () => {
+      const db = getDb();
+      const cutoff = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+
+      const stale = await db
+        .select({
+          id: contacts.id,
+          primaryAgentId: contacts.primaryAgentId,
+          fullName: contacts.fullName,
+          email: contacts.email,
+        })
+        .from(contacts)
+        .where(
+          and(
+            eq(contacts.lifecycleStage, "qualified"),
+            lte(contacts.lastTouchAt, cutoff),
+          ),
+        );
+
+      let created = 0;
+      for (const c of stale) {
+        const made = await createFailsafeTaskIfMissing({
+          contactId: c.id,
+          agentId: c.primaryAgentId,
+          failsafeType: "qualified_no_touch_5d",
+          title: `Re-engage: ${c.fullName ?? c.email ?? "qualified lead"}`,
+          description:
+            "Qualified lead with 5+ days since last touch. Send a check-in or schedule a call.",
+          priority: "high",
+        });
+        if (made) created++;
+      }
+
+      logger.info("[failsafe] qualified_no_touch_5d", {
+        scanned: stale.length,
+        created,
+      });
+      return { scanned: stale.length, created };
+    });
+  },
+);
+
+/**
+ * Failsafe: past-client / sphere contact untouched in 90+ days.
+ * Per §11 + §12 sphere management. Daily 9am.
+ */
+export const sphereNoTouchFailsafe = inngest.createFunction(
+  {
+    id: "failsafe-sphere-no-touch-90d",
+    name: "Failsafe: sphere/past-client, no touch in 90d",
+    triggers: [{ cron: "0 9 * * *" }],
+  },
+  async ({ step, logger }) => {
+    return await step.run("scan", async () => {
+      const db = getDb();
+      const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+
+      const stale = await db
+        .select({
+          id: contacts.id,
+          primaryAgentId: contacts.primaryAgentId,
+          fullName: contacts.fullName,
+          email: contacts.email,
+        })
+        .from(contacts)
+        .where(
+          and(
+            sql`${contacts.type} && ARRAY['past_client','sphere']::text[]`,
+            lte(contacts.lastTouchAt, cutoff),
+          ),
+        );
+
+      let created = 0;
+      for (const c of stale) {
+        const made = await createFailsafeTaskIfMissing({
+          contactId: c.id,
+          agentId: c.primaryAgentId,
+          failsafeType: "sphere_no_touch_90d",
+          title: `Check in: ${c.fullName ?? c.email ?? "sphere contact"}`,
+          description:
+            "90+ days since last touch. Send a personal note — text, call, or hand-written card.",
+          priority: "normal",
+        });
+        if (made) created++;
+      }
+
+      logger.info("[failsafe] sphere_no_touch_90d", {
+        scanned: stale.length,
+        created,
+      });
+      return { scanned: stale.length, created };
+    });
+  },
+);
+
+/**
+ * Failsafe: contact's birthday is today.
+ * Per §11 + §12. Daily 8am so the team has it in the morning.
+ *
+ * No automated email — Phase 5+ when consent flow + FH-cleared template land.
+ * Today: agent gets a task to send a personal text/note.
+ */
+export const birthdayFailsafe = inngest.createFunction(
+  {
+    id: "failsafe-birthday-today",
+    name: "Failsafe: contact birthday today",
+    triggers: [{ cron: "0 8 * * *" }],
+  },
+  async ({ step, logger }) => {
+    return await step.run("scan", async () => {
+      const db = getDb();
+      const matching = await db
+        .select({
+          id: contacts.id,
+          primaryAgentId: contacts.primaryAgentId,
+          fullName: contacts.fullName,
+          email: contacts.email,
+        })
+        .from(contacts)
+        .where(
+          and(
+            sql`${contacts.birthday} is not null`,
+            sql`extract(month from ${contacts.birthday}) = extract(month from current_date)`,
+            sql`extract(day from ${contacts.birthday}) = extract(day from current_date)`,
+            isNull(contacts.archivedAt),
+          ),
+        );
+
+      let created = 0;
+      for (const c of matching) {
+        const made = await createFailsafeTaskIfMissing({
+          contactId: c.id,
+          agentId: c.primaryAgentId,
+          failsafeType: "birthday_today",
+          title: `🎂 ${c.fullName ?? c.email ?? "contact"}'s birthday today`,
+          description:
+            "Send a personal birthday text or call. Keep it short and human.",
+          priority: "normal",
+        });
+        if (made) created++;
+      }
+
+      logger.info("[failsafe] birthday_today", {
+        matched: matching.length,
+        created,
+      });
+      return { matched: matching.length, created };
+    });
+  },
+);
+
+/**
+ * Failsafe: home-purchase anniversary is today.
+ * Per §11 + §12. Daily 8am.
+ */
+export const closingAnniversaryFailsafe = inngest.createFunction(
+  {
+    id: "failsafe-closing-anniversary-today",
+    name: "Failsafe: closing anniversary today",
+    triggers: [{ cron: "0 8 * * *" }],
+  },
+  async ({ step, logger }) => {
+    return await step.run("scan", async () => {
+      const db = getDb();
+      const matching = await db
+        .select({
+          id: contacts.id,
+          primaryAgentId: contacts.primaryAgentId,
+          fullName: contacts.fullName,
+          email: contacts.email,
+          homePurchaseDate: contacts.homePurchaseDate,
+        })
+        .from(contacts)
+        .where(
+          and(
+            sql`${contacts.homePurchaseDate} is not null`,
+            sql`extract(month from ${contacts.homePurchaseDate}) = extract(month from current_date)`,
+            sql`extract(day from ${contacts.homePurchaseDate}) = extract(day from current_date)`,
+            sql`${contacts.homePurchaseDate} < current_date`,
+            isNull(contacts.archivedAt),
+          ),
+        );
+
+      let created = 0;
+      for (const c of matching) {
+        const made = await createFailsafeTaskIfMissing({
+          contactId: c.id,
+          agentId: c.primaryAgentId,
+          failsafeType: "closing_anniversary_today",
+          title: `🏠 ${c.fullName ?? "contact"} home anniversary`,
+          description:
+            "Closing anniversary today. Send a personal note — optionally with a market update on their home value.",
+          priority: "normal",
+        });
+        if (made) created++;
+      }
+
+      logger.info("[failsafe] closing_anniversary_today", {
+        matched: matching.length,
+        created,
+      });
+      return { matched: matching.length, created };
+    });
+  },
+);
+
+export const functions = [
+  welcomeSeries,
+  newLeadNoContactFailsafe,
+  qualifiedNoTouchFailsafe,
+  sphereNoTouchFailsafe,
+  birthdayFailsafe,
+  closingAnniversaryFailsafe,
+];

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -70,6 +71,10 @@ export const contacts = pgTable(
     score: integer("score").default(0).notNull(),
     temperature: text("temperature"),
     lastScoreUpdate: timestamp("last_score_update", { withTimezone: true }),
+
+    /** Personal context — drives sphere management failsafes (birthday, anniversary). */
+    birthday: date("birthday"),
+    homePurchaseDate: date("home_purchase_date"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

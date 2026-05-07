@@ -1,12 +1,14 @@
-import { desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
-import { agents, contacts, events } from "@/lib/db/schema";
+import { agents, contacts, events, tasks } from "@/lib/db/schema";
 import { formatDateTime, formatRelative } from "@/lib/format";
+import { CompleteTaskButton } from "@/app/portal/tasks/complete-button";
 import { NoteForm, StageEditor } from "./edit-controls";
+import { NewTaskForm } from "./new-task-form";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -38,12 +40,27 @@ export default async function ContactDetail({
 
   if (!row) notFound();
 
-  const activity = await db
-    .select()
-    .from(events)
-    .where(eq(events.contactId, id))
-    .orderBy(desc(events.occurredAt))
-    .limit(100);
+  const [activity, openTasks] = await Promise.all([
+    db
+      .select()
+      .from(events)
+      .where(eq(events.contactId, id))
+      .orderBy(desc(events.occurredAt))
+      .limit(100),
+    db
+      .select({
+        id: tasks.id,
+        title: tasks.title,
+        description: tasks.description,
+        priority: tasks.priority,
+        source: tasks.source,
+        failsafeType: tasks.failsafeType,
+        dueAt: tasks.dueAt,
+      })
+      .from(tasks)
+      .where(and(eq(tasks.contactId, id), isNull(tasks.completedAt)))
+      .orderBy(asc(tasks.dueAt)),
+  ]);
 
   const c = row.contact;
 
@@ -127,6 +144,52 @@ export default async function ContactDetail({
             ]} />
           </Card>
         </div>
+
+        <section className="grid md:grid-cols-2 gap-6">
+          <Card title="Open tasks">
+            {openTasks.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No open tasks for this contact.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {openTasks.map((t) => {
+                  const overdue =
+                    t.dueAt !== null && t.dueAt.getTime() < Date.now();
+                  return (
+                    <li
+                      key={t.id}
+                      className="border-b border-border last:border-0 pb-3 last:pb-0"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">{t.title}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t.source === "failsafe"
+                              ? `failsafe · ${t.failsafeType}`
+                              : t.source ?? "manual"}
+                            {t.dueAt
+                              ? ` · ${overdue ? "overdue" : "due"} ${formatRelative(t.dueAt)}`
+                              : null}
+                          </p>
+                          {t.description ? (
+                            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                              {t.description}
+                            </p>
+                          ) : null}
+                        </div>
+                        <CompleteTaskButton taskId={t.id} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Card>
+          <Card title="New task">
+            <NewTaskForm contactId={c.id} />
+          </Card>
+        </section>
 
         <section>
           <Card title="Add a note">
