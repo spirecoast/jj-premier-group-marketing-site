@@ -16,8 +16,6 @@ export type UnsubscribeState = {
   error?: string;
 };
 
-export const initialUnsubscribeState: UnsubscribeState = { ok: false };
-
 export async function applyUnsubscribe(
   _prev: UnsubscribeState,
   formData: FormData,

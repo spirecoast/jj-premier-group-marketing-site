@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  initialLoginState,
-  sendMagicLink,
-  type LoginState,
-} from "./actions";
+import { sendMagicLink, type LoginState } from "./actions";
+
+const initialLoginState: LoginState = { ok: false };
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState<LoginState, FormData>(

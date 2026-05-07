@@ -31,8 +31,6 @@ export type StageState = {
   error?: string;
 };
 
-export const initialStageState: StageState = { ok: false };
-
 export async function updateLifecycleStage(
   _prev: StageState,
   formData: FormData,
@@ -85,8 +83,6 @@ export type NoteState = {
   ok: boolean;
   error?: string;
 };
-
-export const initialNoteState: NoteState = { ok: false };
 
 export async function addNote(
   _prev: NoteState,

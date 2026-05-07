@@ -3,10 +3,11 @@
 import { useActionState, useEffect, useState } from "react";
 import { readUtm } from "@/components/utm-tracker";
 import {
-  initialNewsletterState,
   subscribeToNewsletter,
   type NewsletterState,
 } from "@/lib/actions/newsletter";
+
+const initialNewsletterState: NewsletterState = { ok: false };
 
 export function NewsletterForm() {
   const [state, formAction, isPending] = useActionState<

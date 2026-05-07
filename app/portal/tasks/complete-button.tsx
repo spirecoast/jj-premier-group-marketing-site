@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  completeTask,
-  initialTaskState,
-  type TaskActionState,
-} from "./actions";
+import { completeTask, type TaskActionState } from "./actions";
+
+const initialTaskState: TaskActionState = { ok: false };
 
 export function CompleteTaskButton({ taskId }: { taskId: string }) {
   const [state, formAction, isPending] = useActionState<

@@ -40,8 +40,6 @@ export type ContactFormState = {
   formError?: string;
 };
 
-export const initialContactFormState: ContactFormState = { ok: false };
-
 function extractUtm(formData: FormData): Record<string, string> | null {
   const utm: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {

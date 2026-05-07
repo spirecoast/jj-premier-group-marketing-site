@@ -22,8 +22,6 @@ export type NewsletterState = {
   error?: string;
 };
 
-export const initialNewsletterState: NewsletterState = { ok: false };
-
 function extractUtm(formData: FormData): Record<string, string> | null {
   const utm: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {

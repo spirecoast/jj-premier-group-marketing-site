@@ -3,12 +3,13 @@
 import { useActionState } from "react";
 import {
   addNote,
-  initialNoteState,
-  initialStageState,
   updateLifecycleStage,
   type NoteState,
   type StageState,
 } from "./actions";
+
+const initialStageState: StageState = { ok: false };
+const initialNoteState: NoteState = { ok: false };
 
 const STAGES = [
   "new",

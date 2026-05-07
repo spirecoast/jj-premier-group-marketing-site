@@ -2,11 +2,9 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { readUtm } from "@/components/utm-tracker";
-import {
-  initialContactFormState,
-  submitContactForm,
-  type ContactFormState,
-} from "./actions";
+import { submitContactForm, type ContactFormState } from "./actions";
+
+const initialContactFormState: ContactFormState = { ok: false };
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;

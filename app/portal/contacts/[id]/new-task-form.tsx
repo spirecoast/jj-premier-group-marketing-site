@@ -3,9 +3,10 @@
 import { useActionState } from "react";
 import {
   createManualTask,
-  initialTaskState,
   type TaskActionState,
 } from "@/app/portal/tasks/actions";
+
+const initialTaskState: TaskActionState = { ok: false };
 
 export function NewTaskForm({ contactId }: { contactId: string }) {
   const [state, formAction, isPending] = useActionState<

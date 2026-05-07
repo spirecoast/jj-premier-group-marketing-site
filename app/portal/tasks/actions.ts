@@ -12,7 +12,6 @@ const completeSchema = z.object({
 });
 
 export type TaskActionState = { ok: boolean; error?: string };
-export const initialTaskState: TaskActionState = { ok: false };
 
 export async function completeTask(
   _prev: TaskActionState,

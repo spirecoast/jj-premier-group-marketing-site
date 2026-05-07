@@ -1,11 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  applyUnsubscribe,
-  initialUnsubscribeState,
-  type UnsubscribeState,
-} from "./actions";
+import { applyUnsubscribe, type UnsubscribeState } from "./actions";
+
+const initialUnsubscribeState: UnsubscribeState = { ok: false };
 
 export function UnsubscribeForm({
   contactId,

@@ -13,8 +13,6 @@ export type LoginState = {
   email?: string;
 };
 
-export const initialLoginState: LoginState = { ok: false };
-
 export async function sendMagicLink(
   _prev: LoginState,
   formData: FormData,
