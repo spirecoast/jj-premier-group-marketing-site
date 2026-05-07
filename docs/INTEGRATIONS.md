@@ -2,29 +2,72 @@
 
 External services this app talks to, what env vars they produce, and where in
 the codebase those vars are consumed. Use this when wiring up the platform in
-Vercel + Supabase + Resend + Inngest.
+Vercel + Clerk + Supabase + Resend + Inngest.
 
 - **Repo:** `spirecoast/real-estate`
-- **Active dev branch:** `claude/clone-real-estate-repo-D0RgV`
+- **Active branches:** `main` (production) + `claude/clone-real-estate-repo-D0RgV` (dev)
 - **Stack source of truth:** `ARCHITECTURE.md` §3 + `CLAUDE.md`
-- **Locked stack — do not substitute:** Next.js 16 App Router, TypeScript
-  strict, Tailwind v4, Supabase, Drizzle (postgres-js), Zod, Inngest, Resend,
-  Vercel.
+- **Locked stack:** Next.js 16 App Router, TypeScript strict, Tailwind v4,
+  Clerk (auth), Supabase (DB / Storage / Realtime), Drizzle (postgres-js), Zod,
+  Inngest, Resend, Vercel.
 
 ## Services to integrate now (Phase 1 + 2)
 
 | # | Service | Free tier? | Purpose |
 |---|---|---|---|
-| 1 | **Supabase** | yes | Postgres + Auth + Storage + Realtime |
-| 2 | **Resend** | yes (3K/mo) | Transactional email |
-| 3 | **Inngest** | yes | Background jobs (welcome series + future failsafes) |
-| 4 | **Vercel** | yes (hobby) | Hosting + preview deploys |
+| 1 | **Clerk** | yes (10k MAU) | Auth (email + password, social, MFA) |
+| 2 | **Supabase** | yes | Postgres + Storage + Realtime (NOT auth) |
+| 3 | **Resend** | yes (3K/mo) | Transactional email |
+| 4 | **Inngest** | yes | Background jobs (welcome series + failsafes) |
+| 5 | **Vercel** | yes (hobby) | Hosting + preview deploys |
 
 Future-phase services from §3 are listed at the bottom — **don't set up yet.**
 
 ---
 
-## 1) Supabase
+## 1) Clerk
+
+### Provision
+- Sign up at https://dashboard.clerk.com → **Create application**
+- Pick auth methods: **Email + Password** (primary) plus optionally Google /
+  Microsoft for social. Disable email-code / magic-link unless you want them
+  as a fallback.
+- **Restrictions → Sign-up mode**: set to **Restricted** (or Invitation-only)
+  so only invited team members can create accounts.
+- **API keys**: copy publishable + secret from the API keys page.
+- **Add team members**: Users → Create user → use the same email you've
+  seeded into the `agents` table. Set a temporary password and share it; user
+  changes it on first sign-in.
+
+### Env vars produced
+| Var | Source |
+|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk dashboard → API keys → Publishable key |
+| `CLERK_SECRET_KEY` | Clerk dashboard → API keys → Secret key |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Hardcode `/auth/login` |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Hardcode `/auth/no-access` (sign-up is invite-only) |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` | Hardcode `/portal` |
+| `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | Hardcode `/auth/no-access` |
+
+### Where these are consumed
+- `app/layout.tsx` — `<ClerkProvider>` wraps the entire tree
+- `proxy.ts` — `clerkMiddleware()` protects `/portal/*`
+- `lib/auth/server.ts` — `auth()` and `currentUser()` for `requireAgent()` /
+  `getCurrentAgent()`; agent linking by email match on first portal visit
+- `app/auth/login/[[...rest]]/page.tsx` — Clerk's `<SignIn />` component
+- `app/portal/layout.tsx` — Clerk's `<UserButton />` for sign-out menu
+
+### Linking Clerk users to agent rows
+The first time a Clerk user visits `/portal`, `getCurrentAgent` finds their
+`agents` row by lowercased email match and writes Clerk's user ID to
+`agents.clerk_user_id`. After that, lookups go straight by that ID.
+
+Workflow: admin creates agent rows in the `agents` table, then invites the
+team via Clerk dashboard with the same emails. No additional plumbing needed.
+
+---
+
+## 2) Supabase
 
 ### Provision
 - New project at https://supabase.com/dashboard
@@ -40,13 +83,14 @@ Future-phase services from §3 are listed at the bottom — **don't set up yet.*
 | `SUPABASE_SERVICE_ROLE_KEY` | Settings → API → `service_role` `secret` key |
 | `DATABASE_URL` | Settings → Database → Connection string → **Transaction pooler** (port 6543), URL-encoded password |
 
-### Where these are consumed (file:line)
-- `lib/supabase/server.ts:8-9` — server-side Supabase client
-- `lib/supabase/browser.ts:5-6` — browser client
-- `proxy.ts:8,18-19` — auth-refresh on every request
-- `lib/db/index.ts:10` — Drizzle/postgres-js connection
-- `drizzle.config.ts:8` — drizzle-kit migrate target
-- `lib/env.ts:4-7` — Zod schema for env validation
+### Where these are consumed
+- `lib/db/index.ts` — Drizzle / postgres-js connection (the only path that
+  actually reads/writes today). Bypasses RLS via the postgres role.
+- `drizzle.config.ts` — drizzle-kit migrate target
+- `lib/env.ts` — Zod schema validates all of the above
+
+`lib/supabase/server.ts` and `lib/supabase/browser.ts` are kept for future
+Storage / Realtime work but are not currently used now that Clerk owns auth.
 
 ### Apply schema migrations
 Three migrations in `lib/db/migrations/`:

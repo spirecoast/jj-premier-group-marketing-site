@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
 import { requireAgent } from "@/lib/auth/server";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
@@ -46,12 +47,7 @@ export default async function PortalLayout({
             <span className="text-muted-foreground hidden sm:inline">
               {agent.name}
             </span>
-            <Link
-              href="/auth/logout"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign out
-            </Link>
+            <UserButton />
           </div>
         </div>
       </div>

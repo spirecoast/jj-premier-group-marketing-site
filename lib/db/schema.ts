@@ -13,12 +13,12 @@ import {
 
 /**
  * agents — the team. Two rows for now (mom + girlfriend) but the table scales.
- * `auth_user_id` links to Supabase auth.users(id) at the app layer (no DB FK,
- * since auth schema is Supabase-managed).
+ * `clerk_user_id` links to the Clerk user (id like "user_xxxxx"); set on first
+ * portal visit when an authenticated Clerk user matches an agent row by email.
  */
 export const agents = pgTable("agents", {
   id: uuid("id").primaryKey().defaultRandom(),
-  authUserId: uuid("auth_user_id"),
+  clerkUserId: text("clerk_user_id").unique(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   licenseNumber: text("license_number").notNull(),
