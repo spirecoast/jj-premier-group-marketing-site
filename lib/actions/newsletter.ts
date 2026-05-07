@@ -8,6 +8,7 @@ import { sendEmail } from "@/lib/email";
 import { newsletterConfirmationEmail } from "@/lib/email/templates";
 import { routeLead } from "@/lib/lead-routing";
 import { inngest } from "@/lib/inngest/client";
+import { unsubscribeUrl } from "@/lib/unsubscribe";
 
 const newsletterSchema = z.object({
   email: z.string().trim().email("A valid email is required").max(320),
@@ -106,11 +107,15 @@ export async function subscribeToNewsletter(
     };
   }
 
-  const confirmation = newsletterConfirmationEmail({ email });
+  const confirmation = newsletterConfirmationEmail({
+    email,
+    unsubscribeUrl: unsubscribeUrl(contactId),
+  });
   const result = await sendEmail({
     to: email,
     subject: confirmation.subject,
     html: confirmation.html,
+    category: "marketing",
   });
   if (!result.ok) {
     console.error("[newsletter] confirmation email failed", result.error);

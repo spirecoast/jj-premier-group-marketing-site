@@ -2,7 +2,11 @@ import { escapeHtml } from "./index";
 
 const BRAND = "[YOUR PLACEHOLDER]";
 
-const wrap = (body: string) => `<!DOCTYPE html>
+type WrapOpts = {
+  unsubscribeUrl?: string;
+};
+
+const wrap = (body: string, opts: WrapOpts = {}) => `<!DOCTYPE html>
 <html>
   <body style="margin:0;padding:24px;background:#fafaf7;font-family:-apple-system,system-ui,Helvetica,Arial,sans-serif;color:#1a1a1a;line-height:1.5;">
     <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #ececec;border-radius:8px;padding:32px;">
@@ -11,6 +15,13 @@ const wrap = (body: string) => `<!DOCTYPE html>
     <p style="max-width:560px;margin:16px auto 0;font-size:11px;color:#888;text-align:center;">
       ${BRAND} · Lakewood Ranch · Sarasota · Manatee County, FL
     </p>
+    ${
+      opts.unsubscribeUrl
+        ? `<p style="max-width:560px;margin:8px auto 0;font-size:11px;color:#888;text-align:center;">
+        Don&rsquo;t want these? <a href="${opts.unsubscribeUrl}" style="color:#888;text-decoration:underline;">Unsubscribe</a>.
+      </p>`
+        : ""
+    }
   </body>
 </html>`;
 
@@ -35,25 +46,29 @@ export function leadConfirmationEmail(args: {
 }
 
 /**
- * Welcome series — 5 transactional/marketing emails over 2 weeks.
+ * Welcome series — 5 marketing emails over 2 weeks.
  *
- * Per ARCHITECTURE.md §17, every piece of marketing content goes through Fair
- * Housing review before send. The copy here is intentionally minimal/structural
- * (placeholders) so the FH-sensitive editorial pass happens in a follow-up slice
- * with explicit human review.
+ * Per ARCHITECTURE.md §17, every piece of marketing content goes through the
+ * Fair Housing checker before send (handled in lib/email/index.ts when
+ * category='marketing'). The copy here is intentionally minimal/structural —
+ * the editorial pass with real market commentary lands in a follow-up slice
+ * and goes through human review.
  */
 export function welcomeSeriesEmail(
   step: 1 | 2 | 3 | 4 | 5,
-  args: { name: string | null },
+  args: { name: string | null; unsubscribeUrl: string },
 ): { subject: string; html: string } {
-  const greeting = args.name ? `Hi ${escapeHtml(args.name.split(" ")[0])},` : "Hi,";
+  const greeting = args.name
+    ? `Hi ${escapeHtml(args.name.split(" ")[0])},`
+    : "Hi,";
   const sign = `<p style="margin:0;">— ${BRAND}</p>`;
+  const w = (body: string) => wrap(body, { unsubscribeUrl: args.unsubscribeUrl });
 
   switch (step) {
     case 1:
       return {
         subject: `Welcome — here's what to expect`,
-        html: wrap(`
+        html: w(`
           <p>${greeting}</p>
           <p>Thanks for joining the ${BRAND} list. Over the next two weeks
           we&rsquo;ll send a handful of short notes — how we work, what&rsquo;s
@@ -66,7 +81,7 @@ export function welcomeSeriesEmail(
     case 2:
       return {
         subject: `How we work`,
-        html: wrap(`
+        html: w(`
           <p>${greeting}</p>
           <p>[How-we-work paragraph placeholder — covers the team, brokerage,
           and the way we run buying and selling engagements.]</p>
@@ -77,7 +92,7 @@ export function welcomeSeriesEmail(
     case 3:
       return {
         subject: `This month in Lakewood Ranch`,
-        html: wrap(`
+        html: w(`
           <p>${greeting}</p>
           <p>[Market snapshot placeholder — median price, days on market,
           inventory, year-over-year change. Pulled from MLS data once Phase 3
@@ -88,7 +103,7 @@ export function welcomeSeriesEmail(
     case 4:
       return {
         subject: `Tools you can use`,
-        html: wrap(`
+        html: w(`
           <p>${greeting}</p>
           <p>[Tools paragraph placeholder — Home Value, Affordability,
           Neighborhood Match. Linked once Phase 4 ships.]</p>
@@ -98,7 +113,7 @@ export function welcomeSeriesEmail(
     case 5:
       return {
         subject: `Anything else?`,
-        html: wrap(`
+        html: w(`
           <p>${greeting}</p>
           <p>[Wrap-up paragraph placeholder — invite a reply with questions,
           and explain that we&rsquo;ll shift to the monthly cadence from here.]</p>
@@ -110,22 +125,22 @@ export function welcomeSeriesEmail(
 
 export function newsletterConfirmationEmail(args: {
   email: string;
+  unsubscribeUrl: string;
 }): { subject: string; html: string } {
   return {
     subject: `You're on the list`,
-    html: wrap(`
+    html: wrap(
+      `
       <p style="font-size:16px;margin:0 0 16px;">Welcome.</p>
       <p style="margin:0 0 16px;">
         ${escapeHtml(args.email)} is now subscribed to the ${BRAND} list.
         Expect a market update once a month, plus the occasional new-listing
         spotlight.
       </p>
-      <p style="margin:0 0 16px;">
-        Not what you signed up for? Reply to this email and we&rsquo;ll take you
-        off immediately.
-      </p>
       <p style="margin:0;">— ${BRAND}</p>
-    `),
+    `,
+      { unsubscribeUrl: args.unsubscribeUrl },
+    ),
   };
 }
 

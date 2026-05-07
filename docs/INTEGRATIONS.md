@@ -196,8 +196,13 @@ RESEND_API_KEY                    # from Resend (mark as Secret)
 [email protected]
 INNGEST_EVENT_KEY                 # from Inngest (mark as Secret)
 INNGEST_SIGNING_KEY               # from Inngest (mark as Secret)
+UNSUBSCRIBE_SECRET                # `openssl rand -base64 48` (mark as Secret)
 NEXT_PUBLIC_SITE_URL              # https://your-prod-domain.com
 ```
+
+`UNSUBSCRIBE_SECRET` is the HMAC key used to sign marketing-email unsubscribe
+links. **Required in production** — `lib/unsubscribe.ts` throws at boot if it's
+missing or shorter than 32 chars when `NODE_ENV=production`.
 
 `NEXT_PUBLIC_SITE_URL` is consumed in:
 - `app/layout.tsx:19` (metadata base for OG tags)

@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { contacts, events } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { welcomeSeriesEmail } from "@/lib/email/templates";
+import { unsubscribeUrl } from "@/lib/unsubscribe";
 import { inngest } from "./client";
 
 const WELCOME_STEPS = [
@@ -69,11 +70,13 @@ export const welcomeSeries = inngest.createFunction(
 
         const tmpl = welcomeSeriesEmail(seqStep.stepNumber, {
           name: contact.fullName,
+          unsubscribeUrl: unsubscribeUrl(contactId),
         });
         const result = await sendEmail({
           to: contact.email,
           subject: tmpl.subject,
           html: tmpl.html,
+          category: "marketing",
         });
 
         await db.insert(events).values({
