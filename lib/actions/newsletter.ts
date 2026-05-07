@@ -7,6 +7,7 @@ import { contacts, events } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { newsletterConfirmationEmail } from "@/lib/email/templates";
 import { routeLead } from "@/lib/lead-routing";
+import { updateScore } from "@/lib/lead-scoring";
 import { inngest } from "@/lib/inngest/client";
 import { unsubscribeUrl } from "@/lib/unsubscribe";
 
@@ -111,6 +112,8 @@ export async function subscribeToNewsletter(
       contactId,
       payload: { email },
     });
+
+    await updateScore(contactId);
   } catch (err) {
     console.error("[newsletter] db write failed", err);
     return {

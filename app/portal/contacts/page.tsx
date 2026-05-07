@@ -5,6 +5,7 @@ import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
 import { agents, contacts } from "@/lib/db/schema";
 import { formatDate, formatRelative } from "@/lib/format";
+import { ScoreBadge } from "../page";
 
 export const metadata: Metadata = {
   title: "Contacts",
@@ -27,13 +28,15 @@ export default async function ContactsList() {
       sourceDetail: contacts.sourceDetail,
       lifecycleStage: contacts.lifecycleStage,
       consentEmail: contacts.consentEmail,
+      score: contacts.score,
+      temperature: contacts.temperature,
       createdAt: contacts.createdAt,
       lastTouchAt: contacts.lastTouchAt,
       agentName: agents.name,
     })
     .from(contacts)
     .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
-    .orderBy(desc(contacts.createdAt))
+    .orderBy(desc(contacts.score), desc(contacts.createdAt))
     .limit(PAGE_SIZE);
 
   return (
@@ -61,6 +64,7 @@ export default async function ContactsList() {
               <thead className="bg-surface-elevated text-eyebrow text-muted-foreground">
                 <tr>
                   <th className="text-left px-4 py-3">Name</th>
+                  <th className="text-left px-4 py-3">Score</th>
                   <th className="text-left px-4 py-3">Contact</th>
                   <th className="text-left px-4 py-3">Source</th>
                   <th className="text-left px-4 py-3">Stage</th>
@@ -80,6 +84,12 @@ export default async function ContactsList() {
                       >
                         {c.fullName ?? "—"}
                       </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <ScoreBadge
+                        score={c.score}
+                        temperature={c.temperature}
+                      />
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       <div className="flex flex-col">

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
 import { contacts, events } from "@/lib/db/schema";
+import { updateScore } from "@/lib/lead-scoring";
 
 const LIFECYCLE_STAGES = [
   "new",
@@ -63,6 +64,7 @@ export async function updateLifecycleStage(
       agentId: agent.id,
       payload: { stage: parsed.data.lifecycleStage, by: agent.id },
     });
+    await updateScore(parsed.data.contactId);
   } catch (err) {
     console.error("[crm] stage update failed", err);
     return { ok: false, error: "Couldn't update stage." };
@@ -113,6 +115,7 @@ export async function addNote(
       .update(contacts)
       .set({ lastTouchAt: now })
       .where(eq(contacts.id, parsed.data.contactId));
+    await updateScore(parsed.data.contactId);
   } catch (err) {
     console.error("[crm] note insert failed", err);
     return { ok: false, error: "Couldn't save the note." };

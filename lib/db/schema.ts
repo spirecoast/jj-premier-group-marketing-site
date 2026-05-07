@@ -67,6 +67,10 @@ export const contacts = pgTable(
     unsubscribedSms: boolean("unsubscribed_sms").default(false).notNull(),
     doNotCall: boolean("do_not_call").default(false).notNull(),
 
+    score: integer("score").default(0).notNull(),
+    temperature: text("temperature"),
+    lastScoreUpdate: timestamp("last_score_update", { withTimezone: true }),
+
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -79,6 +83,7 @@ export const contacts = pgTable(
     index("contacts_lifecycle_stage_idx").on(table.lifecycleStage),
     index("contacts_primary_agent_idx").on(table.primaryAgentId),
     index("contacts_email_idx").on(table.email),
+    index("contacts_score_idx").on(table.score.desc()),
     index("contacts_next_action_idx")
       .on(table.nextActionDueAt)
       .where(sql`${table.nextActionDueAt} is not null`),
@@ -165,6 +170,51 @@ export const sequenceEnrollments = pgTable(
 );
 
 /**
+ * tasks — agent to-dos. Sources: 'manual' (created in /portal), 'failsafe'
+ * (auto-created by Inngest when a deadline or no-touch threshold is hit),
+ * 'sequence' (Phase 8+), 'agent_ai' (Phase 7+).
+ *
+ * transactionId / listingId columns exist per §5 but are unconstrained until
+ * those tables land in Phases 3/5.
+ */
+export const tasks = pgTable(
+  "tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    agentId: uuid("agent_id").references(() => agents.id, {
+      onDelete: "set null",
+    }),
+    contactId: uuid("contact_id").references(() => contacts.id, {
+      onDelete: "cascade",
+    }),
+    transactionId: uuid("transaction_id"),
+    listingId: uuid("listing_id"),
+    title: text("title").notNull(),
+    description: text("description"),
+    dueAt: timestamp("due_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    completedBy: uuid("completed_by").references(() => agents.id, {
+      onDelete: "set null",
+    }),
+    priority: text("priority").default("normal"),
+    source: text("source"),
+    failsafeType: text("failsafe_type"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("tasks_agent_due_idx")
+      .on(table.agentId, table.dueAt)
+      .where(sql`${table.completedAt} is null`),
+    index("tasks_contact_idx").on(table.contactId),
+    index("tasks_failsafe_open_idx")
+      .on(table.contactId, table.failsafeType)
+      .where(sql`${table.completedAt} is null`),
+  ],
+);
+
+/**
  * lead_routing_rules — priority-ordered match rules that assign primary_agent_id
  * at contact creation. Per ARCHITECTURE.md §10:
  *   Existing relationship (handled in code) → location → intent → load → fallback.
@@ -208,3 +258,5 @@ export type SequenceEnrollment = typeof sequenceEnrollments.$inferSelect;
 export type NewSequenceEnrollment = typeof sequenceEnrollments.$inferInsert;
 export type LeadRoutingRule = typeof leadRoutingRules.$inferSelect;
 export type NewLeadRoutingRule = typeof leadRoutingRules.$inferInsert;
+export type Task = typeof tasks.$inferSelect;
+export type NewTask = typeof tasks.$inferInsert;

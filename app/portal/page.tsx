@@ -1,10 +1,11 @@
-import { desc, eq, gte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, or, sql } from "drizzle-orm";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
-import { agents, contacts, events } from "@/lib/db/schema";
+import { agents, contacts, events, tasks } from "@/lib/db/schema";
 import { formatRelative } from "@/lib/format";
+import { CompleteTaskButton } from "./tasks/complete-button";
 
 export const metadata: Metadata = {
   title: "Today",
@@ -29,50 +30,97 @@ export default async function PortalToday() {
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [stageCounts, last24h, last7d, recentLeads, recentActivity] =
-    await Promise.all([
-      db
-        .select({
-          stage: contacts.lifecycleStage,
-          count: sql<number>`count(*)::int`,
-        })
-        .from(contacts)
-        .groupBy(contacts.lifecycleStage),
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(contacts)
-        .where(gte(contacts.createdAt, since24h)),
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(contacts)
-        .where(gte(contacts.createdAt, since7d)),
-      db
-        .select({
-          id: contacts.id,
-          fullName: contacts.fullName,
-          email: contacts.email,
-          source: contacts.source,
-          sourceDetail: contacts.sourceDetail,
-          createdAt: contacts.createdAt,
-          agentName: agents.name,
-        })
-        .from(contacts)
-        .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
-        .orderBy(desc(contacts.createdAt))
-        .limit(10),
-      db
-        .select({
-          id: events.id,
-          eventType: events.eventType,
-          contactId: events.contactId,
-          payload: events.payload,
-          occurredAt: events.occurredAt,
-        })
-        .from(events)
-        .where(gte(events.occurredAt, since24h))
-        .orderBy(desc(events.occurredAt))
-        .limit(20),
-    ]);
+  const [
+    stageCounts,
+    last24h,
+    last7d,
+    hotLeads,
+    myTasks,
+    recentLeads,
+    recentActivity,
+  ] = await Promise.all([
+    db
+      .select({
+        stage: contacts.lifecycleStage,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(contacts)
+      .groupBy(contacts.lifecycleStage),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(contacts)
+      .where(gte(contacts.createdAt, since24h)),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(contacts)
+      .where(gte(contacts.createdAt, since7d)),
+    db
+      .select({
+        id: contacts.id,
+        fullName: contacts.fullName,
+        email: contacts.email,
+        score: contacts.score,
+        temperature: contacts.temperature,
+        sourceDetail: contacts.sourceDetail,
+        source: contacts.source,
+        lastTouchAt: contacts.lastTouchAt,
+        agentName: agents.name,
+      })
+      .from(contacts)
+      .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
+      .where(eq(contacts.temperature, "hot"))
+      .orderBy(desc(contacts.score), desc(contacts.lastTouchAt))
+      .limit(10),
+    db
+      .select({
+        id: tasks.id,
+        title: tasks.title,
+        priority: tasks.priority,
+        source: tasks.source,
+        failsafeType: tasks.failsafeType,
+        dueAt: tasks.dueAt,
+        contactId: tasks.contactId,
+        contactName: contacts.fullName,
+      })
+      .from(tasks)
+      .leftJoin(contacts, eq(tasks.contactId, contacts.id))
+      .where(
+        and(
+          or(eq(tasks.agentId, agent.id), isNull(tasks.agentId)),
+          isNull(tasks.completedAt),
+        ),
+      )
+      .orderBy(asc(tasks.dueAt))
+      .limit(10),
+    db
+      .select({
+        id: contacts.id,
+        fullName: contacts.fullName,
+        email: contacts.email,
+        source: contacts.source,
+        sourceDetail: contacts.sourceDetail,
+        score: contacts.score,
+        temperature: contacts.temperature,
+        createdAt: contacts.createdAt,
+        agentName: agents.name,
+      })
+      .from(contacts)
+      .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
+      .orderBy(desc(contacts.createdAt))
+      .limit(10),
+    db
+      .select({
+        id: events.id,
+        eventType: events.eventType,
+        contactId: events.contactId,
+        payload: events.payload,
+        occurredAt: events.occurredAt,
+      })
+      .from(events)
+      .where(gte(events.occurredAt, since24h))
+      .orderBy(desc(events.occurredAt))
+      .limit(20),
+  ]);
 
   const stageMap = new Map(stageCounts.map((s) => [s.stage ?? "new", s.count]));
 
@@ -102,6 +150,115 @@ export default async function PortalToday() {
             value={[...stageMap.values()].reduce((a, b) => a + b, 0)}
           />
         </div>
+
+        <section>
+          <div className="flex items-end justify-between mb-4">
+            <h2 className="text-heading">Your tasks</h2>
+            <Link
+              href="/portal/tasks"
+              className="text-sm text-brand hover:text-brand-hover underline"
+            >
+              All tasks →
+            </Link>
+          </div>
+          {myTasks.length === 0 ? (
+            <EmptyState message="Nothing on your plate. Failsafes auto-create tasks when leads go quiet." />
+          ) : (
+            <ul className="bg-surface border border-border rounded-md divide-y divide-border">
+              {myTasks.map((t) => {
+                const overdue =
+                  t.dueAt !== null && t.dueAt.getTime() < Date.now();
+                return (
+                  <li
+                    key={t.id}
+                    className="px-4 py-3 flex items-center gap-4"
+                  >
+                    <span
+                      className={`inline-block size-2 rounded-full shrink-0 ${
+                        t.priority === "urgent"
+                          ? "bg-danger"
+                          : t.priority === "high"
+                            ? "bg-warning"
+                            : "bg-info"
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{t.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t.source === "failsafe"
+                          ? `failsafe · ${t.failsafeType}`
+                          : t.source ?? "manual"}
+                        {t.dueAt
+                          ? ` · ${overdue ? "overdue" : "due"} ${formatRelative(t.dueAt)}`
+                          : null}
+                      </p>
+                    </div>
+                    {t.contactId ? (
+                      <Link
+                        href={`/portal/contacts/${t.contactId}` as never}
+                        className="text-xs text-brand hover:text-brand-hover whitespace-nowrap"
+                      >
+                        {t.contactName ?? "Contact"}
+                      </Link>
+                    ) : null}
+                    <CompleteTaskButton taskId={t.id} />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        <section>
+          <h2 className="text-heading mb-4">Hot leads</h2>
+          {hotLeads.length === 0 ? (
+            <EmptyState message="No hot leads right now. Engagement and recency drive temperature." />
+          ) : (
+            <div className="bg-surface border border-border rounded-md overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-surface-elevated text-eyebrow text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-4 py-3">Name</th>
+                    <th className="text-left px-4 py-3">Score</th>
+                    <th className="text-left px-4 py-3">Source</th>
+                    <th className="text-left px-4 py-3">Owner</th>
+                    <th className="text-left px-4 py-3">Last touch</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hotLeads.map((lead) => (
+                    <tr key={lead.id} className="border-t border-border">
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/portal/contacts/${lead.id}` as never}
+                          className="text-brand hover:text-brand-hover"
+                        >
+                          {lead.fullName ?? lead.email ?? "—"}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3">
+                        <ScoreBadge
+                          score={lead.score}
+                          temperature={lead.temperature}
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {lead.sourceDetail ?? lead.source ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {lead.agentName ?? "—"}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatRelative(lead.lastTouchAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
 
         <section>
           <h2 className="text-heading mb-4">Pipeline</h2>
@@ -141,6 +298,7 @@ export default async function PortalToday() {
                   <tr>
                     <th className="text-left px-4 py-3">Name</th>
                     <th className="text-left px-4 py-3">Email</th>
+                    <th className="text-left px-4 py-3">Score</th>
                     <th className="text-left px-4 py-3">Source</th>
                     <th className="text-left px-4 py-3">Owner</th>
                     <th className="text-left px-4 py-3">Created</th>
@@ -159,6 +317,12 @@ export default async function PortalToday() {
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {lead.email ?? "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <ScoreBadge
+                          score={lead.score}
+                          temperature={lead.temperature}
+                        />
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {lead.sourceDetail ?? lead.source ?? "—"}
@@ -223,5 +387,28 @@ function EmptyState({ message }: { message: string }) {
     <div className="bg-surface border border-border rounded-md p-8 text-center text-muted-foreground text-sm">
       {message}
     </div>
+  );
+}
+
+export function ScoreBadge({
+  score,
+  temperature,
+}: {
+  score: number;
+  temperature: string | null;
+}) {
+  const palette =
+    temperature === "hot"
+      ? "bg-danger/10 text-danger"
+      : temperature === "warm"
+        ? "bg-warning/15 text-warning"
+        : "bg-surface-elevated text-muted-foreground";
+  return (
+    <span
+      className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-sm text-xs font-mono ${palette}`}
+    >
+      <span aria-hidden="true">●</span>
+      {score}
+    </span>
   );
 }

@@ -33,6 +33,12 @@ export default async function PortalLayout({
               >
                 Contacts
               </Link>
+              <Link
+                href="/portal/tasks"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Tasks
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">

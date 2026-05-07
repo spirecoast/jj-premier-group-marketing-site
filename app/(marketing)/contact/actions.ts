@@ -9,6 +9,7 @@ import {
   leadInternalNotifyEmail,
 } from "@/lib/email/templates";
 import { routeLead } from "@/lib/lead-routing";
+import { updateScore } from "@/lib/lead-scoring";
 import { inngest } from "@/lib/inngest/client";
 
 const contactFormSchema = z.object({
@@ -120,6 +121,8 @@ export async function submitContactForm(
         routed_to: agentId,
       },
     });
+
+    await updateScore(contactId);
   } catch (err) {
     console.error("[contact form] db insert failed", err);
     return {

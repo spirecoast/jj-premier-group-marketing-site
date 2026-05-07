@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNull, lte } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { contacts, events } from "@/lib/db/schema";
+import { contacts, events, tasks } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { welcomeSeriesEmail } from "@/lib/email/templates";
 import { unsubscribeUrl } from "@/lib/unsubscribe";
@@ -100,4 +100,112 @@ export const welcomeSeries = inngest.createFunction(
   },
 );
 
-export const functions = [welcomeSeries];
+/**
+ * Failsafe: new lead with no agent contact in 24 hours.
+ *
+ * Per ARCHITECTURE.md §11. Hourly scan: find contacts in lifecycle_stage='new'
+ * created >24h ago that haven't been touched by an agent (no 'note' or
+ * 'lifecycle_stage_changed' events) and don't already have an open
+ * failsafe task of this type. Create a high-priority task assigned to the
+ * primary agent and log a 'failsafe_fired' event.
+ *
+ * The failsafe is idempotent — re-running creates at most one open task per
+ * contact per type, by virtue of the partial unique check.
+ */
+export const newLeadNoContactFailsafe = inngest.createFunction(
+  {
+    id: "failsafe-new-lead-no-contact-24h",
+    name: "Failsafe: new lead, no contact in 24h",
+    triggers: [{ cron: "0 * * * *" }],
+  },
+  async ({ step, logger }) => {
+    return await step.run("scan-and-create-tasks", async () => {
+      const db = getDb();
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      const stale = await db
+        .select({
+          id: contacts.id,
+          primaryAgentId: contacts.primaryAgentId,
+          fullName: contacts.fullName,
+          email: contacts.email,
+        })
+        .from(contacts)
+        .where(
+          and(
+            eq(contacts.lifecycleStage, "new"),
+            lte(contacts.createdAt, cutoff),
+          ),
+        );
+
+      let created = 0;
+      let skipped = 0;
+
+      for (const c of stale) {
+        const existingTask = await db
+          .select({ id: tasks.id })
+          .from(tasks)
+          .where(
+            and(
+              eq(tasks.contactId, c.id),
+              eq(tasks.failsafeType, "new_lead_no_contact_24h"),
+              isNull(tasks.completedAt),
+            ),
+          )
+          .limit(1);
+        if (existingTask.length > 0) {
+          skipped++;
+          continue;
+        }
+
+        const agentTouched = await db
+          .select({ id: events.id })
+          .from(events)
+          .where(
+            and(
+              eq(events.contactId, c.id),
+              inArray(events.eventType, [
+                "note",
+                "lifecycle_stage_changed",
+                "task_completed",
+              ]),
+            ),
+          )
+          .limit(1);
+        if (agentTouched.length > 0) {
+          skipped++;
+          continue;
+        }
+
+        await db.insert(tasks).values({
+          agentId: c.primaryAgentId,
+          contactId: c.id,
+          title: `Follow up: ${c.fullName ?? c.email ?? "new lead"}`,
+          description:
+            "No agent contact in 24+ hours. Reach out today to keep the lead warm.",
+          priority: "high",
+          source: "failsafe",
+          failsafeType: "new_lead_no_contact_24h",
+          dueAt: new Date(),
+        });
+
+        await db.insert(events).values({
+          eventType: "failsafe_fired",
+          contactId: c.id,
+          payload: { type: "new_lead_no_contact_24h" },
+        });
+
+        created++;
+      }
+
+      logger.info("[failsafe] new_lead_no_contact_24h", {
+        scanned: stale.length,
+        created,
+        skipped,
+      });
+      return { scanned: stale.length, created, skipped };
+    });
+  },
+);
+
+export const functions = [welcomeSeries, newLeadNoContactFailsafe];
