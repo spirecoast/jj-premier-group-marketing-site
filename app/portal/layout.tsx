@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { requireAgent } from "@/lib/auth/server";
+import { CommandPalette } from "@/components/command-palette";
+import { CommandPaletteTrigger } from "@/components/command-palette-trigger";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
 const NAV = [
@@ -40,6 +42,8 @@ export default async function PortalLayout({
         </div>
 
         <nav className="flex-1 px-2 py-3 space-y-0.5" aria-label="Portal">
+          <CommandPaletteTrigger />
+          <div className="h-px bg-border my-2" />
           {NAV.map((item) => (
             <NavLink key={item.href} href={item.href} icon={<item.icon size={16} />}>
               {item.label}
@@ -97,6 +101,7 @@ export default async function PortalLayout({
       {/* Main content */}
       <main className="flex-1 min-w-0 pb-16 lg:pb-0">{children}</main>
 
+      <CommandPalette />
       <Toaster
         position="bottom-right"
         toastOptions={{
