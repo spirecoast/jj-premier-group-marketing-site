@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, gte, isNull, or, sql } from "drizzle-orm";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Activity, CheckCircle2, Flame, UserPlus2 } from "lucide-react";
 import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
 import { agents, contacts, events, tasks } from "@/lib/db/schema";
@@ -175,7 +176,7 @@ export default async function PortalToday() {
         >
           {myTasks.length === 0 ? (
             <Empty
-              icon={<CheckIcon />}
+              icon={<CheckCircle2 size={16} />}
               message="Nothing on your plate."
               hint="Failsafes auto-create tasks when leads go quiet."
             />
@@ -222,7 +223,7 @@ export default async function PortalToday() {
         <Panel title="Hot leads">
           {hotLeads.length === 0 ? (
             <Empty
-              icon={<FlameIcon />}
+              icon={<Flame size={16} />}
               message="No hot leads right now."
               hint="Engagement and recency drive temperature."
             />
@@ -290,7 +291,7 @@ export default async function PortalToday() {
       >
         {recentLeads.length === 0 ? (
           <Empty
-            icon={<UserPlusIcon />}
+            icon={<UserPlus2 size={16} />}
             message="No leads yet."
             hint="The contact form and newsletter feed this list."
           />
@@ -347,7 +348,7 @@ export default async function PortalToday() {
       <Panel title="Activity (last 24h)">
         {recentActivity.length === 0 ? (
           <Empty
-            icon={<PulseIcon />}
+            icon={<Activity size={16} />}
             message="Quiet so far today."
             hint="Form submits, lifecycle changes, and notes show up here."
           />
@@ -505,39 +506,3 @@ function PriorityDot({ priority }: { priority: string | null }) {
   );
 }
 
-/* ---------- inline icons (no extra dep) ---------- */
-
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function FlameIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
-    </svg>
-  );
-}
-
-function UserPlusIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <line x1="19" x2="19" y1="8" y2="14" />
-      <line x1="22" x2="16" y1="11" y2="11" />
-    </svg>
-  );
-}
-
-function PulseIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-    </svg>
-  );
-}

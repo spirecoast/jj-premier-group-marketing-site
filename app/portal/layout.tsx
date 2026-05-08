@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
+import {
+  Activity,
+  CheckSquare,
+  Home,
+  Users,
+} from "lucide-react";
 import { requireAgent } from "@/lib/auth/server";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+
+const NAV = [
+  { href: "/portal", label: "Today", icon: Home },
+  { href: "/portal/contacts", label: "Contacts", icon: Users },
+  { href: "/portal/tasks", label: "Tasks", icon: CheckSquare },
+] as const;
 
 export default async function PortalLayout({
   children,
@@ -11,52 +23,97 @@ export default async function PortalLayout({
   const agent = await requireAgent();
 
   return (
-    <div data-portal className="min-h-screen flex flex-col bg-surface-elevated">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur">
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-6 h-14 flex items-center gap-6">
+    <div data-portal className="min-h-screen flex bg-surface-elevated">
+      {/* Sidebar (desktop) */}
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 border-r border-border bg-background sticky top-0 h-screen">
+        <div className="px-4 py-4 border-b border-border">
           <Link
             href="/portal"
-            className="font-semibold text-sm tracking-tight whitespace-nowrap"
+            className="flex items-center gap-2 font-semibold text-sm tracking-tight"
           >
-            <span className="text-foreground">[YOUR PLACEHOLDER]</span>
-            <span className="text-muted-foreground mx-1.5">/</span>
-            <span className="text-muted-foreground">Portal</span>
-          </Link>
-          <nav
-            className="hidden md:flex items-center gap-0.5 text-sm"
-            aria-label="Portal"
-          >
-            <NavLink href="/portal">Today</NavLink>
-            <NavLink href="/portal/contacts">Contacts</NavLink>
-            <NavLink href="/portal/tasks">Tasks</NavLink>
-          </nav>
-          <div className="flex-1" />
-          <div className="flex items-center gap-3 text-sm">
-            <ThemeSwitcher />
-            <span className="text-muted-foreground hidden sm:inline text-xs">
-              {agent.name}
+            <span className="size-6 rounded-md bg-foreground text-inverse flex items-center justify-center text-[11px] font-bold">
+              YP
             </span>
+            <span className="truncate">[YOUR PLACEHOLDER]</span>
+          </Link>
+        </div>
+
+        <nav className="flex-1 px-2 py-3 space-y-0.5" aria-label="Portal">
+          {NAV.map((item) => (
+            <NavLink key={item.href} href={item.href} icon={<item.icon size={16} />}>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="px-3 py-3 border-t border-border space-y-3">
+          <ThemeSwitcher />
+          <div className="flex items-center gap-2.5">
             <UserButton />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-foreground truncate">
+                {agent.name}
+              </p>
+              <p className="text-[10px] text-muted-foreground truncate">
+                {agent.email}
+              </p>
+            </div>
           </div>
         </div>
+      </aside>
+
+      {/* Mobile top bar */}
+      <header className="lg:hidden sticky top-0 z-50 border-b border-border bg-background h-12 px-4 flex items-center justify-between">
+        <Link
+          href="/portal"
+          className="flex items-center gap-2 font-semibold text-sm"
+        >
+          <span className="size-6 rounded-md bg-foreground text-inverse flex items-center justify-center text-[10px] font-bold">
+            YP
+          </span>
+          Portal
+        </Link>
+        <UserButton />
       </header>
-      <div className="flex-1">{children}</div>
+
+      {/* Mobile bottom nav */}
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border flex"
+        aria-label="Portal mobile"
+      >
+        {NAV.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href as never}
+            className="flex-1 flex flex-col items-center justify-center gap-1 py-2 text-[11px] text-muted-foreground hover:text-foreground"
+          >
+            <item.icon size={18} />
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0 pb-16 lg:pb-0">{children}</main>
     </div>
   );
 }
 
 function NavLink({
   href,
+  icon,
   children,
 }: {
   href: string;
+  icon: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <Link
       href={href as never}
-      className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
+      className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
     >
+      <span className="text-muted-foreground">{icon}</span>
       {children}
     </Link>
   );
