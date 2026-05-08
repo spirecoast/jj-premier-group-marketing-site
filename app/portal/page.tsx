@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNull, lt, or, sql } from "drizzle-orm";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Activity, CheckCircle2, Flame, UserPlus2 } from "lucide-react";
@@ -77,7 +77,7 @@ export default async function PortalToday() {
       .select({ count: sql<number>`count(*)::int` })
       .from(contacts)
       .where(
-        and(gte(contacts.createdAt, since14d), sql`${contacts.createdAt} < ${since7d}`),
+        and(gte(contacts.createdAt, since14d), lt(contacts.createdAt, since7d)),
       ),
     db
       .select({
