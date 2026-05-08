@@ -6,6 +6,7 @@ import { requireAgent } from "@/lib/auth/server";
 import { getDb } from "@/lib/db";
 import { agents, contacts, events, tasks } from "@/lib/db/schema";
 import { formatRelative } from "@/lib/format";
+import { Sparkline } from "@/components/sparkline";
 import { CompleteTaskButton } from "./tasks/complete-button";
 
 export const metadata: Metadata = {
@@ -41,11 +42,17 @@ export default async function PortalToday() {
 
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const since14d = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  const startOf7dWindow = new Date();
+  startOf7dWindow.setHours(0, 0, 0, 0);
+  startOf7dWindow.setDate(startOf7dWindow.getDate() - 6);
 
   const [
     stageCounts,
     last24h,
     last7d,
+    prev7d,
+    daily7,
     hotLeads,
     myTasks,
     recentLeads,
@@ -66,6 +73,20 @@ export default async function PortalToday() {
       .select({ count: sql<number>`count(*)::int` })
       .from(contacts)
       .where(gte(contacts.createdAt, since7d)),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(contacts)
+      .where(
+        and(gte(contacts.createdAt, since14d), sql`${contacts.createdAt} < ${since7d}`),
+      ),
+    db
+      .select({
+        day: sql<string>`to_char(date_trunc('day', ${contacts.createdAt}), 'YYYY-MM-DD')`,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(contacts)
+      .where(gte(contacts.createdAt, startOf7dWindow))
+      .groupBy(sql`date_trunc('day', ${contacts.createdAt})`),
     db
       .select({
         id: contacts.id,
@@ -140,6 +161,21 @@ export default async function PortalToday() {
     (stageMap.get("under_contract") ?? 0) +
     (stageMap.get("qualified") ?? 0);
 
+  // Backfill the 7-day series with zeros so the sparkline always has 7 points.
+  const dailyByDay = new Map(daily7.map((d) => [d.day, d.count]));
+  const dailySeries: number[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOf7dWindow);
+    d.setDate(startOf7dWindow.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    dailySeries.push(dailyByDay.get(key) ?? 0);
+  }
+
+  const last7Count = last7d[0]?.count ?? 0;
+  const prev7Count = prev7d[0]?.count ?? 0;
+  const last7Delta =
+    prev7Count === 0 ? null : Math.round(((last7Count - prev7Count) / prev7Count) * 100);
+
   const firstName = agent.name.split(" ")[0] ?? agent.name;
 
   return (
@@ -155,10 +191,25 @@ export default async function PortalToday() {
 
       {/* Stat row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <Stat label="New (24h)" value={last24h[0]?.count ?? 0} />
-        <Stat label="New (7d)" value={last7d[0]?.count ?? 0} />
-        <Stat label="Active pipeline" value={activePipeline} />
-        <Stat label="Total leads" value={totalLeads} />
+        <Stat
+          label="New (24h)"
+          value={last24h[0]?.count ?? 0}
+          series={dailySeries.slice(-1)}
+          accent="brand"
+        />
+        <Stat
+          label="New (7d)"
+          value={last7Count}
+          series={dailySeries}
+          delta={last7Delta}
+          accent="brand"
+        />
+        <Stat
+          label="Active pipeline"
+          value={activePipeline}
+          accent="accent"
+        />
+        <Stat label="Total leads" value={totalLeads} accent="muted" />
       </div>
 
       {/* Two-column row: tasks + hot leads */}
@@ -385,11 +436,49 @@ export default async function PortalToday() {
 
 /* ---------- presentation primitives ---------- */
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({
+  label,
+  value,
+  series,
+  delta,
+  accent = "brand",
+}: {
+  label: string;
+  value: number;
+  series?: number[];
+  delta?: number | null;
+  accent?: "brand" | "accent" | "muted";
+}) {
+  const accentClass =
+    accent === "accent"
+      ? "text-accent"
+      : accent === "muted"
+        ? "text-muted-foreground"
+        : "text-brand";
+  const deltaClass =
+    delta == null
+      ? "text-muted-foreground"
+      : delta > 0
+        ? "text-success"
+        : delta < 0
+          ? "text-danger"
+          : "text-muted-foreground";
   return (
-    <div className="bg-surface border border-border rounded-md px-4 py-3">
-      <p className="portal-stat-label">{label}</p>
-      <p className="portal-stat-num text-foreground mt-2">{value}</p>
+    <div className="bg-surface border border-border rounded-md px-4 py-3 flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="portal-stat-label">{label}</p>
+        {delta !== undefined ? (
+          <span className={`text-[10px] font-medium tabular-nums ${deltaClass}`}>
+            {delta == null ? "—" : `${delta > 0 ? "+" : ""}${delta}%`}
+          </span>
+        ) : null}
+      </div>
+      <p className="portal-stat-num text-foreground">{value}</p>
+      {series && series.length > 1 ? (
+        <div className={accentClass}>
+          <Sparkline data={series} />
+        </div>
+      ) : null}
     </div>
   );
 }
