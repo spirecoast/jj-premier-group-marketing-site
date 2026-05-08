@@ -6,6 +6,7 @@ import {
   Home,
   Users,
 } from "lucide-react";
+import { Toaster } from "sonner";
 import { requireAgent } from "@/lib/auth/server";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
@@ -95,6 +96,17 @@ export default async function PortalLayout({
 
       {/* Main content */}
       <main className="flex-1 min-w-0 pb-16 lg:pb-0">{children}</main>
+
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          classNames: {
+            toast:
+              "bg-surface border border-border text-foreground rounded-md shadow-lg",
+            description: "text-muted-foreground",
+          },
+        }}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import {
   addNote,
   updateLifecycleStage,
@@ -34,6 +35,7 @@ export function StageEditor({
     updateLifecycleStage,
     initialStageState,
   );
+  useToastOnState(state, "Stage updated", "Couldn't update stage");
 
   return (
     <form action={formAction} className="flex items-center gap-2">
@@ -70,6 +72,7 @@ export function NoteForm({ contactId }: { contactId: string }) {
     addNote,
     initialNoteState,
   );
+  useToastOnState(state, "Note added", "Couldn't save the note");
 
   return (
     <form action={formAction} className="space-y-3" key={state.ok ? "fresh" : "open"}>
@@ -106,4 +109,22 @@ export function NoteForm({ contactId }: { contactId: string }) {
       </div>
     </form>
   );
+}
+
+function useToastOnState(
+  state: { ok: boolean; error?: string },
+  successMsg: string,
+  failMsg: string,
+) {
+  const lastToastedRef = useRef<{ ok: boolean; error?: string } | null>(null);
+  useEffect(() => {
+    if (state === lastToastedRef.current) return;
+    if (state.ok) {
+      toast.success(successMsg);
+      lastToastedRef.current = state;
+    } else if (state.error) {
+      toast.error(state.error || failMsg);
+      lastToastedRef.current = state;
+    }
+  }, [state, successMsg, failMsg]);
 }
