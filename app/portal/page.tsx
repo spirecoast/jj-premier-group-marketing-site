@@ -23,6 +23,17 @@ const STAGE_ORDER = [
   "lost",
 ] as const;
 
+const STAGE_LABEL: Record<(typeof STAGE_ORDER)[number], string> = {
+  new: "New",
+  contacted: "Contacted",
+  qualified: "Qualified",
+  active: "Active",
+  under_contract: "Under contract",
+  closed: "Closed",
+  nurture: "Nurture",
+  lost: "Lost",
+};
+
 export default async function PortalToday() {
   const agent = await requireAgent();
   const db = getDb();
@@ -70,7 +81,7 @@ export default async function PortalToday() {
       .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
       .where(eq(contacts.temperature, "hot"))
       .orderBy(desc(contacts.score), desc(contacts.lastTouchAt))
-      .limit(10),
+      .limit(8),
     db
       .select({
         id: tasks.id,
@@ -91,7 +102,7 @@ export default async function PortalToday() {
         ),
       )
       .orderBy(asc(tasks.dueAt))
-      .limit(10),
+      .limit(8),
     db
       .select({
         id: contacts.id,
@@ -107,85 +118,83 @@ export default async function PortalToday() {
       .from(contacts)
       .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
       .orderBy(desc(contacts.createdAt))
-      .limit(10),
+      .limit(8),
     db
       .select({
         id: events.id,
         eventType: events.eventType,
         contactId: events.contactId,
-        payload: events.payload,
         occurredAt: events.occurredAt,
       })
       .from(events)
       .where(gte(events.occurredAt, since24h))
       .orderBy(desc(events.occurredAt))
-      .limit(20),
+      .limit(10),
   ]);
 
   const stageMap = new Map(stageCounts.map((s) => [s.stage ?? "new", s.count]));
+  const totalLeads = [...stageMap.values()].reduce((a, b) => a + b, 0);
+  const activePipeline =
+    (stageMap.get("active") ?? 0) +
+    (stageMap.get("under_contract") ?? 0) +
+    (stageMap.get("qualified") ?? 0);
+
+  const firstName = agent.name.split(" ")[0] ?? agent.name;
 
   return (
-    <section className="px-6 lg:px-12 py-12">
-      <div className="max-w-7xl mx-auto space-y-12">
-        <header>
-          <p className="text-eyebrow text-muted-foreground mb-3">Today</p>
-          <h1 className="text-section">
-            Welcome, {agent.name.split(" ")[0]}.
-          </h1>
-        </header>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Stat label="New (24h)" value={last24h[0]?.count ?? 0} />
-          <Stat label="New (7d)" value={last7d[0]?.count ?? 0} />
-          <Stat
-            label="Active pipeline"
-            value={
-              (stageMap.get("active") ?? 0) +
-              (stageMap.get("under_contract") ?? 0) +
-              (stageMap.get("qualified") ?? 0)
-            }
-          />
-          <Stat
-            label="Total leads"
-            value={[...stageMap.values()].reduce((a, b) => a + b, 0)}
-          />
+    <div className="px-4 lg:px-6 py-6 max-w-[1400px] mx-auto w-full">
+      <header className="mb-6 flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="portal-h1 mb-1">Today</h1>
+          <p className="text-sm text-muted-foreground">
+            Welcome back, {firstName}.
+          </p>
         </div>
+      </header>
 
-        <section>
-          <div className="flex items-end justify-between mb-4">
-            <h2 className="text-heading">Your tasks</h2>
+      {/* Stat row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <Stat label="New (24h)" value={last24h[0]?.count ?? 0} />
+        <Stat label="New (7d)" value={last7d[0]?.count ?? 0} />
+        <Stat label="Active pipeline" value={activePipeline} />
+        <Stat label="Total leads" value={totalLeads} />
+      </div>
+
+      {/* Two-column row: tasks + hot leads */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6">
+        <Panel
+          title="Your tasks"
+          action={
             <Link
               href="/portal/tasks"
-              className="text-sm text-brand hover:text-brand-hover underline"
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
-              All tasks →
+              All →
             </Link>
-          </div>
+          }
+        >
           {myTasks.length === 0 ? (
-            <EmptyState message="Nothing on your plate. Failsafes auto-create tasks when leads go quiet." />
+            <Empty
+              icon={<CheckIcon />}
+              message="Nothing on your plate."
+              hint="Failsafes auto-create tasks when leads go quiet."
+            />
           ) : (
-            <ul className="bg-surface border border-border rounded-md divide-y divide-border">
+            <ul className="divide-y divide-border">
               {myTasks.map((t) => {
                 const overdue =
                   t.dueAt !== null && t.dueAt.getTime() < Date.now();
                 return (
                   <li
                     key={t.id}
-                    className="px-4 py-3 flex items-center gap-4"
+                    className="flex items-center gap-3 px-3 py-2.5"
                   >
-                    <span
-                      className={`inline-block size-2 rounded-full shrink-0 ${
-                        t.priority === "urgent"
-                          ? "bg-danger"
-                          : t.priority === "high"
-                            ? "bg-warning"
-                            : "bg-info"
-                      }`}
-                      aria-hidden="true"
-                    />
+                    <PriorityDot priority={t.priority} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{t.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {t.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {t.source === "failsafe"
                           ? `failsafe · ${t.failsafeType}`
                           : t.source ?? "manual"}
@@ -197,7 +206,7 @@ export default async function PortalToday() {
                     {t.contactId ? (
                       <Link
                         href={`/portal/contacts/${t.contactId}` as never}
-                        className="text-xs text-brand hover:text-brand-hover whitespace-nowrap"
+                        className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap hidden sm:inline"
                       >
                         {t.contactName ?? "Contact"}
                       </Link>
@@ -208,186 +217,252 @@ export default async function PortalToday() {
               })}
             </ul>
           )}
-        </section>
+        </Panel>
 
-        <section>
-          <h2 className="text-heading mb-4">Hot leads</h2>
+        <Panel title="Hot leads">
           {hotLeads.length === 0 ? (
-            <EmptyState message="No hot leads right now. Engagement and recency drive temperature." />
+            <Empty
+              icon={<FlameIcon />}
+              message="No hot leads right now."
+              hint="Engagement and recency drive temperature."
+            />
           ) : (
-            <div className="bg-surface border border-border rounded-md overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-surface-elevated text-eyebrow text-muted-foreground">
-                  <tr>
-                    <th className="text-left px-4 py-3">Name</th>
-                    <th className="text-left px-4 py-3">Score</th>
-                    <th className="text-left px-4 py-3">Source</th>
-                    <th className="text-left px-4 py-3">Owner</th>
-                    <th className="text-left px-4 py-3">Last touch</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {hotLeads.map((lead) => (
-                    <tr key={lead.id} className="border-t border-border">
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`/portal/contacts/${lead.id}` as never}
-                          className="text-brand hover:text-brand-hover"
-                        >
-                          {lead.fullName ?? lead.email ?? "—"}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <ScoreBadge
-                          score={lead.score}
-                          temperature={lead.temperature}
-                        />
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {lead.sourceDetail ?? lead.source ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {lead.agentName ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {formatRelative(lead.lastTouchAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        <section>
-          <h2 className="text-heading mb-4">Pipeline</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-            {STAGE_ORDER.map((stage) => (
-              <div
-                key={stage}
-                className="bg-surface border border-border rounded-md p-3"
-              >
-                <p className="text-eyebrow text-muted-foreground mb-2">
-                  {stage.replace(/_/g, " ")}
-                </p>
-                <p className="text-2xl font-display">
-                  {stageMap.get(stage) ?? 0}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <div className="flex items-end justify-between mb-4">
-            <h2 className="text-heading">Recent leads</h2>
-            <Link
-              href="/portal/contacts"
-              className="text-sm text-brand hover:text-brand-hover underline"
-            >
-              View all →
-            </Link>
-          </div>
-          {recentLeads.length === 0 ? (
-            <EmptyState message="No leads yet. The contact form and newsletter feed this list." />
-          ) : (
-            <div className="bg-surface border border-border rounded-md overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-surface-elevated text-eyebrow text-muted-foreground">
-                  <tr>
-                    <th className="text-left px-4 py-3">Name</th>
-                    <th className="text-left px-4 py-3">Email</th>
-                    <th className="text-left px-4 py-3">Score</th>
-                    <th className="text-left px-4 py-3">Source</th>
-                    <th className="text-left px-4 py-3">Owner</th>
-                    <th className="text-left px-4 py-3">Created</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentLeads.map((lead) => (
-                    <tr key={lead.id} className="border-t border-border">
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`/portal/contacts/${lead.id}` as never}
-                          className="text-brand hover:text-brand-hover"
-                        >
-                          {lead.fullName ?? "—"}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {lead.email ?? "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <ScoreBadge
-                          score={lead.score}
-                          temperature={lead.temperature}
-                        />
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {lead.sourceDetail ?? lead.source ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {lead.agentName ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {formatRelative(lead.createdAt)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        <section>
-          <h2 className="text-heading mb-4">Activity (last 24h)</h2>
-          {recentActivity.length === 0 ? (
-            <EmptyState message="Nothing in the last 24 hours." />
-          ) : (
-            <ul className="bg-surface border border-border rounded-md divide-y divide-border">
-              {recentActivity.map((evt) => (
-                <li key={evt.id} className="px-4 py-3 text-sm flex gap-4">
-                  <span className="text-eyebrow text-muted-foreground whitespace-nowrap w-24">
-                    {formatRelative(evt.occurredAt)}
-                  </span>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {evt.eventType}
-                  </span>
-                  {evt.contactId ? (
+            <ul className="divide-y divide-border">
+              {hotLeads.map((lead) => (
+                <li key={lead.id} className="flex items-center gap-3 px-3 py-2.5">
+                  <ScoreBadge
+                    score={lead.score}
+                    temperature={lead.temperature}
+                  />
+                  <div className="flex-1 min-w-0">
                     <Link
-                      href={`/portal/contacts/${evt.contactId}` as never}
-                      className="text-brand hover:text-brand-hover ml-auto text-xs"
+                      href={`/portal/contacts/${lead.id}` as never}
+                      className="text-sm font-medium text-foreground hover:text-brand truncate block"
                     >
-                      View contact
+                      {lead.fullName ?? lead.email ?? "—"}
                     </Link>
-                  ) : null}
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      {lead.sourceDetail ?? lead.source ?? "—"} ·{" "}
+                      {lead.agentName ?? "unassigned"}
+                    </p>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {formatRelative(lead.lastTouchAt)}
+                  </span>
                 </li>
               ))}
             </ul>
           )}
-        </section>
+        </Panel>
       </div>
+
+      {/* Pipeline */}
+      <Panel title="Pipeline" className="mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-px bg-border rounded-md overflow-hidden">
+          {STAGE_ORDER.map((stage) => (
+            <div
+              key={stage}
+              className="bg-surface px-3 py-3 min-h-[68px] flex flex-col"
+            >
+              <p className="portal-stat-label leading-tight">
+                {STAGE_LABEL[stage]}
+              </p>
+              <p className="portal-stat-num text-foreground mt-auto">
+                {stageMap.get(stage) ?? 0}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      {/* Recent leads */}
+      <Panel
+        title="Recent leads"
+        action={
+          <Link
+            href="/portal/contacts"
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            View all →
+          </Link>
+        }
+        className="mb-6"
+      >
+        {recentLeads.length === 0 ? (
+          <Empty
+            icon={<UserPlusIcon />}
+            message="No leads yet."
+            hint="The contact form and newsletter feed this list."
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                  <Th>Name</Th>
+                  <Th>Score</Th>
+                  <Th>Source</Th>
+                  <Th>Owner</Th>
+                  <Th className="text-right">Created</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentLeads.map((lead) => (
+                  <tr
+                    key={lead.id}
+                    className="border-b border-border last:border-0 hover:bg-surface-elevated transition-colors"
+                  >
+                    <Td>
+                      <Link
+                        href={`/portal/contacts/${lead.id}` as never}
+                        className="text-foreground hover:text-brand font-medium"
+                      >
+                        {lead.fullName ?? lead.email ?? "—"}
+                      </Link>
+                    </Td>
+                    <Td>
+                      <ScoreBadge
+                        score={lead.score}
+                        temperature={lead.temperature}
+                      />
+                    </Td>
+                    <Td className="text-muted-foreground">
+                      {lead.sourceDetail ?? lead.source ?? "—"}
+                    </Td>
+                    <Td className="text-muted-foreground">
+                      {lead.agentName ?? "—"}
+                    </Td>
+                    <Td className="text-muted-foreground text-right">
+                      {formatRelative(lead.createdAt)}
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Panel>
+
+      {/* Activity */}
+      <Panel title="Activity (last 24h)">
+        {recentActivity.length === 0 ? (
+          <Empty
+            icon={<PulseIcon />}
+            message="Quiet so far today."
+            hint="Form submits, lifecycle changes, and notes show up here."
+          />
+        ) : (
+          <ul className="divide-y divide-border">
+            {recentActivity.map((evt) => (
+              <li
+                key={evt.id}
+                className="flex items-center gap-3 px-3 py-2 text-sm"
+              >
+                <span className="size-1.5 rounded-full bg-muted-foreground" />
+                <span className="font-mono text-xs text-muted-foreground">
+                  {evt.eventType}
+                </span>
+                <span className="flex-1 text-xs text-muted-foreground">
+                  {formatRelative(evt.occurredAt)}
+                </span>
+                {evt.contactId ? (
+                  <Link
+                    href={`/portal/contacts/${evt.contactId}` as never}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    View →
+                  </Link>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+    </div>
+  );
+}
+
+/* ---------- presentation primitives ---------- */
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bg-surface border border-border rounded-md px-4 py-3">
+      <p className="portal-stat-label">{label}</p>
+      <p className="portal-stat-num text-foreground mt-2">{value}</p>
+    </div>
+  );
+}
+
+function Panel({
+  title,
+  action,
+  className = "",
+  children,
+}: {
+  title: string;
+  action?: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      className={`bg-surface border border-border rounded-md ${className}`}
+    >
+      <header className="flex items-center justify-between px-3 py-2 border-b border-border">
+        <h2 className="portal-h2">{title}</h2>
+        {action}
+      </header>
+      <div>{children}</div>
     </section>
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Empty({
+  icon,
+  message,
+  hint,
+}: {
+  icon: React.ReactNode;
+  message: string;
+  hint?: string;
+}) {
   return (
-    <div className="bg-surface border border-border rounded-md p-4">
-      <p className="text-eyebrow text-muted-foreground mb-2">{label}</p>
-      <p className="text-3xl font-display">{value}</p>
+    <div className="px-3 py-8 text-center">
+      <div className="mx-auto mb-2 size-8 rounded-full bg-surface-elevated flex items-center justify-center text-muted-foreground">
+        {icon}
+      </div>
+      <p className="text-sm text-foreground font-medium">{message}</p>
+      {hint ? (
+        <p className="text-xs text-muted-foreground mt-1">{hint}</p>
+      ) : null}
     </div>
   );
 }
 
-function EmptyState({ message }: { message: string }) {
+function Th({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="bg-surface border border-border rounded-md p-8 text-center text-muted-foreground text-sm">
-      {message}
-    </div>
+    <th
+      className={`px-3 py-2 font-medium uppercase tracking-wider text-[10px] ${className}`}
+    >
+      {children}
+    </th>
   );
+}
+
+function Td({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <td className={`px-3 py-2 align-middle ${className}`}>{children}</td>;
 }
 
 export function ScoreBadge({
@@ -399,16 +474,70 @@ export function ScoreBadge({
 }) {
   const palette =
     temperature === "hot"
-      ? "bg-danger/10 text-danger"
+      ? "bg-danger/10 text-danger ring-danger/20"
       : temperature === "warm"
-        ? "bg-warning/15 text-warning"
-        : "bg-surface-elevated text-muted-foreground";
+        ? "bg-warning/15 text-warning ring-warning/20"
+        : "bg-surface-elevated text-muted-foreground ring-border";
   return (
     <span
-      className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-sm text-xs font-mono ${palette}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono ring-1 ring-inset ${palette}`}
     >
-      <span aria-hidden="true">●</span>
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
       {score}
     </span>
+  );
+}
+
+function PriorityDot({ priority }: { priority: string | null }) {
+  const color =
+    priority === "urgent"
+      ? "bg-danger"
+      : priority === "high"
+        ? "bg-warning"
+        : priority === "low"
+          ? "bg-muted"
+          : "bg-info";
+  return (
+    <span
+      className={`inline-block size-2 rounded-full shrink-0 ${color}`}
+      aria-label={`priority ${priority ?? "normal"}`}
+    />
+  );
+}
+
+/* ---------- inline icons (no extra dep) ---------- */
+
+function CheckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+
+function FlameIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+    </svg>
+  );
+}
+
+function UserPlusIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" x2="19" y1="8" y2="14" />
+      <line x1="22" x2="16" y1="11" y2="11" />
+    </svg>
+  );
+}
+
+function PulseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
   );
 }

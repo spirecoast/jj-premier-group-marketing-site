@@ -7,6 +7,7 @@ import { getDb } from "@/lib/db";
 import { agents, contacts, events, tasks } from "@/lib/db/schema";
 import { formatDateTime, formatRelative } from "@/lib/format";
 import { CompleteTaskButton } from "@/app/portal/tasks/complete-button";
+import { ScoreBadge } from "@/app/portal/page";
 import { NoteForm, StageEditor } from "./edit-controls";
 import { NewTaskForm } from "./new-task-form";
 
@@ -63,59 +64,61 @@ export default async function ContactDetail({
   ]);
 
   const c = row.contact;
+  const displayName = c.fullName ?? c.email ?? "Unnamed contact";
 
   return (
-    <section className="px-6 lg:px-12 py-12">
-      <div className="max-w-5xl mx-auto space-y-10">
-        <header>
-          <Link
-            href="/portal/contacts"
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            ← All contacts
-          </Link>
-          <h1 className="text-section mt-3">
-            {c.fullName ?? c.email ?? "Unnamed contact"}
-          </h1>
-          <div className="flex flex-wrap gap-3 text-sm text-muted-foreground mt-2">
-            {c.email ? <span>{c.email}</span> : null}
-            {c.phone ? <span>· {c.phone}</span> : null}
-            <span>
-              · stage{" "}
-              <span className="px-2 py-0.5 rounded-sm bg-brand-muted text-foreground text-xs">
-                {c.lifecycleStage ?? "—"}
-              </span>
-            </span>
+    <div className="px-4 lg:px-6 py-6 max-w-[1200px] mx-auto w-full">
+      {/* Breadcrumb + header */}
+      <div className="mb-6">
+        <Link
+          href="/portal/contacts"
+          className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 mb-3"
+        >
+          <span>←</span> All contacts
+        </Link>
+        <div className="flex items-start gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <h1 className="portal-h1 truncate">{displayName}</h1>
+            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground mt-1.5 items-center">
+              <ScoreBadge score={c.score} temperature={c.temperature} />
+              {c.email ? <span>{c.email}</span> : null}
+              {c.phone ? <span>· {c.phone}</span> : null}
+            </div>
           </div>
-        </header>
+          <div className="flex items-center gap-2 flex-wrap">
+            <StageEditor contactId={c.id} currentStage={c.lifecycleStage} />
+          </div>
+        </div>
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card title="Identity">
-            <DL items={[
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-6">
+        <Card title="Identity" className="lg:col-span-1">
+          <DL
+            items={[
               ["Name", c.fullName ?? "—"],
               ["Email", c.email ?? "—"],
               ["Phone", c.phone ?? "—"],
               ["Preferred", c.preferredChannel ?? "—"],
               ["Type", (c.type ?? []).join(", ") || "—"],
-            ]} />
-          </Card>
+            ]}
+          />
+        </Card>
 
-          <Card title="Pipeline">
-            <DL items={[
+        <Card title="Pipeline" className="lg:col-span-1">
+          <DL
+            items={[
               ["Source", c.sourceDetail ?? c.source ?? "—"],
               ["Owner", row.agent?.name ?? "(unassigned)"],
               ["First touch", formatDateTime(c.firstTouchAt)],
               ["Last touch", formatDateTime(c.lastTouchAt)],
               ["Created", formatDateTime(c.createdAt)],
-            ]} />
-            <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-eyebrow text-muted-foreground mb-2">Stage</p>
-              <StageEditor contactId={c.id} currentStage={c.lifecycleStage} />
-            </div>
-          </Card>
+            ]}
+          />
+        </Card>
 
-          <Card title="Consent">
-            <DL items={[
+        <Card title="Consent" className="lg:col-span-1">
+          <DL
+            items={[
               [
                 "Email",
                 c.consentEmail
@@ -125,135 +128,160 @@ export default async function ContactDetail({
               [
                 "SMS",
                 c.consentSms
-                  ? `opted in ${formatDateTime(c.consentSmsAt)} (${c.consentSmsMethod ?? "method unknown"})`
+                  ? `opted in ${formatDateTime(c.consentSmsAt)}`
                   : "not opted in",
               ],
-              ["Email unsubscribed", c.unsubscribedEmail ? "yes" : "no"],
-              ["SMS unsubscribed", c.unsubscribedSms ? "yes" : "no"],
+              ["Email unsub", c.unsubscribedEmail ? "yes" : "no"],
+              ["SMS unsub", c.unsubscribedSms ? "yes" : "no"],
               ["Do-not-call", c.doNotCall ? "yes" : "no"],
-            ]} />
-          </Card>
+            ]}
+          />
+        </Card>
+      </div>
 
-          <Card title="Next">
-            <DL items={[
-              [
-                "Action due",
-                c.nextActionDueAt ? formatDateTime(c.nextActionDueAt) : "—",
-              ],
-              ["Archived", c.archivedAt ? "yes" : "no"],
-            ]} />
-          </Card>
-        </div>
-
-        <section className="grid md:grid-cols-2 gap-6">
-          <Card title="Open tasks">
-            {openTasks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No open tasks for this contact.
-              </p>
-            ) : (
-              <ul className="space-y-3">
-                {openTasks.map((t) => {
-                  const overdue =
-                    t.dueAt !== null && t.dueAt.getTime() < Date.now();
-                  return (
-                    <li
-                      key={t.id}
-                      className="border-b border-border last:border-0 pb-3 last:pb-0"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium">{t.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {t.source === "failsafe"
-                              ? `failsafe · ${t.failsafeType}`
-                              : t.source ?? "manual"}
-                            {t.dueAt
-                              ? ` · ${overdue ? "overdue" : "due"} ${formatRelative(t.dueAt)}`
-                              : null}
-                          </p>
-                          {t.description ? (
-                            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                              {t.description}
-                            </p>
-                          ) : null}
-                        </div>
-                        <CompleteTaskButton taskId={t.id} />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Card>
-          <Card title="New task">
-            <NewTaskForm contactId={c.id} />
-          </Card>
-        </section>
-
-        <section>
-          <Card title="Add a note">
-            <NoteForm contactId={c.id} />
-          </Card>
-        </section>
-
-        <section>
-          <h2 className="text-heading mb-4">Activity</h2>
-          {activity.length === 0 ? (
-            <div className="bg-surface border border-border rounded-md p-8 text-center text-muted-foreground text-sm">
-              No events recorded for this contact yet.
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6">
+        <Card title={`Open tasks (${openTasks.length})`}>
+          {openTasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground px-3 py-6 text-center">
+              No open tasks for this contact.
+            </p>
           ) : (
-            <ol className="bg-surface border border-border rounded-md divide-y divide-border">
-              {activity.map((evt) => (
-                <li key={evt.id} className="px-4 py-3 text-sm">
+            <ul className="divide-y divide-border">
+              {openTasks.map((t) => {
+                const overdue =
+                  t.dueAt !== null && t.dueAt.getTime() < Date.now();
+                return (
+                  <li
+                    key={t.id}
+                    className="flex items-start gap-3 px-3 py-2.5"
+                  >
+                    <PriorityDot priority={t.priority} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{t.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t.source === "failsafe"
+                          ? `failsafe · ${t.failsafeType}`
+                          : t.source ?? "manual"}
+                        {t.dueAt
+                          ? ` · ${overdue ? "overdue" : "due"} ${formatRelative(t.dueAt)}`
+                          : null}
+                      </p>
+                      {t.description ? (
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {t.description}
+                        </p>
+                      ) : null}
+                    </div>
+                    <CompleteTaskButton taskId={t.id} />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Card>
+
+        <Card title="New task">
+          <div className="px-3 py-3">
+            <NewTaskForm contactId={c.id} />
+          </div>
+        </Card>
+      </div>
+
+      <Card title="Add a note" className="mb-6">
+        <div className="px-3 py-3">
+          <NoteForm contactId={c.id} />
+        </div>
+      </Card>
+
+      <Card title={`Activity (${activity.length})`}>
+        {activity.length === 0 ? (
+          <p className="text-sm text-muted-foreground px-3 py-6 text-center">
+            No events recorded for this contact yet.
+          </p>
+        ) : (
+          <ol className="divide-y divide-border">
+            {activity.map((evt) => {
+              const payload = evt.payload as Record<string, unknown> | null;
+              const note =
+                payload && typeof payload.note === "string"
+                  ? (payload.note as string)
+                  : null;
+              return (
+                <li key={evt.id} className="px-3 py-2.5 text-sm">
                   <div className="flex items-baseline gap-3">
-                    <span className="font-mono text-xs text-muted-foreground">
+                    <span className="font-mono text-[11px] text-muted-foreground">
                       {evt.eventType}
                     </span>
-                    <span className="text-eyebrow text-muted-foreground ml-auto">
+                    <span className="text-xs text-muted-foreground ml-auto">
                       {formatRelative(evt.occurredAt)}
                     </span>
                   </div>
-                  {evt.payload ? (
-                    <pre className="mt-2 text-xs text-muted-foreground bg-surface-elevated rounded-sm p-3 overflow-x-auto whitespace-pre-wrap">
+                  {note ? (
+                    <p className="mt-1 text-foreground leading-relaxed whitespace-pre-wrap">
+                      {note}
+                    </p>
+                  ) : evt.payload ? (
+                    <pre className="mt-1.5 text-[11px] text-muted-foreground bg-surface-elevated rounded px-2 py-1.5 overflow-x-auto whitespace-pre-wrap font-mono">
                       {JSON.stringify(evt.payload, null, 2)}
                     </pre>
                   ) : null}
                 </li>
-              ))}
-            </ol>
-          )}
-        </section>
-      </div>
-    </section>
+              );
+            })}
+          </ol>
+        )}
+      </Card>
+    </div>
   );
 }
 
 function Card({
   title,
+  className = "",
   children,
 }: {
   title: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-surface border border-border rounded-md p-6">
-      <p className="text-eyebrow text-muted-foreground mb-3">{title}</p>
-      {children}
-    </div>
+    <section
+      className={`bg-surface border border-border rounded-md ${className}`}
+    >
+      <header className="px-3 py-2 border-b border-border">
+        <h2 className="portal-h2">{title}</h2>
+      </header>
+      <div>{children}</div>
+    </section>
   );
 }
 
 function DL({ items }: { items: Array<[string, string]> }) {
   return (
-    <dl className="space-y-2 text-sm">
+    <dl className="px-3 py-2.5 space-y-1.5 text-sm">
       {items.map(([k, v]) => (
         <div key={k} className="grid grid-cols-[100px_1fr] gap-3">
-          <dt className="text-muted-foreground">{k}</dt>
-          <dd>{v}</dd>
+          <dt className="text-xs text-muted-foreground self-center">{k}</dt>
+          <dd className="text-foreground">{v}</dd>
         </div>
       ))}
     </dl>
+  );
+}
+
+function PriorityDot({ priority }: { priority: string | null }) {
+  const color =
+    priority === "urgent"
+      ? "bg-danger"
+      : priority === "high"
+        ? "bg-warning"
+        : priority === "low"
+          ? "bg-muted"
+          : "bg-info";
+  return (
+    <span
+      className={`inline-block size-2 rounded-full shrink-0 mt-1.5 ${color}`}
+      aria-label={`priority ${priority ?? "normal"}`}
+    />
   );
 }
