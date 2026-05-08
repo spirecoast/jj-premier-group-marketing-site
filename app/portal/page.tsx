@@ -57,6 +57,7 @@ export default async function PortalToday() {
     myTasks,
     recentLeads,
     recentActivity,
+    pipelineContacts,
   ] = await Promise.all([
     db
       .select({
@@ -152,6 +153,22 @@ export default async function PortalToday() {
       .where(gte(events.occurredAt, since24h))
       .orderBy(desc(events.occurredAt))
       .limit(10),
+    db
+      .select({
+        id: contacts.id,
+        fullName: contacts.fullName,
+        email: contacts.email,
+        score: contacts.score,
+        temperature: contacts.temperature,
+        lifecycleStage: contacts.lifecycleStage,
+        lastTouchAt: contacts.lastTouchAt,
+        agentName: agents.name,
+      })
+      .from(contacts)
+      .leftJoin(agents, eq(contacts.primaryAgentId, agents.id))
+      .where(isNull(contacts.archivedAt))
+      .orderBy(desc(contacts.score), desc(contacts.lastTouchAt))
+      .limit(80),
   ]);
 
   const stageMap = new Map(stageCounts.map((s) => [s.stage ?? "new", s.count]));
@@ -175,6 +192,14 @@ export default async function PortalToday() {
   const prev7Count = prev7d[0]?.count ?? 0;
   const last7Delta =
     prev7Count === 0 ? null : Math.round(((last7Count - prev7Count) / prev7Count) * 100);
+
+  // Bucket contacts by stage for the kanban
+  const byStage = new Map<string, typeof pipelineContacts>();
+  for (const stage of STAGE_ORDER) byStage.set(stage, []);
+  for (const c of pipelineContacts) {
+    const arr = byStage.get(c.lifecycleStage ?? "new");
+    if (arr) arr.push(c);
+  }
 
   const firstName = agent.name.split(" ")[0] ?? agent.name;
 
@@ -308,22 +333,73 @@ export default async function PortalToday() {
         </Panel>
       </div>
 
-      {/* Pipeline */}
-      <Panel title="Pipeline" className="mb-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-px bg-border rounded-md overflow-hidden">
-          {STAGE_ORDER.map((stage) => (
-            <div
-              key={stage}
-              className="bg-surface px-3 py-3 min-h-[68px] flex flex-col"
-            >
-              <p className="portal-stat-label leading-tight">
-                {STAGE_LABEL[stage]}
-              </p>
-              <p className="portal-stat-num text-foreground mt-auto">
-                {stageMap.get(stage) ?? 0}
-              </p>
-            </div>
-          ))}
+      {/* Pipeline kanban */}
+      <Panel
+        title="Pipeline"
+        action={
+          <Link
+            href="/portal/contacts"
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            Open all →
+          </Link>
+        }
+        className="mb-6"
+      >
+        <div className="overflow-x-auto">
+          <div className="flex gap-3 px-3 py-3 min-w-max">
+            {STAGE_ORDER.map((stage) => {
+              const items = byStage.get(stage) ?? [];
+              const total = stageMap.get(stage) ?? 0;
+              const overflow = total - items.length;
+              return (
+                <div
+                  key={stage}
+                  className="w-56 shrink-0 bg-surface-elevated border border-border rounded-md flex flex-col"
+                >
+                  <header className="px-2.5 py-2 flex items-center justify-between border-b border-border">
+                    <p className="portal-stat-label leading-tight">
+                      {STAGE_LABEL[stage]}
+                    </p>
+                    <span className="text-xs font-mono text-muted-foreground tabular-nums">
+                      {total}
+                    </span>
+                  </header>
+                  <div className="p-1.5 space-y-1.5 min-h-[120px]">
+                    {items.length === 0 ? (
+                      <p className="text-[11px] text-muted-foreground text-center py-4">
+                        empty
+                      </p>
+                    ) : (
+                      items.slice(0, 6).map((c) => (
+                        <Link
+                          key={c.id}
+                          href={`/portal/contacts/${c.id}` as never}
+                          className="block bg-surface border border-border rounded p-2 hover:border-border-strong transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <p className="text-xs font-medium text-foreground truncate flex-1">
+                              {c.fullName ?? c.email ?? "—"}
+                            </p>
+                            <ScoreDot temperature={c.temperature} />
+                          </div>
+                          <p className="text-[10px] text-muted-foreground truncate">
+                            {c.agentName ?? "unassigned"} ·{" "}
+                            {formatRelative(c.lastTouchAt)}
+                          </p>
+                        </Link>
+                      ))
+                    )}
+                    {overflow > 0 && items.length >= 6 ? (
+                      <p className="text-[10px] text-muted-foreground text-center py-1">
+                        +{overflow} more
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </Panel>
 
@@ -575,6 +651,21 @@ export function ScoreBadge({
       <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
       {score}
     </span>
+  );
+}
+
+function ScoreDot({ temperature }: { temperature: string | null }) {
+  const color =
+    temperature === "hot"
+      ? "bg-danger"
+      : temperature === "warm"
+        ? "bg-warning"
+        : "bg-muted";
+  return (
+    <span
+      className={`size-1.5 rounded-full shrink-0 mt-1 ${color}`}
+      aria-label={`temperature ${temperature ?? "cold"}`}
+    />
   );
 }
 
