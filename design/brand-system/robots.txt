@@ -1,0 +1,3 @@
+# Internal brand reference — not for indexing.
+User-agent: *
+Disallow: /
