@@ -114,7 +114,7 @@ Four voices. Contralto and IvyPresto are licensed desktop fonts — specified bu
 | Role | Face | Fallback in files | Usage |
 | --- | --- | --- | --- |
 | Wordmark | **Contralto** | Cormorant Garamond 500 | Wordmark only. Tracking +120 to +440, never below 9px. Never a headline, never body, never mid-sentence. |
-| Display | **IvyPresto Display** | Bodoni Moda | Headlines, pull quotes. **Semibold 600 is the floor — 400 is retired from headline use.** 700 for display. Tracking −12 to 0, leading 1.12–1.24. |
+| Display | **IvyPresto Headline Thin** | Bodoni Moda | Headlines, pull quotes. **Semibold 600 is the floor — 400 is retired from headline use.** 700 for display. Tracking −12 to 0, leading 1.12–1.24. |
 | Body / UI | **Jost** | — | 300 / 400 / 500 / 600, leading 1.6–1.75. Light 300 is the default paragraph weight. |
 | Record | **IBM Plex Mono** | — | 400 / 500, tracking +60, tabular. Every number that must be trusted: prices, SF, dates, DOM, licence numbers, disclosures. |
 
@@ -147,7 +147,7 @@ One identity, two temperatures — the same mark, type and corners, differing on
 
 ## Voice
 
-Composed, expert, coastal. Specificity is the proof — real numbers, real streets, real timelines, never vague reassurance. Tagline is **"Every move, expertly guided."** — sentence case, always the period, IvyPresto Display Italic 600, tracking 0. One line in lockups, plates and footers; square social crops may break it **once, after "move,"**; never all caps, never a mid-clause break, never on Sky.
+Composed, expert, coastal. Specificity is the proof — real numbers, real streets, real timelines, never vague reassurance. Tagline is **"Every move, expertly guided."** — sentence case, always the period, IvyPresto Headline Thin Italic 600, tracking 0. One line in lockups, plates and footers; square social crops may break it **once, after "move,"**; never all caps, never a mid-clause break, never on Sky.
 
 ## Assets
 
@@ -164,7 +164,7 @@ Composed, expert, coastal. Specificity is the proof — real numbers, real stree
 | `assets/photos/jessica-*.png` | Jessica Garza — the wavy, highlighted blonde |
 | `assets/photos/duo-*.png` | Both, dark ground. Joelyn is on the **left** in both duo shots |
 
-All photography is web-optimised to 1100px on the long edge. Full-resolution masters are in `uploads/` (3–16MB each) and are not required to host or build — they are there for print work only.
+All photography is web-optimized to 1100px on the long edge. Full-resolution masters are in `uploads/` (3–16MB each) and are not required to host or build — they are there for print work only.
 
 The CB wordmark SVG was supplied by the client and recoloured by setting `fill` on the root `<svg>` (its paths carry `class="cls-1"` with no fill rule, so they inherit). The JJ mark is **live type**, not an asset — there is no JJ logo file.
 
@@ -172,9 +172,93 @@ The CB wordmark SVG was supplied by the client and recoloured by setting `fill` 
 
 ## Open items before this goes public
 
-1. **Florida licence numbers are outstanding.** Every piece prints `FL LIC PENDING`. The format is Florida DBPR (`SL…`) — an earlier draft used California `DRE` numbers, which was wrong for this market.
+1. **Jessica Garza:** Florida DBPR license `SL3658907`. **Joelyn Nauman: outstanding**, prints as `SL TBD` — do not go to press on anything carrying her name until confirmed. The format is Florida DBPR (`SL…`); an earlier draft used California `DRE` numbers, which was wrong for this market.
 2. **Contact data is real and current:** Joelyn Nauman (309) 258-0225 / joelyn.nauman@cbrealty.com · Jessica Garza (941) 306-8699 / jessica.garza@cbrealty.com · jjpremiergroup.com. All four QR codes encode `jjpremiergroup.com` and scan.
 4. **Coldwell Banker usage needs franchise sign-off** — permitted lockups, trademark symbols, minimum sizes and required placements are governed by the franchise agreement. Confirm against CB's brand centre before printing or publishing.
 5. **Signage regulations are local** — sign dimensions, setback and rider counts vary by municipality and HOA; brokerage identification requirements vary by state.
 6. **Culture-post venues are real; show titles and dates are deliberately blank.** Confirm each against the venue's own calendar, and never imply a sponsorship the team doesn't have. Note: the Players Centre's planned Waterside Place theatre **fell through** — do not reference it.
 7. **Contralto / IvyPresto web licensing** — if licensed for web, self-host and add `@font-face`; the stacks already name them first.
+
+## Material treatments
+
+`JJ Premier Group Material Treatments.dc.html` documents the mark in physical substrates, with photography in `assets/materials/`.
+
+| Treatment | Spec |
+| --- | --- |
+| Etched brass plaque | Satin brass 3mm, acid etch, paint fill #1E3442, 200mm sq, ring stroke 1.5mm |
+| Sandblasted glass | 10mm low-iron, 25mm standoff, second surface |
+| Powder-coated aluminum | 4mm ACM, RAL matched to #1E3442, Linen screen, Sky 300 rule 4mm |
+| Blind deboss | 600gsm cotton uncoated, brass die, 0.9mm strike depth |
+| Letterpress | Pantone 2166 C, rule box 1.5mm at 12mm inset |
+| Bookcloth screenprint | Navy book linen, Linen ink, 12mm minimum cap height |
+| Monument sign | Linen matte face, powder-coated steel surround, JJ cap 260mm min |
+| Door vinyl | Matte cut, second surface, 1500mm from floor |
+
+Production rules: one process per piece, matte always, the seal handles anything small or round or woven, and no gold in any form (satin brass is permitted as a substrate, gold foil and gold ink are not).
+
+The seal always carries PREMIER GROUP under the rule. A bare JJ inside a ring is not approved artwork.
+
+## Document set
+
+Seventeen files, all static HTML with relative paths and no build step. `index.html` is the hub; every document carries the same wrapping navigation bar.
+
+| Document | What it is |
+| --- | --- |
+| Brand Style | Wordmark construction, color system, type scale, CB co-brand |
+| Brand Voice | Vocabulary, rewrites, per-channel word counts, compliance |
+| Photography Direction | Briefing, three subjects, shot lists, file naming |
+| Material Treatments | Brass, glass, deboss, cloth, environment, production rules |
+| Business Cards | Fifteen fronts and backs, both agents |
+| Property Signage | Yard panels, riders, arrows, A-frames |
+| Event Signage | Welcome boards, easels, table tents, badges |
+| Client Guides | Buyer and seller booklets, 16pp each |
+| Market Letter | Quarterly one-pager, five fixed paragraphs |
+| Listing Presentation | Eight-slide deck on deck-stage.js |
+| Web Design | Desktop and mobile screens, interface rules |
+| Social Profiles | Avatars and banners, five platforms |
+| Social Content | Quotes, promotions, culture calendar |
+| Email System | Signatures, designed sends, daily templates |
+| Quick Reference | One page for any vendor |
+| Agent Onboarding | Week one for a new agent |
+
+## Typography correction
+
+Display type is **IvyPresto Headline Thin**, not IvyPresto Display. Headline Thin has a near-uniform stroke and stays legible while reading delicate; Display is high-contrast with hairline thins that disappear at size. The web fallback is **Newsreader**, also low-contrast — do not substitute a Didone such as Bodoni Moda.
+
+Display weights track size: 200 at 44px and above, 300 from 30 to 43px, 400 from 20 to 29px, 500 below that. Body text (Jost) never goes below 400.
+
+## Image library
+
+`JJ Premier Group Image Library.dc.html` documents 24 owned frames in `assets/library/`, in five families.
+
+| Family | Files | Job |
+| --- | --- | --- |
+| Place | `place-*` (7) | Sells the region. Culture posts, letters, covers. |
+| Interiors | `interior-*` (2), `arch-breeze-block` | Stands in for a listing before its own photography exists. |
+| Moments | `moment-*` (4) | Sells the service. Hands and gestures, no identifiable faces. |
+| Texture | `texture-quartz-sand` | Proves the palette came from somewhere real. |
+| Illustration | `art-*` (9) | Carries recurring series without looking repeated. |
+
+Selection rules: one family per surface (a photograph and an illustration on the same page read as two brands); illustration for anything that posts weekly; type only over a calm third of a frame, otherwise on a Deep Harbor panel beside it; never a recognisable property the team does not represent.
+
+No identifiable face appears in the Moments family, which is deliberate — it avoids the model-release requirement entirely. Keep it that way, or get releases in writing.
+
+## Screen map
+
+| Screen | Built from |
+| --- | --- |
+| index.html | Hub. Seventeen document cards, grouped nav. |
+| Brand Style | Wordmark, colour, type, CB co-brand |
+| Brand Voice | Vocabulary, rewrites, channel word counts, compliance |
+| Photography Direction | Briefing, subjects, shot lists, naming |
+| Image Library | assets/library/ (24 frames) |
+| Material Treatments | assets/materials/ (19 treatments) |
+| Business Cards | 15 layouts, assets/photos/, assets/qr-*.png |
+| Property / Event Signage | Panels, riders, boards, badges |
+| Client Guides | Buyer and seller booklets |
+| Market Letter | Quarterly one-pager |
+| Listing Presentation | deck-stage.js, 8 slides |
+| Web Design | Desktop + 3 mobile screens |
+| Social Profiles / Content | Avatars, banners, posts, culture calendar |
+| Email System | Signatures + templates |
+| Quick Reference / Agent Onboarding | Vendor sheet, week-one guide |

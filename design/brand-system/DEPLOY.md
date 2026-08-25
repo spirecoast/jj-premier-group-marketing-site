@@ -4,6 +4,22 @@ The project is already a static site — plain HTML with relative asset paths. T
 
 `index.html` is the entry point and links to all seven documents.
 
+| `JJ Premier Group Listing Presentation.dc.html` | Eight-slide deck, deck-stage.js |
+
+| `JJ Premier Group Market Letter.dc.html` | Quarterly one-pager, 8.5 × 11 in |
+
+| `JJ Premier Group Email System.dc.html` | Signatures and templates, 600px |
+
+| `JJ Premier Group Photography Direction.dc.html` | Shot lists, briefing, file naming |
+
+| `JJ Premier Group Client Guides.dc.html` | Buyer and seller booklets, 5.5 × 8.5 in |
+
+| `JJ Premier Group Quick Reference.dc.html` | One-page vendor sheet |
+
+| `JJ Premier Group Agent Onboarding.dc.html` | Week one for a new agent |
+
+| `JJ Premier Group Image Library.dc.html` | 24 owned frames: place, interiors, moments, texture, illustration |
+
 ## Fastest option — Netlify Drop (about a minute, no account needed to start)
 
 1. Go to https://app.netlify.com/drop
@@ -38,7 +54,9 @@ Both auto-detect a static site. Framework preset: **Other**. Build command: leav
 | `support.js` | Runtime the `.dc.html` files load — **required** |
 | `doc-page.js` | Print geometry for the PDF copy |
 | `assets/` | Coldwell Banker logo variants (6 SVGs), QR codes (4 PNGs) |
-| `assets/photos/` | Team photography, web-optimised |
+| `assets/photos/` | Team photography, web-optimized |
+| `assets/library/` | Image library: place, interiors, moments, texture, illustration |
+| `assets/materials/` | Material treatment photography (brass, glass, press, cloth, signage) |
 
 ## Notes for whoever hosts it
 
@@ -51,7 +69,18 @@ Both auto-detect a static site. Framework preset: **Other**. Build command: leav
 
 Placeholders still in the files:
 
-- **Florida licence numbers are outstanding** — every piece prints `FL LIC PENDING`. Format is Florida DBPR (`SL…`), not California DRE.
+- Jessica Garza: Florida DBPR license `SL3658907`, live in every document.
+- **Joelyn Nauman's license is outstanding** and prints as `SL TBD`. Nothing carrying her name should go to press until it is confirmed.
 - Phones, emails and the QR destination (`jjpremiergroup.com`) are real and live.
-- Photography in `assets/photos/` is web-optimised to 1100px. Full-resolution masters live in `uploads/` and are NOT needed to host the site — exclude them if you are size-limited.
+- Photography in `assets/photos/` is web-optimized to 1100px. Full-resolution masters live in `uploads/` and are NOT needed to host the site — exclude them if you are size-limited.
 - Coldwell Banker logo usage should be confirmed against the franchise brand centre before anything is printed or published
+
+## Fonts
+
+Display type is specified as **IvyPresto Headline Thin** (Ivy Foundry, licensed separately) with **Newsreader** as the web fallback in every stack. The wordmark is **Contralto** with **Cormorant Garamond** as fallback. Body is **Jost**, mono is **IBM Plex Mono**; both load from Google Fonts.
+
+Nothing breaks without the licensed fonts installed. If you buy web licenses for Contralto and IvyPresto Headline Thin, drop the .woff2 files in `assets/fonts/` and add `@font-face` rules to each page's `<style>` block. The family names in the stacks already match.
+
+## Vercel
+
+Static, no build step. `vercel --prod` from the project root, or connect the repo and accept the defaults (framework: Other, build command: none, output directory: `./`). File names contain spaces and are referenced as `%20`-encoded hrefs, which Vercel serves correctly.

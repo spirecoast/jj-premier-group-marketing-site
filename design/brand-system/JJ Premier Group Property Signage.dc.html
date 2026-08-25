@@ -11,17 +11,73 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,600&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,200;1,6..72,300;1,6..72,400&family=Frank+Ruhl+Libre:wght@300;400;500&family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   body { margin: 0; background: #FAF8F5; -webkit-font-smoothing: antialiased; }
-  a { color: #3F5F73; text-decoration: none; border-bottom: 1px solid #C3D5E0; }
-  a:hover { color: #1E3442; border-color: #1E3442; }
+  a { color: #3F5F73; text-decoration: none; }
+  a:hover { color: #1E3442; }
+  .nav-g { position: relative; }
+  .nav-g > .nav-p { position: absolute; top: 100%; left: -14px; padding-top: 15px; min-width: 208px; opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .16s ease, transform .16s ease, visibility .16s; z-index: 70; }
+  .nav-g:hover > .nav-p, .nav-g:focus-within > .nav-p { opacity: 1; visibility: visible; transform: translateY(0); }
 </style>
 </helmet>
 
-<div style="width: 1440px; margin: 0 auto; background: #FAF8F5; color: #2B2D30; font-family: Jost, Helvetica, sans-serif; overflow: hidden">
-
+<div style="width: 1440px; margin: 0 auto; background: #FAF8F5; color: #2B2D30; font-family: Jost, Helvetica, sans-serif">
+  <div style="position: sticky; top: 0; z-index: 60; background: rgba(20, 37, 48, 0.86); backdrop-filter: blur(20px) saturate(1.15); -webkit-backdrop-filter: blur(20px) saturate(1.15); border-bottom: 1px solid rgba(137, 212, 227, 0.16); padding: 15px 96px; display: flex; align-items: center; gap: 68px; flex-wrap: wrap">
+      <a href="index.html" style="display: flex; align-items: center; gap: 15px; flex-shrink: 0" style-hover="opacity: 0.82">
+        <span style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 36px; line-height: 1; letter-spacing: 0.1em; margin-right: -0.1em; color: #E6DDD1">JJ</span>
+        <span style="width: 1px; height: 42px; background: rgba(230, 221, 209, 0.55); flex-shrink: 0"></span>
+        <span style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 10.5px; line-height: 1.6; letter-spacing: 0.3em; margin-right: -0.3em; text-align: left; color: #E6DDD1">PREMIER<br />GROUP</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 46px; flex-wrap: wrap">
+        <div class="nav-g" style="display: flex; flex-direction: column">
+          <span tabindex="0" style="display: flex; align-items: center; gap: 7px; padding: 8px 0; cursor: default; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: #A8C4D4" style-hover="color: #FFFFFF">Foundations<span style="width: 0; height: 0; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 4px solid currentColor; flex-shrink: 0; margin-top: 1px"></span></span>
+          <div class="nav-p">
+            <div style="display: flex; flex-direction: column; padding: 12px 0; background: rgba(18, 33, 43, 0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(137, 212, 227, 0.2); box-shadow: 0 18px 40px rgba(10, 20, 28, 0.45)">
+              <a href="JJ%20Premier%20Group%20Brand%20Style.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Identity</a>
+              <a href="JJ%20Premier%20Group%20Brand%20Voice.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Voice</a>
+              <a href="JJ%20Premier%20Group%20Photography%20Direction.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Photography</a>
+              <a href="JJ%20Premier%20Group%20Image%20Library.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Images</a>
+              <a href="JJ%20Premier%20Group%20Material%20Treatments.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Materials</a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-g" style="display: flex; flex-direction: column">
+          <span tabindex="0" style="display: flex; align-items: center; gap: 7px; padding: 8px 0; cursor: default; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: #A8C4D4" style-hover="color: #FFFFFF">Digital<span style="width: 0; height: 0; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 4px solid currentColor; flex-shrink: 0; margin-top: 1px"></span></span>
+          <div class="nav-p">
+            <div style="display: flex; flex-direction: column; padding: 12px 0; background: rgba(18, 33, 43, 0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(137, 212, 227, 0.2); box-shadow: 0 18px 40px rgba(10, 20, 28, 0.45)">
+              <a href="JJ%20Premier%20Group%20Web%20Design.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Web</a>
+              <a href="JJ%20Premier%20Group%20Social%20Profiles.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Profiles</a>
+              <a href="JJ%20Premier%20Group%20Social%20Content.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Content</a>
+              <a href="JJ%20Premier%20Group%20Email%20System.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Email</a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-g" style="display: flex; flex-direction: column">
+          <span tabindex="0" style="display: flex; align-items: center; gap: 7px; padding: 8px 0; cursor: default; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: #A8C4D4" style-hover="color: #FFFFFF">Practice<span style="width: 0; height: 0; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 4px solid currentColor; flex-shrink: 0; margin-top: 1px"></span></span>
+          <div class="nav-p">
+            <div style="display: flex; flex-direction: column; padding: 12px 0; background: rgba(18, 33, 43, 0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(137, 212, 227, 0.2); box-shadow: 0 18px 40px rgba(10, 20, 28, 0.45)">
+              <a href="JJ%20Premier%20Group%20Listing%20Presentation.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Listing</a>
+              <a href="JJ%20Premier%20Group%20Market%20Letter.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Letter</a>
+              <a href="JJ%20Premier%20Group%20Quick%20Reference.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Reference</a>
+              <a href="JJ%20Premier%20Group%20Agent%20Onboarding.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Onboarding</a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-g" style="display: flex; flex-direction: column">
+          <span tabindex="0" style="display: flex; align-items: center; gap: 7px; padding: 8px 0; cursor: default; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: #89D4E3" style-hover="color: #FFFFFF">Collateral<span style="width: 0; height: 0; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 4px solid currentColor; flex-shrink: 0; margin-top: 1px"></span></span>
+          <div class="nav-p">
+            <div style="display: flex; flex-direction: column; padding: 12px 0; background: rgba(18, 33, 43, 0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(137, 212, 227, 0.2); box-shadow: 0 18px 40px rgba(10, 20, 28, 0.45)">
+              <a href="JJ%20Premier%20Group%20Business%20Cards.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Cards</a>
+              <a href="JJ%20Premier%20Group%20Property%20Signage.dc.html" style="font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #FFFFFF; padding: 7px 22px 7px 20px; border-left: 2px solid #89D4E3" style-hover="color: #FFFFFF">Property</a>
+              <a href="JJ%20Premier%20Group%20Event%20Signage.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Events</a>
+              <a href="JJ%20Premier%20Group%20Client%20Guides.dc.html" style="font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; line-height: 1.2; color: #B4CBD8; padding: 7px 22px 7px 20px; border-left: 2px solid transparent" style-hover="color: #FFFFFF">Guides</a>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
   <div style="background: #1E3442; padding: 88px 96px 72px; display: flex; flex-direction: column; gap: 56px">
     <div style="display: flex; justify-content: space-between; align-items: baseline; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #89D4E3">
       <span>Property signage</span>
@@ -29,21 +85,21 @@
     </div>
     <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 56px">
       <div style="display: flex; flex-direction: column; gap: 20px">
-        <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 56px; line-height: 1.06; letter-spacing: -0.018em; color: #E6DDD1">Property signage</div>
-        <div style="font-size: 17px; font-weight: 300; line-height: 1.7; color: #9EBCCC; max-width: 640px">Read at forty miles an hour, from across the street, in flat afternoon light. Everything here is sized from that constraint backwards — one message per panel, phone number never smaller than the address.</div>
+        <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 56px; line-height: 1.06; letter-spacing: -0.018em; color: #E6DDD1">Property signage</div>
+        <div style="font-size: 17px; font-weight: 400; line-height: 1.7; color: #9EBCCC; max-width: 640px">Read at forty miles an hour, from across the street, in flat afternoon light. Everything here is sized from that constraint backwards. One message per panel, phone number never smaller than the address.</div>
       </div>
       <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px">
         <div style="position: relative; display: flex; align-items: center; justify-content: flex-end; width: 212px">
           <div style="position: absolute; left: 0; right: 0; top: 62%; height: 1px; background: #5C86A0"></div>
-          <div style="position: relative; background: #1E3442; padding-left: 14px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 42px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
+          <div style="position: relative; background: #1E3442; padding-left: 14px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 42px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
         </div>
-        <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 12px; letter-spacing: 0.44em; text-indent: 0.44em; color: #E6DDD1">PREMIER GROUP</div>
+        <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 12px; letter-spacing: 0.44em; text-indent: 0.44em; color: #E6DDD1">PREMIER GROUP</div>
       </div>
     </div>
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 48px; padding-top: 36px; border-top: 1px solid #35566B">
       <div style="display: flex; gap: 40px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.9; color: #7BA1B6">
         <div>SCALE &nbsp;1 IN = 20 PX<br />SUBSTRATE &nbsp;ALUMINIUM / PVC</div>
-        <div>FINISH &nbsp;MATTE ONLY<br />NO GLOSS — GLARE KILLS LEGIBILITY</div>
+        <div>FINISH &nbsp;MATTE ONLY<br />NO GLOSS · GLARE KILLS LEGIBILITY</div>
         <div>MIN CAP HEIGHT &nbsp;2 IN AT 30 FT<br />CORNERS &nbsp;SQUARE</div>
       </div>
       <img src="assets/coldwell-banker-horz-cream.svg" alt="Coldwell Banker" style="width: 236px; height: 32.3px; display: block" />
@@ -52,7 +108,7 @@
 
   <div style="padding: 96px 96px 72px; display: flex; flex-direction: column; gap: 24px; border-bottom: 1px solid #E1EAF0">
     <div style="display: flex; align-items: center; gap: 16px">
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #63666A">Listing panel &nbsp;— &nbsp;24 × 18 in</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #4E5157">Listing panel &nbsp;· &nbsp;24 × 18 in</div>
       <div style="flex: 1; height: 1px; background: #E1EAF0"></div>
     </div>
     <div style="display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start">
@@ -63,11 +119,11 @@
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px">
               <div style="position: relative; display: flex; align-items: center; width: 186px">
                 <div style="position: absolute; left: 0; right: 0; top: 62%; height: 1px; background: #5C86A0"></div>
-                <div style="position: relative; background: #1E3442; padding-right: 13px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 44px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
+                <div style="position: relative; background: #1E3442; padding-right: 13px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 44px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
               </div>
-              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 11px; letter-spacing: 0.44em; text-indent: 0.44em; color: #E6DDD1">PREMIER GROUP</div>
+              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 11px; letter-spacing: 0.44em; text-indent: 0.44em; color: #E6DDD1">PREMIER GROUP</div>
             </div>
-            <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 42px; line-height: 0.92; letter-spacing: -0.02em; text-align: right; color: #FFFFFF">For<br />Sale</div>
+            <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 42px; line-height: 0.92; letter-spacing: -0.02em; text-align: right; color: #FFFFFF">For<br />Sale</div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 14px">
             <div style="height: 1px; background: #5C86A0"></div>
@@ -78,7 +134,7 @@
             </div>
           </div>
         </div>
-        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #63666A">PRIMARY · DEEP HARBOR<br />PHONE IS THE LARGEST ELEMENT — 34PX = 1.7 IN CAP</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #4E5157">PRIMARY · DEEP HARBOR<br />PHONE IS THE LARGEST ELEMENT · 34PX = 1.7 IN CAP</div>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 14px">
@@ -86,12 +142,12 @@
           <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 6px">
             <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 300px">
               <div style="position: absolute; left: 0; right: 0; top: 62%; height: 1px; background: #5C86A0"></div>
-              <div style="position: relative; background: #FAF8F5; padding: 0 18px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 60px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #1E3442">JJ</div>
+              <div style="position: relative; background: #FAF8F5; padding: 0 18px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 60px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #1E3442">JJ</div>
             </div>
-            <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 15px; letter-spacing: 0.44em; text-indent: 0.44em; color: #1E3442">PREMIER GROUP</div>
+            <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 15px; letter-spacing: 0.44em; text-indent: 0.44em; color: #1E3442">PREMIER GROUP</div>
           </div>
           <div style="display: flex; flex-direction: column; align-items: center; gap: 12px">
-            <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 32px; line-height: 1; letter-spacing: -0.014em; color: #1E3442">For Sale</div>
+            <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 32px; line-height: 1; letter-spacing: -0.014em; color: #1E3442">For Sale</div>
             <div style="width: 100%; height: 1px; background: #C3D5E0"></div>
             <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; width: 100%">
               <div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; line-height: 1; color: #1E3442">(941) 306-8699</div>
@@ -99,19 +155,19 @@
             </div>
           </div>
         </div>
-        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #63666A">ALTERNATE · PAPER WITH 6PX FRAME<br />FOR WOODED LOTS AND DARK FRONTAGES</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #4E5157">ALTERNATE · PAPER WITH 6PX FRAME<br />FOR WOODED LOTS AND DARK FRONTAGES</div>
       </div>
     </div>
   </div>
 
   <div style="padding: 72px 96px; display: flex; flex-direction: column; gap: 24px; border-bottom: 1px solid #E1EAF0">
     <div style="display: flex; align-items: center; gap: 16px">
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #63666A">Riders &nbsp;— &nbsp;24 × 6 in · one per post, never two</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #4E5157">Riders &nbsp;· &nbsp;24 × 6 in · one per post, never two</div>
       <div style="flex: 1; height: 1px; background: #E1EAF0"></div>
     </div>
     <div style="display: flex; flex-direction: column; gap: 16px">
       <div style="width: 480px; height: 120px; background: #C7E7EF; display: flex; align-items: center; justify-content: center">
-        <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: #1E3442">Open Sunday</div>
+        <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: #1E3442">Open Sunday</div>
       </div>
       <div style="width: 480px; height: 120px; background: #1E3442; display: flex; align-items: center; justify-content: center">
         <div style="font-size: 32px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #89D4E3">Under contract</div>
@@ -120,22 +176,22 @@
         <div style="font-size: 32px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #46402F">Just reduced</div>
       </div>
       <div style="width: 480px; height: 120px; background: #E6DDD1; display: flex; align-items: center; justify-content: center">
-        <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: #1E3442">Coming soon</div>
+        <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: #1E3442">Coming soon</div>
       </div>
       <div style="width: 480px; height: 120px; background: #2C6E7E; display: flex; align-items: center; justify-content: center">
-        <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: #FFFFFF">Sold</div>
+        <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 40px; line-height: 1; letter-spacing: -0.01em; color: #FFFFFF">Sold</div>
       </div>
       <div style="width: 480px; height: 120px; background: #FAF8F5; border: 4px solid #1E3442; display: flex; align-items: center; justify-content: space-between; padding: 0 26px">
         <div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; color: #1E3442">(309) 258-0225</div>
         <div style="font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #3F5F73">Joelyn</div>
       </div>
     </div>
-    <div style="font-size: 14px; font-weight: 300; line-height: 1.7; color: #44464A; max-width: 760px">Status riders carry no logo — the panel above them already did. A rider is one word or two, set once, and it never repeats what the panel says.</div>
+    <div style="font-size: 14px; font-weight: 400; line-height: 1.7; color: #3A3D42; max-width: 760px">Status riders carry no logo. The panel above them already did. A rider is one word or two, set once, and it never repeats what the panel says.</div>
   </div>
 
   <div style="padding: 72px 96px; display: flex; flex-direction: column; gap: 24px; border-bottom: 1px solid #E1EAF0">
     <div style="display: flex; align-items: center; gap: 16px">
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #63666A">Open house</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #4E5157">Open house</div>
       <div style="flex: 1; height: 1px; background: #E1EAF0"></div>
     </div>
     <div style="display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start">
@@ -143,20 +199,20 @@
       <div style="display: flex; flex-direction: column; gap: 14px">
         <div style="width: 360px; height: 480px; background: #FAF8F5; border: 5px solid #1E3442; padding: 30px 28px; display: flex; flex-direction: column; justify-content: space-between; align-items: center">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 16px">
-            <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 38px; line-height: 0.98; text-align: center; letter-spacing: -0.016em; color: #1E3442">Open<br />House</div>
+            <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 38px; line-height: 0.98; text-align: center; letter-spacing: -0.016em; color: #1E3442">Open<br />House</div>
             <div style="width: 88px; height: 1px; background: #5C86A0"></div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.08em; text-align: center; line-height: 1.7; color: #44464A">SUN 1—3 PM<br />18 CLIFFSIDE TER</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.08em; text-align: center; line-height: 1.7; color: #3A3D42">SUN 1–3 PM<br />18 CLIFFSIDE TER</div>
           </div>
           <div style="width: 0; height: 0; border-top: 54px solid transparent; border-bottom: 54px solid transparent; border-right: 76px solid #1E3442"></div>
           <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%">
             <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
-              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 32px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #1E3442">JJ</div>
-              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 9px; letter-spacing: 0.36em; text-indent: 0.36em; color: #1E3442">PREMIER GROUP</div>
+              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 32px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #1E3442">JJ</div>
+              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 9px; letter-spacing: 0.36em; text-indent: 0.36em; color: #1E3442">PREMIER GROUP</div>
             </div>
             <img src="assets/coldwell-banker-horz-navy.svg" alt="Coldwell Banker" style="width: 120px; height: 16.4px; display: block" />
           </div>
         </div>
-        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #63666A">DIRECTIONAL · 18 × 24 IN<br />ARROW MIRRORS FOR THE OPPOSITE CORNER</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #4E5157">DIRECTIONAL · 18 × 24 IN<br />ARROW MIRRORS FOR THE OPPOSITE CORNER</div>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 14px">
@@ -164,16 +220,16 @@
           <div style="display: flex; flex-direction: column; align-items: center; gap: 12px">
             <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 300px">
               <div style="position: absolute; left: 0; right: 0; top: 62%; height: 1px; background: #5C86A0"></div>
-              <div style="position: relative; background: #1E3442; padding: 0 18px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 58px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
+              <div style="position: relative; background: #1E3442; padding: 0 18px; font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 58px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
             </div>
-            <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 14px; letter-spacing: 0.44em; text-indent: 0.44em; color: #E6DDD1">PREMIER GROUP</div>
+            <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 14px; letter-spacing: 0.44em; text-indent: 0.44em; color: #E6DDD1">PREMIER GROUP</div>
           </div>
           <div style="display: flex; flex-direction: column; align-items: center; gap: 24px">
-            <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 62px; line-height: 0.94; text-align: center; letter-spacing: -0.022em; color: #FFFFFF">Open<br />House</div>
+            <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 200; font-size: 62px; line-height: 0.94; text-align: center; letter-spacing: -0.022em; color: #FFFFFF">Open<br />House</div>
             <div style="width: 200px; height: 1px; background: #89D4E3"></div>
             <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
-              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; letter-spacing: 0.04em; color: #89D4E3">SUN 1—3 PM</div>
-              <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 600; font-size: 25px; line-height: 1.2; text-align: center; color: #E6DDD1">18 Cliffside Terrace</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; letter-spacing: 0.04em; color: #89D4E3">SUN 1–3 PM</div>
+              <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 300; font-size: 25px; line-height: 1.2; text-align: center; color: #E6DDD1">18 Cliffside Terrace</div>
               <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: 0.06em; color: #9EBCCC">4 BD · 3.5 BA · 3,940 SF · $2,850,000</div>
             </div>
           </div>
@@ -189,44 +245,44 @@
             </div>
           </div>
         </div>
-        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #63666A">A-FRAME · 24 × 36 IN<br />CODE IN A WHITE PANEL — SCANS AT ARM'S LENGTH</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #4E5157">A-FRAME · 24 × 36 IN<br />CODE IN A WHITE PANEL · SCANS AT ARM'S LENGTH</div>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 14px">
         <div style="width: 340px; height: 440px; background: #FAF8F5; border: 1px solid #C3D5E0; display: flex; flex-direction: column">
-          <img src="assets/photos/duo-square.png" alt="Joelyn Nauman and Jessica Garza" style="width: 100%; height: 200px; object-fit: cover; object-position: 50% 18%; display: block" />
+          <img src="assets/photos/duo-square.jpg" alt="Joelyn Nauman and Jessica Garza" style="width: 100%; height: 200px; object-fit: cover; object-position: 50% 18%; display: block" />
           <div style="flex: 1; padding: 26px 28px; display: flex; flex-direction: column; justify-content: space-between">
             <div style="display: flex; flex-direction: column; gap: 12px">
-              <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 600; font-size: 24px; line-height: 1.18; color: #1E3442">Welcome in. Take your time.</div>
+              <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 300; font-size: 24px; line-height: 1.18; color: #1E3442">Welcome in. Take your time.</div>
               <div style="height: 1px; background: #5C86A0"></div>
-              <div style="font-size: 14px; font-weight: 300; line-height: 1.65; color: #44464A">Please leave shoes at the door. Ask us anything — including what we'd change.</div>
+              <div style="font-size: 14px; font-weight: 400; line-height: 1.65; color: #3A3D42">Please leave shoes at the door. Ask us anything, including what we'd change.</div>
             </div>
             <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px">
-              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; line-height: 1.7; color: #63666A">JOELYN NAUMAN<br />JESSICA GARZA</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; line-height: 1.7; color: #4E5157">JOELYN NAUMAN<br />JESSICA GARZA</div>
               <img src="assets/coldwell-banker-horz-navy.svg" alt="Coldwell Banker" style="width: 106px; height: 14.5px; display: block" />
             </div>
           </div>
         </div>
-        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #63666A">ENTRY EASEL · 17 × 22 IN<br />THE ONLY SIGN WITH A PHOTO AND A SENTENCE</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 1.8; color: #4E5157">ENTRY EASEL · 17 × 22 IN<br />THE ONLY SIGN WITH A PHOTO AND A SENTENCE</div>
       </div>
     </div>
   </div>
 
   <div style="padding: 72px 96px 96px; display: flex; flex-direction: column; gap: 24px">
     <div style="display: flex; align-items: center; gap: 16px">
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #63666A">Post assembly &amp; rules</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #4E5157">Post assembly &amp; rules</div>
       <div style="flex: 1; height: 1px; background: #E1EAF0"></div>
     </div>
     <div style="display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start">
       <div style="display: flex; flex-direction: column; gap: 10px; align-items: center">
-        <div style="width: 240px; height: 60px; background: #C7E7EF; display: flex; align-items: center; justify-content: center; font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 20px; color: #1E3442">Open Sunday</div>
+        <div style="width: 240px; height: 60px; background: #C7E7EF; display: flex; align-items: center; justify-content: center; font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 300; font-size: 20px; color: #1E3442">Open Sunday</div>
         <div style="width: 240px; height: 180px; background: #1E3442; padding: 18px 20px; display: flex; flex-direction: column; justify-content: space-between">
           <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
             <div style="display: flex; flex-direction: column; gap: 4px">
-              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 22px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
-              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 500; font-size: 6.5px; letter-spacing: 0.36em; text-indent: 0.36em; color: #E6DDD1">PREMIER GROUP</div>
+              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 22px; line-height: 1; letter-spacing: 0.12em; text-indent: 0.12em; color: #E6DDD1">JJ</div>
+              <div style="font-family: Contralto, 'Cormorant Garamond', serif; font-weight: 600; font-size: 6.5px; letter-spacing: 0.36em; text-indent: 0.36em; color: #E6DDD1">PREMIER GROUP</div>
             </div>
-            <div style="font-family: 'IvyPresto Display', 'Bodoni Moda', serif; font-weight: 700; font-size: 20px; line-height: 0.92; text-align: right; color: #FFFFFF">For<br />Sale</div>
+            <div style="font-family: 'IvyPresto Headline Thin', Newsreader, 'Frank Ruhl Libre', Georgia, serif; font-weight: 300; font-size: 20px; line-height: 0.92; text-align: right; color: #FFFFFF">For<br />Sale</div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 7px">
             <div style="height: 1px; background: #5C86A0"></div>
@@ -241,24 +297,24 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px">
           <div style="display: flex; flex-direction: column; gap: 11px; padding-top: 18px; border-top: 2px solid #1E3442">
             <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #3F5F73">One message per panel</div>
-            <div style="font-size: 14px; font-weight: 300; line-height: 1.68; color: #44464A">The panel says who and how to reach them. Riders say what changed. Neither says both.</div>
+            <div style="font-size: 14px; font-weight: 400; line-height: 1.68; color: #3A3D42">The panel says who and how to reach them. Riders say what changed. Neither says both.</div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 11px; padding-top: 18px; border-top: 2px solid #1E3442">
             <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #3F5F73">Phone beats address</div>
-            <div style="font-size: 14px; font-weight: 300; line-height: 1.68; color: #44464A">A passer-by can read the address off the house. Set the phone larger than everything but the brand.</div>
+            <div style="font-size: 14px; font-weight: 400; line-height: 1.68; color: #3A3D42">A passer-by can read the address off the house. Set the phone larger than everything but the brand.</div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 11px; padding-top: 18px; border-top: 2px solid #1E3442">
             <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #3F5F73">Matte, never gloss</div>
-            <div style="font-size: 14px; font-weight: 300; line-height: 1.68; color: #44464A">Gloss laminate blows out under afternoon sun and photographs badly in listing shots.</div>
+            <div style="font-size: 14px; font-weight: 400; line-height: 1.68; color: #3A3D42">Gloss laminate blows out under afternoon sun and photographs badly in listing shots.</div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 11px; padding-top: 18px; border-top: 2px solid #1E3442">
             <div style="font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #3F5F73">Sky stays off signage</div>
-            <div style="font-size: 14px; font-weight: 300; line-height: 1.68; color: #44464A">Mist 200 is permitted as a rider ground. Sky 300 is not — outdoors it turns to haze against the sky itself.</div>
+            <div style="font-size: 14px; font-weight: 400; line-height: 1.68; color: #3A3D42">Mist 200 is permitted as a rider ground. Sky 300 is not. Outdoors it turns to haze against the sky itself.</div>
           </div>
         </div>
         <div style="background: #F3EEE6; border-left: 2px solid #96702A; padding: 24px 30px; display: flex; gap: 20px; align-items: baseline">
           <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #96702A; white-space: nowrap">Check locally</div>
-          <div style="font-size: 14px; font-weight: 300; line-height: 1.7; color: #44464A">Sign dimensions, setback and rider counts are regulated per municipality and per HOA, and brokerage identification requirements vary by state. Confirm both before a print run.</div>
+          <div style="font-size: 14px; font-weight: 400; line-height: 1.7; color: #3A3D42">Sign dimensions, setback and rider counts are regulated per municipality and per HOA, and brokerage identification requirements vary by state. Confirm both before a print run.</div>
         </div>
       </div>
     </div>
