@@ -20,6 +20,8 @@ The project is already a static site — plain HTML with relative asset paths. T
 
 | `JJ Premier Group Image Library.dc.html` | 24 owned frames: place, interiors, moments, texture, illustration |
 
+| `JJ Premier Group Social Templates.dc.html` | 60 fill-in templates: X, Instagram, TikTok |
+| `JJ Premier Group Print Suite.dc.html` | Letterhead, envelope, flyer, postcards, notecards |
 ## Fastest option — Netlify Drop (about a minute, no account needed to start)
 
 1. Go to https://app.netlify.com/drop
@@ -55,6 +57,7 @@ Both auto-detect a static site. Framework preset: **Other**. Build command: leav
 | `doc-page.js` | Print geometry for the PDF copy |
 | `assets/` | Coldwell Banker logo variants (6 SVGs), QR codes (4 PNGs) |
 | `assets/photos/` | Team photography, web-optimized |
+| `assets/signatures/` | Downloadable email signatures (HTML + TXT, both agents) |
 | `assets/library/` | Image library: place, interiors, moments, texture, illustration |
 | `assets/materials/` | Material treatment photography (brass, glass, press, cloth, signage) |
 
@@ -73,7 +76,7 @@ Placeholders still in the files:
 - **Joelyn Nauman's license is outstanding** and prints as `SL TBD`. Nothing carrying her name should go to press until it is confirmed.
 - Phones, emails and the QR destination (`jjpremiergroup.com`) are real and live.
 - Photography in `assets/photos/` is web-optimized to 1100px. Full-resolution masters live in `uploads/` and are NOT needed to host the site — exclude them if you are size-limited.
-- Coldwell Banker logo usage should be confirmed against the franchise brand centre before anything is printed or published
+- Coldwell Banker logo usage should be confirmed against the franchise brand center before anything is printed or published
 
 ## Fonts
 

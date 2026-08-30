@@ -1595,8 +1595,9 @@
       // marginLeft shifts the centre by rw/2 so it lands in the middle of
       // the [rw, innerWidth] stage region.
       if (this._overlay) this._overlay.style.marginLeft = (rw / 2) + 'px';
-      const vw = window.innerWidth - rw;
-      const vh = window.innerHeight;
+      const hostR = this.getBoundingClientRect();
+      const vw = (hostR.width || window.innerWidth) - rw;
+      const vh = hostR.height || window.innerHeight;
       const s = Math.min(vw / this.designWidth, vh / this.designHeight);
       this._canvas.style.transform = `scale(${s})`;
     }
