@@ -2,41 +2,124 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/identity", "destination": "/JJ Premier Group Brand Style.dc.html" },
-    { "source": "/voice", "destination": "/JJ Premier Group Brand Voice.dc.html" },
-    { "source": "/photography", "destination": "/JJ Premier Group Photography Direction.dc.html" },
-    { "source": "/images", "destination": "/JJ Premier Group Image Library.dc.html" },
-    { "source": "/materials", "destination": "/JJ Premier Group Material Treatments.dc.html" },
-    { "source": "/cards", "destination": "/JJ Premier Group Business Cards.dc.html" },
-    { "source": "/property", "destination": "/JJ Premier Group Property Signage.dc.html" },
-    { "source": "/events", "destination": "/JJ Premier Group Event Signage.dc.html" },
-    { "source": "/guides", "destination": "/JJ Premier Group Client Guides.dc.html" },
-    { "source": "/print", "destination": "/JJ Premier Group Print Suite.dc.html" },
-    { "source": "/letter", "destination": "/JJ Premier Group Market Letter.dc.html" },
-    { "source": "/listing", "destination": "/JJ Premier Group Listing Presentation.dc.html" },
-    { "source": "/web", "destination": "/JJ Premier Group Web Design.dc.html" },
-    { "source": "/profiles", "destination": "/JJ Premier Group Social Profiles.dc.html" },
-    { "source": "/content", "destination": "/JJ Premier Group Social Content.dc.html" },
-    { "source": "/templates", "destination": "/JJ Premier Group Social Templates.dc.html" },
-    { "source": "/email", "destination": "/JJ Premier Group Email System.dc.html" },
-    { "source": "/reference", "destination": "/JJ Premier Group Quick Reference.dc.html" },
-    { "source": "/logo", "destination": "/JJ Premier Group Logo Files.dc.html" },
-    { "source": "/motion", "destination": "/JJ Premier Group Motion Identity.dc.html" },
-    { "source": "/buyer", "destination": "/JJ Premier Group Buyer Presentation.dc.html" },
-    { "source": "/slides", "destination": "/JJ Premier Group Slide Master.dc.html" },
-    { "source": "/compliance", "destination": "/JJ Premier Group Compliance.dc.html" },
-    { "source": "/onboarding", "destination": "/JJ Premier Group Agent Onboarding.dc.html" }
+    {
+      "source": "/identity",
+      "destination": "/JJ%20Premier%20Group%20Brand%20Style.dc.html"
+    },
+    {
+      "source": "/voice",
+      "destination": "/JJ%20Premier%20Group%20Brand%20Voice.dc.html"
+    },
+    {
+      "source": "/photography",
+      "destination": "/JJ%20Premier%20Group%20Photography%20Direction.dc.html"
+    },
+    {
+      "source": "/images",
+      "destination": "/JJ%20Premier%20Group%20Image%20Library.dc.html"
+    },
+    {
+      "source": "/materials",
+      "destination": "/JJ%20Premier%20Group%20Material%20Treatments.dc.html"
+    },
+    {
+      "source": "/cards",
+      "destination": "/JJ%20Premier%20Group%20Business%20Cards.dc.html"
+    },
+    {
+      "source": "/property",
+      "destination": "/JJ%20Premier%20Group%20Property%20Signage.dc.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/JJ%20Premier%20Group%20Event%20Signage.dc.html"
+    },
+    {
+      "source": "/guides",
+      "destination": "/JJ%20Premier%20Group%20Client%20Guides.dc.html"
+    },
+    {
+      "source": "/print",
+      "destination": "/JJ%20Premier%20Group%20Print%20Suite.dc.html"
+    },
+    {
+      "source": "/letter",
+      "destination": "/JJ%20Premier%20Group%20Market%20Letter.dc.html"
+    },
+    {
+      "source": "/listing",
+      "destination": "/JJ%20Premier%20Group%20Listing%20Presentation.dc.html"
+    },
+    {
+      "source": "/web",
+      "destination": "/JJ%20Premier%20Group%20Web%20Design.dc.html"
+    },
+    {
+      "source": "/profiles",
+      "destination": "/JJ%20Premier%20Group%20Social%20Profiles.dc.html"
+    },
+    {
+      "source": "/content",
+      "destination": "/JJ%20Premier%20Group%20Social%20Content.dc.html"
+    },
+    {
+      "source": "/templates",
+      "destination": "/JJ%20Premier%20Group%20Social%20Templates.dc.html"
+    },
+    {
+      "source": "/email",
+      "destination": "/JJ%20Premier%20Group%20Email%20System.dc.html"
+    },
+    {
+      "source": "/reference",
+      "destination": "/JJ%20Premier%20Group%20Quick%20Reference.dc.html"
+    },
+    {
+      "source": "/logo",
+      "destination": "/JJ%20Premier%20Group%20Logo%20Files.dc.html"
+    },
+    {
+      "source": "/motion",
+      "destination": "/JJ%20Premier%20Group%20Motion%20Identity.dc.html"
+    },
+    {
+      "source": "/buyer",
+      "destination": "/JJ%20Premier%20Group%20Buyer%20Presentation.dc.html"
+    },
+    {
+      "source": "/slides",
+      "destination": "/JJ%20Premier%20Group%20Slide%20Master.dc.html"
+    },
+    {
+      "source": "/compliance",
+      "destination": "/JJ%20Premier%20Group%20Compliance.dc.html"
+    },
+    {
+      "source": "/onboarding",
+      "destination": "/JJ%20Premier%20Group%20Agent%20Onboarding.dc.html"
+    }
   ],
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     }
   ]
