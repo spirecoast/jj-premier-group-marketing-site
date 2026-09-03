@@ -200,7 +200,7 @@ The seal always carries PREMIER GROUP under the rule. A bare JJ inside a ring is
 
 ## Document set
 
-Seventeen files, all static HTML with relative paths and no build step. `index.html` is the hub; every document carries the same wrapping navigation bar.
+Twenty-five files (twenty-four documents plus the hub), all static HTML with relative paths and no build step. `index.html` is the hub; every document carries the same wrapping navigation bar.
 
 | Document | What it is |
 | --- | --- |
@@ -277,3 +277,29 @@ Text rank comes from size and weight, never from a lighter gray. Every body and 
 | Nav group label | `#7BA1B6` | Harbor 950 | 5.3:1 |
 
 Do not use `#7A7E84` (3.85:1) or `#4A6B80` (2.77:1) for text at any size; both were removed for failing AA. Harbor `#5C86A0` reaches only 4.0:1 on Harbor 950, so it is a rule and border color, not a small-text color.
+
+## Deploying to Vercel
+
+Static site, no build step. From the bundle folder: `vercel --prod`.
+
+`vercel.json` is included and does three things:
+- **Clean URLs.** Every document has a short alias: `/identity`, `/voice`, `/photography`, `/images`, `/materials`, `/cards`, `/property`, `/events`, `/guides`, `/print`, `/letter`, `/listing`, `/web`, `/profiles`, `/content`, `/templates`, `/email`, `/reference`, `/onboarding`. The long filenames still work; the aliases are what you share.
+- **Caching.** Everything under `/assets` is immutable for a year. Rename a file when you change it.
+- **No indexing.** `X-Robots-Tag: noindex` plus `robots.txt` and a `noindex` meta on the hub. This is an internal brand portal with real phone numbers and a pending license number; remove those three lines when it should be public.
+
+`404.html` is brand-styled and served automatically for unknown paths. Favicons and an Open Graph share image are in `assets/`.
+
+## Added in the September build
+
+- **Logo Files** — 16 SVG masters in `assets/logo/` (waterline, seal, horizontal; navy, reversed, one-color, black, white) plus the clearspace drawing. Live text in Contralto with Cormorant fallback: open in Illustrator with Contralto installed, Type → Create Outlines, save SVG/EPS/PDF. That single step turns the mark from a font dependency into a shape.
+- **Motion Identity** — the logo reveal built on `animations-v3.jsx` + `jj-motion.jsx`; scrub and export video from the page. Lower thirds, bumpers and caption spec below it.
+- **Buyer Presentation** and **Slide Master** — two more decks on `deck-stage.js`, same nav wrapper as the listing deck.
+- **Compliance** — eight areas collected from Voice, Web, Quick Reference and the guides.
+- **Web Design** gained the property detail page. **Email System** gained the market letter as email. **Print Suite** gained the offer summary table, vehicle magnet and rear decal, and the three-tier closing gift program.
+- **Brand Style** gained six mid-tone surfaces (Harbor 100–400, Sand 300–400) and the emphasis weight rule (IvyPresto Headline Regular, Newsreader 500 on web, once per surface).
+- All pages now set `viewport width=1440` so phones render the full layout scaled rather than broken. A responsive rebuild is the right long-term answer for the marketing site; for the brand portal this is the pragmatic one.
+- Hub has a Downloads row. `IMAGE-PROMPTS.md` (project root, not in the bundle) lists 27 image prompts to replace stand-ins.
+
+## Toward the marketing website
+
+The Web Design page is the spec: homepage, property detail, three mobile screens, nineteen widgets, IDX/FUB wiring, and the compliance strip. Build order that makes sense: property detail and search results first (they carry the IDX integration), homepage second, the team/about and market letter archive third. Every color, measure and state on those pages is authoritative; the widgets are the component library.

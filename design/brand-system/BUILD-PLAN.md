@@ -16,6 +16,9 @@
 
 ## Phase 4 — DONE: Social Templates page (X/IG/TikTok packs), Print Suite page (letterhead, envelope, flyer, postcards, notecards), social profiles rebuilt light (YT/X/FB), yard+event signage light via conversion. STILL OPEN: UI kit section, open-house kit content refresh, per-listing QR URLs. Original list: letterhead + envelope, listing flyer/one-sheet, postcard mailers (just listed/sold), open house kit refresh, UI kit (buttons/forms/tables), Instagram pack, X pack, TikTok pack (quote cards, listing announcements, market stat cards, open house invites, story/reel covers, TikTok end cards, X header refresh, culture calendar tiles), yard sign refresh light-led, closing gift/notecard set.
 
+## Status · Sep 2026
+All build phases complete: 28 joint cards, per-agent signatures (3 formats, downloadable), Social Templates (60), Print Suite, Image Library, 19 web components, seal avatars, waterline everywhere. Deployment files added (vercel.json, 404, robots, favicons, OG).
+
 ## Outstanding external
 - Joelyn FL license number; Christine's 2 new photo sets; TIFF master of duo shot for print; Vinny CB sizing review; attorney read of client-guide cost pages.
 - Handoff bundle (design_handoff_brand_system/) is STALE — resync after phases complete.
