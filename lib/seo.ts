@@ -52,7 +52,9 @@ export function pageMetadata({
     title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: { canonical: url },
-    robots: noIndex ? { index: false, follow: false } : undefined,
+    // Only set when a page opts out; an explicit `undefined` would override the
+    // root layout's NEXT_PUBLIC_ROBOTS_NOINDEX rule instead of inheriting it.
+    ...(noIndex ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       type,
       url,
