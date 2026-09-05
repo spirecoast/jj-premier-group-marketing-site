@@ -70,7 +70,7 @@ export default async function ValuationPage() {
             <LeadForm form="valuation" fields={["name", "email", "phone", "address", "timing"]} submitLabel="Get the number" />
           </div>
           <p className="t-small max-w-[560px] text-graphite-500">
-            This is a comparative market analysis from a licensed broker associate, not an appraisal. If you sell, your
+            This is a comparative market analysis from a licensed REALTOR®, not an appraisal. If you sell, your
             buyer’s lender orders the appraisal; pricing to the comps is how it comes in at contract.
           </p>
         </div>

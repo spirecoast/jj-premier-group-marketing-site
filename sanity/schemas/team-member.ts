@@ -9,7 +9,7 @@ export const teamMemberType = defineType({
     defineField({ name: "name", type: "string", title: "Name", validation: (r) => r.required() }),
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "name" }, validation: (r) => r.required() }),
     imageWithAlt("headshot", "Headshot", true),
-    defineField({ name: "title", type: "string", title: "Title", initialValue: "Broker Associate" }),
+    defineField({ name: "title", type: "string", title: "Title", initialValue: "REALTOR®" }),
     defineField({ name: "licenseNumber", type: "string", title: "Florida license number (SL…)", description: "Leave empty until confirmed; nothing prints without it." }),
     defineField({ name: "bio", type: "blockContent", title: "Bio" }),
     defineField({ name: "phone", type: "string", title: "Phone (display)", description: "(941) 555-0100" }),

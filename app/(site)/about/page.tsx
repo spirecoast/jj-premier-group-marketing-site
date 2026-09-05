@@ -15,7 +15,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = pageMetadata({
   title: "About · Joelyn Nauman and Jessica Garza",
   description:
-    "Two agents, one file, no handoffs. Joelyn Nauman and Jessica Garza, broker associates with Coldwell Banker Realty, on the Suncoast for nineteen years.",
+    "Two agents, one file, no handoffs. Joelyn Nauman and Jessica Garza, REALTORS® with Coldwell Banker Realty, on the Suncoast for nineteen years.",
   path: "/about",
 });
 

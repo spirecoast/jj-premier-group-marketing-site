@@ -22,7 +22,7 @@ export default async function TermsPage() {
       </header>
       <div className="prose-jj">
         <p>
-          By using {site.domain} you agree to these terms. The site is operated by {site.name}, a team of licensed Florida real estate broker associates affiliated with {settings.brokerageName}. If you do not agree, please do not use the site.
+          By using {site.domain} you agree to these terms. The site is operated by {site.name}, a team of licensed Florida real estate REALTORS® affiliated with {settings.brokerageName}. If you do not agree, please do not use the site.
         </p>
 
         <h2>What the site is for</h2>
@@ -37,7 +37,7 @@ export default async function TermsPage() {
 
         <h2>Not advice</h2>
         <p>
-          Nothing on this site is legal, tax, lending, insurance or engineering advice. Valuations we provide on request are comparative market analyses from a licensed broker associate, not appraisals. Any mortgage figure on this site is an estimate, not a quote. Past sale results, including days on market and percentage of list price, describe specific homes and do not predict future prices or returns.
+          Nothing on this site is legal, tax, lending, insurance or engineering advice. Valuations we provide on request are comparative market analyses from a licensed REALTOR®, not appraisals. Any mortgage figure on this site is an estimate, not a quote. Past sale results, including days on market and percentage of list price, describe specific homes and do not predict future prices or returns.
         </p>
 
         <h2>The calendar</h2>

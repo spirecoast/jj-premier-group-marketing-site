@@ -22,7 +22,7 @@ export default async function PrivacyPage() {
       </header>
       <div className="prose-jj">
         <p>
-          This policy explains what {site.name} (“we”, “us”), a team of licensed Florida real estate broker associates with {settings.brokerageName}, collects when you use {site.domain}, why we collect it, and the choices you have. We keep it short on purpose; if anything here is unclear, write to us at the address at the foot of this page.
+          This policy explains what {site.name} (“we”, “us”), a team of licensed Florida real estate REALTORS® with {settings.brokerageName}, collects when you use {site.domain}, why we collect it, and the choices you have. We keep it short on purpose; if anything here is unclear, write to us at the address at the foot of this page.
         </p>
 
         <h2>What we collect</h2>

@@ -105,8 +105,8 @@ Useful switches:
 
 Deliberate keeps from the review passes:
 
-- "Broker Associate" is the title the brand system gives both agents. The brokerage should confirm
-  it matches each licence type (SL vs BK) before launch.
+- Both agents are titled REALTOR® (client correction; the brand system originally said Broker
+  Associate). The mark is always set in capitals with the ® symbol.
 - The Coldwell Banker mark sizes (150 in the nav, 220 in the footer) follow the approved mockup.
 - The privacy and terms pages carry a "draft for legal review" label until counsel signs off.
 

@@ -7,7 +7,7 @@ export const TEAM: TeamMember[] = [
     name: "Joelyn Nauman",
     slug: "joelyn-nauman",
     headshot: img("photos/joelyn-white-vert", "Joelyn Nauman", "50% 20%"),
-    title: "Broker Associate",
+    title: "REALTOR®",
     // Florida DBPR number outstanding. Nothing carrying her name goes to press
     // until it is confirmed (Compliance §02). Editable in siteSettings.
     licenseNumber: "",
@@ -29,7 +29,7 @@ export const TEAM: TeamMember[] = [
     name: "Jessica Garza",
     slug: "jessica-garza",
     headshot: img("photos/jessica-white-vert", "Jessica Garza", "50% 18%"),
-    title: "Broker Associate",
+    title: "REALTOR®",
     licenseNumber: "SL3658907",
     bio: p(
       "Jessica grew up in Bradenton and reads a contract the way other people read a menu. Shorter sentences, the number first, a decision at the end. She runs the offer table and the inspection negotiation, and she is the one who will tell you no.",

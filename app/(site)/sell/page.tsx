@@ -68,7 +68,7 @@ const FAQS: Faq[] = [
         </p>
         <p className="mt-4">
           We will not quote a number we know is too high to win the signature. If ours is lower than someone else’s,
-          ask them for their four. A comparative market analysis from a licensed broker associate is not an appraisal;
+          ask them for their four. A comparative market analysis from a licensed REALTOR® is not an appraisal;
           your buyer’s lender orders that later, and pricing to the comps is how it comes in at contract.
         </p>
       </>

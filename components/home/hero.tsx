@@ -42,7 +42,7 @@ export function Hero({
             <div className="flex flex-col gap-0.5">
               <p className="text-[14px] font-medium text-white text-shadow-photo">{names}</p>
               <p className="font-mono text-[10px] tracking-[0.12em] text-mist">
-                BROKER ASSOCIATES · {site.brokerage.toUpperCase().replace(" REALTY", "")}
+                REALTORS® · {site.brokerage.toUpperCase().replace(" REALTY", "")}
               </p>
             </div>
           </div>

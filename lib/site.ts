@@ -8,7 +8,7 @@ export const site = {
   brokerage: "Coldwell Banker Realty",
   tagline: "Every move, expertly guided.",
   description:
-    "Joelyn Nauman and Jessica Garza, broker associates with Coldwell Banker Realty. Two agents, one file, and the whole coast between Tampa and Venice.",
+    "Joelyn Nauman and Jessica Garza, REALTORS® with Coldwell Banker Realty. Two agents, one file, and the whole coast between Tampa and Venice.",
   /** Bare domain — also the Follow Up Boss lead `source`. No `www.`. */
   domain: "jjpremiergroup.com",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://jjpremiergroup.com",
