@@ -89,7 +89,7 @@ export function getFubConfig(): FubConfig | null {
     apiKey,
     system,
     systemKey,
-    source: (process.env.FUB_LEAD_SOURCE ?? "jjpremiergroup.com").replace(/^www\./, ""),
+    source: (process.env.FUB_LEAD_SOURCE || "jjpremiergroup.com").replace(/^www\./, ""),
   };
 }
 

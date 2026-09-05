@@ -3,6 +3,29 @@
  * Editorial values (phones, licenses, office address, stats) live in the
  * `siteSettings` document and its seed in lib/content/seed — edit them there.
  */
+/**
+ * Public origin of the site. `NEXT_PUBLIC_SITE_URL` wins when it is a valid
+ * absolute URL; an empty or malformed value (easy to leave behind in a hosting
+ * dashboard) must not break the build, so it falls through to the Vercel
+ * production hostname and finally the launch domain.
+ */
+function resolveSiteUrl(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
+    "https://jjpremiergroup.com",
+  ];
+  for (const c of candidates) {
+    if (!c) continue;
+    try {
+      return new URL(c).origin;
+    } catch {
+      // try the next candidate
+    }
+  }
+  return "https://jjpremiergroup.com";
+}
+
 export const site = {
   name: "JJ Premier Group",
   brokerage: "Coldwell Banker Realty",
@@ -11,7 +34,7 @@ export const site = {
     "Joelyn Nauman and Jessica Garza, REALTORS® with Coldwell Banker Realty. Two agents, one file, and the whole coast between Tampa and Venice.",
   /** Bare domain — also the Follow Up Boss lead `source`. No `www.`. */
   domain: "jjpremiergroup.com",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://jjpremiergroup.com",
+  url: resolveSiteUrl(),
   locale: "en_US",
   region: "Lakewood Ranch · Sarasota · Bradenton · Tampa",
 } as const;

@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { site } from "@/lib/site";
 
 /**
  * Marketing-email unsubscribe tokens.
@@ -42,8 +43,7 @@ export function verifyUnsubscribe(contactId: string, sig: string): boolean {
 }
 
 export function unsubscribeUrl(contactId: string): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = site.url;
   const sig = signUnsubscribe(contactId);
   return `${base}/unsubscribe?id=${contactId}&sig=${sig}`;
 }

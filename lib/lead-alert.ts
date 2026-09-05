@@ -23,7 +23,7 @@ export type LeadSummary = {
 };
 
 function alertRecipient(): string | undefined {
-  return process.env.LEAD_ALERT_EMAIL ?? process.env.TEAM_NOTIFY_EMAIL;
+  return process.env.LEAD_ALERT_EMAIL || process.env.TEAM_NOTIFY_EMAIL;
 }
 
 function leadHtml(lead: LeadSummary): string {

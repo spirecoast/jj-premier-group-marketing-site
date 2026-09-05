@@ -14,5 +14,5 @@ export function getWriteClient(): SanityClient {
 
 /** Read-only token for draft previews; falls back to the write token. */
 export function previewToken(): string | undefined {
-  return process.env.SANITY_VIEWER_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
+  return process.env.SANITY_VIEWER_TOKEN || process.env.SANITY_WRITE_TOKEN;
 }

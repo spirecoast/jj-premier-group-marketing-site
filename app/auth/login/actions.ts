@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { site } from "@/lib/site";
 
 const loginSchema = z.object({
   email: z.string().trim().email("A valid email is required").max(320),
@@ -27,8 +28,7 @@ export async function sendMagicLink(
 
   const email = parsed.data.email.toLowerCase();
   const supabase = await createClient();
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const siteUrl = site.url;
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
