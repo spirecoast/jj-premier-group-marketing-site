@@ -1,0 +1,88 @@
+import type { NextRequest } from "next/server";
+import { getEvent, getUpcomingEvents } from "@/lib/content";
+import { formatAddress } from "@/lib/content/format";
+import type { Event } from "@/lib/content/types";
+import { absoluteUrl } from "@/lib/seo";
+import { site } from "@/lib/site";
+
+export const revalidate = 3600;
+
+/** RFC 5545 text escaping. */
+const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+
+/** UTC timestamp in iCalendar basic format. */
+const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+
+/** Fold lines longer than 75 octets (RFC 5545 §3.1). */
+function fold(line: string): string {
+  const bytes = Buffer.from(line, "utf8");
+  if (bytes.length <= 75) return line;
+  const out: string[] = [];
+  let current = "";
+  for (const ch of line) {
+    if (Buffer.byteLength(current + ch, "utf8") > (out.length ? 74 : 75)) {
+      out.push(current);
+      current = ch;
+    } else {
+      current += ch;
+    }
+  }
+  out.push(current);
+  return out.join("\r\n ");
+}
+
+function vevent(e: Event, now: Date): string[] {
+  const start = new Date(e.startsAt);
+  const end = e.endsAt ? new Date(e.endsAt) : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const url = absoluteUrl(`/calendar/${e.slug}`);
+  const description = [e.summary, e.priceNote ? `Tickets: ${e.priceNote}` : undefined, e.ticketUrl, url].filter(Boolean).join("\n");
+  const lines = [
+    "BEGIN:VEVENT",
+    `UID:${e.slug}@${site.domain}`,
+    `DTSTAMP:${stamp(now)}`,
+    e.allDay ? `DTSTART;VALUE=DATE:${stamp(start).slice(0, 8)}` : `DTSTART:${stamp(start)}`,
+    e.allDay ? `DTEND;VALUE=DATE:${stamp(new Date(end.getTime() + 24 * 60 * 60 * 1000)).slice(0, 8)}` : `DTEND:${stamp(end)}`,
+    `SUMMARY:${esc(e.title)}`,
+    `DESCRIPTION:${esc(description)}`,
+    `LOCATION:${esc(`${e.venue.name}, ${formatAddress(e.venue.address)}`)}`,
+    `URL:${url}`,
+    `CATEGORIES:${esc(e.category.toUpperCase())}`,
+    ...(e.venue.geo ? [`GEO:${e.venue.geo.lat};${e.venue.geo.lng}`] : []),
+    "END:VEVENT",
+  ];
+  return lines.map(fold);
+}
+
+/**
+ * GET /api/calendar.ics            → every upcoming event
+ * GET /api/calendar.ics?event=slug → one event
+ */
+export async function GET(request: NextRequest) {
+  const slug = request.nextUrl.searchParams.get("event");
+  const events = slug ? [await getEvent(slug)].filter((e): e is Event => Boolean(e)) : await getUpcomingEvents();
+  if (slug && !events.length) return new Response("Not found", { status: 404 });
+
+  const now = new Date();
+  const body = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    `PRODID:-//${site.name}//The Suncoast Calendar//EN`,
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    `X-WR-CALNAME:${esc(`The Suncoast Calendar · ${site.name}`)}`,
+    "X-WR-TIMEZONE:America/New_York",
+    `X-WR-CALDESC:${esc("Where to go this week in Lakewood Ranch, Sarasota, Bradenton and Tampa.")}`,
+    ...events.flatMap((e) => vevent(e, now)),
+    "END:VCALENDAR",
+    "",
+  ].join("\r\n");
+
+  return new Response(body, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/calendar; charset=utf-8",
+      "Content-Disposition": `inline; filename="${slug ? `${slug}.ics` : "suncoast-calendar.ics"}"`,
+      "Cache-Control": "public, max-age=900, s-maxage=3600",
+    },
+  });
+}

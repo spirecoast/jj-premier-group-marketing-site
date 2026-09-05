@@ -1,0 +1,71 @@
+import type { SiteSettings, Testimonial } from "../types";
+
+export const SITE_SETTINGS: SiteSettings = {
+  brokerageName: "Coldwell Banker Realty",
+  brokerageLogo: {
+    src: "/brand/cb/coldwell-banker-horz-cbblue.svg",
+    alt: "Coldwell Banker",
+    width: 492,
+    height: 67,
+  },
+  // Street address pending brokerage confirmation (BUILD-PLAN Phase 0).
+  // The footer renders whatever is present here.
+  officeAddress: { street: "", city: "Lakewood Ranch", state: "FL", zip: "" },
+  licenses: [
+    { name: "Jessica Garza", number: "SL3658907" },
+    { name: "Joelyn Nauman", number: "" },
+  ],
+  socialLinks: [],
+  defaultOgImage: {
+    src: "/og-image.png",
+    alt: "JJ Premier Group · Every move, expertly guided.",
+    width: 1200,
+    height: 630,
+  },
+  footerDisclosure:
+    "Listing information provided by Stellar MLS · IDX information is provided exclusively for consumers’ personal, non-commercial use · Deemed reliable, not guaranteed · Equal Housing Opportunity",
+  mlsAttribution:
+    "Listing information provided by Stellar MLS · Listing courtesy of the listing brokerage · Deemed reliable, not guaranteed · For consumers’ personal, non-commercial use · © 2026 Stellar MLS",
+  stats: [
+    { value: "19", label: "Years on the Suncoast", source: "Joelyn Nauman, licensed since 2007" },
+    { value: "210", label: "Closings, both agents", source: "Stellar MLS closed sides, 2007–Q2 2026" },
+    { value: "4", label: "Markets covered" },
+  ],
+  ticker: [
+    "$712 median / SF · Lakewood Ranch",
+    "23 median days · Q2 2026",
+    "91 active · was 44",
+    "104% of list · Riverwalk Ct",
+    "Stellar MLS · Q2 2026",
+    "The Suncoast Calendar · this week: Asolo Rep",
+  ],
+  primaryPhoneE164: "+13092580225",
+  primaryPhoneDisplay: "(309) 258-0225",
+};
+
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    _id: "testimonial-1",
+    quote:
+      "They told me what they would change about the house. Nobody had done that before.",
+    attribution: "Seller",
+    market: "lakewood-ranch",
+    date: "April 2026",
+  },
+  {
+    _id: "testimonial-2",
+    quote:
+      "Two questions on the first call, and both of them were the right ones. We closed in July, on the day they said we would.",
+    attribution: "Buyer",
+    market: "bradenton",
+    date: "July 2026",
+  },
+  {
+    _id: "testimonial-3",
+    quote:
+      "We would wait, they said. We waited. It sold in May for more than the February number.",
+    attribution: "Seller",
+    market: "sarasota",
+    date: "May 2026",
+  },
+];

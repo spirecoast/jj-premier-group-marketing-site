@@ -44,3 +44,6 @@ next-env.d.ts
 
 # drizzle
 /lib/db/migrations/meta/_journal.json.bak
+
+# sanity typegen intermediate (regenerate with npm run sanity:typegen)
+/sanity/schema.json

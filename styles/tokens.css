@@ -1,91 +1,59 @@
 /* =============================================================================
-   Design tokens — single source of truth.
-   Components reference these via var(--*), never hardcoded values.
-   Themes in /styles/themes override these under :root[data-theme="..."].
+   JJ Premier Group — design tokens.
+   Source of record: the brand system at design/brand-system (deployed at
+   jj-premier-brand-system.vercel.app). Values are transcribed, not derived.
+   See docs/handoff/BRAND-TOKENS.md for the filled token block and provenance.
+
+   Components never carry a literal colour. If a colour you need is not here,
+   the theme is wrong — add it here, with a note on where it came from.
    ============================================================================= */
 
 :root {
-  /* ---- Color (semantic, not literal) -------------------------------------- */
-  --color-bg: oklch(0.98 0.005 80);
-  --color-surface: oklch(1 0 0);
-  --color-surface-elevated: oklch(0.99 0.005 80);
-  --color-border: oklch(0.92 0.01 80);
-  --color-border-strong: oklch(0.85 0.015 80);
+  /* ---- Type stacks (families are registered with Tailwind in globals.css) --
+     The licensed faces (IvyPresto Headline, Contralto) lead each stack so they
+     pick up automatically once self-hosted; the Google stand-ins follow. ---- */
+  --stack-display:
+    "IvyPresto Headline", var(--font-newsreader, "Newsreader"), "Frank Ruhl Libre",
+    Georgia, serif;
+  --stack-wordmark:
+    "Contralto", var(--font-cormorant, "Cormorant Garamond"), Georgia, serif;
+  --stack-body: var(--font-jost, "Jost"), Helvetica, Arial, sans-serif;
+  --stack-mono:
+    var(--font-plex-mono, "IBM Plex Mono"), ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
 
-  --color-text-primary: oklch(0.18 0.02 250);
-  --color-text-secondary: oklch(0.45 0.02 250);
-  --color-text-muted: oklch(0.62 0.02 250);
-  --color-text-inverse: oklch(0.98 0.005 80);
+  /* ---- Layout (website mockup: 1440 canvas, 96 gutter, 120 section) ------- */
+  --site-max: 90rem; /* 1440 */
+  --gutter: 1.5rem; /* phone 24 */
+  --section-y: 4.5rem; /* phone 72 */
+  --measure: 41.25rem; /* 660px prose measure */
+  --btn-h: 3.25rem; /* 52px buttons, 48px minimum hit target */
+  --input-h: 3rem; /* 48px inputs */
+  --header-h: 4.375rem; /* 70px sticky header */
 
-  --color-brand: oklch(0.32 0.08 250);
-  --color-brand-hover: oklch(0.28 0.08 250);
-  --color-brand-muted: oklch(0.92 0.02 250);
+  /* ---- Motion ("rise, draw, fade" — nothing bounces, nothing parallaxes) -- */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-reveal: cubic-bezier(0.2, 0.75, 0.15, 1);
+  --dur-ui: 120ms;
+  --dur-card: 600ms;
+  --dur-img: 1100ms;
 
-  --color-accent: oklch(0.68 0.12 70);
-  --color-accent-hover: oklch(0.62 0.12 70);
-  --color-accent-muted: oklch(0.94 0.04 70);
-
-  --color-success: oklch(0.55 0.13 145);
-  --color-warning: oklch(0.72 0.15 75);
-  --color-danger: oklch(0.55 0.20 25);
-  --color-info: oklch(0.55 0.13 230);
-
-  /* ---- Typography --------------------------------------------------------- */
-  /* next/font sets --font-fraunces / --font-inter; we fall back to named families. */
-  --font-display: var(--font-fraunces, "Fraunces"), "Tiempos", Georgia, serif;
-  --font-body: var(--font-inter, "Inter"), -apple-system, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.5rem;
-  --text-5xl: 3.5rem;
-  --text-6xl: 5rem;
-  --text-display: 7rem;
-
-  --leading-tight: 1.1;
-  --leading-snug: 1.25;
-  --leading-normal: 1.5;
-  --leading-relaxed: 1.65;
-
-  --tracking-tight: -0.025em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.025em;
-  --tracking-wider: 0.1em;
-
-  /* ---- Spacing — 4px base ------------------------------------------------- */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-24: 6rem;
-  --space-32: 8rem;
-
-  /* ---- Radii -------------------------------------------------------------- */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  /* ---- Radii — the system has square corners. Kept as tokens so nothing
+         reaches for an arbitrary value. Only the cameo/seal is round. ------- */
+  --radius-none: 0;
   --radius-full: 9999px;
+}
 
-  /* ---- Shadows ------------------------------------------------------------ */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.04);
-  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.12), 0 4px 12px -4px rgb(0 0 0 / 0.06);
-  --shadow-xl: 0 24px 60px -16px rgb(0 0 0 / 0.16), 0 8px 24px -8px rgb(0 0 0 / 0.08);
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 3rem; /* tablet 48 */
+    --section-y: 6rem; /* tablet 96 */
+  }
+}
 
-  /* ---- Logo references (Phase 1 placeholders; swap when brand exists) ----- */
-  --logo-primary: url("/brand/logo-primary.svg");
-  --logo-mark: url("/brand/logo-mark.svg");
-  --logo-wordmark: url("/brand/logo-wordmark.svg");
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 6rem; /* desktop 96 */
+    --section-y: 7.5rem; /* desktop 120 */
+  }
 }
