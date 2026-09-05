@@ -82,7 +82,7 @@
   --color-rule: #c4b69f; /* section rules on Linen */
   --color-body: #3a3d42; /* running text */
   --color-body-muted: #4e5157; /* secondary running text */
-  --color-amber: #96702a; /* numbered section eyebrows (= semantic warning) */
+  --color-amber: #7a5b1e; /* numbered section eyebrows. The mockup's #96702A is 4.3:1 on Paper at 11px; this darker step of the same hue passes AA (5.9:1). */
   --color-nav-muted: #a8c4d4;
   --color-nav-link: #b4cbd8;
 
@@ -198,6 +198,11 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* Keep focused and anchored elements clear of the sticky header and the phone action bar. */
+    scroll-padding-top: calc(var(--header-h) + 0.5rem);
+    @media (max-width: 47.99rem) {
+      scroll-padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+    }
   }
 
   body {
@@ -219,6 +224,14 @@
   :focus-visible {
     outline: 2px solid var(--color-sky-700);
     outline-offset: 2px;
+  }
+  /* On navy, teal and photographic grounds the ring steps up to Sky 300. */
+  [class*="bg-navy"] :focus-visible,
+  [class*="bg-sky-7"] :focus-visible,
+  [class*="bg-sky-8"] :focus-visible,
+  [class*="bg-deep-harbor"] :focus-visible,
+  [class*="bg-harbor-9"] :focus-visible {
+    outline-color: var(--color-sky-300);
   }
 
   img,
@@ -449,6 +462,9 @@
       white-space: normal;
       text-align: center;
       padding-block: 0.75rem;
+      .btn-dash {
+        display: none;
+      }
     }
     transition:
       background-color var(--dur-ui) ease,
@@ -524,6 +540,9 @@
     color: var(--color-harbor-700);
     border-bottom: 1px solid var(--color-rule);
     padding-bottom: 4px;
+    /* Enlarged hit area without moving the baseline. */
+    padding-top: 0.5rem;
+    margin-top: -0.5rem;
     transition:
       color var(--dur-ui) ease,
       border-color var(--dur-ui) ease;
@@ -609,7 +628,7 @@
     transition: border-color var(--dur-ui) ease, box-shadow var(--dur-ui) ease;
   }
   .field-input::placeholder {
-    color: var(--color-graphite-400);
+    color: var(--color-graphite-500);
   }
   .field-input:focus {
     border-bottom-color: var(--color-sky-700);
@@ -635,7 +654,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    min-height: 2.25rem;
+    min-height: 2.75rem; /* 44px touch target */
     padding: 0 0.875rem;
     font-family: var(--font-body);
     font-size: 0.8125rem;
@@ -666,6 +685,7 @@
     position: absolute;
     inset: 0;
     background:
+      linear-gradient(180deg, rgb(20 37 48 / 0.55) 0%, transparent 22%),
       linear-gradient(90deg, rgb(20 37 48 / 0.72) 0%, rgb(20 37 48 / 0.36) 46%, rgb(20 37 48 / 0.04) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.55) 0%, transparent 42%);
   }
@@ -726,7 +746,9 @@
   .marquee {
     animation: var(--animate-marquee);
   }
-  .marquee:hover {
+  .marquee:hover,
+  .marquee:focus-within,
+  .marquee[data-paused="true"] {
     animation-play-state: paused;
   }
   .scroll-cue {

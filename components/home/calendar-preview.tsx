@@ -31,7 +31,7 @@ export function CalendarPreview({ events }: { events: Event[] }) {
             className="flex items-center justify-between gap-6 bg-sky-700 px-6 py-[22px] text-white transition-colors hover:bg-sky-800"
           >
             <span className="font-display text-[20px] font-light italic">The full calendar, every Monday.</span>
-            <span className="t-label text-mist">Subscribe →</span>
+            <span className="t-label shrink-0 whitespace-nowrap text-mist">Subscribe →</span>
           </Link>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useId, useState } from "react";
+import Link from "next/link";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { submitLead } from "@/actions/submit-lead";
 import { readUtm } from "@/components/utm-tracker";
 import { CONSENT_WORDING, initialLeadState, type LeadForm as LeadFormKind, type LeadFormState } from "@/lib/leads";
@@ -14,7 +15,7 @@ const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   sell: { title: "Got it.", body: "We will come back with a plan and a number, and the reason for the number." },
   listing: { title: "Got it.", body: "We will confirm the showing today. Tell us if the timing changes." },
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
-  letter: { title: "You are on the list.", body: "One page, once a quarter, no pitch. The next letter lands in October." },
+  letter: { title: "You are on the list.", body: "One page, once a quarter, no pitch. The next letter lands at the start of the quarter." },
   calendar: { title: "You are on the list.", body: "The full calendar, every Monday." },
 };
 
@@ -69,10 +70,14 @@ export function LeadForm({
   const [pageUrl, setPageUrl] = useState("");
   const uid = useId();
 
+  const successRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     setUtm(readUtm());
     setPageUrl(window.location.href);
   }, []);
+  useEffect(() => {
+    if (state.ok) successRef.current?.focus();
+  }, [state.ok]);
 
   const labelColor = tone === "dark" ? "text-mist" : undefined;
   const inputColor = tone === "dark" ? "text-linen-200 border-linen-200/50 placeholder:text-linen-200/50" : undefined;
@@ -81,10 +86,15 @@ export function LeadForm({
   if (state.ok) {
     const s = SUCCESS[state.form ?? form];
     return (
-      <div className={cn("flex flex-col gap-3 border border-hairline bg-white p-8", tone === "dark" && "border-linen-200/30 bg-transparent", className)} role="status">
+      <div className={cn("flex flex-col gap-3 border border-hairline bg-white p-8", tone === "dark" && "border-linen-200/30 bg-transparent", className)}>
         <p className="t-eyebrow text-amber">Received</p>
-        <h3 className={cn("t-h2", tone === "dark" ? "text-white" : "text-navy")}>{s.title}</h3>
+        <h3 ref={successRef} tabIndex={-1} className={cn("t-h2 outline-none", tone === "dark" ? "text-white" : "text-navy")}>
+          {s.title}
+        </h3>
         <p className={cn("t-body", textColor)}>{s.body}</p>
+        <span role="status" aria-live="polite" className="sr-only">
+          {s.title} {s.body}
+        </span>
       </div>
     );
   }
@@ -120,7 +130,7 @@ export function LeadForm({
             </div>
             <div className="field">
               <label htmlFor={`${uid}-last`} className={cn("field-label", labelColor)}>
-                Last name
+                Last name <span className="normal-case tracking-normal opacity-70">(optional)</span>
               </label>
               <input id={`${uid}-last`} name="lastName" autoComplete="family-name" className={cn("field-input", inputColor)} />
             </div>
@@ -140,7 +150,7 @@ export function LeadForm({
             <label htmlFor={`${uid}-phone`} className={cn("field-label", labelColor)}>
               {LABELS.phone} <span className="normal-case tracking-normal opacity-70">(optional)</span>
             </label>
-            <input id={`${uid}-phone`} type="tel" name="phone" autoComplete="tel" placeholder="(941) 555-0100" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("phone"))} />
+            <input id={`${uid}-phone`} type="tel" name="phone" autoComplete="tel" placeholder="(941) 555-0100" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("phone"))} aria-describedby={err("phone") ? `${uid}-phone-err` : undefined} />
             <FieldError id={`${uid}-phone-err`} messages={err("phone")} />
           </div>
         ) : null}
@@ -148,15 +158,16 @@ export function LeadForm({
           <div className={cn("field", columns && "sm:col-span-2")}>
             <label htmlFor={`${uid}-address`} className={cn("field-label", labelColor)}>
               {LABELS.address}
+              {form !== "valuation" ? <span className="normal-case tracking-normal opacity-70"> (optional)</span> : null}
             </label>
-            <input id={`${uid}-address`} name="address" autoComplete="street-address" placeholder="18 Cliffside Terrace, Lakewood Ranch" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
+            <input id={`${uid}-address`} name="address" autoComplete="street-address" required={form === "valuation"} placeholder="18 Cliffside Terrace, Lakewood Ranch" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
             <FieldError id={`${uid}-address-err`} messages={err("address")} />
           </div>
         ) : null}
         {has("timing") ? (
           <div className={cn("field", columns && "sm:col-span-2")}>
             <label htmlFor={`${uid}-timing`} className={cn("field-label", labelColor)}>
-              {LABELS.timing}
+              {LABELS.timing} <span className="normal-case tracking-normal opacity-70">(optional)</span>
             </label>
             <select id={`${uid}-timing`} name="timing" defaultValue="" className={cn("field-input", inputColor)}>
               <option value="">Choose one</option>
@@ -170,7 +181,7 @@ export function LeadForm({
         {has("message") ? (
           <div className={cn("field", columns && "sm:col-span-2")}>
             <label htmlFor={`${uid}-message`} className={cn("field-label", labelColor)}>
-              {LABELS.message}
+              {LABELS.message} <span className="normal-case tracking-normal opacity-70">(optional)</span>
             </label>
             <textarea id={`${uid}-message`} name="message" rows={4} placeholder={placeholderMessage} className={cn("field-input resize-y", inputColor)} />
           </div>
@@ -196,7 +207,11 @@ export function LeadForm({
           <span className="btn-dash" aria-hidden="true" />
         </button>
         <p className={cn("t-small max-w-[420px]", tone === "dark" ? "text-linen-200/80" : "text-graphite-500")}>
-          Goes straight to Joelyn and Jessica. We do not share or sell your details.
+          Goes straight to Joelyn and Jessica. We do not share or sell your details. See the{" "}
+          <Link href="/privacy" className="underline underline-offset-4 hover:text-navy">
+            privacy policy
+          </Link>
+          .
         </p>
       </div>
     </form>

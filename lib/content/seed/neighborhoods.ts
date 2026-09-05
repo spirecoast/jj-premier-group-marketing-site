@@ -51,6 +51,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     name: "Waterside",
     slug: "waterside",
     market: "lakewood-ranch",
+    county: "Sarasota County",
     tagline: "The newest villages, on the Sarasota County side, around a town center you can walk to.",
     hero: img("library/lwr-waterside-promenade", "The promenade at Waterside Place"),
     overview: p(

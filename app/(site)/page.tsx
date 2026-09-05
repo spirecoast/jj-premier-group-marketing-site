@@ -21,10 +21,14 @@ import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
+/** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
+export const revalidate = 3600;
+
 export const metadata: Metadata = pageMetadata({
   title: `${site.name} · ${site.brokerage} · Lakewood Ranch, Sarasota, Bradenton, Tampa`,
   description: site.description,
   path: "/",
+  absoluteTitle: true,
 });
 
 /* Editorial photography for the composed sections. Listing and event

@@ -14,8 +14,8 @@ export function WhoYouAreHiring({ duo, stats, testimonials }: { duo: ImageRef; s
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-linen-100 lg:absolute lg:left-0 lg:top-0 lg:h-[88%] lg:w-[82%]">
             <Photo image={duo} sizes="(min-width: 1024px) 460px, 100vw" />
           </div>
-          <div className="-mt-10 ml-auto w-[88%] bg-navy p-7 sm:w-[70%] lg:absolute lg:bottom-0 lg:right-0 lg:m-0 lg:w-[52%]">
-            <TestimonialSlider testimonials={testimonials} tone="dark" />
+          <div className="relative z-10 -mt-10 ml-auto w-[88%] bg-navy p-7 sm:w-[70%] lg:absolute lg:bottom-0 lg:right-0 lg:m-0 lg:w-[52%]">
+            <TestimonialSlider testimonials={testimonials} tone="dark" size="compact" />
           </div>
         </div>
 

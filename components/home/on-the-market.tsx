@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { RuleLink } from "@/components/buttons";
 import { ListingCard } from "@/components/listing-card";
 import { SectionHeading } from "@/components/section-heading";
@@ -21,18 +22,18 @@ export function OnTheMarket({ listings, sold, count }: { listings: Listing[]; so
           <ListingCard key={l.slug} variant="overlay" size="small" listing={l} className="min-h-[240px] lg:min-h-0" sizes="(min-width: 1024px) 28vw, (min-width: 768px) 50vw, 100vw" />
         ))}
         {sold ? (
-          <div className="flex min-h-[240px] flex-col justify-between bg-sky-700 p-[26px] text-white lg:min-h-0">
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-mist">
+          <Link href={`/listings/${sold.slug}`} className="card flex min-h-[240px] flex-col justify-between bg-sky-700 p-[26px] text-white transition-colors hover:bg-sky-800 lg:min-h-0">
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-100">
               Sold · {sold.daysOnMarket ?? "—"} days
             </p>
             <div className="flex flex-col gap-2">
               <p className="font-mono text-[48px] font-medium leading-none">{sold.percentOfList ?? 100}%</p>
-              <p className="text-[14px] leading-[1.5] text-mist">
+              <p className="text-[14px] leading-[1.5] text-sky-100">
                 of list, {sold.address.street.replace(/^\d+\s/, "")}. Priced right, this street clears asking.
               </p>
             </div>
-            <span className="h-px w-full bg-mist" aria-hidden="true" />
-          </div>
+            <span className="card-line bg-mist" aria-hidden="true" />
+          </Link>
         ) : null}
       </div>
     </section>

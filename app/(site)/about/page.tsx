@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AgentCard } from "@/components/agent-card";
 import { ButtonLink } from "@/components/buttons";
+import { CtaBand } from "@/components/cta-band";
 import { JsonLd } from "@/components/json-ld";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
@@ -19,7 +20,8 @@ export const metadata: Metadata = pageMetadata({
 });
 
 const FRAMES = {
-  duo: img("photos/duo-ultrawide", "Joelyn Nauman and Jessica Garza", "50% 30%"),
+  duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
+  coast: img("library/place-sea-oats-dusk", "Sea oats on the dunes at dusk", "50% 60%"),
 };
 
 /** From the brand voice document: how the writing, and the work, sounds. */
@@ -74,7 +76,7 @@ export default async function AboutPage() {
               We like these houses, we like this coast, and we are not going to pretend a kitchen is stunning when what it is, is rebuilt in 2019 and full of light at four in the afternoon. Joelyn takes the long view; Jessica reads the contract and the room. Between them is the whole coast from the Skyway to Venice, under {settings.brokerageName}.
             </p>
           </div>
-          <div className="relative aspect-[3/2] overflow-hidden bg-linen-100 lg:aspect-[4/5]">
+          <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">
             <Photo image={FRAMES.duo} priority sizes="(min-width: 1024px) 520px, 100vw" />
           </div>
         </div>
@@ -82,7 +84,7 @@ export default async function AboutPage() {
 
       <section className="container-site grid gap-14 pb-section lg:grid-cols-2 lg:gap-20" aria-label="The team">
         {team.map((m) => (
-          <AgentCard key={m.slug} member={m} full />
+          <AgentCard key={m.slug} member={m} full as="h2" />
         ))}
       </section>
 
@@ -111,17 +113,11 @@ export default async function AboutPage() {
         </section>
       ) : null}
 
-      <section className="bg-navy text-linen-200">
-        <div className="container-site flex flex-col items-start gap-6 py-16 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2">
-            <p className="t-eyebrow text-mist">{site.tagline}</p>
-            <h2 className="t-h1 font-light text-white">Tell us the timing.</h2>
-          </div>
-          <ButtonLink href="/contact" variant="linen" dash>
-            Start the conversation
-          </ButtonLink>
-        </div>
-      </section>
+      <CtaBand image={FRAMES.coast} eyebrow={site.tagline} title="Tell us the timing." body="When do you need to be in, and is there a house to sell first? Those two answers change everything else." minHeight="min-h-[440px]">
+        <ButtonLink href="/contact" variant="linen" dash>
+          Start the conversation
+        </ButtonLink>
+      </CtaBand>
     </>
   );
 }

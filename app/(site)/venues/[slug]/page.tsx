@@ -11,6 +11,9 @@ import { formatAddress } from "@/lib/content/format";
 import { getMarket, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, pageMetadata, placeJsonLd } from "@/lib/seo";
 
+/** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
+export const revalidate = 3600;
+
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `${venue.name} · ${marketName(venue.market)}`,
     description: `${venue.name}, ${formatAddress(venue.address)}. What is on, and how to get there.`,
     path: `/venues/${venue.slug}`,
-    image: venue.image,
+    fileImage: true, // opengraph-image.tsx beside this page
   });
 }
 

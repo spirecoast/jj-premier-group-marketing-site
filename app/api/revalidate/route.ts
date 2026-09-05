@@ -27,6 +27,7 @@ const RELATED_TAGS: Record<string, string[]> = {
   teamMember: ["post", "listing"],
   listing: ["neighborhood"],
   event: ["neighborhood"],
+  neighborhood: ["listing", "venue"],
 };
 
 export async function POST(request: NextRequest) {

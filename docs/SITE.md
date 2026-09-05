@@ -78,15 +78,57 @@ npm run build
 npm run sanity:typegen
 ```
 
+`npm run lint` still calls `next lint`, which Next 16 removed, and the repo has no ESLint config.
+That predates this build; wire up `eslint` + `eslint-config-next` directly when there is time.
+
+Useful switches:
+
+- `NEXT_PUBLIC_ROBOTS_NOINDEX=true` sets `noindex, nofollow` on every page and in `robots.txt`.
+  Turn it on for previews and the pre-launch domain, off at launch.
+- `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) receives the alert when a lead cannot be
+  delivered to Follow Up Boss, including the archived-flow 204 case.
+- `CRON_SECRET` protects `GET /api/cron/archive-events` (Bearer token), scheduled weekly in
+  `vercel.json`.
+
 ## Verification done for this build
 
-- `npm run typecheck` and `npm run build` pass with no env configured (seed content).
-- Every page rendered in Chromium at 1440, 810 and 390 and compared against the design.
-- Fair-housing check (`lib/fair-housing.ts`) run over all seed copy.
+- `npm run typecheck` (0 errors) and `npm run build` (80 static pages) pass with no env configured.
+- Every route rendered in Chromium at 1440, 810 and 390: 200 status, exactly one `h1`, no
+  horizontal scroll, no console errors. The one exception is the deliberate 404 test URL.
+- Five independent review passes (design fidelity against the mockup, responsive layout,
+  accessibility, compliance, code correctness) and all findings applied, except three deliberate
+  keeps listed below.
+- Fair-housing check (`lib/fair-housing.ts`) run over all copy files: nothing flagged.
+- Open Graph images checked for the home page and a listing; the ICS feed checked for RFC 5545
+  folding, escaping, CRLF and correct America/New_York times; listing filters fuzzed with
+  `__proto__`, `constructor` and malformed values (all 200).
+
+Deliberate keeps from the review passes:
+
+- "Broker Associate" is the title the brand system gives both agents. The brokerage should confirm
+  it matches each licence type (SL vs BK) before launch.
+- The Coldwell Banker mark sizes (150 in the nav, 220 in the footer) follow the approved mockup.
+- The privacy and terms pages carry a "draft for legal review" label until counsel signs off.
 
 ## Still open (needs the client or the brokerage)
 
-See the bottom of `docs/handoff/design/BRAND-TOKENS.md` and `docs/handoff/BUILD-PLAN.md` Phase 0:
-office street address, Joelyn's license number, Follow Up Boss system registration and keys, the
-Sanity project, consent wording sign-off, Coldwell Banker brand assets review, and licensed webfont
-files for IvyPresto Headline and Contralto.
+Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:
+
+1. Office street address and zip for the footer, JSON-LD and the privacy page.
+2. Joelyn's Florida licence number (Jessica's is in; the footer hides a name until its number exists).
+3. Follow Up Boss system registration (`FUB_SYSTEM`, `FUB_SYSTEM_KEY`) and the API key. Until they
+   are set, leads are mirrored to the database and emailed only, and production logs an alert.
+4. The Sanity project and dataset, then the seed script and webhook in the section above.
+5. Consent wording sign-off from counsel (`CONSENT_WORDING` in `lib/leads.ts`) and 10DLC
+   registration before any texting starts.
+6. An IDX licence from Stellar MLS before any MLS data or MLS wording goes on the site. The sample
+   listings are placeholders.
+7. Coldwell Banker brand asset review, and licensed webfont files for IvyPresto Headline and
+   Contralto (the CSS stacks already lead with them).
+
+Also worth knowing:
+
+- Market-letter subscribers are sent to Follow Up Boss as a Registration event and mirrored to the
+  database, but are not enrolled in the portal's older welcome-email series.
+- Every statistic on the site carries its source and date in the seed content. When the numbers
+  are replaced in Sanity, keep the source field filled.

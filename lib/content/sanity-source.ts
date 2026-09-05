@@ -91,6 +91,7 @@ function mapListing(r: Raw): Listing {
     friendNote: opt(r.friendNote),
     percentOfList: opt(r.percentOfList),
     openHouse: opt(r.openHouse),
+    county: opt(r.county),
     mlsNumber: opt(r.mlsNumber),
     featured: bool(r.featured),
     soldDate: opt(r.soldDate),
@@ -154,12 +155,15 @@ function mapNeighborhood(r: Raw): Neighborhood {
     name: str(r.name),
     slug: str(r.slug),
     market: market(r.market),
+    county: opt(r.county),
     tagline: opt(r.tagline),
     overview: rich(r.overview),
     highlights: Array.isArray(r.highlights)
       ? (r.highlights as Raw[]).map((h) => ({ label: str(h.label), description: str(h.description) }))
       : [],
-    stat: opt(r.stat),
+    stat: r.stat
+      ? { value: str((r.stat as Raw).value), label: str((r.stat as Raw).label), source: str((r.stat as Raw).source) }
+      : undefined,
     hero: requireImage(r.hero, str(r.name)),
     featuredListings: strs(r.featuredListings),
   };
@@ -206,6 +210,7 @@ function mapTestimonial(r: Raw): Testimonial {
     attribution: str(r.attribution),
     market: r.market ? market(r.market) : undefined,
     date: opt(r.date),
+    permissionOnFile: bool(r.permissionOnFile),
   };
 }
 

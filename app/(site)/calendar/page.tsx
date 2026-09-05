@@ -84,11 +84,14 @@ function MonthGrid({ events, year, month }: { events: Event[]; year: number; mon
             const dayEvents = day ? (byDay.get(key) ?? []) : [];
             const isToday = key === todayKey;
             return (
-              <div key={key} className={cn("flex min-h-[112px] flex-col gap-1.5 bg-white p-2.5", !day && "bg-paper")}>
+              <div key={key} className={cn("relative flex min-h-[112px] flex-col gap-1.5 bg-white p-2.5", !day && "bg-paper")}>
                 {day ? (
                   <span className={cn("font-mono text-[12px] tabular-nums", isToday ? "text-sky-700" : "text-graphite-500")}>
-                    {String(day).padStart(2, "0")}
-                    {isToday ? " · today" : ""}
+                    <span aria-hidden="true">
+                      {String(day).padStart(2, "0")}
+                      {isToday ? " · today" : ""}
+                    </span>
+                    <span className="sr-only">{dayHeading.format(new Date(Date.UTC(year, month - 1, day, 12)))}{isToday ? ", today" : ""}</span>
                   </span>
                 ) : null}
                 {dayEvents.map((e) => (
@@ -203,28 +206,28 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
 
         {view === "month" ? (
           <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between gap-4">
-              <Link href={hrefFor({ ...base, view: "month", month: prevMonth })} className="link-rule">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <Link href={hrefFor({ ...base, view: "month", month: prevMonth })} className="link-rule whitespace-nowrap">
                 ← Previous
               </Link>
-              <h2 className="t-h2 text-navy">{monthLabel}</h2>
-              <Link href={hrefFor({ ...base, view: "month", month: nextMonth })} className="link-rule">
+              <h2 className="t-h2 order-first w-full text-center text-navy sm:order-none sm:w-auto">{monthLabel}</h2>
+              <Link href={hrefFor({ ...base, view: "month", month: nextMonth })} className="link-rule whitespace-nowrap">
                 Next →
               </Link>
             </div>
             <MonthGrid events={monthEvents} year={year} month={month} />
           </div>
         ) : grouped.size ? (
-          <div className="flex flex-col gap-14">
+          <div className="flex flex-col gap-12">
             {[...grouped.entries()].map(([key, events]) => (
-              <section key={key} aria-labelledby={`day-${key}`} className="flex flex-col gap-6">
+              <section key={key} aria-labelledby={`day-${key}`} className="flex flex-col gap-5">
                 <h2 id={`day-${key}`} className="t-record border-b border-hairline pb-3 uppercase text-graphite-600">
                   {dayHeading.format(new Date(events[0]!.startsAt))}
                 </h2>
-                <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                <ul className="grid gap-4 lg:grid-cols-2">
                   {events.map((e) => (
                     <li key={e.slug} className="flex">
-                      <EventCard event={e} className="w-full" />
+                      <EventCard variant="row" event={e} showMeta className="w-full" />
                     </li>
                   ))}
                 </ul>
@@ -255,7 +258,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           <ul className="flex flex-wrap gap-x-8 gap-y-3">
             {venues.map((v) => (
               <li key={v.slug}>
-                <Link href={`/venues/${v.slug}`} className="t-h4 text-navy transition-colors hover:text-harbor-700">
+                <Link href={`/venues/${v.slug}`} className="t-h4 -my-1.5 inline-block py-1.5 text-navy transition-colors hover:text-harbor-700">
                   {v.name}
                 </Link>
                 <span className="t-mono-sm ml-2 text-graphite-500">{marketName(v.market)}</span>
@@ -265,20 +268,20 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         </section>
       ) : null}
 
-      <section id="subscribe" className="scroll-mt-header bg-sky-700 text-white">
+      <section id="subscribe" className="scroll-mt-header bg-linen-200">
         <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
           <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-mist">Every Monday</p>
-            <h2 className="t-h1 font-light text-white">The full calendar, every Monday.</h2>
-            <p className="t-body max-w-measure text-mist">
+            <p className="t-eyebrow text-amber">Every Monday</p>
+            <h2 className="t-h1 text-navy">The full calendar, every Monday.</h2>
+            <p className="t-body max-w-measure text-body">
               One email a week: what is on in the four places we sell, and which night we would pick. No listings in it.
             </p>
           </div>
           <div className="flex flex-col gap-4">
-            <LetterForm form="calendar" label="Subscribe" tone="dark" />
-            <p className="t-small text-mist">
+            <LetterForm form="calendar" label="Subscribe" />
+            <p className="t-small text-linen-700">
               Prefer your own calendar app?{" "}
-              <a href="/api/calendar.ics" className="underline underline-offset-4 hover:text-white">
+              <a href="/api/calendar.ics" className="text-navy underline underline-offset-4 hover:text-harbor-700">
                 Subscribe to the feed
               </a>
               .

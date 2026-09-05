@@ -16,7 +16,7 @@ const ref = /* groq */ `{ name, "slug": slug.current }`;
 export const listingsQuery = defineQuery(`*[_type == "listing" && defined(slug.current)] | order(featured desc, listedAt desc) {
   _id, title, "slug": slug.current, address, geo, price, beds, baths, sqft, status, tag, market,
   lotAcres, yearBuilt, renovated, listedAt, daysOnMarket, floodZone, annualTaxes, cardNote,
-  friendNote, percentOfList, openHouse, mlsNumber, featured, soldDate, description, features,
+  friendNote, percentOfList, openHouse, county, mlsNumber, featured, soldDate, description, features,
   "hero": hero ${image},
   "gallery": gallery[] ${image},
   "neighborhood": neighborhood->${ref},
@@ -37,7 +37,7 @@ export const venuesQuery = defineQuery(`*[_type == "venue" && defined(slug.curre
 }`);
 
 export const neighborhoodsQuery = defineQuery(`*[_type == "neighborhood" && defined(slug.current)] | order(name asc) {
-  _id, name, "slug": slug.current, market, tagline, overview, highlights, stat,
+  _id, name, "slug": slug.current, market, county, tagline, overview, highlights, stat,
   "hero": hero ${image},
   "featuredListings": featuredListings[]->slug.current
 }`);
@@ -54,7 +54,7 @@ export const teamQuery = defineQuery(`*[_type == "teamMember" && defined(slug.cu
 }`);
 
 export const testimonialsQuery = defineQuery(`*[_type == "testimonial"] | order(_createdAt desc) {
-  _id, quote, attribution, market, date
+  _id, quote, attribution, market, date, permissionOnFile
 }`);
 
 export const siteSettingsQuery = defineQuery(`*[_type == "siteSettings"][0] {

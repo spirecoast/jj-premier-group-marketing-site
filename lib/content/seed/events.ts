@@ -9,7 +9,8 @@ type SeedEvent = {
   summary: string;
   venue: string;
   category: EventCategory;
-  starts: Date;
+  /** Weekday (0 = Sunday) and offsets, resolved against the request time. */
+  when: { weekday: number; weeks?: number; hour?: number; minute?: number };
   hours?: number;
   allDay?: boolean;
   ticketUrl?: string;
@@ -22,9 +23,10 @@ type SeedEvent = {
 };
 
 /**
- * Sample calendar. Dates are relative to now so the seed always reads as
- * upcoming; titles and venues are plausible for the current season and must
- * be confirmed against each venue's own calendar before publishing.
+ * Sample calendar. Dates are resolved relative to the request so the seed
+ * always reads as upcoming; titles and venues are plausible for the current
+ * season and must be confirmed against each venue's own calendar before
+ * publishing.
  */
 const SEED: SeedEvent[] = [
   {
@@ -34,7 +36,7 @@ const SEED: SeedEvent[] = [
     summary: "The hall before the performance, and why the back row is the best seat.",
     venue: "van-wezel",
     category: "music",
-    starts: next(4, { hour: 19, minute: 30 }),
+    when: { weekday: 4, hour: 19, minute: 30 },
     hours: 2.5,
     priceNote: "From $35",
     ticketUrl: "https://www.vanwezel.org",
@@ -54,7 +56,7 @@ const SEED: SeedEvent[] = [
     summary: "The county's community theatre opens its season on the Stone Hall stage.",
     venue: "manatee-performing-arts-center",
     category: "theater",
-    starts: next(5, { hour: 19, minute: 30 }),
+    when: { weekday: 5, hour: 19, minute: 30 },
     hours: 2.5,
     priceNote: "$25–$40",
     ticketUrl: "https://www.manateeperformingartscenter.com",
@@ -72,7 +74,7 @@ const SEED: SeedEvent[] = [
     summary: "First Friday on the gallery block. Start at the south end and work north.",
     venue: "palm-avenue-galleries",
     category: "gallery",
-    starts: next(5, { hour: 18 }),
+    when: { weekday: 5, hour: 18 },
     hours: 3,
     priceNote: "Free",
     image: img("library/culture-gallery-opening-backs", "Visitors at a gallery opening"),
@@ -89,7 +91,7 @@ const SEED: SeedEvent[] = [
     summary: "The Market at Waterside, ten till two. Bread from Bradenton, tomatoes from Parrish.",
     venue: "waterside-place",
     category: "market",
-    starts: next(0, { hour: 10 }),
+    when: { weekday: 0, hour: 10 },
     hours: 4,
     priceNote: "Free",
     image: img("library/lwr-waterside-promenade", "The promenade at Waterside Place"),
@@ -104,10 +106,10 @@ const SEED: SeedEvent[] = [
     _id: "event-asolo-season-opener",
     title: "Asolo Rep, season opener",
     slug: "asolo-rep-season-opener",
-    summary: "The Mertz stage, an 18th-century opera-house interior rebuilt inside a modern building.",
+    summary: "The Mertz stage, a 1903 Scottish opera-house interior rebuilt inside a modern building.",
     venue: "asolo-rep",
     category: "theater",
-    starts: next(3, { weeks: 1, hour: 19, minute: 30 }),
+    when: { weekday: 3, weeks: 1, hour: 19, minute: 30 },
     hours: 2.5,
     priceNote: "From $39",
     ticketUrl: "https://www.asolorep.org",
@@ -122,7 +124,7 @@ const SEED: SeedEvent[] = [
     summary: "Main Street closes to cars at six. A band, a beer tent, and the cinema open late.",
     venue: "lakewood-ranch-main-street",
     category: "festival",
-    starts: next(5, { weeks: 1, hour: 18 }),
+    when: { weekday: 5, weeks: 1, hour: 18 },
     hours: 3,
     priceNote: "Free",
     image: img("library/lwr-main-street-dawn", "Lakewood Ranch Main Street"),
@@ -135,7 +137,7 @@ const SEED: SeedEvent[] = [
     summary: "The museum stays open until eight on Thursdays. Music in the courtyard, the bay for free.",
     venue: "the-ringling",
     category: "gallery",
-    starts: next(4, { weeks: 1, hour: 17 }),
+    when: { weekday: 4, weeks: 1, hour: 17 },
     hours: 3,
     priceNote: "$5 after 5",
     ticketUrl: "https://www.ringling.org",
@@ -150,7 +152,7 @@ const SEED: SeedEvent[] = [
     summary: "The mangrove walk at dusk and the glasshouse lit from inside.",
     venue: "selby-gardens",
     category: "family",
-    starts: next(6, { weeks: 1, hour: 17, minute: 30 }),
+    when: { weekday: 6, weeks: 1, hour: 17, minute: 30 },
     hours: 3,
     priceNote: "Members free · $28",
     ticketUrl: "https://selby.org",
@@ -165,7 +167,7 @@ const SEED: SeedEvent[] = [
     summary: "Thirty blocks of studios that are also houses, open Friday evening and Saturday afternoon.",
     venue: "village-of-the-arts",
     category: "festival",
-    starts: next(5, { weeks: 2, hour: 18 }),
+    when: { weekday: 5, weeks: 2, hour: 18 },
     hours: 3,
     priceNote: "Free",
     image: img("library/bradenton-village-arts", "Painted cottages in the Village of the Arts"),
@@ -179,7 +181,7 @@ const SEED: SeedEvent[] = [
     summary: "Bring a chair. The amphitheater faces west and the sun sets behind the stage.",
     venue: "bradenton-riverwalk",
     category: "music",
-    starts: next(6, { weeks: 2, hour: 18, minute: 30 }),
+    when: { weekday: 6, weeks: 2, hour: 18, minute: 30 },
     hours: 2.5,
     priceNote: "Free",
     image: img("library/bradenton-riverwalk-golden", "The Bradenton Riverwalk at golden hour"),
@@ -192,7 +194,7 @@ const SEED: SeedEvent[] = [
     summary: "The Wurlitzer rises before the picture. Sit in the balcony; the painted stars are closer.",
     venue: "tampa-theatre",
     category: "family",
-    starts: next(0, { weeks: 2, hour: 15 }),
+    when: { weekday: 0, weeks: 2, hour: 15 },
     hours: 2.5,
     priceNote: "$12",
     ticketUrl: "https://tampatheatre.org",
@@ -207,7 +209,7 @@ const SEED: SeedEvent[] = [
     summary: "Morsani Hall, on the Riverwalk. Dinner in Tampa Heights first, a ten-minute walk.",
     venue: "straz-center",
     category: "theater",
-    starts: next(2, { weeks: 3, hour: 19, minute: 30 }),
+    when: { weekday: 2, weeks: 3, hour: 19, minute: 30 },
     hours: 2.75,
     priceNote: "From $45",
     ticketUrl: "https://www.strazcenter.org",
@@ -222,7 +224,7 @@ const SEED: SeedEvent[] = [
     summary: "The 1926 house on Pineapple Avenue. Downtown is two minutes away on foot.",
     venue: "sarasota-opera-house",
     category: "music",
-    starts: next(5, { weeks: 5, hour: 19, minute: 30 }),
+    when: { weekday: 5, weeks: 5, hour: 19, minute: 30 },
     hours: 3,
     priceNote: "From $25",
     ticketUrl: "https://www.sarasotaopera.org",
@@ -237,7 +239,7 @@ const SEED: SeedEvent[] = [
     summary: "Sunday again on the promenade. The citrus starts to arrive this month.",
     venue: "waterside-place",
     category: "market",
-    starts: next(0, { weeks: 1, hour: 10 }),
+    when: { weekday: 0, weeks: 1, hour: 10 },
     hours: 4,
     priceNote: "Free",
     image: img("library/lwr-waterside-promenade", "The promenade at Waterside Place"),
@@ -246,16 +248,19 @@ const SEED: SeedEvent[] = [
   },
 ];
 
-export const EVENTS: Event[] = SEED.map((e) => {
+/** Build the sample calendar relative to `from` (default: now). */
+export function buildEvents(from: Date = new Date()): Event[] {
+  return SEED.map((e) => {
   const venue = venueBySlug(e.venue);
   if (!venue) throw new Error(`Unknown venue ${e.venue}`);
+  const starts = next(e.when.weekday, { ...e.when, from });
   return {
     _id: e._id,
     title: e.title,
     slug: e.slug,
     summary: e.summary,
-    startsAt: iso(e.starts),
-    endsAt: iso(plusHours(e.starts, e.hours ?? 2)),
+    startsAt: iso(starts),
+    endsAt: iso(plusHours(starts, e.hours ?? 2)),
     allDay: e.allDay ?? false,
     venue: {
       name: venue.name,
@@ -273,4 +278,5 @@ export const EVENTS: Event[] = SEED.map((e) => {
     featured: e.featured ?? false,
     description: e.description,
   };
-});
+  });
+}

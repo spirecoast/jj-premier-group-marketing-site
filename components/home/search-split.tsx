@@ -26,7 +26,7 @@ export function SearchSplit({ kitchen, bath, caption }: { kitchen: ImageRef; bat
         </p>
         <form action="/listings" method="get" className="flex flex-col gap-5 border border-hairline bg-white p-6 sm:flex-row sm:items-end">
           <div className="field flex-1">
-            <label htmlFor="home-search-market" className="field-label text-sky-700">
+            <label htmlFor="home-search-market" className="field-label">
               Where
             </label>
             <select id="home-search-market" name="market" defaultValue="lakewood-ranch" className="field-input">

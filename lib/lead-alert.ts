@@ -56,7 +56,8 @@ export async function notifyTeamOfLead(lead: LeadSummary): Promise<boolean> {
     html: `<p>New website lead.</p>${leadHtml(lead)}`,
     replyTo: lead.email,
   });
-  return res.ok;
+  // The email helper returns a dev no-op when Resend is not configured; that is not delivery.
+  return res.ok && res.id !== "dev-noop";
 }
 
 export async function alertLeadDelivery(

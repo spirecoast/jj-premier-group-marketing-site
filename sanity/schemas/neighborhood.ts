@@ -10,6 +10,7 @@ export const neighborhoodType = defineType({
     defineField({ name: "name", type: "string", title: "Name", validation: (r) => r.required() }),
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "name" }, validation: (r) => r.required() }),
     marketField,
+    defineField({ name: "county", type: "string", title: "County", description: "Only when it differs from the market's county" }),
     defineField({ name: "tagline", type: "string", title: "Tagline" }),
     imageWithAlt("hero", "Hero photograph", true),
     defineField({ name: "overview", type: "blockContent", title: "Overview" }),

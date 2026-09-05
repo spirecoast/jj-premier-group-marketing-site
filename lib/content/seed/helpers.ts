@@ -95,15 +95,13 @@ function zonedDate(y: number, m: number, d: number, h: number, min: number): Dat
   return new Date(guess - offset);
 }
 
-const now = new Date();
-
-/** Next occurrence of a weekday (0 = Sunday) at least `minDays` out, at a local hour. */
+/** Next occurrence of a weekday (0 = Sunday) at least `minDays` out, at a local hour, counted from `from`. */
 export function next(
   weekday: number,
-  opts: { weeks?: number; hour?: number; minute?: number; minDays?: number } = {},
+  opts: { weeks?: number; hour?: number; minute?: number; minDays?: number; from?: Date } = {},
 ): Date {
-  const { weeks = 0, hour = 19, minute = 0, minDays = 1 } = opts;
-  const today = zoneParts(now);
+  const { weeks = 0, hour = 19, minute = 0, minDays = 1, from = new Date() } = opts;
+  const today = zoneParts(from);
   let delta = (weekday - today.weekday + 7) % 7;
   if (delta < minDays) delta += 7;
   // Step forward in calendar days via UTC arithmetic, then pin the wall-clock time.

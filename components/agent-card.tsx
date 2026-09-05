@@ -4,7 +4,7 @@ import { Photo } from "./photo";
 import { RichText } from "./rich-text";
 
 /** Two agent cards with license numbers, as the brief specifies. */
-export function AgentCard({ member, className, full }: { member: TeamMember; className?: string; full?: boolean }) {
+export function AgentCard({ member, className, full, as: Heading = "h3" }: { member: TeamMember; className?: string; full?: boolean; as?: "h2" | "h3" }) {
   return (
     <article id={member.slug} className={cn("flex flex-col gap-6 scroll-mt-24", className)}>
       <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">
@@ -12,9 +12,10 @@ export function AgentCard({ member, className, full }: { member: TeamMember; cla
       </div>
       <div className="flex flex-col gap-3">
         {member.register ? <p className="t-eyebrow text-amber">{member.register}</p> : null}
-        <h3 className="t-h1 text-navy">{member.name}</h3>
+        <Heading className="t-h1 text-navy">{member.name}</Heading>
         <p className="t-record text-graphite-600">
-          {member.title} · {member.licenseNumber ? `FL ${member.licenseNumber}` : "FL license pending"}
+          {member.title}
+          {member.licenseNumber ? ` · FL ${member.licenseNumber}` : ""}
         </p>
         <ul className="flex flex-col gap-1 pt-1">
           <li>

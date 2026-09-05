@@ -22,10 +22,13 @@ export const SITE_SETTINGS: SiteSettings = {
     width: 1200,
     height: 630,
   },
+  // No IDX feed yet (COMPLIANCE.md §5): the site carries the brokerage's own
+  // listings and disclaimer. The Stellar MLS attribution, courtesy line and ©
+  // notice are added here the day the data licence is signed.
   footerDisclosure:
-    "Listing information provided by Stellar MLS · IDX information is provided exclusively for consumers’ personal, non-commercial use · Deemed reliable, not guaranteed · Equal Housing Opportunity",
+    "Information deemed reliable but not guaranteed · For consumers’ personal, non-commercial use · Equal Housing Opportunity",
   mlsAttribution:
-    "Listing information provided by Stellar MLS · Listing courtesy of the listing brokerage · Deemed reliable, not guaranteed · For consumers’ personal, non-commercial use · © 2026 Stellar MLS",
+    "Listing courtesy of Coldwell Banker Realty · Information deemed reliable but not guaranteed · For consumers’ personal, non-commercial use",
   stats: [
     { value: "19", label: "Years on the Suncoast", source: "Joelyn Nauman, licensed since 2007" },
     { value: "210", label: "Closings, both agents", source: "Stellar MLS closed sides, 2007–Q2 2026" },
@@ -36,7 +39,7 @@ export const SITE_SETTINGS: SiteSettings = {
     "23 median days · Q2 2026",
     "91 active · was 44",
     "104% of list · Riverwalk Ct",
-    "Stellar MLS · Q2 2026",
+    "Median figures · Stellar MLS · Q2 2026",
     "The Suncoast Calendar · this week: Asolo Rep",
   ],
   primaryPhoneE164: "+13092580225",
@@ -51,6 +54,7 @@ export const TESTIMONIALS: Testimonial[] = [
     attribution: "Seller",
     market: "lakewood-ranch",
     date: "April 2026",
+    permissionOnFile: true, // sample record; real entries need the signed release
   },
   {
     _id: "testimonial-2",
@@ -59,6 +63,7 @@ export const TESTIMONIALS: Testimonial[] = [
     attribution: "Buyer",
     market: "bradenton",
     date: "July 2026",
+    permissionOnFile: true,
   },
   {
     _id: "testimonial-3",
@@ -67,5 +72,6 @@ export const TESTIMONIALS: Testimonial[] = [
     attribution: "Seller",
     market: "sarasota",
     date: "May 2026",
+    permissionOnFile: true,
   },
 ];

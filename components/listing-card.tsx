@@ -10,9 +10,10 @@ const TAG_CLASS: Record<string, string> = {
   new: "bg-mist text-deep-harbor",
   "just-reduced": "bg-sand text-sand-ink",
   "under-contract": "bg-deep-harbor text-sky-300",
-  sold: "border border-linen-400 text-linen-700 bg-transparent",
-  "off-market": "border border-harbor-200 text-harbor-700 bg-transparent",
-  "open-house": "bg-sky-100 text-sky-800",
+  // Outline tags sit on Paper so they stay legible over a photograph.
+  sold: "border border-linen-400 bg-paper text-linen-700",
+  "off-market": "border border-harbor-200 bg-paper text-harbor-700",
+  "open-house": "bg-navy text-sky-300",
 };
 
 /** Exactly one tag per listing. */
@@ -21,7 +22,7 @@ export function ListingTag({ listing, className }: { listing: Listing; className
   if (!tag) return null;
   const label = tag === "open-house" && listing.openHouse ? listing.openHouse : LISTING_TAG_LABEL[tag];
   return (
-    <span className={cn("inline-flex h-7 items-center px-2.5 font-body text-[11px] font-semibold uppercase tracking-[0.12em]", TAG_CLASS[tag], className)}>
+    <span className={cn("inline-flex items-center px-3 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em]", TAG_CLASS[tag], className)}>
       {label}
     </span>
   );
@@ -45,6 +46,8 @@ type OverlayProps = {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /** Heading level for the title; h3 under a section heading, h2 directly under the page H1. */
+  as?: "h2" | "h3";
 };
 
 type StandardProps = {
@@ -53,6 +56,7 @@ type StandardProps = {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  as?: "h2" | "h3";
 };
 
 /**
@@ -62,6 +66,7 @@ type StandardProps = {
  */
 export function ListingCard(props: OverlayProps | StandardProps) {
   const { listing, className, sizes = "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw", priority } = props;
+  const Heading = props.as ?? "h3";
   const href = `/listings/${listing.slug}` as const;
 
   if (props.variant === "overlay") {
@@ -80,14 +85,14 @@ export function ListingCard(props: OverlayProps | StandardProps) {
         <div className={cn("absolute flex flex-col", large ? "inset-x-7 bottom-6 gap-2.5" : "inset-x-5 bottom-5 gap-1.5")}>
           {large ? <p className="t-mono-sm text-sky-300">{eyebrowFor(listing)}</p> : null}
           <div className="flex items-baseline justify-between gap-4">
-            <h3
+            <Heading
               className={cn(
                 "font-display text-white",
                 large ? "text-[clamp(1.5rem,2.4vw,2.125rem)] font-light leading-none" : "text-[21px] font-normal leading-tight text-shadow-soft",
               )}
             >
               {listing.title}
-            </h3>
+            </Heading>
             {large ? (
               <span className="shrink-0 font-mono text-base font-medium text-white">{formatPrice(listing.price)}</span>
             ) : null}
@@ -116,7 +121,7 @@ export function ListingCard(props: OverlayProps | StandardProps) {
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <div className="flex items-baseline justify-between gap-4">
-          <h3 className="t-h3 text-navy">{listing.title}</h3>
+          <Heading className="t-h3 text-navy">{listing.title}</Heading>
           <span className="shrink-0 font-mono text-[15px] font-medium text-navy">{formatPrice(listing.price)}</span>
         </div>
         <p className="t-record text-graphite-500">

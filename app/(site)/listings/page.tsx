@@ -51,17 +51,17 @@ function hrefFor(f: ListingFilters, page?: number): Route {
 function activeChips(f: ListingFilters): Chip[] {
   const chips: Chip[] = [];
   const without = (patch: Partial<ListingFilters>) => hrefFor({ ...f, ...patch });
-  if (f.market) chips.push({ label: `${marketName(f.market)} ✕`, href: without({ market: undefined }) });
-  if (f.minPrice) chips.push({ label: `From ${formatPriceShort(f.minPrice)} ✕`, href: without({ minPrice: undefined }) });
-  if (f.maxPrice) chips.push({ label: `To ${formatPriceShort(f.maxPrice)} ✕`, href: without({ maxPrice: undefined }) });
-  if (f.beds) chips.push({ label: `${f.beds}+ beds ✕`, href: without({ beds: undefined }) });
-  if (f.baths) chips.push({ label: `${f.baths}+ baths ✕`, href: without({ baths: undefined }) });
-  if (f.status && f.status !== "active") chips.push({ label: `${STATUS_LABEL[f.status]} ✕`, href: without({ status: undefined }) });
+  if (f.market) chips.push({ label: marketName(f.market), href: without({ market: undefined }), remove: true });
+  if (f.minPrice) chips.push({ label: `From ${formatPriceShort(f.minPrice)}`, href: without({ minPrice: undefined }), remove: true });
+  if (f.maxPrice) chips.push({ label: `To ${formatPriceShort(f.maxPrice)}`, href: without({ maxPrice: undefined }), remove: true });
+  if (f.beds) chips.push({ label: `${f.beds}+ beds`, href: without({ beds: undefined }), remove: true });
+  if (f.baths) chips.push({ label: `${f.baths}+ baths`, href: without({ baths: undefined }), remove: true });
+  if (f.status && f.status !== "active") chips.push({ label: STATUS_LABEL[f.status], href: without({ status: undefined }), remove: true });
   if (f.feature) {
     const label = FEATURE_OPTIONS.find((o) => o.value === f.feature)?.label ?? f.feature;
-    chips.push({ label: `${label} ✕`, href: without({ feature: undefined }) });
+    chips.push({ label, href: without({ feature: undefined }), remove: true });
   }
-  if (f.q) chips.push({ label: `“${f.q}” ✕`, href: without({ q: undefined }) });
+  if (f.q) chips.push({ label: `“${f.q}”`, href: without({ q: undefined }), remove: true });
   return chips;
 }
 
@@ -141,10 +141,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
             size="display"
             eyebrow="Search"
             title={
-              <span id="listings-title">
-                Every listing between
-                <br className="hidden sm:block" /> Tampa and Venice.
-              </span>
+              <span id="listings-title">Every listing between Tampa and Venice.</span>
             }
             titleClassName="max-w-[760px]"
             aside={
@@ -251,7 +248,7 @@ export default async function ListingsPage({ searchParams }: { searchParams: Pro
           <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {shown.map((l, i) => (
               <li key={l.slug} className="flex">
-                <ListingCard listing={l} className="w-full" priority={i < 3} />
+                <ListingCard listing={l} className="w-full" priority={i < 3} as="h2" />
               </li>
             ))}
           </ul>

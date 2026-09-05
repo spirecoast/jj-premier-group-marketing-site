@@ -30,7 +30,9 @@ async function run(request: NextRequest) {
 
   try {
     const client = getWriteClient();
-    const ids = await client.fetch<string[]>(staleEventIdsQuery, { cutoff: cutoff.toISOString() });
+    // Raw perspective so never-published drafts are included; normalise to the published id.
+    const raw = await client.fetch<string[]>(staleEventIdsQuery, { cutoff: cutoff.toISOString() }, { perspective: "raw" });
+    const ids = [...new Set(raw.map((id) => id.replace(/^drafts\./, "")))];
     if (!ids.length) {
       return NextResponse.json({ deleted: 0, cutoff: cutoff.toISOString() });
     }

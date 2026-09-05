@@ -13,6 +13,9 @@ import { getNeighborhood, getNeighborhoodSlugs } from "@/lib/content";
 import { marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
+/** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
+export const revalidate = 3600;
+
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
@@ -28,7 +31,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `${n.name} · ${marketName(n.market)} homes, HOA, flood zones and what is on`,
     description: n.tagline ?? `${n.name}, ${marketName(n.market)}: geography, HOA mechanics, flood zones, distances, homes for sale and what is on this month.`,
     path: `/neighborhoods/${n.slug}`,
-    image: n.hero,
+    fileImage: true, // opengraph-image.tsx beside this page
   });
 }
 
@@ -63,7 +66,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             <Link href={`/neighborhoods?market=${n.market}` as Route} className="hover:text-white">
               {marketName(n.market)}
             </Link>
-            {market ? ` · ${market.county}` : ""}
+            {n.county ?? market?.county ? ` · ${n.county ?? market?.county}` : ""}
           </p>
           <h1 id="nb-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
             {n.name}
@@ -81,7 +84,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           <aside className="flex flex-col gap-2 self-start border border-hairline bg-white p-7">
             <p className="t-stat text-navy">{n.stat.value}</p>
             <p className="t-label text-linen-700">{n.stat.label}</p>
-            <p className="t-mono-sm text-graphite-500">{n.stat.source}</p>
+            {n.stat.source ? <p className="t-mono-sm text-graphite-500">{n.stat.source}</p> : null}
             <RuleLink href={`/listings?market=${n.market}`} className="mt-4 self-start">
               Search {marketName(n.market)}
             </RuleLink>

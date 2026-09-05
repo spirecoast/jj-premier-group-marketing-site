@@ -22,15 +22,25 @@ const COLORS = {
 
 let fontCache: Promise<{ display?: ArrayBuffer; body?: ArrayBuffer; mono?: ArrayBuffer }> | null = null;
 
-async function googleFont(family: string, weight: number, text?: string): Promise<ArrayBuffer | undefined> {
+/** Satori needs TrueType/OpenType. A legacy user-agent makes Google Fonts serve TTF. */
+async function googleFont(family: string, weight: number): Promise<ArrayBuffer | undefined> {
   try {
     const css = await fetch(
-      `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}${text ? `&text=${encodeURIComponent(text)}` : ""}`,
-      { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36" } },
+      `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1",
+        },
+      },
     ).then((r) => r.text());
-    const url = css.match(/src: url\(([^)]+)\) format\('(?:woff2|truetype|opentype)'\)/)?.[1] ?? css.match(/url\(([^)]+\.(?:ttf|woff2|otf))\)/)?.[1];
+    const url = css.match(/src:\s*url\(([^)]+)\)\s*format\('(?:truetype|opentype)'\)/)?.[1];
     if (!url) return undefined;
-    return await fetch(url).then((r) => r.arrayBuffer());
+    const buf = await fetch(url).then((r) => r.arrayBuffer());
+    const sig = String.fromCharCode(...new Uint8Array(buf.slice(0, 4)));
+    // Reject WOFF/WOFF2 (Satori cannot parse them); OTTO and 0x00010000 are fine.
+    if (sig === "wOFF" || sig === "wOF2") return undefined;
+    return buf;
   } catch {
     return undefined;
   }
@@ -72,6 +82,12 @@ export async function brandOgImage({
 }) {
   const [f, photoSrc] = await Promise.all([fonts(), photo ? ogImageSrc(photo) : Promise.resolve(undefined)]);
   const titleSize = title.length > 48 ? 44 : title.length > 28 ? 54 : 64;
+  const fontList = [
+    ...(f.display ? [{ name: "Newsreader", data: f.display, weight: 300 as const, style: "normal" as const }] : []),
+    ...(f.body ? [{ name: "Jost", data: f.body, weight: 500 as const, style: "normal" as const }] : []),
+    ...(f.mono ? [{ name: "IBM Plex Mono", data: f.mono, weight: 500 as const, style: "normal" as const }] : []),
+  ];
+  // With no fonts the renderer falls back to its bundled face rather than throwing.
 
   return new ImageResponse(
     (
@@ -102,13 +118,6 @@ export async function brandOgImage({
         </div>
       </div>
     ),
-    {
-      ...OG_SIZE,
-      fonts: [
-        ...(f.display ? [{ name: "Newsreader", data: f.display, weight: 300 as const, style: "normal" as const }] : []),
-        ...(f.body ? [{ name: "Jost", data: f.body, weight: 500 as const, style: "normal" as const }] : []),
-        ...(f.mono ? [{ name: "IBM Plex Mono", data: f.mono, weight: 500 as const, style: "normal" as const }] : []),
-      ],
-    },
+    { ...OG_SIZE, ...(fontList.length ? { fonts: fontList } : {}) },
   );
 }

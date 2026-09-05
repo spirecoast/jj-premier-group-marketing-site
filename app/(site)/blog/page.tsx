@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CtaBand } from "@/components/cta-band";
 import { LetterForm } from "@/components/letter-form";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 import { getPosts } from "@/lib/content";
+import { img } from "@/lib/content/seed/helpers";
 import { formatDateLong } from "@/lib/content/format";
 import { pageMetadata } from "@/lib/seo";
 
@@ -13,6 +15,8 @@ export const metadata: Metadata = pageMetadata({
     "One page, once a quarter, no pitch. What your street actually did on the Suncoast, and what we got wrong last time. Plus guides on flood zones, timing and selling.",
   path: "/blog",
 });
+
+const RIVER = img("library/manatee-river-dusk", "The Manatee River at dusk", "50% 45%");
 
 const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d);
 
@@ -74,16 +78,9 @@ export default async function BlogPage() {
         ) : null}
       </section>
 
-      <section id="subscribe" className="scroll-mt-header bg-navy text-linen-200">
-        <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-          <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-mist">The letter, by email</p>
-            <h2 className="t-h1 font-light text-white">The next one lands in October.</h2>
-            <p className="t-body max-w-measure text-linen-200">One page a quarter. Unsubscribe with one click, and we never share the list.</p>
-          </div>
-          <LetterForm tone="dark" />
-        </div>
-      </section>
+      <CtaBand image={RIVER} eyebrow="The letter, by email" title="The next one lands at the start of the quarter." body="One page a quarter. Unsubscribe with one click, and we never share the list." minHeight="min-h-[480px]" className="scroll-mt-header" >
+        <LetterForm tone="dark" />
+      </CtaBand>
     </>
   );
 }

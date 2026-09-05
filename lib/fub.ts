@@ -149,6 +149,7 @@ export async function sendLeadEvent(
         headers,
         body,
         cache: "no-store",
+        signal: AbortSignal.timeout(10_000),
       });
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);

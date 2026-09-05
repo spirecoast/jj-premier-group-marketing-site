@@ -52,8 +52,9 @@ export async function getTeamMember(slug: string): Promise<TeamMember | undefine
   return (await getTeam()).find((m) => m.slug === slug);
 }
 
+/** Only testimonials with written permission on file are ever rendered. */
 export async function getTestimonials(): Promise<Testimonial[]> {
-  return (await source()).testimonials();
+  return (await (await source()).testimonials()).filter((t) => t.permissionOnFile);
 }
 
 /* ---- Listings ------------------------------------------------------------ */

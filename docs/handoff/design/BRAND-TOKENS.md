@@ -35,7 +35,7 @@ Color
   line-strong    #C4B69F   rule (mockup) — section rules on Linen
   body           #3A3D42   running text (mockup)
   body-muted     #4E5157   secondary running text (mockup)
-  eyebrow        #96702A   amber = semantic warning — numbered section eyebrows
+  eyebrow        #7A5B1E   amber for 11px eyebrows. The mockup's #96702A measures 4.3:1 on Paper, under AA; this darker step of the same hue is 5.9:1. `--color-warning` keeps #96702A for fills.
   success        #3D7A63   fill #E6EFEB
   warning        #96702A   fill #F4EBD9
   danger         #A6483C   fill #F6E5E1

@@ -34,6 +34,9 @@ import type { Listing, RichText as RichTextValue, SiteSettings, Stat } from "@/l
 import { breadcrumbJsonLd, listingJsonLd, pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
+/** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
+export const revalidate = 3600;
+
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
@@ -72,7 +75,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `${listing.title}, ${listing.address.city} · ${formatPrice(listing.price)}`,
     description: truncate(`${factsLine(listing)} in ${place(listing)}. ${lead}`, 200),
     path: `/listings/${listing.slug}`,
-    image: listing.hero,
+    fileImage: true, // opengraph-image.tsx beside this page
   });
 }
 
@@ -85,8 +88,8 @@ function inquiryCopy(l: Listing) {
       eyebrow: "Sold",
       title: ["Sold", when, pct ? `· ${pct}` : undefined].filter(Boolean).join(" "),
       body: "Ask about a home like this. We know which streets nearby are thinking about listing, and we will tell you which ones are worth waiting for.",
-      submit: "Ask about a home like this",
-      cta: "Ask about a home like this",
+      submit: "Ask about this home",
+      cta: "Ask about this home",
     };
   }
   if (l.status === "pending") {
@@ -94,15 +97,15 @@ function inquiryCopy(l: Listing) {
       eyebrow: "Under contract",
       title: "Spoken for, for now.",
       body: "Contracts come back more often than people expect. Tell us the timing and you are the first call if this one does, and the first to hear about the next one on this water.",
-      submit: "Ask about a home like this",
-      cta: "Ask about a home like this",
+      submit: "Ask about this home",
+      cta: "Ask about this home",
     };
   }
   if (l.tag === "coming-soon") {
     return {
       eyebrow: "Coming soon",
       title: `See ${l.address.street} first.`,
-      body: "Showings begin before the listing goes live on the MLS. Tell us the timing and we will hold a slot in the first week.",
+      body: "Showings begin the day it goes active on the MLS. Tell us the timing and we will hold a slot in that first week.",
       submit: "Ask to see it first",
       cta: "Ask to see it first",
     };
@@ -146,7 +149,7 @@ export default async function ListingPage({ params }: { params: Params }) {
   const photoCount = 1 + listing.gallery.length;
   const sold = listing.status === "sold";
   const inquiry = inquiryCopy(listing);
-  const county = getMarket(listing.market)?.county ?? "County";
+  const county = listing.county ?? getMarket(listing.market)?.county ?? "County";
   const address = formatAddress(listing.address);
   const mapsUrl = listing.geo
     ? `https://www.google.com/maps/search/?api=1&query=${listing.geo.lat},${listing.geo.lng}`
@@ -204,11 +207,11 @@ export default async function ListingPage({ params }: { params: Params }) {
       {/* Gallery: the hero and up to four frames. */}
       <section className="container-site flex flex-col gap-5 pt-8 md:pt-10" aria-label="Photographs">
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-3 gap-y-1 t-mono-sm text-graphite-500">
-          <Link href={"/listings" as Route} className="transition-colors hover:text-navy">
+          <Link href={"/listings" as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             Search
           </Link>
           <span aria-hidden="true">/</span>
-          <Link href={`/listings?market=${listing.market}` as Route} className="transition-colors hover:text-navy">
+          <Link href={`/listings?market=${listing.market}` as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             {marketName(listing.market)}
           </Link>
           <span aria-hidden="true">/</span>
@@ -255,13 +258,13 @@ export default async function ListingPage({ params }: { params: Params }) {
             <p className="t-eyebrow text-amber">
               {listing.neighborhood ? (
                 <>
-                  <Link href={`/neighborhoods/${listing.neighborhood.slug}` as Route} className="transition-colors hover:text-navy">
+                  <Link href={`/neighborhoods/${listing.neighborhood.slug}` as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
                     {listing.neighborhood.name}
                   </Link>
                   {" · "}
                 </>
               ) : null}
-              <Link href={`/listings?market=${listing.market}` as Route} className="transition-colors hover:text-navy">
+              <Link href={`/listings?market=${listing.market}` as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
                 {marketName(listing.market)}
               </Link>
             </p>
@@ -374,7 +377,7 @@ export default async function ListingPage({ params }: { params: Params }) {
           </section>
         </div>
 
-        <aside className="flex flex-col gap-12" aria-label="Your agent and the inquiry form">
+        <aside className="flex flex-col gap-12 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:self-start" aria-label="Your agent and the inquiry form">
           {agent ? (
             <div className="flex flex-col gap-5">
               <p className="t-eyebrow text-amber">{sold ? "Sold by" : "Listed by"}</p>

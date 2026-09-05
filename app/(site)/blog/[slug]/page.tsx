@@ -2,15 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
+import { CtaBand } from "@/components/cta-band";
 import { LetterForm } from "@/components/letter-form";
 import { Photo } from "@/components/photo";
 import { RichText } from "@/components/rich-text";
 import { getPost, getPostSlugs, getPosts, getSiteSettings, getTeamMember } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
+import { img } from "@/lib/content/seed/helpers";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 type Params = Promise<{ slug: string }>;
+const RIVER = img("library/manatee-river-dusk", "The Manatee River at dusk", "50% 45%");
 const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d);
 
 export async function generateStaticParams() {
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: post.title,
     description: post.excerpt,
     path: `/blog/${post.slug}`,
-    image: post.cover,
+    fileImage: true, // opengraph-image.tsx beside this page
     type: "article",
   });
 }
@@ -62,7 +65,7 @@ export default async function PostPage({ params }: { params: Params }) {
 
       <article className="container-site flex flex-col gap-10 py-10 md:py-14">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
-          <Link href="/blog" className="transition-colors hover:text-navy">
+          <Link href="/blog" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             The Letter
           </Link>
           <span aria-hidden="true">/</span>
@@ -123,15 +126,9 @@ export default async function PostPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      <section className="bg-navy text-linen-200">
-        <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-          <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-mist">The letter, by email</p>
-            <h2 className="t-h1 font-light text-white">One page, once a quarter, no pitch.</h2>
-          </div>
-          <LetterForm tone="dark" />
-        </div>
-      </section>
+      <CtaBand image={RIVER} eyebrow="The letter, by email" title="One page, once a quarter, no pitch." body="What your street actually did, and what we got wrong last time." minHeight="min-h-[480px]">
+        <LetterForm tone="dark" />
+      </CtaBand>
     </>
   );
 }

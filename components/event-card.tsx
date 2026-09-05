@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Event } from "@/lib/content/types";
-import { formatEventShort, formatEventWhen, weekdayName } from "@/lib/content/format";
+import { formatEventShort, formatEventWhen, formatTime, weekdayName } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
 import { cn } from "@/lib/utils";
 import { Photo } from "./photo";
@@ -15,6 +15,8 @@ type Props = {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /** Row variant: add time, venue and price under the title. */
+  showMeta?: boolean;
 };
 
 /**
@@ -22,7 +24,7 @@ type Props = {
  * the compact list item that slides 16px on hover; `grid` is the calendar
  * index card. About the venue, never the listing.
  */
-export function EventCard({ event, variant = "grid", className, sizes, priority }: Props) {
+export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta }: Props) {
   const href = `/calendar/${event.slug}` as const;
 
   if (variant === "feature") {
@@ -58,6 +60,12 @@ export function EventCard({ event, variant = "grid", className, sizes, priority 
         <div className="flex flex-1 flex-col gap-1.5">
           <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event)}</p>
           <h3 className="t-h3 text-navy">{event.title}</h3>
+          {showMeta ? (
+            <p className="t-record text-graphite-600">
+              {formatTime(event.startsAt)} · {event.venue.name}
+              {event.priceNote ? ` · ${event.priceNote}` : ""}
+            </p>
+          ) : null}
         </div>
         <span className="row-arrow font-mono text-[14px] text-amber" aria-hidden="true">
           →

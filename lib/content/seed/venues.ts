@@ -31,7 +31,7 @@ export const VENUES: Venue[] = [
     website: "https://www.asolorep.org",
     image: img("library/culture-theater-lobby-chandelier", "A theater lobby under a chandelier"),
     about: p(
-      "Florida's largest repertory theatre, on the Ringling grounds. The Mertz stage is an 18th-century Scottish opera-house interior rebuilt inside a modern building, which is a sentence worth reading twice.",
+      "Florida's largest repertory theatre, on the Ringling grounds. The Mertz stage is the interior of a 1903 Scottish opera house, the Dunfermline, shipped over and rebuilt inside a modern building, which is a sentence worth reading twice.",
       "The season runs November to June. Parking is free and the museum next door is open late on Thursdays.",
     ),
   },
@@ -135,7 +135,7 @@ export const VENUES: Venue[] = [
     website: "https://www.watersideplace.com",
     image: img("library/lwr-waterside-promenade", "The lakefront promenade at Waterside Place"),
     about: p(
-      "The lakefront town center on the Sarasota County side of the Ranch. The Farmers' Market takes over the promenade every Sunday, ten till two, and the Players Centre theatre is under construction next door.",
+      "The lakefront town center on the Sarasota County side of the Ranch. The Farmers' Market takes over the promenade every Sunday, ten till two.",
     ),
   },
   {

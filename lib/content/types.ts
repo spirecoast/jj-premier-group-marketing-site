@@ -99,6 +99,8 @@ export type Listing = {
   /** For sold listings: percent of list achieved, e.g. 104. */
   percentOfList?: number;
   openHouse?: string;
+  /** County for tax and appraiser attributions when it differs from the market's. */
+  county?: string;
 };
 
 export type EventCategory =
@@ -155,6 +157,7 @@ export type Neighborhood = {
   featuredListings?: string[];
   /* extensions */
   market: MarketSlug;
+  county?: string;
   tagline?: string;
   /** Optional stat with its source and date, per the claims rule. */
   stat?: { value: string; label: string; source: string };
@@ -200,6 +203,8 @@ export type Testimonial = {
   attribution: string;
   market?: MarketSlug;
   date?: string;
+  /** Written permission on file (Compliance §06). Records without it are never rendered. */
+  permissionOnFile: boolean;
 };
 
 export type License = { name: string; number: string };

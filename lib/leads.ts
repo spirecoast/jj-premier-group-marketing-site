@@ -37,7 +37,7 @@ export const EMAIL_ONLY_FORMS: readonly LeadForm[] = ["letter", "calendar"];
  * to an unchecked box; submission never depends on it.
  */
 export const CONSENT_WORDING =
-  "I agree to receive calls and text messages from JJ Premier Group at the number provided, including messages sent by automated means. Consent is not a condition of purchase. Message and data rates may apply. Reply STOP to opt out.";
+  "I agree to receive calls and text messages from JJ Premier Group at the number provided, including messages sent by automated means. Consent is not a condition of purchase. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, HELP for help.";
 
 const optionalText = (max: number) =>
   z
@@ -61,7 +61,7 @@ export const leadSchema = z
     propertyTitle: optionalText(200),
     propertyStreet: optionalText(200),
     propertyCity: optionalText(100),
-    propertyState: optionalText(2),
+    propertyState: optionalText(40),
     propertyZip: optionalText(10),
     propertyPrice: optionalText(20),
     propertyMls: optionalText(40),
@@ -71,8 +71,8 @@ export const leadSchema = z
       .union([z.literal("on"), z.literal("true"), z.literal("")])
       .optional()
       .transform((v) => v === "on" || v === "true"),
-    // Honeypot — hidden from people, filled by bots.
-    website: z.string().max(0).optional(),
+    // Honeypot — hidden from people, filled by bots. Any value means a bot.
+    website: z.string().optional(),
   })
   .superRefine((d, ctx) => {
     if (!EMAIL_ONLY_FORMS.includes(d.form) && !d.firstName) {

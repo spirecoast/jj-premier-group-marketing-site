@@ -13,7 +13,7 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
       <ul className="flex flex-col gap-2.5 text-[14px]">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href as Route} className="text-navy transition-colors hover:text-harbor-700">
+            <Link href={l.href as Route} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
               {l.label}
             </Link>
           </li>
@@ -30,8 +30,10 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
  */
 export function SiteFooter({ settings, team }: { settings: SiteSettings; team: TeamMember[] }) {
   const year = new Date().getFullYear();
+  // Registered full name beside each confirmed number; an unconfirmed license is omitted, never guessed.
   const licenses = settings.licenses
-    .map((l) => `${l.name.split(" ")[0]} · FL ${l.number || "SL pending"}`)
+    .filter((l) => l.number)
+    .map((l) => `${l.name} · FL ${l.number}`)
     .join(" · ");
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
@@ -52,7 +54,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
             <ul className="flex flex-col gap-2.5 text-[14px]">
               {team.map((m) => (
                 <li key={`${m.slug}-phone`}>
-                  <a href={`tel:${m.phoneE164}`} className="text-navy transition-colors hover:text-harbor-700">
+                  <a href={`tel:${m.phoneE164}`} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
                     {m.phone}
                   </a>
                   <span className="sr-only"> {m.name}</span>
@@ -60,7 +62,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               ))}
               {team.map((m) => (
                 <li key={`${m.slug}-email`}>
-                  <a href={`mailto:${m.email}`} className="break-all text-navy transition-colors hover:text-harbor-700">
+                  <a href={`mailto:${m.email}`} className="-my-1 inline-block break-all py-1 text-navy transition-colors hover:text-harbor-700">
                     {m.email}
                   </a>
                 </li>
@@ -87,11 +89,12 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
 
         <div className="flex flex-col gap-6 border-t border-rule pt-7 lg:flex-row lg:items-center lg:justify-between">
           <p className="max-w-[760px] font-mono text-[9px] uppercase leading-[1.8] tracking-[0.06em] text-linen-700">
-            {settings.footerDisclosure} · {licenses}
+            {settings.footerDisclosure}
+            {licenses ? ` · ${licenses}` : ""}
           </p>
           <div className="flex items-center gap-8 text-navy">
             <EqualHousingMark />
-            <CbMark tone="cbblue" width={220} className="max-w-[46vw]" />
+            <CbMark tone="cbblue" width={220} />
           </div>
         </div>
 
@@ -102,13 +105,13 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
           <ul className="flex gap-5">
             {footerNav.legal.map((l) => (
               <li key={l.href}>
-                <Link href={l.href as Route} className="hover:text-navy">
+                <Link href={l.href as Route} className="-my-2 inline-block py-2 hover:text-navy">
                   {l.label}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href={"/studio" as Route} className="hover:text-navy">
+              <Link href={"/studio" as Route} className="-my-2 inline-block py-2 hover:text-navy">
                 Editor
               </Link>
             </li>

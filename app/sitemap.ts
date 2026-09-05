@@ -23,6 +23,8 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/terms", priority: 0.2, changeFrequency: "yearly" },
 ];
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [listings, events, venues, neighborhoods, posts] = await Promise.all([
     getListingSlugs(),

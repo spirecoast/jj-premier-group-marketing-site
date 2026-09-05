@@ -90,6 +90,7 @@ export const listingType = defineType({
     defineField({ name: "listedAt", type: "date", title: "Listed", group: "detail" }),
     defineField({ name: "daysOnMarket", type: "number", title: "Days on market", group: "detail" }),
     defineField({ name: "floodZone", type: "string", title: "Flood zone", group: "detail", description: "X, AE, VE…" }),
+    defineField({ name: "county", type: "string", title: "County", group: "detail", description: "Only when it differs from the market's county, e.g. Waterside is Sarasota County" }),
     defineField({ name: "annualTaxes", type: "number", title: "Annual taxes", group: "detail" }),
     defineField({ name: "openHouse", type: "string", title: "Open house", group: "detail", description: "e.g. Open Sunday 1–3" }),
     defineField({ name: "cardNote", type: "string", title: "Card note", group: "detail", description: "Short mono line on cards, e.g. POOL · DOCK" }),

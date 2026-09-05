@@ -73,7 +73,8 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
-  robots: { index: true, follow: true },
+  // NEXT_PUBLIC_ROBOTS_NOINDEX=true keeps previews and the pre-launch site out of search engines.
+  robots: process.env.NEXT_PUBLIC_ROBOTS_NOINDEX === "true" ? { index: false, follow: false } : { index: true, follow: true },
 };
 
 export const viewport: Viewport = {

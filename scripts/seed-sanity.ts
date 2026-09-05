@@ -12,7 +12,7 @@
 import { createReadStream } from "node:fs";
 import path from "node:path";
 import { getCliClient } from "sanity/cli";
-import { EVENTS } from "../lib/content/seed/events";
+import { buildEvents } from "../lib/content/seed/events";
 import { LISTINGS } from "../lib/content/seed/listings";
 import { NEIGHBORHOODS } from "../lib/content/seed/neighborhoods";
 import { POSTS } from "../lib/content/seed/posts";
@@ -71,7 +71,7 @@ async function run() {
   }
   for (const n of NEIGHBORHOODS) {
     docs.push({
-      _id: n._id, _type: "neighborhood", name: n.name, slug: slug(n.slug), market: n.market,
+      _id: n._id, _type: "neighborhood", name: n.name, slug: slug(n.slug), market: n.market, county: n.county,
       tagline: n.tagline, overview: n.overview, stat: n.stat ? { _type: "stat", ...n.stat } : undefined,
       highlights: n.highlights.map((h, i) => ({ _type: "highlight", _key: `h${i}`, ...h })),
       hero: await image(n.hero),
@@ -93,14 +93,14 @@ async function run() {
       featured: l.featured, soldDate: l.soldDate, percentOfList: l.percentOfList, description: l.description,
       features: l.features, mlsNumber: l.mlsNumber, lotAcres: l.lotAcres, yearBuilt: l.yearBuilt,
       renovated: l.renovated, listedAt: l.listedAt, daysOnMarket: l.daysOnMarket, floodZone: l.floodZone,
-      annualTaxes: l.annualTaxes, openHouse: l.openHouse, cardNote: l.cardNote, friendNote: l.friendNote,
+      annualTaxes: l.annualTaxes, openHouse: l.openHouse, county: l.county, cardNote: l.cardNote, friendNote: l.friendNote,
       hero: await image(l.hero),
       gallery: (await Promise.all(l.gallery.map(image))).map((g, i) => ({ ...g, _key: `g${i}` })),
       neighborhood: l.neighborhood ? ref(neighborhoodId(l.neighborhood.slug)!) : undefined,
       agent: l.agent ? ref(teamId(l.agent.slug)!) : undefined,
     });
   }
-  for (const e of EVENTS) {
+  for (const e of buildEvents()) {
     docs.push({
       _id: e._id, _type: "event", title: e.title, slug: slug(e.slug), summary: e.summary, startsAt: e.startsAt,
       endsAt: e.endsAt, allDay: e.allDay, venue: ref(venueId(e.venue.slug)!), category: e.category,
@@ -116,7 +116,7 @@ async function run() {
     });
   }
   for (const t of TESTIMONIALS) {
-    docs.push({ _id: t._id, _type: "testimonial", quote: t.quote, attribution: t.attribution, market: t.market, date: t.date });
+    docs.push({ _id: t._id, _type: "testimonial", quote: t.quote, attribution: t.attribution, market: t.market, date: t.date, permissionOnFile: t.permissionOnFile });
   }
   docs.push({
     _id: "siteSettings", _type: "siteSettings", brokerageName: SITE_SETTINGS.brokerageName,

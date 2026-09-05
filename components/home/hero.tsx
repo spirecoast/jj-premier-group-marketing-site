@@ -68,7 +68,7 @@ export function Hero({
 
         {/* Headline block */}
         <div className="relative flex flex-col gap-6 px-6 pb-10 pt-8 text-navy sm:px-10 lg:absolute lg:bottom-16 lg:left-14 lg:w-[720px] lg:p-0 lg:text-white">
-          <p className="rise d1 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-sky-700 lg:text-mist lg:text-shadow-photo">
+          <p className="rise d1 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-harbor-700 lg:text-mist lg:text-shadow-photo">
             {site.region}
           </p>
           <h1 id="hero-title" className="t-hero lg:text-shadow-photo">
@@ -102,7 +102,7 @@ export function Hero({
         </div>
 
         {/* On the market card */}
-        <div className="rise d5 mx-6 mb-8 flex flex-col gap-3.5 bg-paper/97 p-6 text-navy shadow-[0_24px_60px_rgb(10_20_28/0.35)] backdrop-blur-md sm:mx-10 lg:absolute lg:bottom-16 lg:right-14 lg:m-0 lg:w-[300px] lg:px-[26px]">
+        <div className="rise d5 mx-6 mb-8 flex flex-col gap-3.5 border border-hairline bg-paper/97 p-6 text-navy backdrop-blur-md sm:mx-10 lg:absolute lg:bottom-16 lg:right-14 lg:m-0 lg:w-[300px] lg:border-0 lg:px-[26px] lg:shadow-[0_24px_60px_rgb(10_20_28/0.35)]">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-linen-700">
             On the market · {listingCount} active
           </p>
@@ -116,8 +116,8 @@ export function Hero({
               </li>
             ))}
           </ul>
-          <Link href="/listings" className="t-label text-harbor-700 transition-colors hover:text-navy">
-            All {listingCount} →
+          <Link href="/listings" className="t-label -my-2 inline-flex min-h-10 items-center text-harbor-700 transition-colors hover:text-navy">
+            All {listingCount} listings <span aria-hidden="true">→</span>
           </Link>
         </div>
       </div>

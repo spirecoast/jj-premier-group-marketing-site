@@ -7,25 +7,49 @@ export function absoluteUrl(path: string): string {
   return new URL(path, site.url).toString();
 }
 
-/** Page metadata with sensible Open Graph defaults. */
+const DEFAULT_OG_IMAGE = {
+  url: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: `${site.name} · ${site.tagline}`,
+};
+
+/**
+ * Page metadata with Open Graph defaults.
+ *
+ * Next.js replaces (does not merge) a parent's `openGraph` object, so the
+ * site default image is set here explicitly. Pages with a sibling
+ * opengraph-image.tsx pass `fileImage: true` so the `images` key is left
+ * out and the file-based image is used.
+ */
 export function pageMetadata({
   title,
   description,
   path,
   image,
+  fileImage,
   type = "website",
   noIndex,
+  absoluteTitle,
 }: {
   title: string;
   description: string;
   path: string;
   image?: { src: string; alt: string; width?: number; height?: number };
+  fileImage?: boolean;
   type?: "website" | "article";
   noIndex?: boolean;
+  /** Use the title as-is instead of the root "%s · JJ Premier Group" template. */
+  absoluteTitle?: boolean;
 }): Metadata {
   const url = absoluteUrl(path);
+  const images = image
+    ? [{ url: image.src, alt: image.alt, width: image.width, height: image.height }]
+    : fileImage
+      ? undefined
+      : [DEFAULT_OG_IMAGE];
   return {
-    title,
+    title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: { canonical: url },
     robots: noIndex ? { index: false, follow: false } : undefined,
@@ -35,9 +59,7 @@ export function pageMetadata({
       title,
       description,
       siteName: site.name,
-      images: image
-        ? [{ url: image.src, alt: image.alt, width: image.width, height: image.height }]
-        : undefined,
+      ...(images ? { images } : {}),
     },
     twitter: { card: "summary_large_image", title, description },
   };
@@ -170,7 +192,6 @@ export function eventJsonLd(e: Event) {
           availability: "https://schema.org/InStock",
         }
       : undefined,
-    organizer: e.source ? { "@type": "Organization", name: e.source, url: e.sourceUrl } : undefined,
   };
 }
 

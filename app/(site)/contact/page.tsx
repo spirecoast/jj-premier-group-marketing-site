@@ -43,7 +43,8 @@ export default async function ContactPage() {
               <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">
                 <p className="t-h4 text-navy">{m.name}</p>
                 <p className="t-mono-sm text-graphite-500">
-                  {m.title} · {m.licenseNumber ? `FL ${m.licenseNumber}` : "FL license pending"}
+                  {m.title}
+                  {m.licenseNumber ? ` · FL ${m.licenseNumber}` : ""}
                 </p>
                 <a href={`tel:${m.phoneE164}`} className="font-mono text-[15px] text-navy hover:text-harbor-700">
                   {m.phone}

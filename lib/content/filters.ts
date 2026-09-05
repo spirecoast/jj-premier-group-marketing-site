@@ -53,7 +53,10 @@ export function parseListingFilters(
       status === "active" || status === "pending" || status === "sold" || status === "all"
         ? status
         : undefined,
-    feature: one("feature") && one("feature")! in FEATURE_MATCHERS ? one("feature") : undefined,
+    feature: (() => {
+      const f = one("feature");
+      return f && Object.hasOwn(FEATURE_MATCHERS, f) ? f : undefined;
+    })(),
     q: one("q")?.trim() || undefined,
   };
 }

@@ -23,14 +23,14 @@ export function FourMarkets({ image }: { image: ImageRef }) {
           <Link
             key={m.slug}
             href={`/neighborhoods?market=${m.slug}`}
-            className={`card group flex flex-col gap-3.5 py-6 text-white ${i > 0 ? "border-l border-white/30 pl-4 lg:pl-[26px]" : ""} ${i === 2 ? "border-l-0 lg:border-l" : ""}`}
+            className={`card group flex flex-col gap-3.5 py-6 text-white ${i === 1 || i === 3 ? "border-l border-white/30 pl-4 lg:pl-[26px]" : ""} ${i === 2 ? "lg:border-l lg:border-white/30 lg:pl-[26px]" : ""}`}
           >
             <div className="relative h-24 overflow-hidden bg-navy lg:h-32">
               <Photo image={m.image} sizes="(min-width: 1024px) 280px, 50vw" className="card-img" />
             </div>
             <div className="flex items-baseline justify-between gap-3">
               <span className="font-display text-[clamp(1.25rem,1.8vw,1.625rem)] font-normal text-white text-shadow-soft">{m.name}</span>
-              <span className="font-mono text-[11px] text-mist" title={m.statSource}>
+              <span className="shrink-0 whitespace-nowrap font-mono text-[11px] text-mist" title={m.statSource}>
                 ${m.pricePerSf} / SF
               </span>
             </div>

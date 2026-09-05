@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getEvent, getUpcomingEvents } from "@/lib/content";
-import { formatAddress } from "@/lib/content/format";
+import { SITE_TIMEZONE, formatAddress } from "@/lib/content/format";
 import type { Event } from "@/lib/content/types";
 import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -8,10 +8,20 @@ import { site } from "@/lib/site";
 export const revalidate = 3600;
 
 /** RFC 5545 text escaping. */
-const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 
 /** UTC timestamp in iCalendar basic format. */
 const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+
+/** Calendar date (YYYYMMDD) in the site timezone, for all-day events. */
+const localDateFmt = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" });
+function localDate(d: Date): string {
+  const p = Object.fromEntries(localDateFmt.formatToParts(d).map((x) => [x.type, x.value]));
+  return `${p.year}${p.month}${p.day}`;
+}
+function nextLocalDate(d: Date): string {
+  return localDate(new Date(d.getTime() + 24 * 60 * 60 * 1000));
+}
 
 /** Fold lines longer than 75 octets (RFC 5545 §3.1). */
 function fold(line: string): string {
@@ -40,8 +50,8 @@ function vevent(e: Event, now: Date): string[] {
     "BEGIN:VEVENT",
     `UID:${e.slug}@${site.domain}`,
     `DTSTAMP:${stamp(now)}`,
-    e.allDay ? `DTSTART;VALUE=DATE:${stamp(start).slice(0, 8)}` : `DTSTART:${stamp(start)}`,
-    e.allDay ? `DTEND;VALUE=DATE:${stamp(new Date(end.getTime() + 24 * 60 * 60 * 1000)).slice(0, 8)}` : `DTEND:${stamp(end)}`,
+    e.allDay ? `DTSTART;VALUE=DATE:${localDate(start)}` : `DTSTART:${stamp(start)}`,
+    e.allDay ? `DTEND;VALUE=DATE:${nextLocalDate(e.endsAt ? end : start)}` : `DTEND:${stamp(end)}`,
     `SUMMARY:${esc(e.title)}`,
     `DESCRIPTION:${esc(description)}`,
     `LOCATION:${esc(`${e.venue.name}, ${formatAddress(e.venue.address)}`)}`,
@@ -50,7 +60,7 @@ function vevent(e: Event, now: Date): string[] {
     ...(e.venue.geo ? [`GEO:${e.venue.geo.lat};${e.venue.geo.lng}`] : []),
     "END:VEVENT",
   ];
-  return lines.map(fold);
+  return lines;
 }
 
 /**
@@ -74,8 +84,9 @@ export async function GET(request: NextRequest) {
     `X-WR-CALDESC:${esc("Where to go this week in Lakewood Ranch, Sarasota, Bradenton and Tampa.")}`,
     ...events.flatMap((e) => vevent(e, now)),
     "END:VCALENDAR",
-    "",
-  ].join("\r\n");
+  ]
+    .map(fold)
+    .join("\r\n") + "\r\n";
 
   return new Response(body, {
     status: 200,

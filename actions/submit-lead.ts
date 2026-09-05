@@ -5,7 +5,7 @@ import { z } from "zod";
 import { sendLeadEvent, type FubEventType, type FubProperty } from "@/lib/fub";
 import { alertLeadDelivery, notifyTeamOfLead, type LeadSummary } from "@/lib/lead-alert";
 import { site } from "@/lib/site";
-import { FUB_TYPE, leadSchema, type LeadFormState } from "@/lib/leads";
+import { EMAIL_ONLY_FORMS, FUB_TYPE, leadSchema, type LeadFormState } from "@/lib/leads";
 
 /**
  * The one server action every public form posts to.
@@ -42,7 +42,16 @@ export async function submitLead(
   const raw = Object.fromEntries(formData) as Record<string, string>;
   const parsed = leadSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, errors: parsed.error.flatten().fieldErrors };
+    const errors = parsed.error.flatten().fieldErrors as Record<string, string[] | undefined>;
+    const rendered = new Set(["firstName", "lastName", "email", "phone", "address", "timing", "message"]);
+    const hidden = Object.keys(errors).filter((k) => !rendered.has(k));
+    return {
+      ok: false,
+      errors,
+      formError: hidden.length
+        ? "Something in the form did not send. Call or text us and we will pick it up from there."
+        : undefined,
+    };
   }
   const data = parsed.data;
 
@@ -189,8 +198,8 @@ async function mirrorToDatabase(
         source: utm.utm_source ?? "website",
         sourceDetail: `${lead.form}_form`,
         utm: Object.keys(utm).length ? utm : null,
-        consentEmail: lead.form === "letter",
-        consentEmailAt: lead.form === "letter" ? now : null,
+        consentEmail: EMAIL_ONLY_FORMS.includes(lead.form as (typeof EMAIL_ONLY_FORMS)[number]),
+        consentEmailAt: EMAIL_ONLY_FORMS.includes(lead.form as (typeof EMAIL_ONLY_FORMS)[number]) ? now : null,
         consentSms: lead.consent,
         consentSmsAt: lead.consent ? now : null,
         consentSmsMethod: lead.consent ? "web_form_checkbox" : null,
@@ -199,18 +208,9 @@ async function mirrorToDatabase(
       })
       .returning({ id: contacts.id });
     if (row) {
-      if (lead.form === "letter") {
-        // Explicit newsletter opt-in: enrol in the welcome series (best effort).
-        try {
-          const { inngest } = await import("@/lib/inngest/client");
-          await inngest.send({
-            name: "lead.captured",
-            data: { contactId: row.id, source: utm.utm_source ?? "website", sourceDetail: "letter_form" },
-          });
-        } catch (err) {
-          console.error("[lead] inngest send failed (non-fatal)", err);
-        }
-      }
+      // Letter subscribers are not enrolled in the portal's welcome series: its
+      // templates are placeholders from an earlier phase. The quarterly letter
+      // itself is sent from the CRM.
       await db.insert(events).values({
         eventType: "form_submit",
         contactId: row.id,

@@ -73,6 +73,7 @@ export const LISTINGS: Listing[] = [
     status: "active",
     tag: "just-reduced",
     market: "lakewood-ranch",
+    county: "Sarasota County",
     neighborhood: { name: "Waterside", slug: "waterside" },
     agent: { name: "Jessica Garza", slug: "jessica-garza" },
     mlsNumber: "A4419112",
@@ -319,7 +320,7 @@ export const LISTINGS: Listing[] = [
       img("library/listing-primary-bath-terrazzo", "The primary bath"),
     ],
     description: p(
-      "Photography is scheduled for next week; showings begin the Friday after. A 2015 build on the seventh fairway inside Country Club East, with a pool, a summer kitchen and a three-car garage.",
+      "Photography is scheduled for next week; showings begin the day it goes active on the MLS. A 2015 build on the seventh fairway inside Country Club East, with a pool, a summer kitchen and a three-car garage.",
       "Four bedrooms, three baths, and a bonus room over the garage. The lanai faces south-west across the fairway to the preserve.",
     ),
     features: [
@@ -330,7 +331,7 @@ export const LISTINGS: Listing[] = [
       "Three-car garage",
     ],
     friendNote:
-      "We will have the price on Friday. Tell us the timing if you want to see it before it goes live.",
+      "We will have the price on Friday. Tell us the timing and we will hold a slot in the first week it is active.",
   },
   {
     _id: "listing-9-sea-oats-court",
@@ -415,7 +416,7 @@ export const LISTINGS: Listing[] = [
     percentOfList: 104,
     market: "sarasota",
     neighborhood: { name: "Siesta Key", slug: "siesta-key" },
-    agent: { name: "Jessica Garza", slug: "jessica-garza" },
+    // Sold by another brokerage; shown as market evidence, not as the team's sale.
     mlsNumber: "A4408117",
     listedAt: "2026-04-10",
     daysOnMarket: 9,

@@ -11,6 +11,13 @@ export const testimonialType = defineType({
     defineField({ name: "attribution", type: "string", title: "Attribution", description: "Seller, Buyer…", validation: (r) => r.required() }),
     defineField({ name: "market", type: "string", title: "Market", options: { list: MARKET_OPTIONS } }),
     defineField({ name: "date", type: "string", title: "Date", description: "e.g. April 2026" }),
+    defineField({
+      name: "permissionOnFile",
+      type: "boolean",
+      title: "Written permission on file",
+      description: "The site only shows testimonials with written permission (Compliance §06).",
+      initialValue: false,
+    }),
   ],
   preview: { select: { title: "quote", subtitle: "attribution" } },
 });

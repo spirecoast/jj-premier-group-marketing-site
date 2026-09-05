@@ -37,7 +37,7 @@ const STEPS = [
     when: "Weeks 1–8 · preparation",
     title: "Paint, light, the front door",
     body:
-      "Those three return their cost on this coast. A new kitchen almost never does inside two years, and we will say so before you spend it. The good photographers book six weeks ahead, so if you want March, we start in October.",
+      "In our closings since 2024, those three came back at the closing table; a new kitchen rarely did inside two years, and we will say so before you spend it. The good photographers book six weeks ahead, so if you want March, we start in October.",
   },
   {
     n: "03",
@@ -79,9 +79,9 @@ const FAQS: Faq[] = [
     a: (
       <>
         <p>
-          Interior paint, updated light fixtures, and a repainted front door are the three cheapest changes that move a
-          price on this coast. A new kitchen almost never returns its cost inside two years, and we will say so before
-          you spend it. The list we leave after the walk-through is usually a page long and costs less than a month of
+          Interior paint, updated light fixtures, and a repainted front door are the three cheapest changes that moved
+          a price in our closings since 2024. A new kitchen rarely returned its cost inside two years, and we will say so
+          before you spend it. The list we leave after the walk-through is usually a page long and costs less than a month of
           carrying the house.
         </p>
         <p className="mt-4">
@@ -178,7 +178,7 @@ export default async function SellPage() {
           </div>
           <p className="t-lead max-w-[560px] text-body">
             Here is what we would do: a number with the four comparable sales behind it, eight weeks of preparation
-            that return their cost, and a report on the Monday after the first weekend.
+            that has paid for itself in our closings since 2024, and a report on the Monday after the first weekend.
           </p>
           <p className="t-body max-w-measure text-body">
             Some agents will quote a number they know is too high to win the signature, then spend six weeks talking
@@ -243,7 +243,7 @@ export default async function SellPage() {
             {best?.percentOfList ? (
               <p className="t-body max-w-measure text-body">
                 <span className="t-record text-navy">{best.percentOfList}% of list</span> on{" "}
-                {best.address.street}, {best.daysOnMarket ?? "—"} days. Priced to the comps, this coast clears asking.
+                {best.address.street}, {best.daysOnMarket ?? "—"} days. Priced to the comps, that street cleared asking.
               </p>
             ) : null}
             <p className="t-mono-sm text-graphite-500">Sold prices · Stellar MLS closed sides · 2026</p>

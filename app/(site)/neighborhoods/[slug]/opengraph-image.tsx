@@ -13,7 +13,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   return brandOgImage({
     eyebrow: `${marketName(n.market)}${data.market ? ` · ${data.market.county}` : ""}`,
     title: n.name,
-    meta: n.stat ? `${n.stat.value} · ${n.stat.label} · ${n.stat.source}` : n.tagline,
+    meta: n.stat ? [n.stat.value, n.stat.label, n.stat.source].filter(Boolean).join(" · ") : n.tagline,
     photo: n.hero.src,
   });
 }

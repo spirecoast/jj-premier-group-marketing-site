@@ -1,6 +1,6 @@
 import type { ContentSource } from "./source";
 import { LISTINGS } from "./seed/listings";
-import { EVENTS } from "./seed/events";
+import { buildEvents } from "./seed/events";
 import { VENUES } from "./seed/venues";
 import { NEIGHBORHOODS } from "./seed/neighborhoods";
 import { POSTS } from "./seed/posts";
@@ -17,7 +17,7 @@ export const seedSource: ContentSource = {
     return LISTINGS;
   },
   async events() {
-    return EVENTS;
+    return buildEvents();
   },
   async venues() {
     return VENUES;

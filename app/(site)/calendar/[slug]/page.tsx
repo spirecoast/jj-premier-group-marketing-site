@@ -12,6 +12,9 @@ import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, weekdayName } fro
 import { marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, eventJsonLd, pageMetadata } from "@/lib/seo";
 
+/** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
+export const revalidate = 3600;
+
 type Params = Promise<{ slug: string }>;
 
 export async function generateStaticParams() {
@@ -26,7 +29,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title: `${event.title} · ${event.venue.name}`,
     description: `${formatEventWhen(event.startsAt, event.endsAt, event.allDay)} at ${event.venue.name}, ${event.venue.address.city}. ${event.summary}`,
     path: `/calendar/${event.slug}`,
-    image: event.image,
+    fileImage: true, // opengraph-image.tsx beside this page
     type: "article",
   });
 }
@@ -61,11 +64,11 @@ export default async function EventPage({ params }: { params: Params }) {
 
       <article className="container-site flex flex-col gap-10 py-10 md:py-14">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
-          <Link href="/calendar" className="transition-colors hover:text-navy">
+          <Link href="/calendar" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             The Calendar
           </Link>
           <span aria-hidden="true">/</span>
-          <Link href={`/calendar?market=${event.venue.market}` as Route} className="transition-colors hover:text-navy">
+          <Link href={`/calendar?market=${event.venue.market}` as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             {marketName(event.venue.market)}
           </Link>
           <span aria-hidden="true">/</span>
@@ -92,7 +95,7 @@ export default async function EventPage({ params }: { params: Params }) {
             <RichText value={event.description ?? []} />
             {event.source ? (
               <p className="t-mono-sm text-graphite-500">
-                Listed by{" "}
+                Source:{" "}
                 {event.sourceUrl ? (
                   <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-navy underline underline-offset-4">
                     {event.source}
