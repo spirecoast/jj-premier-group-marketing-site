@@ -36,8 +36,10 @@ export function Hero({
 
           {/* Cameo */}
           <div className="rise d2 absolute left-6 top-header flex items-center gap-4 pt-6 lg:left-14 lg:pt-7">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] lg:h-[72px] lg:w-[72px]">
-              <Photo image={cameo} sizes="72px" />
+            <div className="cameo-orbit relative flex h-20 w-20 shrink-0 items-center justify-center lg:h-[88px] lg:w-[88px]" aria-hidden="true">
+              <div className="relative h-16 w-16 overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] lg:h-[72px] lg:w-[72px]">
+                <Photo image={cameo} sizes="72px" />
+              </div>
             </div>
             <div className="flex flex-col gap-0.5">
               <p className="text-[14px] font-medium text-white text-shadow-photo">{names}</p>
@@ -47,16 +49,7 @@ export function Hero({
             </div>
           </div>
 
-          {/* Section ring and scroll cue: desktop furniture */}
-          <div
-            className="hero-ring fade absolute right-14 top-[110px] hidden h-[92px] w-[92px] items-center justify-center rounded-full border border-linen-200/35 lg:flex"
-            aria-hidden="true"
-          >
-            <p className="text-center font-mono text-[9px] leading-[1.6] tracking-[0.16em] text-linen-200">
-              01
-              <br />/ 07
-            </p>
-          </div>
+          {/* Scroll cue: desktop furniture */}
           <div
             className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 lg:flex"
             aria-hidden="true"

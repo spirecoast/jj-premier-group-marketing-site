@@ -52,14 +52,13 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
           <div className="flex flex-col gap-3.5">
             <p className="t-eyebrow text-linen-700">Direct</p>
             <ul className="flex flex-col gap-2.5 text-[14px]">
-              {team.map((m) => (
-                <li key={`${m.slug}-phone`}>
-                  <a href={`tel:${m.phoneE164}`} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
-                    {m.phone}
-                  </a>
-                  <span className="sr-only"> {m.name}</span>
-                </li>
-              ))}
+              {/* The team line, as the revised mockup shows; each agent's direct line stays on the contact page. */}
+              <li>
+                <a href={`tel:${settings.primaryPhoneE164}`} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
+                  {settings.primaryPhoneDisplay}
+                </a>
+                <span className="sr-only"> {site.name}</span>
+              </li>
               {team.map((m) => (
                 <li key={`${m.slug}-email`}>
                   <a href={`mailto:${m.email}`} className="-my-1 inline-block break-all py-1 text-navy transition-colors hover:text-harbor-700">

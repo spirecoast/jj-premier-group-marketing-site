@@ -42,8 +42,8 @@ export const SITE_SETTINGS: SiteSettings = {
     "Median figures · Stellar MLS · Q2 2026",
     "The Suncoast Calendar · this week: Asolo Rep",
   ],
-  primaryPhoneE164: "+13092580225",
-  primaryPhoneDisplay: "(309) 258-0225",
+  primaryPhoneE164: "+19419071033",
+  primaryPhoneDisplay: "(941) 907-1033",
 };
 
 export const TESTIMONIALS: Testimonial[] = [
