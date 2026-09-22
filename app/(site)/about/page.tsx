@@ -5,7 +5,6 @@ import { CtaBand } from "@/components/cta-band";
 import { JsonLd } from "@/components/json-ld";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
-import { StatBand } from "@/components/stat-band";
 import { TestimonialSlider } from "@/components/testimonial-slider";
 import { getSiteSettings, getTeam, getTestimonials } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
@@ -13,9 +12,9 @@ import { pageMetadata, personJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About · Joelyn Nauman and Jessica Garza",
+  title: "Meet Joelyn and Jessica",
   description:
-    "Two agents, one file, no handoffs. Joelyn Nauman and Jessica Garza, REALTORS® with Coldwell Banker Realty, on the Suncoast for nineteen years.",
+    "Joelyn Nauman and Jessica Garza, a mother and daughter team with Coldwell Banker Realty, helping people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton.",
   path: "/about",
 });
 
@@ -53,27 +52,27 @@ export default async function AboutPage() {
         <SectionHeading
           as="h1"
           size="display"
-          eyebrow="Who you are hiring"
+          eyebrow="Meet Joelyn & Jessica"
           title={
             <span id="about-title">
-              Two agents.
+              A mother and daughter,
               <br />
-              One file.
+              in your corner
               <br />
-              No handoffs.
+              for the whole move.
             </span>
           }
         />
         <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-20">
           <div className="flex flex-col gap-6">
             <p className="t-lead max-w-measure text-body">
-              You will never be passed to an assistant. Joelyn and Jessica both know your timeline, both attend your showings, and either one can answer any question about your file without calling the other first.
+              We are Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we would want it done for our own family.
             </p>
             <p className="t-body max-w-measure text-body">
-              We are two people who have watched a thousand families do this, and we remember what we wished someone had told us the first time. So we tell you. The good part, the expensive part, the part about the water table.
+              Whether you are buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You will always know where things stand, because we will have told you.
             </p>
             <p className="t-body max-w-measure text-body">
-              We like these houses, we like this coast, and we are not going to pretend a kitchen is stunning when what it is, is rebuilt in 2019 and full of light at four in the afternoon. Joelyn takes the long view; Jessica reads the contract and the room. Between them is the whole coast from the Skyway to Venice, under {settings.brokerageName}.
+              We like these houses and we like this coast, and we will not pretend a kitchen is stunning when what it is, is rebuilt in 2019 and full of light at four in the afternoon. Joelyn takes the long view; Jessica reads the contract and the room. Between us, you are covered from the first call to the keys.
             </p>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">
@@ -102,7 +101,6 @@ export default async function AboutPage() {
               </li>
             ))}
           </ol>
-          <StatBand stats={settings.stats} className="border-t border-rule pt-8" />
         </div>
       </section>
 

@@ -25,7 +25,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Water", description: "Chain of lakes and preserve edge on most streets" },
       { label: "Distance", description: "11 min to Main Street · 14 min to Waterside · 35 min to SRQ" },
     ],
-    stat: { value: "$684 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-country-club-east",
@@ -44,7 +43,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Golf", description: "Optional equity membership, two courses inside the gate" },
       { label: "Distance", description: "9 min to Main Street · 40 min to SRQ" },
     ],
-    stat: { value: "$521 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-waterside",
@@ -64,7 +62,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Town center", description: "Waterside Place, Sunday market, water taxi across Kingfisher Lake" },
       { label: "Distance", description: "10 min to UTC · 25 min to SRQ · 20 min to downtown Sarasota" },
     ],
-    stat: { value: "$468 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-siesta-key",
@@ -83,7 +80,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Access", description: "Two bridges; north bridge to downtown in 12 min" },
       { label: "Housing", description: "Canal homes, mid-island condominiums, village cottages" },
     ],
-    stat: { value: "$912 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-west-of-the-trail",
@@ -102,7 +98,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Flood", description: "Mostly zone X; AE along the bayfront" },
       { label: "Distance", description: "5 min to downtown · 10 min to Siesta Key" },
     ],
-    stat: { value: "$742 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-west-bradenton",
@@ -121,7 +116,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Water", description: "Canals to Palma Sola Bay; bridge clearance varies" },
       { label: "Distance", description: "8 min to Anna Maria · 15 min to downtown Bradenton" },
     ],
-    stat: { value: "$389 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-downtown-bradenton",
@@ -140,7 +134,6 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Flood", description: "AE along the river; X south of 6th Avenue" },
       { label: "Distance", description: "25 min to Lakewood Ranch · 45 min to Tampa" },
     ],
-    stat: { value: "$312 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
   {
     _id: "neighborhood-anna-maria-island",
@@ -159,44 +152,5 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Rentals", description: "Rules differ by city; ask before assuming" },
       { label: "Access", description: "Manatee Avenue and Cortez Road bridges" },
     ],
-    stat: { value: "$1,104 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
-  },
-  {
-    _id: "neighborhood-hyde-park",
-    name: "Hyde Park",
-    slug: "hyde-park",
-    market: "tampa",
-    tagline: "Bungalows under oaks, a village of shops, and Bayshore Boulevard at the end of the street.",
-    hero: img("library/tampa-hyde-park-bungalow", "A bungalow in Hyde Park"),
-    overview: p(
-      "Hyde Park is Tampa's oldest residential neighborhood, platted in 1886 south of downtown between the river and Bayshore Boulevard. Most of it is a local historic district, so exterior changes go through review, and the housing is 1900s–1930s bungalows and foursquares on small lots.",
-      "Hyde Park Village is the retail center; Bayshore's sidewalk is the long walk. Downtown is five minutes and the airport is fifteen.",
-    ),
-    highlights: [
-      { label: "Built", description: "1900s–1930s; local historic district review" },
-      { label: "HOA", description: "None; historic review applies to exteriors" },
-      { label: "Flood", description: "Mostly X; AE near the river and Bayshore" },
-      { label: "Distance", description: "5 min to downtown · 15 min to TPA" },
-    ],
-    stat: { value: "$512 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
-  },
-  {
-    _id: "neighborhood-bayshore",
-    name: "Bayshore",
-    slug: "bayshore",
-    market: "tampa",
-    tagline: "The towers and estates along the four-and-a-half-mile sidewalk.",
-    hero: img("library/tampa-condo-balcony-golden", "The bay from a Bayshore balcony"),
-    overview: p(
-      "Bayshore Boulevard runs four and a half miles along Hillsborough Bay from downtown to Ballast Point, with condominium towers at the north end and single-family estates south of Howard Avenue. The sidewalk is continuous the whole length.",
-      "The boulevard side is in flood zone AE; a block inland is mostly X. Tower reserves and recertification status are the first documents we pull on any unit here.",
-    ),
-    highlights: [
-      { label: "Housing", description: "Towers north of Howard; estates south" },
-      { label: "Flood", description: "AE on the boulevard; X a block inland" },
-      { label: "Buildings", description: "Ask for the reserve study and recertification" },
-      { label: "Distance", description: "8 min to downtown · 20 min to TPA" },
-    ],
-    stat: { value: "$566 / SF", label: "Median closed", source: "Stellar MLS · Q2 2026" },
   },
 ];

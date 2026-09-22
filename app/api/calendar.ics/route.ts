@@ -76,12 +76,12 @@ export async function GET(request: NextRequest) {
   const body = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    `PRODID:-//${site.name}//The Suncoast Calendar//EN`,
+    `PRODID:-//${site.name}//Encore Arts Calendar//EN`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${esc(`The Suncoast Calendar · ${site.name}`)}`,
+    `X-WR-CALNAME:${esc(`Encore Arts Calendar · ${site.name}`)}`,
     "X-WR-TIMEZONE:America/New_York",
-    `X-WR-CALDESC:${esc("Where to go this week in Lakewood Ranch, Sarasota, Bradenton and Tampa.")}`,
+    `X-WR-CALDESC:${esc("Theater, music and art this week in Sarasota, Bradenton and Lakewood Ranch.")}`,
     ...events.flatMap((e) => vevent(e, now)),
     "END:VCALENDAR",
   ]

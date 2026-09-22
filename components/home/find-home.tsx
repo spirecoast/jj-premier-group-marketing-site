@@ -4,25 +4,25 @@ import type { ImageRef } from "@/lib/content/types";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 
-/** 02 · The search. Underline fields; the focused field turns Sky 700. */
-export function SearchSplit({ kitchen, bath, caption }: { kitchen: ImageRef; bath: ImageRef; caption: string }) {
+/** 04 · Find your home. Two questions, and the homes worth seeing come to you. */
+export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; second: ImageRef; caption: string }) {
   return (
-    <section className="container-site grid items-center gap-12 py-section lg:grid-cols-2 lg:gap-20 lg:pb-[100px]">
+    <section className="container-site grid items-center gap-12 py-section lg:grid-cols-2 lg:gap-20" aria-labelledby="find-title">
       <div className="flex flex-col gap-7">
         <SectionHeading
-          number="02"
-          eyebrow="The search"
+          number="04"
+          eyebrow="Find your home"
           size="display"
           title={
-            <>
-              Start with the street,
-              <br className="hidden sm:block" /> not the square footage.
-            </>
+            <span id="find-title">
+              Tell us what you are looking for.
+              <br className="hidden sm:block" /> We will bring you the ones worth seeing.
+            </span>
           }
         />
         <p className="t-body max-w-[480px] text-body">
-          Every listing between Tampa and Venice, searchable by the things that actually matter: the
-          flood zone, the school walk, what the last three sold for.
+          Start with the place and the budget. We will send you the homes that fit, and we will say which
+          ones we would actually go and see with you.
         </p>
         <form action="/listings" method="get" className="flex flex-col gap-5 border border-hairline bg-white p-6 sm:flex-row sm:items-end">
           <div className="field flex-1">
@@ -38,9 +38,9 @@ export function SearchSplit({ kitchen, bath, caption }: { kitchen: ImageRef; bat
               <option value="">Anywhere on the coast</option>
             </select>
           </div>
-          <div className="field sm:w-[120px]">
+          <div className="field sm:w-[140px]">
             <label htmlFor="home-search-max" className="field-label">
-              Max
+              Up to
             </label>
             <select id="home-search-max" name="max" defaultValue="1500000" className="field-input">
               {PRICE_OPTIONS.map((p) => (
@@ -48,11 +48,11 @@ export function SearchSplit({ kitchen, bath, caption }: { kitchen: ImageRef; bat
                   {p.label}
                 </option>
               ))}
-              <option value="">No max</option>
+              <option value="">No limit</option>
             </select>
           </div>
           <button type="submit" className="btn btn-navy">
-            Search
+            Start my search
             <span className="btn-dash" aria-hidden="true" />
           </button>
         </form>
@@ -64,7 +64,7 @@ export function SearchSplit({ kitchen, bath, caption }: { kitchen: ImageRef; bat
         </div>
         <div className="absolute bottom-0 right-0 h-[52%] w-[46%] border-[12px] border-paper bg-linen-100">
           <div className="relative h-full w-full overflow-hidden">
-            <Photo image={bath} sizes="(min-width: 1024px) 280px, 46vw" />
+            <Photo image={second} sizes="(min-width: 1024px) 280px, 46vw" />
           </div>
         </div>
         <p className="absolute bottom-[30px] left-0 hidden font-mono text-[10px] uppercase tracking-[0.14em] text-linen-700 lg:block">

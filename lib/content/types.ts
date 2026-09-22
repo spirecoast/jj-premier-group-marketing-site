@@ -25,7 +25,7 @@ export type ImageRef = {
 
 export type RichText = PortableTextBlock[];
 
-export type MarketSlug = "lakewood-ranch" | "sarasota" | "bradenton" | "tampa";
+export type MarketSlug = "lakewood-ranch" | "sarasota" | "bradenton";
 
 export type Market = {
   slug: MarketSlug;
@@ -33,9 +33,6 @@ export type Market = {
   /** Short place descriptor used in eyebrows, e.g. "Manatee County". */
   county: string;
   image: ImageRef;
-  /** Median $/SF used on the four-markets band. Carries a source and date. */
-  pricePerSf: number;
-  statSource: string;
   blurb: string;
 };
 

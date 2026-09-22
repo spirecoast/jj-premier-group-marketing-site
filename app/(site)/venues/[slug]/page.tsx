@@ -54,7 +54,7 @@ export default async function VenuePage({ params }: { params: Params }) {
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "The Suncoast Calendar", path: "/calendar" },
+          { name: "Encore Arts Calendar", path: "/calendar" },
           { name: venue.name, path: `/venues/${venue.slug}` },
         ])}
       />

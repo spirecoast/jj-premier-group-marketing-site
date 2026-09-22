@@ -1,28 +1,16 @@
 import Link from "next/link";
 import { Photo } from "@/components/photo";
-import type { ImageRef, Listing, TeamMember } from "@/lib/content/types";
-import { formatPriceShort } from "@/lib/content/format";
+import type { ImageRef, TeamMember } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
 /**
  * 01 · The hero. The photograph is the layout: type sits in the calm third of
  * the frame. Rise, draw and fade are each used once here and nowhere else on
  * the page. Below `lg` the photograph sits above the headline, as the mobile
- * design specifies.
+ * design specifies. Nothing here is a figure: the listing card and the ticker
+ * return with a data feed.
  */
-export function Hero({
-  image,
-  cameo,
-  team,
-  listings,
-  listingCount,
-}: {
-  image: ImageRef;
-  cameo: ImageRef;
-  team: TeamMember[];
-  listings: Listing[];
-  listingCount: number;
-}) {
+export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef; team: TeamMember[] }) {
   const names = team.map((m) => m.name).join(" & ");
 
   return (
@@ -60,29 +48,29 @@ export function Hero({
         </div>
 
         {/* Headline block */}
-        <div className="relative flex flex-col gap-6 px-6 pb-10 pt-8 text-navy sm:px-10 lg:absolute lg:bottom-16 lg:left-14 lg:w-[720px] lg:p-0 lg:text-white">
+        <div className="relative flex flex-col gap-6 px-6 pb-12 pt-8 text-navy sm:px-10 lg:absolute lg:bottom-16 lg:left-14 lg:w-[760px] lg:p-0 lg:text-white">
           <p className="rise d1 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-harbor-700 lg:text-mist lg:text-shadow-photo">
             {site.region}
           </p>
           <h1 id="hero-title" className="t-hero lg:text-shadow-photo">
             <span className="hero-line l1">
-              <span>A move is rarely</span>
+              <span>Your next home</span>
             </span>
             <span className="hero-line l2">
-              <span>just a move.</span>
+              <span>is on this coast.</span>
             </span>
           </h1>
-          <span className="wipe block h-px w-[120px] bg-sky-300" aria-hidden="true" />
-          <p className="rise d3 t-lead max-w-[520px] lg:text-shadow-photo">
-            Two agents, one file, and the whole coast between Tampa and Venice. Tell us the timing and
-            we will tell you the truth about it.
+          <span className="draw block h-px w-[120px] bg-navy lg:bg-sky-300" aria-hidden="true" />
+          <p className="rise d3 max-w-[520px] text-[17px] font-medium leading-[1.6] text-body lg:text-white lg:text-shadow-soft">
+            Tell us where you are in the move, and we will walk you through every step from here, at your
+            pace and in plain language.
           </p>
           <div className="rise d4 flex flex-wrap gap-3.5">
             <Link
               href="/listings"
               className="btn border-navy bg-navy text-linen-200 hover:bg-harbor-800 lg:border-linen-200 lg:bg-linen-200 lg:text-navy lg:hover:border-linen-100 lg:hover:bg-linen-100"
             >
-              Search homes
+              Find your home
               <span className="btn-dash" aria-hidden="true" />
             </Link>
             <Link
@@ -92,26 +80,6 @@ export function Hero({
               What is my home worth
             </Link>
           </div>
-        </div>
-
-        {/* On the market card */}
-        <div className="rise d5 mx-6 mb-8 flex flex-col gap-3.5 border border-hairline bg-paper/97 p-6 text-navy backdrop-blur-md sm:mx-10 lg:absolute lg:bottom-16 lg:right-14 lg:m-0 lg:w-[300px] lg:border-0 lg:px-[26px] lg:shadow-[0_24px_60px_rgb(10_20_28/0.35)]">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-linen-700">
-            On the market · {listingCount} active
-          </p>
-          <ul className="flex flex-col">
-            {listings.slice(0, 3).map((l, i) => (
-              <li key={l.slug} className={i > 0 ? "border-t border-hairline" : undefined}>
-                <Link href={`/listings/${l.slug}`} className="flex items-baseline justify-between gap-3 py-2.5 transition-colors hover:text-harbor-700">
-                  <span className="font-display text-[19px] font-light leading-tight">{l.title}</span>
-                  <span className="shrink-0 font-mono text-[12px] font-medium">{formatPriceShort(l.price)}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <Link href="/listings" className="t-label -my-2 inline-flex min-h-10 items-center text-harbor-700 transition-colors hover:text-navy">
-            All {listingCount} listings <span aria-hidden="true">→</span>
-          </Link>
         </div>
       </div>
     </section>

@@ -29,19 +29,9 @@ export const SITE_SETTINGS: SiteSettings = {
     "Information deemed reliable but not guaranteed · For consumers’ personal, non-commercial use · Equal Housing Opportunity",
   mlsAttribution:
     "Listing courtesy of Coldwell Banker Realty · Information deemed reliable but not guaranteed · For consumers’ personal, non-commercial use",
-  stats: [
-    { value: "19", label: "Years on the Suncoast", source: "Joelyn Nauman, licensed since 2007" },
-    { value: "210", label: "Closings, both agents", source: "Stellar MLS closed sides, 2007–Q2 2026" },
-    { value: "4", label: "Markets covered" },
-  ],
-  ticker: [
-    "$712 median / SF · Lakewood Ranch",
-    "23 median days · Q2 2026",
-    "91 active · was 44",
-    "104% of list · Riverwalk Ct",
-    "Median figures · Stellar MLS · Q2 2026",
-    "The Suncoast Calendar · this week: Asolo Rep",
-  ],
+  // No figures until a data feed supplies them: nothing on the site is hand-typed.
+  stats: [],
+  ticker: [],
   primaryPhoneE164: "+19419071033",
   primaryPhoneDisplay: "(941) 907-1033",
 };

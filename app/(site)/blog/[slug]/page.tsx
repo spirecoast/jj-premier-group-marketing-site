@@ -13,7 +13,7 @@ import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib
 import { site } from "@/lib/site";
 
 type Params = Promise<{ slug: string }>;
-const RIVER = img("library/manatee-river-dusk", "The Manatee River at dusk", "50% 45%");
+const RIVER = img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%");
 const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d);
 
 export async function generateStaticParams() {
@@ -58,7 +58,7 @@ export default async function PostPage({ params }: { params: Params }) {
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "The Quarterly Letter", path: "/blog" },
+          { name: "The Coast Market Report", path: "/blog" },
           { name: post.title, path: `/blog/${post.slug}` },
         ])}
       />
@@ -66,7 +66,7 @@ export default async function PostPage({ params }: { params: Params }) {
       <article className="container-site flex flex-col gap-10 py-10 md:py-14">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
           <Link href="/blog" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
-            The Letter
+            Market Report
           </Link>
           <span aria-hidden="true">/</span>
           <span className="text-navy" aria-current="page">
@@ -126,7 +126,7 @@ export default async function PostPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      <CtaBand image={RIVER} eyebrow="The letter, by email" title="One page, once a quarter, no pitch." body="What your street actually did, and what we got wrong last time." minHeight="min-h-[480px]">
+      <CtaBand image={RIVER} eyebrow="The Coast Market Report, by email" title="One page a quarter, written for you." body="What happened on your street, what it means for you, and what we got wrong last time." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

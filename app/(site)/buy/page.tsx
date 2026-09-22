@@ -36,7 +36,7 @@ const STEPS = [
     when: "Week 1 · the list",
     title: "The three we would see",
     body:
-      "You get every listing between Tampa and Venice that fits, and we tell you which three we would actually go and see. Flood zone, HOA, the year of the roof, and what the last three sold for, before you get in the car. Go see it at six; the light tells the truth.",
+      "You get every listing in Lakewood Ranch, Sarasota and Bradenton that fits, and we tell you which three we would actually go and see. Flood zone, HOA, the year of the roof, and what the last three sold for, before you get in the car. Go see it at six; the light tells the truth.",
   },
   {
     n: "03",
@@ -198,7 +198,7 @@ export default async function BuyPage() {
               Tell us the timing
             </ButtonLink>
             <ButtonLink href="/listings" variant="outline" dash>
-              Search homes
+              Find your home
             </ButtonLink>
           </div>
         </div>

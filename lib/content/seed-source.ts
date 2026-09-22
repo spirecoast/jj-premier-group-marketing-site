@@ -14,7 +14,9 @@ import { SITE_SETTINGS, TESTIMONIALS } from "./seed/settings";
 export const seedSource: ContentSource = {
   name: "seed",
   async listings() {
-    return LISTINGS;
+    // Sample listings stay in the seed for previews and tests, but nothing
+    // hand-typed reaches the site. They return the day a listing feed is wired in.
+    return process.env.NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true" ? LISTINGS : [];
   },
   async events() {
     return buildEvents();

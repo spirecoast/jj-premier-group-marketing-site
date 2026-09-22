@@ -5,7 +5,7 @@ export const eventType = defineType({
   name: "event",
   title: "Calendar event",
   type: "document",
-  description: "About the venue, never the listing. The only thing here for sale is a Tuesday evening.",
+  description: "An Encore Arts Calendar entry: theater, music, galleries and festivals. The venue and the night, never a listing.",
   fields: [
     defineField({ name: "title", type: "string", title: "Title", validation: (r) => r.required() }),
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "title" }, validation: (r) => r.required() }),

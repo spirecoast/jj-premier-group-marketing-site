@@ -830,3 +830,18 @@
     font-size: 0.9em;
   }
 }
+
+/* Three places: the photograph breathes on hover, the blurb settles in. */
+@layer components {
+  .place-img {
+    transition: transform 1.2s var(--ease-out, ease);
+  }
+  .place-card:hover .place-img,
+  .place-card:focus-visible .place-img {
+    transform: scale(1.04);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .place-img { transition: none; }
+    .place-card:hover .place-img { transform: none; }
+  }
+}

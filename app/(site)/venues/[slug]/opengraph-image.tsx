@@ -9,9 +9,9 @@ export const contentType = OG_CONTENT_TYPE;
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const v = await getVenue(slug);
-  if (!v) return brandOgImage({ eyebrow: "The Suncoast Calendar", title: "Venue not found." });
+  if (!v) return brandOgImage({ eyebrow: "Encore Arts Calendar", title: "Venue not found." });
   return brandOgImage({
-    eyebrow: `The Suncoast Calendar · ${marketName(v.market)}`,
+    eyebrow: `Encore Arts Calendar · ${marketName(v.market)}`,
     title: v.name,
     meta: formatAddress(v.address),
     photo: v.image?.src ?? getMarket(v.market)?.image.src,

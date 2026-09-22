@@ -2,7 +2,7 @@ import type { Post } from "../types";
 import { h, img, p, quote, rich } from "./helpers";
 
 /**
- * The quarterly letter and a few guides. One page a quarter, no pitch:
+ * The Coast Market Report and a few guides. One page a quarter, no pitch:
  * lead with the number that surprised us, name the streets, own what we
  * got wrong last time.
  */
@@ -14,10 +14,10 @@ export const POSTS: Post[] = [
     edition: "Q3 2026",
     cover: img("library/manatee-river-dusk", "The Manatee River at dusk"),
     excerpt:
-      "One page, once a quarter, no pitch. What your street actually did, and what we got wrong last time.",
+      "One page, once a quarter. What your street actually did, what it means for you, and what we got wrong last time.",
     publishedAt: "2026-07-15",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
-    categories: ["Market letter"],
+    categories: ["Market report"],
     body: rich(
       p(
         "Ninety-one homes were for sale in Lakewood Ranch on the first of July. On the first of April it was forty-four. That is the number that surprised us, and the second number is the one that did not: the median closed price per square foot was $712, against $709 in the spring.",
@@ -31,7 +31,7 @@ export const POSTS: Post[] = [
       h(2, "What we got wrong"),
       p(
         "In April we wrote that Bradenton's canal streets would slow down over the summer. They did not. Zone X lots west of 75th sold in eleven days on average, because the insurance quote is the whole conversation now and those streets win it.",
-        "We also said the Tampa towers would keep sliding. Bayshore units in recertified buildings held; units in buildings with a special assessment pending dropped nine percent. It was never one market.",
+        "We also said the bayfront condominiums in Sarasota would keep sliding. Units in recertified buildings held; units in buildings with a special assessment pending dropped nine percent. It was never one market.",
       ),
       h(2, "What we would do"),
       p(
@@ -49,7 +49,7 @@ export const POSTS: Post[] = [
       "The spring letter, with the winter's predictions marked against what happened. Bradenton was the surprise.",
     publishedAt: "2026-04-15",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
-    categories: ["Market letter"],
+    categories: ["Market report"],
     body: rich(
       p(
         "In January we said inventory would stay tight through the spring. Forty-four active listings on the Ranch on April first says we were right about that and wrong about what it would do to prices, which held at $709 rather than rising.",

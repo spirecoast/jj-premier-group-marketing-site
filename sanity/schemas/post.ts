@@ -8,7 +8,7 @@ export const postType = defineType({
   fields: [
     defineField({ name: "title", type: "string", title: "Title", validation: (r) => r.required() }),
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "title" }, validation: (r) => r.required() }),
-    defineField({ name: "edition", type: "string", title: "Edition", description: "e.g. Q3 2026 for the quarterly letter" }),
+    defineField({ name: "edition", type: "string", title: "Edition", description: "e.g. Q3 2026 for the Coast Market Report" }),
     imageWithAlt("cover", "Cover photograph", true),
     defineField({ name: "excerpt", type: "text", title: "Excerpt", rows: 3 }),
     defineField({ name: "body", type: "blockContent", title: "Body" }),

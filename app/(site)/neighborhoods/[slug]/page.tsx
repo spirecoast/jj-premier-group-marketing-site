@@ -146,7 +146,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       <section className="bg-linen-100">
         <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nb-events-title">
           <SectionHeading
-            eyebrow="The Suncoast Calendar"
+            eyebrow="Encore Arts Calendar"
             title={<span id="nb-events-title">What is on in {marketName(n.market)} this month.</span>}
             aside={<RuleLink href={`/calendar?market=${n.market}`}>The full calendar</RuleLink>}
           />
@@ -160,7 +160,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             </ul>
           ) : (
             <p className="t-body max-w-measure text-body">
-              A quiet stretch on the calendar here. The Monday email carries the full list for all four markets;{" "}
+              A quiet stretch on the calendar here. The Monday Encore email carries the full list for all three places;{" "}
               <Link href="/calendar#subscribe" className="text-harbor-700 underline underline-offset-4">
                 the box is here
               </Link>

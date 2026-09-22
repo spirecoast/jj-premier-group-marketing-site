@@ -25,6 +25,20 @@ jj-premier-brand-system.vercel.app).
 The agent portal (`app/portal`, `app/auth`, Supabase, Drizzle, Inngest, Resend) is untouched and
 still works on the same theme.
 
+## Names, places and what is deliberately not on the page
+
+- Markets: Lakewood Ranch, Sarasota and Bradenton. Tampa was removed in September 2026 at the
+  client's direction; `MarketSlug` has three values.
+- The arts calendar is the **Encore Arts Calendar** ("Encore" in the nav). The quarterly market
+  piece is **The Coast Market Report** ("Market Report" in the nav). Both names live in `lib/site.ts`.
+- Nothing hand-typed reaches the page: no market figures, no ticker, no stat band, no sample
+  listings. The sample listings stay in the seed for previews and return with
+  `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true` or an MLS feed. `/listings` is a "Find your home" page: a
+  lead form prefilled from the home-page search, plus a link to the team's live listings when
+  `NEXT_PUBLIC_LISTINGS_URL` is set.
+- Voice: written to the reader, guide not hero. A mother and daughter team. No slogans, no numbers
+  without a source.
+
 ## Content: seed now, Sanity when ready
 
 `lib/content/index.ts` picks the source at request time:

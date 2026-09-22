@@ -57,7 +57,7 @@ export default async function EventPage({ params }: { params: Params }) {
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "The Suncoast Calendar", path: "/calendar" },
+          { name: "Encore Arts Calendar", path: "/calendar" },
           { name: event.title, path: `/calendar/${event.slug}` },
         ])}
       />
@@ -65,7 +65,7 @@ export default async function EventPage({ params }: { params: Params }) {
       <article className="container-site flex flex-col gap-10 py-10 md:py-14">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
           <Link href="/calendar" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
-            The Calendar
+            Encore
           </Link>
           <span aria-hidden="true">/</span>
           <Link href={`/calendar?market=${event.venue.market}` as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">

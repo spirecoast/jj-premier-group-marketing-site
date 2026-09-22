@@ -13,10 +13,10 @@ export function NotFoundContent() {
       </div>
       <div className="flex flex-wrap gap-3.5">
         <ButtonLink href="/listings" dash>
-          Search homes
+          Find your home
         </ButtonLink>
         <ButtonLink href="/calendar" variant="outline">
-          The calendar
+          Encore Arts Calendar
         </ButtonLink>
         <ButtonLink href="/contact" variant="outline">
           Tell us the timing

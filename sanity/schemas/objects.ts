@@ -4,7 +4,6 @@ export const MARKET_OPTIONS = [
   { title: "Lakewood Ranch", value: "lakewood-ranch" },
   { title: "Sarasota", value: "sarasota" },
   { title: "Bradenton", value: "bradenton" },
-  { title: "Tampa", value: "tampa" },
 ];
 
 /** An image that always carries alt text. */

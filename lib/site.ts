@@ -31,12 +31,18 @@ export const site = {
   brokerage: "Coldwell Banker Realty",
   tagline: "Every move, expertly guided.",
   description:
-    "Joelyn Nauman and Jessica Garza, REALTORS® with Coldwell Banker Realty. Two agents, one file, and the whole coast between Tampa and Venice.",
+    "Joelyn Nauman and Jessica Garza, a mother and daughter team with Coldwell Banker Realty, helping people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton.",
   /** Bare domain — also the Follow Up Boss lead `source`. No `www.`. */
   domain: "jjpremiergroup.com",
   url: resolveSiteUrl(),
   locale: "en_US",
-  region: "Lakewood Ranch · Sarasota · Bradenton · Tampa",
+  region: "Lakewood Ranch · Sarasota · Bradenton",
+  /** Where "see our current listings" points until an MLS feed is wired in. */
+  listingsUrl: process.env.NEXT_PUBLIC_LISTINGS_URL || "",
+  /** The two editorial products, named once. */
+  calendarName: "Encore Arts Calendar",
+  calendarShort: "Encore",
+  reportName: "The Coast Market Report",
 } as const;
 
 export type NavItem = { href: string; label: string };
@@ -46,9 +52,9 @@ export const primaryNav: readonly NavItem[] = [
   { href: "/listings", label: "Search" },
   { href: "/sell", label: "Sell" },
   { href: "/neighborhoods", label: "Neighborhoods" },
-  { href: "/calendar", label: "The Calendar" },
-  { href: "/blog", label: "The Letter" },
-  { href: "/about", label: "About" },
+  { href: "/calendar", label: "Encore" },
+  { href: "/blog", label: "Market Report" },
+  { href: "/about", label: "Joelyn & Jessica" },
 ] as const;
 
 /** Secondary links used in the footer columns. */
@@ -57,15 +63,14 @@ export const footerNav = {
     { href: "/neighborhoods?market=lakewood-ranch", label: "Lakewood Ranch" },
     { href: "/neighborhoods?market=sarasota", label: "Sarasota" },
     { href: "/neighborhoods?market=bradenton", label: "Bradenton" },
-    { href: "/neighborhoods?market=tampa", label: "Tampa" },
     { href: "/listings?feature=waterfront", label: "Waterfront" },
     { href: "/listings?feature=new-construction", label: "New construction" },
   ],
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
     { href: "/about#jessica-garza", label: "Jessica Garza" },
-    { href: "/blog", label: "The quarterly letter" },
-    { href: "/calendar", label: "The Suncoast Calendar" },
+    { href: "/blog", label: "The Coast Market Report" },
+    { href: "/calendar", label: "Encore Arts Calendar" },
     { href: "/buy", label: "Buying" },
     { href: "/sell", label: "Selling" },
     { href: "/valuation", label: "What is my home worth" },

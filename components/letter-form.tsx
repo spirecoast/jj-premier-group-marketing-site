@@ -7,12 +7,12 @@ import { initialLeadState, type LeadFormState } from "@/lib/leads";
 import { cn } from "@/lib/utils";
 
 /**
- * The email-only bar from the quarterly-letter band and the calendar
+ * The email-only bar from the Coast Market Report band and the Encore
  * subscribe row. Sends a Registration event to Follow Up Boss.
  */
 export function LetterForm({
   form = "letter",
-  label = "Send me the letter",
+  label = "Send me the report",
   className,
   tone = "light",
 }: {
@@ -31,7 +31,7 @@ export function LetterForm({
     if (state.ok) successRef.current?.focus();
   }, [state.ok]);
 
-  const successText = form === "letter" ? "You are on the list. The next letter lands at the start of the quarter." : "You are on the list. The full calendar, every Monday.";
+  const successText = form === "letter" ? "You are on the list. The next report lands at the start of the quarter." : "You are on the list. Encore lands every Monday.";
 
   if (state.ok) {
     return (

@@ -12,9 +12,9 @@ import { pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata({
-  title: "The Suncoast Calendar",
+  title: "Encore Arts Calendar",
   description:
-    "Where to go this week in Lakewood Ranch, Sarasota, Bradenton and Tampa. Concerts, theatre, galleries, markets and festivals, about the venue and never the listing.",
+    "Theater, music, galleries and festivals this week in Sarasota, Bradenton and Lakewood Ranch, chosen by two people who go. The Encore Arts Calendar from JJ Premier Group.",
   path: "/calendar",
 });
 
@@ -156,7 +156,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     ...CATEGORIES.map((c) => ({ label: EVENT_CATEGORY_LABEL[c], href: hrefFor({ ...base, category: c, view }), active: category === c })),
   ];
   const marketChips: Chip[] = [
-    { label: "All four", href: hrefFor({ ...base, market: undefined, view }), active: !market },
+    { label: "All three", href: hrefFor({ ...base, market: undefined, view }), active: !market },
     ...MARKETS.map((m) => ({ label: m.name, href: hrefFor({ ...base, market: m.slug, view }), active: market === m.slug })),
   ];
   const prevMonth = month === 1 ? `${year - 1}-12` : `${year}-${String(month - 1).padStart(2, "0")}`;
@@ -170,12 +170,12 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         <SectionHeading
           as="h1"
           size="display"
-          eyebrow="The Suncoast Calendar"
-          title={<span id="calendar-title">Where to go this week, in the four places we sell.</span>}
-          titleClassName="max-w-[820px]"
+          eyebrow="Encore Arts Calendar"
+          title={<span id="calendar-title">Theater, music and art this week, in the places you will call home.</span>}
+          titleClassName="max-w-[860px]"
           aside={
             <p className="t-small max-w-[300px] text-body-muted md:text-right">
-              About the venue, never the listing. The only thing here for sale is a Tuesday evening.
+              The stages, galleries and concert halls of Sarasota, Bradenton and Lakewood Ranch, chosen by two people who go.
             </p>
           }
         />
@@ -274,7 +274,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
             <p className="t-eyebrow text-amber">Every Monday</p>
             <h2 className="t-h1 text-navy">The full calendar, every Monday.</h2>
             <p className="t-body max-w-measure text-body">
-              One email a week: what is on in the four places we sell, and which night we would pick. No listings in it.
+              One email a week: what is on across Sarasota, Bradenton and Lakewood Ranch, and which night we would pick. No listings in it.
             </p>
           </div>
           <div className="flex flex-col gap-4">

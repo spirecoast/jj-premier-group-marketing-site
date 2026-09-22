@@ -59,7 +59,7 @@ const address = (v: unknown): Address => {
   return { street: a.street ?? "", city: a.city ?? "", state: a.state ?? "FL", zip: a.zip ?? "" };
 };
 const market = (v: unknown): MarketSlug =>
-  v === "sarasota" || v === "bradenton" || v === "tampa" ? v : "lakewood-ranch";
+  v === "sarasota" || v === "bradenton" ? v : "lakewood-ranch";
 const image = (v: unknown, alt: string): ImageRef | undefined =>
   toImageRef(v as SanityImageSource, alt);
 const requireImage = (v: unknown, alt: string): ImageRef =>

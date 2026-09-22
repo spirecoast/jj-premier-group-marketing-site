@@ -39,6 +39,8 @@ type Props = {
   /** Renders name/email/phone in a two-column grid on wide screens. */
   columns?: boolean;
   placeholderMessage?: string;
+  /** Pre-filled message, e.g. the place and budget carried over from the home page. */
+  defaultMessage?: string;
 };
 
 function FieldError({ messages, id }: { messages?: string[]; id: string }) {
@@ -64,6 +66,7 @@ export function LeadForm({
   className,
   columns = true,
   placeholderMessage = "Tell us the timing, and what you are looking at.",
+  defaultMessage,
 }: Props) {
   const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
   const [utm, setUtm] = useState<Record<string, string>>({});
@@ -183,7 +186,7 @@ export function LeadForm({
             <label htmlFor={`${uid}-message`} className={cn("field-label", labelColor)}>
               {LABELS.message} <span className="normal-case tracking-normal opacity-70">(optional)</span>
             </label>
-            <textarea id={`${uid}-message`} name="message" rows={4} placeholder={placeholderMessage} className={cn("field-input resize-y", inputColor)} />
+            <textarea id={`${uid}-message`} name="message" rows={4} placeholder={placeholderMessage} defaultValue={defaultMessage} className={cn("field-input resize-y", inputColor)} />
           </div>
         ) : null}
       </div>

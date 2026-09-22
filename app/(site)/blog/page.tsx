@@ -10,13 +10,13 @@ import { formatDateLong } from "@/lib/content/format";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "The Quarterly Letter",
+  title: "The Coast Market Report",
   description:
-    "One page, once a quarter, no pitch. What your street actually did on the Suncoast, and what we got wrong last time. Plus guides on flood zones, timing and selling.",
+    "Once a quarter, one page on what happened in Lakewood Ranch, Sarasota and Bradenton and what it means for you, in plain language. Plus guides on flood zones, timing and selling.",
   path: "/blog",
 });
 
-const RIVER = img("library/manatee-river-dusk", "The Manatee River at dusk", "50% 45%");
+const RIVER = img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%");
 
 const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d);
 
@@ -30,11 +30,12 @@ export default async function BlogPage() {
         <SectionHeading
           as="h1"
           size="display"
-          eyebrow="The quarterly letter"
-          title={<span id="letter-title">One page, once a quarter, no pitch.</span>}
+          eyebrow="The Coast Market Report"
+          title={<span id="letter-title">What happened on your street this quarter, in plain language.</span>}
+          titleClassName="max-w-[820px]"
           aside={
             <p className="t-small max-w-[300px] text-body-muted md:text-right">
-              What your street actually did, and what we got wrong last time. Four hundred words, maximum.
+              One page a quarter on Lakewood Ranch, Sarasota and Bradenton. What moved, what it means for you, and what we got wrong last time.
             </p>
           }
         />
@@ -78,7 +79,7 @@ export default async function BlogPage() {
         ) : null}
       </section>
 
-      <CtaBand image={RIVER} eyebrow="The letter, by email" title="The next one lands at the start of the quarter." body="One page a quarter. Unsubscribe with one click, and we never share the list." minHeight="min-h-[480px]" className="scroll-mt-header" >
+      <CtaBand image={RIVER} eyebrow="The Coast Market Report, by email" title="The next one lands at the start of the quarter." body="One page a quarter, written for you and not for a mailing list. Unsubscribe with one click, and we never share the list." minHeight="min-h-[480px]" className="scroll-mt-header" >
         <LetterForm tone="dark" />
       </CtaBand>
     </>

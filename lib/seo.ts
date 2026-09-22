@@ -93,7 +93,7 @@ export function organizationJsonLd(settings: SiteSettings, team: TeamMember[]) {
     email: team[0]?.email,
     parentOrganization: { "@type": "Organization", name: settings.brokerageName },
     address: postalAddress(settings.officeAddress),
-    areaServed: ["Lakewood Ranch", "Sarasota", "Bradenton", "Tampa"].map((name) => ({
+    areaServed: ["Lakewood Ranch", "Sarasota", "Bradenton"].map((name) => ({
       "@type": "City",
       name,
     })),

@@ -9,9 +9,9 @@ import type { MarketSlug } from "@/lib/content/types";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Neighborhoods · Lakewood Ranch, Sarasota, Bradenton, Tampa",
+  title: "Neighborhoods · Lakewood Ranch, Sarasota, Bradenton",
   description:
-    "The villages of Lakewood Ranch, the keys and the streets west of the Trail in Sarasota, the canal grids of Bradenton, and Hyde Park and Bayshore in Tampa: geography, HOA mechanics, flood zones and distances.",
+    "The villages of Lakewood Ranch, the keys and the streets west of the Trail in Sarasota, and the canal grids of Bradenton: what each one is like, how the HOA works, where the flood zones fall, and how far it is to the things you do.",
   path: "/neighborhoods",
 });
 
@@ -25,7 +25,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
   const active = market ? getMarket(market) : undefined;
 
   const chips: Chip[] = [
-    { label: "All four markets", href: "/neighborhoods", active: !market },
+    { label: "All three places", href: "/neighborhoods", active: !market },
     ...MARKETS.map((m) => ({ label: m.name, href: `/neighborhoods?market=${m.slug}`, active: market === m.slug })),
   ];
 
@@ -36,7 +36,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
           as="h1"
           size="display"
           eyebrow="Neighborhoods"
-          title={<span id="nb-title">The coast, from the Skyway to Venice.</span>}
+          title={<span id="nb-title">Three places, and the streets inside them.</span>}
           titleClassName="max-w-[760px]"
           aside={
             <p className="t-small max-w-[320px] text-body-muted md:text-right">

@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Terms of use",
-  description: `The terms that apply to your use of ${site.domain}, including listing data, the calendar, and the limits of what a website can promise.`,
+  description: `The terms that apply to your use of ${site.domain}, including listing data, the Encore Arts Calendar, and the limits of what a website can promise.`,
   path: "/terms",
 });
 
@@ -40,9 +40,9 @@ export default async function TermsPage() {
           Nothing on this site is legal, tax, lending, insurance or engineering advice. Valuations we provide on request are comparative market analyses from a licensed REALTOR®, not appraisals. Any mortgage figure on this site is an estimate, not a quote. Past sale results, including days on market and percentage of list price, describe specific homes and do not predict future prices or returns.
         </p>
 
-        <h2>The calendar</h2>
+        <h2>Encore Arts Calendar</h2>
         <p>
-          Events on the Suncoast Calendar are listed as a service. Dates, times, prices and availability belong to the venues and can change; confirm with the venue before you go. Listing an event does not imply any sponsorship, partnership or affiliation between {site.name} and the venue or organiser.
+          Events on the Encore Arts Calendar are listed as a service. Dates, times, prices and availability belong to the venues and can change; confirm with the venue before you go. Listing an event does not imply any sponsorship, partnership or affiliation between {site.name} and the venue or organiser.
         </p>
 
         <h2>Fair housing</h2>
