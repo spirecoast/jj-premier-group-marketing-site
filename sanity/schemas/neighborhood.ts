@@ -17,6 +17,13 @@ export const neighborhoodType = defineType({
     defineField({ name: "highlights", type: "array", title: "Highlights", of: [defineArrayMember({ type: "highlight" })] }),
     defineField({ name: "stat", type: "stat", title: "Headline stat" }),
     defineField({
+      name: "faqs",
+      type: "array",
+      title: "Questions people ask",
+      description: "Plain answers about the place: HOA, flood, access, rules. No claims about people, schools or investment returns.",
+      of: [defineArrayMember({ type: "faq" })],
+    }),
+    defineField({
       name: "featuredListings",
       type: "array",
       title: "Featured listings (optional curation)",

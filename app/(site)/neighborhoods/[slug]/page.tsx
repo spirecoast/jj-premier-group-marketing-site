@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ButtonLink, RuleLink } from "@/components/buttons";
 import { CtaBand } from "@/components/cta-band";
 import { EventCard } from "@/components/event-card";
+import { FaqAccordion } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
@@ -11,7 +12,7 @@ import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { getNeighborhood, getNeighborhoodSlugs } from "@/lib/content";
 import { marketName } from "@/lib/content/markets";
-import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -46,10 +47,12 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
   if (!data) notFound();
   const { neighborhood: n, listings, events, market } = data;
   const active = listings.filter((l) => l.status !== "sold").slice(0, 3);
+  const faqs = (n.faqs ?? []).map((f) => ({ q: f.q, a: f.answer, answer: f.answer }));
   const sold = listings.filter((l) => l.status === "sold").slice(0, 3);
 
   return (
     <>
+      {faqs.length ? <JsonLd data={faqJsonLd(faqs)} /> : null}
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
@@ -143,6 +146,19 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           </div>
         ) : null}
       </section>
+      ) : null}
+
+      {faqs.length ? (
+        <section className="container-site grid gap-10 pb-section lg:grid-cols-[1fr_1.6fr] lg:gap-20" aria-labelledby="nb-faq-title">
+          <div className="flex flex-col gap-3">
+            <p className="t-eyebrow text-amber">Questions people ask</p>
+            <h2 id="nb-faq-title" className="t-h1 text-navy">
+              Before you drive out to {n.name}.
+            </h2>
+            <p className="t-body max-w-measure text-body">The short answers. Ask us the long ones.</p>
+          </div>
+          <FaqAccordion items={faqs} />
+        </section>
       ) : null}
 
       <section className="bg-linen-100">

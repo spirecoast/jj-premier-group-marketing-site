@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
 import { readUtm } from "@/components/utm-tracker";
 import { CONSENT_WORDING, initialLeadState, type LeadForm as LeadFormKind, type LeadFormState } from "@/lib/leads";
@@ -79,8 +80,10 @@ export function LeadForm({
     setPageUrl(window.location.href);
   }, []);
   useEffect(() => {
-    if (state.ok) successRef.current?.focus();
-  }, [state.ok]);
+    if (!state.ok) return;
+    successRef.current?.focus();
+    track("Lead", { form: state.form ?? form });
+  }, [state.ok, state.form, form]);
 
   const labelColor = tone === "dark" ? "text-mist" : undefined;
   const inputColor = tone === "dark" ? "text-linen-200 border-linen-200/50 placeholder:text-linen-200/50" : undefined;

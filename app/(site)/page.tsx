@@ -34,7 +34,7 @@ const FRAMES = {
 export default async function HomePage() {
   const [team, events, testimonials] = await Promise.all([
     getTeam(),
-    getUpcomingEvents({ limit: 4, featuredFirst: true }),
+    getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
     getTestimonials(),
   ]);
 

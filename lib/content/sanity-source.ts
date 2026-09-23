@@ -130,6 +130,14 @@ function mapEvent(r: Raw): Event {
     featured: bool(r.featured),
     description: r.description ? rich(r.description) : undefined,
     image: image(r.image, str(r.title)),
+    presenter: opt(r.presenter),
+    room: opt(r.room),
+    performances: Array.isArray(r.performances)
+      ? (r.performances as Raw[]).filter((p) => p.startsAt).map((p) => ({ startsAt: str(p.startsAt), endsAt: opt(p.endsAt), allDay: bool(p.allDay) || undefined }))
+      : undefined,
+    firstDate: opt(r.firstDate),
+    runsThrough: opt(r.runsThrough),
+    status: r.status === "sold-out" ? "sold-out" : "scheduled",
     venue: {
       name: str(v.name),
       slug: str(v.slug),
@@ -172,6 +180,9 @@ function mapNeighborhood(r: Raw): Neighborhood {
       : undefined,
     hero: requireImage(r.hero, str(r.name)),
     featuredListings: strs(r.featuredListings),
+    faqs: Array.isArray(r.faqs)
+      ? (r.faqs as Raw[]).map((f) => ({ q: str(f.q), answer: str(f.answer) })).filter((f) => f.q && f.answer)
+      : undefined,
   };
 }
 

@@ -1,8 +1,13 @@
 import Script from "next/script";
 
 /**
- * GA4 and the Follow Up Boss Pixel, both gated on public env vars so a
+ * Plausible and the Follow Up Boss Pixel, both gated on public env vars so a
  * preview deployment never reports into production analytics.
+ *
+ * Plausible: set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to the site's domain as it is
+ * registered in Plausible (no protocol). Custom events fire through
+ * lib/analytics.ts: "Lead" on every lead form, "Subscribe" on the report
+ * and Encore boxes. Add those two as goals in the Plausible dashboard.
  *
  * Follow Up Boss: the Pixel is here for activity tracking and source
  * attribution only. Form capture MUST stay off in Admin > Integrations —
@@ -10,19 +15,22 @@ import Script from "next/script";
  * creates duplicate leads.
  */
 export function Analytics() {
-  const ga = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const plausible = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
+  const plausibleHost = process.env.NEXT_PUBLIC_PLAUSIBLE_HOST || "https://plausible.io";
   const pixel = process.env.NEXT_PUBLIC_FUB_PIXEL_ID;
-  if (!ga && !pixel) return null;
+  if (!plausible && !pixel) return null;
   return (
     <>
-      {ga ? (
+      {plausible ? (
         <>
           <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ga)}`}
+            defer
+            data-domain={plausible}
+            src={`${plausibleHost.replace(/\/$/, "")}/js/script.outbound-links.tagged-events.js`}
             strategy="afterInteractive"
           />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(ga)},{anonymize_ip:true});`}
+          <Script id="plausible-init" strategy="afterInteractive">
+            {`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)};`}
           </Script>
         </>
       ) : null}

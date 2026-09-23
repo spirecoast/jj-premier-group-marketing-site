@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { Event } from "@/lib/content/types";
-import { formatEventShort, formatEventWhen, formatTime, weekdayName } from "@/lib/content/format";
+import { formatEventShort, formatEventWhen, formatRun, formatTime, weekdayName } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
 import { cn } from "@/lib/utils";
 import { Photo } from "./photo";
 
-function placeDay(e: Event): string {
-  return `${marketName(e.venue.market)} · ${weekdayName(e.startsAt)}`;
+function placeDay(e: Event, at?: string): string {
+  const when = e.runsThrough && !e.performances?.length ? "On view" : weekdayName(at ?? e.startsAt);
+  return `${marketName(e.venue.market)} · ${when}`;
 }
 
 type Props = {
@@ -17,6 +18,8 @@ type Props = {
   priority?: boolean;
   /** Row variant: add time, venue and price under the title. */
   showMeta?: boolean;
+  /** The specific performance to show, when the card stands for one date of a run. */
+  at?: { startsAt: string; endsAt?: string; allDay?: boolean };
 };
 
 /**
@@ -24,8 +27,12 @@ type Props = {
  * the compact list item that slides 16px on hover; `grid` is the calendar
  * index card. About the venue, never the listing.
  */
-export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta }: Props) {
+export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta, at }: Props) {
   const href = `/calendar/${event.slug}` as const;
+  const startsAt = at?.startsAt ?? event.startsAt;
+  const endsAt = at ? at.endsAt : event.endsAt;
+  const allDay = at ? at.allDay : event.allDay;
+  const run = formatRun(event);
 
   if (variant === "feature") {
     return (
@@ -38,10 +45,13 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
           aria-hidden="true"
         />
         <div className="absolute inset-x-6 bottom-7 flex flex-col gap-3 lg:inset-x-8">
-          <p className="t-mono-sm text-sky-300">{placeDay(event)}</p>
+          <p className="t-mono-sm text-sky-300">{placeDay(event, startsAt)}</p>
           <h3 className="font-display text-[clamp(1.625rem,3vw,2.5rem)] font-light leading-[1.04] text-white">
-            {event.summary || event.title}
+            {event.title}
           </h3>
+          {event.summary && event.summary !== event.title ? (
+            <p className="t-small line-clamp-2 max-w-[520px] text-linen-200/90">{event.summary}</p>
+          ) : null}
           <span className="card-line bg-sky-300" aria-hidden="true" />
         </div>
       </Link>
@@ -52,17 +62,17 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
     return (
       <Link
         href={href}
-        className={cn("row-link flex items-center gap-4 border border-hairline bg-white p-3.5 pr-4 sm:gap-[18px]", className)}
+        className={cn("row-link flex min-w-0 max-w-full items-center gap-4 border border-hairline bg-white p-3.5 pr-4 sm:gap-[18px]", className)}
       >
         <div className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]">
           {event.image ? <Photo image={event.image} sizes="130px" /> : null}
         </div>
-        <div className="flex flex-1 flex-col gap-1.5">
-          <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event)}</p>
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
           <h3 className="t-h3 text-navy">{event.title}</h3>
           {showMeta ? (
-            <p className="t-record text-graphite-600">
-              {formatTime(event.startsAt)} · {event.venue.name}
+            <p className="t-record break-words text-graphite-600">
+              {allDay ? (run ?? "All day") : formatTime(startsAt)} · {event.venue.name}
               {event.priceNote ? ` · ${event.priceNote}` : ""}
             </p>
           ) : null}
@@ -88,9 +98,9 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         ) : null}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event)}</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
         <h3 className="t-h3 text-navy">{event.title}</h3>
-        <p className="t-record text-graphite-600">{formatEventWhen(event.startsAt, event.endsAt, event.allDay)}</p>
+        <p className="t-record text-graphite-600">{run && !event.performances?.length ? run : formatEventWhen(startsAt, endsAt, allDay)}</p>
         <p className="t-small text-body-muted">
           {event.venue.name}
           {event.priceNote ? ` · ${event.priceNote}` : ""}

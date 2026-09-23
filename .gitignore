@@ -47,3 +47,6 @@ next-env.d.ts
 
 # sanity typegen intermediate (regenerate with npm run sanity:typegen)
 /sanity/schema.json
+
+# local screenshot runs
+shots/

@@ -205,6 +205,16 @@ export type Event = {
   startsAt?: string;
   endsAt?: string;
   allDay?: boolean;
+  performances?: Array<
+    {
+      _key: string;
+    } & Performance
+  >;
+  firstDate?: string;
+  runsThrough?: string;
+  presenter?: string;
+  room?: string;
+  status?: "scheduled" | "sold-out";
   venue?: VenueReference;
   category?: "music" | "theater" | "gallery" | "festival" | "family" | "market";
   ticketUrl?: string;
@@ -390,6 +400,13 @@ export type Neighborhood = {
   >;
 };
 
+export type Performance = {
+  _type: "performance";
+  startsAt?: string;
+  endsAt?: string;
+  allDay?: boolean;
+};
+
 export type SanityImagePaletteSwatch = {
   _type: "sanity.imagePaletteSwatch";
   background?: string;
@@ -504,6 +521,7 @@ export type AllSanitySchemaTypes =
   | TeamMember
   | ListingReference
   | Neighborhood
+  | Performance
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
@@ -595,7 +613,7 @@ export type ListingsQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: eventsQuery
-// Query: *[_type == "event" && defined(slug.current) && defined(venue)] | order(startsAt asc) {  _id, title, "slug": slug.current, summary, startsAt, endsAt, allDay, category, ticketUrl,  priceNote, source, sourceUrl, featured, description,  "image": image {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "venue": venue->{ name, "slug": slug.current, market, address, geo }}
+// Query: *[_type == "event" && defined(slug.current) && defined(venue)] | order(startsAt asc) {  _id, title, "slug": slug.current, summary, startsAt, endsAt, allDay, category, ticketUrl,  priceNote, source, sourceUrl, featured, description, presenter, room, performances, firstDate, runsThrough, status,  "image": image {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "venue": venue->{ name, "slug": slug.current, market, address, geo }}
 export type EventsQueryResult = Array<{
   _id: string;
   title: string | null;
@@ -612,6 +630,16 @@ export type EventsQueryResult = Array<{
   sourceUrl: string | null;
   featured: boolean | null;
   description: BlockContent | null;
+  presenter: string | null;
+  room: string | null;
+  performances: Array<
+    {
+      _key: string;
+    } & Performance
+  > | null;
+  firstDate: string | null;
+  runsThrough: string | null;
+  status: "scheduled" | "sold-out" | null;
   image: {
     alt: string | null;
     hotspot: SanityImageHotspot | null;
@@ -849,7 +877,7 @@ export type StaleEventIdsQueryResult = Array<string>;
 declare global {
   interface SanityQueries {
     '*[_type == "listing" && defined(slug.current)] | order(featured desc, listedAt desc) {\n  _id, title, "slug": slug.current, address, geo, price, beds, baths, sqft, status, tag, market,\n  lotAcres, yearBuilt, renovated, listedAt, daysOnMarket, floodZone, annualTaxes, cardNote,\n  friendNote, percentOfList, openHouse, county, mlsNumber, featured, soldDate, description, features,\n  "hero": hero {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "gallery": gallery[] {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "neighborhood": neighborhood->{ name, "slug": slug.current },\n  "agent": agent->{ name, "slug": slug.current }\n}': ListingsQueryResult;
-    '*[_type == "event" && defined(slug.current) && defined(venue)] | order(startsAt asc) {\n  _id, title, "slug": slug.current, summary, startsAt, endsAt, allDay, category, ticketUrl,\n  priceNote, source, sourceUrl, featured, description,\n  "image": image {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "venue": venue->{ name, "slug": slug.current, market, address, geo }\n}': EventsQueryResult;
+    '*[_type == "event" && defined(slug.current) && defined(venue)] | order(startsAt asc) {\n  _id, title, "slug": slug.current, summary, startsAt, endsAt, allDay, category, ticketUrl,\n  priceNote, source, sourceUrl, featured, description, presenter, room, performances, firstDate, runsThrough, status,\n  "image": image {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "venue": venue->{ name, "slug": slug.current, market, address, geo }\n}': EventsQueryResult;
     '*[_type == "venue" && defined(slug.current)] | order(name asc) {\n  _id, name, "slug": slug.current, address, geo, website, market, about,\n  "image": image {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "neighborhood": neighborhood->{ name, "slug": slug.current }\n}': VenuesQueryResult;
     '*[_type == "neighborhood" && defined(slug.current)] | order(name asc) {\n  _id, name, "slug": slug.current, market, county, tagline, overview, highlights, stat,\n  "hero": hero {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "featuredListings": featuredListings[]->slug.current\n}': NeighborhoodsQueryResult;
     '*[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc) {\n  _id, title, "slug": slug.current, excerpt, body, publishedAt, categories, edition,\n  "cover": cover {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "author": author->{ name, "slug": slug.current }\n}': PostsQueryResult;

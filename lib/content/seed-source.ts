@@ -1,7 +1,6 @@
 import type { ContentSource } from "./source";
 import { LISTINGS } from "./seed/listings";
-import { buildEvents } from "./seed/events";
-import { VENUES } from "./seed/venues";
+import { encoreEvents, encoreVenues } from "./encore";
 import { NEIGHBORHOODS } from "./seed/neighborhoods";
 import { POSTS } from "./seed/posts";
 import { TEAM } from "./seed/team";
@@ -19,10 +18,10 @@ export const seedSource: ContentSource = {
     return process.env.NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true" ? LISTINGS : [];
   },
   async events() {
-    return buildEvents();
+    return encoreEvents();
   },
   async venues() {
-    return VENUES;
+    return encoreVenues();
   },
   async neighborhoods() {
     return NEIGHBORHOODS;

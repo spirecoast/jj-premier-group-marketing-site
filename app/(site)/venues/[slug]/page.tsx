@@ -38,11 +38,13 @@ export default async function VenuePage({ params }: { params: Params }) {
   const venue = await getVenue(slug);
   if (!venue) notFound();
   const market = getMarket(venue.market);
-  const [events, neighborhoods] = await Promise.all([
-    getUpcomingEvents({ venue: venue.slug }),
+  const [allEvents, neighborhoods] = await Promise.all([
+    getUpcomingEvents({ venue: venue.slug, datedFirst: true }),
     isMarketSlug(venue.market) ? getNeighborhoods(venue.market) : Promise.resolve([]),
   ]);
+  const events = allEvents.slice(0, 12);
   const image = venue.image ?? market?.image;
+  const placeLine = venue.address.city && venue.address.city !== marketName(venue.market) ? `${marketName(venue.market)} · ${venue.address.city}` : marketName(venue.market);
   const address = formatAddress(venue.address);
   const mapsUrl = venue.geo
     ? `https://www.google.com/maps/search/?api=1&query=${venue.geo.lat},${venue.geo.lng}`
@@ -64,7 +66,7 @@ export default async function VenuePage({ params }: { params: Params }) {
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
           <p className="t-eyebrow text-mist text-shadow-photo">
-            {marketName(venue.market)} · {venue.address.city}
+            {placeLine}
           </p>
           <h1 id="venue-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
             {venue.name}
@@ -79,7 +81,11 @@ export default async function VenuePage({ params }: { params: Params }) {
           {venue.about?.length ? (
             <RichText value={venue.about} />
           ) : (
-            <p className="t-body max-w-measure text-body">One of the places we keep going back to in {marketName(venue.market)}.</p>
+            <p className="t-body max-w-measure text-body">
+              {allEvents.length
+                ? `${allEvents.length === 1 ? "One production" : `${allEvents.length} productions`} on the Encore Arts Calendar here. Times and tickets come from the venue; confirm before you go.`
+                : "Nothing on the Encore Arts Calendar here right now. The address and website are on the right."}
+            </p>
           )}
         </div>
         <aside className="flex flex-col gap-5 self-start border border-hairline bg-white p-7">

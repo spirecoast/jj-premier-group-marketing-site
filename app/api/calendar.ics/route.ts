@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
-import { getEvent, getUpcomingEvents } from "@/lib/content";
+import { getEvent, getOccurrences, getOnView } from "@/lib/content";
 import { SITE_TIMEZONE, formatAddress } from "@/lib/content/format";
-import type { Event } from "@/lib/content/types";
+import type { Event, Occurrence } from "@/lib/content/types";
 import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -41,17 +41,19 @@ function fold(line: string): string {
   return out.join("\r\n ");
 }
 
-function vevent(e: Event, now: Date): string[] {
-  const start = new Date(e.startsAt);
-  const end = e.endsAt ? new Date(e.endsAt) : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+function vevent(o: Occurrence, now: Date): string[] {
+  const e = o.event;
+  const start = new Date(o.startsAt);
+  const end = o.endsAt ? new Date(o.endsAt) : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const allDay = o.allDay;
   const url = absoluteUrl(`/calendar/${e.slug}`);
-  const description = [e.summary, e.priceNote ? `Tickets: ${e.priceNote}` : undefined, e.ticketUrl, url].filter(Boolean).join("\n");
+  const description = [e.summary, e.presenter ? `Presented by ${e.presenter}` : undefined, e.priceNote ? `Tickets: ${e.priceNote}` : undefined, e.ticketUrl, url].filter(Boolean).join("\n");
   const lines = [
     "BEGIN:VEVENT",
-    `UID:${e.slug}@${site.domain}`,
+    `UID:${e.slug}-${stamp(start)}@${site.domain}`,
     `DTSTAMP:${stamp(now)}`,
-    e.allDay ? `DTSTART;VALUE=DATE:${localDate(start)}` : `DTSTART:${stamp(start)}`,
-    e.allDay ? `DTEND;VALUE=DATE:${nextLocalDate(e.endsAt ? end : start)}` : `DTEND:${stamp(end)}`,
+    allDay ? `DTSTART;VALUE=DATE:${localDate(start)}` : `DTSTART:${stamp(start)}`,
+    allDay ? `DTEND;VALUE=DATE:${nextLocalDate(o.endsAt ? end : start)}` : `DTEND:${stamp(end)}`,
     `SUMMARY:${esc(e.title)}`,
     `DESCRIPTION:${esc(description)}`,
     `LOCATION:${esc(`${e.venue.name}, ${formatAddress(e.venue.address)}`)}`,
@@ -69,10 +71,18 @@ function vevent(e: Event, now: Date): string[] {
  */
 export async function GET(request: NextRequest) {
   const slug = request.nextUrl.searchParams.get("event");
-  const events = slug ? [await getEvent(slug)].filter((e): e is Event => Boolean(e)) : await getUpcomingEvents();
-  if (slug && !events.length) return new Response("Not found", { status: 404 });
-
   const now = new Date();
+  const horizon = new Date(now.getTime() + 183 * 24 * 60 * 60 * 1000);
+  let events: Occurrence[];
+  if (slug) {
+    const e = await getEvent(slug);
+    if (!e) return new Response("Not found", { status: 404 });
+    const perfs = e.performances?.length ? e.performances : [{ startsAt: e.startsAt, endsAt: e.endsAt, allDay: e.allDay }];
+    events = perfs.map((p) => ({ event: e, ...p }));
+  } else {
+    const [dated, onView] = await Promise.all([getOccurrences({ from: now, to: horizon }), getOnView()]);
+    events = [...dated, ...onView.map((e) => ({ event: e, startsAt: e.startsAt, endsAt: e.endsAt, allDay: true }))];
+  }
   const body = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",

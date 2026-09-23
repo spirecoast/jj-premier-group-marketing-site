@@ -8,6 +8,8 @@ import {
   licenseType,
   socialLinkType,
   statType,
+  faqType,
+  performanceType,
 } from "./objects";
 import { postType } from "./post";
 import { siteSettingsType } from "./site-settings";
@@ -16,6 +18,8 @@ import { testimonialType } from "./testimonial";
 import { venueType } from "./venue";
 
 export const schemaTypes = [
+  performanceType,
+  faqType,
   // documents
   listingType,
   eventType,

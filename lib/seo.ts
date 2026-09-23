@@ -160,9 +160,21 @@ export function eventJsonLd(e: Event) {
     url,
     name: e.title,
     description: e.summary,
-    startDate: e.startsAt,
-    endDate: e.endsAt,
+    startDate: e.firstDate && !e.performances?.length ? e.firstDate : e.startsAt,
+    endDate: e.runsThrough && !e.performances?.length ? e.runsThrough : (e.endsAt ?? e.performances?.[e.performances.length - 1]?.endsAt),
     eventStatus: "https://schema.org/EventScheduled",
+    ...(e.presenter ? { organizer: { "@type": "Organization", name: e.presenter } } : {}),
+    ...(e.performances && e.performances.length > 1
+      ? {
+          subEvent: e.performances.slice(0, 50).map((p) => ({
+            "@type": "Event",
+            name: e.title,
+            startDate: p.startsAt,
+            ...(p.endsAt ? { endDate: p.endsAt } : {}),
+            location: { "@type": "Place", name: e.venue.name, address: postalAddress(e.venue.address) },
+          })),
+        }
+      : {}),
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     image: e.image ? absoluteUrl(e.image.src) : undefined,
     location: {
@@ -182,7 +194,7 @@ export function eventJsonLd(e: Event) {
             : priceMatch
               ? { price: Number(priceMatch[1]), priceCurrency: "USD" }
               : {}),
-          availability: "https://schema.org/InStock",
+          availability: e.status === "sold-out" ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
         }
       : undefined,
   };

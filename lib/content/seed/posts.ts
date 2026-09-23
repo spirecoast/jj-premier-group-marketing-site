@@ -8,6 +8,117 @@ import { h, img, p, quote, rich } from "./helpers";
  */
 export const POSTS: Post[] = [
   {
+    _id: "post-guide-hoa-cdd",
+    title: "What to ask before you buy in a gated community.",
+    slug: "what-to-ask-before-you-buy-in-a-gated-community",
+    cover: img("library/lwr-lakefront-row", "Lakefront homes along a quiet street"),
+    excerpt:
+      "HOA dues, CDD assessments, reserves, rules and the estoppel letter. The documents that decide whether a house in a master-planned community is the right one.",
+    publishedAt: "2026-09-01",
+    author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
+    categories: ["Guides"],
+    body: rich(
+      p(
+        "Most of Lakewood Ranch and a good part of Sarasota and Bradenton is inside a homeowners association, and many of those communities also sit inside a community development district. Both cost money every year, both come with rules, and both are knowable before you make an offer. Here’s what we ask for.",
+      ),
+      h(2, "The HOA budget and reserves"),
+      p(
+        "Ask for the current budget, the reserve study if there is one, and the last two years of financial statements. You’re looking for whether the dues actually cover what the association maintains, and whether there’s money set aside for the roof on the clubhouse and the resurfacing of the roads. A community that has skipped its reserves will ask you for the difference later, and it’ll be called a special assessment.",
+      ),
+      h(2, "The CDD line on the tax bill"),
+      p(
+        "A community development district is a separate unit of government that borrowed money to build the roads, lakes and amenities, and pays it back through an assessment on each lot’s property tax bill. It isn’t part of the HOA dues, and it doesn’t go away when you pay off the mortgage. Pull the tax bill for the exact parcel and read the non-ad valorem section. That number is real and it’s yours.",
+      ),
+      h(2, "The rules"),
+      p(
+        "Read the covenants and the architectural guidelines before you fall for a house. Fence heights, paint colors, boats and trailers in the driveway, how long a home can be rented and to whom, and whether you can put in a pool where you want one. Every one of these has ended a deal we’ve seen. None of them is a surprise if you read the documents first.",
+      ),
+      h(2, "The estoppel letter"),
+      p(
+        "Before closing, the association issues an estoppel certificate stating what the seller owes and what transfers with the property. Read it for unpaid fines, pending assessments and any transfer or capital contribution fee the buyer pays on the way in. Those fees are common in newer communities and easy to miss on a first pass.",
+      ),
+      quote("The house is what you fall in love with. The documents are what you live with."),
+      p(
+        "Send us the address and we’ll pull the documents and read them with you. It’s the part of buying here that most people wish someone had explained sooner.",
+      ),
+    ),
+  },
+  {
+    _id: "post-guide-inspections",
+    title: "Inspections on the Suncoast: what a good one covers.",
+    slug: "inspections-on-the-suncoast-what-a-good-one-covers",
+    cover: img("library/listing-exterior-canal-golden", "A canal-front home in the late light"),
+    excerpt:
+      "The four-point, the wind mitigation, the termite letter, the roof, the seawall and the dock. Why an inspection here is different from the one you had up north.",
+    publishedAt: "2026-08-14",
+    author: { name: "Jessica Garza", slug: "jessica-garza" },
+    categories: ["Guides"],
+    body: rich(
+      p(
+        "A general home inspection is the start, not the whole list. On this coast, the insurance company and the lender each want their own paperwork, and the water adds a few things nobody inspects in a landlocked state. Here’s the set we order and why.",
+      ),
+      h(2, "The four-point and the wind mitigation"),
+      p(
+        "Insurers on older homes ask for a four-point inspection: roof, electrical, plumbing and heating and cooling, with ages and conditions. The wind mitigation report documents the roof shape, how the roof deck is attached, whether the openings are protected, and other features that earn credits on the premium. Both are short, both are cheap, and both can change the insurance quote enough to change whether the house pencils.",
+      ),
+      h(2, "The roof"),
+      p(
+        "Roof age drives the insurance conversation more than any other single fact. Ask for the permit for the last replacement and the material. If the roof is near the end of the life the insurers use, expect the quote to reflect it, and plan for the replacement in your number.",
+      ),
+      h(2, "Termites and moisture"),
+      p(
+        "A wood-destroying organism inspection is standard here, and so is looking for moisture where the building meets the ground and around every window. Stucco over block handles our climate well when it’s maintained; when it isn’t, the problems hide behind a fresh coat of paint.",
+      ),
+      h(2, "Seawalls, docks and lifts"),
+      p(
+        "If the house is on a canal or the bay, the seawall is the most expensive thing on the lot that nobody looks at. A marine contractor can assess the cap, the panels and the tiebacks. The dock and the lift get their own look, and so does the depth at low tide if you’re bringing a boat.",
+      ),
+      h(2, "The flood paperwork"),
+      p(
+        "Ask for the elevation certificate and any flood insurance history the seller has. The certificate moves the quote more than anything else on a waterfront street. If there isn’t one, we order it during the inspection period.",
+      ),
+      p(
+        "We keep a short list of inspectors and marine contractors we trust, and we’re at every inspection. Ask us for the list before you write an offer so the timeline already fits.",
+      ),
+    ),
+  },
+  {
+    _id: "post-guide-selling-from-away",
+    title: "Selling a home you don’t live in.",
+    slug: "selling-a-home-you-dont-live-in",
+    cover: img("library/moment-contract", "A contract on a kitchen island"),
+    excerpt:
+      "Out of state, out of season, or handling a family home. How a sale runs when the owner isn’t here, from the keys to the closing.",
+    publishedAt: "2026-07-22",
+    author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
+    categories: ["Guides"],
+    body: rich(
+      p(
+        "A lot of the homes we sell belong to someone who isn’t here: seasonal owners back up north, someone handling a parent’s house, people who moved for work before the house sold. The sale runs the same way, with a few parts that need planning. Here’s how we handle each of them.",
+      ),
+      h(2, "The keys and the house"),
+      p(
+        "We hold the keys, set the showing instructions and check the house after showings. If the house is empty, we make sure the air conditioning stays on and the insurance carrier knows the home is vacant, because some policies change when nobody lives there. If it’s furnished, we tell you what to leave and what to clear before the photographs.",
+      ),
+      h(2, "The paperwork"),
+      p(
+        "Listing agreements, disclosures and the contract itself are signed electronically. The closing documents can be signed in front of a notary where you are, or by remote online notarization where the title company allows it. If someone else needs to sign for you, a power of attorney has to be drafted for that purpose and reviewed by the title company before closing, not the week of.",
+      ),
+      h(2, "Estates and trusts"),
+      p(
+        "If the home is in an estate or a trust, the title company will need the documents that show who has the authority to sell. Getting those in order before the listing goes live is the single thing that keeps a closing on schedule. We’ll tell you what they’ll ask for on the first call.",
+      ),
+      h(2, "The weekly report"),
+      p(
+        "You get the showing feedback, the market activity on the street and our read on it, every week, in writing. When an offer comes in, you get it the same way, with our recommendation and the reason for it. Nothing about being away should mean knowing less.",
+      ),
+      quote("The house is here. You don’t have to be. Someone who reads the documents does."),
+      p(
+        "Tell us where you are and where the house is. We’ll set the timeline around your travel, not the other way around.",
+      ),
+    ),
+  },
+  {
     _id: "post-q3-2026-letter",
     title: "Inventory doubled on the Ranch this quarter and prices did not move.",
     slug: "q3-2026-inventory-doubled-prices-did-not-move",

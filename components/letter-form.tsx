@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
 import { readUtm } from "@/components/utm-tracker";
 import { initialLeadState, type LeadFormState } from "@/lib/leads";
@@ -28,8 +29,10 @@ export function LetterForm({
     setUtm(readUtm());
   }, []);
   useEffect(() => {
-    if (state.ok) successRef.current?.focus();
-  }, [state.ok]);
+    if (!state.ok) return;
+    successRef.current?.focus();
+    track("Subscribe", { form });
+  }, [state.ok, form]);
 
   const successText = form === "letter" ? "You are on the list. The next report lands at the start of the quarter." : "You are on the list. Encore lands every Monday.";
 

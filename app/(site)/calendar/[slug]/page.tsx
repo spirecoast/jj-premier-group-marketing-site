@@ -8,7 +8,7 @@ import { Photo } from "@/components/photo";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvent, getEventSlugs, getListings, getUpcomingEvents } from "@/lib/content";
-import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, weekdayName } from "@/lib/content/format";
+import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, formatRun, weekdayName } from "@/lib/content/format";
 import { isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, eventJsonLd, pageMetadata } from "@/lib/seo";
 
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!event) return { title: "Not on the calendar", robots: { index: false, follow: false } };
   return pageMetadata({
     title: `${event.title} · ${event.venue.name}`,
-    description: `${formatEventWhen(event.startsAt, event.endsAt, event.allDay)} at ${event.venue.name}, ${event.venue.address.city}. ${event.summary}`,
+    description: `${formatRun(event) && !event.performances?.length ? formatRun(event) : formatEventWhen(event.startsAt, event.endsAt, event.allDay)} at ${event.venue.name}, ${event.venue.address.city}. ${event.summary}`,
     path: `/calendar/${event.slug}`,
     fileImage: true, // opengraph-image.tsx beside this page
     type: "article",
@@ -40,7 +40,7 @@ export default async function EventPage({ params }: { params: Params }) {
   if (!event) notFound();
 
   const [atVenue, nearby] = await Promise.all([
-    getUpcomingEvents({ venue: event.venue.slug, limit: 4 }),
+    getUpcomingEvents({ venue: event.venue.slug, limit: 4, datedFirst: true }),
     isMarketSlug(event.venue.market) ? getListings({ market: event.venue.market }) : Promise.resolve([]),
   ]);
   const others = atVenue.filter((e) => e.slug !== event.slug).slice(0, 3);
@@ -50,6 +50,13 @@ export default async function EventPage({ params }: { params: Params }) {
     ? `https://www.google.com/maps/search/?api=1&query=${event.venue.geo.lat},${event.venue.geo.lng}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${event.venue.name}, ${address}`)}`;
   const free = event.priceNote?.toLowerCase().startsWith("free");
+  const soldOut = event.status === "sold-out";
+  const nowIso = new Date().toISOString();
+  const upcomingPerformances = (event.performances ?? []).filter((p) => (p.endsAt ?? p.startsAt) >= nowIso);
+  const shownPerformances = upcomingPerformances.slice(0, 8);
+  const morePerformances = upcomingPerformances.length - shownPerformances.length;
+  const run = formatRun(event);
+  const isRun = Boolean(event.runsThrough) && !event.performances?.length;
 
   return (
     <>
@@ -87,10 +94,13 @@ export default async function EventPage({ params }: { params: Params }) {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-3.5">
               <p className="t-eyebrow text-amber">
-                {marketName(event.venue.market)} · {weekdayName(event.startsAt)} · {EVENT_CATEGORY_LABEL[event.category]}
+                {marketName(event.venue.market)} · {isRun ? "On view" : weekdayName(event.startsAt)} · {EVENT_CATEGORY_LABEL[event.category]}
               </p>
               <h1 className="t-display text-navy">{event.title}</h1>
               <p className="t-lead max-w-measure text-body">{event.summary}</p>
+              {event.presenter && event.presenter !== event.venue.name ? (
+                <p className="t-mono-sm text-graphite-500">Presented by {event.presenter}</p>
+              ) : null}
             </div>
             <RichText value={event.description ?? []} />
             {event.source ? (
@@ -111,8 +121,29 @@ export default async function EventPage({ params }: { params: Params }) {
           <aside className="flex flex-col gap-6 self-start border border-hairline bg-white p-7 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
             <dl className="flex flex-col gap-5">
               <div className="flex flex-col gap-1">
-                <dt className="t-mono-sm text-graphite-500">When</dt>
-                <dd className="t-record text-navy">{formatEventWhen(event.startsAt, event.endsAt, event.allDay)}</dd>
+                <dt className="t-mono-sm text-graphite-500">{upcomingPerformances.length > 1 ? "Dates" : "When"}</dt>
+                {isRun ? (
+                  <dd className="t-record text-navy">{run}</dd>
+                ) : upcomingPerformances.length > 1 ? (
+                  <dd className="flex flex-col gap-1.5">
+                    <ul className="flex flex-col gap-1">
+                      {shownPerformances.map((p) => (
+                        <li key={p.startsAt} className="t-record text-navy">
+                          {formatEventWhen(p.startsAt, p.endsAt, p.allDay)}
+                        </li>
+                      ))}
+                    </ul>
+                    {morePerformances > 0 ? (
+                      <span className="t-mono-sm text-graphite-500">
+                        and {morePerformances} more{run ? `, ${run.toLowerCase()}` : ""}
+                      </span>
+                    ) : run ? (
+                      <span className="t-mono-sm text-graphite-500">{run}</span>
+                    ) : null}
+                  </dd>
+                ) : (
+                  <dd className="t-record text-navy">{formatEventWhen(event.startsAt, event.endsAt, event.allDay)}</dd>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <dt className="t-mono-sm text-graphite-500">Where</dt>
@@ -126,14 +157,20 @@ export default async function EventPage({ params }: { params: Params }) {
                   </a>
                 </dd>
               </div>
+              {event.room ? (
+                <div className="flex flex-col gap-1">
+                  <dt className="t-mono-sm text-graphite-500">Room</dt>
+                  <dd className="t-record text-navy">{event.room}</dd>
+                </div>
+              ) : null}
               <div className="flex flex-col gap-1">
                 <dt className="t-mono-sm text-graphite-500">Tickets</dt>
-                <dd className="t-record text-navy">{event.priceNote ?? "See the venue"}</dd>
+                <dd className="t-record text-navy">{soldOut ? "Sold out" : (event.priceNote ?? "See the venue")}</dd>
               </div>
             </dl>
             {event.ticketUrl ? (
               <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" className="btn btn-navy">
-                {free ? "Details at the venue" : "Get tickets"}
+                {soldOut ? "Details at the venue" : free ? "Details at the venue" : "Get tickets"}
                 <span className="btn-dash" aria-hidden="true" />
               </a>
             ) : (

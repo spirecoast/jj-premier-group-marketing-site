@@ -132,6 +132,14 @@ export function formatEventWhen(startsAt: string, endsAt?: string, allDay?: bool
 }
 
 /** "Fri" style day plus "7:30 PM" for compact rows. */
+/** "On view through November 15" for exhibitions; "Through November 15" for other runs. */
+export function formatRun(e: { runsThrough?: string; category?: string }): string | undefined {
+  if (!e.runsThrough) return undefined;
+  const d = new Date(`${e.runsThrough}T12:00:00`);
+  const label = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIMEZONE, month: "long", day: "numeric" }).format(d);
+  return e.category === "gallery" ? `On view through ${label}` : `Through ${label}`;
+}
+
 export function formatEventShort(startsAt: string): string {
   const d = toDate(startsAt);
   return `${weekdayShort.format(d)} · ${shortDate.format(d)} · ${formatTime(d)}`;

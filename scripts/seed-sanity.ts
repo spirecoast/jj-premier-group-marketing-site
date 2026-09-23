@@ -12,13 +12,12 @@
 import { createReadStream } from "node:fs";
 import path from "node:path";
 import { getCliClient } from "sanity/cli";
-import { buildEvents } from "../lib/content/seed/events";
+import { encoreEvents, encoreVenues } from "../lib/content/encore";
 import { LISTINGS } from "../lib/content/seed/listings";
 import { NEIGHBORHOODS } from "../lib/content/seed/neighborhoods";
 import { POSTS } from "../lib/content/seed/posts";
 import { SITE_SETTINGS, TESTIMONIALS } from "../lib/content/seed/settings";
 import { TEAM } from "../lib/content/seed/team";
-import { VENUES } from "../lib/content/seed/venues";
 import type { ImageRef } from "../lib/content/types";
 
 const client = getCliClient({ apiVersion: "2026-09-01" });
@@ -55,6 +54,7 @@ async function image(ref: ImageRef | undefined) {
 const slug = (current: string) => ({ _type: "slug", current });
 const ref = (id: string) => ({ _type: "reference", _ref: id });
 const neighborhoodId = (s: string) => NEIGHBORHOODS.find((n) => n.slug === s)?._id;
+const VENUES = encoreVenues();
 const venueId = (s: string) => VENUES.find((v) => v.slug === s)?._id;
 const teamId = (s: string) => TEAM.find((t) => t.slug === s)?._id;
 
@@ -74,6 +74,7 @@ async function run() {
       _id: n._id, _type: "neighborhood", name: n.name, slug: slug(n.slug), market: n.market, county: n.county,
       tagline: n.tagline, overview: n.overview, stat: n.stat ? { _type: "stat", ...n.stat } : undefined,
       highlights: n.highlights.map((h, i) => ({ _type: "highlight", _key: `h${i}`, ...h })),
+      faqs: (n.faqs ?? []).map((f, i) => ({ _type: "faq", _key: `f${i}`, ...f })),
       hero: await image(n.hero),
     });
   }
@@ -100,12 +101,14 @@ async function run() {
       agent: l.agent ? ref(teamId(l.agent.slug)!) : undefined,
     });
   }
-  for (const e of buildEvents()) {
+  for (const e of encoreEvents()) {
     docs.push({
       _id: e._id, _type: "event", title: e.title, slug: slug(e.slug), summary: e.summary, startsAt: e.startsAt,
       endsAt: e.endsAt, allDay: e.allDay, venue: ref(venueId(e.venue.slug)!), category: e.category,
       ticketUrl: e.ticketUrl, priceNote: e.priceNote, source: e.source, sourceUrl: e.sourceUrl,
       featured: e.featured, description: e.description, image: await image(e.image),
+      presenter: e.presenter, room: e.room, firstDate: e.firstDate, runsThrough: e.runsThrough, status: e.status,
+      performances: (e.performances ?? []).map((p, i) => ({ _type: "performance", _key: `p${i}`, ...p })),
     });
   }
   for (const p of POSTS) {

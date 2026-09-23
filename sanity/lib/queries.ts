@@ -25,7 +25,7 @@ export const listingsQuery = defineQuery(`*[_type == "listing" && defined(slug.c
 
 export const eventsQuery = defineQuery(`*[_type == "event" && defined(slug.current) && defined(venue)] | order(startsAt asc) {
   _id, title, "slug": slug.current, summary, startsAt, endsAt, allDay, category, ticketUrl,
-  priceNote, source, sourceUrl, featured, description,
+  priceNote, source, sourceUrl, featured, description, presenter, room, performances, firstDate, runsThrough, status,
   "image": image ${image},
   "venue": venue->{ name, "slug": slug.current, market, address, geo }
 }`);
@@ -37,7 +37,7 @@ export const venuesQuery = defineQuery(`*[_type == "venue" && defined(slug.curre
 }`);
 
 export const neighborhoodsQuery = defineQuery(`*[_type == "neighborhood" && defined(slug.current)] | order(name asc) {
-  _id, name, "slug": slug.current, market, county, tagline, overview, highlights, stat,
+  _id, name, "slug": slug.current, market, county, tagline, overview, highlights, stat, faqs,
   "hero": hero ${image},
   "featuredListings": featuredListings[]->slug.current
 }`);

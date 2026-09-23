@@ -20,7 +20,8 @@ jj-premier-brand-system.vercel.app).
 | Lead capture | `lib/fub.ts` (Follow Up Boss client), `actions/submit-lead.ts` (the one server action), `lib/leads.ts`, `lib/lead-alert.ts` |
 | Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/sitemap.ts`, `app/robots.ts` |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
-| Analytics | `components/analytics.tsx` (GA4 + Follow Up Boss Pixel, env-gated) |
+| Analytics | `components/analytics.tsx` (Plausible + Follow Up Boss Pixel, env-gated), `lib/analytics.ts` (custom events) |
+| Encore dataset | `lib/content/encore/encore-calendar.json` (the source), `lib/content/encore.ts` (the converter) |
 
 The agent portal (`app/portal`, `app/auth`, Supabase, Drizzle, Inngest, Resend) is untouched and
 still works on the same theme.
@@ -38,11 +39,38 @@ still works on the same theme.
   `NEXT_PUBLIC_LISTINGS_URL` is set.
 - Voice: written to the reader, guide not hero. A mother and daughter team. No slogans, no numbers
   without a source.
+- Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`
+  document, with `permissionOnFile` checked.
+
+## The Encore Arts Calendar
+
+The calendar is driven by the events dataset the client supplied (`lib/content/encore/`), not by
+sample data. `lib/content/encore.ts` turns its productions and venues into the site's `Event` and
+`Venue` shapes:
+
+- A production with dated performances becomes one event whose `performances[]` carries every
+  date and time (wall-clock America/New_York converted to UTC). `startsAt` is the next
+  performance. The list and month views expand these to one row per date with `getOccurrences()`.
+- A run with no published times (an exhibition) is an all-day event from its first day through
+  `runsThrough`; the list view shows these in the "On view now" strip via `getOnView()`.
+- Items marked `announced` and the three whose venue is still to be confirmed are left off.
+  Sold-out productions show "Sold out" and their offers carry `SoldOut` in the Event JSON-LD.
+- Each category has a placeholder photograph from the library until the venues supply art.
+- The ICS feed emits one VEVENT per performance for the next six months plus every current run.
+
+When Sanity is live the same shape lives in the `event` document (performances, presenter, room,
+firstDate, runsThrough, status) and `scripts/seed-sanity.ts` imports the dataset once. To refresh
+the dataset before then, replace the JSON file and rebuild.
 
 ## Search and answer engines
 
-- FAQPage structured data on the home page (five questions), the buy page and the sell page. Every
-  FAQ carries a plain-text `answer` beside its JSX `a`; keep both in step when editing.
+- FAQPage structured data on the home page (five questions), the buy page, the sell page and every
+  neighborhood page (three questions each, in `lib/content/seed/neighborhoods.ts` and the Sanity
+  `faqs` field). Every FAQ carries a plain-text `answer` beside its JSX `a`; keep both in step.
+- Open Graph images are generated per page (`opengraph-image.tsx` beside home, buy, sell, about,
+  listings, events and neighborhoods) from the page's photograph and the brand lockup.
+- Three evergreen guides ship in the seed (gated communities, inspections, selling from away). They
+  carry no figures. The sample market reports stay behind `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS`.
 - RealEstateAgent and Person on every page, Article on reports and guides, Event and Place on the
   calendar, BreadcrumbList on detail pages. No license numbers anywhere, at the client's direction.
 - Team photographs were upscaled 2x with a light denoise and sharpen; the originals are 1100px on
@@ -108,6 +136,24 @@ Useful switches:
 
 - `NEXT_PUBLIC_ROBOTS_NOINDEX=true` sets `noindex, nofollow` on every page and in `robots.txt`.
   Turn it on for previews and the pre-launch domain, off at launch.
+- `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` loads Plausible (outbound links and tagged events). The forms fire
+  `Lead` (prop `form`: contact, buy, sell, valuation, listing, …) and `Subscribe` (prop `form`:
+  letter or calendar). Add both as goals in Plausible. `NEXT_PUBLIC_PLAUSIBLE_HOST` only for a
+  self-hosted instance.
+
+## Launch checklist
+
+1. Add the custom domain to the Vercel project and set `NEXT_PUBLIC_SITE_URL` to it (with
+   `https://`). Every canonical, sitemap entry, Open Graph URL and ICS UID uses this value.
+2. Remove `NEXT_PUBLIC_ROBOTS_NOINDEX` (or set it empty) in the production environment and
+   redeploy. Check `/robots.txt` and one page's `<meta name="robots">` afterwards.
+3. Set `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` to the bare domain and confirm a pageview in the dashboard.
+4. Google Business Profile: the client is creating it. The name, address and phone on the profile
+   must match the footer, the contact page and the RealEstateAgent JSON-LD exactly (same
+   punctuation, same suite line). Once the profile is live, put its URL in `sameAs` in
+   `lib/content/seed/settings.ts` (or the Sanity site settings) alongside the social links.
+5. Submit the sitemap in Google Search Console and Bing Webmaster Tools.
+6. Confirm the custom 404 renders on the live domain (`/this-does-not-exist`).
 - `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) receives the alert when a lead cannot be
   delivered to Follow Up Boss, including the archived-flow 204 case.
 - `CRON_SECRET` protects `GET /api/cron/archive-events` (Bearer token), scheduled weekly in

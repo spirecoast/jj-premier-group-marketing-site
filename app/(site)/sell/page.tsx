@@ -17,6 +17,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "The sold price, not the list. A number with the four comparable sales behind it, eight weeks of preparation that return their cost, and a first-weekend report on the Monday.",
   path: "/sell",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /* Editorial photography for the page. Solds come from the content layer. */

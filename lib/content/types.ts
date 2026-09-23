@@ -124,6 +124,15 @@ export type Venue = {
   about?: RichText;
 };
 
+/** One dated performance of a production. `allDay` when the venue published no time. */
+export type Performance = { startsAt: string; endsAt?: string; allDay?: boolean };
+
+export type EventStatus = "scheduled" | "sold-out";
+
+/**
+ * A calendar entry is a production or program. `startsAt` is its next
+ * performance (or the first day of a run); `performances` lists every date.
+ */
 export type Event = {
   _id: string;
   title: string;
@@ -140,9 +149,20 @@ export type Event = {
   source?: string;
   sourceUrl?: string;
   featured: boolean;
-  /* extension */
+  /* extensions */
   description?: RichText;
+  presenter?: string;
+  room?: string;
+  performances?: Performance[];
+  /** ISO date of the run's first day, for exhibitions and series. */
+  firstDate?: string;
+  /** ISO date of the run's last day, for exhibitions and series. */
+  runsThrough?: string;
+  status?: EventStatus;
 };
+
+/** A production on one specific date: what a day-by-day calendar shows. */
+export type Occurrence = { event: Event; startsAt: string; endsAt?: string; allDay?: boolean };
 
 export type Highlight = { label: string; description: string };
 
@@ -160,7 +180,11 @@ export type Neighborhood = {
   tagline?: string;
   /** Optional stat with its source and date, per the claims rule. */
   stat?: { value: string; label: string; source: string };
+  /** Questions people ask about the place, answered plainly. Rendered as FAQPage data. */
+  faqs?: NeighborhoodFaq[];
 };
+
+export type NeighborhoodFaq = { q: string; answer: string };
 
 export type Post = {
   _id: string;

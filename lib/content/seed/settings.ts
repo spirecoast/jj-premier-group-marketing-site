@@ -36,32 +36,8 @@ export const SITE_SETTINGS: SiteSettings = {
   primaryPhoneDisplay: "(941) 907-1033",
 };
 
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    _id: "testimonial-1",
-    quote:
-      "They told me what they would change about the house. Nobody had done that before.",
-    attribution: "Seller",
-    market: "lakewood-ranch",
-    date: "April 2026",
-    permissionOnFile: true, // sample record; real entries need the signed release
-  },
-  {
-    _id: "testimonial-2",
-    quote:
-      "Two questions on the first call, and both of them were the right ones. We closed in July, on the day they said we would.",
-    attribution: "Buyer",
-    market: "bradenton",
-    date: "July 2026",
-    permissionOnFile: true,
-  },
-  {
-    _id: "testimonial-3",
-    quote:
-      "We would wait, they said. We waited. It sold in May for more than the February number.",
-    attribution: "Seller",
-    market: "sarasota",
-    date: "May 2026",
-    permissionOnFile: true,
-  },
-];
+/**
+ * Nothing sample here: reviews go live only as real clients give them, with
+ * permission on file, through the Sanity testimonial document.
+ */
+export const TESTIMONIALS: Testimonial[] = [];

@@ -9,6 +9,19 @@ export const MARKET_OPTIONS = [
 /** Venue regions. Today identical to the markets; kept separate so the calendar can widen on its own. */
 export const REGION_OPTIONS = [...MARKET_OPTIONS];
 
+/** One dated performance of a production. */
+export const performanceType = defineType({
+  name: "performance",
+  title: "Performance",
+  type: "object",
+  fields: [
+    defineField({ name: "startsAt", type: "datetime", title: "Starts", validation: (r) => r.required() }),
+    defineField({ name: "endsAt", type: "datetime", title: "Ends" }),
+    defineField({ name: "allDay", type: "boolean", title: "No published time", initialValue: false }),
+  ],
+  preview: { select: { title: "startsAt" } },
+});
+
 /** An image that always carries alt text. */
 export const imageWithAlt = (name: string, title: string, required = false) =>
   defineField({
@@ -54,6 +67,17 @@ export const addressType = defineType({
     defineField({ name: "state", type: "string", title: "State", initialValue: "FL" }),
     defineField({ name: "zip", type: "string", title: "ZIP" }),
   ],
+});
+
+export const faqType = defineType({
+  name: "faq",
+  title: "Question and answer",
+  type: "object",
+  fields: [
+    defineField({ name: "q", type: "string", title: "Question", validation: (r) => r.required() }),
+    defineField({ name: "answer", type: "text", title: "Answer", rows: 4, validation: (r) => r.required() }),
+  ],
+  preview: { select: { title: "q" } },
 });
 
 export const highlightType = defineType({

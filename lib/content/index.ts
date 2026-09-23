@@ -11,6 +11,7 @@ import type {
   MarketSlug,
   RegionSlug,
   Neighborhood,
+  Occurrence,
   Post,
   SiteSettings,
   TeamMember,
@@ -105,6 +106,10 @@ export async function getSimilarListings(listing: Listing, limit = 3): Promise<L
 export type EventQuery = {
   limit?: number;
   market?: RegionSlug;
+  /** Show each venue once, for previews. */
+  distinctVenues?: boolean;
+  /** Put dated performances ahead of open-ended runs (exhibitions), for previews. */
+  datedFirst?: boolean;
   category?: EventCategory;
   venue?: string;
   /** Include events that have already started (default false). */
@@ -112,20 +117,65 @@ export type EventQuery = {
   featuredFirst?: boolean;
 };
 
+/** The last moment an event is still "on": its final performance or the end of its run. */
+function lastMoment(e: Event): number {
+  const perfEnd = e.performances?.length ? e.performances[e.performances.length - 1]! : undefined;
+  const candidates = [e.endsAt, perfEnd?.endsAt, perfEnd?.startsAt, e.runsThrough ? `${e.runsThrough}T23:59:59Z` : undefined, e.startsAt].filter(
+    (x): x is string => Boolean(x),
+  );
+  return Math.max(...candidates.map((c) => new Date(c).getTime()));
+}
+
 export async function getUpcomingEvents(q: EventQuery = {}): Promise<Event[]> {
   const now = Date.now();
   let events = await (await source()).events();
   if (!q.includePast) {
-    events = events.filter((e) => new Date(e.endsAt ?? e.startsAt).getTime() >= now);
+    events = events.filter((e) => lastMoment(e) >= now);
   }
   if (q.market) events = events.filter((e) => e.venue.market === q.market);
   if (q.category) events = events.filter((e) => e.category === q.category);
   if (q.venue) events = events.filter((e) => e.venue.slug === q.venue);
   events.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  if (q.datedFirst) {
+    const isRun = (e: Event) => !e.performances?.length && Boolean(e.allDay) && Boolean(e.runsThrough);
+    events = [...events.filter((e) => !isRun(e)), ...events.filter(isRun)];
+  }
   if (q.featuredFirst) {
     events = [...events.filter((e) => e.featured), ...events.filter((e) => !e.featured)];
   }
+  if (q.distinctVenues) {
+    const seen = new Set<string>();
+    events = events.filter((e) => (seen.has(e.venue.slug) ? false : (seen.add(e.venue.slug), true)));
+  }
   return q.limit ? events.slice(0, q.limit) : events;
+}
+
+/**
+ * Every performance inside a window, one row per date: what the day-by-day
+ * list and the month grid show. Runs without published times (exhibitions)
+ * are left out here and surfaced by getOnView instead.
+ */
+export async function getOccurrences(q: { from: Date; to: Date; market?: RegionSlug; category?: EventCategory; venue?: string }): Promise<Occurrence[]> {
+  const events = await getUpcomingEvents({ market: q.market, category: q.category, venue: q.venue, includePast: true });
+  const fromIso = q.from.toISOString();
+  const toIso = q.to.toISOString();
+  const out: Occurrence[] = [];
+  for (const e of events) {
+    const perfs = e.performances?.length ? e.performances : [{ startsAt: e.startsAt, endsAt: e.endsAt, allDay: e.allDay }];
+    if (!e.performances?.length && e.allDay && e.runsThrough) continue; // an exhibition: see getOnView
+    for (const p of perfs) {
+      if (p.startsAt >= fromIso && p.startsAt < toIso) out.push({ event: e, startsAt: p.startsAt, endsAt: p.endsAt, allDay: p.allDay });
+    }
+  }
+  return out.sort((a, b) => a.startsAt.localeCompare(b.startsAt) || a.event.title.localeCompare(b.event.title));
+}
+
+/** Exhibitions and other runs that are on view now, soonest to close first. */
+export async function getOnView(q: { market?: RegionSlug; category?: EventCategory } = {}): Promise<Event[]> {
+  const events = await getUpcomingEvents({ market: q.market, category: q.category });
+  return events
+    .filter((e) => !e.performances?.length && e.allDay && e.runsThrough)
+    .sort((a, b) => (a.runsThrough ?? "").localeCompare(b.runsThrough ?? ""));
 }
 
 export async function getEvent(slug: string): Promise<Event | undefined> {
@@ -178,7 +228,7 @@ export async function getNeighborhood(slug: string): Promise<
     ...curated.map((s) => all.find((l) => l.slug === s)).filter((l): l is Listing => Boolean(l)),
     ...inNeighborhood.filter((l) => !curated.includes(l.slug)),
   ];
-  const events = await getUpcomingEvents({ market: neighborhood.market, limit: 4 });
+  const events = await getUpcomingEvents({ market: neighborhood.market, limit: 4, distinctVenues: true, datedFirst: true });
   return { neighborhood, listings, events, market: getMarket(neighborhood.market) };
 }
 

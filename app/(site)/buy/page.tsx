@@ -16,6 +16,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Escrow, inspections, flood insurance and closing costs, explained the way a friend would.",
   path: "/buy",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /* Editorial photography for the page. Listings come from the content layer. */

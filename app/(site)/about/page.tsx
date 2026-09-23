@@ -16,6 +16,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Joelyn Nauman and Jessica Garza, a mother and daughter team with Coldwell Banker Realty, helping people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton.",
   path: "/about",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 const FRAMES = {

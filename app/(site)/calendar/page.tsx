@@ -4,17 +4,18 @@ import { EventCard } from "@/components/event-card";
 import { FilterChips, type Chip } from "@/components/filter-chips";
 import { LetterForm } from "@/components/letter-form";
 import { SectionHeading } from "@/components/section-heading";
-import { getUpcomingEvents, getVenues } from "@/lib/content";
-import { EVENT_CATEGORY_LABEL, SITE_TIMEZONE, formatTime } from "@/lib/content/format";
+import { getOccurrences, getOnView, getVenues } from "@/lib/content";
+import { zonedInstant } from "@/lib/content/encore";
+import { EVENT_CATEGORY_LABEL, SITE_TIMEZONE, formatRun, formatTime } from "@/lib/content/format";
 import { REGIONS, isRegionSlug, marketName } from "@/lib/content/markets";
-import type { Event, EventCategory, RegionSlug } from "@/lib/content/types";
+import type { Event, EventCategory, Occurrence, RegionSlug } from "@/lib/content/types";
 import { pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
   description:
-    "Theater, music, galleries and festivals this week in Lakewood Ranch, Sarasota and Bradenton. The Encore Arts Calendar from JJ Premier Group.",
+    "Theater, concerts, galleries and festivals in Lakewood Ranch, Sarasota and Bradenton, by date and by venue. The Encore Arts Calendar from JJ Premier Group.",
   path: "/calendar",
 });
 
@@ -45,26 +46,37 @@ const dayHeading = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 const monthHeading = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIMEZONE, month: "long", year: "numeric" });
+const shortRange = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIMEZONE, month: "short", day: "numeric" });
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_MS = 86_400_000;
+/** The list view shows one week at a time; if a filter comes up empty, it looks ahead to the end of the season. */
+const LIST_DAYS = 7;
+const LIST_DAYS_FALLBACK = 120;
+const isoDay = (d: Date) => dayKey(d);
+const MAX_PER_CELL = 6;
+const ON_VIEW_PREVIEW = 12;
 
-function hrefFor(q: { view?: string; category?: string; market?: string; month?: string }): Route {
+function hrefFor(q: { view?: string; category?: string; market?: string; month?: string; day?: string; from?: string; onview?: string }): Route {
   const sp = new URLSearchParams();
   if (q.view === "month") sp.set("view", "month");
   if (q.category) sp.set("category", q.category);
   if (q.market) sp.set("market", q.market);
   if (q.month) sp.set("month", q.month);
+  if (q.day) sp.set("day", q.day);
+  if (q.from) sp.set("from", q.from);
+  if (q.onview) sp.set("onview", q.onview);
   const qs = sp.toString();
   return (qs ? `/calendar?${qs}` : "/calendar") as Route;
 }
 
-function MonthGrid({ events, year, month }: { events: Event[]; year: number; month: number }) {
+function MonthGrid({ occurrences, year, month }: { occurrences: Occurrence[]; year: number; month: number }) {
   const first = new Date(Date.UTC(year, month - 1, 1, 12));
   const daysInMonth = new Date(Date.UTC(year, month, 0, 12)).getUTCDate();
   const offset = WEEKDAYS.indexOf(localParts(first).weekday);
-  const byDay = new Map<string, Event[]>();
-  for (const e of events) {
-    const k = dayKey(new Date(e.startsAt));
-    byDay.set(k, [...(byDay.get(k) ?? []), e]);
+  const byDay = new Map<string, Occurrence[]>();
+  for (const o of occurrences) {
+    const k = dayKey(new Date(o.startsAt));
+    byDay.set(k, [...(byDay.get(k) ?? []), o]);
   }
   const todayKey = dayKey(new Date());
   const cells: (number | null)[] = [...Array<null>(offset).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
@@ -81,7 +93,9 @@ function MonthGrid({ events, year, month }: { events: Event[]; year: number; mon
           ))}
           {cells.map((day, i) => {
             const key = day ? `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}` : `blank-${i}`;
-            const dayEvents = day ? (byDay.get(key) ?? []) : [];
+            const dayItems = day ? (byDay.get(key) ?? []) : [];
+            const shown = dayItems.slice(0, MAX_PER_CELL);
+            const more = dayItems.length - shown.length;
             const isToday = key === todayKey;
             return (
               <div key={key} className={cn("relative flex min-h-[112px] flex-col gap-1.5 bg-white p-2.5", !day && "bg-paper")}>
@@ -94,24 +108,61 @@ function MonthGrid({ events, year, month }: { events: Event[]; year: number; mon
                     <span className="sr-only">{dayHeading.format(new Date(Date.UTC(year, month - 1, day, 12)))}{isToday ? ", today" : ""}</span>
                   </span>
                 ) : null}
-                {dayEvents.map((e) => (
+                {shown.map((o) => (
                   <Link
-                    key={e.slug}
-                    href={`/calendar/${e.slug}`}
+                    key={`${o.event.slug}-${o.startsAt}`}
+                    href={`/calendar/${o.event.slug}`}
                     className="flex flex-col gap-0.5 border-l-2 border-sky-300 pl-2 text-[13px] leading-tight text-navy transition-colors hover:border-navy"
                   >
-                    <span className="font-display text-[15px] font-normal">{e.title}</span>
+                    <span className="font-display text-[15px] font-normal">{o.event.title}</span>
                     <span className="t-mono-sm text-graphite-500">
-                      {formatTime(e.startsAt)} · {marketName(e.venue.market)}
+                      {o.allDay ? "All day" : formatTime(o.startsAt)} · {marketName(o.event.venue.market)}
                     </span>
                   </Link>
                 ))}
+                {more > 0 ? (
+                  <Link href={hrefFor({ day: key })} className="t-mono-sm pl-2 text-harbor-700 underline underline-offset-4 hover:text-navy">
+                    + {more} more
+                  </Link>
+                ) : null}
               </div>
             );
           })}
         </div>
       </div>
     </div>
+  );
+}
+
+function OnViewStrip({ events, limit, moreHref }: { events: Event[]; limit?: number; moreHref: Route }) {
+  if (!events.length) return null;
+  const shown = limit ? events.slice(0, limit) : events;
+  const more = events.length - shown.length;
+  return (
+    <section aria-labelledby="on-view-title" className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-hairline pb-3">
+        <h2 id="on-view-title" className="t-record uppercase text-graphite-600">
+          On view now
+        </h2>
+        {more > 0 ? (
+          <Link href={moreHref} className="link-rule whitespace-nowrap">
+            All {events.length} on view →
+          </Link>
+        ) : null}
+      </div>
+      <ul className="grid gap-x-8 gap-y-3 md:grid-cols-2 lg:grid-cols-3">
+        {shown.map((e) => (
+          <li key={e.slug} className="flex flex-col gap-0.5 border-l-2 border-amber pl-3">
+            <Link href={`/calendar/${e.slug}`} className="t-h4 text-navy transition-colors hover:text-harbor-700">
+              {e.title}
+            </Link>
+            <span className="t-mono-sm text-graphite-500">
+              {e.venue.name} · {formatRun(e)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -133,22 +184,46 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const year = monthParam ? Number(monthParam[1]) : current.y;
   const month = monthParam ? Number(monthParam[2]) : current.m;
 
-  const [upcoming, allEvents, venues] = await Promise.all([
-    getUpcomingEvents({ category, market }),
-    view === "month" ? getUpcomingEvents({ category, market, includePast: true }) : Promise.resolve([] as Event[]),
+  const dayParam = one(params.day)?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const dayStart = dayParam ? zonedInstant(dayParam[0], "00:00") : undefined;
+  const allOnView = one(params.onview) === "all";
+  const fromParam = one(params.from)?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const todayKey = isoDay(now);
+  const weekStartKey = fromParam && fromParam[0] > todayKey ? fromParam[0] : todayKey;
+  const weekStart = weekStartKey === todayKey ? now : zonedInstant(weekStartKey, "00:00");
+
+  const monthStart = zonedInstant(`${year}-${String(month).padStart(2, "0")}-01`, "00:00");
+  const monthEnd = zonedInstant(month === 12 ? `${year + 1}-01-01` : `${year}-${String(month + 1).padStart(2, "0")}-01`, "00:00");
+  const listFrom = dayStart ?? weekStart;
+  const listTo = dayStart ? new Date(dayStart.getTime() + DAY_MS + 3_600_000) : zonedInstant(isoDay(new Date(weekStart.getTime() + LIST_DAYS * DAY_MS)), "00:00");
+  const nextWeekKey = isoDay(listTo);
+  const prevWeekKey = isoDay(new Date(weekStart.getTime() - LIST_DAYS * DAY_MS));
+  const weekRange = `${shortRange.format(new Date(weekStart.getTime() + (weekStartKey === todayKey ? 0 : 12 * 3_600_000)))} – ${shortRange.format(new Date(listTo.getTime() - 12 * 3_600_000))}`;
+
+  const [firstPass, monthOccurrences, onView, venues] = await Promise.all([
+    view === "list" ? getOccurrences({ from: listFrom, to: listTo, category, market }) : Promise.resolve([] as Occurrence[]),
+    view === "month" ? getOccurrences({ from: monthStart, to: monthEnd, category, market }) : Promise.resolve([] as Occurrence[]),
+    view === "list" && !dayStart && weekStartKey === todayKey ? getOnView({ category, market }) : Promise.resolve([] as Event[]),
     getVenues(market),
   ]);
+  const lookedAhead = view === "list" && !dayStart && firstPass.length === 0;
+  const upcoming = lookedAhead
+    ? (await getOccurrences({ from: weekStart, to: new Date(weekStart.getTime() + LIST_DAYS_FALLBACK * DAY_MS), category, market })).slice(0, 40)
+    : firstPass;
+  const listing = dayStart ? upcoming.filter((o) => dayKey(new Date(o.startsAt)) === dayParam![0]) : upcoming;
 
-  const monthEvents = allEvents.filter((e) => {
-    const p = localParts(new Date(e.startsAt));
-    return p.y === year && p.m === month;
-  });
-
-  const grouped = new Map<string, Event[]>();
-  for (const e of upcoming) {
-    const k = dayKey(new Date(e.startsAt));
-    grouped.set(k, [...(grouped.get(k) ?? []), e]);
+  const grouped = new Map<string, Occurrence[]>();
+  for (const o of listing) {
+    const k = dayKey(new Date(o.startsAt));
+    grouped.set(k, [...(grouped.get(k) ?? []), o]);
   }
+  const listLabel = dayStart
+    ? dayHeading.format(new Date(dayStart.getTime() + 12 * 3_600_000))
+    : lookedAhead
+      ? "Nothing this week on this filter. Here is what is coming."
+      : weekStartKey === todayKey
+        ? `This week · ${weekRange}`
+        : weekRange;
 
   const base = { category, market };
   const categoryChips: Chip[] = [
@@ -171,7 +246,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           as="h1"
           size="display"
           eyebrow="Encore Arts Calendar"
-          title={<span id="calendar-title">Theater, music and art this week, close to home.</span>}
+          title={<span id="calendar-title">What&rsquo;s on stage, in the hall and on the walls, close to home.</span>}
           titleClassName="max-w-[860px]"
         />
 
@@ -210,31 +285,65 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
                 Next →
               </Link>
             </div>
-            <MonthGrid events={monthEvents} year={year} month={month} />
+            <MonthGrid occurrences={monthOccurrences} year={year} month={month} />
           </div>
-        ) : grouped.size ? (
+        ) : grouped.size || onView.length ? (
           <div className="flex flex-col gap-12">
-            {[...grouped.entries()].map(([key, events]) => (
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <p className="t-eyebrow text-amber">{listLabel}</p>
+              {dayStart ? (
+                <Link href={hrefFor({ ...base })} className="link-rule">
+                  Back to this week
+                </Link>
+              ) : !lookedAhead ? (
+                <div className="flex flex-wrap gap-x-6 gap-y-2">
+                  {weekStartKey !== todayKey ? (
+                    <Link href={hrefFor({ ...base, from: prevWeekKey > todayKey ? prevWeekKey : undefined })} className="link-rule whitespace-nowrap">
+                      ← Previous week
+                    </Link>
+                  ) : null}
+                  <Link href={hrefFor({ ...base, from: nextWeekKey })} className="link-rule whitespace-nowrap">
+                    Next week →
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+            {[...grouped.entries()].map(([key, items]) => (
               <section key={key} aria-labelledby={`day-${key}`} className="flex flex-col gap-5">
                 <h2 id={`day-${key}`} className="t-record border-b border-hairline pb-3 uppercase text-graphite-600">
-                  {dayHeading.format(new Date(events[0]!.startsAt))}
+                  {dayHeading.format(new Date(items[0]!.startsAt))}
                 </h2>
                 <ul className="grid gap-4 lg:grid-cols-2">
-                  {events.map((e) => (
-                    <li key={e.slug} className="flex">
-                      <EventCard variant="row" event={e} showMeta className="w-full" />
+                  {items.map((o) => (
+                    <li key={`${o.event.slug}-${o.startsAt}`} className="flex min-w-0">
+                      <EventCard variant="row" event={o.event} at={{ startsAt: o.startsAt, endsAt: o.endsAt, allDay: o.allDay }} showMeta className="w-full" />
                     </li>
                   ))}
                 </ul>
               </section>
             ))}
+            <OnViewStrip events={onView} limit={allOnView ? undefined : ON_VIEW_PREVIEW} moreHref={hrefFor({ ...base, onview: "all" })} />
+            {!dayStart && !lookedAhead ? (
+              <div className="flex flex-wrap justify-between gap-4 border-t border-hairline pt-6">
+                {weekStartKey !== todayKey ? (
+                  <Link href={hrefFor({ ...base, from: prevWeekKey > todayKey ? prevWeekKey : undefined })} className="link-rule whitespace-nowrap">
+                    ← Previous week
+                  </Link>
+                ) : (
+                  <span />
+                )}
+                <Link href={hrefFor({ ...base, from: nextWeekKey })} className="link-rule whitespace-nowrap">
+                  Next week →
+                </Link>
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="flex flex-col gap-4 border border-hairline bg-white p-8 md:p-10">
             <p className="t-eyebrow text-amber">Nothing yet</p>
             <h2 className="t-h1 text-navy">A quiet week on this filter.</h2>
             <p className="t-body max-w-measure text-body">
-              Widen it and there’s usually something on. The full list lands every Monday; the box below gets you on it.
+              Widen the filter and there&rsquo;s usually something on. The box below gets the week&rsquo;s list to your inbox.
             </p>
             <div>
               <Link href="/calendar" className="link-rule">
@@ -250,13 +359,13 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           <h2 id="venues-title" className="t-eyebrow text-amber">
             The venues
           </h2>
-          <ul className="flex flex-wrap gap-x-8 gap-y-3">
+          <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
             {venues.map((v) => (
-              <li key={v.slug}>
+              <li key={v.slug} className="flex flex-wrap items-baseline gap-x-2">
                 <Link href={`/venues/${v.slug}`} className="t-h4 -my-1.5 inline-block py-1.5 text-navy transition-colors hover:text-harbor-700">
                   {v.name}
                 </Link>
-                <span className="t-mono-sm ml-2 text-graphite-500">{marketName(v.market)}</span>
+                <span className="t-mono-sm text-graphite-500">{marketName(v.market)}</span>
               </li>
             ))}
           </ul>

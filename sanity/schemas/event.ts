@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 import { imageWithAlt } from "./objects";
 
 export const eventType = defineType({
@@ -10,9 +10,15 @@ export const eventType = defineType({
     defineField({ name: "title", type: "string", title: "Title", validation: (r) => r.required() }),
     defineField({ name: "slug", type: "slug", title: "Slug", options: { source: "title" }, validation: (r) => r.required() }),
     defineField({ name: "summary", type: "text", title: "Summary", rows: 2, description: "One or two sentences." }),
-    defineField({ name: "startsAt", type: "datetime", title: "Starts", validation: (r) => r.required() }),
+    defineField({ name: "startsAt", type: "datetime", title: "Starts", description: "The first or next performance. Every date goes in Performances.", validation: (r) => r.required() }),
     defineField({ name: "endsAt", type: "datetime", title: "Ends" }),
     defineField({ name: "allDay", type: "boolean", title: "All day", initialValue: false }),
+    defineField({ name: "performances", type: "array", title: "Performances", of: [defineArrayMember({ type: "performance" })], description: "Every published date. Leave empty for an exhibition or an open run." }),
+    defineField({ name: "firstDate", type: "date", title: "Run opens", description: "For exhibitions and series" }),
+    defineField({ name: "runsThrough", type: "date", title: "Run closes", description: "For exhibitions and series" }),
+    defineField({ name: "presenter", type: "string", title: "Presenter" }),
+    defineField({ name: "room", type: "string", title: "Room or stage" }),
+    defineField({ name: "status", type: "string", title: "Status", options: { list: ["scheduled", "sold-out"], layout: "radio" }, initialValue: "scheduled" }),
     defineField({ name: "venue", type: "reference", title: "Venue", to: [{ type: "venue" }], validation: (r) => r.required() }),
     defineField({
       name: "category",
