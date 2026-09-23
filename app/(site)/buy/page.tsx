@@ -165,7 +165,7 @@ const FAQS: Faq[] = [
 
 export default async function BuyPage() {
   const [featured, count, team] = await Promise.all([getFeaturedListings(3), getActiveListingCount(), getTeam()]);
-  const caption = `${featured[0]?.title ?? "18 Cliffside Terrace"} · Kitchen, 4 pm`;
+  const caption = "The kitchen, late afternoon";
 
   return (
     <>

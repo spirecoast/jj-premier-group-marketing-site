@@ -56,6 +56,7 @@ export const leadSchema = z
     phone: optionalText(40),
     message: optionalText(5000),
     timing: optionalText(200),
+    market: optionalText(40),
     address: optionalText(300),
     propertySlug: optionalText(200),
     propertyTitle: optionalText(200),

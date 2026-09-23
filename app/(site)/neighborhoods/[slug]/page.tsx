@@ -86,7 +86,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             <p className="t-label text-linen-700">{n.stat.label}</p>
             {n.stat.source ? <p className="t-mono-sm text-graphite-500">{n.stat.source}</p> : null}
             <RuleLink href={`/listings?market=${n.market}`} className="mt-4 self-start">
-              Search {marketName(n.market)}
+              Find your home in {marketName(n.market)}
             </RuleLink>
           </aside>
         ) : null}
@@ -108,11 +108,12 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
+      {active.length ? (
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="nb-listings-title">
         <SectionHeading
           eyebrow="On the market"
-          title={<span id="nb-listings-title">{active.length ? `In ${n.name} right now.` : `Nothing in ${n.name} right now.`}</span>}
-          aside={<RuleLink href={`/listings?market=${n.market}`}>All {marketName(n.market)} listings</RuleLink>}
+          title={<span id="nb-listings-title">In {n.name} right now.</span>}
+          aside={<RuleLink href={`/listings?market=${n.market}`}>Find your home in {marketName(n.market)}</RuleLink>}
         />
         {active.length ? (
           <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -142,6 +143,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           </div>
         ) : null}
       </section>
+      ) : null}
 
       <section className="bg-linen-100">
         <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nb-events-title">
@@ -176,7 +178,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             Start the conversation
           </ButtonLink>
           <ButtonLink href={`/listings?market=${n.market}`} variant="outline-light">
-            Search {marketName(n.market)}
+            Find your home in {marketName(n.market)}
           </ButtonLink>
         </div>
       </CtaBand>

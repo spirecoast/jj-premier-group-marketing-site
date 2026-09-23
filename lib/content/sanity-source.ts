@@ -1,3 +1,4 @@
+import { isMarketSlug } from "./markets";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { toImageRef, type SanityImageSource } from "@/sanity/lib/image";
 import {
@@ -58,6 +59,8 @@ const address = (v: unknown): Address => {
   const a = (v ?? {}) as Partial<Address>;
   return { street: a.street ?? "", city: a.city ?? "", state: a.state ?? "FL", zip: a.zip ?? "" };
 };
+/** Documents tagged with a market the site no longer serves are skipped, not rebucketed. */
+const hasMarket = (r: Raw): boolean => isMarketSlug(r.market);
 const market = (v: unknown): MarketSlug =>
   v === "sarasota" || v === "bradenton" ? v : "lakewood-ranch";
 const image = (v: unknown, alt: string): ImageRef | undefined =>
@@ -243,19 +246,19 @@ export const sanitySource: ContentSource = {
   name: "sanity",
   async listings() {
     const result = await sanityFetch<ListingsQueryResult>({ query: listingsQuery, tags: ["listing"] });
-    return rows(result).map(mapListing);
+    return rows(result).filter(hasMarket).map(mapListing);
   },
   async events() {
     const result = await sanityFetch<EventsQueryResult>({ query: eventsQuery, tags: ["event", "venue"] });
-    return rows(result).map(mapEvent);
+    return rows(result).filter((r) => hasMarket((r.venue ?? {}) as Raw)).map(mapEvent);
   },
   async venues() {
     const result = await sanityFetch<VenuesQueryResult>({ query: venuesQuery, tags: ["venue"] });
-    return rows(result).map(mapVenue);
+    return rows(result).filter(hasMarket).map(mapVenue);
   },
   async neighborhoods() {
     const result = await sanityFetch<NeighborhoodsQueryResult>({ query: neighborhoodsQuery, tags: ["neighborhood", "listing"] });
-    return rows(result).map(mapNeighborhood);
+    return rows(result).filter(hasMarket).map(mapNeighborhood);
   },
   async posts() {
     const result = await sanityFetch<PostsQueryResult>({ query: postsQuery, tags: ["post", "teamMember"] });

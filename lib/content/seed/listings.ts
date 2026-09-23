@@ -2,7 +2,7 @@ import type { Listing } from "../types";
 import { img, p } from "./helpers";
 
 /**
- * Sample inventory. Ten records across the four markets: seven active
+ * Sample inventory. Eight records across the three places: seven active
  * (one coming soon), one under contract, two sold. Copy follows the brand
  * voice: what is unusual, what was rebuilt and when, what the street is like.
  * Numbers are illustrative and carry no MLS provenance until Sanity replaces them.

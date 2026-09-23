@@ -71,6 +71,7 @@ export async function submitLead(
   const messageLines = [
     data.message,
     data.timing ? `Timing: ${data.timing}` : undefined,
+    data.market ? `Market: ${data.market}` : undefined,
     data.address ? `Address to value: ${data.address}` : undefined,
     data.propertyTitle ? `Property: ${data.propertyTitle}` : undefined,
     "",
@@ -96,6 +97,7 @@ export async function submitLead(
   const tags = [
     "website",
     `form:${data.form}`,
+    ...(data.market ? [`market:${data.market}`] : []),
     data.consent ? "sms-consent" : "no-sms-consent",
     ...(utm.utm_campaign ? [`campaign:${utm.utm_campaign}`] : []),
   ];

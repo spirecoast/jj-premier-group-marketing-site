@@ -752,6 +752,10 @@
   .wipe {
     animation: var(--animate-wipe);
   }
+  .draw {
+    animation: var(--animate-draw);
+    transform-origin: left;
+  }
   .fade {
     animation: var(--animate-fade);
   }

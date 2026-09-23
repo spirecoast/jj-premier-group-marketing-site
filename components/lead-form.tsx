@@ -163,7 +163,7 @@ export function LeadForm({
               {LABELS.address}
               {form !== "valuation" ? <span className="normal-case tracking-normal opacity-70"> (optional)</span> : null}
             </label>
-            <input id={`${uid}-address`} name="address" autoComplete="street-address" required={form === "valuation"} placeholder="18 Cliffside Terrace, Lakewood Ranch" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
+            <input id={`${uid}-address`} name="address" autoComplete="street-address" required={form === "valuation"} placeholder="Street address, city" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
             <FieldError id={`${uid}-address-err`} messages={err("address")} />
           </div>
         ) : null}
