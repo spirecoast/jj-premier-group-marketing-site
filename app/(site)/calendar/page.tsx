@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
   description:
-    "Theater, music, galleries and festivals this week in Sarasota, Bradenton, Lakewood Ranch and Tampa. The Encore Arts Calendar from JJ Premier Group.",
+    "Theater, music, galleries and festivals this week in Lakewood Ranch, Sarasota and Bradenton. The Encore Arts Calendar from JJ Premier Group.",
   path: "/calendar",
 });
 

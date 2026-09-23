@@ -39,6 +39,15 @@ still works on the same theme.
 - Voice: written to the reader, guide not hero. A mother and daughter team. No slogans, no numbers
   without a source.
 
+## Search and answer engines
+
+- FAQPage structured data on the home page (five questions), the buy page and the sell page. Every
+  FAQ carries a plain-text `answer` beside its JSX `a`; keep both in step when editing.
+- RealEstateAgent and Person on every page, Article on reports and guides, Event and Place on the
+  calendar, BreadcrumbList on detail pages. No license numbers anywhere, at the client's direction.
+- Team photographs were upscaled 2x with a light denoise and sharpen; the originals are 1100px on
+  the long edge. Replace them with the photographer's full-resolution files when available.
+
 ## Content: seed now, Sanity when ready
 
 `lib/content/index.ts` picks the source at request time:

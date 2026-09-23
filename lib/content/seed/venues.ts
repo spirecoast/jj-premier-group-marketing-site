@@ -150,32 +150,6 @@ export const VENUES: Venue[] = [
       "The original town center, four blocks of restaurants and shops with the cinema at one end. Music on Main closes the street on the first Friday of the month.",
     ),
   },
-  {
-    _id: "venue-straz-center",
-    name: "Straz Center for the Performing Arts",
-    slug: "straz-center",
-    address: { street: "1010 N W.C. MacInnes Pl", city: "Tampa", state: "FL", zip: "33602" },
-    geo: { lat: 27.9532, lng: -82.4602 },
-    market: "tampa",
-    website: "https://www.strazcenter.org",
-    image: img("library/tampa-riverwalk-dusk", "The Tampa Riverwalk at dusk"),
-    about: p(
-      "Five theaters on the Riverwalk, from the 2,600-seat Morsani Hall to the Jaeb cabaret. The Broadway series is the reason most people go; the opera and the ballet are the reason to go back.",
-    ),
-  },
-  {
-    _id: "venue-tampa-theatre",
-    name: "Tampa Theatre",
-    slug: "tampa-theatre",
-    address: { street: "711 N Franklin St", city: "Tampa", state: "FL", zip: "33602" },
-    geo: { lat: 27.9487, lng: -82.4586 },
-    market: "tampa",
-    website: "https://tampatheatre.org",
-    image: img("library/culture-theater-lobby-chandelier", "A theater lobby under a chandelier"),
-    about: p(
-      "A 1926 movie palace on Franklin Street with a ceiling painted as a night sky and a Wurlitzer that rises before the film. Sit in the balcony; the stars are closer.",
-    ),
-  },
 ];
 
 export const venueBySlug = (slug: string) => VENUES.find((v) => v.slug === slug);

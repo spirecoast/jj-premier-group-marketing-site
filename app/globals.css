@@ -857,15 +857,15 @@
 
 /* The hero photograph breathes: a slow drift and a soft light that moves across the frame. */
 @keyframes hero-drift {
-  from { transform: scale(1.02) translate3d(0, 0, 0); }
-  to { transform: scale(1.1) translate3d(-1.6%, -1.2%, 0); }
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.16) translate3d(-2.6%, -2%, 0); }
 }
 @keyframes hero-glow {
   from { transform: translate3d(-8%, 6%, 0); opacity: 0.55; }
   to { transform: translate3d(8%, -4%, 0); opacity: 0.95; }
 }
 .hero-img {
-  animation: hero-drift 34s ease-in-out infinite alternate;
+  animation: hero-drift 24s ease-in-out infinite alternate;
   will-change: transform;
 }
 .hero-light {

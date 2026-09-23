@@ -6,8 +6,8 @@ export const MARKET_OPTIONS = [
   { title: "Bradenton", value: "bradenton" },
 ];
 
-/** Venues reach one more place than the markets: Tampa is on the calendar, not for sale. */
-export const REGION_OPTIONS = [...MARKET_OPTIONS, { title: "Tampa", value: "tampa" }];
+/** Venue regions. Today identical to the markets; kept separate so the calendar can widen on its own. */
+export const REGION_OPTIONS = [...MARKET_OPTIONS];
 
 /** An image that always carries alt text. */
 export const imageWithAlt = (name: string, title: string, required = false) =>

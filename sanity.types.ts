@@ -240,7 +240,7 @@ export type Venue = {
   slug?: Slug;
   address?: Address;
   geo?: Geopoint;
-  market?: "lakewood-ranch" | "sarasota" | "bradenton" | "tampa";
+  market?: "lakewood-ranch" | "sarasota" | "bradenton";
   neighborhood?: NeighborhoodReference;
   website?: string;
   image?: {
@@ -630,7 +630,7 @@ export type EventsQueryResult = Array<{
   venue: {
     name: string | null;
     slug: string | null;
-    market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+    market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
     address: Address | null;
     geo: Geopoint | null;
   } | null;
@@ -646,7 +646,7 @@ export type VenuesQueryResult = Array<{
   address: Address | null;
   geo: Geopoint | null;
   website: string | null;
-  market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+  market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
   about: BlockContent | null;
   image: {
     alt: string | null;

@@ -4,7 +4,7 @@ import { SectionHeading } from "@/components/section-heading";
 import type { Event } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
-/** 05 · Encore Arts Calendar. Theater, music and art, carried with the same weight as the homes. */
+/** 06 · Encore Arts Calendar. Theater, music and art, carried with the same weight as the homes. */
 export function CalendarPreview({ events }: { events: Event[] }) {
   const [feature, ...rows] = events;
   if (!feature) return null;
@@ -12,7 +12,7 @@ export function CalendarPreview({ events }: { events: Event[] }) {
     <section className="bg-linen-100" aria-labelledby="encore-title">
       <div className="container-site flex flex-col gap-12 py-section">
         <SectionHeading
-          number="05"
+          number="06"
           eyebrow={site.calendarName}
           size="display"
           title={<span id="encore-title">Theater, music and art this week, close to home.</span>}

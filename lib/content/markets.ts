@@ -42,10 +42,7 @@ export function isMarketSlug(value: unknown): value is MarketSlug {
 }
 
 /** The calendar reaches one more place than the markets do. */
-export const REGIONS: readonly { slug: RegionSlug; name: string }[] = [
-  ...MARKETS.map((m) => ({ slug: m.slug, name: m.name })),
-  { slug: "tampa", name: "Tampa" },
-];
+export const REGIONS: readonly { slug: RegionSlug; name: string }[] = MARKETS.map((m) => ({ slug: m.slug, name: m.name }));
 
 export function isRegionSlug(value: unknown): value is RegionSlug {
   return typeof value === "string" && REGIONS.some((r) => r.slug === value);

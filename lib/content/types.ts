@@ -26,8 +26,8 @@ export type ImageRef = {
 export type RichText = PortableTextBlock[];
 
 export type MarketSlug = "lakewood-ranch" | "sarasota" | "bradenton";
-/** Where the calendar reaches: the three markets plus Tampa's venues. */
-export type RegionSlug = MarketSlug | "tampa";
+/** Where the calendar reaches. Kept separate from MarketSlug so the calendar can widen without the markets. */
+export type RegionSlug = MarketSlug;
 
 export type Market = {
   slug: MarketSlug;

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export type Faq = { q: string; a: ReactNode };
+/** `answer` is the plain-text version of `a`, used for FAQPage structured data. */
+export type Faq = { q: string; a: ReactNode; answer: string };
 
 /** Native disclosure widgets: keyboard-accessible with no script. */
 export function FaqAccordion({ items, className }: { items: Faq[]; className?: string }) {

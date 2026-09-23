@@ -5,6 +5,7 @@ import { Hero } from "@/components/home/hero";
 import { LetterBand } from "@/components/home/letter-band";
 import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
+import { Questions } from "@/components/home/questions";
 import { getTeam, getTestimonials, getUpcomingEvents } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
@@ -43,6 +44,7 @@ export default async function HomePage() {
       <Meet duo={FRAMES.duo} testimonials={testimonials} />
       <Places />
       <FindHome image={FRAMES.kitchen} />
+      <Questions />
       <CalendarPreview events={events} />
       <LetterBand image={FRAMES.island} />
     </>

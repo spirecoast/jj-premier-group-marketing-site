@@ -188,6 +188,19 @@ export function eventJsonLd(e: Event) {
   };
 }
 
+/** FAQPage for a question-and-answer section. Answers are plain text. */
+export function faqJsonLd(items: { q: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((i) => ({
+      "@type": "Question",
+      name: i.q,
+      acceptedAnswer: { "@type": "Answer", text: i.answer },
+    })),
+  };
+}
+
 export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   return {
     "@context": "https://schema.org",

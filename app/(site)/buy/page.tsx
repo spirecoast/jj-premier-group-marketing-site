@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ButtonLink, RuleLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
+import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
@@ -8,7 +9,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { Steps, type Step } from "@/components/steps";
 import { getActiveListingCount, getFeaturedListings, getTeam } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
-import { pageMetadata } from "@/lib/seo";
+import { faqJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Buying on the Suncoast",
@@ -55,6 +56,8 @@ const STEPS: Step[] = [
 const FAQS: Faq[] = [
   {
     q: "What is escrow, and where does my deposit go?",
+    answer:
+      "A neutral third party, usually the title company, holds your deposit and the paperwork until both sides have done what they promised. Under the standard Florida contract the deposit is due within three days of the effective date, and if the deal ends for a reason the contract allows, the money comes back to you from escrow.",
     a: (
       <>
         <p>
@@ -72,6 +75,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "What gets inspected, and what happens if something is wrong?",
+    answer:
+      "Inside the inspection period, fifteen days on the Florida AS IS contract unless we write in something shorter, a licensed inspector and a termite inspector go through the house, and on older homes we also order the four-point and wind mitigation reports your insurer will ask for. Then we sort the findings into cosmetic, ask the seller, and walk away. On an AS IS contract you can cancel inside the period and keep your deposit.",
     a: (
       <>
         <p>
@@ -90,6 +95,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "Do I need flood insurance?",
+    answer:
+      "If the house is in a FEMA special flood hazard area, zones AE and VE on this coast, and you have a mortgage, your lender will require it. In zone X it is optional, though we often recommend it because the quotes tend to come in low. A policy bought outside a closing takes thirty days to begin, and Florida sellers must disclose past flood claims in writing.",
     a: (
       <>
         <p>
@@ -108,6 +115,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "What do closing costs come to, and who pays what?",
+    answer:
+      "Plan on roughly two to five percent of the price on top of the down payment: lender fees, the documentary stamp tax on the note, the intangible tax on the mortgage, prepaid taxes and insurance, and title. Who pays the owner's title policy depends on the county, and everything is negotiable in the contract. You see the estimate before you sign anything.",
     a: (
       <>
         <p>
@@ -126,6 +135,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "How long does it take, and when is the best time of year?",
+    answer:
+      "Three to four months from the first call to keys is typical when there is no house to sell first. Contract to close is the fixed part: thirty to forty-five days financed and about fourteen for cash. Listings arrive in February and thin out by August, and hurricane season, June through November, can pause a closing when a storm is named.",
     a: (
       <>
         <p>
@@ -143,6 +154,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "How do we write an offer that wins without overpaying?",
+    answer:
+      "Price is one of five things a seller weighs, next to financing, deposit, inspection period and the closing date they need. We talk to the listing agent before we write anything, then we write to what the last sales on that street closed for, not the asking price.",
     a: (
       <>
         <p>
@@ -165,6 +178,7 @@ export default async function BuyPage() {
 
   return (
     <>
+      <JsonLd data={faqJsonLd(FAQS)} />
       {/* Hero on Paper: the eyebrow, the headline, and a kitchen at four. */}
       <section className="container-site grid items-center gap-12 py-section lg:grid-cols-[1.15fr_1fr] lg:gap-20">
         <div className="flex flex-col gap-7">

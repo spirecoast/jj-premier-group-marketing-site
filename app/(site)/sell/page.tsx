@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ButtonLink, RuleLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
+import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
@@ -9,7 +10,7 @@ import { Steps, type Step } from "@/components/steps";
 import { TestimonialSlider } from "@/components/testimonial-slider";
 import { getRecentSolds, getTestimonials } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
-import { pageMetadata } from "@/lib/seo";
+import { faqJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Selling on the Suncoast",
@@ -56,12 +57,14 @@ const STEPS: Step[] = [
 const FAQS: Faq[] = [
   {
     q: "How do you arrive at the number?",
+    answer:
+      "Recent closed sales near you, adjusted for the things that matter here: the water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a buyer will. You get the number and the sales behind it in writing. A comparative market analysis from a REALTOR is not an appraisal; the buyer's lender orders that later.",
     a: (
       <>
         <p>
           Four closed sales from the last six months, inside half a mile, adjusted for the things that matter here: the
           water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a
-          buyer will. You get the number and the four addresses behind it, in writing, within a day.
+          buyer will. You get the number and the four addresses behind it, in writing.
         </p>
         <p className="mt-4">
           We won’t quote a number we know is too high to win the signature. If ours is lower than someone else’s,
@@ -73,6 +76,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "What should I do to the house before it goes on the market?",
+    answer:
+      "Interior paint, updated light fixtures and a repainted front door are the cheapest changes buyers notice first. A new kitchen rarely returns its cost before you sell. Preparation takes about eight weeks and good photographers book early, so if you want to be live in March, start in October.",
     a: (
       <>
         <p>
@@ -89,6 +94,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "What does it cost to sell?",
+    answer:
+      "Three things on the closing statement: the Florida documentary stamp tax on the deed at $0.70 per $100 of the price, which the seller pays by custom on this coast; the owner's title policy, which the seller customarily pays in Manatee County and the buyer pays in Sarasota County; and commission, which is negotiable and set in the listing agreement. Add a few hundred dollars of title and recording fees and prorated taxes or HOA dues.",
     a: (
       <>
         <p>
@@ -108,6 +115,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "When is the best time to list?",
+    answer:
+      "Buyers who close in this market arrive in February and are mostly gone by May, so the strongest listings go live in late January or February. A house that is ready and priced to the comps sells in summer too. The first weekend matters more than the month, so nothing goes live until the house is ready.",
     a: (
       <>
         <p>
@@ -125,6 +134,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "What happens after we accept an offer?",
+    answer:
+      "The buyer has an inspection period, usually seven to fifteen days, then the appraisal, then the lender's clear to close. Financed deals close in thirty to forty-five days, cash in about fourteen. Expect a request for a credit after the inspection, and expect us to say what is normal here and what is not.",
     a: (
       <>
         <p>
@@ -141,6 +152,8 @@ const FAQS: Faq[] = [
   },
   {
     q: "Do I need to sell before I buy?",
+    answer:
+      "Usually it is a bridge of a few weeks, not a choice. A contract on your house with post-closing occupancy of up to sixty days is common here, and the standard Florida contract has a rider for it. We run both files from one desk so the closing dates line up on purpose.",
     a: (
       <>
         <p>
@@ -164,6 +177,7 @@ export default async function SellPage() {
 
   return (
     <>
+      <JsonLd data={faqJsonLd(FAQS)} />
       {/* Hero on Paper: the eyebrow, the headline, and a twilight exterior. */}
       <section className="container-site grid items-center gap-12 py-section lg:grid-cols-[1.15fr_1fr] lg:gap-20">
         <div className="flex flex-col gap-7">
@@ -241,7 +255,7 @@ export default async function SellPage() {
             yours either way.
           </p>
           <p className="t-mono-sm max-w-[400px] text-graphite-500">
-            A comp-based answer from Joelyn or Jessica within a day · no algorithm guess
+            A comp-based answer from Joelyn or Jessica soon after · no algorithm guess
           </p>
           <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
             <Photo image={FRAMES.contract} sizes="(min-width: 1024px) 420px, 100vw" />

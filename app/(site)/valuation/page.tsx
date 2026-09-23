@@ -29,7 +29,7 @@ const STEPS: Step[] = [
       "Street address and timing are enough. If you know the year of the roof or what the house two doors down sold for, put it in the message; if not, we'll find out.",
   },
   {
-    when: "Within a day",
+    when: "Soon after",
     title: "We pull the comps and drive the street",
     body:
       "Recent closed sales nearby, adjusted for the water, the flood zone, and which end of the street. One of us drives it. Nobody prices a house right from a satellite picture.",
