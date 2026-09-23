@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
-  if (!post) return { title: "Letter not found", robots: { index: false, follow: false } };
+  if (!post) return { title: "Report not found", robots: { index: false, follow: false } };
   return pageMetadata({
     title: post.title,
     description: post.excerpt,
@@ -105,7 +105,7 @@ export default async function PostPage({ params }: { params: Params }) {
       {more.length ? (
         <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="more-title">
           <h2 id="more-title" className="t-eyebrow text-amber">
-            More letters
+            More from the report
           </h2>
           <ul className="grid gap-5 md:grid-cols-2">
             {more.map((p) => (

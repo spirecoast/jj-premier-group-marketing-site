@@ -108,7 +108,7 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
       <div className="container-site pb-section">
         <div className="flex flex-col gap-3 border-y border-hairline py-4 md:flex-row md:items-center md:justify-between md:gap-10">
           <p className="t-mono-sm max-w-[820px] text-graphite-500">
-            Search across {MARKETS.map((m) => m.name).join(", ")}. Listing data on this site is provided by {settings.brokerageName} and is deemed reliable but not guaranteed.
+            Serving {MARKETS.map((m) => m.name).join(", ")} with {settings.brokerageName}.
           </p>
           <p className="t-mono-sm flex shrink-0 items-center gap-2 text-graphite-500">
             <span aria-hidden="true">

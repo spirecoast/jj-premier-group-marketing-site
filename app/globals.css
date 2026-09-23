@@ -686,7 +686,7 @@
     inset: 0;
     background:
       linear-gradient(180deg, rgb(20 37 48 / 0.55) 0%, transparent 22%),
-      linear-gradient(90deg, rgb(20 37 48 / 0.72) 0%, rgb(20 37 48 / 0.36) 46%, rgb(20 37 48 / 0.04) 100%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.8) 0%, rgb(20 37 48 / 0.62) 38%, rgb(20 37 48 / 0.24) 68%, rgb(20 37 48 / 0.04) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.55) 0%, transparent 42%);
   }
   .hero-veil {
@@ -844,4 +844,9 @@
     .place-img { transition: none; }
     .place-card:hover .place-img { transform: none; }
   }
+}
+
+/* Phone crop of the hero photograph keeps the sunrise in frame. */
+@media (max-width: 639px) {
+  .hero-img { object-position: 30% 60% !important; }
 }

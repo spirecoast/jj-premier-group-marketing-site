@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
   description:
-    "Theater, music, galleries and festivals this week in Sarasota, Bradenton and Lakewood Ranch, chosen by two people who go. The Encore Arts Calendar from JJ Premier Group.",
+    "Theater, music, galleries and festivals this week in Lakewood Ranch, Sarasota and Bradenton, chosen by two people who go. The Encore Arts Calendar from JJ Premier Group.",
   path: "/calendar",
 });
 
@@ -174,8 +174,8 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           title={<span id="calendar-title">Theater, music and art this week, in the places you will call home.</span>}
           titleClassName="max-w-[860px]"
           aside={
-            <p className="t-small max-w-[300px] text-body-muted md:text-right">
-              The stages, galleries and concert halls of Sarasota, Bradenton and Lakewood Ranch, chosen by two people who go.
+            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
+              The stages, galleries and concert halls of Lakewood Ranch, Sarasota and Bradenton, chosen by two people who go.
             </p>
           }
         />
@@ -274,7 +274,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
             <p className="t-eyebrow text-amber">Every Monday</p>
             <h2 className="t-h1 text-navy">The full calendar, every Monday.</h2>
             <p className="t-body max-w-measure text-body">
-              One email a week: what is on across Sarasota, Bradenton and Lakewood Ranch, and which night we would pick. No listings in it.
+              One email a week: what is on across Lakewood Ranch, Sarasota and Bradenton, and which night we would pick. No listings in it.
             </p>
           </div>
           <div className="flex flex-col gap-4">

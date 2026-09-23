@@ -23,7 +23,7 @@ export const VENUES: Venue[] = [
   },
   {
     _id: "venue-asolo-rep",
-    name: "Asolo Repertory Theatre",
+    name: "Asolo Repertory Theater",
     slug: "asolo-rep",
     address: { street: "5555 N Tamiami Trail", city: "Sarasota", state: "FL", zip: "34243" },
     geo: { lat: 27.3811, lng: -82.5622 },
@@ -31,7 +31,7 @@ export const VENUES: Venue[] = [
     website: "https://www.asolorep.org",
     image: img("library/culture-theater-lobby-chandelier", "A theater lobby under a chandelier"),
     about: p(
-      "Florida's largest repertory theatre, on the Ringling grounds. The Mertz stage is the interior of a 1903 Scottish opera house, the Dunfermline, shipped over and rebuilt inside a modern building, which is a sentence worth reading twice.",
+      "Florida's largest repertory theater, on the Ringling grounds. The Mertz stage is the interior of a 1903 Scottish opera house, the Dunfermline, shipped over and rebuilt inside a modern building, which is a sentence worth reading twice.",
       "The season runs November to June. Parking is free and the museum next door is open late on Thursdays.",
     ),
   },
@@ -96,7 +96,7 @@ export const VENUES: Venue[] = [
     website: "https://www.manateeperformingartscenter.com",
     image: img("library/culture-black-box-worklight", "A black-box theater under a single work light"),
     about: p(
-      "Home of the Manatee Players, a community theatre company that has been putting on a full season since 1947. The Stone Hall main stage seats 360; the black box downstairs is where the interesting choices happen.",
+      "Home of the Manatee Players, a community theater company that has been putting on a full season since 1947. The Stone Hall main stage seats 360; the black box downstairs is where the interesting choices happen.",
     ),
   },
   {

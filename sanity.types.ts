@@ -144,8 +144,9 @@ export type Testimonial = {
   _rev: string;
   quote?: string;
   attribution?: string;
-  market?: "lakewood-ranch" | "sarasota" | "bradenton" | "tampa";
+  market?: "lakewood-ranch" | "sarasota" | "bradenton";
   date?: string;
+  permissionOnFile?: boolean;
 };
 
 export type TeamMemberReference = {
@@ -239,7 +240,7 @@ export type Venue = {
   slug?: Slug;
   address?: Address;
   geo?: Geopoint;
-  market?: "lakewood-ranch" | "sarasota" | "bradenton" | "tampa";
+  market?: "lakewood-ranch" | "sarasota" | "bradenton";
   neighborhood?: NeighborhoodReference;
   website?: string;
   image?: {
@@ -270,7 +271,7 @@ export type Listing = {
   slug?: Slug;
   address?: Address;
   geo?: Geopoint;
-  market?: "lakewood-ranch" | "sarasota" | "bradenton" | "tampa";
+  market?: "lakewood-ranch" | "sarasota" | "bradenton";
   price?: number;
   beds?: number;
   baths?: number;
@@ -315,6 +316,7 @@ export type Listing = {
   listedAt?: string;
   daysOnMarket?: number;
   floodZone?: string;
+  county?: string;
   annualTaxes?: number;
   openHouse?: string;
   cardNote?: string;
@@ -363,7 +365,8 @@ export type Neighborhood = {
   _rev: string;
   name?: string;
   slug?: Slug;
-  market?: "lakewood-ranch" | "sarasota" | "bradenton" | "tampa";
+  market?: "lakewood-ranch" | "sarasota" | "bradenton";
+  county?: string;
   tagline?: string;
   hero?: {
     asset?: SanityImageAssetReference;
@@ -511,7 +514,7 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: listingsQuery
-// Query: *[_type == "listing" && defined(slug.current)] | order(featured desc, listedAt desc) {  _id, title, "slug": slug.current, address, geo, price, beds, baths, sqft, status, tag, market,  lotAcres, yearBuilt, renovated, listedAt, daysOnMarket, floodZone, annualTaxes, cardNote,  friendNote, percentOfList, openHouse, mlsNumber, featured, soldDate, description, features,  "hero": hero {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "gallery": gallery[] {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "neighborhood": neighborhood->{ name, "slug": slug.current },  "agent": agent->{ name, "slug": slug.current }}
+// Query: *[_type == "listing" && defined(slug.current)] | order(featured desc, listedAt desc) {  _id, title, "slug": slug.current, address, geo, price, beds, baths, sqft, status, tag, market,  lotAcres, yearBuilt, renovated, listedAt, daysOnMarket, floodZone, annualTaxes, cardNote,  friendNote, percentOfList, openHouse, county, mlsNumber, featured, soldDate, description, features,  "hero": hero {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "gallery": gallery[] {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "neighborhood": neighborhood->{ name, "slug": slug.current },  "agent": agent->{ name, "slug": slug.current }}
 export type ListingsQueryResult = Array<{
   _id: string;
   title: string | null;
@@ -532,7 +535,7 @@ export type ListingsQueryResult = Array<{
     | "sold"
     | "under-contract"
     | null;
-  market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+  market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
   lotAcres: number | null;
   yearBuilt: number | null;
   renovated: string | null;
@@ -544,6 +547,7 @@ export type ListingsQueryResult = Array<{
   friendNote: string | null;
   percentOfList: number | null;
   openHouse: string | null;
+  county: string | null;
   mlsNumber: string | null;
   featured: boolean | null;
   soldDate: string | null;
@@ -626,7 +630,7 @@ export type EventsQueryResult = Array<{
   venue: {
     name: string | null;
     slug: string | null;
-    market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+    market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
     address: Address | null;
     geo: Geopoint | null;
   } | null;
@@ -642,7 +646,7 @@ export type VenuesQueryResult = Array<{
   address: Address | null;
   geo: Geopoint | null;
   website: string | null;
-  market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+  market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
   about: BlockContent | null;
   image: {
     alt: string | null;
@@ -667,12 +671,13 @@ export type VenuesQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: neighborhoodsQuery
-// Query: *[_type == "neighborhood" && defined(slug.current)] | order(name asc) {  _id, name, "slug": slug.current, market, tagline, overview, highlights, stat,  "hero": hero {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "featuredListings": featuredListings[]->slug.current}
+// Query: *[_type == "neighborhood" && defined(slug.current)] | order(name asc) {  _id, name, "slug": slug.current, market, county, tagline, overview, highlights, stat,  "hero": hero {  alt, hotspot, crop,  asset->{ url, metadata { dimensions { width, height }, lqip } }},  "featuredListings": featuredListings[]->slug.current}
 export type NeighborhoodsQueryResult = Array<{
   _id: string;
   name: string | null;
   slug: string | null;
-  market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+  market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
+  county: string | null;
   tagline: string | null;
   overview: BlockContent | null;
   highlights: Array<
@@ -767,13 +772,14 @@ export type TeamQueryResult = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: testimonialsQuery
-// Query: *[_type == "testimonial"] | order(_createdAt desc) {  _id, quote, attribution, market, date}
+// Query: *[_type == "testimonial"] | order(_createdAt desc) {  _id, quote, attribution, market, date, permissionOnFile}
 export type TestimonialsQueryResult = Array<{
   _id: string;
   quote: string | null;
   attribution: string | null;
-  market: "bradenton" | "lakewood-ranch" | "sarasota" | "tampa" | null;
+  market: "bradenton" | "lakewood-ranch" | "sarasota" | null;
   date: string | null;
+  permissionOnFile: boolean | null;
 }>;
 
 // Source: sanity/lib/queries.ts
@@ -842,13 +848,13 @@ export type StaleEventIdsQueryResult = Array<string>;
 // Query TypeMap
 declare global {
   interface SanityQueries {
-    '*[_type == "listing" && defined(slug.current)] | order(featured desc, listedAt desc) {\n  _id, title, "slug": slug.current, address, geo, price, beds, baths, sqft, status, tag, market,\n  lotAcres, yearBuilt, renovated, listedAt, daysOnMarket, floodZone, annualTaxes, cardNote,\n  friendNote, percentOfList, openHouse, mlsNumber, featured, soldDate, description, features,\n  "hero": hero {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "gallery": gallery[] {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "neighborhood": neighborhood->{ name, "slug": slug.current },\n  "agent": agent->{ name, "slug": slug.current }\n}': ListingsQueryResult;
+    '*[_type == "listing" && defined(slug.current)] | order(featured desc, listedAt desc) {\n  _id, title, "slug": slug.current, address, geo, price, beds, baths, sqft, status, tag, market,\n  lotAcres, yearBuilt, renovated, listedAt, daysOnMarket, floodZone, annualTaxes, cardNote,\n  friendNote, percentOfList, openHouse, county, mlsNumber, featured, soldDate, description, features,\n  "hero": hero {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "gallery": gallery[] {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "neighborhood": neighborhood->{ name, "slug": slug.current },\n  "agent": agent->{ name, "slug": slug.current }\n}': ListingsQueryResult;
     '*[_type == "event" && defined(slug.current) && defined(venue)] | order(startsAt asc) {\n  _id, title, "slug": slug.current, summary, startsAt, endsAt, allDay, category, ticketUrl,\n  priceNote, source, sourceUrl, featured, description,\n  "image": image {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "venue": venue->{ name, "slug": slug.current, market, address, geo }\n}': EventsQueryResult;
     '*[_type == "venue" && defined(slug.current)] | order(name asc) {\n  _id, name, "slug": slug.current, address, geo, website, market, about,\n  "image": image {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "neighborhood": neighborhood->{ name, "slug": slug.current }\n}': VenuesQueryResult;
-    '*[_type == "neighborhood" && defined(slug.current)] | order(name asc) {\n  _id, name, "slug": slug.current, market, tagline, overview, highlights, stat,\n  "hero": hero {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "featuredListings": featuredListings[]->slug.current\n}': NeighborhoodsQueryResult;
+    '*[_type == "neighborhood" && defined(slug.current)] | order(name asc) {\n  _id, name, "slug": slug.current, market, county, tagline, overview, highlights, stat,\n  "hero": hero {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "featuredListings": featuredListings[]->slug.current\n}': NeighborhoodsQueryResult;
     '*[_type == "post" && defined(slug.current) && defined(publishedAt)] | order(publishedAt desc) {\n  _id, title, "slug": slug.current, excerpt, body, publishedAt, categories, edition,\n  "cover": cover {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "author": author->{ name, "slug": slug.current }\n}': PostsQueryResult;
     '*[_type == "teamMember" && defined(slug.current)] | order(order asc) {\n  _id, name, "slug": slug.current, title, licenseNumber, bio, phone, phoneE164, email, order, register, quote,\n  "headshot": headshot {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n}\n}': TeamQueryResult;
-    '*[_type == "testimonial"] | order(_createdAt desc) {\n  _id, quote, attribution, market, date\n}': TestimonialsQueryResult;
+    '*[_type == "testimonial"] | order(_createdAt desc) {\n  _id, quote, attribution, market, date, permissionOnFile\n}': TestimonialsQueryResult;
     '*[_type == "siteSettings"][0] {\n  brokerageName, officeAddress, licenses, socialLinks, footerDisclosure, mlsAttribution,\n  stats, ticker, primaryPhoneE164, primaryPhoneDisplay,\n  "brokerageLogo": brokerageLogo {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n},\n  "defaultOgImage": defaultOgImage {\n  alt, hotspot, crop,\n  asset->{ url, metadata { dimensions { width, height }, lqip } }\n}\n}': SiteSettingsQueryResult;
     '*[_type == "event" && dateTime(coalesce(endsAt, startsAt)) < dateTime($cutoff)]._id': StaleEventIdsQueryResult;
   }

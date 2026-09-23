@@ -16,7 +16,7 @@ export const teamMemberType = defineType({
     defineField({ name: "phoneE164", type: "string", title: "Phone (E.164)", description: "+19415550100 — used for tel: and sms: links" }),
     defineField({ name: "email", type: "string", title: "Email" }),
     defineField({ name: "order", type: "number", title: "Order", initialValue: 1 }),
-    defineField({ name: "register", type: "string", title: "Register", description: "One line, e.g. The long view · nineteen years here" }),
+    defineField({ name: "register", type: "string", title: "Register", description: "One line, e.g. The long view" }),
     defineField({ name: "quote", type: "text", title: "In her own words", rows: 3 }),
   ],
   orderings: [{ title: "Order", name: "order", by: [{ field: "order", direction: "asc" }] }],

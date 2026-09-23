@@ -29,7 +29,7 @@ export const MARKETS: readonly Market[] = [
     county: "Manatee County",
     image: img("library/bradenton-riverwalk-golden", "Bradenton Riverwalk at golden hour"),
     blurb:
-      "The Manatee River, the Riverwalk, the canal streets west of 75th, and a downtown with the county's theatre and an arts village of its own.",
+      "The Manatee River, the Riverwalk, the canal streets west of 75th, and a downtown with the county's theater and an arts village of its own.",
   },
 ] as const;
 

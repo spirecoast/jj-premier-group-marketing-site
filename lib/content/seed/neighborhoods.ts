@@ -23,7 +23,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Built", description: "2006–2022, several builders, custom lots on the east side" },
       { label: "HOA", description: "Grande Clubhouse, two pools, racquet sports; fees include amenities" },
       { label: "Water", description: "Chain of lakes and preserve edge on most streets" },
-      { label: "Distance", description: "11 min to Main Street · 14 min to Waterside · 35 min to SRQ" },
+      { label: "Distance", description: "Main Street and Waterside are minutes away; the airport is an easy drive" },
     ],
   },
   {
@@ -41,7 +41,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Built", description: "2007 onward; the last custom lots closed in 2021" },
       { label: "HOA", description: "The Retreat clubhouse, pool, fitness; gated" },
       { label: "Golf", description: "Optional equity membership, two courses inside the gate" },
-      { label: "Distance", description: "9 min to Main Street · 40 min to SRQ" },
+      { label: "Distance", description: "Minutes to Main Street; the airport is an easy drive" },
     ],
   },
   {
@@ -60,7 +60,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Built", description: "2017 onward, still building in Wild Blue and Emerald Landing" },
       { label: "HOA", description: "Per village; most include a clubhouse and pool" },
       { label: "Town center", description: "Waterside Place, Sunday market, water taxi across Kingfisher Lake" },
-      { label: "Distance", description: "10 min to UTC · 25 min to SRQ · 20 min to downtown Sarasota" },
+      { label: "Distance", description: "Close to UTC; downtown Sarasota and the airport are a short drive" },
     ],
   },
   {
@@ -96,7 +96,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Built", description: "1920s plats; steady rebuilding since 2010" },
       { label: "HOA", description: "None in most sections" },
       { label: "Flood", description: "Mostly zone X; AE along the bayfront" },
-      { label: "Distance", description: "5 min to downtown · 10 min to Siesta Key" },
+      { label: "Distance", description: "Minutes to downtown and to Siesta Key" },
     ],
   },
   {
@@ -114,7 +114,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Built", description: "1960s–1970s, single-level block; rebuilds increasing" },
       { label: "HOA", description: "None on most streets" },
       { label: "Water", description: "Canals to Palma Sola Bay; bridge clearance varies" },
-      { label: "Distance", description: "8 min to Anna Maria · 15 min to downtown Bradenton" },
+      { label: "Distance", description: "A short drive to Anna Maria and to downtown Bradenton" },
     ],
   },
   {
@@ -122,7 +122,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     name: "Downtown Bradenton",
     slug: "downtown-bradenton",
     market: "bradenton",
-    tagline: "The Riverwalk, the Village of the Arts, and the county's theatre in ten square blocks.",
+    tagline: "The Riverwalk, the Village of the Arts, and the county's theater in ten square blocks.",
     hero: img("library/bradenton-riverwalk-golden", "The Bradenton Riverwalk"),
     overview: p(
       "Downtown Bradenton sits on the south bank of the Manatee River, with the Riverwalk along the water, Old Main Street running south, and the Village of the Arts beyond 9th Avenue. Housing is condominiums on the river, 1920s bungalows in the Village, and new townhouse infill.",
@@ -132,7 +132,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
       { label: "Housing", description: "River condominiums, 1920s cottages, townhouse infill" },
       { label: "Culture", description: "Riverwalk amphitheater, Manatee PAC, Village of the Arts" },
       { label: "Flood", description: "AE along the river; X south of 6th Avenue" },
-      { label: "Distance", description: "25 min to Lakewood Ranch · 45 min to Tampa" },
+      { label: "Distance", description: "Lakewood Ranch is a short drive east on State Road 64" },
     ],
   },
   {

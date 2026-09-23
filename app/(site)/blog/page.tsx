@@ -34,7 +34,7 @@ export default async function BlogPage() {
           title={<span id="letter-title">What happened on your street this quarter, in plain language.</span>}
           titleClassName="max-w-[820px]"
           aside={
-            <p className="t-small max-w-[300px] text-body-muted md:text-right">
+            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
               One page a quarter on Lakewood Ranch, Sarasota and Bradenton. What moved, what it means for you, and what we got wrong last time.
             </p>
           }

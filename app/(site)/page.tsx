@@ -5,7 +5,7 @@ import { Hero } from "@/components/home/hero";
 import { LetterBand } from "@/components/home/letter-band";
 import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
-import { getPosts, getTeam, getTestimonials, getUpcomingEvents } from "@/lib/content";
+import { getTeam, getTestimonials, getUpcomingEvents } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -32,13 +32,11 @@ const FRAMES = {
 };
 
 export default async function HomePage() {
-  const [team, events, posts, testimonials] = await Promise.all([
+  const [team, events, testimonials] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true }),
-    getPosts(),
     getTestimonials(),
   ]);
-  const latestReport = posts.find((p) => p.categories.includes("Market report")) ?? posts[0];
 
   return (
     <>
@@ -47,7 +45,7 @@ export default async function HomePage() {
       <Places />
       <FindHome kitchen={FRAMES.kitchen} second={FRAMES.island} caption="THE KITCHEN, LATE AFTERNOON" />
       <CalendarPreview events={events} />
-      <LetterBand image={FRAMES.pool} latest={latestReport} />
+      <LetterBand image={FRAMES.pool} />
     </>
   );
 }

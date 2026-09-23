@@ -18,18 +18,17 @@ export function Places() {
         title={<span id="places-title">Lakewood Ranch, Sarasota and Bradenton. Pick the one that feels like you.</span>}
         titleClassName="max-w-[860px]"
         aside={
-          <p className="t-small max-w-[300px] text-body-muted md:text-right">
+          <p className="t-small max-w-[300px] text-body-muted lg:text-right">
             Each one has its own pace, its own water and its own kind of street. We can help you tell them apart.
           </p>
         }
       />
-      <ul className="grid gap-5 md:grid-cols-3">
+      <ul className="grid gap-5 md:grid-cols-3 lg:items-start">
         {MARKETS.map((m, i) => (
           <li key={m.slug} className="flex">
             <Link
               href={`/neighborhoods?market=${m.slug}`}
-              className="place-card group relative flex w-full flex-col justify-end overflow-hidden bg-navy text-white"
-              style={{ minHeight: i === 1 ? "580px" : "520px" }}
+              className={`place-card group relative flex w-full min-h-[380px] flex-col justify-end overflow-hidden bg-navy text-white sm:min-h-[440px] ${i === 1 ? "lg:min-h-[580px]" : "lg:min-h-[520px]"}`}
             >
               <div className="absolute inset-0">
                 <Photo image={m.image} sizes="(min-width: 768px) 33vw, 100vw" className="place-img" />

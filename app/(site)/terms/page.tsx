@@ -32,7 +32,7 @@ export default async function TermsPage() {
 
         <h2>Listing information</h2>
         <p>
-          Listing information is provided by Stellar MLS and by the listing brokerages, and is deemed reliable but not guaranteed. Square footage, lot size, taxes, flood-zone designations and similar figures come from public records and third parties; verify anything that matters to you independently before relying on it. Listings change quickly and a home shown as available may already be under contract or sold. Where a listing belongs to another brokerage, that brokerage is identified on the page.
+          Listing information, where shown, is provided by the listing brokerage and is deemed reliable but not guaranteed. Square footage, lot size, taxes, flood-zone designations and similar figures come from public records and third parties; verify anything that matters to you independently before relying on it. Listings change quickly and a home shown as available may already be under contract or sold. Where a listing belongs to another brokerage, that brokerage is identified on the page.
         </p>
 
         <h2>Not advice</h2>
@@ -42,7 +42,7 @@ export default async function TermsPage() {
 
         <h2>Encore Arts Calendar</h2>
         <p>
-          Events on the Encore Arts Calendar are listed as a service. Dates, times, prices and availability belong to the venues and can change; confirm with the venue before you go. Listing an event does not imply any sponsorship, partnership or affiliation between {site.name} and the venue or organiser.
+          Events on the Encore Arts Calendar are listed as a service. Dates, times, prices and availability belong to the venues and can change; confirm with the venue before you go. Listing an event does not imply any sponsorship, partnership or affiliation between {site.name} and the venue or organizer.
         </p>
 
         <h2>Fair housing</h2>

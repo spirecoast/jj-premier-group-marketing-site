@@ -39,7 +39,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
           title={<span id="nb-title">Three places, and the streets inside them.</span>}
           titleClassName="max-w-[760px]"
           aside={
-            <p className="t-small max-w-[320px] text-body-muted md:text-right">
+            <p className="t-small max-w-[320px] text-body-muted lg:text-right">
               The place, never the people: what was built when, who maintains what, where the water goes, and how long the drive is.
             </p>
           }

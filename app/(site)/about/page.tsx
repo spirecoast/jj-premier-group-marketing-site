@@ -26,16 +26,16 @@ const FRAMES = {
 /** From the brand voice document: how the writing, and the work, sounds. */
 const VALUES = [
   {
-    title: "Specific is warm",
-    body: "Nine days. Flood zone X. The good end of the street. Details prove we stood in the house, and that is the warmest thing an agent can do.",
+    title: "You get specifics",
+    body: "The flood zone. The age of the roof. The good end of the street. The details are how you know we stood in the house, and they are what you make your decision with.",
   },
   {
-    title: "We are the friend, not the brochure",
-    body: "A brochure has to sell. A friend gets to tell you the truth and still be excited about it. We work from the second chair.",
+    title: "You get the truth, not a pitch",
+    body: "A brochure has to sell. We get to tell you what we actually think about a house, and still be glad when you love it.",
   },
   {
-    title: "We are allowed to have favorites",
-    body: "Our favorite kitchen this year. The street we would live on. An opinion is what makes advice worth having; neutral is what everyone else sounds like.",
+    title: "You get an opinion",
+    body: "Which kitchen we would pick. Which street we would live on. Advice is only useful when it takes a side, and ours will.",
   },
 ];
 
@@ -72,7 +72,7 @@ export default async function AboutPage() {
               Whether you are buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You will always know where things stand, because we will have told you.
             </p>
             <p className="t-body max-w-measure text-body">
-              We like these houses and we like this coast, and we will not pretend a kitchen is stunning when what it is, is rebuilt in 2019 and full of light at four in the afternoon. Joelyn takes the long view; Jessica reads the contract and the room. Between us, you are covered from the first call to the keys.
+              We like these houses and we like this coast, and we will not call a kitchen stunning when the honest word is rebuilt, and full of light at four in the afternoon. Joelyn takes the long view; Jessica reads the contract and the room. Between us, you are covered from the first call to the keys.
             </p>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">
@@ -89,7 +89,7 @@ export default async function AboutPage() {
 
       <section className="bg-parchment">
         <div className="container-site flex flex-col gap-12 py-section">
-          <SectionHeading eyebrow="How we work" title="Three things we will not stop saying." />
+          <SectionHeading eyebrow="How we work" title="Three things you can count on." />
           <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-3">
             {VALUES.map((v, i) => (
               <li key={v.title} className="flex flex-col gap-4 bg-white p-7">

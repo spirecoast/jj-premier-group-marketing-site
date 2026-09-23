@@ -10,12 +10,12 @@ import { cn } from "@/lib/utils";
 export type LeadField = "name" | "email" | "phone" | "timing" | "address" | "message";
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
-  contact: { title: "Got it.", body: "One of us will call or write back today. Two questions first: when do you need to be in, and is there a house to sell?" },
-  buy: { title: "Got it.", body: "We will be in touch today with the two questions that change everything else: your timing, and whether there is a house to sell first." },
+  contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
+  buy: { title: "Got it.", body: "We will be in touch with the two questions that change everything else: your timing, and whether there is a house to sell first." },
   sell: { title: "Got it.", body: "We will come back with a plan and a number, and the reason for the number." },
-  listing: { title: "Got it.", body: "We will confirm the showing today. Tell us if the timing changes." },
+  listing: { title: "Got it.", body: "We will confirm the showing with you. Tell us if the timing changes." },
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
-  letter: { title: "You are on the list.", body: "One page, once a quarter, no pitch. The next letter lands at the start of the quarter." },
+  letter: { title: "You are on the list.", body: "One page, once a quarter, written for you. The next report lands at the start of the quarter." },
   calendar: { title: "You are on the list.", body: "The full calendar, every Monday." },
 };
 

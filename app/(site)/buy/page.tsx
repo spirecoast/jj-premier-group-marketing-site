@@ -40,7 +40,7 @@ const STEPS = [
   },
   {
     n: "03",
-    when: "The offer · same day",
+    when: "The offer · when the house is right",
     title: "The offer table",
     body:
       "Jessica runs it. Price is one of five columns, next to financing, deposit, inspection period, and the closing date the seller actually needs. We call the listing agent before we write anything, and we write to the sold prices on that street, not the list prices.",
@@ -54,7 +54,7 @@ const STEPS = [
   },
 ];
 
-/** Asked on the first call. Figures are what we are seeing on this coast in 2026. */
+/** Asked on the first call. Florida contracts and county custom decide most of it. */
 const FAQS: Faq[] = [
   {
     q: "What is escrow, and where does my deposit go?",
@@ -98,8 +98,7 @@ const FAQS: Faq[] = [
         <p>
           If the house sits in a FEMA special flood hazard area, zones AE and VE on this coast, and you have a mortgage,
           your lender will require it. In zone X it is optional, and on the canal streets of West Bradenton we still
-          recommend it because the quotes come in low; 4419 Bayshore Lane is zone X and its quotes came in under $2,000
-          a year this spring.
+          recommend it because the quotes tend to come in low.
         </p>
         <p className="mt-4">
           Two things to know. An NFIP policy bought for a closing starts at closing, but one bought at any other time
@@ -115,8 +114,7 @@ const FAQS: Faq[] = [
     a: (
       <>
         <p>
-          Plan on two to five percent of the price on top of the down payment, the range from our 2026 buyer guide; on
-          a $975,000 house that is roughly $19,500 to $48,750. The big items are lender fees, the documentary stamp tax
+          Plan on roughly two to five percent of the price on top of the down payment. The big items are lender fees, the documentary stamp tax
           on your note at $0.35 per $100, the intangible tax at $2 per $1,000 of the mortgage, prepaid taxes and
           insurance, and title.
         </p>
@@ -136,9 +134,8 @@ const FAQS: Faq[] = [
         <p>
           From the first call to keys, three to four months is typical when there is no house to sell first. The search
           is the variable; contract to close is the fixed part, thirty to forty-five days financed and about fourteen
-          for cash. Season listings arrive in February and thin out by August. This year is different: active listings
-          on the Ranch went from 44 to 91, and the median home still went under contract in 23 days (Stellar MLS, Q2
-          2026).
+          for cash. Season listings arrive in February and thin out by August, and a house that is priced to the comps
+          still moves quickly in any month.
         </p>
         <p className="mt-4">
           Hurricane season runs June 1 to November 30. When a storm is named, insurance binding stops, which can pause
@@ -159,9 +156,7 @@ const FAQS: Faq[] = [
         </p>
         <p className="mt-4">
           Then we look at what the last three sales on that street closed for, the sold price and not the list, and we
-          write to that. 308 Riverwalk Court went for 104 percent of list in nine days in May 2026; 2210 Oak Canopy Lane
-          went for exactly list in fourteen days in June. Same coast, different streets, and the comps are the
-          difference.
+          write to that. Same coast, different streets, and the comps are the difference.
         </p>
       </>
     ),
@@ -214,7 +209,7 @@ export default async function BuyPage() {
           eyebrow="How it goes"
           title={<span id="buy-steps-title">Four steps, and the day each one happens.</span>}
           aside={
-            <p className="t-small max-w-[300px] text-body-muted md:text-right">
+            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
               Thirty to forty-five days from contract to keys on a financed purchase, fourteen for cash. That is the
               calendar we plan around.
             </p>
@@ -255,8 +250,8 @@ export default async function BuyPage() {
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
           <SectionHeading eyebrow="Asked on the first call" title="The questions nobody is born knowing." />
           <p className="t-body max-w-[420px] text-body">
-            The figures below are what we are seeing on this coast in 2026. The contract and the county decide the
-            rest, and we will say which. If your question is not here, it goes in the box at the bottom of the page.
+            Florida contracts and county custom decide most of this, and we will say which is which. If your question
+            is not here, it goes in the box at the bottom of the page.
           </p>
           <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
             <Photo image={FRAMES.keys} sizes="(min-width: 1024px) 420px, 100vw" />
@@ -274,7 +269,7 @@ export default async function BuyPage() {
           <SectionHeading eyebrow="Tell us the timing" title="Two questions, and we take it from there." />
           <p className="t-body max-w-[440px] text-body">
             When do you need to be in, and is there a house to sell first? Put whatever you know in the box. One of us
-            calls or writes back the same day. The first conversation is forty minutes and there is no pitch in it.
+            will call or write back, and the first conversation has no pitch in it.
           </p>
           <ul className="flex flex-col gap-3 border-t border-hairline pt-6">
             {team.map((m) => (

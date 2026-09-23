@@ -37,14 +37,14 @@ const STEPS = [
     when: "Weeks 1–8 · preparation",
     title: "Paint, light, the front door",
     body:
-      "In our closings since 2024, those three came back at the closing table; a new kitchen rarely did inside two years, and we will say so before you spend it. The good photographers book six weeks ahead, so if you want March, we start in October.",
+      "Those three are the changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we will say so before you spend it. The good photographers book six weeks ahead, so if you want March, we start in October.",
   },
   {
     n: "03",
     when: "Week 9 · live on a Thursday",
     title: "The first weekend",
     body:
-      "Photographs at four in the afternoon, live on Thursday, showings from Friday, and a report on Monday: how many came through, what they said, and whether the number is right. Thirty-one days once told us a first number was wrong, so we moved it.",
+      "Photographs at four in the afternoon, live on Thursday, showings from Friday, and a report on Monday: how many came through, what they said, and whether the number is right.",
   },
   {
     n: "04",
@@ -55,7 +55,7 @@ const STEPS = [
   },
 ];
 
-/** Asked at the kitchen island. Figures dated; the contract decides the rest. */
+/** Asked at the kitchen island. The contract decides most of it. */
 const FAQS: Faq[] = [
   {
     q: "How do you arrive at the number?",
@@ -79,9 +79,8 @@ const FAQS: Faq[] = [
     a: (
       <>
         <p>
-          Interior paint, updated light fixtures, and a repainted front door are the three cheapest changes that moved
-          a price in our closings since 2024. A new kitchen rarely returned its cost inside two years, and we will say so
-          before you spend it. The list we leave after the walk-through is usually a page long and costs less than a month of
+          Interior paint, updated light fixtures, and a repainted front door are the three cheapest changes buyers
+          notice first. A new kitchen rarely returns its cost before you sell, and we will say so before you spend it. The list we leave after the walk-through is usually a page long and costs less than a month of
           carrying the house.
         </p>
         <p className="mt-4">
@@ -116,8 +115,8 @@ const FAQS: Faq[] = [
       <>
         <p>
           The buyers who close in this market arrive in February and are mostly gone by May, so our best listings go
-          live on a Thursday in late January or February, photographed in the January light. Summer is not dead: 2210
-          Oak Canopy Lane went live at the end of May 2026 and sold at list in fourteen days.
+          live on a Thursday in late January or February, photographed in the January light. Summer is not dead; a
+          house that is ready and priced to the comps sells in July too.
         </p>
         <p className="mt-4">
           What matters more than the month is the first weekend, which is why nothing goes live until the house is
@@ -178,7 +177,7 @@ export default async function SellPage() {
           </div>
           <p className="t-lead max-w-[560px] text-body">
             Here is what we would do: a number with the four comparable sales behind it, eight weeks of preparation
-            that has paid for itself in our closings since 2024, and a report on the Monday after the first weekend.
+            that buyers can see in the photographs, and a report on the Monday after the first weekend.
           </p>
           <p className="t-body max-w-measure text-body">
             Some agents will quote a number they know is too high to win the signature, then spend six weeks talking
@@ -189,8 +188,8 @@ export default async function SellPage() {
             <ButtonLink href="#valuation" dash>
               Start with the address
             </ButtonLink>
-            <ButtonLink href="/listings?status=sold" variant="outline" dash>
-              See what sold
+            <ButtonLink href="/contact" variant="outline" dash>
+              Talk it through first
             </ButtonLink>
           </div>
         </div>
@@ -206,7 +205,7 @@ export default async function SellPage() {
           eyebrow="How it goes"
           title="Four steps, from the walk-through to the closing table."
           aside={
-            <p className="t-small max-w-[300px] text-body-muted md:text-right">
+            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
               Nine weeks from the first walk-through to live, then thirty to forty-five days from contract to close.
               Cash is quicker.
             </p>
@@ -295,8 +294,8 @@ export default async function SellPage() {
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
           <SectionHeading eyebrow="Asked at the kitchen island" title="The number, the cost, and the calendar." />
           <p className="t-body max-w-[420px] text-body">
-            One or two sentences each, because you have probably done this before. Every figure is what we are seeing
-            on this coast in 2026, and the contract and the county decide the rest.
+            One or two sentences each, because you have probably done this before. Florida contracts and county custom
+            decide most of it, and we will say which is which.
           </p>
         </div>
         <FaqAccordion items={FAQS} />

@@ -39,7 +39,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
 
           {/* Scroll cue: desktop furniture */}
           <div
-            className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 lg:flex"
+            className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 text-shadow-photo lg:flex"
             aria-hidden="true"
           >
             <span>SCROLL</span>

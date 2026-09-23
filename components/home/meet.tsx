@@ -12,13 +12,13 @@ import { site } from "@/lib/site";
 export function Meet({ duo, testimonials }: { duo: ImageRef; testimonials: Testimonial[] }) {
   return (
     <section className="bg-parchment" aria-labelledby="meet-title">
-      <div className="container-site grid items-center gap-14 py-section lg:grid-cols-[1fr_1.25fr] lg:gap-20">
-        <div className="relative flex flex-col lg:block lg:h-[640px]">
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-linen-100 lg:absolute lg:left-0 lg:top-0 lg:h-[88%] lg:w-[82%]">
+      <div className="container-site grid items-center gap-14 py-section md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12 lg:grid-cols-[1fr_1.25fr] lg:gap-20">
+        <div className="relative flex flex-col md:block md:h-[560px] lg:h-[640px]">
+          <div className="relative aspect-[4/5] w-full overflow-hidden bg-linen-100 md:absolute md:left-0 md:top-0 md:h-[88%] md:w-[82%]">
             <Photo image={duo} sizes="(min-width: 1024px) 460px, 100vw" />
           </div>
           {testimonials.length ? (
-            <div className="relative z-10 -mt-10 ml-auto w-[88%] bg-navy p-7 sm:w-[70%] lg:absolute lg:bottom-0 lg:right-0 lg:m-0 lg:w-[52%]">
+            <div className="relative z-10 -mt-10 ml-auto w-[88%] bg-navy p-7 sm:w-[70%] md:absolute md:bottom-0 md:right-0 md:m-0 md:w-[52%]">
               <TestimonialSlider testimonials={testimonials} tone="dark" size="compact" />
             </div>
           ) : null}

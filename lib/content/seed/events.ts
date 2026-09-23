@@ -53,7 +53,7 @@ const SEED: SeedEvent[] = [
     _id: "event-manatee-players-opening",
     title: "Manatee Players, opening night",
     slug: "manatee-players-opening-night",
-    summary: "The county's community theatre opens its season on the Stone Hall stage.",
+    summary: "The county's community theater opens its season on the Stone Hall stage.",
     venue: "manatee-performing-arts-center",
     category: "theater",
     when: { weekday: 5, hour: 19, minute: 30 },
@@ -114,7 +114,7 @@ const SEED: SeedEvent[] = [
     priceNote: "From $39",
     ticketUrl: "https://www.asolorep.org",
     image: img("library/culture-theater-lobby-chandelier", "A theater lobby under a chandelier"),
-    source: "Asolo Repertory Theatre",
+    source: "Asolo Repertory Theater",
     sourceUrl: "https://www.asolorep.org",
   },
   {

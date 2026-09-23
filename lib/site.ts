@@ -63,8 +63,7 @@ export const footerNav = {
     { href: "/neighborhoods?market=lakewood-ranch", label: "Lakewood Ranch" },
     { href: "/neighborhoods?market=sarasota", label: "Sarasota" },
     { href: "/neighborhoods?market=bradenton", label: "Bradenton" },
-    { href: "/listings?feature=waterfront", label: "Waterfront" },
-    { href: "/listings?feature=new-construction", label: "New construction" },
+    { href: "/listings", label: "Find your home" },
   ],
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },

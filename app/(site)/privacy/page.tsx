@@ -48,7 +48,7 @@ export default async function PrivacyPage() {
 
         <h2>Who sees it</h2>
         <p>
-          The two agents on this team and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: our web host, our content management system, our database host, the automation service that schedules our emails, our email delivery service, Google Analytics, and Follow Up Boss, the CRM that stores enquiries. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
+          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: our web host, our content management system, our database host, the automation service that schedules our emails, our email delivery service, Google Analytics, and Follow Up Boss, the CRM that stores enquiries. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
         </p>
 
         <h2>How long we keep it</h2>

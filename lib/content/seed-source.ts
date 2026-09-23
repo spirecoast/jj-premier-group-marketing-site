@@ -28,7 +28,11 @@ export const seedSource: ContentSource = {
     return NEIGHBORHOODS;
   },
   async posts() {
-    return [...POSTS].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+    // The sample market reports carry sample figures; only the guides ship until real reports are written.
+    const show = process.env.NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true";
+    return [...POSTS]
+      .filter((p) => show || !p.categories.includes("Market report"))
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   },
   async team() {
     return [...TEAM].sort((a, b) => a.order - b.order);

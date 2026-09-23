@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${esc(`Encore Arts Calendar · ${site.name}`)}`,
     "X-WR-TIMEZONE:America/New_York",
-    `X-WR-CALDESC:${esc("Theater, music and art this week in Sarasota, Bradenton and Lakewood Ranch.")}`,
+    `X-WR-CALDESC:${esc("Theater, music and art this week in Lakewood Ranch, Sarasota and Bradenton.")}`,
     ...events.flatMap((e) => vevent(e, now)),
     "END:VCALENDAR",
   ]
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     status: 200,
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `inline; filename="${slug ? `${slug}.ics` : "suncoast-calendar.ics"}"`,
+      "Content-Disposition": `inline; filename="${slug ? `${slug}.ics` : "encore-arts-calendar.ics"}"`,
       "Cache-Control": "public, max-age=900, s-maxage=3600",
     },
   });

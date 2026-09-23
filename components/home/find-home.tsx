@@ -7,7 +7,7 @@ import { SectionHeading } from "@/components/section-heading";
 /** 04 · Find your home. Two questions, and the homes worth seeing come to you. */
 export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; second: ImageRef; caption: string }) {
   return (
-    <section className="container-site grid items-center gap-12 py-section lg:grid-cols-2 lg:gap-20" aria-labelledby="find-title">
+    <section className="container-site grid items-center gap-12 pb-section pt-4 lg:grid-cols-2 lg:gap-20 lg:pt-8" aria-labelledby="find-title">
       <div className="flex flex-col gap-7">
         <SectionHeading
           number="04"
@@ -24,8 +24,8 @@ export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; seco
           Start with the place and the budget. We will send you the homes that fit, and we will say which
           ones we would actually go and see with you.
         </p>
-        <form action="/listings" method="get" className="flex flex-col gap-5 border border-hairline bg-white p-6 sm:flex-row sm:items-end">
-          <div className="field flex-1">
+        <form action="/listings" method="get" className="grid gap-5 border border-hairline bg-white p-6 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] sm:items-end">
+          <div className="field min-w-0">
             <label htmlFor="home-search-market" className="field-label">
               Where
             </label>
@@ -38,7 +38,7 @@ export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; seco
               <option value="">Anywhere on the coast</option>
             </select>
           </div>
-          <div className="field sm:w-[140px]">
+          <div className="field min-w-0">
             <label htmlFor="home-search-max" className="field-label">
               Up to
             </label>
@@ -51,7 +51,7 @@ export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; seco
               <option value="">No limit</option>
             </select>
           </div>
-          <button type="submit" className="btn btn-navy">
+          <button type="submit" className="btn btn-navy justify-self-start sm:col-span-2">
             Start my search
             <span className="btn-dash" aria-hidden="true" />
           </button>

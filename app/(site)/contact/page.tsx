@@ -28,7 +28,7 @@ export default async function ContactPage() {
           title={<span id="contact-title">Tell us the timing.</span>}
         />
         <p className="t-body max-w-measure text-body">
-          Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box; one of us writes or calls back the same day.
+          Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box, and one of us will write or call back.
         </p>
         <div className="border border-hairline bg-white p-6 sm:p-8">
           <LeadForm form="contact" fields={["name", "email", "phone", "timing", "message"]} submitLabel="Send" />

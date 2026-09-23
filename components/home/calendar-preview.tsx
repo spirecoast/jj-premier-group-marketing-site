@@ -18,14 +18,14 @@ export function CalendarPreview({ events }: { events: Event[] }) {
           title={<span id="encore-title">Theater, music and art, all week, in the places you will call home.</span>}
           titleClassName="max-w-[820px]"
           aside={
-            <p className="t-small max-w-[300px] text-body-muted md:text-right">
-              The stages, galleries and concert halls of Sarasota, Bradenton and Lakewood Ranch, chosen by two people who go.
+            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
+              The stages, galleries and concert halls of Lakewood Ranch, Sarasota and Bradenton, chosen by two people who go.
             </p>
           }
         />
         <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
           <EventCard variant="feature" event={feature} />
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 lg:justify-between">
             {rows.slice(0, 3).map((e) => (
               <EventCard key={e.slug} variant="row" event={e} />
             ))}
