@@ -89,9 +89,9 @@ export const POSTS: Post[] = [
       p(
         "A surveyor's document that states the finished floor height against the base flood elevation. It is the single page that moves a quote most. Ask for it before you make an offer; if the seller does not have one, we order it during inspection.",
       ),
-      quote("That canal used to flood every August until they redid the outfall in 2016. It has not since. I checked."),
+      quote("The map tells you the zone. The neighbors tell you what happened the last time it rained for three days. Ask both."),
       p(
-        "History matters as much as the map. We keep a list of which streets flooded in 2022 and 2024 and which did not, and we will tell you before you fall in love with the kitchen.",
+        "History matters as much as the map. We ask what a street did in the last big storms before you fall in love with the kitchen, and we tell you what we hear.",
       ),
     ),
   },
