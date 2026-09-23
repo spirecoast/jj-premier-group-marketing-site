@@ -12,7 +12,14 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "sanity:typegen": "sanity schema extract --path=sanity/schema.json && sanity typegen generate",
-    "sanity:dev": "sanity dev"
+    "sanity:dev": "sanity dev",
+    "nbhd:validate": "node neighborhood-data/scripts/validate.mjs",
+    "nbhd:index": "node neighborhood-data/scripts/build-search-index.mjs",
+    "nbhd:refresh-gis": "node neighborhood-data/scripts/refresh-gis.mjs",
+    "nbhd:check-builders": "node neighborhood-data/scripts/check-builders.mjs",
+    "nbhd:discover": "node neighborhood-data/scripts/discover.mjs",
+    "predev": "node scripts/copy-maplibre-worker.mjs",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
     "@sanity/client": "^8.5.0",
@@ -23,6 +30,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "inngest": "^4.3.0",
+    "maplibre-gl": "^6.11.1",
     "next": "^16.2.4",
     "next-sanity": "^13.3.4",
     "postgres": "^3.4.9",

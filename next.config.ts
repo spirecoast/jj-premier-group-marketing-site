@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       { source: "/lakewood-ranch", destination: "/neighborhoods?market=lakewood-ranch", permanent: true },
       { source: "/lakewood-ranch/:slug", destination: "/neighborhoods/:slug", permanent: true },
       { source: "/relocate", destination: "/buy", permanent: true },
+      // The editorial slug before the neighborhood dataset arrived.
+      { source: "/neighborhoods/lake-club", destination: "/neighborhoods/the-lake-club", permanent: true },
     ];
   },
 };

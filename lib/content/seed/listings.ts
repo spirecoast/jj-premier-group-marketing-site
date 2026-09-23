@@ -24,7 +24,7 @@ export const LISTINGS: Listing[] = [
     status: "active",
     tag: "new",
     market: "lakewood-ranch",
-    neighborhood: { name: "The Lake Club", slug: "lake-club" },
+    neighborhood: { name: "The Lake Club", slug: "the-lake-club" },
     agent: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     mlsNumber: "A4417290",
     listedAt: "2026-09-03",

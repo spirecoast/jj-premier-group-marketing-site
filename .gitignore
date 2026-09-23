@@ -50,3 +50,9 @@ next-env.d.ts
 
 # local screenshot runs
 shots/
+
+# neighborhood data reports
+neighborhood-data/reports/
+
+# copied at build time by scripts/copy-maplibre-worker.mjs
+public/vendor/

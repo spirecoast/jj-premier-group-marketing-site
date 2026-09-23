@@ -1,0 +1,80 @@
+[
+ {
+  "slug": "heritage-ranch",
+  "name": "Heritage Ranch",
+  "market": "lakewood-ranch",
+  "reason": "LWR map labels it; the FY26 LWR magazine map key marks it 'Conservation Easement' and no county address points or LWR pages show homes (detail agent recommendation)"
+ },
+ {
+  "slug": "garden-park",
+  "name": "Garden Park",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Sarasota County PlatBoundary data shows the only 'Garden Park' plats (condominium GARDEN PARK, CB42 PG20, phases 3-9 recorded 2011-2012) at about lat 27.147, lng -82.464, in the Nokomis/Venice area (next to SPRINGHILL PARK, not in the Sarasota mailing area); the registry zip 34240 is a contact address. [sarasota_registries] Sarasota County neighborhood-registration GIS layer (registrationstatus field 'No'; meaning unclear) entry 'Garden Park Condominium Association' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Match of the association to the Garden Park condominium plat is by name + condominium type (only Garden Park plat in the county). Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+ },
+ {
+  "slug": "gulf-view-estates",
+  "name": "Gulf View Estates",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Sarasota County PlatBoundary data places GULF VIEW ESTATES UNIT 1 (PB07 PG86) at about lat 27.027, lng -82.391, in the Venice area (beside CIRCLE WOODS OF VENICE); discovery-only sites also list it as Gulf View Estates, Venice. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Gulf View Estates Owners Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] No official website found in one search."
+ },
+ {
+  "slug": "keyway-place",
+  "name": "Keyway Place",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Sarasota County PlatBoundary data places KEYWAY PLACE A REPLAT (PB48 PG42) at about lat 27.009, lng -82.378, in the Venice/Englewood area far south of the Sarasota mailing area. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Keyway Place Homeowners Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+ },
+ {
+  "slug": "magnolia-bay",
+  "name": "Magnolia Bay",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Nokomis mailing address per Sarasota County address point (205 HOLLY BANK AVE: postalcomm \"Nokomis\", zip 34275, muni code \"CV\" - likely City of Venice, verify; point 27.157234, -82.416997). Builder page wrote \"Nokomis, FL 34241\"; county data gives 34275 -> zips set to 34275. Recorded plats MAGNOLIA BAY NORTH/SOUTH PHASE 1-2 sit at lat ~27.156-27.166. Jurisdiction left null (muni code meaning not confirmed). Other fields carried from census, not re-verified (excluded record)."
+ },
+ {
+  "slug": "marina-isles",
+  "name": "Marina Isles",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Sarasota County PlatBoundary data places the MARINA ISLES condominium plats (CB13 PG39, PH 2 CB16 PG39) at about lat 27.000, lng -82.377, in the Venice/Englewood area far south of the Sarasota mailing area. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Marina Isles Condominium Association' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+ },
+ {
+  "slug": "mission-estates",
+  "name": "Mission Estates",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Sarasota County PlatBoundary data places MISSION ESTATES UNIT 1 (PB39 PG06) and UNIT 2 (PB39 PG46) at about lat 27.155, lng -82.451, beside Mission Valley Estates in the Nokomis/Venice area, far south of the Sarasota mailing area. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Mission Estates HOA, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+ },
+ {
+  "slug": "ravenwood",
+  "name": "Ravenwood",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Englewood (probable). The only county plat named RAVENWOOD (PB25, 5.8 ac) lies at ~26.985N,-82.370W; county address points there are postal community Englewood, ZIP 34223. Link between the registered association and this plat is by name only - lead may confirm. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Ravenwood Owners' Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction left null (Muni not queried; address points at the plat are postal Englewood 34223). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+ },
+ {
+  "slug": "rivendell",
+  "name": "Rivendell",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Osprey. The association site (rivendellcommunity.com) says the community is \"Located in Osprey, Florida\"; county plats RIVENDELL UNIT 2-5 lie at ~27.18N (Osprey). County NOD also lists \"Rivendell Homeowners Association"
+ },
+ {
+  "slug": "summer-green",
+  "name": "Summer Green",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Venice. County plats SUMMER GREEN SEC 1-3 (condominium books) lie at ~27.108N,-82.408W; county address points there are Venice 34292, including building name \"SUMMER GREEN\" on Capri Isles; the registry city \"Sarasota\" appears to be a contact mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Summer Green Condominium Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction left null (Muni not queried; address points at the plats are postal Venice 34292). County condominium-book plats: SUMMER GREEN SEC 1-3 (CB15-CB30). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+ },
+ {
+  "slug": "willow-chase",
+  "name": "Willow Chase",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Nokomis. The only county plat named WILLOW CHASE (PB45, 59 ac) lies at ~27.139N,-82.390W; county address points there are postal community Nokomis, ZIP 34275; the registry city \"Sarasota\" appears to be a contact mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Willow Chase Community Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction left null (Muni not queried; address points at the plat are postal Nokomis 34275). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+ },
+ {
+  "slug": "woodmere-lakes",
+  "name": "Woodmere Lakes",
+  "market": "sarasota",
+  "reason": "EXCLUDE: Venice. All three county plats WOODMERE LAKES UNIT 1-3 lie at ~27.055N,-82.387W and every county address point there is postal community Venice, ZIP 34293 (unincorporated); the registry city \"Sarasota\" appears to be a contact mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Woodmere Lakes Homeowners Association' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry \u2014 set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction from Sarasota County address points (Muni=SC, ZIP 34293; streets all points Venice 34293). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+ },
+ {
+  "slug": "bel-air",
+  "name": "Bel Air",
+  "market": "sarasota",
+  "reason": "nearest county address point has postal community Osprey (excluded area)"
+ }
+]

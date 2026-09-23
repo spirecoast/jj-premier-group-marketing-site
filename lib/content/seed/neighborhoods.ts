@@ -8,9 +8,9 @@ import { img, p } from "./helpers";
  */
 export const NEIGHBORHOODS: Neighborhood[] = [
   {
-    _id: "neighborhood-lake-club",
+    _id: "neighborhood-the-lake-club",
     name: "The Lake Club",
-    slug: "lake-club",
+    slug: "the-lake-club",
     market: "lakewood-ranch",
     tagline: "The gated village on the lakes, east of Lorraine Road.",
     hero: img("library/lwr-lakefront-row", "Lakefront homes in The Lake Club"),

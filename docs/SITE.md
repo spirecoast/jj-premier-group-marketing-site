@@ -22,6 +22,8 @@ jj-premier-brand-system.vercel.app).
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible + Follow Up Boss Pixel, env-gated), `lib/analytics.ts` (custom events) |
 | Encore dataset | `lib/content/encore/encore-calendar.json` (the source), `lib/content/encore.ts` (the converter) |
+| Neighborhood explorer | `components/explorer/*` (map, panel, card), `components/place-map.tsx`, `lib/neighborhoods/*` (data access, search, URL state, brand map style) |
+| Neighborhood dataset | `neighborhood-data/` (the catalog, its schema, scripts and docs; see its `CLAUDE-CODE-HANDOFF.md`) |
 
 The agent portal (`app/portal`, `app/auth`, Supabase, Drizzle, Inngest, Resend) is untouched and
 still works on the same theme.
@@ -41,6 +43,41 @@ still works on the same theme.
   without a source.
 - Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`
   document, with `permissionOnFile` checked.
+
+## The neighborhood explorer
+
+`/neighborhoods` is a map product built on the neighborhood dataset in `neighborhood-data/`
+(2,088 areas, communities and enclaves, every fact from a county, district, association or
+builder source with its checked date).
+
+- **Map stack.** MapLibre GL JS renders a style written in the brand (`lib/neighborhoods/map-style.ts`:
+  linen land, harbor water, hairline roads). Tiles come from MapTiler when `NEXT_PUBLIC_MAPTILER_KEY`
+  is set (100k map loads a month free, then paid, with an SLA; register the domain as an allowed
+  origin in MapTiler) and from OpenFreeMap otherwise (free, no key). Both serve the OpenMapTiles
+  schema, so the style is the same. MapLibre's worker is copied to `public/vendor/` by
+  `scripts/copy-maplibre-worker.mjs` before every dev and build (the copy is git-ignored).
+- **Data to the browser.** Only the trimmed search index (`/api/neighborhoods/index`, about 90KB
+  gzipped, built at deploy time and cached hard) reaches the client. The full 8MB dataset is read
+  server-side by `lib/neighborhoods/data.ts` for the detail pages, the sitemap and the share images.
+- **URL state.** Every view is a link: `q`, `market`, `level`, `type`, `status`, `gated=1`, `all=1`
+  (include county-registry names), `place=<slug>` and `map=zoom/lat/lng`. The Share button uses
+  the phone's share sheet or copies the link.
+- **Detail pages.** Every record has `/neighborhoods/[slug]`, statically generated. The eight
+  editorial neighborhoods keep their hero, overview, highlights and FAQs and gain the dataset
+  facts underneath, joined by slug (`lake-club` became `the-lake-club`; the old path redirects).
+  County-registry names (`research: "registry-only"`) render with `noindex` and stay out of the
+  sitemap until they are researched.
+- **Share images.** `opengraph-image.tsx` beside the explorer and the detail pages draws every
+  point in the catalog as a constellation on linen with the chosen place in amber. No tiles, no key.
+- **Display rules (brokerage fair-housing compliance, non-negotiable).** Places, never people: no
+  demographic, income, crime or safety layers; no rankings or scores; school names exactly as
+  stored with the district locator link and the zoning note, never on `area` records; nothing
+  age-related; no prices or statistics from the dataset; `notes` is never rendered. Run
+  `checkFairHousing` over new copy. The dataset's own rules are in `neighborhood-data/docs/RESEARCH-RULES.md`.
+- **Keeping it current.** `npm run nbhd:validate` (must exit 0) and `npm run nbhd:index` after any
+  edit; the monthly and quarterly refresh scripts are in `neighborhood-data/docs/REFRESH-RUNBOOK.md`.
+  Boundaries are not drawn: the dataset has points only. If polygons are wanted, source them from the
+  county layers listed in `neighborhood-data/docs/DATA-SOURCES.md` rather than drawing them.
 
 ## The Encore Arts Calendar
 

@@ -6,6 +6,7 @@ import {
   getPostSlugs,
   getVenueSlugs,
 } from "@/lib/content";
+import { getIndexableSlugs } from "@/lib/neighborhoods/data";
 import { absoluteUrl } from "@/lib/seo";
 
 const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
@@ -26,13 +27,16 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [listings, events, venues, neighborhoods, posts] = await Promise.all([
+  const [listings, events, venues, editorial, catalog, posts] = await Promise.all([
     getListingSlugs(),
     getEventSlugs(),
     getVenueSlugs(),
     getNeighborhoodSlugs(),
+    getIndexableSlugs(),
     getPostSlugs(),
   ]);
+  // Every researched place plus the editorial ones; county-registry names are noindex and stay out.
+  const neighborhoods = [...new Set([...editorial, ...catalog])];
   const now = new Date();
   const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]) => ({
     url: absoluteUrl(path),
