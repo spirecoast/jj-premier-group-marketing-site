@@ -26,16 +26,16 @@ const FRAMES = {
 /** From the brand voice document: how the writing, and the work, sounds. */
 const VALUES = [
   {
-    title: "You get specifics",
-    body: "The flood zone. The age of the roof. The good end of the street. The details are how you know we stood in the house, and they are what you make your decision with.",
+    title: "We're specific",
+    body: "The flood zone, the age of the roof, which end of the street is the good one. You make decisions with details, so that's what we give you.",
   },
   {
-    title: "You get the truth, not a pitch",
-    body: "A brochure has to sell. We get to tell you what we actually think about a house, and still be glad when you love it.",
+    title: "We tell you what we think",
+    body: "If a house isn't right for you, we'll say so, and why. If it is, we'll say that too.",
   },
   {
-    title: "You get an opinion",
-    body: "Which kitchen we would pick. Which street we would live on. Advice is only useful when it takes a side, and ours will.",
+    title: "We're both on it",
+    body: "Joelyn and Jessica both know your file. Call either of us and you'll get an answer, not a call back later.",
   },
 ];
 
@@ -66,13 +66,13 @@ export default async function AboutPage() {
         <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-20">
           <div className="flex flex-col gap-6">
             <p className="t-lead max-w-measure text-body">
-              We are Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we would want it done for our own family.
+              We&rsquo;re Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we&rsquo;d want it done for our own family.
             </p>
             <p className="t-body max-w-measure text-body">
-              Whether you are buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You will always know where things stand, because we will have told you.
+              Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
             </p>
             <p className="t-body max-w-measure text-body">
-              We like these houses and we like this coast, and we will not call a kitchen stunning when the honest word is rebuilt, and full of light at four in the afternoon. Joelyn takes the long view; Jessica reads the contract and the room. Between us, you are covered from the first call to the keys.
+              We like these houses and we like this coast, and we won&rsquo;t call a kitchen stunning when the honest word is rebuilt, and full of light at four in the afternoon. Between the two of us, you&rsquo;re covered from the first call to the keys.
             </p>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">
@@ -89,7 +89,7 @@ export default async function AboutPage() {
 
       <section className="bg-parchment">
         <div className="container-site flex flex-col gap-12 py-section">
-          <SectionHeading eyebrow="How we work" title="Three things you can count on." />
+          <SectionHeading eyebrow="How we work" title="What working with us is like." />
           <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-3">
             {VALUES.map((v, i) => (
               <li key={v.title} className="flex flex-col gap-4 bg-white p-7">

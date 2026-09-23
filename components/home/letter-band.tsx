@@ -10,7 +10,7 @@ export function LetterBand({ image }: { image: ImageRef }) {
       image={image}
       eyebrow={`06 · ${site.reportName}`}
       title="What happened on your street this quarter, in plain language."
-      body="Once a quarter, one page: what happened in Lakewood Ranch, Sarasota and Bradenton, what it means for you, and no sales pitch."
+      body="Once a quarter, one page on what happened in Lakewood Ranch, Sarasota and Bradenton, and what it means for you."
       minHeight="min-h-[560px]"
     >
       <LetterForm tone="dark" />

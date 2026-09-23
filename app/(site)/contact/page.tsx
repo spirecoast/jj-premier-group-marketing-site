@@ -44,7 +44,6 @@ export default async function ContactPage() {
                 <p className="t-h4 text-navy">{m.name}</p>
                 <p className="t-mono-sm text-graphite-500">
                   {m.title}
-                  {m.licenseNumber ? ` · FL ${m.licenseNumber}` : ""}
                 </p>
                 <a href={`tel:${m.phoneE164}`} className="font-mono text-[15px] text-navy hover:text-harbor-700">
                   {m.phone}
@@ -66,7 +65,7 @@ export default async function ContactPage() {
             <br />
             {office}
           </address>
-          <p className="t-small text-body-muted">By appointment. We are usually in a house, so call or text first.</p>
+          <p className="t-small text-body-muted">By appointment. We’re usually in a house, so call or text first.</p>
         </div>
         <div className="relative flex aspect-[3/2] items-center justify-center overflow-hidden border border-hairline bg-white p-6">
           <span className="absolute inset-x-0 top-1/2 h-px bg-hairline" aria-hidden="true" />

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Photo } from "./photo";
 import { RichText } from "./rich-text";
 
-/** Two agent cards with license numbers, as the brief specifies. */
+/** The two agent cards: portrait, name, how to reach them, and a short bio. */
 export function AgentCard({ member, className, full, as: Heading = "h3" }: { member: TeamMember; className?: string; full?: boolean; as?: "h2" | "h3" }) {
   return (
     <article id={member.slug} className={cn("flex flex-col gap-6 scroll-mt-24", className)}>
@@ -11,12 +11,8 @@ export function AgentCard({ member, className, full, as: Heading = "h3" }: { mem
         <Photo image={member.headshot} sizes="(min-width: 1024px) 40vw, 100vw" />
       </div>
       <div className="flex flex-col gap-3">
-        {member.register ? <p className="t-eyebrow text-amber">{member.register}</p> : null}
         <Heading className="t-h1 text-navy">{member.name}</Heading>
-        <p className="t-record text-graphite-600">
-          {member.title}
-          {member.licenseNumber ? ` · FL ${member.licenseNumber}` : ""}
-        </p>
+        <p className="t-record text-graphite-600">{member.title}</p>
         <ul className="flex flex-col gap-1 pt-1">
           <li>
             <a href={`tel:${member.phoneE164}`} className="font-mono text-[15px] text-navy hover:text-harbor-700">

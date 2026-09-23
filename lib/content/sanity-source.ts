@@ -1,4 +1,4 @@
-import { isMarketSlug } from "./markets";
+import { isMarketSlug, isRegionSlug } from "./markets";
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { toImageRef, type SanityImageSource } from "@/sanity/lib/image";
 import {
@@ -37,6 +37,7 @@ import type {
   TeamMember,
   Testimonial,
   Venue,
+  RegionSlug,
 } from "./types";
 
 /* Query results are typed by Sanity TypeGen (sanity.types.ts, `npm run
@@ -61,6 +62,8 @@ const address = (v: unknown): Address => {
 };
 /** Documents tagged with a market the site no longer serves are skipped, not rebucketed. */
 const hasMarket = (r: Raw): boolean => isMarketSlug(r.market);
+const hasRegion = (r: Raw): boolean => isRegionSlug(r.market);
+const region = (v: unknown): RegionSlug => (isRegionSlug(v) ? v : "lakewood-ranch");
 const market = (v: unknown): MarketSlug =>
   v === "sarasota" || v === "bradenton" ? v : "lakewood-ranch";
 const image = (v: unknown, alt: string): ImageRef | undefined =>
@@ -130,7 +133,7 @@ function mapEvent(r: Raw): Event {
     venue: {
       name: str(v.name),
       slug: str(v.slug),
-      market: market(v.market),
+      market: region(v.market),
       address: address(v.address),
       geo: opt(v.geo),
     },
@@ -145,7 +148,7 @@ function mapVenue(r: Raw): Venue {
     address: address(r.address),
     geo: opt(r.geo),
     website: opt(r.website),
-    market: market(r.market),
+    market: region(r.market),
     about: r.about ? rich(r.about) : undefined,
     image: image(r.image, str(r.name)),
     neighborhood: refOf(r.neighborhood),
@@ -250,11 +253,11 @@ export const sanitySource: ContentSource = {
   },
   async events() {
     const result = await sanityFetch<EventsQueryResult>({ query: eventsQuery, tags: ["event", "venue"] });
-    return rows(result).filter((r) => hasMarket((r.venue ?? {}) as Raw)).map(mapEvent);
+    return rows(result).filter((r) => hasRegion((r.venue ?? {}) as Raw)).map(mapEvent);
   },
   async venues() {
     const result = await sanityFetch<VenuesQueryResult>({ query: venuesQuery, tags: ["venue"] });
-    return rows(result).filter(hasMarket).map(mapVenue);
+    return rows(result).filter(hasRegion).map(mapVenue);
   },
   async neighborhoods() {
     const result = await sanityFetch<NeighborhoodsQueryResult>({ query: neighborhoodsQuery, tags: ["neighborhood", "listing"] });

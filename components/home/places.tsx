@@ -5,7 +5,7 @@ import { MARKETS } from "@/lib/content/markets";
 
 /**
  * 03 · Three places. One tall photograph per place, the name set large, and
- * the paragraph that says what living there is like. Figures arrive with the
+ * the paragraph that says what living there’s like. Figures arrive with the
  * data feed; until then the photograph and the words carry it.
  */
 export function Places() {
@@ -17,11 +17,6 @@ export function Places() {
         size="display"
         title={<span id="places-title">Lakewood Ranch, Sarasota and Bradenton. Pick the one that feels like you.</span>}
         titleClassName="max-w-[860px]"
-        aside={
-          <p className="t-small max-w-[300px] text-body-muted lg:text-right">
-            Each one has its own pace, its own water and its own kind of street. We can help you tell them apart.
-          </p>
-        }
       />
       <ul className="grid gap-5 md:grid-cols-3 lg:items-start">
         {MARKETS.map((m, i) => (

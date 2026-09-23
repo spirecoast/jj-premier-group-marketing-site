@@ -5,6 +5,7 @@ import { LeadForm } from "@/components/lead-form";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
+import { Steps, type Step } from "@/components/steps";
 import { TestimonialSlider } from "@/components/testimonial-slider";
 import { getRecentSolds, getTestimonials } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
@@ -19,39 +20,35 @@ export const metadata: Metadata = pageMetadata({
 
 /* Editorial photography for the page. Solds come from the content layer. */
 const FRAMES = {
-  hero: img("library/listing-twilight-exterior-pool", "A pool terrace at twilight, the house lit from inside", "50% 55%"),
+  hero: img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%"),
   contract: img("library/moment-contract", "A contract on a kitchen island", "50% 45%"),
 };
 
 /** Four steps. Harbor-led: shorter sentences, the number first. */
-const STEPS = [
+const STEPS: Step[] = [
   {
-    n: "01",
-    when: "Day 1 · ninety minutes",
-    title: "The walk-through",
+    when: "Day one · the walk-through",
+    title: "We come to the house",
     body:
-      "We come to the house, both of us, and walk it the way a buyer will. You get the number that day or the next, with the four comparable sales that support it, and a one-page list of what we would change before the photographs.",
+      "Both of us, and we walk it the way a buyer will. You'll get the number that day or the next, with the comparable sales behind it, and a short list of what we'd change before the photos.",
   },
   {
-    n: "02",
-    when: "Weeks 1–8 · preparation",
+    when: "The weeks before · preparation",
     title: "Paint, light, the front door",
     body:
-      "Those three are the changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we will say so before you spend it. The good photographers book six weeks ahead, so if you want March, we start in October.",
+      "Those are the changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we'll say so before you spend a dollar. Good photographers book up early, so we'll plan the date together.",
   },
   {
-    n: "03",
-    when: "Week 9 · live on a Thursday",
+    when: "Going live",
     title: "The first weekend",
     body:
-      "Photographs at four in the afternoon, live on Thursday, showings from Friday, and a report on Monday: how many came through, what they said, and whether the number is right.",
+      "Photos in the afternoon light, live on a Thursday, showings from Friday. On Monday you'll hear how many came through, what they said, and whether the number is right.",
   },
   {
-    n: "04",
-    when: "Contract to close · 30–45 days",
-    title: "The offer table",
+    when: "Contract to close",
+    title: "The offers",
     body:
-      "Every offer in one table: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest is not always the best, and we will say which one is. Then inspection, appraisal, and a closing date that was on the calendar before we listed.",
+      "Every offer laid out side by side: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn't always the best, and we'll tell you which one is. Then inspection, appraisal and closing.",
   },
 ];
 
@@ -67,7 +64,7 @@ const FAQS: Faq[] = [
           buyer will. You get the number and the four addresses behind it, in writing, within a day.
         </p>
         <p className="mt-4">
-          We will not quote a number we know is too high to win the signature. If ours is lower than someone else’s,
+          We won’t quote a number we know is too high to win the signature. If ours is lower than someone else’s,
           ask them for their four. A comparative market analysis from a licensed REALTOR® is not an appraisal;
           your buyer’s lender orders that later, and pricing to the comps is how it comes in at contract.
         </p>
@@ -80,7 +77,7 @@ const FAQS: Faq[] = [
       <>
         <p>
           Interior paint, updated light fixtures, and a repainted front door are the three cheapest changes buyers
-          notice first. A new kitchen rarely returns its cost before you sell, and we will say so before you spend it. The list we leave after the walk-through is usually a page long and costs less than a month of
+          notice first. A new kitchen rarely returns its cost before you sell, and we’ll say so before you spend it. The list we leave after the walk-through is usually a page long and costs less than a month of
           carrying the house.
         </p>
         <p className="mt-4">
@@ -98,7 +95,7 @@ const FAQS: Faq[] = [
           Three things, all on the closing statement. The state documentary stamp tax on the deed, at $0.70 per $100 of
           the price, which the seller pays by custom on this coast: $7,000 on a $1,000,000 sale. The owner’s title
           policy, which the seller customarily pays in Manatee and Hillsborough counties and the buyer pays in Sarasota
-          County; at Florida’s promulgated rate that is $5,075 on $1,000,000.
+          County; at Florida’s promulgated rate that’s $5,075 on $1,000,000.
         </p>
         <p className="mt-4">
           And commission, which is negotiable and set in the listing agreement. Since August 2024, what you offer the
@@ -116,7 +113,7 @@ const FAQS: Faq[] = [
         <p>
           The buyers who close in this market arrive in February and are mostly gone by May, so our best listings go
           live on a Thursday in late January or February, photographed in the January light. Summer is not dead; a
-          house that is ready and priced to the comps sells in July too.
+          house that’s ready and priced to the comps sells in July too.
         </p>
         <p className="mt-4">
           What matters more than the month is the first weekend, which is why nothing goes live until the house is
@@ -136,7 +133,7 @@ const FAQS: Faq[] = [
           for a credit after the inspection, and expect us to tell you what is normal for this coast and what is not.
         </p>
         <p className="mt-4">
-          You will hear from us on the same three days every week until closing: Monday with the showing report,
+          You’ll hear from us on the same three days every week until closing: Monday with the showing report,
           Wednesday with the file, Friday with the calendar. If nothing changed, the message says so.
         </p>
       </>
@@ -148,8 +145,7 @@ const FAQS: Faq[] = [
       <>
         <p>
           Usually the answer is a bridge of a few weeks, not a choice. A contract on your house with post-closing
-          occupancy of up to sixty days is common here, and the standard Florida contract has a rider for it. If you
-          are buying on the Ranch and selling in Bradenton, we run both files from one desk, so the two closing dates
+          occupancy of up to sixty days is common here, and the standard Florida contract has a rider for it. If you’re buying on the Ranch and selling in Bradenton, we run both files from one desk, so the two closing dates
           line up on purpose.
         </p>
         <p className="mt-4">Tell us the timing first. The order follows from it.</p>
@@ -176,7 +172,7 @@ export default async function SellPage() {
             <h1 className="t-display max-w-[640px] text-navy">The sold price, not the list.</h1>
           </div>
           <p className="t-lead max-w-[560px] text-body">
-            Here is what we would do: a number with the four comparable sales behind it, eight weeks of preparation
+            Here is what we’d do: a number with the four comparable sales behind it, eight weeks of preparation
             that buyers can see in the photographs, and a report on the Monday after the first weekend.
           </p>
           <p className="t-body max-w-measure text-body">
@@ -195,7 +191,6 @@ export default async function SellPage() {
         </div>
         <div className="relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-[4/5]">
           <Photo image={FRAMES.hero} priority sizes="(min-width: 1024px) 560px, 100vw" />
-          <p className="absolute bottom-4 left-4 t-mono-sm text-white text-shadow-soft">Twilight · the frame that gets opened first</p>
         </div>
       </section>
 
@@ -204,25 +199,8 @@ export default async function SellPage() {
         <SectionHeading
           eyebrow="How it goes"
           title="Four steps, from the walk-through to the closing table."
-          aside={
-            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
-              Nine weeks from the first walk-through to live, then thirty to forty-five days from contract to close.
-              Cash is quicker.
-            </p>
-          }
         />
-        <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <li key={s.n} className="flex flex-col gap-4 bg-white p-6 lg:p-7">
-              <span className="t-stat text-navy" aria-hidden="true">
-                {s.n}
-              </span>
-              <p className="t-record uppercase text-sky-700">{s.when}</p>
-              <h3 className="t-h3 text-navy">{s.title}</h3>
-              <p className="t-body text-body">{s.body}</p>
-            </li>
-          ))}
-        </ol>
+        <Steps items={STEPS} />
       </section>
 
       {/* What the street actually did. */}
@@ -274,7 +252,7 @@ export default async function SellPage() {
             form="sell"
             fields={["name", "email", "phone", "address", "timing", "message"]}
             submitLabel="Get the number"
-            placeholderMessage="The year of the roof, anything you already know needs doing, and whether there is a house to buy next."
+            placeholderMessage="The year of the roof, anything you already know needs doing, and whether there’s a house to buy next."
           />
         </div>
       </section>
@@ -295,7 +273,7 @@ export default async function SellPage() {
           <SectionHeading eyebrow="Asked at the kitchen island" title="The number, the cost, and the calendar." />
           <p className="t-body max-w-[420px] text-body">
             One or two sentences each, because you have probably done this before. Florida contracts and county custom
-            decide most of it, and we will say which is which.
+            decide most of it, and we’ll say which is which.
           </p>
         </div>
         <FaqAccordion items={FAQS} />

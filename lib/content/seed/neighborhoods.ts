@@ -107,7 +107,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     tagline: "Canal streets west of 75th, Palma Sola Bay, and the island bridge eight minutes away.",
     hero: img("library/bradenton-canal-ranch-twilight", "A canal-front ranch in West Bradenton at twilight"),
     overview: p(
-      "West Bradenton runs from 75th Street West to Palma Sola Bay, a grid of 1960s and 1970s subdivisions with canals cut to the bay. Most lots are a quarter acre, most houses are single-level block, and there is no HOA on the older streets.",
+      "West Bradenton runs from 75th Street West to Palma Sola Bay, a grid of 1960s and 1970s subdivisions with canals cut to the bay. Most lots are a quarter acre, most houses are single-level block, and there’s no HOA on the older streets.",
       "Flood zones vary block to block; several canal streets sit in zone X, which changes the insurance conversation. The Anna Maria bridge is at the end of Manatee Avenue.",
     ),
     highlights: [

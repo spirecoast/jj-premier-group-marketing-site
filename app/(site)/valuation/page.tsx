@@ -3,6 +3,7 @@ import { RuleLink } from "@/components/buttons";
 import { LeadForm } from "@/components/lead-form";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
+import { Steps, type Step } from "@/components/steps";
 import { TestimonialSlider } from "@/components/testimonial-slider";
 import { getTestimonials } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
@@ -20,27 +21,24 @@ const FRAMES = {
 };
 
 /** Three steps, one phone call. */
-const STEPS = [
+const STEPS: Step[] = [
   {
-    n: "01",
     when: "Today",
     title: "You send the address",
     body:
-      "Street address and timing are enough. If you know the year of the roof or what the house two doors down sold for, put it in the message; if not, we will find out.",
+      "Street address and timing are enough. If you know the year of the roof or what the house two doors down sold for, put it in the message; if not, we'll find out.",
   },
   {
-    n: "02",
     when: "Within a day",
     title: "We pull the comps and drive the street",
     body:
-      "Four closed sales from the last six months, inside half a mile, adjusted for the water, the flood zone, and which end of the street. One of us drives it. Nobody has priced a house correctly from a satellite.",
+      "Recent closed sales nearby, adjusted for the water, the flood zone, and which end of the street. One of us drives it. Nobody prices a house right from a satellite picture.",
   },
   {
-    n: "03",
     when: "The call",
     title: "You get the number, and the reason for it",
     body:
-      "A range in writing with the four addresses behind it, what we would change before the photographs, and what we would not spend a dollar on. No listing agreement attached. The number is yours either way.",
+      "A range in writing with the four addresses behind it, what we'd change before the photos, and what we wouldn't spend a dollar on. No listing agreement attached. The number is yours either way.",
   },
 ];
 
@@ -83,18 +81,7 @@ export default async function ValuationPage() {
           title="Three steps, one phone call."
           aside={<RuleLink href="/sell">How selling with us goes</RuleLink>}
         />
-        <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-3">
-          {STEPS.map((s) => (
-            <li key={s.n} className="flex flex-col gap-4 bg-white p-6 lg:p-7">
-              <span className="t-stat text-navy" aria-hidden="true">
-                {s.n}
-              </span>
-              <p className="t-record uppercase text-sky-700">{s.when}</p>
-              <h3 className="t-h3 text-navy">{s.title}</h3>
-              <p className="t-body text-body">{s.body}</p>
-            </li>
-          ))}
-        </ol>
+        <Steps items={STEPS} columns={3} />
       </section>
 
       {/* One seller, in their words, and the two people who will call. */}
@@ -108,7 +95,7 @@ export default async function ValuationPage() {
               <SectionHeading eyebrow="After the walk-through" title="What one seller said about the number." />
               <TestimonialSlider testimonials={[seller]} />
               <p className="t-body max-w-[520px] text-body">
-                The number is the easy part. The page that comes with it, what we would change and what we would leave
+                The number is the easy part. The page that comes with it, what we’d change and what we’d leave
                 alone, is the part clients keep. The whole thing takes ninety minutes at your kitchen island and a day
                 at ours.
               </p>

@@ -112,15 +112,6 @@ export function personJsonLd(m: TeamMember, settings: SiteSettings) {
     email: m.email,
     image: absoluteUrl(m.headshot.src),
     worksFor: { "@type": "Organization", name: settings.brokerageName },
-    ...(m.licenseNumber
-      ? {
-          hasCredential: {
-            "@type": "EducationalOccupationalCredential",
-            credentialCategory: "license",
-            name: `Florida real estate license ${m.licenseNumber}`,
-          },
-        }
-      : {}),
   };
 }
 

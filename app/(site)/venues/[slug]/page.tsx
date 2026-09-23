@@ -8,7 +8,7 @@ import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { getNeighborhoods, getUpcomingEvents, getVenue, getVenueSlugs } from "@/lib/content";
 import { formatAddress } from "@/lib/content/format";
-import { getMarket, marketName } from "@/lib/content/markets";
+import { getMarket, isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, pageMetadata, placeJsonLd } from "@/lib/seo";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
@@ -40,7 +40,7 @@ export default async function VenuePage({ params }: { params: Params }) {
   const market = getMarket(venue.market);
   const [events, neighborhoods] = await Promise.all([
     getUpcomingEvents({ venue: venue.slug }),
-    getNeighborhoods(venue.market),
+    isMarketSlug(venue.market) ? getNeighborhoods(venue.market) : Promise.resolve([]),
   ]);
   const image = venue.image ?? market?.image;
   const address = formatAddress(venue.address);

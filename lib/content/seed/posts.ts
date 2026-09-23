@@ -2,7 +2,7 @@ import type { Post } from "../types";
 import { h, img, p, quote, rich } from "./helpers";
 
 /**
- * The Coast Market Report and a few guides. One page a quarter, no pitch:
+ * The Coast Market Report and a few guides. One page a quarter:
  * lead with the number that surprised us, name the streets, own what we
  * got wrong last time.
  */
@@ -33,9 +33,9 @@ export const POSTS: Post[] = [
         "In April we wrote that Bradenton's canal streets would slow down over the summer. They did not. Zone X lots west of 75th sold in eleven days on average, because the insurance quote is the whole conversation now and those streets win it.",
         "We also said the bayfront condominiums in Sarasota would keep sliding. Units in recertified buildings held; units in buildings with a special assessment pending dropped nine percent. It was never one market.",
       ),
-      h(2, "What we would do"),
+      h(2, "What we’d do"),
       p(
-        "If you are selling on the Ranch this fall, price to the spring comps, not the summer listings around you. If you are buying, the 2021 builds in the new villages are where the negotiation is. Tell us the timing and we will tell you which street.",
+        "If you’re selling on the Ranch this fall, price to the spring comps, not the summer listings around you. If you’re buying, the 2021 builds in the new villages are where the negotiation is. Tell us the timing and we’ll tell you which street.",
       ),
     ),
   },
@@ -87,7 +87,7 @@ export const POSTS: Post[] = [
       ),
       h(2, "The elevation certificate"),
       p(
-        "A surveyor's document that states the finished floor height against the base flood elevation. It is the single page that moves a quote most. Ask for it before you make an offer; if the seller does not have one, we order it during inspection.",
+        "A surveyor's document that states the finished floor height against the base flood elevation. It is the single page that moves a quote most. Ask for it before you make an offer; if the seller doesn’t have one, we order it during inspection.",
       ),
       quote("The map tells you the zone. The neighbors tell you what happened the last time it rained for three days. Ask both."),
       p(
@@ -111,7 +111,7 @@ export const POSTS: Post[] = [
       ),
       h(2, "The eight weeks"),
       p(
-        "Weeks one and two: we walk the house and tell you what we would change. Usually it is three things, and one of them is the front door. Weeks three to six: the work. Paint, the roof inspection, the pool cage screens, the seawall report if there is water. Weeks seven and eight: staging, photography, the video walk-through at four in the afternoon when the light is right.",
+        "Weeks one and two: we walk the house and tell you what we’d change. Usually it is three things, and one of them is the front door. Weeks three to six: the work. Paint, the roof inspection, the pool cage screens, the seawall report if there’s water. Weeks seven and eight: staging, photography, the video walk-through at four in the afternoon when the light is right.",
       ),
       h(2, "What not to do"),
       p(

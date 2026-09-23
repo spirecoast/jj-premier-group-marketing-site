@@ -26,6 +26,8 @@ export type ImageRef = {
 export type RichText = PortableTextBlock[];
 
 export type MarketSlug = "lakewood-ranch" | "sarasota" | "bradenton";
+/** Where the calendar reaches: the three markets plus Tampa's venues. */
+export type RegionSlug = MarketSlug | "tampa";
 
 export type Market = {
   slug: MarketSlug;
@@ -118,7 +120,7 @@ export type Venue = {
   website?: string;
   image?: ImageRef;
   /* extensions */
-  market: MarketSlug;
+  market: RegionSlug;
   about?: RichText;
 };
 

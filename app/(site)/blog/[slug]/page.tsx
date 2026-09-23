@@ -13,7 +13,7 @@ import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib
 import { site } from "@/lib/site";
 
 type Params = Promise<{ slug: string }>;
-const RIVER = img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%");
+const RIVER = img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%");
 const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d);
 
 export async function generateStaticParams() {
@@ -80,32 +80,16 @@ export default async function PostPage({ params }: { params: Params }) {
           <p className="t-eyebrow text-amber">{[post.edition, ...post.categories].filter(Boolean).join(" · ")}</p>
           <h1 className="t-display text-navy">{post.title}</h1>
           <p className="t-record text-graphite-600">
-            {post.author.name} · {formatDateLong(noon(post.publishedAt))}
+            {formatDateLong(noon(post.publishedAt))}
           </p>
         </header>
         <RichText value={post.body} className="text-[1.125rem]" />
-        {author ? (
-          <footer className="flex max-w-measure items-center gap-5 border-t border-hairline pt-8">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-linen-100">
-              <Photo image={author.headshot} sizes="64px" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <p className="t-h4 text-navy">{author.name}</p>
-              <p className="t-small text-body-muted">
-                {author.title} · {author.register}
-              </p>
-              <Link href={`/about#${author.slug}`} className="t-small text-harbor-700 underline underline-offset-4 hover:text-navy">
-                About {author.name.split(" ")[0]}
-              </Link>
-            </div>
-          </footer>
-        ) : null}
       </article>
 
       {more.length ? (
         <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="more-title">
           <h2 id="more-title" className="t-eyebrow text-amber">
-            More from the report
+            More to read
           </h2>
           <ul className="grid gap-5 md:grid-cols-2">
             {more.map((p) => (
@@ -126,7 +110,7 @@ export default async function PostPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      <CtaBand image={RIVER} eyebrow="The Coast Market Report, by email" title="One page a quarter, written for you." body="What happened on your street, what it means for you, and what we got wrong last time." minHeight="min-h-[480px]">
+      <CtaBand image={RIVER} eyebrow="The Coast Market Report, by email" title="Once a quarter, one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

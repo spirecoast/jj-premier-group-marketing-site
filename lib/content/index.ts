@@ -9,6 +9,7 @@ import type {
   Listing,
   ListingFilters,
   MarketSlug,
+  RegionSlug,
   Neighborhood,
   Post,
   SiteSettings,
@@ -18,7 +19,7 @@ import type {
 } from "./types";
 
 export * from "./types";
-export { MARKETS, getMarket, isMarketSlug, marketName } from "./markets";
+export { MARKETS, REGIONS, getMarket, isMarketSlug, isRegionSlug, marketName } from "./markets";
 
 /**
  * Data-access layer for every public page.
@@ -103,7 +104,7 @@ export async function getSimilarListings(listing: Listing, limit = 3): Promise<L
 
 export type EventQuery = {
   limit?: number;
-  market?: MarketSlug;
+  market?: RegionSlug;
   category?: EventCategory;
   venue?: string;
   /** Include events that have already started (default false). */
@@ -135,7 +136,7 @@ export async function getEventSlugs(): Promise<string[]> {
   return (await (await source()).events()).map((e) => e.slug);
 }
 
-export async function getVenues(market?: MarketSlug): Promise<Venue[]> {
+export async function getVenues(market?: RegionSlug): Promise<Venue[]> {
   const venues = await (await source()).venues();
   return market ? venues.filter((v) => v.market === market) : venues;
 }

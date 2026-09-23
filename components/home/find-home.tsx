@@ -5,7 +5,7 @@ import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 
 /** 04 · Find your home. Two questions, and the homes worth seeing come to you. */
-export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; second: ImageRef; caption: string }) {
+export function FindHome({ image }: { image: ImageRef }) {
   return (
     <section className="container-site grid items-center gap-12 pb-section pt-4 lg:grid-cols-2 lg:gap-20 lg:pt-8" aria-labelledby="find-title">
       <div className="flex flex-col gap-7">
@@ -15,14 +15,14 @@ export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; seco
           size="display"
           title={
             <span id="find-title">
-              Tell us what you are looking for.
-              <br className="hidden sm:block" /> We will bring you the ones worth seeing.
+              Tell us what you&rsquo;re looking for.
+              <br className="hidden sm:block" /> We&rsquo;ll bring you the ones worth seeing.
             </span>
           }
         />
         <p className="t-body max-w-[480px] text-body">
-          Start with the place and the budget. We will send you the homes that fit, and we will say which
-          ones we would actually go and see with you.
+          Start with the place and the budget. We&rsquo;ll send you the homes that fit, and we&rsquo;ll tell you which
+          ones we&rsquo;d actually go and see with you.
         </p>
         <form action="/listings" method="get" className="grid gap-5 border border-hairline bg-white p-6 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] sm:items-end">
           <div className="field min-w-0">
@@ -58,18 +58,8 @@ export function FindHome({ kitchen, second, caption }: { kitchen: ImageRef; seco
         </form>
       </div>
 
-      <div className="relative aspect-[4/3] lg:aspect-auto lg:h-[620px]">
-        <div className="absolute left-0 top-0 h-[78%] w-[78%] overflow-hidden bg-linen-100">
-          <Photo image={kitchen} sizes="(min-width: 1024px) 480px, 78vw" />
-        </div>
-        <div className="absolute bottom-0 right-0 h-[52%] w-[46%] border-[12px] border-paper bg-linen-100">
-          <div className="relative h-full w-full overflow-hidden">
-            <Photo image={second} sizes="(min-width: 1024px) 280px, 46vw" />
-          </div>
-        </div>
-        <p className="absolute bottom-[30px] left-0 hidden font-mono text-[10px] uppercase tracking-[0.14em] text-linen-700 lg:block">
-          {caption}
-        </p>
+      <div className="relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-auto lg:h-[600px]">
+        <Photo image={image} sizes="(min-width: 1024px) 600px, 100vw" />
       </div>
     </section>
   );

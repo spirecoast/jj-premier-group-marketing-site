@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${esc(`Encore Arts Calendar · ${site.name}`)}`,
     "X-WR-TIMEZONE:America/New_York",
-    `X-WR-CALDESC:${esc("Theater, music and art this week in Lakewood Ranch, Sarasota and Bradenton.")}`,
+    `X-WR-CALDESC:${esc("Theater, music and art this week in Sarasota, Bradenton, Lakewood Ranch and Tampa.")}`,
     ...events.flatMap((e) => vevent(e, now)),
     "END:VCALENDAR",
   ]

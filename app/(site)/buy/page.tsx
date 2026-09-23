@@ -5,6 +5,7 @@ import { LeadForm } from "@/components/lead-form";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
+import { Steps, type Step } from "@/components/steps";
 import { getActiveListingCount, getFeaturedListings, getTeam } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
@@ -18,39 +19,35 @@ export const metadata: Metadata = pageMetadata({
 
 /* Editorial photography for the page. Listings come from the content layer. */
 const FRAMES = {
-  hero: img("library/listing-kitchen-4pm-island", "A kitchen island at four in the afternoon"),
+  hero: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
   keys: img("library/moment-key-handoff", "Keys handed across a table at a closing", "50% 40%"),
 };
 
 /** Four steps, and the day each one happens. Linen-led: every term defined. */
-const STEPS = [
+const STEPS: Step[] = [
   {
-    n: "01",
-    when: "Day 1 · one call",
+    when: "Day one · one call",
     title: "Two questions",
     body:
-      "When do you need to be in, and is there a house to sell first? Those two answers set the price band, the streets, and which Saturday we start. Then the pre-approval, because a letter from a local lender is the first thing a Sarasota seller reads. Forty minutes, usually on a weeknight.",
+      "When do you need to be in, and is there a house to sell first? Those two answers set the budget, the streets and which Saturday we start. Then we'll get you a pre-approval letter from a local lender, because that's the first thing a seller here reads.",
   },
   {
-    n: "02",
-    when: "Week 1 · the list",
-    title: "The three we would see",
+    when: "Week one · the list",
+    title: "The homes worth seeing",
     body:
-      "You get every listing in Lakewood Ranch, Sarasota and Bradenton that fits, and we tell you which three we would actually go and see. Flood zone, HOA, the year of the roof, and what the last three sold for, before you get in the car. Go see it at six; the light tells the truth.",
+      "You'll get every listing that fits, and we'll tell you which ones we'd actually go and see with you. Flood zone, HOA, the age of the roof and what the street's been selling for, before you get in the car.",
   },
   {
-    n: "03",
-    when: "The offer · when the house is right",
-    title: "The offer table",
+    when: "When the house is right",
+    title: "The offer",
     body:
-      "Jessica runs it. Price is one of five columns, next to financing, deposit, inspection period, and the closing date the seller actually needs. We call the listing agent before we write anything, and we write to the sold prices on that street, not the list prices.",
+      "Price is one piece of it. Financing, deposit, inspection period and the closing date the seller needs all matter too. We'll talk to the listing agent before we write anything, and we'll write to what the street has sold for, not the asking price.",
   },
   {
-    n: "04",
-    when: "Contract to keys · 30–45 days",
+    when: "Contract to keys",
     title: "Escrow to the walk-through",
     body:
-      "Escrow opens, which means a neutral title company holds your deposit until closing. Inspection inside the first ten days, appraisal inside three weeks, insurance bound, and a closing date we picked together on day one. Cash closes in about fourteen. We are at the walk-through, and we hand you the keys.",
+      "A title company holds your deposit until closing. Inspection first, then the appraisal, then insurance, then the closing date we picked together on day one. We'll be at the walk-through, and we'll hand you the keys.",
   },
 ];
 
@@ -62,13 +59,13 @@ const FAQS: Faq[] = [
       <>
         <p>
           A neutral third party, usually the title company, holds your deposit and the paperwork until both sides have
-          done what they promised. It is not the seller’s account and it is not ours. Under the standard Florida
+          done what they promised. It isn’t the seller’s account and it isn’t ours. Under the standard Florida
           contract the deposit is due within three days of the effective date, and if the deal ends for a reason the
           contract allows, the money comes back to you from escrow.
         </p>
         <p className="mt-4">
-          You will hear the word used three ways: the account, the period between contract and closing, and the
-          company holding it. All three are normal, and we will say which one we mean.
+          You’ll hear the word used three ways: the account, the period between contract and closing, and the
+          company holding it. All three are normal, and we’ll say which one we mean.
         </p>
       </>
     ),
@@ -86,7 +83,7 @@ const FAQS: Faq[] = [
         <p className="mt-4">
           Then we sit down with the report and sort it into three piles: cosmetic, ask the seller, and walk away. On an
           AS IS contract you can cancel for any reason inside the period and keep your deposit. Most of the time the
-          answer is a credit at closing rather than a repair, and we will tell you what is normal for this coast.
+          answer is a credit at closing rather than a repair, and we’ll tell you what is normal for this coast.
         </p>
       </>
     ),
@@ -132,9 +129,9 @@ const FAQS: Faq[] = [
     a: (
       <>
         <p>
-          From the first call to keys, three to four months is typical when there is no house to sell first. The search
+          From the first call to keys, three to four months is typical when there’s no house to sell first. The search
           is the variable; contract to close is the fixed part, thirty to forty-five days financed and about fourteen
-          for cash. Season listings arrive in February and thin out by August, and a house that is priced to the comps
+          for cash. Season listings arrive in February and thin out by August, and a house that’s priced to the comps
           still moves quickly in any month.
         </p>
         <p className="mt-4">
@@ -165,7 +162,6 @@ const FAQS: Faq[] = [
 
 export default async function BuyPage() {
   const [featured, count, team] = await Promise.all([getFeaturedListings(3), getActiveListingCount(), getTeam()]);
-  const caption = "The kitchen, late afternoon";
 
   return (
     <>
@@ -199,7 +195,6 @@ export default async function BuyPage() {
         </div>
         <div className="relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-[4/5]">
           <Photo image={FRAMES.hero} priority sizes="(min-width: 1024px) 560px, 100vw" />
-          <p className="absolute bottom-4 left-4 t-mono-sm text-white text-shadow-soft">{caption}</p>
         </div>
       </section>
 
@@ -207,34 +202,17 @@ export default async function BuyPage() {
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="buy-steps-title">
         <SectionHeading
           eyebrow="How it goes"
-          title={<span id="buy-steps-title">Four steps, and the day each one happens.</span>}
-          aside={
-            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
-              Thirty to forty-five days from contract to keys on a financed purchase, fourteen for cash. That is the
-              calendar we plan around.
-            </p>
-          }
+          title={<span id="buy-steps-title">Four steps, from the first call to the keys.</span>}
         />
-        <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <li key={s.n} className="flex flex-col gap-4 bg-white p-6 lg:p-7">
-              <span className="t-stat text-navy" aria-hidden="true">
-                {s.n}
-              </span>
-              <p className="t-record uppercase text-sky-700">{s.when}</p>
-              <h3 className="t-h3 text-navy">{s.title}</h3>
-              <p className="t-body text-body">{s.body}</p>
-            </li>
-          ))}
-        </ol>
+        <Steps items={STEPS} />
       </section>
 
-      {/* Three we would go and see this week. */}
+      {/* Three we’d go and see this week. */}
       {featured.length ? (
         <section className="container-site flex flex-col gap-10 pb-section">
           <SectionHeading
             eyebrow="On the market"
-            title="Three we would go and see this week."
+            title="Three we’d go and see this week."
             aside={<RuleLink href="/listings">All {count} listings</RuleLink>}
           />
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -250,7 +228,7 @@ export default async function BuyPage() {
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
           <SectionHeading eyebrow="Asked on the first call" title="The questions nobody is born knowing." />
           <p className="t-body max-w-[420px] text-body">
-            Florida contracts and county custom decide most of this, and we will say which is which. If your question
+            Florida contracts and county custom decide most of this, and we’ll say which is which. If your question
             is not here, it goes in the box at the bottom of the page.
           </p>
           <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
@@ -269,7 +247,7 @@ export default async function BuyPage() {
           <SectionHeading eyebrow="Tell us the timing" title="Two questions, and we take it from there." />
           <p className="t-body max-w-[440px] text-body">
             When do you need to be in, and is there a house to sell first? Put whatever you know in the box. One of us
-            will call or write back, and the first conversation has no pitch in it.
+            will call or write back, and we&rsquo;ll start with those two questions.
           </p>
           <ul className="flex flex-col gap-3 border-t border-hairline pt-6">
             {team.map((m) => (
@@ -287,7 +265,7 @@ export default async function BuyPage() {
             form="buy"
             fields={["name", "email", "phone", "timing", "message"]}
             submitLabel="Tell us the timing"
-            placeholderMessage="Where you are looking, what you need, and whether there is a house to sell first."
+            placeholderMessage="Where you’re looking, what you need, and whether there’s a house to sell first."
           />
         </div>
       </section>

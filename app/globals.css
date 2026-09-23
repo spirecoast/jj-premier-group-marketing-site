@@ -854,3 +854,30 @@
 @media (max-width: 639px) {
   .hero-img { object-position: 30% 60% !important; }
 }
+
+/* The hero photograph breathes: a slow drift and a soft light that moves across the frame. */
+@keyframes hero-drift {
+  from { transform: scale(1.02) translate3d(0, 0, 0); }
+  to { transform: scale(1.1) translate3d(-1.6%, -1.2%, 0); }
+}
+@keyframes hero-glow {
+  from { transform: translate3d(-8%, 6%, 0); opacity: 0.55; }
+  to { transform: translate3d(8%, -4%, 0); opacity: 0.95; }
+}
+.hero-img {
+  animation: hero-drift 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.hero-light {
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 36% at 68% 22%, rgb(255 208 140 / 0.34), transparent 70%),
+    radial-gradient(30% 26% at 30% 78%, rgb(137 212 227 / 0.16), transparent 70%);
+  mix-blend-mode: screen;
+  animation: hero-glow 28s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-img, .hero-light { animation: none; }
+}

@@ -9,7 +9,7 @@ import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvent, getEventSlugs, getListings, getUpcomingEvents } from "@/lib/content";
 import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, weekdayName } from "@/lib/content/format";
-import { marketName } from "@/lib/content/markets";
+import { isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, eventJsonLd, pageMetadata } from "@/lib/seo";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
@@ -41,7 +41,7 @@ export default async function EventPage({ params }: { params: Params }) {
 
   const [atVenue, nearby] = await Promise.all([
     getUpcomingEvents({ venue: event.venue.slug, limit: 4 }),
-    getListings({ market: event.venue.market }),
+    isMarketSlug(event.venue.market) ? getListings({ market: event.venue.market }) : Promise.resolve([]),
   ]);
   const others = atVenue.filter((e) => e.slug !== event.slug).slice(0, 3);
   const listings = nearby.slice(0, 3);
@@ -159,7 +159,7 @@ export default async function EventPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      {listings.length ? (
+      {listings.length && isMarketSlug(event.venue.market) ? (
         <section className="bg-linen-100">
           <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nearby-title">
             <SectionHeading

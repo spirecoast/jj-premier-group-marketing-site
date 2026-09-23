@@ -38,11 +38,6 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
           eyebrow="Neighborhoods"
           title={<span id="nb-title">Three places, and the streets inside them.</span>}
           titleClassName="max-w-[760px]"
-          aside={
-            <p className="t-small max-w-[320px] text-body-muted lg:text-right">
-              The place, never the people: what was built when, who maintains what, where the water goes, and how long the drive is.
-            </p>
-          }
         />
         <FilterChips label="Market" chips={chips} />
         {active ? <p className="t-body max-w-measure text-body">{active.blurb}</p> : null}
@@ -83,7 +78,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
             <p className="t-eyebrow text-amber">Not on the list</p>
             <h2 className="t-h1 text-navy">Ask us about the street.</h2>
             <p className="t-body max-w-measure text-body">
-              We cover more streets than we have pages for. Tell us the one you are looking at and we will tell you what we know about the water table.
+              We cover more streets than we have pages for. Tell us the one you’re looking at and we’ll tell you what we know about the water table.
             </p>
           </div>
           <div className="flex lg:justify-end">

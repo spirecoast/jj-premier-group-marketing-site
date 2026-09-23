@@ -6,15 +6,15 @@ import { LetterForm } from "@/components/letter-form";
 import { SectionHeading } from "@/components/section-heading";
 import { getUpcomingEvents, getVenues } from "@/lib/content";
 import { EVENT_CATEGORY_LABEL, SITE_TIMEZONE, formatTime } from "@/lib/content/format";
-import { MARKETS, isMarketSlug, marketName } from "@/lib/content/markets";
-import type { Event, EventCategory, MarketSlug } from "@/lib/content/types";
+import { REGIONS, isRegionSlug, marketName } from "@/lib/content/markets";
+import type { Event, EventCategory, RegionSlug } from "@/lib/content/types";
 import { pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
   description:
-    "Theater, music, galleries and festivals this week in Lakewood Ranch, Sarasota and Bradenton, chosen by two people who go. The Encore Arts Calendar from JJ Premier Group.",
+    "Theater, music, galleries and festivals this week in Sarasota, Bradenton, Lakewood Ranch and Tampa. The Encore Arts Calendar from JJ Premier Group.",
   path: "/calendar",
 });
 
@@ -125,7 +125,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const categoryParam = one(params.category);
   const category = CATEGORIES.includes(categoryParam as EventCategory) ? (categoryParam as EventCategory) : undefined;
   const marketParam = one(params.market);
-  const market = isMarketSlug(marketParam) ? (marketParam as MarketSlug) : undefined;
+  const market = isRegionSlug(marketParam) ? (marketParam as RegionSlug) : undefined;
 
   const now = new Date();
   const monthParam = one(params.month)?.match(/^(\d{4})-(\d{2})$/);
@@ -156,8 +156,8 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     ...CATEGORIES.map((c) => ({ label: EVENT_CATEGORY_LABEL[c], href: hrefFor({ ...base, category: c, view }), active: category === c })),
   ];
   const marketChips: Chip[] = [
-    { label: "All three", href: hrefFor({ ...base, market: undefined, view }), active: !market },
-    ...MARKETS.map((m) => ({ label: m.name, href: hrefFor({ ...base, market: m.slug, view }), active: market === m.slug })),
+    { label: "Everywhere", href: hrefFor({ ...base, market: undefined, view }), active: !market },
+    ...REGIONS.map((m) => ({ label: m.name, href: hrefFor({ ...base, market: m.slug, view }), active: market === m.slug })),
   ];
   const prevMonth = month === 1 ? `${year - 1}-12` : `${year}-${String(month - 1).padStart(2, "0")}`;
   const nextMonth = month === 12 ? `${year + 1}-01` : `${year}-${String(month + 1).padStart(2, "0")}`;
@@ -171,13 +171,8 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           as="h1"
           size="display"
           eyebrow="Encore Arts Calendar"
-          title={<span id="calendar-title">Theater, music and art this week, in the places you will call home.</span>}
+          title={<span id="calendar-title">Theater, music and art this week, close to home.</span>}
           titleClassName="max-w-[860px]"
-          aside={
-            <p className="t-small max-w-[300px] text-body-muted lg:text-right">
-              The stages, galleries and concert halls of Lakewood Ranch, Sarasota and Bradenton, chosen by two people who go.
-            </p>
-          }
         />
 
         <div className="flex flex-col gap-5 border-y border-hairline py-5">
@@ -239,7 +234,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
             <p className="t-eyebrow text-amber">Nothing yet</p>
             <h2 className="t-h1 text-navy">A quiet week on this filter.</h2>
             <p className="t-body max-w-measure text-body">
-              Widen it and there is usually something on. The full list lands every Monday; the box below gets you on it.
+              Widen it and there’s usually something on. The full list lands every Monday; the box below gets you on it.
             </p>
             <div>
               <Link href="/calendar" className="link-rule">
@@ -272,9 +267,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
           <div className="flex flex-col gap-3">
             <p className="t-eyebrow text-amber">Every Monday</p>
-            <h2 className="t-h1 text-navy">The full calendar, every Monday.</h2>
+            <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>
             <p className="t-body max-w-measure text-body">
-              One email a week: what is on across Lakewood Ranch, Sarasota and Bradenton, and which night we would pick. No listings in it.
+              The week&rsquo;s shows, concerts and openings, in one email every Monday.
             </p>
           </div>
           <div className="flex flex-col gap-4">

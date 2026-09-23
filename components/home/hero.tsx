@@ -19,6 +19,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
         {/* Photograph */}
         <div className="relative aspect-[4/5] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
           <Photo image={image} priority sizes="(min-width: 1024px) 1248px, 100vw" className="hero-img" />
+          <div className="hero-light" aria-hidden="true" />
           <div className="hero-shade" aria-hidden="true" />
           <div className="hero-veil" aria-hidden="true" />
 
@@ -62,7 +63,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
           </h1>
           <span className="draw block h-px w-[120px] bg-navy lg:bg-sky-300" aria-hidden="true" />
           <p className="rise d3 max-w-[520px] text-[17px] font-medium leading-[1.6] text-body lg:text-white lg:text-shadow-soft">
-            Tell us where you are in the move, and we will walk you through every step from here, at your
+            Tell us where you are in the move, and we&rsquo;ll walk you through every step from here, at your
             pace and in plain language.
           </p>
           <div className="rise d4 flex flex-wrap gap-3.5">

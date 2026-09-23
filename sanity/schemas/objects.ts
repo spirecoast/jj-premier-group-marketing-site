@@ -6,6 +6,9 @@ export const MARKET_OPTIONS = [
   { title: "Bradenton", value: "bradenton" },
 ];
 
+/** Venues reach one more place than the markets: Tampa is on the calendar, not for sale. */
+export const REGION_OPTIONS = [...MARKET_OPTIONS, { title: "Tampa", value: "tampa" }];
+
 /** An image that always carries alt text. */
 export const imageWithAlt = (name: string, title: string, required = false) =>
   defineField({
@@ -30,6 +33,14 @@ export const marketField = defineField({
   title: "Market",
   type: "string",
   options: { list: MARKET_OPTIONS, layout: "radio" },
+  validation: (rule) => rule.required(),
+});
+
+export const regionField = defineField({
+  name: "market",
+  title: "Market",
+  type: "string",
+  options: { list: REGION_OPTIONS, layout: "radio" },
   validation: (rule) => rule.required(),
 });
 

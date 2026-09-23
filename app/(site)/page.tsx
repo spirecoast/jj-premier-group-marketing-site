@@ -23,12 +23,11 @@ export const metadata: Metadata = pageMetadata({
 /* Photography for the composed sections. Event photographs come from the
    content layer; these frames are the layout. */
 const FRAMES = {
-  hero: img("library/venice-pier-sunrise", "A fishing pier reaching into the Gulf at sunrise, gulls over the water", "62% 55%"),
+  hero: img("library/lakes-aerial-sunset", "Lakes, lawns and rooftops at sunset, seen from the air", "50% 58%"),
   cameo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 42%"),
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
   kitchen: img("library/kitchen-white-palms", "A white kitchen with the palms outside the window"),
   island: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
-  pool: img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%"),
 };
 
 export default async function HomePage() {
@@ -43,9 +42,9 @@ export default async function HomePage() {
       <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
       <Meet duo={FRAMES.duo} testimonials={testimonials} />
       <Places />
-      <FindHome kitchen={FRAMES.kitchen} second={FRAMES.island} caption="THE KITCHEN, LATE AFTERNOON" />
+      <FindHome image={FRAMES.kitchen} />
       <CalendarPreview events={events} />
-      <LetterBand image={FRAMES.pool} />
+      <LetterBand image={FRAMES.island} />
     </>
   );
 }

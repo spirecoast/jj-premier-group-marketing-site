@@ -33,15 +33,15 @@ export function Meet({ duo, testimonials }: { duo: ImageRef; testimonials: Testi
           />
           <div className="flex flex-col gap-5">
             <p className="t-lead max-w-[560px] text-body">
-              We are Joelyn and Jessica, a mother and daughter team with {site.brokerage}, and we help
+              We&rsquo;re Joelyn and Jessica, a mother and daughter team with {site.brokerage}, and we help
               people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton.
             </p>
             <p className="t-body max-w-[560px] text-body">
-              Whether you are buying your first home, selling for the best price, or building a portfolio,
+              Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio,
               you get the same thing from us: local knowledge, honest guidance, and someone in your corner
               at every step. Luxury homes and new construction in Lakewood Ranch, the water in Sarasota,
               the established streets of Bradenton. Wherever your move takes you, we know the terrain, we
-              negotiate hard, and we tell you what is happening while it is happening.
+              negotiate hard, and we tell you what&rsquo;s happening while it&rsquo;s happening.
             </p>
           </div>
           <div className="flex flex-wrap gap-3.5">

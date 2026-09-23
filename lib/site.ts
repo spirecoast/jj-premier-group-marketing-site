@@ -52,8 +52,8 @@ export const primaryNav: readonly NavItem[] = [
   { href: "/listings", label: "Search" },
   { href: "/sell", label: "Sell" },
   { href: "/neighborhoods", label: "Neighborhoods" },
-  { href: "/calendar", label: "Encore" },
   { href: "/blog", label: "Market Report" },
+  { href: "/calendar", label: "Encore" },
   { href: "/about", label: "Joelyn & Jessica" },
 ] as const;
 

@@ -1,5 +1,5 @@
 import { img } from "./seed/helpers";
-import type { Market, MarketSlug } from "./types";
+import type { Market, MarketSlug, RegionSlug } from "./types";
 
 /**
  * The three places. A fixed list rather than CMS content: they are the spine
@@ -11,7 +11,7 @@ export const MARKETS: readonly Market[] = [
     slug: "lakewood-ranch",
     name: "Lakewood Ranch",
     county: "Manatee County",
-    image: img("library/lakes-aerial-sunset", "Lakes and rooftops at sunset in Lakewood Ranch", "50% 55%"),
+    image: img("library/modern-home-pool-dusk", "A modern home lit at dusk in Lakewood Ranch, the pool still", "50% 45%"),
     blurb:
       "Villages built around lakes and preserves, each with its own feel, and a Main Street and Waterside that give the evenings somewhere to go.",
   },
@@ -41,6 +41,16 @@ export function isMarketSlug(value: unknown): value is MarketSlug {
   return typeof value === "string" && MARKETS.some((m) => m.slug === value);
 }
 
-export function marketName(slug: MarketSlug): string {
-  return getMarket(slug)?.name ?? slug;
+/** The calendar reaches one more place than the markets do. */
+export const REGIONS: readonly { slug: RegionSlug; name: string }[] = [
+  ...MARKETS.map((m) => ({ slug: m.slug, name: m.name })),
+  { slug: "tampa", name: "Tampa" },
+];
+
+export function isRegionSlug(value: unknown): value is RegionSlug {
+  return typeof value === "string" && REGIONS.some((r) => r.slug === value);
+}
+
+export function marketName(slug: RegionSlug): string {
+  return REGIONS.find((r) => r.slug === slug)?.name ?? slug;
 }

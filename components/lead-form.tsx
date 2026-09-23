@@ -11,12 +11,12 @@ export type LeadField = "name" | "email" | "phone" | "timing" | "address" | "mes
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
-  buy: { title: "Got it.", body: "We will be in touch with the two questions that change everything else: your timing, and whether there is a house to sell first." },
-  sell: { title: "Got it.", body: "We will come back with a plan and a number, and the reason for the number." },
-  listing: { title: "Got it.", body: "We will confirm the showing with you. Tell us if the timing changes." },
+  buy: { title: "Got it.", body: "We’ll be in touch with the two questions that change everything else: your timing, and whether there’s a house to sell first." },
+  sell: { title: "Got it.", body: "We’ll come back with a plan and a number, and the reason for the number." },
+  listing: { title: "Got it.", body: "We’ll confirm the showing with you. Tell us if the timing changes." },
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
-  letter: { title: "You are on the list.", body: "One page, once a quarter, written for you. The next report lands at the start of the quarter." },
-  calendar: { title: "You are on the list.", body: "The full calendar, every Monday." },
+  letter: { title: "You’re on the list.", body: "One page, once a quarter, written for you. The next report lands at the start of the quarter." },
+  calendar: { title: "You’re on the list.", body: "The full calendar, every Monday." },
 };
 
 const LABELS: Record<LeadField, string> = {
@@ -65,7 +65,7 @@ export function LeadForm({
   tone = "light",
   className,
   columns = true,
-  placeholderMessage = "Tell us the timing, and what you are looking at.",
+  placeholderMessage = "Tell us the timing, and what you’re looking at.",
   defaultMessage,
 }: Props) {
   const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
@@ -210,7 +210,7 @@ export function LeadForm({
           <span className="btn-dash" aria-hidden="true" />
         </button>
         <p className={cn("t-small max-w-[420px]", tone === "dark" ? "text-linen-200/80" : "text-graphite-500")}>
-          Goes straight to Joelyn and Jessica. We do not share or sell your details. See the{" "}
+          Goes straight to Joelyn and Jessica. We don’t share or sell your details. See the{" "}
           <Link href="/privacy" className="underline underline-offset-4 hover:text-navy">
             privacy policy
           </Link>

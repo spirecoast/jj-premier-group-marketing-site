@@ -14,7 +14,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = pageMetadata({
   title: "Find your home",
   description:
-    "Tell Joelyn and Jessica what you are looking for in Lakewood Ranch, Sarasota or Bradenton, and they will bring you the homes worth seeing, with a straight read on each one.",
+    "Tell Joelyn and Jessica what you’re looking for in Lakewood Ranch, Sarasota or Bradenton, and they will bring you the homes worth seeing, with a straight read on each one.",
   path: "/listings",
 });
 
@@ -54,11 +54,11 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
           <p className="t-eyebrow text-mist text-shadow-photo">Find your home</p>
           <h1 id="find-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
-            Tell us what you are looking for. We will do the looking.
+            Tell us what you&rsquo;re looking for. We&rsquo;ll do the looking.
           </h1>
           <p className="max-w-[560px] text-[17px] font-medium leading-[1.6] text-white text-shadow-soft">
-            The place, the budget, and anything that matters to you. You will hear back from Joelyn or
-            Jessica, not a form.
+            The place, the budget, and anything that matters to you. You&rsquo;ll hear back from Joelyn or
+            Jessica, not from a form.
           </p>
         </div>
       </section>
@@ -72,9 +72,9 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
           />
           <ol className="flex flex-col gap-6 border-l border-rule pl-6">
             {[
-              ["Where and how much", "Pick the place and the budget. If you are not sure yet, say so. That is a normal place to start."],
-              ["We read every listing for you", "Flood zone, HOA, the age of the roof, what the street has been doing. You get the short list, and which ones we would go and see with you."],
-              ["We go and look, together", "Showings at the hour the light tells the truth. Then a plain answer on each one, including the ones we would pass on."],
+              ["Where and how much", "Pick the place and the budget. If you\u2019re not sure yet, say so. That\u2019s a normal place to start."],
+              ["We read every listing for you", "Flood zone, HOA, the age of the roof, what the street\u2019s been doing. You get the short list, and which ones we\u2019d go and see with you."],
+              ["We go and look, together", "Showings at the hour the light tells the truth. Then a plain answer on each one, including the ones we\u2019d pass on."],
             ].map(([t, b], i) => (
               <li key={t} className="flex flex-col gap-1.5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber">0{i + 1}</p>
@@ -98,7 +98,7 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
             form="buy"
             fields={["name", "email", "phone", "message"]}
             submitLabel="Start my search"
-            placeholderMessage={`${opening}. Two or three bedrooms, near the water if we can, and we would like to be in by spring.`}
+            placeholderMessage={`${opening}. Two or three bedrooms, near the water if we can, and we\u2019d like to be in by spring.`}
             hidden={{ market }}
             defaultMessage={market || maxLabel ? `${opening}. ` : undefined}
           />

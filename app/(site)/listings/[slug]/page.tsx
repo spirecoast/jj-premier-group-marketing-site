@@ -87,7 +87,7 @@ function inquiryCopy(l: Listing) {
     return {
       eyebrow: "Sold",
       title: ["Sold", when, pct ? `· ${pct}` : undefined].filter(Boolean).join(" "),
-      body: "Ask about a home like this. We know which streets nearby are thinking about listing, and we will tell you which ones are worth waiting for.",
+      body: "Ask about a home like this. We know which streets nearby are thinking about listing, and we’ll tell you which ones are worth waiting for.",
       submit: "Ask about this home",
       cta: "Ask about this home",
     };
@@ -96,7 +96,7 @@ function inquiryCopy(l: Listing) {
     return {
       eyebrow: "Under contract",
       title: "Spoken for, for now.",
-      body: "Contracts come back more often than people expect. Tell us the timing and you are the first call if this one does, and the first to hear about the next one on this water.",
+      body: "Contracts come back more often than people expect. Tell us the timing and you’re the first call if this one does, and the first to hear about the next one on this water.",
       submit: "Ask about this home",
       cta: "Ask about this home",
     };
@@ -105,7 +105,7 @@ function inquiryCopy(l: Listing) {
     return {
       eyebrow: "Coming soon",
       title: `See ${l.address.street} first.`,
-      body: "Showings begin the day it goes active on the MLS. Tell us the timing and we will hold a slot in that first week.",
+      body: "Showings begin the day it goes active on the MLS. Tell us the timing and we’ll hold a slot in that first week.",
       submit: "Ask to see it first",
       cta: "Ask to see it first",
     };
@@ -113,7 +113,7 @@ function inquiryCopy(l: Listing) {
   return {
     eyebrow: "See it",
     title: `See ${l.address.street} this week.`,
-    body: "Either of us can show it and both of us know the file. Tell us the day, and whether there is a house to sell first.",
+    body: "Either of us can show it and both of us know the file. Tell us the day, and whether there’s a house to sell first.",
     submit: "Request a showing",
     cta: "Request a showing",
   };
@@ -339,7 +339,7 @@ export default async function ListingPage({ params }: { params: Params }) {
               <div className="flex flex-col gap-3">
                 <p className="t-eyebrow text-amber">Off the record</p>
                 <h2 id="friend-title" className="t-h2 text-navy">
-                  What we would tell a friend.
+                  What we’d tell a friend.
                 </h2>
               </div>
               <p className="t-quote max-w-measure text-navy">{listing.friendNote}</p>
@@ -395,7 +395,7 @@ export default async function ListingPage({ params }: { params: Params }) {
               fields={["name", "email", "phone", "message"]}
               submitLabel={inquiry.submit}
               columns={false}
-              placeholderMessage="Saturday morning works, and there is a house to sell first."
+              placeholderMessage="Saturday morning works, and there’s a house to sell first."
               hidden={{
                 propertySlug: listing.slug,
                 propertyTitle: listing.title,

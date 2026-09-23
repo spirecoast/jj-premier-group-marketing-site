@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { footerNav, site } from "@/lib/site";
+import { img } from "@/lib/content/seed/helpers";
+import { Photo } from "./photo";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
 import { Wordmark } from "./wordmark";
@@ -23,6 +25,8 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
   );
 }
 
+const PIER = img("library/venice-pier-sunrise", "A fishing pier reaching into the Gulf at sunrise", "62% 55%");
+
 /**
  * Compliance is furniture. The MLS attribution, the Equal Housing mark, both
  * licenses, the office address and the brokerage mark sit in the footer of
@@ -31,17 +35,18 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
 export function SiteFooter({ settings, team }: { settings: SiteSettings; team: TeamMember[] }) {
   const year = new Date().getFullYear();
   // Registered full name beside each confirmed number; an unconfirmed license is omitted, never guessed.
-  const licenses = settings.licenses
-    .filter((l) => l.number)
-    .map((l) => `${l.name} · FL ${l.number}`)
-    .join(" · ");
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
     .join(", ");
 
   return (
     <footer className="bg-linen-200 pb-20 text-navy md:pb-12">
-      <div className="container-site flex flex-col gap-16 pt-24">
+      {/* The pier at sunrise closes every page: the photograph fades into the footer's ground. */}
+      <div className="relative h-[300px] overflow-hidden bg-navy sm:h-[380px] lg:h-[460px]" aria-hidden="true">
+        <Photo image={PIER} sizes="100vw" />
+        <div className="absolute inset-0 bg-linear-to-b from-harbor-950/25 via-transparent via-45% to-linen-200" />
+      </div>
+      <div className="container-site flex flex-col gap-16 pt-16">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
           <div className="flex flex-col items-start gap-6">
             <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
@@ -89,7 +94,6 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
         <div className="flex flex-col gap-6 border-t border-rule pt-7 lg:flex-row lg:items-center lg:justify-between">
           <p className="max-w-[760px] font-mono text-[9px] uppercase leading-[1.8] tracking-[0.06em] text-linen-700">
             {settings.footerDisclosure}
-            {licenses ? ` · ${licenses}` : ""}
           </p>
           <div className="flex items-center gap-8 text-navy">
             <EqualHousingMark />
