@@ -131,7 +131,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
     : [];
   const crumbs = [
     { name: "Home", path: "/" },
-    { name: "Neighborhoods", path: "/neighborhoods" },
+    { name: "Atlas", path: "/neighborhoods" },
     ...ancestors.map((a) => ({ name: a.name, path: `/neighborhoods/${a.slug}` })),
     { name, path: `/neighborhoods/${slug}` },
   ];
@@ -419,7 +419,7 @@ function Crumbs({ ancestors, market, light }: { ancestors: NeighborhoodRecord[];
   return (
     <nav aria-label="Breadcrumb" className={`${cls} flex flex-wrap items-center gap-x-3 gap-y-1`}>
       <Link href="/neighborhoods" className={link}>
-        Neighborhoods
+        Atlas
       </Link>
       <span aria-hidden="true">/</span>
       <Link href={`/neighborhoods?market=${market}` as Route} className={link}>

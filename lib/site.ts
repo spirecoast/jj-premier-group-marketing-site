@@ -39,21 +39,70 @@ export const site = {
   region: "Lakewood Ranch · Sarasota · Bradenton",
   /** Where "see our current listings" points until an MLS feed is wired in. */
   listingsUrl: process.env.NEXT_PUBLIC_LISTINGS_URL || "",
-  /** The two editorial products, named once. */
+  /**
+   * The three products, named once. Atlas is the map, Encore the nights out,
+   * Tide the market: one word each, all from the coast, all a place to go back to.
+   */
+  atlasName: "Atlas",
   calendarName: "Encore Arts Calendar",
   calendarShort: "Encore",
-  reportName: "The Coast Market Report",
+  reportName: "Tide",
+  reportLong: "Tide · The Coast Market Report",
 } as const;
 
-export type NavItem = { href: string; label: string };
+export type Product = {
+  key: "atlas" | "encore" | "tide";
+  name: string;
+  /** What it is, in two words, for the nav sublabel. */
+  tag: string;
+  /** The full name with its descriptor. */
+  long: string;
+  href: string;
+  /** One line, written to the reader. */
+  line: string;
+  /** The accent color token, used for a tick of color on the home band. */
+  accent: string;
+};
 
-/** Primary navigation, in the order the website mockup sets it. */
+export const products: readonly Product[] = [
+  {
+    key: "atlas",
+    name: "Atlas",
+    tag: "Neighborhoods",
+    long: "Atlas · The neighborhood explorer",
+    href: "/neighborhoods",
+    line: "Every place in Lakewood Ranch, Sarasota and Bradenton on one map, with the facts behind each one.",
+    accent: "var(--color-navy)",
+  },
+  {
+    key: "encore",
+    name: "Encore",
+    tag: "Arts calendar",
+    long: "Encore · The arts calendar",
+    href: "/calendar",
+    line: "What’s on tonight, this weekend and all season, at every stage, hall and gallery near you.",
+    accent: "var(--color-amber)",
+  },
+  {
+    key: "tide",
+    name: "Tide",
+    tag: "Market report",
+    long: "Tide · The Coast Market Report",
+    href: "/blog",
+    line: "What happened on your street this quarter, in plain language, and what it means for you.",
+    accent: "var(--color-sky-700)",
+  },
+] as const;
+
+export type NavItem = { href: string; label: string; /** A second, smaller line: what a named product is. */ sub?: string };
+
+/** Primary navigation. The three products sit together, each with its descriptor beneath. */
 export const primaryNav: readonly NavItem[] = [
   { href: "/listings", label: "Search" },
   { href: "/sell", label: "Sell" },
-  { href: "/neighborhoods", label: "Neighborhoods" },
-  { href: "/blog", label: "Market Report" },
-  { href: "/calendar", label: "Encore" },
+  { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods" },
+  { href: "/calendar", label: "Encore", sub: "Arts calendar" },
+  { href: "/blog", label: "Tide", sub: "Market report" },
   { href: "/about", label: "Joelyn & Jessica" },
 ] as const;
 
@@ -68,8 +117,9 @@ export const footerNav = {
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
     { href: "/about#jessica-garza", label: "Jessica Garza" },
-    { href: "/blog", label: "The Coast Market Report" },
-    { href: "/calendar", label: "Encore Arts Calendar" },
+    { href: "/neighborhoods", label: "Atlas · Neighborhoods" },
+    { href: "/calendar", label: "Encore · Arts calendar" },
+    { href: "/blog", label: "Tide · Market report" },
     { href: "/buy", label: "Buying" },
     { href: "/sell", label: "Selling" },
     { href: "/valuation", label: "What is my home worth" },

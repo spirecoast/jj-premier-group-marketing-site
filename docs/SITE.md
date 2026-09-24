@@ -32,8 +32,12 @@ still works on the same theme.
 
 - Markets: Lakewood Ranch, Sarasota and Bradenton. Tampa was removed in September 2026 at the
   client's direction; `MarketSlug` has three values.
-- The arts calendar is the **Encore Arts Calendar** ("Encore" in the nav). The quarterly market
-  piece is **The Coast Market Report** ("Market Report" in the nav). Both names live in `lib/site.ts`.
+- The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
+  **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
+  `/calendar`) and **Tide** (The Coast Market Report, `/blog`). The nav shows each name with its
+  descriptor beneath (Atlas / Neighborhoods, Encore / Arts calendar, Tide / Market report), the
+  home page carries them as section 04 with a live fact from each, and page eyebrows use the long
+  form ("Tide · The Coast Market Report"). To rename one, change it there; the pages read the value.
 - Nothing hand-typed reaches the page: no market figures, no ticker, no stat band, no sample
   listings. The sample listings stay in the seed for previews and return with
   `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true` or an MLS feed. `/listings` is a "Find your home" page: a

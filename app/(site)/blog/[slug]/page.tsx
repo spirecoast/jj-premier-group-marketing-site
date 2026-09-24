@@ -58,7 +58,7 @@ export default async function PostPage({ params }: { params: Params }) {
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "The Coast Market Report", path: "/blog" },
+          { name: "Tide", path: "/blog" },
           { name: post.title, path: `/blog/${post.slug}` },
         ])}
       />
@@ -66,7 +66,7 @@ export default async function PostPage({ params }: { params: Params }) {
       <article className="container-site flex flex-col gap-10 py-10 md:py-14">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
           <Link href="/blog" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
-            Market Report
+            Tide
           </Link>
           <span aria-hidden="true">/</span>
           <span className="text-navy" aria-current="page">
@@ -110,7 +110,7 @@ export default async function PostPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      <CtaBand image={RIVER} eyebrow="The Coast Market Report, by email" title="Once a quarter, one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
+      <CtaBand image={RIVER} eyebrow="Tide, by email" title="Once a quarter, one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

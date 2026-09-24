@@ -82,12 +82,18 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                 key={item.href}
                 href={item.href as Route}
                 aria-current={active ? "page" : undefined}
+                aria-label={item.sub ? `${item.label}, ${item.sub}` : undefined}
                 className={cn(
-                  "t-label border-b py-2 text-linen-200 transition-colors hover:text-white",
+                  "group/nav flex flex-col items-start border-b py-1.5 text-linen-200 transition-colors hover:text-white",
                   active ? "border-sky-300" : "border-transparent",
                 )}
               >
-                {item.label}
+                <span className="t-label">{item.label}</span>
+                {item.sub ? (
+                  <span className="font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-linen-200/55 transition-colors group-hover/nav:text-linen-200/80">
+                    {item.sub}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
@@ -122,9 +128,10 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
               <Link
                 key={item.href}
                 href={item.href as Route}
-                className="t-display border-b border-linen-200/15 py-4 text-linen-200 transition-colors hover:text-white"
+                className="flex items-baseline gap-4 border-b border-linen-200/15 py-4 text-linen-200 transition-colors hover:text-white"
               >
-                {item.label}
+                <span className="t-display">{item.label}</span>
+                {item.sub ? <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-linen-200/60">{item.sub}</span> : null}
               </Link>
             ))}
           </nav>

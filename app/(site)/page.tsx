@@ -6,7 +6,11 @@ import { LetterBand } from "@/components/home/letter-band";
 import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
 import { Questions } from "@/components/home/questions";
-import { getTeam, getTestimonials, getUpcomingEvents } from "@/lib/content";
+import { Three, type ThreeFacts } from "@/components/home/three";
+import { getPosts, getTeam, getTestimonials, getUpcomingEvents } from "@/lib/content";
+import { getEncoreIndex, localDay } from "@/lib/encore/data";
+import { addDays, occurrences, shortDay, weekday } from "@/lib/encore/select";
+import { getAllRecords, getIndexEntries } from "@/lib/neighborhoods/data";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -32,21 +36,66 @@ const FRAMES = {
 };
 
 export default async function HomePage() {
-  const [team, events, testimonials] = await Promise.all([
+  const [team, events, testimonials, posts, records, entries] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
     getTestimonials(),
+    getPosts(),
+    getAllRecords(),
+    getIndexEntries(),
   ]);
+  const facts = threeFacts({ posts, records, entries });
 
   return (
     <>
       <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
       <Meet duo={FRAMES.duo} testimonials={testimonials} />
       <Places />
+      <Three facts={facts} />
       <FindHome image={FRAMES.kitchen} />
       <Questions />
       <CalendarPreview events={events} />
       <LetterBand image={FRAMES.island} />
     </>
   );
+}
+
+/** The live numbers on the home band, from the same data the products run on. */
+function threeFacts({
+  posts,
+  records,
+  entries,
+}: {
+  posts: Awaited<ReturnType<typeof getPosts>>;
+  records: Awaited<ReturnType<typeof getAllRecords>>;
+  entries: Awaited<ReturnType<typeof getIndexEntries>>;
+}): ThreeFacts {
+  const index = getEncoreIndex();
+  const today = localDay(Date.now());
+  const now = Date.now();
+  const tonight = occurrences(index, today, today, {}, now);
+  const wd = weekday(today);
+  const fri = wd === 0 ? addDays(today, -2) : wd === 6 ? addDays(today, -1) : addDays(today, 5 - wd);
+  const sun = addDays(fri, 2);
+  const weekend = occurrences(index, fri < today ? today : fri, sun, {}, now);
+  const month = Number(today.slice(5, 7));
+  const nextQuarterMonth = [1, 4, 7, 10].find((m) => m > month) ?? 1;
+  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return {
+    atlas: {
+      places: records.length,
+      areas: records.filter((r) => r.level === "area").length,
+      points: entries.filter((e, i) => e.x !== null && e.y !== null && i % 3 === 0).map((e): [number, number] => [e.x!, e.y!]),
+    },
+    encore: {
+      tonight: tonight.length,
+      weekend: weekend.length,
+      weekendLabel: wd >= 5 || wd === 0 ? "this weekend" : `${shortDay(fri)}–${sun.slice(8).replace(/^0/, "")}`,
+      titles: [...new Set((tonight.length ? tonight : weekend).map((o) => o.e.t))].slice(0, 3),
+    },
+    tide: {
+      nextMonth: MONTHS[nextQuarterMonth - 1]!,
+      guides: posts.filter((p) => !p.categories.includes("Market report")).slice(0, 2).map((p) => ({ title: p.title, slug: p.slug })),
+    },
+  };
 }

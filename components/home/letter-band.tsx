@@ -8,7 +8,7 @@ export function LetterBand({ image }: { image: ImageRef }) {
   return (
     <CtaBand
       image={image}
-      eyebrow={`07 · ${site.reportName}`}
+      eyebrow={`08 · ${site.reportLong}`}
       title="What happened on your street this quarter, in plain language."
       body="Once a quarter, one page on what happened in Lakewood Ranch, Sarasota and Bradenton, and what it means for you."
       minHeight="min-h-[560px]"

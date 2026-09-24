@@ -9,7 +9,7 @@ import { parseState } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Neighborhood explorer · every place in Lakewood Ranch, Sarasota and Bradenton",
+  title: "Atlas · Every place in Lakewood Ranch, Sarasota and Bradenton",
   description:
     "An interactive map of more than two thousand areas, communities and enclaves across Lakewood Ranch, Sarasota and Bradenton: who governs each one, its ZIPs, zoned schools, evacuation zone, builders and HOA, from county and district sources.",
   path: "/neighborhoods",
@@ -32,7 +32,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
 
   return (
     <>
-      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Neighborhoods", path: "/neighborhoods" }])} />
+      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Atlas", path: "/neighborhoods" }])} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
