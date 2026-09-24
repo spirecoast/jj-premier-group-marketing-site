@@ -174,4 +174,6 @@ export const EVENT_CATEGORY_LABEL: Record<string, string> = {
   festival: "Festivals",
   family: "Family",
   market: "Markets",
+  film: "Film",
+  talks: "Talks",
 };

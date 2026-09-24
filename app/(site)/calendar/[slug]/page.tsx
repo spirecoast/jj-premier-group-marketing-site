@@ -7,6 +7,9 @@ import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
+import { SaveInline } from "@/components/encore/save-inline";
+import { ShareButton } from "@/components/share-button";
+import { subcategoryLabel } from "@/lib/encore/categories";
 import { getEvent, getEventSlugs, getListings, getUpcomingEvents } from "@/lib/content";
 import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, formatRun, weekdayName } from "@/lib/content/format";
 import { isMarketSlug, marketName } from "@/lib/content/markets";
@@ -95,12 +98,17 @@ export default async function EventPage({ params }: { params: Params }) {
             <div className="flex flex-col gap-3.5">
               <p className="t-eyebrow text-amber">
                 {marketName(event.venue.market)} · {isRun ? "On view" : weekdayName(event.startsAt)} · {EVENT_CATEGORY_LABEL[event.category]}
+                {subcategoryLabel(event.subcategory) ? ` · ${subcategoryLabel(event.subcategory)}` : ""}
               </p>
               <h1 className="t-display text-navy">{event.title}</h1>
               <p className="t-lead max-w-measure text-body">{event.summary}</p>
               {event.presenter && event.presenter !== event.venue.name ? (
                 <p className="t-mono-sm text-graphite-500">Presented by {event.presenter}</p>
               ) : null}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
+                <SaveInline slug={event.slug} title={event.title} />
+                <ShareButton title={`${event.title} · Encore`} what="event" label="Share" />
+              </div>
             </div>
             <RichText value={event.description ?? []} />
             {event.source ? (
@@ -126,10 +134,13 @@ export default async function EventPage({ params }: { params: Params }) {
                   <dd className="t-record text-navy">{run}</dd>
                 ) : upcomingPerformances.length > 1 ? (
                   <dd className="flex flex-col gap-1.5">
-                    <ul className="flex flex-col gap-1">
+                    <ul className="flex flex-col">
                       {shownPerformances.map((p) => (
-                        <li key={p.startsAt} className="t-record text-navy">
-                          {formatEventWhen(p.startsAt, p.endsAt, p.allDay)}
+                        <li key={p.startsAt} className="flex items-baseline justify-between gap-3 border-b border-hairline py-1.5 last:border-b-0">
+                          <span className="t-record text-navy">{formatEventWhen(p.startsAt, p.endsAt, p.allDay)}</span>
+                          <a href={`/api/calendar.ics?event=${event.slug}&at=${encodeURIComponent(p.startsAt)}`} className="t-mono-sm shrink-0 text-harbor-700 underline underline-offset-4 hover:text-navy" aria-label={`Add ${formatEventWhen(p.startsAt, p.endsAt, p.allDay)} to your calendar`}>
+                            + Cal
+                          </a>
                         </li>
                       ))}
                     </ul>
@@ -177,7 +188,7 @@ export default async function EventPage({ params }: { params: Params }) {
               <p className="t-small text-body-muted">{free ? "Free. No ticket needed." : "Tickets at the door or from the venue."}</p>
             )}
             <a href={`/api/calendar.ics?event=${event.slug}`} className="link-rule self-start">
-              Add to your calendar
+              {upcomingPerformances.length > 1 ? "Add every date to your calendar" : "Add to your calendar"}
             </a>
           </aside>
         </div>

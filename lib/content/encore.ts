@@ -121,13 +121,15 @@ const CATEGORY_IMAGE: Record<EventCategory, ImageRef> = {
   festival: img("library/culture-outdoor-concert-lawn", "An outdoor concert on the lawn"),
   family: img("library/culture-sculpture-garden-banyan", "A sculpture garden under a banyan"),
   market: img("library/lwr-waterside-promenade", "The promenade at Waterside"),
+  film: img("library/culture-black-box-worklight", "A black-box stage under a work light"),
+  talks: img("library/sarasota-gallery-white", "A white gallery before a talk"),
 };
 
-const CATEGORIES: EventCategory[] = ["music", "theater", "gallery", "festival", "family", "market"];
+const CATEGORIES: EventCategory[] = ["music", "theater", "gallery", "festival", "family", "market", "film", "talks"];
 const categoryOf = (c: string): EventCategory => (CATEGORIES.includes(c as EventCategory) ? (c as EventCategory) : "festival");
 
 /** Default length of a performance when the venue does not publish one. */
-const HOURS: Record<EventCategory, number> = { music: 2, theater: 2.5, gallery: 2, festival: 3, family: 2, market: 4 };
+const HOURS: Record<EventCategory, number> = { music: 2, theater: 2.5, gallery: 2, festival: 3, family: 2, market: 4, film: 2, talks: 1.5 };
 
 function performancesOf(e: RawEvent, category: EventCategory): Performance[] {
   const hours = HOURS[category];
@@ -146,7 +148,8 @@ const built: Omit<Event, "startsAt" | "endsAt" | "allDay">[] = raw.events
   .filter((e) => e.status !== "announced" && e.venueKey && venueByKey.has(e.venueKey))
   .map((e) => {
     const venue = venueByKey.get(e.venueKey!)!;
-    const category = categoryOf(e.siteCategory);
+    // The dataset's own eight categories; siteCategory folds film and talks into six.
+    const category = categoryOf(e.category);
     const performances = performancesOf(e, category);
     const sold = e.status === "sold-out";
     return {
@@ -164,6 +167,7 @@ const built: Omit<Event, "startsAt" | "endsAt" | "allDay">[] = raw.events
       featured: false,
       presenter: e.presenter ?? undefined,
       room: e.room ?? undefined,
+      subcategory: e.subcategory ?? undefined,
       performances,
       runsThrough: e.endDate ?? undefined,
       firstDate: e.startDate,

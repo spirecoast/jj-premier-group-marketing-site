@@ -1138,3 +1138,668 @@
   font-weight: 500;
   color: var(--color-text-muted);
 }
+
+/* ---- Encore Arts Calendar -------------------------------------------------- */
+@layer components {
+  .encore-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 1rem 0 1.25rem;
+    border-top: 1px solid var(--color-hairline);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .encore-search {
+    position: relative;
+    max-width: 560px;
+  }
+  .encore-input {
+    width: 100%;
+    height: 2.875rem;
+    padding: 0 2.5rem 0 0.875rem;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    background: #fff;
+    border: 1px solid var(--color-rule);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .encore-input:focus {
+    border-color: var(--color-navy);
+    box-shadow: inset 0 -2px 0 var(--color-sky-700);
+  }
+  .encore-input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .encore-clear {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.875rem;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-graphite-500);
+  }
+  .encore-select {
+    height: 2.25rem;
+    max-width: 260px;
+    padding: 0 0.625rem;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-harbor-900);
+    background: var(--color-harbor-100);
+    border: 1px solid transparent;
+  }
+  .encore-select:hover {
+    border-color: var(--color-harbor-900);
+  }
+  .encore-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 1rem;
+  }
+  @media (max-width: 767px) {
+    .encore-cats {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin: 0 -1rem;
+      padding: 0 1rem;
+    }
+    .encore-cats::-webkit-scrollbar {
+      display: none;
+    }
+    .encore-cat {
+      flex: none;
+      white-space: nowrap;
+    }
+    .encore-venue {
+      flex: 1 1 100%;
+    }
+    .encore-venue .encore-select {
+      width: 100%;
+      max-width: none;
+    }
+  }
+  .encore-cat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    padding: 0 0.25rem;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-graphite-600);
+    border-bottom: 2px solid transparent;
+    transition: color var(--dur-ui) ease, border-color var(--dur-ui) ease;
+  }
+  .encore-cat i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .encore-cat:hover:not(:disabled) {
+    color: var(--color-navy);
+  }
+  .encore-cat[aria-pressed="true"] {
+    color: var(--color-navy);
+    border-bottom-color: var(--color-amber);
+  }
+  .encore-cat:disabled {
+    opacity: 0.4;
+  }
+  .encore-cat-n {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-graphite-500);
+  }
+
+  .encore-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+  }
+  .encore-tabs {
+    display: inline-flex;
+    border: 1px solid var(--color-rule);
+  }
+  .encore-tab {
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+    transition: background-color var(--dur-ui) ease, color var(--dur-ui) ease;
+  }
+  .encore-tab:hover {
+    background: var(--color-linen-100);
+  }
+  .encore-tab[aria-selected="true"] {
+    background: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .encore-step,
+  .encore-today {
+    display: grid;
+    place-items: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-navy);
+    border: 1px solid var(--color-hairline);
+    background: #fff;
+    transition: border-color var(--dur-ui) ease, opacity var(--dur-ui) ease;
+  }
+  .encore-today {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .encore-step:hover:not(:disabled),
+  .encore-today:hover:not(:disabled) {
+    border-color: var(--color-navy);
+  }
+  .encore-step:disabled,
+  .encore-today:disabled {
+    opacity: 0.35;
+  }
+
+  /* The day strip */
+  .encore-strip-wrap {
+    display: flex;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+  .encore-strip-arrow {
+    display: none;
+    width: 2rem;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--color-graphite-500);
+    transition: color var(--dur-ui) ease;
+  }
+  .encore-strip-arrow:hover {
+    color: var(--color-navy);
+  }
+  @media (min-width: 1024px) {
+    .encore-strip-arrow {
+      display: block;
+    }
+  }
+  .encore-strip {
+    display: flex;
+    gap: 0.25rem;
+    flex: 1;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding: 0.25rem 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .encore-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .encore-day {
+    position: relative;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    width: 3.25rem;
+    padding: 0.5rem 0 0.375rem;
+    scroll-snap-align: start;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    transition: background-color var(--dur-ui) ease, border-color var(--dur-ui) ease;
+  }
+  .encore-day:hover {
+    background: var(--color-linen-100);
+  }
+  .encore-day.is-weekend .encore-day-num {
+    color: var(--color-harbor-700);
+  }
+  .encore-day.is-today {
+    background: var(--color-navy);
+  }
+  .encore-day.is-today .encore-day-num,
+  .encore-day.is-today .encore-day-wd {
+    color: var(--color-linen-200);
+  }
+  .encore-day.is-selected {
+    border-bottom-color: var(--color-amber);
+  }
+  .encore-day-month {
+    position: absolute;
+    top: -0.125rem;
+    left: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+  }
+  .encore-day-wd {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-graphite-500);
+  }
+  .encore-day-num {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--color-navy);
+  }
+  .encore-day-bar {
+    display: flex;
+    align-items: flex-end;
+    width: 1.5rem;
+    height: 0.75rem;
+    margin-top: 0.125rem;
+  }
+  .encore-day-bar span {
+    display: block;
+    width: 100%;
+    background: var(--color-sky-300);
+    transition: height 0.3s var(--ease-brand);
+  }
+  .encore-day.is-today .encore-day-bar span {
+    background: var(--color-sky-300);
+  }
+
+  /* Spotlight rails */
+  .encore-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 300px);
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 2px 2px 6px;
+    margin: -2px;
+  }
+  .encore-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .encore-tile,
+  .encore-run {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 180px;
+    padding: 1rem 1rem 0.875rem;
+    scroll-snap-align: start;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+    border-top: 3px solid var(--cat, var(--color-navy));
+    transition: border-color var(--dur-ui) ease, transform 0.35s var(--ease-brand), box-shadow 0.35s var(--ease-brand);
+  }
+  .encore-tile:hover,
+  .encore-run:hover {
+    border-color: var(--color-deep-harbor);
+    border-top-color: var(--cat, var(--color-navy));
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px -22px rgba(30, 52, 66, 0.35);
+  }
+  .encore-tile-time {
+    font-family: var(--font-display);
+    font-size: 1.625rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-navy);
+    font-variant-numeric: tabular-nums;
+  }
+  .encore-tile-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .encore-tile-day {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+  }
+  .encore-tile-allday {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-graphite-600);
+    line-height: 1.625rem;
+  }
+  .encore-tile-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--color-navy);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .encore-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-harbor-700);
+  }
+  .encore-tag.is-closing {
+    color: var(--color-amber);
+  }
+
+  /* Save */
+  .encore-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 1.75rem;
+    padding: 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--color-graphite-500);
+    border: 1px solid var(--color-hairline);
+    background: #fff;
+    transition: color var(--dur-ui) ease, border-color var(--dur-ui) ease, background-color var(--dur-ui) ease;
+  }
+  .encore-save:hover {
+    color: var(--color-navy);
+    border-color: var(--color-navy);
+  }
+  .encore-save.is-saved {
+    color: #fff;
+    background: var(--color-amber);
+    border-color: var(--color-amber);
+  }
+
+  /* Agenda */
+  .encore-dayhead {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-graphite-600);
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .encore-agenda-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .encore-agenda-link {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.875rem 0.25rem 0.875rem 0;
+    border-left: 3px solid var(--cat, var(--color-navy));
+    padding-left: 0.875rem;
+    transition: background-color 0.2s ease, padding-left 0.3s var(--ease-brand);
+  }
+  .encore-agenda-link:hover {
+    background: var(--color-linen-100);
+    padding-left: 1.125rem;
+  }
+  .encore-agenda-time {
+    flex: none;
+    width: 5.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-navy);
+    font-variant-numeric: tabular-nums;
+  }
+  .encore-agenda-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+  .encore-agenda-save {
+    flex: none;
+  }
+  @media (max-width: 640px) {
+    .encore-agenda-link {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .encore-agenda-time {
+      width: auto;
+    }
+    .encore-save-label {
+      display: none;
+    }
+    .encore-save {
+      min-width: 1.75rem;
+      justify-content: center;
+    }
+  }
+
+  /* Week */
+  .encore-week {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+    background: var(--color-hairline);
+    border: 1px solid var(--color-hairline);
+  }
+  .encore-week-col,
+  .encore-week-item {
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .encore-week {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+  }
+  .encore-week-col {
+    background: #fff;
+    min-height: 160px;
+  }
+  .encore-week-col.is-past {
+    background: var(--color-paper);
+  }
+  .encore-week-head {
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-graphite-500);
+    transition: background-color var(--dur-ui) ease;
+  }
+  .encore-week-head:hover {
+    background: var(--color-linen-100);
+  }
+  .encore-week-col.is-today .encore-week-head {
+    background: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .encore-week-col.is-today .encore-week-num {
+    color: var(--color-linen-200);
+  }
+  .encore-week-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-navy);
+  }
+  .encore-week-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.5rem 0.75rem 0.5rem 0.625rem;
+    border-left: 2px solid var(--cat, var(--color-navy));
+    border-bottom: 1px solid var(--color-hairline);
+    transition: background-color 0.2s ease;
+  }
+  .encore-week-item:hover {
+    background: var(--color-linen-100);
+  }
+  .encore-week-title {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+
+  /* Month */
+  .encore-month {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-hairline);
+    border: 1px solid var(--color-hairline);
+  }
+  .encore-month-wd {
+    padding: 0.5rem 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-graphite-500);
+    background: var(--color-linen-100);
+  }
+  .encore-month-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+    min-height: 5.5rem;
+    padding: 0.5rem 0.5rem 0.5rem;
+    text-align: left;
+    background: #fff;
+    transition: background-color var(--dur-ui) ease, box-shadow var(--dur-ui) ease;
+  }
+  .encore-month-cell.is-blank {
+    background: var(--color-paper);
+  }
+  .encore-month-cell.is-past {
+    background: var(--color-paper);
+  }
+  .encore-month-cell:hover:not(.is-blank) {
+    background: var(--color-linen-100);
+  }
+  .encore-month-cell.is-selected {
+    box-shadow: inset 0 0 0 2px var(--color-amber);
+  }
+  .encore-month-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-graphite-500);
+    font-variant-numeric: tabular-nums;
+  }
+  .encore-month-cell.is-today .encore-month-num {
+    color: var(--color-sky-700);
+    font-weight: 500;
+  }
+  .encore-month-titles {
+    display: none;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .encore-month-title {
+    display: block;
+    padding-left: 0.375rem;
+    border-left: 2px solid var(--cat, var(--color-navy));
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .encore-month-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: auto;
+  }
+  .encore-month-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .encore-month-dots em {
+    margin-left: 0.25rem;
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 10px;
+    color: var(--color-graphite-500);
+  }
+  @media (min-width: 1024px) {
+    .encore-month-cell {
+      min-height: 7.5rem;
+    }
+    .encore-month-titles {
+      display: flex;
+    }
+    .encore-month-dots i {
+      display: none;
+    }
+  }
+
+  /* The body eases in when the view or the day changes. */
+  .encore-body {
+    animation: encore-enter 0.32s var(--ease-brand) both;
+  }
+  @keyframes encore-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .encore-body {
+      animation: none;
+    }
+    .encore-tile,
+    .encore-run {
+      transition: none;
+    }
+  }
+}
