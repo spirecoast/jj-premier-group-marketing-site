@@ -20,40 +20,54 @@ const COLORS = {
   white: "#ffffff",
 };
 
-let fontCache: Promise<{ display?: ArrayBuffer; body?: ArrayBuffer; mono?: ArrayBuffer }> | null = null;
+type Fonts = { display?: ArrayBuffer; displayItalic?: ArrayBuffer; wordmark?: ArrayBuffer; body?: ArrayBuffer; mono?: ArrayBuffer };
+let fontCache: Promise<Fonts> | null = null;
 
-/** Satori needs TrueType/OpenType. A legacy user-agent makes Google Fonts serve TTF. */
-async function googleFont(family: string, weight: number): Promise<ArrayBuffer | undefined> {
+/** The brand faces ship with the site (lib/og-fonts), so a share image never depends on a font host. */
+async function localFont(file: string): Promise<ArrayBuffer | undefined> {
   try {
-    const css = await fetch(
-      `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}`,
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1",
-        },
-      },
-    ).then((r) => r.text());
-    const url = css.match(/src:\s*url\(([^)]+)\)\s*format\('(?:truetype|opentype)'\)/)?.[1];
-    if (!url) return undefined;
-    const buf = await fetch(url).then((r) => r.arrayBuffer());
-    const sig = String.fromCharCode(...new Uint8Array(buf.slice(0, 4)));
-    // Reject WOFF/WOFF2 (Satori cannot parse them); OTTO and 0x00010000 are fine.
-    if (sig === "wOFF" || sig === "wOF2") return undefined;
-    return buf;
+    const buf = await readFile(path.join(process.cwd(), "lib", "og-fonts", file));
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
   } catch {
     return undefined;
   }
 }
 
-/** Fonts are fetched once per process; a miss falls back to system faces. */
-function fonts() {
+function fonts(): Promise<Fonts> {
   if (!fontCache) {
-    fontCache = Promise.all([googleFont("Newsreader", 300), googleFont("Jost", 500), googleFont("IBM Plex Mono", 500)]).then(
-      ([display, body, mono]) => ({ display, body, mono }),
-    );
+    fontCache = Promise.all([
+      localFont("newsreader-300.ttf"),
+      localFont("newsreader-300-italic.ttf"),
+      localFont("cormorant-garamond-600.ttf"),
+      localFont("jost-500.ttf"),
+      localFont("ibm-plex-mono-500.ttf"),
+    ]).then(([display, displayItalic, wordmark, body, mono]) => ({ display, displayItalic, wordmark, body, mono }));
   }
   return fontCache;
+}
+
+function fontList(f: Fonts) {
+  return [
+    ...(f.display ? [{ name: "Newsreader", data: f.display, weight: 300 as const, style: "normal" as const }] : []),
+    ...(f.displayItalic ? [{ name: "Newsreader", data: f.displayItalic, weight: 300 as const, style: "italic" as const }] : []),
+    ...(f.wordmark ? [{ name: "Cormorant Garamond", data: f.wordmark, weight: 600 as const, style: "normal" as const }] : []),
+    ...(f.body ? [{ name: "Jost", data: f.body, weight: 500 as const, style: "normal" as const }] : []),
+    ...(f.mono ? [{ name: "IBM Plex Mono", data: f.mono, weight: 500 as const, style: "normal" as const }] : []),
+  ];
+}
+
+/** The wordmark as the site sets it: Contralto's stand-in, JJ tracked 0.1em, PREMIER GROUP small and tracked 0.3em. */
+function Lockup({ color }: { color: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 14, color }}>
+      <span style={{ fontFamily: "Cormorant Garamond, serif", fontWeight: 600, fontSize: 40, letterSpacing: 4, lineHeight: 1 }}>JJ</span>
+      <span style={{ width: 1, height: 36, background: color, opacity: 0.5 }} />
+      <span style={{ fontFamily: "Cormorant Garamond, serif", fontWeight: 600, fontSize: 12, letterSpacing: 3.6, lineHeight: 1.55, display: "flex", flexDirection: "column" }}>
+        <span>PREMIER</span>
+        <span>GROUP</span>
+      </span>
+    </div>
+  );
 }
 
 /** A /public path becomes a data URI; anything else is used as-is. */
@@ -82,12 +96,7 @@ export async function brandOgImage({
 }) {
   const [f, photoSrc] = await Promise.all([fonts(), photo ? ogImageSrc(photo) : Promise.resolve(undefined)]);
   const titleSize = title.length > 48 ? 44 : title.length > 28 ? 54 : 64;
-  const fontList = [
-    ...(f.display ? [{ name: "Newsreader", data: f.display, weight: 300 as const, style: "normal" as const }] : []),
-    ...(f.body ? [{ name: "Jost", data: f.body, weight: 500 as const, style: "normal" as const }] : []),
-    ...(f.mono ? [{ name: "IBM Plex Mono", data: f.mono, weight: 500 as const, style: "normal" as const }] : []),
-  ];
-  // With no fonts the renderer falls back to its bundled face rather than throwing.
+  const faces = fontList(f);
 
   return new ImageResponse(
     (
@@ -100,14 +109,7 @@ export async function brandOgImage({
           </div>
         ) : null}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, padding: "56px 60px 52px 52px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontFamily: "Newsreader, serif", fontSize: 40, letterSpacing: 4, color: COLORS.linen }}>JJ</span>
-            <span style={{ width: 1, height: 34, background: "rgba(230,221,209,0.55)" }} />
-            <span style={{ fontFamily: "Newsreader, serif", fontSize: 12, letterSpacing: 5, lineHeight: 1.5, color: COLORS.linen, display: "flex", flexDirection: "column" }}>
-              <span>PREMIER</span>
-              <span>GROUP</span>
-            </span>
-          </div>
+          <Lockup color={COLORS.linen} />
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <span style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 16, letterSpacing: 3, textTransform: "uppercase", color: COLORS.mist }}>{eyebrow}</span>
             <span style={{ fontFamily: "Newsreader, serif", fontSize: titleSize, lineHeight: 1.04, letterSpacing: -1, color: COLORS.white }}>{title}</span>
@@ -118,7 +120,7 @@ export async function brandOgImage({
         </div>
       </div>
     ),
-    { ...OG_SIZE, ...(fontList.length ? { fonts: fontList } : {}) },
+    { ...OG_SIZE, ...(faces.length ? { fonts: faces } : {}) },
   );
 }
 
@@ -157,11 +159,7 @@ export async function constellationOgImage({
   const px = (lng: number) => ox + (lng - bbox.w) * cosLat * scale;
   const py = (lat: number) => oy + (bbox.n - lat) * scale;
   const titleSize = title.length > 40 ? 46 : title.length > 22 ? 58 : 72;
-  const fontList = [
-    ...(f.display ? [{ name: "Newsreader", data: f.display, weight: 300 as const, style: "normal" as const }] : []),
-    ...(f.body ? [{ name: "Jost", data: f.body, weight: 500 as const, style: "normal" as const }] : []),
-    ...(f.mono ? [{ name: "IBM Plex Mono", data: f.mono, weight: 500 as const, style: "normal" as const }] : []),
-  ];
+  const faces = fontList(f);
   const dots = points
     .map(([lng, lat, k]) => `<circle cx="${px(lng).toFixed(1)}" cy="${py(lat).toFixed(1)}" r="${(1.6 + k * 1.2).toFixed(1)}" fill="${COLORS.navy}" fill-opacity="${(0.16 + k * 0.5).toFixed(2)}"/>`)
     .join("");
@@ -179,23 +177,16 @@ export async function constellationOgImage({
         <img src={svgSrc} alt="" width={W} height={H} style={{ position: "absolute", top: 0, left: 0, width: W, height: H }} />
         <div style={{ position: "absolute", top: 0, left: 0, width: 560, height: H, background: "linear-gradient(90deg, #f3eee6 62%, rgba(243,238,230,0) 100%)" }} />
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", position: "absolute", top: 0, left: 0, height: H, width: 620, padding: "56px 40px 52px 56px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ fontFamily: "Newsreader, serif", fontSize: 40, letterSpacing: 4, color: COLORS.navy }}>JJ</span>
-            <span style={{ width: 1, height: 34, background: "rgba(46,74,92,0.45)" }} />
-            <span style={{ fontFamily: "Newsreader, serif", fontSize: 12, letterSpacing: 5, lineHeight: 1.5, color: COLORS.navy, display: "flex", flexDirection: "column" }}>
-              <span>PREMIER</span>
-              <span>GROUP</span>
-            </span>
-          </div>
+          <Lockup color={COLORS.navy} />
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             <span style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 15, letterSpacing: 3, textTransform: "uppercase", color: COLORS.amber }}>{eyebrow}</span>
             <span style={{ fontFamily: "Newsreader, serif", fontSize: titleSize, fontWeight: 300, lineHeight: 1.02, color: COLORS.navy }}>{title}</span>
             {meta ? <span style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 17, lineHeight: 1.5, color: "#53565a" }}>{meta}</span> : null}
           </div>
-          <span style={{ fontFamily: "Newsreader, serif", fontSize: 20, color: "#6b5d4e" }}>Every move, expertly guided.</span>
+          <span style={{ fontFamily: "Newsreader, serif", fontStyle: "italic", fontSize: 22, color: "#6b5d4e" }}>Every move, expertly guided.</span>
         </div>
       </div>
     ),
-    { ...OG_SIZE, fonts: fontList },
+    { ...OG_SIZE, fonts: faces },
   );
 }
