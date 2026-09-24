@@ -10,7 +10,7 @@ export function FindHome({ image }: { image: ImageRef }) {
     <section className="container-site grid items-center gap-12 pb-section pt-4 lg:grid-cols-2 lg:gap-20 lg:pt-8" aria-labelledby="find-title">
       <div className="flex flex-col gap-7">
         <SectionHeading
-          number="04"
+          number="05"
           eyebrow="Find your home"
           size="display"
           title={

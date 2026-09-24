@@ -79,7 +79,7 @@ export function ExplorerPanel(p: Props) {
         : `${p.listed.length.toLocaleString()} places`;
 
   return (
-    <aside className="explorer-panel" aria-label="Neighborhood explorer">
+    <aside className="explorer-panel" aria-label="Atlas, the neighborhood explorer">
       {!p.desktop ? (
         <button type="button" className="explorer-handle" aria-label={p.sheet === "full" ? "Shrink the list" : "Expand the list"} onPointerDown={onHandleDown} onPointerUp={onHandleUp}>
           <span aria-hidden="true" />
@@ -89,12 +89,12 @@ export function ExplorerPanel(p: Props) {
       <div className="explorer-head">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
-            <p className="t-eyebrow text-amber">Neighborhood explorer</p>
+            <p className="t-eyebrow text-amber">Atlas · The neighborhood explorer</p>
             <h1 className="font-display text-[clamp(1.375rem,2.2vw,1.75rem)] font-light leading-[1.1] text-navy">
               Every place in Lakewood Ranch, Sarasota and Bradenton.
             </h1>
           </div>
-          <ShareButton title="Neighborhoods · JJ Premier Group" what="explorer-view" className="mt-1 shrink-0" />
+          <ShareButton title="Atlas · JJ Premier Group" what="explorer-view" className="mt-1 shrink-0" />
         </div>
 
         <div className="explorer-search">

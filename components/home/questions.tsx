@@ -91,7 +91,7 @@ export function Questions() {
     <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20" aria-labelledby="questions-title">
       <JsonLd data={faqJsonLd(HOME_FAQS)} />
       <div className="flex flex-col gap-5 lg:sticky lg:top-header lg:self-start">
-        <SectionHeading number="05" eyebrow="Questions people ask first" size="display" title={<span id="questions-title">Short answers, then the long ones if you want them.</span>} />
+        <SectionHeading number="06" eyebrow="Questions people ask first" size="display" title={<span id="questions-title">Short answers, then the long ones if you want them.</span>} />
         <p className="t-body max-w-[420px] text-body">
           If yours isn&rsquo;t here, ask us. We&rsquo;d rather answer it on the phone than have you guess.
         </p>

@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "The Coast Market Report",
+  title: "Tide · The Coast Market Report",
   description:
     "Once a quarter, one page on what happened in Lakewood Ranch, Sarasota and Bradenton and what it means for you. Plus guides on flood zones, timing and selling.",
   path: "/blog",
@@ -51,7 +51,7 @@ export default async function ReportPage() {
         <SectionHeading
           as="h1"
           size="display"
-          eyebrow={site.reportName}
+          eyebrow={site.reportLong}
           title={<span id="report-title">What happened on your street this quarter, in plain language.</span>}
           titleClassName="max-w-[820px]"
         />
