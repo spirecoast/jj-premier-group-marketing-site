@@ -12,7 +12,7 @@ import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Tide · The Coast Market Report",
+  title: site.reportLong,
   description:
     "Once a quarter, one page on what happened in Lakewood Ranch, Sarasota and Bradenton and what it means for you. Plus guides on flood zones, timing and selling.",
   path: "/blog",

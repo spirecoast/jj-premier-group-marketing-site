@@ -64,9 +64,14 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
     <header
       className={cn(
         "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-300",
-        solid
-          ? "border-b border-sky-300/15 bg-navy/90 backdrop-blur-xl"
-          : "border-b border-transparent bg-transparent",
+        // No backdrop blur while the menu is open: a backdrop-filter makes the
+        // header the containing block for the fixed menu panel, which would
+        // then collapse to the header's own height.
+        open
+          ? "border-b border-sky-300/15 bg-navy"
+          : solid
+            ? "border-b border-sky-300/15 bg-navy/90 backdrop-blur-xl"
+            : "border-b border-transparent bg-transparent",
       )}
     >
       <div className={cn("container-site flex h-full items-center justify-between gap-8", homeInset && "lg:px-[calc(var(--gutter)+3.5rem)]")}>
@@ -74,7 +79,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
+        <nav aria-label="Primary" className="hidden items-start gap-7 lg:flex xl:gap-9">
           {primaryNav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -84,13 +89,13 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                 aria-current={active ? "page" : undefined}
                 aria-label={item.sub ? `${item.label}, ${item.sub}` : undefined}
                 className={cn(
-                  "group/nav flex flex-col items-start border-b py-1.5 text-linen-200 transition-colors hover:text-white",
+                  "group/nav flex flex-col items-start whitespace-nowrap border-b py-1.5 text-linen-200 transition-colors hover:text-white",
                   active ? "border-sky-300" : "border-transparent",
                 )}
               >
                 <span className="t-label">{item.label}</span>
                 {item.sub ? (
-                  <span className="font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-linen-200/55 transition-colors group-hover/nav:text-linen-200/80">
+                  <span className="hidden font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-linen-200/55 transition-colors group-hover/nav:text-linen-200/80 xl:block">
                     {item.sub}
                   </span>
                 ) : null}

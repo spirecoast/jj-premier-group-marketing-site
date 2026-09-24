@@ -1,6 +1,7 @@
 import { getPost } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import { OG_CONTENT_TYPE, OG_SIZE, brandOgImage } from "@/lib/og";
+import { site } from "@/lib/site";
 
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
@@ -8,7 +9,7 @@ export const contentType = OG_CONTENT_TYPE;
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = await getPost(slug);
-  if (!p) return brandOgImage({ eyebrow: "Tide · The Coast Market Report", title: "Report not found." });
+  if (!p) return brandOgImage({ eyebrow: site.reportLong, title: "Report not found." });
   return brandOgImage({
     eyebrow: ["Tide", p.edition, ...p.categories].filter(Boolean).join(" · "),
     title: p.title,

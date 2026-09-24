@@ -27,7 +27,7 @@ export default async function PrivacyPage() {
 
         <h2>What we collect</h2>
         <p>
-          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. When you subscribe to the Coast Market Report or the Encore Arts Calendar email, we collect your email address.
+          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, we collect your email address.
         </p>
         <p>
           <strong>What your browser sends.</strong> Like most websites, our hosting provider records the pages you visit, the time, your IP address, the browser you use and the page that referred you. If you arrive from an advertisement or an email, the campaign tags in the link are stored for the length of your visit so we know what brought you here.
@@ -38,7 +38,7 @@ export default async function PrivacyPage() {
 
         <h2>How we use it</h2>
         <p>
-          To answer the enquiry you sent, to show you homes and prepare valuations you asked for, to send you the Coast Market Report or the weekly Encore Arts Calendar email if you subscribed, to keep our records of the work we do for you as Florida law requires, and to improve this website. We do not sell personal information, and we do not use it for anything unrelated to real estate.
+          To answer the enquiry you sent, to show you homes and prepare valuations you asked for, to send you the Tide newsletter or the weekly Encore Arts Calendar email if you subscribed, to keep our records of the work we do for you as Florida law requires, and to improve this website. We do not sell personal information, and we do not use it for anything unrelated to real estate.
         </p>
 
         <h2>Phone numbers and text messages</h2>

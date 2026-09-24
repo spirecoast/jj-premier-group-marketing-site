@@ -34,10 +34,17 @@ still works on the same theme.
   client's direction; `MarketSlug` has three values.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
   **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
-  `/calendar`) and **Tide** (The Coast Market Report, `/blog`). The nav shows each name with its
-  descriptor beneath (Atlas / Neighborhoods, Encore / Arts calendar, Tide / Market report), the
-  home page carries them as section 04 with a live fact from each, and page eyebrows use the long
-  form ("Tide · The Coast Market Report"). To rename one, change it there; the pages read the value.
+  `/calendar`) and **Tide** (the newsletter and its archive, `/blog`). Every nav item is a name
+  with a descriptor beneath it (Search / Homes for sale, Sell / Your home, Atlas / Neighborhoods,
+  Encore / Arts calendar, Tide / Newsletter, Joelyn & Jessica / Meet the team) so the six labels
+  sit on one line; below the `xl` breakpoint the descriptors drop and the names stand alone. The
+  home page carries the three products as section 04 with a live fact from each, and page eyebrows
+  use the long form ("Tide · The Coast real estate newsletter"). To rename one, change it there;
+  the pages read the value.
+- The phone menu is a fixed panel inside the header, so the header must not carry a
+  `backdrop-filter` while the menu is open (a backdrop filter would make the header the panel's
+  containing block and collapse it to the header's height). `SiteHeader` swaps to a solid navy
+  while `open` for that reason.
 - Nothing hand-typed reaches the page: no market figures, no ticker, no stat band, no sample
   listings. The sample listings stay in the seed for previews and return with
   `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true` or an MLS feed. `/listings` is a "Find your home" page: a
