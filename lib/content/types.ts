@@ -108,7 +108,9 @@ export type EventCategory =
   | "gallery"
   | "festival"
   | "family"
-  | "market";
+  | "market"
+  | "film"
+  | "talks";
 
 export type Venue = {
   _id: string;
@@ -153,6 +155,8 @@ export type Event = {
   description?: RichText;
   presenter?: string;
   room?: string;
+  /** Finer grain from the dataset: "chamber", "comedy", "ballet", "exhibition"… */
+  subcategory?: string;
   performances?: Performance[];
   /** ISO date of the run's first day, for exhibitions and series. */
   firstDate?: string;

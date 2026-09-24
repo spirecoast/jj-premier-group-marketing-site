@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import { getEvent, getOccurrences, getOnView } from "@/lib/content";
-import { SITE_TIMEZONE, formatAddress } from "@/lib/content/format";
+import { EVENT_CATEGORY_LABEL, SITE_TIMEZONE, formatAddress } from "@/lib/content/format";
+import { isRegionSlug, marketName } from "@/lib/content/markets";
+import { isEventCategory } from "@/lib/encore/categories";
 import type { Event, Occurrence } from "@/lib/content/types";
 import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -66,11 +68,21 @@ function vevent(o: Occurrence, now: Date): string[] {
 }
 
 /**
- * GET /api/calendar.ics            → every upcoming event
- * GET /api/calendar.ics?event=slug → one event
+ * GET /api/calendar.ics                       → every upcoming event
+ * GET /api/calendar.ics?event=slug            → one production, every date
+ * GET /api/calendar.ics?event=slug&at=<iso>   → one performance
+ * GET /api/calendar.ics?category=music&market=sarasota&venue=van-wezel
+ *                                             → a subscription feed of just that filter
  */
 export async function GET(request: NextRequest) {
-  const slug = request.nextUrl.searchParams.get("event");
+  const sp = request.nextUrl.searchParams;
+  const slug = sp.get("event");
+  const at = sp.get("at");
+  const categoryParam = sp.get("category");
+  const category = isEventCategory(categoryParam) ? categoryParam : undefined;
+  const marketParam = sp.get("market");
+  const market = isRegionSlug(marketParam) ? marketParam : undefined;
+  const venue = sp.get("venue")?.match(/^[a-z0-9-]{1,120}$/) ? sp.get("venue")! : undefined;
   const now = new Date();
   const horizon = new Date(now.getTime() + 183 * 24 * 60 * 60 * 1000);
   let events: Occurrence[];
@@ -78,18 +90,22 @@ export async function GET(request: NextRequest) {
     const e = await getEvent(slug);
     if (!e) return new Response("Not found", { status: 404 });
     const perfs = e.performances?.length ? e.performances : [{ startsAt: e.startsAt, endsAt: e.endsAt, allDay: e.allDay }];
-    events = perfs.map((p) => ({ event: e, ...p }));
+    const chosen = at ? perfs.filter((p) => p.startsAt === at) : perfs;
+    events = (chosen.length ? chosen : perfs).map((p) => ({ event: e, ...p }));
   } else {
-    const [dated, onView] = await Promise.all([getOccurrences({ from: now, to: horizon }), getOnView()]);
-    events = [...dated, ...onView.map((e) => ({ event: e, startsAt: e.startsAt, endsAt: e.endsAt, allDay: true }))];
+    const [dated, onView] = await Promise.all([getOccurrences({ from: now, to: horizon, category, market, venue }), getOnView({ category, market })]);
+    events = [...dated, ...onView.filter((e) => !venue || e.venue.slug === venue).map((e) => ({ event: e, startsAt: e.startsAt, endsAt: e.endsAt, allDay: true }))];
   }
+  const feedName = [category ? EVENT_CATEGORY_LABEL[category] : undefined, market ? marketName(market) : undefined, venue ? events[0]?.event.venue.name : undefined]
+    .filter(Boolean)
+    .join(" · ");
   const body = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     `PRODID:-//${site.name}//Encore Arts Calendar//EN`,
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    `X-WR-CALNAME:${esc(`Encore Arts Calendar · ${site.name}`)}`,
+    `X-WR-CALNAME:${esc(`Encore${feedName ? ` · ${feedName}` : ""} · ${site.name}`)}`,
     "X-WR-TIMEZONE:America/New_York",
     `X-WR-CALDESC:${esc("Theater, music and art this week in Lakewood Ranch, Sarasota and Bradenton.")}`,
     ...events.flatMap((e) => vevent(e, now)),
@@ -102,7 +118,7 @@ export async function GET(request: NextRequest) {
     status: 200,
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `inline; filename="${slug ? `${slug}.ics` : "encore-arts-calendar.ics"}"`,
+      "Content-Disposition": `inline; filename="${slug ? `${slug}${at ? `-${at.slice(0, 10)}` : ""}.ics` : "encore-arts-calendar.ics"}"`,
       "Cache-Control": "public, max-age=900, s-maxage=3600",
     },
   });

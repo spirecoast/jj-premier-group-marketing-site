@@ -81,8 +81,30 @@ builder source with its checked date).
 
 ## The Encore Arts Calendar
 
-The calendar is driven by the events dataset the client supplied (`lib/content/encore/`), not by
-sample data. `lib/content/encore.ts` turns its productions and venues into the site's `Event` and
+`/calendar` is a calendar product built on the events dataset the client supplied
+(`lib/content/encore/`), the way `/neighborhoods` is built on the neighborhood dataset.
+
+- **The page.** `components/encore/encore.tsx` holds one state (view, day, category, market,
+  venue, search) that the URL, the day strip and the body reflect. Views: Days (agenda with sticky
+  day headers), Week (seven columns on desktop), Month (grid plus the chosen day's agenda) and
+  On view (exhibitions, closing soonest first, then opening later). On today, the Days view opens
+  with Tonight and This weekend rails. Categories are the dataset's eight (music, theater,
+  galleries, talks, film, festivals, family, markets), each with a muted accent from
+  `lib/encore/categories.ts`.
+- **Data to the browser.** The server renders the first view from a slice of the index
+  (`sliceIndex` in `lib/encore/data.ts`) so the page is complete for crawlers and without
+  JavaScript; the client then fetches `/api/encore/index` once (about 90KB gzipped, regenerated
+  hourly) and every move after that is instant. Local days and times are precomputed in the site
+  timezone, so the client does no timezone math (`lib/encore/select.ts`).
+- **URL state.** `view`, `date` (YYYY-MM-DD), `category`, `market`, `venue`, `q`, and `list`
+  (comma-separated slugs of a shared list). `lib/encore/url.ts` parses and prints it.
+- **My list.** Save keeps slugs in `localStorage` (`encore:list`); "Share my list" turns it into a
+  `?list=` link, and a visitor who opens one can save it all to their own list.
+- **Feeds.** `/api/calendar.ics` accepts `category`, `market` and `venue` for a subscription of
+  just that filter, `event=<slug>` for one production, and `event=<slug>&at=<iso>` for a single
+  performance (the "+ Cal" links on event pages).
+
+`lib/content/encore.ts` turns the dataset's productions and venues into the site's `Event` and
 `Venue` shapes:
 
 - A production with dated performances becomes one event whose `performances[]` carries every

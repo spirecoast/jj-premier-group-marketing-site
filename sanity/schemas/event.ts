@@ -24,7 +24,7 @@ export const eventType = defineType({
       name: "category",
       type: "string",
       title: "Category",
-      options: { list: ["music", "theater", "gallery", "festival", "family", "market"], layout: "radio" },
+      options: { list: ["music", "theater", "gallery", "festival", "family", "market", "film", "talks"], layout: "radio" },
       validation: (r) => r.required(),
     }),
     defineField({ name: "ticketUrl", type: "url", title: "Tickets URL" }),
