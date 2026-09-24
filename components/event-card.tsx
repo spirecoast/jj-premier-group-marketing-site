@@ -3,6 +3,7 @@ import type { Event } from "@/lib/content/types";
 import { formatEventShort, formatEventWhen, formatRun, formatTime, weekdayName } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
 import { cn } from "@/lib/utils";
+import { KeyArt } from "./key-art";
 import { Photo } from "./photo";
 
 function placeDay(e: Event, at?: string): string {
@@ -39,7 +40,9 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
       <Link href={href} className={cn("card group relative block min-h-[420px] overflow-hidden bg-navy lg:min-h-[560px]", className)}>
         {event.image ? (
           <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 58vw, 100vw"} priority={priority} className="card-img" />
-        ) : null}
+        ) : (
+          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={1.3} />
+        )}
         <div
           className="pointer-events-none absolute inset-0 bg-linear-to-t from-harbor-950/95 via-harbor-950/60 via-40% to-transparent to-64%"
           aria-hidden="true"
@@ -65,7 +68,7 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         className={cn("row-link flex min-w-0 max-w-full items-center gap-4 border border-hairline bg-white p-3.5 pr-4 sm:gap-[18px]", className)}
       >
         <div className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]">
-          {event.image ? <Photo image={event.image} sizes="130px" /> : null}
+          {event.image ? <Photo image={event.image} sizes="130px" /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} />}
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
@@ -95,7 +98,9 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
       <div className="relative aspect-[3/2] overflow-hidden bg-linen-100">
         {event.image ? (
           <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"} className="card-img" />
-        ) : null}
+        ) : (
+          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={3 / 2} />
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>

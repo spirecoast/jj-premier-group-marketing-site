@@ -1,7 +1,6 @@
 import data from "./encore/encore-calendar.json";
-import { img } from "./seed/helpers";
 import { isMarketSlug } from "./markets";
-import type { Address, Event, EventCategory, ImageRef, MarketSlug, Performance, Venue } from "./types";
+import type { Address, Event, EventCategory, MarketSlug, Performance, Venue } from "./types";
 
 /**
  * The Encore Arts Calendar dataset: every listing taken from the venue's or
@@ -113,18 +112,6 @@ export function encoreVenues(): Venue[] {
 
 /* ---- Events ------------------------------------------------------------------ */
 
-/** Placeholder photography by category until venues supply their own. */
-const CATEGORY_IMAGE: Record<EventCategory, ImageRef> = {
-  music: img("library/culture-orchestra-hall-empty", "An orchestra hall before the audience arrives"),
-  theater: img("library/culture-theater-lobby-chandelier", "A theater lobby under a chandelier"),
-  gallery: img("library/culture-gallery-opening-backs", "A gallery opening, seen from the door"),
-  festival: img("library/culture-outdoor-concert-lawn", "An outdoor concert on the lawn"),
-  family: img("library/culture-sculpture-garden-banyan", "A sculpture garden under a banyan"),
-  market: img("library/lwr-waterside-promenade", "The promenade at Waterside"),
-  film: img("library/culture-black-box-worklight", "A black-box stage under a work light"),
-  talks: img("library/sarasota-gallery-white", "A white gallery before a talk"),
-};
-
 const CATEGORIES: EventCategory[] = ["music", "theater", "gallery", "festival", "family", "market", "film", "talks"];
 const categoryOf = (c: string): EventCategory => (CATEGORIES.includes(c as EventCategory) ? (c as EventCategory) : "festival");
 
@@ -161,7 +148,8 @@ const built: Omit<Event, "startsAt" | "endsAt" | "allDay">[] = raw.events
       category,
       ticketUrl: e.ticketUrl ?? undefined,
       priceNote: sold ? "Sold out" : (e.price ?? undefined),
-      image: CATEGORY_IMAGE[category],
+      // No placeholder photograph: pages draw key art for the category until a venue supplies art.
+      image: undefined,
       source: e.presenter ?? venue.name,
       sourceUrl: e.sources[0],
       featured: false,
