@@ -125,7 +125,13 @@ builder source with its checked date).
   `runsThrough`; the list view shows these in the "On view now" strip via `getOnView()`.
 - Items marked `announced` and the three whose venue is still to be confirmed are left off.
   Sold-out productions show "Sold out" and their offers carry `SoldOut` in the Event JSON-LD.
-- Each category has a placeholder photograph from the library until the venues supply art.
+- **Key art.** No stock photographs. An event without a venue-supplied `image` gets art drawn in
+  code by `lib/encore/key-art.ts`: one motif per category (staff and notes, proscenium and
+  spotlight, hung frames, sound waves, film strip, bunting, balloons, market awnings), varied by
+  a seed from the event slug and by subcategory (jazz, choral, orchestra, circus, ballet, comedy
+  and so on), in the brand palette. `components/key-art.tsx` renders it wherever a card or hero
+  needs a picture, and the event share image uses the same SVG. A venue photo added in Sanity
+  (`image`) overrides it automatically, so no picture on the site needs a license.
 - The ICS feed emits one VEVENT per performance for the next six months plus every current run.
 
 When Sanity is live the same shape lives in the `event` document (performances, presenter, room,

@@ -72,7 +72,7 @@ function Lockup({ color }: { color: string }) {
 
 /** A /public path becomes a data URI; anything else is used as-is. */
 export async function ogImageSrc(src: string): Promise<string | undefined> {
-  if (/^https?:\/\//.test(src)) return src;
+  if (/^(https?:\/\/|data:)/.test(src)) return src;
   try {
     const file = await readFile(path.join(process.cwd(), "public", src));
     const ext = path.extname(src).slice(1).toLowerCase();

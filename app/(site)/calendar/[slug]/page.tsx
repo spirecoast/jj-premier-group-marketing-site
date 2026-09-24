@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EventCard } from "@/components/event-card";
 import { JsonLd } from "@/components/json-ld";
+import { KeyArt } from "@/components/key-art";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
 import { RichText } from "@/components/rich-text";
@@ -87,11 +88,13 @@ export default async function EventPage({ params }: { params: Params }) {
           </span>
         </nav>
 
-        {event.image ? (
-          <div className="relative aspect-[16/9] overflow-hidden bg-linen-100">
+        <div className={event.image ? "relative aspect-[16/9] overflow-hidden bg-linen-100" : "relative aspect-[21/9] overflow-hidden bg-linen-100 max-h-[420px]"}>
+          {event.image ? (
             <Photo image={event.image} priority sizes="(min-width: 1024px) 1248px, 100vw" />
-          </div>
-        ) : null}
+          ) : (
+            <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={21 / 9} />
+          )}
+        </div>
 
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
           <div className="flex flex-col gap-8">
