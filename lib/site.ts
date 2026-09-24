@@ -47,7 +47,7 @@ export const site = {
   calendarName: "Encore Arts Calendar",
   calendarShort: "Encore",
   reportName: "Tide",
-  reportLong: "Tide · The Coast Market Report",
+  reportLong: "Tide · The Coast real estate newsletter",
 } as const;
 
 export type Product = {
@@ -86,8 +86,8 @@ export const products: readonly Product[] = [
   {
     key: "tide",
     name: "Tide",
-    tag: "Market report",
-    long: "Tide · The Coast Market Report",
+    tag: "Newsletter",
+    long: "Tide · The Coast real estate newsletter",
     href: "/blog",
     line: "What happened on your street this quarter, in plain language, and what it means for you.",
     accent: "var(--color-sky-700)",
@@ -98,12 +98,12 @@ export type NavItem = { href: string; label: string; /** A second, smaller line:
 
 /** Primary navigation. The three products sit together, each with its descriptor beneath. */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/listings", label: "Search" },
-  { href: "/sell", label: "Sell" },
+  { href: "/listings", label: "Search", sub: "Homes for sale" },
+  { href: "/sell", label: "Sell", sub: "Your home" },
   { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods" },
   { href: "/calendar", label: "Encore", sub: "Arts calendar" },
-  { href: "/blog", label: "Tide", sub: "Market report" },
-  { href: "/about", label: "Joelyn & Jessica" },
+  { href: "/blog", label: "Tide", sub: "Newsletter" },
+  { href: "/about", label: "Joelyn & Jessica", sub: "Meet the team" },
 ] as const;
 
 /** Secondary links used in the footer columns. */
@@ -119,7 +119,7 @@ export const footerNav = {
     { href: "/about#jessica-garza", label: "Jessica Garza" },
     { href: "/neighborhoods", label: "Atlas · Neighborhoods" },
     { href: "/calendar", label: "Encore · Arts calendar" },
-    { href: "/blog", label: "Tide · Market report" },
+    { href: "/blog", label: "Tide · Newsletter" },
     { href: "/buy", label: "Buying" },
     { href: "/sell", label: "Selling" },
     { href: "/valuation", label: "What is my home worth" },

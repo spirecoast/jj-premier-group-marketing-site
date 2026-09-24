@@ -3,7 +3,7 @@ import { LetterForm } from "@/components/letter-form";
 import type { ImageRef } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
-/** 07 · The Coast Market Report. One line about what it is, and one field. */
+/** 08 · Tide, the newsletter. One line about what it is, and one field. */
 export function LetterBand({ image }: { image: ImageRef }) {
   return (
     <CtaBand
