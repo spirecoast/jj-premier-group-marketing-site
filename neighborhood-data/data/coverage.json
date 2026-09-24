@@ -1,0 +1,2049 @@
+{
+ "generated": "2026-09-23",
+ "totals": {
+  "records": 2088,
+  "excluded": 13,
+  "byMarketLevel": {
+   "lakewood-ranch": {
+    "area": 45,
+    "community": 125,
+    "enclave": 0
+   },
+   "sarasota": {
+    "area": 25,
+    "community": 316,
+    "enclave": 72
+   },
+   "bradenton": {
+    "area": 30,
+    "community": 1273,
+    "enclave": 202
+   }
+  },
+  "bradentonAreaFlagged": 377,
+  "research": {
+   "full": 678,
+   "registry-only": 1410
+  }
+ },
+ "fieldFill": {
+  "full": {
+   "jurisdiction": 650,
+   "county": 677,
+   "zips": 562,
+   "lat": 635,
+   "type": 672,
+   "developer": 35,
+   "activeBuilders": 98,
+   "yearsBuilt": 21,
+   "homeTypes": 250,
+   "homeCount": 105,
+   "gated": 95,
+   "ageRestricted": 1,
+   "hoa": 387,
+   "cdd": 174,
+   "amenities": 153,
+   "waterAccess": 35,
+   "zonedSchools": 545,
+   "evacuationZone": 545,
+   "status": 654,
+   "officialUrl": 290,
+   "description": 678,
+   "_n": 678
+  },
+  "registry-only": {
+   "jurisdiction": 1403,
+   "county": 1410,
+   "zips": 1403,
+   "lat": 1403,
+   "type": 1372,
+   "developer": 0,
+   "activeBuilders": 0,
+   "yearsBuilt": 0,
+   "homeTypes": 0,
+   "homeCount": 0,
+   "gated": 0,
+   "ageRestricted": 0,
+   "hoa": 0,
+   "cdd": 0,
+   "amenities": 0,
+   "waterAccess": 0,
+   "zonedSchools": 1403,
+   "evacuationZone": 1403,
+   "status": 1410,
+   "officialUrl": 0,
+   "description": 1410,
+   "_n": 1410
+  }
+ },
+ "lookupsPending": false,
+ "noSchools": 1,
+ "needsBrowser": [
+  {
+   "what": "Florida special-district list",
+   "url": "https://specialdistrictreports.floridajobs.org/OfficialList/CustomList",
+   "why": "Returns 403 to automated fetches; CDD status (active/dissolved) comes from the 2025 Manatee tax roll, the county CDD map layer and the Sarasota Property Appraiser list instead."
+  },
+  {
+   "what": "mylwr.com (Lakewood Ranch Town Hall)",
+   "url": "https://mylwr.com/cms/town-hall",
+   "why": "JavaScript app. Holds the Summerfield/Riverwalk, Greenbrook and Country Club/Edgewater association rosters and the CDD 1/2/4/5/6 pages; Country Club West's neighborhoods and one Country Club North name are still unconfirmed."
+  },
+  {
+   "what": "Waterside village site",
+   "url": "https://lwrwaterside.com/",
+   "why": "Fails on SSL/robots. Official Waterside neighborhood pages and the 2025 village map."
+  },
+  {
+   "what": "Sarasota County pages (scgov.net)",
+   "url": "https://www.scgov.net/",
+   "why": "Return 403 to automated fetches. The Know Your Evacuation Zone page was opened in the browser and the zone layer its lookup uses was queried directly; other county pages were not re-read."
+  },
+  {
+   "what": "City of Bradenton / Holmes Beach / Bradenton Beach / Palmetto sites",
+   "url": "https://www.cityofbradenton.com/",
+   "why": "robots.txt or timeouts blocked some pages; area descriptions for those cities are short."
+  }
+ ],
+ "notSearched": [],
+ "staleSources": [
+  {
+   "slug": "ellenton",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "gillette",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "76th-avenue-east-community",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "bay-colony",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "braden-oaks",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "burgundy-condos",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "florida-avenue-park",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "forest-pines-of-manatee",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "fourth-bayshore-condominium",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "fox-run",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "foxbrook",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "garden-lakes-estates",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "glenn-lakes",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "harbour-isle",
+   "sources": [
+    "https://www.minto.com/usa/new-homes/news/New-Deep-Water-Marina-at-One-Particular-Harbour-Opening-to-Public-February-9-with-Celebratory-Event~0_1332.html (2019-02-01)"
+   ]
+  },
+  {
+   "slug": "il-villaggio",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "mill-creek",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "north-river-ranch",
+   "sources": [
+    "https://www.mymanatee.org/media/docs/default-source/development-services-department-documents/planning/planning-maps/community-development-districts-(ada2).pdf (2019-09-01)"
+   ]
+  },
+  {
+   "slug": "oak-brook",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "pride-park-area",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "river-club",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "riverview-condos",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "roberts-by-bayshore",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "rosedale",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)",
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "south-bay",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "tara",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "terra-ceia-manor",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "terra-siesta-mhp",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "the-covey",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "the-palms-at-cortez-condos",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)",
+    "https://propminc.nesthub.com/files/hoa/The%20Palms%20of%20Cortez%20Rules_Regs.pdf (2014-07-28)"
+   ]
+  },
+  {
+   "slug": "university-place",
+   "sources": [
+    "https://www.myuniversityplace.com/about/about-us/ (2022-02-02)"
+   ]
+  },
+  {
+   "slug": "wingspan-neighbors",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "woods-of-hammock-place",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "ashley-oaks",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "bloomfield-park",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "club-crossings",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "estates-at-glenn-lakes",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "lakeside",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "marlow",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "north-bridge",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "preserve-at-panther-ridge",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "regency-oaks-preserve",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "rosedale-highlands",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "somerset-bend",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "sweetbriar-court",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "tara-preserve",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "the-verandas-condos",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "victoria-court",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "westbrook",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "westbury-lakes",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "woodbrooke-run",
+   "sources": [
+    "https://www.rosedalemasterhoa.com/thinking-of-moving-to-rosedale (2022-04-12)"
+   ]
+  },
+  {
+   "slug": "woods",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "aurora",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "avalon-woods",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "azario",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "calusa-country-club",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-ranks-no-1-in-the-nation-for-sixth-consecutive-year/ (2024-01-04)"
+   ]
+  },
+  {
+   "slug": "central-park",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "country-club-east",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "cresswind",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "del-webb",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "del-webb-catalina",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-ranks-no-1-in-the-nation-for-sixth-consecutive-year/ (2024-01-04)"
+   ]
+  },
+  {
+   "slug": "greenbrook",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)",
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "indigo",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)",
+    "https://www.nealcommunities.com/blog/new-website-unveiled-for-indigo/ (2017-10-25)"
+   ]
+  },
+  {
+   "slug": "lakewood-national-golf-club",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "lorraine-lakes",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)",
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "palisades",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-best-selling-multi-gen-community-in-the-nation/ (2020-01-08)"
+   ]
+  },
+  {
+   "slug": "polo-run",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "riverwalk",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)",
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "sapphire-point",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "savanna",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "solera",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "star-farms",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "summerfield",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)",
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "sweetwater",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "the-isles",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "the-lake-club",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "waterside",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "woodleaf-hammock",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-best-selling-multi-gen-community-in-the-nation/ (2020-01-08)"
+   ]
+  },
+  {
+   "slug": "avanti",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "azario-esplanade",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "belleisle",
+   "sources": [
+    "https://flauditor.gov/pages/specialdistricts_efile%20rpts/2023%20lakewood%20ranch%20stewardship%20district.pdf (2023-09-30)"
+   ]
+  },
+  {
+   "slug": "bungalow-walk",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "emerald-landing",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "esplanade-townhomes-at-azario",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "greenbrook-banks",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "bend",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-chase",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-crossings",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-dale",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-fields",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-gardens",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "haven",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-preserve",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "ravines",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-rivers",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-run",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-terrace",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-trails",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "greenbrook-vistas",
+   "sources": [
+    "https://content.civicplus.com/api/assets/911c1c9c-dea8-4f3c-ac9a-7e405457b0e0 (2020-06-17)"
+   ]
+  },
+  {
+   "slug": "kingfisher-estates",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "lakehouse-cove",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "nautique",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "park-east",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "riverwalk-grove",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "hammock",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "riverwalk-meadow",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "riverwalk-oaks",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "riverwalk-ridge",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "saddlestone",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-ranks-no-1-in-the-nation-for-sixth-consecutive-year/ (2024-01-04)"
+   ]
+  },
+  {
+   "slug": "shellstone",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "shoreview",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)",
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "summerfield-bluffs",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)",
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-crest",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)",
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "the-forest",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)",
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)",
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "glades",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-glen",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-green",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-hollows",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "knoll",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-lakes",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-park",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-pines",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-place",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-strand",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "summerfield-woods",
+   "sources": [
+    "https://content.civicplus.com/api/assets/7dc73591-51b1-47f7-ac5a-58486c64b67a (2019-01)"
+   ]
+  },
+  {
+   "slug": "the-alcove",
+   "sources": [
+    "https://lakewoodranch.com/wp-content/uploads/2024/04/20240329_LWR_VillageMatrix_Interactive_mf4.pdf (2024-03-29)"
+   ]
+  },
+  {
+   "slug": "wild-blue",
+   "sources": [
+    "https://lakewoodranch.com/lakewood-ranch-remains-the-best-selling-all-ages-community-in-the-nation/ (2022-01-06)"
+   ]
+  },
+  {
+   "slug": "bayfront-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/historic-designations-061819-revised-3accessible.pdf (2019-06-18)"
+   ]
+  },
+  {
+   "slug": "burns-court-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)"
+   ]
+  },
+  {
+   "slug": "caples-ringling-estate-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)"
+   ]
+  },
+  {
+   "slug": "central-cocoanut-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/05000599_text (2005-05-01)"
+   ]
+  },
+  {
+   "slug": "downtown-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/09000183_text (2008-03-01)"
+   ]
+  },
+  {
+   "slug": "downtown-sarasota",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/09000183_text (2008-03-01)"
+   ]
+  },
+  {
+   "slug": "harding-circle-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/00001650_text (2000-12-01)"
+   ]
+  },
+  {
+   "slug": "hillview-art-colony",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/historic-designations-061819-revised-3accessible.pdf (2019-06-18)"
+   ]
+  },
+  {
+   "slug": "laurel-park-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/08000164_text (2007-10-01)"
+   ]
+  },
+  {
+   "slug": "newtown-conservation-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/newtown-national-register-nomination.pdf (2023-06-30)"
+   ]
+  },
+  {
+   "slug": "overtown-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/02000781_text (2002-04-01)"
+   ]
+  },
+  {
+   "slug": "rigbys-la-plaza-historic-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/nr_list_0220accessible.pdf (2020-02-04)",
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/historic-designations-061819-revised-3accessible.pdf (2019-06-18)",
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/94000373_text (1994-03-01)"
+   ]
+  },
+  {
+   "slug": "second-street-district",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/historic-designations-061819-revised-3accessible.pdf (2019-06-18)"
+   ]
+  },
+  {
+   "slug": "bay-isles",
+   "sources": [
+    "https://www.bayisles.com/ (2021-04-14)",
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "cascades",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "centre-lake",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "conservatory-estates",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "fox-trace",
+   "sources": [
+    "https://www.davidweekleyhomes.com/media/CommunityFeatures/2f84342c-6cef-4894-a457-6ed79decaee0.pdf (2019-03-05)"
+   ]
+  },
+  {
+   "slug": "glenbrooke",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "hammock-place",
+   "sources": [
+    "https://habitatsrq.org/livestransformed (2022-02-25)"
+   ]
+  },
+  {
+   "slug": "lake-sarasota",
+   "sources": [
+    "http://lakesarasota.blogspot.com/ (2023-11-23)"
+   ]
+  },
+  {
+   "slug": "laurel-park",
+   "sources": [
+    "https://npgallery.nps.gov/NRHP/GetAsset/NRHP/08000164_text (2007-10-01)"
+   ]
+  },
+  {
+   "slug": "lincoln-park",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "mote-ranch",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "newtown",
+   "sources": [
+    "https://www.sarasotafl.gov/files/assets/city/v/1/planning/documents/historic-preservation-program/newtown-national-register-nomination.pdf (2023-06-30)"
+   ]
+  },
+  {
+   "slug": "pine-shores",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "skye-ranch",
+   "sources": [
+    "https://www.skyeranchlifestyle.com/wp-content/uploads/sites/81/2023/03/04-HOA-Fee-Sheet_Cassia-at-Skye-Ranch-12.5.23.pdf (2023-12-05)"
+   ]
+  },
+  {
+   "slug": "trillium",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "tuscana",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "venetian-park-estates",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "versailles",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "woodside-village-east",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)"
+   ]
+  },
+  {
+   "slug": "bay-isles-harbor",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "cassia-at-skye-ranch",
+   "sources": [
+    "https://www.skyeranchlifestyle.com/wp-content/uploads/sites/81/2023/03/04-HOA-Fee-Sheet_Cassia-at-Skye-Ranch-12.5.23.pdf (2023-12-05)"
+   ]
+  },
+  {
+   "slug": "coreys-landing",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "devonshire-place",
+   "sources": [
+    "https://www.themeadowssarasota.org/wp-content/uploads/2022/07/Single-Family-Amendment-Devonshire-Place-Paragraphs-4-and-25_03-01-2022.pdf (2022-03-01)"
+   ]
+  },
+  {
+   "slug": "harbour-court",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "papillon",
+   "sources": [
+    "https://www.themeadowssarasota.org/wp-content/uploads/2021/07/PAPILLON-OFFICIAL-2011.pdf (2011-01-01)"
+   ]
+  },
+  {
+   "slug": "queens-harbour",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "sabal-cove",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "the-bayou",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "treymore",
+   "sources": [
+    "https://www.mymanatee.org/giscomm/rest/services/communityneighborhood/neighborhoodhoa/MapServer/0 (2021-03-03)"
+   ]
+  },
+  {
+   "slug": "weston-pointe-court",
+   "sources": [
+    "https://www.bayisles.com/communities/ (2021-04-14)"
+   ]
+  },
+  {
+   "slug": "weybridge",
+   "sources": [
+    "https://ftp.scgov.net/NOD/NeighborhoodList.pdf (2021-07-22)",
+    "https://www.themeadowssarasota.org/pdf/condo_docs/weybridge.pdf (1985-01-01)"
+   ]
+  }
+ ],
+ "scopeEdge": [
+  {
+   "slug": "university-park",
+   "name": "University Park",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (UNVERIFIED - confirm mailing city/ZIP 34201). Independent recreation district named for the community. "
+  },
+  {
+   "slug": "longboat-key-manatee-county-portion",
+   "name": "Longboat Key (Manatee County portion)",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Northern portion, 4000 block of Gulf of Mexico Drive and higher, per town. Alias 'North Longboat Key' is common usage, not from the town page. "
+  },
+  {
+   "slug": "whitfield",
+   "name": "Whitfield",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. [detail_sarasota_city_islands] type set to 'neighborhood' (was null) from the county Neighborhoods layer COMMUNITY value; no primary page found in detail phase. scope-edge: Manatee County with Sarasota mailing address (per county MUN code interpretation; verify). "
+  },
+  {
+   "slug": "ballentine-manor-estates",
+   "name": "Ballentine Manor Estates",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "cascades",
+   "name": "Cascades",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. Listed in Manatee County GIS 'Neighborhood HOAs' layer (contact-point data, item created/modified 2021-03-03; > 2 years old) as 'CASCADES AT SARASOTA'. [detail_sarasota_county_a] No public official website found: the only association web presence is a resident login portal (cascadesatsarasota.connectresident.com, no public text). Gated/55+/amenities appear only on discovery-only sites (55places, brokerages) -> left null. "
+  },
+  {
+   "slug": "cedar-woodlands",
+   "name": "Cedar Woodlands",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Recorded plat(s) in Town of Longboat Key GIS parcel layer (SUB field, County=Manatee): CEDAR WOODLANDS PB29/166; CEDAR WOODLANDS PH II PB63/15. Public identity beyond the plat not verified; no association site checked. [detail_sarasota_city_islands] Plat-only identity in the Town of Longboat Key parcel layer; no association or official website found in detail phase. "
+  },
+  {
+   "slug": "centre-lake",
+   "name": "Centre Lake",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. Listed in Manatee County GIS 'Neighborhood HOAs' layer (contact-point data, item created/modified 2021-03-03; > 2 years old) as 'CENTRE LAKE HOMEOWNER'S ASSOC'. Contact address Sarasota, FL 34243. "
+  },
+  {
+   "slug": "conservatory-estates",
+   "name": "Conservatory Estates",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. [detail_sarasota_county_a] Type left null (no official description found). Brokerage pages show homes on Conservatory Drive, Sarasota 34243, and Manatee County operates a Conservatory Park (mymanatee.org); a link between the park and this subdivision was not confirmed. Type still null. "
+  },
+  {
+   "slug": "copperfield",
+   "name": "Copperfield",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "cottages-at-blu-vista",
+   "name": "Cottages at Blu Vista",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "country-oaks",
+   "name": "Country Oaks",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "country-palms",
+   "name": "Country Palms",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "court-of-palms",
+   "name": "Court of Palms",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "crescent-lakes",
+   "name": "Crescent Lakes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "emerald-harbor",
+   "name": "Emerald Harbor",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Recorded plat(s) in Town of Longboat Key GIS parcel layer (SUB field, County=Manatee): EMERALD HARBOR UNIT 1 REV PB11/52; EMERALD HARBOR UNIT NO 2 PB12/41; EMERALD HARBOR UNIT NO 3 PB12/64. Public identity beyond the plat not verified; no association site checked. [detail_sarasota_city_islands] Plat-only identity in the Town of Longboat Key parcel layer; no association or official website found in detail phase. "
+  },
+  {
+   "slug": "fairway",
+   "name": "Fairway",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "fiddlers-creek",
+   "name": "Fiddlers Creek",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "glenbrooke",
+   "name": "Glenbrooke",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. Listed in Manatee County GIS 'Neighborhood HOAs' layer (contact-point data, item created/modified 2021-03-03; > 2 years old) as 'GLENBROOK'. "
+  },
+  {
+   "slug": "gubody",
+   "name": "Gubody",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "hampton-lakes",
+   "name": "Hampton Lakes",
+   "note": "scope-edge place) - verify address. "
+  },
+  {
+   "slug": "hidden-hollow",
+   "name": "Hidden Hollow",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "hunters-grove",
+   "name": "Hunters Grove",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "idle-wild-court",
+   "name": "Idle Wild Court",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "jewfish-key",
+   "name": "Jewfish Key",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Recorded plat(s) in Town of Longboat Key GIS parcel layer (SUB field, County=Manatee): JEWFISH KEY SUBDIVISION PB54/14. Separate small island subdivision within the Town GIS parcel layer. Public identity beyond the plat not verified; no association site checked. [detail_sarasota_city_islands] Plat-only identity in the Town of Longboat Key parcel layer; no association or official website found in detail phase. "
+  },
+  {
+   "slug": "john-wesley-park",
+   "name": "John Wesley Park",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "kimberlynn-acres",
+   "name": "Kimberlynn Acres",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "kimmick",
+   "name": "Kimmick",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "lakeridge-falls",
+   "name": "Lakeridge Falls",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "las-casas-condos",
+   "name": "Las Casas Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "longbeach-village",
+   "name": "Longbeach Village",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Town page: 'the Longbeach Village neighborhood' (Broadway Street / Lois Avenue, east of Palm Drive). County = Manatee because the town places 100 Broadway Street in Manatee County and Town GIS parcels list plats 'LONGBEACH ON LONGBOAT KEY PB6/66', 'LONGBEACH REVISED OF R P JORDANS SUB PB1/306' with County=Manatee. [detail_sarasota_city_islands] officialUrl = Town 'Parking in the Village' page (the town's page for the neighborhood). No association website found. "
+  },
+  {
+   "slug": "magellan-park",
+   "name": "Magellan Park",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "magnolia-point",
+   "name": "Magnolia Point",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (county address points: MUN SM, ZIP 34243) "
+  },
+  {
+   "slug": "maple-lakes",
+   "name": "Maple Lakes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "matoaka",
+   "name": "Matoaka",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "matoaka-heights",
+   "name": "Matoaka Heights",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "mote-ranch",
+   "name": "Mote Ranch",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. CONFLICT: some Mote Ranch neighborhoods carry MUN UB (Bradenton) in the county layer; market set to sarasota from the HOA's Sarasota 34243 address. [detail_sarasota_county_b] WebSearch found no association-authored website (hoabulletinboard.com/hoa/mrsfl page reads as platform-generated text with fee estimates; not used). Sunbiz search-result title shows the entity as \"MOTE RANCH HOMEOWNERS ASSOCIATION\" (N25726; not opened). County layer MUN codes: SM for Arbor Lake Estates, Arbor Lakes, Chaparral, Meadowlake, Misty Lake; UB for Copper Ridge, Grand Point, River Bend, River Park. ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used). "
+  },
+  {
+   "slug": "north-sarasota",
+   "name": "North Sarasota",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "oak-grove-park",
+   "name": "Oak Grove Park",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "oak-run",
+   "name": "Oak Run",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "oakwood-acres",
+   "name": "Oakwood Acres",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "oasis-at-longwood-run",
+   "name": "Oasis at Longwood Run",
+   "note": "scope-edge\" note applied. Zip 34243 straddles the county line, which may be the source of the confusion - lead to confirm with parcel data. Possible parent longwood-run not set (no official source names Oasis as a Longwood Run section). D.R. Horton page (2026-09-23): Now Selling, 6 homes listed; lists home features and nearby places only (no community amenities, HOA, gate or 55+ statement)."
+  },
+  {
+   "slug": "palm-aire",
+   "name": "Palm Aire",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. [detail_sarasota_county_b] PACC member list (27 names as returned): Avista, Broadmoor Pines, Clubside, Club Villas I, Club Villas II, Condo B-Sarasota Palm-Aire, Conservatory Estates, Country Lakes, DeSoto Woods, Eagle Creek Villas, Eagle Creek Condos, Fairway Lakes, Fairway Point, Fairway Six, Fox Pointe, Gardens at Palm-Aire, Golf Pointe, The Hollows, Lakeside Woods, The Links, Misty Oaks, Palm-Aire Country Club, Pine Trace, Rosewood, Timberlake Village, Woodlake Villas, Woodland Green. PACC is an umbrella corporation (site nav: \"What is PACC?\", MSTU, Ordinance 19-10), not necessarily a mandatory HOA. Type left null (candidate \"golf community\"; no official page states it). County Neighborhoods layer lists 34 neighborhoods under PALM AIRE (incl. apartments). ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used). "
+  },
+  {
+   "slug": "palm-lakes",
+   "name": "Palm Lakes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "pedrero-brodkorb",
+   "name": "Pedrero-Brodkorb",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "pinehurst-estates-condos",
+   "name": "Pinehurst Estates Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "quail-run",
+   "name": "Quail Run",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "riomar",
+   "name": "Riomar",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "sara-palms",
+   "name": "Sara Palms",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "sarabay-lake",
+   "name": "Sarabay Lake",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "saraby-woods",
+   "name": "Saraby Woods",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "shadybrook-village-condos",
+   "name": "Shadybrook Village Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "sleepy-lagoon",
+   "name": "Sleepy Lagoon",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Recorded plat(s) in Town of Longboat Key GIS parcel layer (SUB field, County=Manatee): SLEEPY LAGOON PB7/14; SLEEPY LAGOON NO 2 PB7/28; SLEEPY LAGOON ADDITION PB7/81; SLEEPY LAGOON PARK PB7/83; SLEEPY LAGOON PARK NO 2 DB302/149; SLEEPY LAGOON PARK NO 3 PB17/22. Public identity beyond the plat not verified; no association site checked. [detail_sarasota_city_islands] Plat-only identity in the Town of Longboat Key parcel layer; no association or official website found in detail phase. "
+  },
+  {
+   "slug": "soleil-west",
+   "name": "Soleil West",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (market moved from bradenton per county address data) "
+  },
+  {
+   "slug": "sylvan-woods",
+   "name": "Sylvan Woods",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "tallevast",
+   "name": "Tallevast",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-preserve-at-longbeach",
+   "name": "The Preserve at Longbeach",
+   "note": "scope-edge: Manatee County portion of Longboat Key (Longboat Key mailing address); in sarasota market per lead brief. Recorded plat(s) in Town of Longboat Key GIS parcel layer (SUB field, County=Manatee): THE PRESERVE AT LONGBEACH PB63/39. Public identity beyond the plat not verified; no association site checked. [detail_sarasota_city_islands] Plat-only identity in the Town of Longboat Key parcel layer; no association or official website found in detail phase. "
+  },
+  {
+   "slug": "the-trails",
+   "name": "The Trails",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-treetops-at-north-forty-condos",
+   "name": "The Treetops at North Forty Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-uplands",
+   "name": "The Uplands",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "townhouse-residences-at-university-groves",
+   "name": "Townhouse Residences at University Groves",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "tuxedo-park",
+   "name": "Tuxedo Park",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "university-groves",
+   "name": "University Groves",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. [detail_sarasota_county_b] ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used). Directory sites list a 'Residences at University Groves Homeowners Association' and a 'Town Center at University Groves Master Land Condo Association' (discovery only; not recorded). "
+  },
+  {
+   "slug": "university-pines",
+   "name": "University Pines",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "university-village",
+   "name": "University Village",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (market moved from bradenton per county address data) "
+  },
+  {
+   "slug": "villa-del-sol-mhp",
+   "name": "Villa Del Sol MHP",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "villages-of-palm-aire",
+   "name": "Villages of Palm Aire",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. [detail_sarasota_county_b] Not on the Palm-Aire Communities Corporation member list. ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used). Section association site treymore.org (Treymore at the Villages of Palm Aire HOA) is JavaScript-only - NEEDS BROWSER. No master association site found for Villages of Palm Aire. "
+  },
+  {
+   "slug": "vintage-creek",
+   "name": "Vintage Creek",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whispering-oaks-sarasota",
+   "name": "Whispering Oaks",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whitfield-acres",
+   "name": "Whitfield Acres",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whitfield-estates",
+   "name": "Whitfield Estates",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whitfield-gardens",
+   "name": "Whitfield Gardens",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whitfield-groves",
+   "name": "Whitfield Groves",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whitfield-manor",
+   "name": "Whitfield Manor",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "whitfield-pines",
+   "name": "Whitfield Pines",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "winter-gardens",
+   "name": "Winter Gardens",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "woodbridge-oaks",
+   "name": "Woodbridge Oaks",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "woodbrook",
+   "name": "Woodbrook",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (market moved from bradenton per county address data) "
+  },
+  {
+   "slug": "woodlands-trace",
+   "name": "Woodlands Trace",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (market moved from bradenton per county address data) "
+  },
+  {
+   "slug": "woods-of-whitfield",
+   "name": "Woods of Whitfield",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "arbor-lake-estates",
+   "name": "Arbor Lake Estates",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "arbor-lakes",
+   "name": "Arbor Lakes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "avalon",
+   "name": "Avalon",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "avista-condos",
+   "name": "Avista Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "broadmoor-pines",
+   "name": "Broadmoor Pines",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "callaway-glen-condos",
+   "name": "Callaway Glen Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "carlyle",
+   "name": "Carlyle",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "carrington",
+   "name": "Carrington",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "chaparral",
+   "name": "Chaparral",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "club-villas-condos",
+   "name": "Club Villas Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "clubside-condos",
+   "name": "Clubside Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "copper-ridge",
+   "name": "Copper Ridge",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "country-lakes",
+   "name": "Country Lakes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "desoto-woods",
+   "name": "Desoto Woods",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "eagle-creek-condos",
+   "name": "Eagle Creek Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "fairway-lakes",
+   "name": "Fairway Lakes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "fairway-point",
+   "name": "Fairway Point",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "fairway-six",
+   "name": "Fairway Six",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "fox-pointe",
+   "name": "Fox Pointe",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "golf-pointe-condos",
+   "name": "Golf Pointe Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "golf-side-condos",
+   "name": "Golf Side Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "grand-point",
+   "name": "Grand Point",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "lakeside-woods",
+   "name": "Lakeside Woods",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "meadowlake",
+   "name": "Meadowlake",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "misty-lake",
+   "name": "Misty Lake",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "misty-oaks",
+   "name": "Misty Oaks",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "palm-west",
+   "name": "Palm West",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "pine-trace-condos",
+   "name": "Pine Trace Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "river-bend",
+   "name": "River Bend",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "river-park",
+   "name": "River Park",
+   "note": "scope-edge: Manatee County with Sarasota mailing address (parent Mote Ranch has Sarasota 34243 HOA address; this feature's MUN may differ). "
+  },
+  {
+   "slug": "rosewood-at-the-gardens",
+   "name": "Rosewood at the Gardens",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "san-michele-condos",
+   "name": "San Michele Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "serenata-condos",
+   "name": "Serenata Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "sonoma",
+   "name": "Sonoma",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "sunset-pointe-condos",
+   "name": "Sunset Pointe Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-gardens-condos",
+   "name": "The Gardens Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-hollows-condos",
+   "name": "The Hollows Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-links",
+   "name": "The Links",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-preserves-condos",
+   "name": "The Preserves Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-townhomes",
+   "name": "The Townhomes",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "the-villas-of-eagle-creek-condos",
+   "name": "The Villas of Eagle Creek Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "timberlake-village",
+   "name": "Timberlake Village",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "tradition-condos",
+   "name": "Tradition Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "treymore",
+   "name": "Treymore",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. Listed in Manatee County GIS 'Neighborhood HOAs' layer (contact-point data, item created/modified 2021-03-03; > 2 years old) as 'TREYMORE AT THE VILLAGES OF PALM-AIRE'. "
+  },
+  {
+   "slug": "woodlake-villas-condos",
+   "name": "Woodlake Villas Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  },
+  {
+   "slug": "woodland-green-condos",
+   "name": "Woodland Green Condos",
+   "note": "scope-edge: Manatee County with Sarasota mailing address. "
+  }
+ ],
+ "ageRestrictionPendingHOPA": [
+  {
+   "slug": "colony-cove",
+   "name": "Colony Cove"
+  },
+  {
+   "slug": "del-webb-sunchase",
+   "name": "Del Webb Sunchase"
+  },
+  {
+   "slug": "woodland-preserve",
+   "name": "Woodland Preserve"
+  },
+  {
+   "slug": "encore-at-rye-ranch",
+   "name": "Encore at Rye Ranch"
+  },
+  {
+   "slug": "prosperity-lakes-active-adult",
+   "name": "Prosperity Lakes Active Adult"
+  },
+  {
+   "slug": "cresswind",
+   "name": "Cresswind"
+  },
+  {
+   "slug": "del-webb-catalina",
+   "name": "Del Webb Catalina"
+  },
+  {
+   "slug": "camelot-lakes",
+   "name": "Camelot Lakes"
+  }
+ ],
+ "noCoordinates": [
+  "gillette",
+  "76th-avenue-east-community",
+  "aqua",
+  "bay-colony",
+  "forest-pines-of-manatee",
+  "fox-run",
+  "oak-brook",
+  "palms-of-terra-ceia-bay",
+  "pepper-grove-i",
+  "pepper-grove-ii",
+  "roberts-by-bayshore",
+  "the-covey",
+  "the-islands-on-the-manatee-river",
+  "villages-of-avignon",
+  "ashley-oaks",
+  "encore-at-rye-ranch",
+  "inspiration-at-watercolor-place",
+  "reflection-villas-at-watercolor-place",
+  "tara-preserve",
+  "westhaven-at-heritage-harbour",
+  "country-club-west",
+  "evercreek",
+  "stillwater",
+  "esplanade-at-cammaray-lakewood-ranch",
+  "gleneagles",
+  "lofts",
+  "palmer-creek",
+  "sand-hills",
+  "bayfront-historic-district",
+  "downtown-sarasota",
+  "hillview-art-colony",
+  "miakka",
+  "newtown-conservation-historic-district",
+  "overtown-historic-district",
+  "second-street-district",
+  "aqulane-estates",
+  "banyan-cove",
+  "fairway-district",
+  "gulf-beach",
+  "jefferson-center",
+  "old-forest-lakes",
+  "orchid-trace",
+  "riverwood-court",
+  "rosemary-condo",
+  "saint-armand-towers-south",
+  "siesta-key-village",
+  "south-village",
+  "bay-isles-harbor",
+  "papillon",
+  "the-bayou"
+ ],
+ "excluded": [
+  {
+   "slug": "heritage-ranch",
+   "name": "Heritage Ranch",
+   "market": "lakewood-ranch",
+   "reason": "LWR map labels it; the FY26 LWR magazine map key marks it 'Conservation Easement' and no county address points or LWR pages show homes (detail agent recommendation)"
+  },
+  {
+   "slug": "garden-park",
+   "name": "Garden Park",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Sarasota County PlatBoundary data shows the only 'Garden Park' plats (condominium GARDEN PARK, CB42 PG20, phases 3-9 recorded 2011-2012) at about lat 27.147, lng -82.464, in the Nokomis/Venice area (next to SPRINGHILL PARK, not in the Sarasota mailing area); the registry zip 34240 is a contact address. [sarasota_registries] Sarasota County neighborhood-registration GIS layer (registrationstatus field 'No'; meaning unclear) entry 'Garden Park Condominium Association' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Match of the association to the Garden Park condominium plat is by name + condominium type (only Garden Park plat in the county). Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+  },
+  {
+   "slug": "gulf-view-estates",
+   "name": "Gulf View Estates",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Sarasota County PlatBoundary data places GULF VIEW ESTATES UNIT 1 (PB07 PG86) at about lat 27.027, lng -82.391, in the Venice area (beside CIRCLE WOODS OF VENICE); discovery-only sites also list it as Gulf View Estates, Venice. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Gulf View Estates Owners Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] No official website found in one search."
+  },
+  {
+   "slug": "keyway-place",
+   "name": "Keyway Place",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Sarasota County PlatBoundary data places KEYWAY PLACE A REPLAT (PB48 PG42) at about lat 27.009, lng -82.378, in the Venice/Englewood area far south of the Sarasota mailing area. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Keyway Place Homeowners Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+  },
+  {
+   "slug": "magnolia-bay",
+   "name": "Magnolia Bay",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Nokomis mailing address per Sarasota County address point (205 HOLLY BANK AVE: postalcomm \"Nokomis\", zip 34275, muni code \"CV\" - likely City of Venice, verify; point 27.157234, -82.416997). Builder page wrote \"Nokomis, FL 34241\"; county data gives 34275 -> zips set to 34275. Recorded plats MAGNOLIA BAY NORTH/SOUTH PHASE 1-2 sit at lat ~27.156-27.166. Jurisdiction left null (muni code meaning not confirmed). Other fields carried from census, not re-verified (excluded record)."
+  },
+  {
+   "slug": "marina-isles",
+   "name": "Marina Isles",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Sarasota County PlatBoundary data places the MARINA ISLES condominium plats (CB13 PG39, PH 2 CB16 PG39) at about lat 27.000, lng -82.377, in the Venice/Englewood area far south of the Sarasota mailing area. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Marina Isles Condominium Association' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+  },
+  {
+   "slug": "mission-estates",
+   "name": "Mission Estates",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Sarasota County PlatBoundary data places MISSION ESTATES UNIT 1 (PB39 PG06) and UNIT 2 (PB39 PG46) at about lat 27.155, lng -82.451, beside Mission Valley Estates in the Nokomis/Venice area, far south of the Sarasota mailing area. Registry city 'Sarasota' is the contact's mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Mission Estates HOA, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_a] Official website NOT searched: the session's shared WebSearch budget (200/200) was exhausted before this record was reached, so only Sarasota County PlatBoundary data was checked; lead should run a website search."
+  },
+  {
+   "slug": "ravenwood",
+   "name": "Ravenwood",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Englewood (probable). The only county plat named RAVENWOOD (PB25, 5.8 ac) lies at ~26.985N,-82.370W; county address points there are postal community Englewood, ZIP 34223. Link between the registered association and this plat is by name only - lead may confirm. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Ravenwood Owners' Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction left null (Muni not queried; address points at the plat are postal Englewood 34223). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+  },
+  {
+   "slug": "rivendell",
+   "name": "Rivendell",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Osprey. The association site (rivendellcommunity.com) says the community is \"Located in Osprey, Florida\"; county plats RIVENDELL UNIT 2-5 lie at ~27.18N (Osprey). County NOD also lists \"Rivendell Homeowners Association"
+  },
+  {
+   "slug": "summer-green",
+   "name": "Summer Green",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Venice. County plats SUMMER GREEN SEC 1-3 (condominium books) lie at ~27.108N,-82.408W; county address points there are Venice 34292, including building name \"SUMMER GREEN\" on Capri Isles; the registry city \"Sarasota\" appears to be a contact mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Summer Green Condominium Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction left null (Muni not queried; address points at the plats are postal Venice 34292). County condominium-book plats: SUMMER GREEN SEC 1-3 (CB15-CB30). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+  },
+  {
+   "slug": "willow-chase",
+   "name": "Willow Chase",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Nokomis. The only county plat named WILLOW CHASE (PB45, 59 ac) lies at ~27.139N,-82.390W; county address points there are postal community Nokomis, ZIP 34275; the registry city \"Sarasota\" appears to be a contact mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Willow Chase Community Association, Inc.' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction left null (Muni not queried; address points at the plat are postal Nokomis 34275). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+  },
+  {
+   "slug": "woodmere-lakes",
+   "name": "Woodmere Lakes",
+   "market": "sarasota",
+   "reason": "EXCLUDE: Venice. All three county plats WOODMERE LAKES UNIT 1-3 lie at ~27.055N,-82.387W and every county address point there is postal community Venice, ZIP 34293 (unincorporated); the registry city \"Sarasota\" appears to be a contact mailing address. [sarasota_registries] Sarasota County Neighborhood Online Directory entry 'Woodmere Lakes Homeowners Association' (registry city 'Sarasota'). Jurisdiction (City of Sarasota vs unincorporated) not stated by the registry — set null; resolve with city Municipal Boundary layer. [detail_sarasota_county_b] Jurisdiction from Sarasota County address points (Muni=SC, ZIP 34293; streets all points Venice 34293). Not web-searched: the session-wide WebSearch budget was exhausted mid-task; no website is listed for it in the county registry. Treat as \"no official website found (not searched)\". ageRestricted/zonedSchools/evacuationZone/lat/lng/zips left for lead (no HOPA statement found; no official street address used)."
+  },
+  {
+   "slug": "bel-air",
+   "name": "Bel Air",
+   "market": "sarasota",
+   "reason": "nearest county address point has postal community Osprey (excluded area)"
+  }
+ ],
+ "verification": {
+  "sampleSize": 50,
+  "fullResearch": 37,
+  "registryOnly": 13,
+  "checker": "separate agent that did not build the data; re-opened cited sources with WebFetch (~87 fetches)",
+  "recordsWithErrors": 14,
+  "errorRate": "28% (13 of 37 full-research records, 1 of 13 registry-only)",
+  "fairHousingViolations": 0,
+  "errorTypes": [
+   "builder pages stretched (future amenities shown as existing; status inferred)",
+   "facts cited to pages that do not contain them",
+   "management-company pages used as the HOA site",
+   "market/bradentonArea/jurisdiction wrong where the county layer has no municipality code",
+   "duplicate-merge leftovers in aliases",
+   "historic-district period of significance used as yearsBuilt"
+  ],
+  "fixes": "All 35 findings fixed record by record. Systemic fixes applied to the whole dataset: management-company pages (C&S) removed as officialUrl/HOA sources (13 records); historic-district periods of significance moved from yearsBuilt to notes (8); truncated mylwr.com association link replaced (21); stale LWR manual dated; area status filled; market/bradentonArea/jurisdiction recomputed from county address points where the lookup ran.",
+  "residualRisk": "The sample error rate implies other full-research records may carry similar errors, especially builder amenity lists and status for coming-soon communities, and HOA details for small associations. Treat description and amenity fields for new-construction communities as needing a quick human check before publishing.",
+  "secondPass": "A second independent check covered 30 records changed on 2026-09-23 (new research, Palmer Ranch counts, builder updates, new map points): 559 fields, 524 confirmed, 25 unreadable by automated fetch, 7 wrong and 3 unsupported. Fixed: Jefferson Pines lookup address, Hammock Preserve level and home types, Curiosity Creek and Meadow Walk descriptions, Terra Ceia Manor name, Laurel Oak site link, and CDD wording in 7 descriptions whose district link rests only on the tax roll. One finding was overruled: Sweetwater stays built-out because M/I's live page, opened in a real browser, reads 'No Longer Available' (the checker's automated fetch returned an older page)."
+ },
+ "conflicts": [
+  {
+   "slug": "moorings",
+   "issue": "Manatee County address data calls it 'The Moorings at Edgewater'; the Country Club/Edgewater association roster (2022) lists it under Country Club South. Parent kept as Country Club South."
+  },
+  {
+   "slug": "waterfront-at-main",
+   "issue": "County data calls it 'Waterfront on Mainstreet'; association roster places it in Country Club South."
+  },
+  {
+   "slug": "waterbury-park",
+   "issue": "County address data labels it within the University Lakes DRI; lakewoodranch.com lists it as a village. Builder says Now Selling; lakewoodranch.com says coming soon."
+  },
+  {
+   "slug": "amber-creek",
+   "issue": "Ryan Homes says 'We are sold out' but still lists one quick move-in home; status kept selling."
+  },
+  {
+   "slug": "the-country-club",
+   "issue": "Seven neighborhoods (Belmont, Edenmore, Greystone, Highfield, Silverwood, Thornhill, Wexford) probably belong to Country Club West; parent left as The Country Club."
+  },
+  {
+   "slug": "the-isles-on-palmer-ranch",
+   "issue": "May be the same place as Isles of Sarasota (master association lists only Isles of Sarasota); set as an enclave of it."
+  },
+  {
+   "slug": "riversong",
+   "issue": "Census merged Pulte's Parrish Riversong with a City of Bradenton 'River Dance / Riversong' complex point; coordinates use the Parrish county address point."
+  },
+  {
+   "slug": "university-park",
+   "issue": "Official address is 'University Park, FL 34201' (Manatee County); kept in the bradenton market."
+  },
+  {
+   "slug": "gillette",
+   "issue": "Palmetto mailing address, so flagged bradentonArea, though Gillette is not named in the Palmetto/Ellenton/Parrish rule."
+  },
+  {
+   "slug": "bird-key",
+   "issue": "Association name differs: its site says 'Bird Key Homeowners Association, Inc.', the county directory 'Bird Key Improvement Association, Inc.'"
+  },
+  {
+   "slug": "palm-aire",
+   "issue": "Type left null; the HOA recorded is the Palm-Aire Communities Corporation umbrella group rather than a single HOA."
+  },
+  {
+   "slug": "the-forest-at-hi-hat-ranch",
+   "issue": "No official Lakewood Ranch page says it is outside the master plan; placed in the sarasota market because it is absent from every LWR village list."
+  },
+  {
+   "slug": "hawkstone-sarasota",
+   "issue": "M/I Homes' Hawkstone (Sarasota 34241) is a different place from Hawkstone in Lakewood Ranch's Country Club East."
+  },
+  {
+   "slug": "sarasota-polo-ranches",
+   "issue": "Only a Lakewood Ranch map label supports it being residential; status unknown."
+  },
+  {
+   "slug": "church-hill-downs",
+   "issue": "Recorded subdivision name contains the word \"Church\" (a proper name, not a selling point); kept."
+  }
+ ]
+}

@@ -35,9 +35,9 @@ export default async function PortalLayout({
             className="flex items-center gap-2 font-semibold text-sm tracking-tight"
           >
             <span className="size-6 rounded-md bg-foreground text-inverse flex items-center justify-center text-[11px] font-bold">
-              YP
+              JJ
             </span>
-            <span className="truncate">[YOUR PLACEHOLDER]</span>
+            <span className="truncate">JJ Premier Group</span>
           </Link>
         </div>
 

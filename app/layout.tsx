@@ -1,46 +1,108 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import {
+  Cormorant_Garamond,
+  IBM_Plex_Mono,
+  Jost,
+  Newsreader,
+} from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { site } from "@/lib/site";
 
-const fraunces = Fraunces({
+/**
+ * Four voices, loaded through next/font so nothing render-blocking leaves the
+ * origin. The licensed faces (IvyPresto Headline, Contralto) lead each CSS
+ * stack in styles/tokens.css and take over automatically once self-hosted.
+ */
+const newsreader = Newsreader({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  variable: "--font-newsreader",
   display: "swap",
 });
 
-const inter = Inter({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["600"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
+const jost = Jost({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-jost",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(site.url),
   title: {
-    default: "[YOUR PLACEHOLDER]",
-    template: "%s · [YOUR PLACEHOLDER]",
+    default: `${site.name} · ${site.brokerage}`,
+    template: `%s · ${site.name}`,
   },
-  description:
-    "Real estate in Lakewood Ranch, Sarasota, and Manatee County, Florida.",
+  description: site.description,
+  applicationName: site.name,
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    locale: site.locale,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: `${site.name} · ${site.tagline}`,
+      },
+    ],
+  },
+  twitter: { card: "summary_large_image" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  // NEXT_PUBLIC_ROBOTS_NOINDEX=true keeps previews and the pre-launch site out of search engines.
+  robots: process.env.NEXT_PUBLIC_ROBOTS_NOINDEX === "true" ? { index: false, follow: false } : { index: true, follow: true },
 };
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#1e3442",
+};
+
+/**
+ * Clerk signs agents into the portal. The public site deploys without Clerk
+ * keys (the marketing project has none), and ClerkProvider throws without a
+ * publishable key, so the provider wraps the tree only when one is set.
+ */
+const CLERK_ENABLED = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <ClerkProvider>
-      <html
-        lang="en"
-        data-theme="editorial-coast"
-        className={`${fraunces.variable} ${inter.variable}`}
-      >
-        <body className="min-h-screen bg-background text-foreground antialiased">
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+  const tree = (
+    <html
+      lang="en"
+      className={`${newsreader.variable} ${cormorant.variable} ${jost.variable} ${plexMono.variable}`}
+    >
+      <body className="min-h-screen bg-paper text-ink antialiased">
+        {children}
+      </body>
+    </html>
   );
+  return CLERK_ENABLED ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 }

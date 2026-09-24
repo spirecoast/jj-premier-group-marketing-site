@@ -1,0 +1,6 @@
+{
+  "path": "./{sanity,lib,app}/**/*.{ts,tsx}",
+  "schema": "./sanity/schema.json",
+  "generates": "./sanity.types.ts",
+  "overloadClientMethods": true
+}

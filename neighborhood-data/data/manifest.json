@@ -1,0 +1,42 @@
+{
+  "dataset": "JJ Premier Group neighborhoods",
+  "generated": "2026-09-23",
+  "records": 2088,
+  "byMarketLevel": {
+    "lakewood-ranch": {
+      "area": 45,
+      "community": 125,
+      "enclave": 0
+    },
+    "sarasota": {
+      "area": 25,
+      "community": 316,
+      "enclave": 72
+    },
+    "bradenton": {
+      "area": 30,
+      "community": 1273,
+      "enclave": 202
+    }
+  },
+  "research": {
+    "registry-only": 1410,
+    "full": 678
+  },
+  "withCoordinates": 2038,
+  "withZonedSchools": 1948,
+  "schoolYear": {
+    "manatee": "2026-27 (GuideK12 locator path /school_search/2026/)",
+    "sarasota": "current CountySchoolDistricts layer"
+  },
+  "files": {
+    "data/neighborhoods.json": "canonical dataset, one object per record, sorted by slug",
+    "data/neighborhoods.search.json": "slim search index (no notes/sources/descriptions), with a normalized q field",
+    "data/neighborhoods.csv": "flattened copy for spreadsheets",
+    "data/sources.csv": "one row per record x source",
+    "data/coverage.json": "gaps, verification results, lists",
+    "data/excluded.json": "records dropped during the build and why",
+    "data/discover-baseline.json": "names scripts/discover.mjs has already seen and that were deliberately left out (baseline 2026-09-23)"
+  },
+  "withEvacuationZone": 1948
+}

@@ -44,3 +44,15 @@ next-env.d.ts
 
 # drizzle
 /lib/db/migrations/meta/_journal.json.bak
+
+# sanity typegen intermediate (regenerate with npm run sanity:typegen)
+/sanity/schema.json
+
+# local screenshot runs
+shots/
+
+# neighborhood data reports
+neighborhood-data/reports/
+
+# copied at build time by scripts/copy-maplibre-worker.mjs
+public/vendor/
