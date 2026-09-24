@@ -5,6 +5,7 @@ import {
   Jost,
   Newsreader,
 } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { site } from "@/lib/site";
 
@@ -83,10 +84,17 @@ export const viewport: Viewport = {
   themeColor: "#1e3442",
 };
 
+/**
+ * Clerk signs agents into the portal. The public site deploys without Clerk
+ * keys (the marketing project has none), and ClerkProvider throws without a
+ * publishable key, so the provider wraps the tree only when one is set.
+ */
+const CLERK_ENABLED = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return (
+  const tree = (
     <html
       lang="en"
       className={`${newsreader.variable} ${cormorant.variable} ${jost.variable} ${plexMono.variable}`}
@@ -96,4 +104,5 @@ export default function RootLayout({
       </body>
     </html>
   );
+  return CLERK_ENABLED ? <ClerkProvider>{tree}</ClerkProvider> : tree;
 }

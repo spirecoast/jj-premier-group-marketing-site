@@ -1094,3 +1094,47 @@
     display: none !important;
   }
 }
+
+/* -----------------------------------------------------------------------------
+   Portal-specific overrides — the CRM lives in a different design language
+   than the marketing site. Sans-serif everywhere, denser scale, tighter
+   spacing, no display-font flourishes.
+   ----------------------------------------------------------------------------- */
+[data-portal] {
+  font-family: var(--font-body);
+}
+
+[data-portal] .portal-h1 {
+  font-family: var(--font-body);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+}
+
+[data-portal] .portal-h2 {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-text-primary);
+}
+
+[data-portal] .portal-stat-num {
+  font-family: var(--font-body);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+[data-portal] .portal-stat-label {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}

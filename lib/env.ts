@@ -1,14 +1,20 @@
 import { z } from "zod";
 
 const envSchema = z.object({
+  // Clerk (auth)
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
+  CLERK_SECRET_KEY: z.string().min(1),
+  // Supabase (DB / Storage / Realtime — Auth handled by Clerk)
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   DATABASE_URL: z.string().url(),
+  // Email
   RESEND_API_KEY: z.string().min(1),
   RESEND_FROM_EMAIL: z.string().email(),
   TEAM_NOTIFY_EMAIL: z.string().email(),
   UNSUBSCRIBE_SECRET: z.string().min(32),
+  // Misc
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
 });
 

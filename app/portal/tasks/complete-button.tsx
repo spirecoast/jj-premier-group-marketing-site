@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { completeTask, type TaskActionState } from "./actions";
 
 const initialTaskState: TaskActionState = { ok: false };
@@ -10,6 +11,17 @@ export function CompleteTaskButton({ taskId }: { taskId: string }) {
     TaskActionState,
     FormData
   >(completeTask, initialTaskState);
+  const lastRef = useRef<TaskActionState | null>(null);
+  useEffect(() => {
+    if (state === lastRef.current) return;
+    if (state.ok) {
+      toast.success("Task completed");
+      lastRef.current = state;
+    } else if (state.error) {
+      toast.error(state.error);
+      lastRef.current = state;
+    }
+  }, [state]);
 
   return (
     <form action={formAction} className="inline">

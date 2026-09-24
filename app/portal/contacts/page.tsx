@@ -40,85 +40,91 @@ export default async function ContactsList() {
     .limit(PAGE_SIZE);
 
   return (
-    <section className="px-6 lg:px-12 py-12">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-8 flex items-end justify-between">
-          <div>
-            <p className="text-eyebrow text-muted-foreground mb-3">Contacts</p>
-            <h1 className="text-section">All leads</h1>
-          </div>
+    <div className="px-4 lg:px-6 py-6 max-w-[1400px] mx-auto w-full">
+      <header className="mb-6 flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="portal-h1 mb-1">Contacts</h1>
           <p className="text-sm text-muted-foreground">
-            Showing latest {rows.length}
-            {rows.length === PAGE_SIZE ? ` of last ${PAGE_SIZE}` : ""}
+            {rows.length === 0
+              ? "Nobody yet."
+              : `${rows.length}${rows.length === PAGE_SIZE ? `+ shown · latest ${PAGE_SIZE}` : ""}`}
           </p>
-        </header>
+        </div>
+      </header>
 
-        {rows.length === 0 ? (
-          <div className="bg-surface border border-border rounded-md p-12 text-center text-muted-foreground">
-            No contacts yet. New leads land here as soon as someone submits the
-            contact form or newsletter signup.
-          </div>
-        ) : (
-          <div className="bg-surface border border-border rounded-md overflow-x-auto">
+      {rows.length === 0 ? (
+        <div className="bg-surface border border-border rounded-md px-4 py-16 text-center">
+          <p className="text-sm font-medium text-foreground">
+            No contacts yet.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            New leads land here as soon as someone submits the contact form
+            or newsletter signup.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-surface border border-border rounded-md overflow-hidden">
+          <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-surface-elevated text-eyebrow text-muted-foreground">
-                <tr>
-                  <th className="text-left px-4 py-3">Name</th>
-                  <th className="text-left px-4 py-3">Score</th>
-                  <th className="text-left px-4 py-3">Contact</th>
-                  <th className="text-left px-4 py-3">Source</th>
-                  <th className="text-left px-4 py-3">Stage</th>
-                  <th className="text-left px-4 py-3">Owner</th>
-                  <th className="text-left px-4 py-3">Consent</th>
-                  <th className="text-left px-4 py-3">Last touch</th>
-                  <th className="text-left px-4 py-3">Created</th>
+              <thead>
+                <tr className="text-left text-[10px] font-medium uppercase tracking-wider text-muted-foreground border-b border-border">
+                  <th className="px-3 py-2.5">Name</th>
+                  <th className="px-3 py-2.5">Score</th>
+                  <th className="px-3 py-2.5">Contact</th>
+                  <th className="px-3 py-2.5">Source</th>
+                  <th className="px-3 py-2.5">Stage</th>
+                  <th className="px-3 py-2.5">Owner</th>
+                  <th className="px-3 py-2.5">Consent</th>
+                  <th className="px-3 py-2.5">Last touch</th>
+                  <th className="px-3 py-2.5">Created</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((c) => (
-                  <tr key={c.id} className="border-t border-border">
-                    <td className="px-4 py-3">
+                  <tr
+                    key={c.id}
+                    className="border-b border-border last:border-0 hover:bg-surface-elevated transition-colors"
+                  >
+                    <td className="px-3 py-2.5">
                       <Link
                         href={`/portal/contacts/${c.id}` as never}
-                        className="text-brand hover:text-brand-hover"
+                        className="text-foreground hover:text-brand font-medium"
                       >
                         {c.fullName ?? "—"}
                       </Link>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-2.5">
                       <ScoreBadge
                         score={c.score}
                         temperature={c.temperature}
                       />
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      <div className="flex flex-col">
+                    <td className="px-3 py-2.5 text-muted-foreground">
+                      <div className="flex flex-col leading-tight">
                         <span>{c.email ?? "—"}</span>
                         {c.phone ? (
                           <span className="text-xs">{c.phone}</span>
                         ) : null}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="px-3 py-2.5 text-muted-foreground">
                       {c.sourceDetail ?? c.source ?? "—"}
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-sm bg-brand-muted text-foreground text-xs">
-                        {c.lifecycleStage ?? "—"}
-                      </span>
+                    <td className="px-3 py-2.5">
+                      <StageChip stage={c.lifecycleStage} />
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="px-3 py-2.5 text-muted-foreground">
                       {c.agentName ?? (
                         <span className="text-warning">unassigned</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td className="px-3 py-2.5 text-muted-foreground text-xs">
                       {c.consentEmail ? "email ✓" : "—"}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="px-3 py-2.5 text-muted-foreground">
                       {formatRelative(c.lastTouchAt)}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="px-3 py-2.5 text-muted-foreground">
                       {formatDate(c.createdAt)}
                     </td>
                   </tr>
@@ -126,8 +132,33 @@ export default async function ContactsList() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StageChip({ stage }: { stage: string | null }) {
+  if (!stage) {
+    return <span className="text-muted-foreground text-xs">—</span>;
+  }
+  const styles: Record<string, string> = {
+    new: "bg-info/10 text-info",
+    contacted: "bg-info/10 text-info",
+    qualified: "bg-brand-muted text-brand",
+    active: "bg-brand-muted text-brand",
+    under_contract: "bg-warning/15 text-warning",
+    closed: "bg-success/10 text-success",
+    nurture: "bg-surface-elevated text-muted-foreground",
+    cold: "bg-surface-elevated text-muted-foreground",
+    lost: "bg-surface-elevated text-muted-foreground",
+  };
+  const cls = styles[stage] ?? "bg-surface-elevated text-muted-foreground";
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${cls}`}
+    >
+      {stage.replace(/_/g, " ")}
+    </span>
   );
 }

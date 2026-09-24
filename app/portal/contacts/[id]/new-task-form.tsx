@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import {
   createManualTask,
   type TaskActionState,
@@ -13,6 +14,17 @@ export function NewTaskForm({ contactId }: { contactId: string }) {
     TaskActionState,
     FormData
   >(createManualTask, initialTaskState);
+  const lastRef = useRef<TaskActionState | null>(null);
+  useEffect(() => {
+    if (state === lastRef.current) return;
+    if (state.ok) {
+      toast.success("Task added");
+      lastRef.current = state;
+    } else if (state.error) {
+      toast.error(state.error);
+      lastRef.current = state;
+    }
+  }, [state]);
 
   return (
     <form

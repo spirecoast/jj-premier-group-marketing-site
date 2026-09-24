@@ -1,52 +1,27 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 
-const PROTECTED_PREFIX = "/portal";
+const isProtected = createRouteMatcher(["/portal(.*)"]);
 
-export async function proxy(request: NextRequest) {
-  // Without Supabase env, skip session refresh and only block /portal.
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    if (request.nextUrl.pathname.startsWith(PROTECTED_PREFIX)) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+const withClerk = clerkMiddleware(async (auth, request) => {
+  if (isProtected(request)) {
+    await auth.protect();
+  }
+});
+
+/**
+ * Clerk guards the portal. The public site is deployed without Clerk keys,
+ * and clerkMiddleware throws at request time without them, so in that case
+ * the portal is closed outright and every other route passes straight through.
+ */
+export default function proxy(request: NextRequest, event: NextFetchEvent) {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
+    if (isProtected(request)) {
+      return NextResponse.redirect(new URL("/auth/no-access", request.url));
     }
     return NextResponse.next();
   }
-
-  let supabaseResponse = NextResponse.next({ request });
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
-
-  // Refresh the session for Server Components.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (request.nextUrl.pathname.startsWith(PROTECTED_PREFIX) && !user) {
-    const redirectUrl = new URL("/auth/login", request.url);
-    redirectUrl.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  return supabaseResponse;
+  return withClerk(request, event);
 }
 
 export const config = {
