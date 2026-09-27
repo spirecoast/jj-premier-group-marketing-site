@@ -56,3 +56,6 @@ neighborhood-data/reports/
 
 # copied at build time by scripts/copy-maplibre-worker.mjs
 public/vendor/
+
+# Temporary worktrees created by Claude Code subagents
+.claude/worktrees/
