@@ -79,7 +79,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-start gap-7 lg:flex xl:gap-9">
+        <nav aria-label="Primary" className="hidden items-start gap-7 lg:flex min-[1320px]:gap-9">
           {primaryNav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
@@ -95,7 +95,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
               >
                 <span className="t-label">{item.label}</span>
                 {item.sub ? (
-                  <span className="hidden font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-linen-200/55 transition-colors group-hover/nav:text-linen-200/80 xl:block">
+                  <span className="hidden font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-linen-200/55 transition-colors group-hover/nav:text-linen-200/80 min-[1320px]:block">
                     {item.sub}
                   </span>
                 ) : null}
@@ -105,7 +105,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
         </nav>
 
         <div className="flex items-center gap-6">
-          <CbMark tone="white" width={150} className="hidden opacity-90 md:block" />
+          <CbMark tone="white" width={185} className="hidden opacity-90 md:block" />
           <button
             type="button"
             className="t-label flex h-11 items-center px-2 text-linen-200 transition-colors hover:text-white lg:hidden"

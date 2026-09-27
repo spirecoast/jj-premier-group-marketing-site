@@ -2,6 +2,9 @@
 // Used so next/image can reserve layout space without a network round trip.
 export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   // Adobe Stock photography, September 2026.
+  // Supplied by the client in Slack, September 2026 (provenance to confirm).
+  "/images/library/lwr-fairways-bay-aerial.jpg": { width: 2560, height: 1180 },
+  "/images/library/culture-opera-house-red-seats.jpg": { width: 2560, height: 1777 },
   "/images/library/venice-pier-sunrise.jpg": { width: 2000, height: 1125 },
   "/images/library/gulf-beach-aerial.jpg": { width: 2000, height: 1333 },
   "/images/library/modern-home-pool-dusk.jpg": { width: 2000, height: 1333 },

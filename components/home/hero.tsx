@@ -58,7 +58,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
               <span>Your next home</span>
             </span>
             <span className="hero-line l2">
-              <span>is on this coast.</span>
+              <span>is waiting.</span>
             </span>
           </h1>
           <span className="draw block h-px w-[120px] bg-navy lg:bg-sky-300" aria-hidden="true" />

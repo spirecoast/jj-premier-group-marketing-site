@@ -4,7 +4,7 @@ import type { ImageRef } from "@/lib/content/types";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 
-/** 04 · Find your home. Two questions, and the homes worth seeing come to you. */
+/** 05 · Find your home. Start with a budget; we narrow the options. */
 export function FindHome({ image }: { image: ImageRef }) {
   return (
     <section className="container-site grid items-center gap-12 pb-section pt-4 lg:grid-cols-2 lg:gap-20 lg:pt-8" aria-labelledby="find-title">
@@ -15,8 +15,8 @@ export function FindHome({ image }: { image: ImageRef }) {
           size="display"
           title={
             <span id="find-title">
-              Tell us what you&rsquo;re looking for.
-              <br className="hidden sm:block" /> We&rsquo;ll bring you the ones worth seeing.
+              Start with a budget.
+              <br className="hidden sm:block" /> We&rsquo;ll help you narrow the options and find the right fit.
             </span>
           }
         />

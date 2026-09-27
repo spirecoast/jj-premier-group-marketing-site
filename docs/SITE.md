@@ -32,6 +32,11 @@ still works on the same theme.
 
 - Markets: Lakewood Ranch, Sarasota and Bradenton. Tampa was removed in September 2026 at the
   client's direction; `MarketSlug` has three values.
+- Photographs: sources stay JPEG under `public/images` (2560px max on the long side); `next.config.ts`
+  asks the image optimizer for AVIF first and WebP second, so browsers never receive the source
+  file. Every photo goes through `components/photo.tsx`. Provenance: the 50 library files are
+  Adobe Stock (September 2026); the team photos are the team's own; files supplied by the client
+  in Slack are noted as such in `lib/content/image-dims.ts` until their source is confirmed.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
   **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
   `/calendar`) and **Tide** (the newsletter and its archive, `/blog`). Every nav item is a name

@@ -29,7 +29,7 @@ function resolveSiteUrl(): string {
 export const site = {
   name: "JJ Premier Group",
   brokerage: "Coldwell Banker Realty",
-  tagline: "Every move, expertly guided.",
+  tagline: "Every move, expertly guided from start to finish.",
   description:
     "Joelyn Nauman and Jessica Garza, a mother and daughter team with Coldwell Banker Realty, helping people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton.",
   /** Bare domain — also the Follow Up Boss lead `source`. No `www.`. */
