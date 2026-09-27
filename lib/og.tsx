@@ -1,3 +1,4 @@
+import { site } from "@/lib/site";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
@@ -116,7 +117,7 @@ export async function brandOgImage({
             <span style={{ width: 120, height: 1, background: COLORS.sky }} />
             {meta ? <span style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 18, letterSpacing: 1, color: COLORS.linen }}>{meta}</span> : null}
           </div>
-          <span style={{ fontFamily: "Newsreader, serif", fontStyle: "italic", fontSize: 22, color: COLORS.linen }}>Every move, expertly guided.</span>
+          <span style={{ fontFamily: "Newsreader, serif", fontStyle: "italic", fontSize: 22, color: COLORS.linen }}>{site.tagline}</span>
         </div>
       </div>
     ),
@@ -183,7 +184,7 @@ export async function constellationOgImage({
             <span style={{ fontFamily: "Newsreader, serif", fontSize: titleSize, fontWeight: 300, lineHeight: 1.02, color: COLORS.navy }}>{title}</span>
             {meta ? <span style={{ fontFamily: "IBM Plex Mono, monospace", fontSize: 17, lineHeight: 1.5, color: "#53565a" }}>{meta}</span> : null}
           </div>
-          <span style={{ fontFamily: "Newsreader, serif", fontStyle: "italic", fontSize: 22, color: "#6b5d4e" }}>Every move, expertly guided.</span>
+          <span style={{ fontFamily: "Newsreader, serif", fontStyle: "italic", fontSize: 22, color: "#6b5d4e" }}>{site.tagline}</span>
         </div>
       </div>
     ),

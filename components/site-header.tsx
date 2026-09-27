@@ -105,7 +105,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
         </nav>
 
         <div className="flex items-center gap-6">
-          <CbMark tone="white" width={150} className="hidden opacity-90 md:block" />
+          <CbMark tone="white" width={185} className="hidden opacity-90 md:block" />
           <button
             type="button"
             className="t-label flex h-11 items-center px-2 text-linen-200 transition-colors hover:text-white lg:hidden"

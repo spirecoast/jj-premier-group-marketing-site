@@ -29,7 +29,7 @@ export function Meet({ duo, testimonials }: { duo: ImageRef; testimonials: Testi
             number="02"
             eyebrow="Meet Joelyn & Jessica"
             size="display"
-            title={<span id="meet-title">From the first call to the keys, you get both of us.</span>}
+            title={<span id="meet-title">Two agents. One team. Fully focused on you.</span>}
           />
           <div className="flex flex-col gap-5">
             <p className="t-lead max-w-[560px] text-body">
@@ -38,10 +38,9 @@ export function Meet({ duo, testimonials }: { duo: ImageRef; testimonials: Testi
             </p>
             <p className="t-body max-w-[560px] text-body">
               Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio,
-              you get the same thing from us: local knowledge, honest guidance, and someone in your corner
-              at every step. Luxury homes and new construction in Lakewood Ranch, the water in Sarasota,
-              the established streets of Bradenton. Wherever your move takes you, we know the terrain, we
-              negotiate hard, and we tell you what&rsquo;s happening while it&rsquo;s happening.
+              you get the same thing from us: local knowledge, honest guidance, and a strategy tailored to
+              your goals. Wherever your move takes you, we know the market, negotiate with purpose, and keep
+              you informed every step of the way.
             </p>
           </div>
           <div className="flex flex-wrap gap-3.5">

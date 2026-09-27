@@ -11,7 +11,7 @@ export const MARKETS: readonly Market[] = [
     slug: "lakewood-ranch",
     name: "Lakewood Ranch",
     county: "Manatee County",
-    image: img("library/modern-home-pool-dusk", "A modern home lit at dusk in Lakewood Ranch, the pool still", "50% 45%"),
+    image: img("library/lwr-fairways-bay-aerial", "Fairways, palms and bay water from the air", "55% 40%"),
     blurb:
       "Villages built around lakes and preserves, each with its own feel, and a Main Street and Waterside that give the evenings somewhere to go.",
   },
