@@ -28,7 +28,7 @@ export const metadata: Metadata = pageMetadata({
 /* Photography for the composed sections. Event photographs come from the
    content layer; these frames are the layout. */
 const FRAMES = {
-  hero: img("library/lakes-aerial-sunset", "Lakes, lawns and rooftops at sunset, seen from the air", "50% 58%"),
+  hero: img("library/gulf-beach-aerial", "A Gulf beach from the air, the water in three shades of green", "58% 45%"),
   cameo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 42%"),
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
   kitchen: img("library/kitchen-white-palms", "A white kitchen with the palms outside the window"),

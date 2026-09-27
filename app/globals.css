@@ -685,9 +685,9 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(180deg, rgb(20 37 48 / 0.55) 0%, transparent 22%),
-      linear-gradient(90deg, rgb(20 37 48 / 0.8) 0%, rgb(20 37 48 / 0.62) 38%, rgb(20 37 48 / 0.24) 68%, rgb(20 37 48 / 0.04) 100%),
-      linear-gradient(0deg, rgb(20 37 48 / 0.55) 0%, transparent 42%);
+      linear-gradient(180deg, rgb(20 37 48 / 0.42) 0%, transparent 22%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.62) 0%, rgb(20 37 48 / 0.44) 38%, rgb(20 37 48 / 0.14) 68%, rgb(20 37 48 / 0.02) 100%),
+      linear-gradient(0deg, rgb(20 37 48 / 0.42) 0%, transparent 42%);
   }
   .hero-veil {
     position: absolute;
