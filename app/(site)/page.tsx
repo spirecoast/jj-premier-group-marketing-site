@@ -23,6 +23,7 @@ export const metadata: Metadata = pageMetadata({
   description: site.description,
   path: "/",
   absoluteTitle: true,
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /* Photography for the composed sections. Event photographs come from the
