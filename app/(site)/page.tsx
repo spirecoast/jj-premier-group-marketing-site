@@ -30,7 +30,7 @@ export const metadata: Metadata = pageMetadata({
    content layer; these frames are the layout. */
 const FRAMES = {
   hero: img("library/gulf-beach-aerial", "A Gulf beach from the air, the water in three shades of green", "58% 45%"),
-  cameo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 42%"),
+  cameo: img("photos/duo-cameo", "Joelyn Nauman and Jessica Garza", "50% 40%"),
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
   kitchen: img("library/kitchen-white-palms", "A white kitchen with the palms outside the window"),
   island: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
