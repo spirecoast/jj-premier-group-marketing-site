@@ -56,6 +56,7 @@ export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   "/images/library/tampa-skyway-sunrise.jpg": { width: 1200, height: 896 },
   "/images/library/texture-quartz-sand.jpg": { width: 1200, height: 896 },
   "/images/photos/duo-square.jpg": { width: 2006, height: 2200 },
+  "/images/photos/duo-cameo.jpg": { width: 900, height: 900 },
   "/images/photos/duo-ultrawide.jpg": { width: 2200, height: 1176 },
   "/images/photos/jessica-dark-horz.jpg": { width: 2200, height: 1476 },
   "/images/photos/jessica-dark-vert.jpg": { width: 1664, height: 2200 },
