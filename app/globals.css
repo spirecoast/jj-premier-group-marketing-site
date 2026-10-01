@@ -1581,6 +1581,92 @@
     }
   }
 
+  /* The visit plan: one day per card, the date sticky under the header */
+  .plan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 640px) {
+    .plan-form {
+      padding: 2rem;
+    }
+  }
+  .plan-days {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .plan-day {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+  }
+  .plan-dayhead {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+    background: var(--color-linen-100);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .plan-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .plan-block:last-child {
+    border-bottom: 0;
+  }
+  .plan-block.is-showings {
+    background: var(--color-paper);
+    border-left: 3px solid var(--color-amber);
+  }
+  .plan-slot {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+    font-variant-numeric: tabular-nums;
+  }
+  .plan-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.15;
+    color: var(--color-navy);
+  }
+  @media (min-width: 768px) {
+    .plan-block {
+      flex-direction: row;
+      gap: 1.5rem;
+      padding: 1.25rem 1.25rem;
+    }
+    .plan-slot {
+      width: 6.5rem;
+      padding-top: 0.875rem;
+    }
+    .plan-block.is-showings .plan-slot {
+      padding-top: 0.25rem;
+    }
+  }
+
   /* Week */
   .encore-week {
     display: grid;

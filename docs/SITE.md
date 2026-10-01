@@ -124,6 +124,18 @@ builder source with its checked date).
 - **Feeds.** `/api/calendar.ics` accepts `category`, `market` and `venue` for a subscription of
   just that filter, `event=<slug>` for one production, and `event=<slug>&at=<iso>` for a single
   performance (the "+ Cal" links on event pages).
+- **Plan a visit.** `/calendar/plan` is for someone coming to look at homes: arrival and
+  departure (up to 14 days, the coming weekend by default), the markets to see, optional
+  category preferences and an evenings-only toggle, all in the URL (`from`, `to`, `market`,
+  `cat`, `evenings`) so a plan is shareable. `lib/encore/plan.ts` builds it: each day gets a
+  market or two by rotating through the chosen ones and a "Showings with us (10 to 4)" block,
+  then up to three timed performances from five o'clock (and one weekend matinee), scored to
+  prefer the chosen categories and the day's market and to spread categories and venues across
+  the stay; no production is picked twice. The server paints the first plan from a slice of
+  the index and the client refetches the full index for new dates. "Add this plan to my
+  calendar" is `/api/calendar/plan.ics` (showing blocks ten to four plus the picks, passed as
+  `pick=slug:start` so the file matches the screen); the ICS pieces shared with the feed live in
+  `lib/ics.ts`. The ask at the end is the buy form with the dates and places in the message.
 
 `lib/content/encore.ts` turns the dataset's productions and venues into the site's `Event` and
 `Venue` shapes:
@@ -241,10 +253,10 @@ Useful switches:
   | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing · `market` |
   | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row) inline on success | `form`: letter or calendar |
   | `Lead server` | `lib/plausible-server.ts`, from the server action, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script; never add it to `Lead` |
-  | `Calendar feed` | ICS links: the calendar page feed, Encore's filtered subscribe, the event page | `kind`: feed, event, performance, list · `filter`: `all`, the feed query, or the event slug |
+  | `Calendar feed` | ICS links: the calendar page feed, Encore's filtered subscribe, the event page, the visit plan | `kind`: feed, event, performance, list, plan · `filter`: `all`, the feed query, or the event slug |
   | `Phone tap` | `tel:` and `sms:` links | `where`: action-bar, action-bar-text, contact, contact-text, footer (the header's links join once the nav lands) |
   | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
-  | `Explore` | the Atlas and Encore | `action`: select, filter, calendar-day |
+  | `Explore` | the Atlas and Encore | `action`: select, filter, calendar-day, visit-plan |
 
   Server-rendered `tel:`/`sms:` and ICS anchors use `components/tracked-link.tsx`, which fires the goal
   on click and leaves the navigation alone. `NEXT_PUBLIC_PLAUSIBLE_HOST` only for a self-hosted instance.
