@@ -9,6 +9,7 @@ import {
 import { MARKETS } from "@/lib/content/markets";
 import { getIndexableSlugs } from "@/lib/neighborhoods/data";
 import { absoluteUrl } from "@/lib/seo";
+import { TIDE_ISSUES } from "@/lib/tide/issues";
 
 const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
   { path: "/", priority: 1, changeFrequency: "daily" },
@@ -28,6 +29,7 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/valuation", priority: 0.7, changeFrequency: "monthly" },
   { path: "/about", priority: 0.6, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.6, changeFrequency: "weekly" },
+  { path: "/tide", priority: 0.6, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.5, changeFrequency: "yearly" },
   // /from/* are bio and post links: noindex and left out on purpose.
   { path: "/refer", priority: 0.4, changeFrequency: "yearly" },
@@ -63,5 +65,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...venues.map((s) => entry(`/venues/${s}`, 0.5, "monthly" as const)),
     ...neighborhoods.map((s) => entry(`/neighborhoods/${s}`, 0.7, "weekly" as const)),
     ...posts.map((s) => entry(`/blog/${s}`, 0.5, "monthly" as const)),
+    ...TIDE_ISSUES.map((e) => entry(`/tide/${e.issue}`, 0.6, "monthly" as const)),
   ];
 }

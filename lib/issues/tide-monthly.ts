@@ -191,7 +191,8 @@ export function topStreets(rows: Sale[], n = 3): TideStreet[] {
     .slice(0, n);
 }
 
-const counted = (s: Sale) => s.qualified && s.salePrice > 0 && isHomeSale(s);
+/** A sale the issue counts: qualified, priced, and a home (not the non-residential "other" parcels). */
+export const counted = (s: Sale) => s.qualified && s.salePrice > 0 && isHomeSale(s);
 
 /** Qualified home sales per market per month (YYYY-MM), for the completeness check. */
 export function monthlyCounts(sales: Sale[]): Map<string, Record<MarketSlug, number>> {

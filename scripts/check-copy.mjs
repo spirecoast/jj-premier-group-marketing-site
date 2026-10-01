@@ -17,6 +17,7 @@
  * The newsletter templates (lib/issues/copy.ts) get the same checker with
  * rules of their own: no superlatives and no license numbers. They carry
  * figures, filled in from the data, so the no-figures rule doesn't apply.
+ * The Tide web issue's templates (lib/tide/copy.ts) get the same rules.
  */
 import { checkFairHousing } from "../lib/fair-housing.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
@@ -25,6 +26,7 @@ import { issueStrings } from "../lib/issues/copy.ts";
 import { REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
 import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
+import { tideWebStrings } from "../lib/tide/copy.ts";
 
 const SOURCES = [
   ...hubStrings(),
@@ -52,11 +54,12 @@ const HUB_RULES = [
 const ISSUE_RULES = [
   { pattern: /\b(best|finest|greatest|biggest|hottest|amazing|stunning|incredible|perfect|unbeatable|ultimate|world-class|must-see|exclusive|spectacular|breathtaking)\b/i, reason: "a superlative" },
   { pattern: /\b(SL|BK)\s?\d{5,}\b/i, reason: "a license number" },
+  { pattern: /\blands\b/i, reason: "\"lands\" as a verb (say comes out, arrives, falls)" },
 ];
 
 let flagged = 0;
 let checked = 0;
-const all = [...SOURCES.map((s) => ({ ...s, rules: HUB_RULES })), ...issueStrings().map((s) => ({ ...s, rules: ISSUE_RULES }))];
+const all = [...SOURCES.map((s) => ({ ...s, rules: HUB_RULES })), ...issueStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...tideWebStrings().map((s) => ({ ...s, rules: ISSUE_RULES }))];
 for (const { where, text, rules } of all) {
   checked += 1;
   const result = checkFairHousing(text);

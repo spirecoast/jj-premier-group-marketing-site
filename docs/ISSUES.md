@@ -160,6 +160,67 @@ are empty in `lib/content/seed/settings.ts` (docs/LAUNCH.md 1.1) the footer show
 "Lakewood Ranch, FL" and every hand-off carries a warning: **CAN-SPAM needs a valid postal
 address in every send.** Fill it in before the first issue goes out.
 
+## The web issue
+
+Each Tide issue is also a page on the site, `/tide/<issue>` (`/tide/2026-10`), listed on `/tide`
+and at the top of the archive (`/blog`), in the sitemap, with its own share image. The page is
+rendered from data, not prose: `lib/tide/issue.ts` builds an `IssueModel` from the county sales
+with the same engine functions as the email (`tideStats`, `topStreets`, `latestCompleteMonth` in
+`lib/issues/tide-monthly.ts`), so the page and the email give the same figures. Nothing on the page
+is typed: every number comes from the model, and every sentence from the templates in
+`lib/tide/copy.ts`, which `npm run check:copy` (and so every build) runs through the Fair Housing
+checker with the issue rules (no superlatives, no license numbers, never "lands"). The model also
+runs `checkFairHousing` over every string it carries, street names and the agents' paragraphs
+included, and the build stops if one is flagged.
+
+Two months: the **issue month** is when it goes out (October 2026); the **data month** is the
+latest month complete in all three markets, looking back from the month before the issue (July
+2026 on the October 1 data, as in "The month" above).
+
+The sections, always in this order:
+
+1. **Masthead.** "Tide", the issue month, and one sentence: "The county record runs behind, so the
+   figures in this issue cover July 2026, the latest month that's complete for all three markets."
+2. **The three markets**, side by side (stacked on a phone): qualified home sales, the median price
+   (homes), the median $/sq ft (homes with a living area) and the share new-build or vacant on the
+   roll, each over its **typical month**, the median of that figure over the twelve months before
+   the data month, with the sample under it.
+3. **Chart: closed home sales by month**, the last twelve complete months ending with the data
+   month, one line per market. The axis starts at zero.
+4. **Chart: median $/sq ft by month**, same months. The axis starts at a round step under the
+   lowest value, and the chart and its note both say where ("Axis starts at $200").
+5. **Where it sold:** the five streets per market with the most sales in the data month (two or
+   more each, ties alphabetical). Street and city only, never a house number or a name.
+6. **What it means:** the two paragraphs Joelyn and Jessica write, from the issue's `commentary`.
+   Without it, the section shows only in sample previews (`NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`),
+   as a dashed box marked "Placeholder, not published"; on the live site it is left out.
+7. **Guides this month:** the posts published in the issue month (market reports left out).
+8. **The ask and the source:** the Tide subscribe bar (`components/letter-form.tsx`), then
+   "County property appraisers, public record, qualified sales, as of <the manifest's date>." and
+   the methods line from the email.
+
+The charts are inline SVG drawn on the server (`components/tide/issue-chart.tsx`, geometry in
+`lib/tide/chart.ts`), no chart library. Each market keeps one color and one end-marker shape:
+Lakewood Ranch Harbor 800 (circle), Sarasota amber (square), Bradenton Sky 600 (diamond). Each line
+has a direct end label and the legend sits above. There are two drawings of the same data: a wide
+one from 640px up and a narrow one below it (every third month labelled). Hovering a point shows
+its value, and a visually hidden `<table>` under each chart carries every value for screen readers.
+
+### Adding next month's issue
+
+One line at the top of `TIDE_ISSUES` in `lib/tide/issues.ts`:
+
+```ts
+{ issue: "2026-11" },
+```
+
+Merge a sales-data refresh first (see "The data refresh" above). Without `data`, the page takes the
+latest complete month; once the issue is out, write the month in (`{ issue: "2026-11", data:
+"2026-08" }`) so a later refresh doesn't move it on. When the agents' paragraphs are ready, add
+them as `commentary: ["…", "…"]`. Check the page with `npm run build && npm run start`, then
+`/tide/2026-11`. A month the data no longer reaches (the window is 24 months) is a 404, not a page
+of zeros.
+
 ## Environment variables
 
 | Variable | New | What it does |
@@ -306,3 +367,11 @@ is, the sender is the agents, and an unsubscribe has been tried end to end.
 | `app/api/issues/encore/image/[slug]/route.ts` | The lead pick's PNG for the Monday issue. |
 | `scripts/issue-preview.mjs` | Local render to files. |
 | `docs/screenshots/issues/` | The two previews at 600px. |
+| `lib/tide/issue.ts` | The web issue's model (pure): data month, figures, typical months, chart data, streets, guides. |
+| `lib/tide/issues.ts` | The list of web issues, one line each. |
+| `lib/tide/copy.ts` | Every template string on the web issue, `/tide` and the archive card. |
+| `lib/tide/chart.ts`, `components/tide/issue-chart.tsx` | Chart geometry and the server-drawn SVG. |
+| `lib/tide/load.ts` | Server: loads the sales, the manifest and the posts for a web issue. |
+| `app/(site)/tide/` | `/tide`, `/tide/<issue>` and its share image. |
+| `lib/tide/issue.test.ts` | Unit tests on a twelve-month, three-market fixture. |
+| `docs/screenshots/tide/` | The web issue at 1440 and 390, the charts, `/tide` and `/blog`. |

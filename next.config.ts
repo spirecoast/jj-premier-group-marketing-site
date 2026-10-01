@@ -122,6 +122,10 @@ const nextConfig: NextConfig = {
     "/api/sales": ["./data/sales/**"],
     "/sell/sold": ["./data/sales/**"],
     "/sell/home-value": ["./data/sales/**"],
+    // The Tide issue pages are prerendered; the share image is drawn on request and reads the data.
+    "/tide/**": ["./data/sales/**"],
+    // The monthly email engine reads the same county data at request time.
+    "/api/issues/tide": ["./data/sales/**"],
   },
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.

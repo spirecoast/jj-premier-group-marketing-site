@@ -4,12 +4,15 @@ import { CtaBand } from "@/components/cta-band";
 import { LetterForm } from "@/components/letter-form";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
+import { TideIssueCard } from "@/components/tide/issue-card";
 import { getPosts } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { formatDateLong } from "@/lib/content/format";
 import type { Post } from "@/lib/content/types";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { TIDE_WEB_COPY } from "@/lib/tide/copy";
+import { loadIssueCards } from "@/lib/tide/load";
 
 export const metadata: Metadata = pageMetadata({
   title: site.reportLong,
@@ -41,7 +44,8 @@ function PostCard({ post, priority }: { post: Post; priority?: boolean }) {
 }
 
 export default async function ReportPage() {
-  const posts = await getPosts();
+  const [posts, issues] = await Promise.all([getPosts(), loadIssueCards()]);
+  const [latest, ...earlier] = issues;
   const reports = posts.filter(isReport);
   const guides = posts.filter((p) => !isReport(p));
 
@@ -56,15 +60,29 @@ export default async function ReportPage() {
           titleClassName="max-w-[820px]"
         />
 
-        {reports.length ? (
+        {latest ? (
+          <div className="flex flex-col gap-3">
+            <TideIssueCard card={latest} priority wide />
+            <Link href="/tide" className="t-small self-start py-2 text-sky-700 underline underline-offset-4 hover:text-navy">
+              {TIDE_WEB_COPY.everyIssue}
+            </Link>
+          </div>
+        ) : null}
+
+        {earlier.length || reports.length ? (
           <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {earlier.map((c) => (
+              <li key={c.issue} className="flex">
+                <TideIssueCard card={c} />
+              </li>
+            ))}
             {reports.map((p, i) => (
               <li key={p.slug} className="flex">
-                <PostCard post={p} priority={i === 0} />
+                <PostCard post={p} priority={!latest && i === 0} />
               </li>
             ))}
           </ul>
-        ) : (
+        ) : latest ? null : (
           <div className="grid gap-8 border border-hairline bg-white p-8 md:grid-cols-[1fr_1fr] md:items-center md:p-10">
             <div className="flex flex-col gap-3">
               <p className="t-eyebrow text-amber">The next report</p>
