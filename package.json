@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test:unit": "tsx --test lib/*.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
@@ -54,6 +55,7 @@
     "@types/react-dom": "^19.2.0",
     "drizzle-kit": "^0.31.10",
     "tailwindcss": "^4.2.4",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

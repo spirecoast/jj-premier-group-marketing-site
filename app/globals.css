@@ -1772,3 +1772,16 @@
     }
   }
 }
+
+/* -----------------------------------------------------------------------------
+   Print — the net-proceeds sheet prints on its own: no chrome, no inputs.
+   ----------------------------------------------------------------------------- */
+@media print {
+  html:has(#net-sheet) body > :not(main) {
+    display: none !important;
+  }
+  html:has(#net-sheet) #net-sheet {
+    border: 0;
+    padding: 0;
+  }
+}
