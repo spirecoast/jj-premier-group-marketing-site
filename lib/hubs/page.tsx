@@ -289,7 +289,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
           number="04"
           eyebrow="How it works here"
           size="display"
-          title={<span id="buysell-title">Buying here, and selling here.</span>}
+          title={<span id="buysell-title">Here’s how buying and selling work here.</span>}
         />
         <div className="grid gap-px border border-hairline bg-hairline lg:grid-cols-2">
           <div className="flex flex-col gap-5 bg-white p-7 lg:p-9">
@@ -403,7 +403,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             fields={["name", "email", "phone", "timing", "sellFirst", "message"]}
             submitLabel="Tell us the timing"
             hidden={{ market }}
-            placeholderMessage={`Where in ${m.name} you’re looking, what you need, and whether there’s a house to sell first.`}
+            placeholderMessage={`Tell us where in ${m.name} you’re looking, what you need, and whether there’s a house to sell first.`}
           />
         </div>
       </section>

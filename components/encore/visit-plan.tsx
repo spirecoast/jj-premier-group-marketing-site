@@ -83,7 +83,7 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
     <div className="encore">
       {/* 02 · The dates and the places */}
       <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="plan-inputs-title">
-        <SectionHeading number="02" eyebrow="The dates and the places" title={<span id="plan-inputs-title">When you&rsquo;re here, and where you want to look.</span>} />
+        <SectionHeading number="02" eyebrow="The dates and the places" title={<span id="plan-inputs-title">Tell us when you&rsquo;re here and where you want to look.</span>} />
         <form onSubmit={build} className="plan-form" aria-describedby="plan-form-note">
           <div className="grid gap-6 sm:grid-cols-2 lg:max-w-[560px]">
             <div className="field">
@@ -212,7 +212,7 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
       <section id="ask" className="scroll-mt-header border-t border-hairline bg-linen-200">
         <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
           <div className="flex flex-col gap-6">
-            <SectionHeading number="05" eyebrow="Before you land" title="Tell us the dates and we’ll have the showings lined up before you land." />
+            <SectionHeading number="05" eyebrow="Before you arrive" title="Tell us the dates and we’ll have the showings lined up before you arrive." />
             <p className="t-body max-w-[440px] text-body">
               The dates and places below are the ones in your plan. Add what you&rsquo;re looking for and whether there&rsquo;s a house to sell first, and one of us will call or write back.
             </p>
@@ -229,7 +229,7 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
               fields={["name", "email", "phone", "message"]}
               submitLabel="Line up the showings"
               defaultMessage={sentMessage}
-              placeholderMessage="Where you’re looking, what you need, and whether there’s a house to sell first."
+              placeholderMessage="Tell us where you’re looking, what you need, and whether there’s a house to sell first."
               hidden={{ market: applied.markets.length === 1 ? applied.markets[0] : undefined, pageTitle: "Encore visit plan" }}
             />
           </div>
@@ -263,7 +263,7 @@ function DayCard({ d, n, today, has, toggle }: { d: PlanDay; n: number; today: s
         <div className="flex min-w-0 flex-col gap-1">
           <p className="plan-title">{SHOWINGS.label}</p>
           <p className="t-small text-body">
-            {d.markets.length > 1 ? `${marketList(d.markets)} today, in that order.` : `${marketList(d.markets)} today.`}
+            {d.markets.length > 1 ? `Today it’s ${marketList(d.markets)}, in that order.` : `${marketList(d.markets)} today.`}
           </p>
         </div>
       </div>

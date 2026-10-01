@@ -44,7 +44,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     description:
       "The first page to read before you buy or sell in Lakewood Ranch: every village on the Atlas, the week on the Encore calendar, which side of the county line you’re on, CDDs, flood zones and the questions people ask first.",
     orientation: [
-      "Villages built around lakes and preserves on both sides of the Manatee–Sarasota county line, with Main Street and Waterside Place to give the evenings somewhere to go.",
+      "The villages are built around lakes and preserves on both sides of the Manatee–Sarasota county line, and Main Street and Waterside Place give the evenings somewhere to go.",
       "Which side of the line you’re on changes the property tax rate and who customarily pays for the owner’s title policy, so it’s the first thing we check on any address here.",
     ],
     buying: [
@@ -55,7 +55,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     ],
     selling: [
       "The buyers who close here arrive in February and are mostly gone by May, and prep takes about eight weeks, so a listing that goes live in February started in the fall. A house that’s ready and priced to the comps sells in summer too.",
-      "On the closing statement: the state documentary stamp tax on the deed, which the seller pays by custom on this coast; the owner’s title policy, which the seller customarily pays in Manatee County and the buyer pays on the Sarasota County side; and commission, which is negotiable and set in the listing agreement.",
+      "The closing statement carries the state documentary stamp tax on the deed, which the seller pays by custom on this coast; the owner’s title policy, which the seller customarily pays in Manatee County and the buyer pays on the Sarasota County side; and commission, which is negotiable and set in the listing agreement.",
       "Before closing, your association issues an estoppel certificate stating what you owe and what transfers with the property, and the buyer’s side will read it alongside the CDD line on your tax bill. Having both in order before the listing goes live is what keeps a closing on schedule.",
     ],
     faqs: [
@@ -104,7 +104,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     description:
       "The first page to read before you buy or sell in Sarasota: the keys and the bayfront on the Atlas, the week on the Encore calendar, who pays for title in Sarasota County, flood and evacuation zones, condominium inspections, and the questions people ask first.",
     orientation: [
-      "The bayfront, the keys and the streets west of the Trail, with the opera house, the orchestra and the gallery district a few minutes from any of them.",
+      "Sarasota is the bayfront, the keys and the streets west of the Trail, and the opera house, the orchestra and the gallery district are a few minutes from any of them.",
       "Siesta Key, Lido Key, Bird Key, St. Armands and Longboat Key make the island side; Palmer Ranch, The Meadows and Gulf Gate are the inland side, in unincorporated Sarasota County.",
     ],
     buying: [
@@ -115,13 +115,13 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     ],
     selling: [
       "The buyers who close here arrive in February and are mostly gone by May, so the strongest listings go live in late January or February; a house that’s ready and priced to the comps sells in summer too. Prep takes about eight weeks, so a February listing starts in the fall.",
-      "On the closing statement: the state documentary stamp tax on the deed, which the seller pays by custom on this coast, and commission, which is negotiable and set in the listing agreement. In Sarasota County the buyer customarily pays for the owner’s title policy rather than you.",
+      "The closing statement carries the state documentary stamp tax on the deed, which the seller pays by custom on this coast, and commission, which is negotiable and set in the listing agreement. In Sarasota County the buyer customarily pays for the owner’s title policy rather than you.",
       "If you’re selling a unit in a building three stories or higher, the milestone inspection report and the structural integrity reserve study are part of what a buyer’s side will read, so we gather them from the association before the listing goes live.",
     ],
     faqs: [
       {
         q: "Who pays for the owner’s title policy in Sarasota County?",
-        answer: "The buyer, by custom. It changes at the county line: in Manatee County the seller customarily pays. Either way it’s negotiable in the contract.",
+        answer: "The buyer pays, by custom. It changes at the county line: in Manatee County the seller customarily pays. Either way it’s negotiable in the contract.",
       },
       {
         q: "What flood zone is Siesta Key in?",
@@ -131,7 +131,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
       {
         q: "What should I ask about a condominium on the bayfront?",
         answer:
-          "The milestone inspection report, which Florida requires for condominium and cooperative buildings three stories or higher once they reach thirty years, the structural integrity reserve study, and the current budget. The building’s insurance and reserves matter as much as the flood zone.",
+          "Ask for the milestone inspection report, which Florida requires for condominium and cooperative buildings three stories or higher once they reach thirty years, the structural integrity reserve study, and the current budget. The building’s insurance and reserves matter as much as the flood zone.",
       },
       {
         q: "Is there an HOA West of the Trail?",
@@ -165,7 +165,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     description:
       "The first page to read before you buy or sell in Bradenton: the river, the canal streets and Anna Maria Island on the Atlas, the week on the Encore calendar, who pays for title in Manatee County, flood and evacuation levels, and the questions people ask first.",
     orientation: [
-      "The Manatee River, the Riverwalk, the canal streets west of 75th reaching Palma Sola Bay, and a downtown with the county’s theater and an arts village of its own.",
+      "Bradenton is the Manatee River, the Riverwalk, the canal streets west of 75th reaching Palma Sola Bay, and a downtown with the county’s theater and an arts village of its own.",
       "Anna Maria Island, seven miles long with three cities and a height limit that keeps it low, sits at the end of the Manatee Avenue and Cortez Road bridges.",
     ],
     buying: [
@@ -176,14 +176,14 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     ],
     selling: [
       "The buyers who close here arrive in February and are mostly gone by May, so the strongest listings go live in late January or February; a house that’s ready and priced to the comps sells in summer too. Prep takes about eight weeks, so a February listing starts in the fall.",
-      "On the closing statement: the state documentary stamp tax on the deed, which the seller pays by custom on this coast; the owner’s title policy, which the seller customarily pays in Manatee County; and commission, which is negotiable and set in the listing agreement.",
+      "The closing statement carries the state documentary stamp tax on the deed, which the seller pays by custom on this coast; the owner’s title policy, which the seller customarily pays in Manatee County; and commission, which is negotiable and set in the listing agreement.",
       "On a canal street the seawall, the dock and the roof are what a buyer’s inspector looks at hardest, so we get the seawall report and the roof permit together before the photographs. If you’re selling from away, the keys, the showings and the weekly report run the same way; nothing about being away should mean knowing less.",
     ],
     faqs: [
       {
         q: "Who pays for the owner’s title policy in Manatee County?",
         answer:
-          "The seller, by custom, and the seller also pays the documentary stamp tax on the deed. In Sarasota County the buyer customarily pays for the title policy. Both are negotiable in the contract.",
+          "The seller pays, by custom, and the seller also pays the documentary stamp tax on the deed. In Sarasota County the buyer customarily pays for the title policy. Both are negotiable in the contract.",
       },
       {
         q: "Which canal streets are in flood zone X?",
@@ -203,7 +203,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
       {
         q: "What should I ask about a river condominium downtown?",
         answer:
-          "The building’s insurance and reserves, which matter as much as the flood zone, plus the milestone inspection report Florida requires for condominium and cooperative buildings three stories or higher and, for a condominium, the structural integrity reserve study. The zone is AE along the Manatee River and X south of 6th Avenue.",
+          "Ask about the building’s insurance and reserves, which matter as much as the flood zone, plus the milestone inspection report Florida requires for condominium and cooperative buildings three stories or higher and, for a condominium, the structural integrity reserve study. The zone is AE along the Manatee River and X south of 6th Avenue.",
       },
     ],
     guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "barrier-island-rules-island-by-island", "condo-and-hoa-documents-after-the-2022-law"],

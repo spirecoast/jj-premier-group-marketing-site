@@ -26,7 +26,7 @@ export const REVIEWS = {
   },
   form: {
     message: "The words you’d like to share",
-    placeholder: "What we did, how it went, what you’d tell someone about to start.",
+    placeholder: "Tell us what we did, how it went and what you’d tell someone about to start.",
     submit: "Send",
   },
   note: "Nothing from this form appears on the site by itself.",

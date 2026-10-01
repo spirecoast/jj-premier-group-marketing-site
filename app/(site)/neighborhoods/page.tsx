@@ -38,7 +38,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
           "@context": "https://schema.org",
           "@type": "Dataset",
           name: "JJ Premier Group neighborhood catalog",
-          description: `${counts.total.toLocaleString()} areas, communities and enclaves in Lakewood Ranch, Sarasota and Bradenton, with jurisdiction, ZIPs, zoned schools, evacuation zones, builders and associations from county, district and builder sources.`,
+          description: `Atlas covers ${counts.total.toLocaleString()} areas, communities and enclaves in Lakewood Ranch, Sarasota and Bradenton, with jurisdiction, ZIPs, zoned schools, evacuation zones, builders and associations from county, district and builder sources.`,
           url: absoluteUrl("/neighborhoods"),
           dateModified: DATASET_VERSION,
           spatialCoverage: "Manatee and Sarasota counties, Florida",

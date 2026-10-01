@@ -21,7 +21,7 @@ export const BUYER_PROMISES: Step[] = [
     when: "Showings",
     title: "The homes worth your Saturday",
     body:
-      "We go through the listings before you do and tell you which ones we’d actually go and see. Flood zone, HOA, the age of the roof, before you get in the car. If you’re buying from away, we walk the house on video, slowly, and open the closets.",
+      "We go through the listings before you do and tell you which ones we’d actually go and see. You’ll know the flood zone, the HOA and the age of the roof before you get in the car. If you’re buying from away, we walk the house on video, slowly, and open the closets.",
   },
   {
     when: "Offer and inspection",
@@ -33,7 +33,7 @@ export const BUYER_PROMISES: Step[] = [
     when: "After every step",
     title: "A written update",
     body:
-      "A short note after every step: what happened, what’s next, and the date it happens. Escrow, appraisal, insurance, the walk-through. You never have to ask where things stand.",
+      "A short note after every step: what happened, what’s next, and the date it happens. That covers escrow, appraisal, insurance and the walk-through. You never have to ask where things stand.",
   },
 ];
 
@@ -58,33 +58,33 @@ export const SELLER_PROMISES: Step[] = [
   {
     when: "Going live",
     title: "Photography and the first weekend",
-    body: "Photos in the afternoon light, live on a Thursday, showings from Friday. Nothing goes live until the house is ready.",
+    body: "Photos are taken in the afternoon light, the listing goes live on a Thursday, and showings start Friday. Nothing goes live until the house is ready.",
   },
   {
     when: "Every Monday",
     title: "The written report",
-    body: "How many came through, what they said, and whether the number is right. In writing, every week the house is on the market.",
+    body: "You hear how many came through, what they said, and whether the number is right. It comes in writing, every week the house is on the market.",
   },
   {
     when: "At offers",
-    title: "Side by side, then a recommendation",
+    title: "We lay them side by side, then recommend one",
     body:
-      "Every offer laid out the same way: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn’t always the one to take, and we’ll tell you which one is and why.",
+      "Every offer is laid out the same way: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn’t always the one to take, and we’ll tell you which one is and why.",
   },
 ];
 
 export const BOTH_PROMISES: { title: string; body: string }[] = [
   {
     title: "Two agents on every file",
-    body: "Both of us, on every file. One of us is always reachable, and both of us know where your deal stands on any given day.",
+    body: "Both of us are on every file. One of us is always reachable, and both of us know where your deal stands on any given day.",
   },
   {
     title: "Straight answers, including the expensive parts",
-    body: "The seawall, the roof, the flood zone, the kitchen that won’t pay for itself. If we’d wait, we’ll say so.",
+    body: "That means the seawall, the roof, the flood zone and the kitchen that won’t pay for itself. If we’d wait, we’ll say so.",
   },
   {
     title: "Three free tools, built for this coast",
-    body: `${products[0]!.name}, the map of every place in Lakewood Ranch, Sarasota and Bradenton. ${products[1]!.name}, what’s on tonight and this weekend. ${products[2]!.name}, one page a month on what the three markets did. Yours whether or not you ever call us.`,
+    body: `${products[0]!.name} is the map of every place in Lakewood Ranch, Sarasota and Bradenton. ${products[1]!.name} is what’s on tonight and this weekend. ${products[2]!.name} is one page a month on what the three markets did. They’re yours whether or not you ever call us.`,
   },
 ];
 

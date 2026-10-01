@@ -13,7 +13,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "What is my home worth",
   description:
-    "A real number, from two people who have stood in the house. Send the address and the timing; Joelyn or Jessica pulls the four comparable sales, walks the street, and calls with the number and the reason for it.",
+    "You get a real number from two people who have stood in the house. Send the address and the timing; Joelyn or Jessica pulls the four comparable sales, walks the street, and calls with the number and the reason for it.",
   path: "/valuation",
 });
 
@@ -33,13 +33,13 @@ const STEPS: Step[] = [
     when: "Soon after",
     title: "We pull the comps and drive the street",
     body:
-      "Recent closed sales nearby, adjusted for the water, the flood zone, and which end of the street. One of us drives it. Nobody prices a house right from a satellite picture.",
+      "We pull recent closed sales nearby, adjusted for the water, the flood zone, and which end of the street. One of us drives it. Nobody prices a house right from a satellite picture.",
   },
   {
     when: "The call",
     title: "You get the number, and the reason for it",
     body:
-      "A range in writing with the four addresses behind it, what we'd change before the photos, and what we wouldn't spend a dollar on. No listing agreement attached. The number is yours either way.",
+      "You get a range in writing with the four addresses behind it, what we'd change before the photos, and what we wouldn't spend a dollar on. No listing agreement attached. The number is yours either way.",
   },
 ];
 
@@ -54,7 +54,7 @@ export default async function ValuationPage() {
         <div className="flex flex-col gap-7 lg:sticky lg:top-header lg:self-start">
           <div className="flex flex-col gap-3.5">
             <p className="t-eyebrow text-amber">What is my home worth</p>
-            <h1 className="t-display max-w-[600px] text-navy">A real number, from two people who have stood in the house.</h1>
+            <h1 className="t-display max-w-[600px] text-navy">You get a real number from two people who have stood in the house.</h1>
           </div>
           <p className="t-lead max-w-[520px] text-body">
             Send the address and the timing, and Joelyn or Jessica will pull the four comparable sales, drive the
@@ -92,7 +92,7 @@ export default async function ValuationPage() {
       <section className="container-site flex flex-col gap-10 pb-section">
         <SectionHeading
           eyebrow="How it goes"
-          title="Three steps, one phone call."
+          title="It takes three steps and one phone call."
           aside={<RuleLink href="/sell">How selling with us goes</RuleLink>}
         />
         <Steps items={STEPS} columns={3} />

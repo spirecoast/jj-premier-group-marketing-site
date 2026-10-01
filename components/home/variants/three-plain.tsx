@@ -1,7 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { SectionHeading } from "@/components/section-heading";
-import { products, site } from "@/lib/site";
+import { products } from "@/lib/site";
 import { Constellation } from "../constellation";
 import type { ThreeFacts } from "../three-facts";
 
@@ -18,7 +18,7 @@ export function ThreePlain({ facts }: { facts: ThreeFacts }) {
           number="05"
           eyebrow="Three things we built for you"
           size="display"
-          title={<span id="three-title">Atlas, Encore and Tide. The map, the nights out, and the market, kept current.</span>}
+          title={<span id="three-title">Atlas is the map, Encore is the nights out and Tide is the market, and we keep all three current.</span>}
           titleClassName="max-w-[900px]"
         />
         <ul className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
@@ -57,7 +57,7 @@ export function ThreePlain({ facts }: { facts: ThreeFacts }) {
             <Panel product={tide} cta="Read Tide">
               <div className="flex flex-col gap-1">
                 <span className="font-display text-[2.25rem] font-light leading-none text-navy">{facts.tide.nextMonth}</span>
-                <span className="t-mono-sm text-graphite-500">the next report lands</span>
+                <span className="t-mono-sm text-graphite-500">next issue</span>
               </div>
               {facts.tide.guides.length ? (
                 <ul className="flex min-w-0 flex-col gap-1.5 border-t border-hairline pt-4">
@@ -71,9 +71,6 @@ export function ThreePlain({ facts }: { facts: ThreeFacts }) {
             </Panel>
           </li>
         </ul>
-        <p className="t-mono-sm text-graphite-500">
-          One email, if you want it: {site.calendarShort} every Monday, {site.reportName} once a month. The boxes are further down.
-        </p>
       </div>
     </section>
   );

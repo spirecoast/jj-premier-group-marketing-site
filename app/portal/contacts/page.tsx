@@ -58,7 +58,7 @@ export default async function ContactsList() {
             No contacts yet.
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            New leads land here as soon as someone submits the contact form
+            New leads show up here as soon as someone submits the contact form
             or newsletter signup.
           </p>
         </div>

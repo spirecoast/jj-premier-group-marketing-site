@@ -18,8 +18,8 @@ export const REFER = {
   lead: "Tell us the timing and we’ll take it from there.",
   body: "Give us your details, their first name and whatever you know: when they’re thinking of moving, where they’re looking, what they’ve asked you about the coast. We won’t contact them on the strength of this form. We’ll write back to you first, and we only reach out once you’ve told them we’ll be in touch.",
   steps: [
-    { when: "First", title: "You tell us", body: "Your name and email, their first name, and a note about the timing." },
-    { when: "Then", title: "We write back to you", body: "To say thank you, and to ask how they’d like to hear from us." },
+    { when: "First", title: "You tell us", body: "Give us your name and email, their first name, and a note about the timing." },
+    { when: "Then", title: "We write back to you", body: "We say thank you and ask how they’d like to hear from us." },
     { when: "After that", title: "You tell them", body: "We only reach out once you have, and we go at their pace." },
   ],
   form: {
@@ -27,7 +27,7 @@ export const REFER = {
     email: "Your email",
     referredName: "Their first name",
     message: "A note about the timing",
-    placeholder: "When they’re thinking of moving, where they’re looking, anything they’ve asked you about.",
+    placeholder: "Tell us when they’re thinking of moving, where they’re looking and anything they’ve asked you about.",
     submit: "Send",
   },
   privacy: "We don’t ask for their number or email here. That’s theirs to give.",

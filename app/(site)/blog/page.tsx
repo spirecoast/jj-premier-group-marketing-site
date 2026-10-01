@@ -14,7 +14,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = pageMetadata({
   title: site.reportLong,
   description:
-    "Once a month, one page on what happened in Lakewood Ranch, Sarasota and Bradenton and what it means for you. Plus guides on flood zones, timing and selling.",
+    "Once a month, Tide gives you one page on what happened in Lakewood Ranch, Sarasota and Bradenton and what it means for you, plus guides on flood zones, timing and selling.",
   path: "/blog",
 });
 
@@ -68,9 +68,9 @@ export default async function ReportPage() {
           <div className="grid gap-8 border border-hairline bg-white p-8 md:grid-cols-[1fr_1fr] md:items-center md:p-10">
             <div className="flex flex-col gap-3">
               <p className="t-eyebrow text-amber">The next report</p>
-              <h2 className="t-h1 text-navy">It lands at the start of the month.</h2>
+              <h2 className="t-h1 text-navy">It comes out at the start of the month.</h2>
               <p className="t-body max-w-measure text-body">
-                One page on Lakewood Ranch, Sarasota and Bradenton: what moved, what it means for you, and what we&rsquo;d do about it. Leave your email and it&rsquo;ll come to you.
+                It&rsquo;s one page on Lakewood Ranch, Sarasota and Bradenton: what moved, what it means for you, and what we&rsquo;d do about it. Leave your email and it&rsquo;ll come to you.
               </p>
             </div>
             <LetterForm />
@@ -93,7 +93,7 @@ export default async function ReportPage() {
         </section>
       ) : null}
 
-      <CtaBand image={BAND} eyebrow={`${site.reportName}, by email`} title="Once a month, one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]" className="scroll-mt-header">
+      <CtaBand image={BAND} eyebrow={`${site.reportName}, by email`} title="Once a month you get one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]" className="scroll-mt-header">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

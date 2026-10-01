@@ -57,7 +57,7 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
             Tell us what you&rsquo;re looking for. We&rsquo;ll do the looking.
           </h1>
           <p className="max-w-[560px] text-[17px] font-medium leading-[1.6] text-white text-shadow-soft">
-            The place, the budget, and anything that matters to you. You&rsquo;ll hear back from Joelyn or
+            Tell us the place, the budget and anything that matters to you. You&rsquo;ll hear back from Joelyn or
             Jessica, not from a form.
           </p>
         </div>
@@ -67,13 +67,13 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
         <div className="flex flex-col gap-8">
           <SectionHeading
             eyebrow="How this works"
-            title="Two questions, then the homes worth seeing."
+            title="Two questions, and then we send the homes worth seeing."
             titleClassName="max-w-[520px]"
           />
           <ol className="flex flex-col gap-6 border-l border-rule pl-6">
             {[
               ["Where and how much", "Pick the place and the budget. If you\u2019re not sure yet, say so. That\u2019s a normal place to start."],
-              ["We read every listing for you", "Flood zone, HOA, the age of the roof, what the street\u2019s been doing. You get the short list, and which ones we\u2019d go and see with you."],
+              ["We read every listing for you", "We check the flood zone, the HOA, the age of the roof and what the street\u2019s been doing. You get the short list, and which ones we\u2019d go and see with you."],
               ["We go and look, together", "Showings at the hour the light tells the truth. Then a plain answer on each one, including the ones we\u2019d pass on."],
             ].map(([t, b], i) => (
               <li key={t} className="flex flex-col gap-1.5">

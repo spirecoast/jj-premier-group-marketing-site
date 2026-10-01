@@ -71,7 +71,7 @@ export const products: readonly Product[] = [
     tag: "Neighborhoods",
     long: "Atlas · The neighborhood explorer",
     href: "/neighborhoods",
-    line: "Every place in Lakewood Ranch, Sarasota and Bradenton on one map, with the facts behind each one.",
+    line: "Every place in Lakewood Ranch, Sarasota and Bradenton is on one map, with the facts behind each one.",
     accent: "var(--color-navy)",
   },
   {
@@ -89,7 +89,7 @@ export const products: readonly Product[] = [
     tag: "Newsletter",
     long: "Tide · The Coast real estate newsletter",
     href: "/blog",
-    line: "What the three markets did last month, in plain language, and what it means for you.",
+    line: "What the three markets did last month and what it means for you, in plain language.",
     accent: "var(--color-sky-700)",
   },
 ] as const;

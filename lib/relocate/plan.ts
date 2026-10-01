@@ -339,7 +339,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
           dateRange: { start: visitStart, end: visitEnd },
           title: "The visit trip",
           body: `We walk the shortlist on video before you fly, so the trip is for the few worth standing in. Plan on writing the offer while you're here or the week after.${commuteLine}`,
-          basis: `${P.visitBeforeEffectiveDays.min / 7} to ${P.visitBeforeEffectiveDays.max / 7} weeks before the contract's effective date, our planning rule, so an accepted offer lands on the dates below.`,
+          basis: `${P.visitBeforeEffectiveDays.min / 7} to ${P.visitBeforeEffectiveDays.max / 7} weeks before the contract's effective date, our planning rule, so an accepted offer falls on the dates below.`,
           flags: [],
           link: { label: "Plan the visit with Encore", href: "/calendar/plan" },
         }
@@ -398,7 +398,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       phase: "contract",
       date: inspection,
       title: "Inspection period ends",
-      body: "The inspector, the termite inspector and, on older homes, the four-point and wind mitigation reports your insurer will want. If you're cancelling, the written notice has to be delivered inside this window.",
+      body: "Book the inspector, the termite inspector and, on older homes, the four-point and wind mitigation reports your insurer will want. If you're cancelling, the written notice has to be delivered inside this window.",
       basis: `${C.inspectionDays} days after the effective date, the contract default when the blank is left empty.`,
       source: src(C.source),
       flags: [],
@@ -441,7 +441,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       phase: "contract",
       date: titleEvidence,
       title: "Title evidence delivered",
-      body: "The title commitment, showing who owns the home and what's recorded against it. Read the exceptions page; that's where easements and old liens live.",
+      body: "This is the title commitment, showing who owns the home and what's recorded against it. Read the exceptions page; that's where easements and old liens live.",
       basis: financed
         ? `${C.titleEvidenceDaysBeforeClosing} days before closing, the contract default (paragraph 9(c)) when the blank is left empty.`
         : `${C.titleEvidenceDaysBeforeClosingCash} days before closing: the contract default (paragraph 9(c)) when the cash box in paragraph 8(a) is checked.`,
@@ -456,7 +456,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
         phase: "closing",
         date: bindBy,
         title: "Insurance bound",
-        body: `Homeowners, wind if it's separate, and flood. ${financed ? "A flood policy bought for a loan closing starts at closing with no wait." : "The flood policy was ordered above, so it's already running."} Bound a week early because a storm watch anywhere in Florida stops new policies being written.`,
+        body: `Bind homeowners, wind if it's separate, and flood. ${financed ? "A flood policy bought for a loan closing starts at closing with no wait." : "The flood policy was ordered above, so it's already running."} Bound a week early because a storm watch anywhere in Florida stops new policies being written.`,
         basis: `${P.bindBeforeClosingDays} days before closing, our planning rule. Under a tropical storm or hurricane watch or warning, Citizens may not bind new coverage, and most carriers are reported to follow similar rules.`,
         source: src("citizens-binding"),
         flags: inHurricaneSeason(bindBy) ? ["hurricaneSeason"] : [],
@@ -466,7 +466,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
         phase: "closing",
         date: closing,
         title: "Closing day",
-        body: `Walk-through in the morning, signing after. ${a.closingOffset === 0 ? "You've set move-in for the same day; the keys come at the table." : `You've left ${a.closingOffset} ${a.closingOffset === 1 ? "day" : "days"} between closing and move-in, which gives the movers a margin.`}`,
+        body: `The walk-through is in the morning and the signing comes after. ${a.closingOffset === 0 ? "You've set move-in for the same day; the keys come at the table." : `You've left ${a.closingOffset} ${a.closingOffset === 1 ? "day" : "days"} between closing and move-in, which gives the movers a margin.`}`,
         basis: `${a.closingOffset} ${a.closingOffset === 1 ? "day" : "days"} before move-in, your choice above. If a storm or flood stops either side performing, the contract extends the dates up to ${C.forceMajeureExtensionDays} days after it clears; past ${C.forceMajeureTerminateDays} days beyond the closing date, either side may cancel.`,
         source: src(C.source),
         flags: inHurricaneSeason(closing) ? ["hurricaneSeason", "forceMajeure"] : [],
@@ -481,7 +481,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       phase: "after",
       date: moveIn,
       title: "Move-in day",
-      body: "Utilities in your name, mail forwarded, and the first night in the house. Everything below counts from today.",
+      body: "Put the utilities in your name, forward the mail and spend the first night in the house. Everything below counts from today.",
       basis: "Your target date. Driver license, vehicle and homestead clocks all start when you establish residency.",
       source: src(FACTS.residency.source),
       flags: [],
@@ -492,7 +492,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       phase: "after",
       date: vehicles,
       title: "Title and register your vehicles",
-      body: "Florida title and plates for each car. Bring the out-of-state title, or the lienholder's details if there's a loan, and proof of Florida insurance.",
+      body: "Get a Florida title and plates for each car. Bring the out-of-state title, or the lienholder's details if there's a loan, and proof of Florida insurance.",
       basis: `${FACTS.residency.vehicleDays} days after establishing residency, per FLHSMV.`,
       source: src(FACTS.residency.source),
       flags: [],
@@ -535,7 +535,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       dateRange: { start: homestead.ownAndResideBy, end: homestead.fileBy },
       title: `File for homestead by ${formatDate(homestead.fileBy, "long")}`,
       body: `You have to own the home and live in it on ${formatDate(homestead.ownAndResideBy, "long")}, then file with the ${counties.length === 1 ? counties[0]!.pao.label : "county property appraiser"} by March 1. That makes ${homestead.exemptionYear} your first homestead year, and the assessment cap starts the year after.`,
-      basis: `Own and reside by January 1, file by March 1 of the year the exemption is first sought. Moving in ${formatDate(moveIn)} lands in the ${homestead.exemptionYear} cycle.`,
+      basis: `Own and reside by January 1, file by March 1 of the year the exemption is first sought. Moving in ${formatDate(moveIn)} falls in the ${homestead.exemptionYear} cycle.`,
       source: src(FACTS.homestead.source),
       flags: homestead.pushedAYear && homestead.missedByDays <= HOMESTEAD_NEAR_MISS_DAYS ? ["homesteadNextYear"] : [],
     });
@@ -555,7 +555,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
     ms.push({
       id: "homestead-later",
       phase: "after",
-      title: "Homestead, when you buy",
+      title: "Homestead when you buy",
       body: "Renting first means no homestead yet. When you buy, the rule is: own and live in the home by January 1, file by March 1, and that's your first homestead year. We'll recompute it the day you go under contract.",
       basis: "Own and reside by January 1, file by March 1 of the year the exemption is first sought.",
       source: src(FACTS.homestead.source),
@@ -568,7 +568,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       id: "prior-state",
       phase: "after",
       title: a.fromState === "other" ? "Close things out where you're coming from" : `Close things out in ${stateName(a.fromState)}`,
-      body: `${a.fromState === "other" ? "Where you're coming from" : stateName(a.fromState)} has its own rules on returning plates and licenses and on any property-tax exemption you had there. We don't track those here; put them on your list for the month after you land.`,
+      body: `${a.fromState === "other" ? "Where you're coming from" : stateName(a.fromState)} has its own rules on returning plates and licenses and on any property-tax exemption you had there. We don't track those here; put them on your list for the month after you arrive.`,
       basis: "No Florida deadline. The prior state sets its own.",
       flags: ["askUs"],
     });
@@ -579,7 +579,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
     phase: "after",
     title: "Re-shop the insurance at the first renewal",
     body: "The policy you bound for closing was the one that could be written in time. A year in, with the wind mitigation report in hand, it's worth quoting again.",
-    basis: "Our checklist, not a deadline.",
+    basis: "This is our checklist, not a deadline.",
     flags: [],
   });
 
@@ -613,7 +613,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
   if (buying && seasonAtClosing) {
     callouts.push({
       id: "hurricane",
-      title: `Your closing lands in hurricane season`,
+      title: `Your closing falls in hurricane season`,
       body: `Season runs June 1 to November 30. When a tropical storm or hurricane watch or warning is issued for any part of Florida, Citizens stops writing new policies until it lifts, and most carriers are reported to do the same. That's why insurance is bound ${P.bindBeforeClosingDays} days early here, and why the contract carries a weather extension.`,
       source: src("citizens-binding"),
     });
@@ -646,7 +646,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
       title: `Your first homestead year is ${homestead.exemptionYear}`,
       body:
         homestead.pushedAYear && homestead.missedByDays <= HOMESTEAD_NEAR_MISS_DAYS
-          ? `Moving in ${formatDate(moveIn, "long")} is after January 1, ${homestead.exemptionYear - 1}, so that year's cycle has passed. The first January 1 you'll own and live there is ${formatDate(homestead.ownAndResideBy, "long")}; file by ${formatDate(homestead.fileBy, "long")}. If closing could land on or before January 1, the exemption would start a year sooner. Worth asking the seller.`
+          ? `Moving in ${formatDate(moveIn, "long")} is after January 1, ${homestead.exemptionYear - 1}, so that year's cycle has passed. The first January 1 you'll own and live there is ${formatDate(homestead.ownAndResideBy, "long")}; file by ${formatDate(homestead.fileBy, "long")}. If closing could fall on or before January 1, the exemption would start a year sooner. Worth asking the seller.`
           : `You'll own and live in the home on ${formatDate(homestead.ownAndResideBy, "long")}, so you file by ${formatDate(homestead.fileBy, "long")} and the exemption applies from the ${homestead.exemptionYear} tax bill. ${HOMESTEAD_AMOUNTS}`,
       source: src(FACTS.homestead.source),
     });

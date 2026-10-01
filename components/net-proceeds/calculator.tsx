@@ -361,7 +361,7 @@ export function NetProceedsCalculator() {
                 ))}
               </div>
               <p className="t-small mt-6 text-graphite-500">
-                An estimate, not a closing statement. The title company&rsquo;s figures govern; commissions are negotiated.
+                This is an estimate, not a closing statement. The title company&rsquo;s figures govern; commissions are negotiated.
               </p>
             </>
           )}

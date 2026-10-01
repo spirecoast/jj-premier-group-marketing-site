@@ -27,8 +27,8 @@ const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   sell: { title: "Got it.", body: "We’ll come back with a plan and a number, and the reason for the number." },
   listing: { title: "Got it.", body: "We’ll confirm the showing with you. Tell us if the timing changes." },
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
-  letter: { title: "You’re on the list.", body: "Tide goes out once a month. One page, written for you." },
-  calendar: { title: "You’re on the list.", body: "The full calendar, every Monday." },
+  letter: { title: "You’re on the list.", body: "Tide goes out once a month. It’s one page, written for you." },
+  calendar: { title: "You’re on the list.", body: "The full calendar comes every Monday." },
   referral: REFER.success,
   "review-permission": REVIEWS.success,
 };

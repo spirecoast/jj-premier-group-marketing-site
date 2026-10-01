@@ -13,7 +13,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
   description:
-    "Tonight, this weekend and the whole season: theater, concerts, galleries, talks, film and festivals in Lakewood Ranch, Sarasota and Bradenton, by day, week and month. The Encore Arts Calendar from JJ Premier Group.",
+    "Encore lists tonight, this weekend and the whole season: theater, concerts, galleries, talks, film and festivals in Lakewood Ranch, Sarasota and Bradenton, by day, week and month. It is the arts calendar from JJ Premier Group.",
   path: "/calendar",
 });
 
@@ -59,7 +59,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           <div className="flex flex-col gap-3">
             <p className="t-eyebrow text-amber">Every Monday</p>
             <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>
-            <p className="t-body max-w-measure text-body">The week&rsquo;s shows, concerts and openings, in one email every Monday.</p>
+            <p className="t-body max-w-measure text-body">The week&rsquo;s shows, concerts and openings come in one email every Monday.</p>
           </div>
           <div className="flex flex-col gap-4">
             <LetterForm form="calendar" label="Subscribe" />

@@ -10,7 +10,7 @@ export default async function Image() {
   const points = entries.filter((e) => e.x !== null && e.y !== null).map((e): [number, number, number] => [e.x!, e.y!, e.r ? 0.5 : 0.25]);
   return constellationOgImage({
     eyebrow: "Atlas match",
-    title: "Ten questions about the place. None about you.",
+    title: "We ask ten questions about the place and none about you.",
     meta: `${QUESTIONS.length} questions · ${entries.length.toLocaleString()} places · no ranking, no score`,
     points,
   });

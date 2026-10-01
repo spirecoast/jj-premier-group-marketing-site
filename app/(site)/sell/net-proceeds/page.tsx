@@ -85,7 +85,7 @@ export default function NetProceedsPage() {
         <SectionHeading
           number="03"
           eyebrow="Where the figures come from"
-          title="Every rate on the sheet, and the page it was read from."
+          title="Here's every rate on the sheet and the page it came from."
           aside={<RuleLink href="/valuation">Start with the address</RuleLink>}
         />
         <ol className="grid gap-x-12 gap-y-8 lg:grid-cols-2">

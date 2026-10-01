@@ -14,7 +14,7 @@ import { faqJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Buying on the Suncoast",
   description:
-    "Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Escrow, inspections, flood insurance and closing costs, explained the way a friend would.",
+    "Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Escrow, inspections, flood insurance and closing costs are explained the way a friend would.",
   path: "/buy",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -37,7 +37,7 @@ const STEPS: Step[] = [
     when: "Week one · the list",
     title: "The homes worth seeing",
     body:
-      "You'll get every listing that fits, and we'll tell you which ones we'd actually go and see with you. Flood zone, HOA, the age of the roof and what the street's been selling for, before you get in the car.",
+      "You'll get every listing that fits, and we'll tell you which ones we'd actually go and see with you. You'll know the flood zone, the HOA, the age of the roof and what the street's been selling for before you get in the car.",
   },
   {
     when: "When the house is right",
@@ -49,7 +49,7 @@ const STEPS: Step[] = [
     when: "Contract to keys",
     title: "Escrow to the walk-through",
     body:
-      "A title company holds your deposit until closing. Inspection first, then the appraisal, then insurance, then the closing date we picked together on day one. We'll be at the walk-through, and we'll hand you the keys.",
+      "A title company holds your deposit until closing. Inspection comes first, then the appraisal, then insurance, then the closing date we picked together on day one. We'll be at the walk-through, and we'll hand you the keys.",
   },
 ];
 
@@ -231,7 +231,7 @@ export default async function BuyPage() {
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="buy-steps-title">
         <SectionHeading
           eyebrow="How it goes"
-          title={<span id="buy-steps-title">Four steps, from the first call to the keys.</span>}
+          title={<span id="buy-steps-title">There are four steps, from the first call to the keys.</span>}
         />
         <Steps items={STEPS} />
       </section>
@@ -294,7 +294,7 @@ export default async function BuyPage() {
             form="buy"
             fields={["name", "email", "phone", "timing", "sellFirst", "message"]}
             submitLabel="Tell us the timing"
-            placeholderMessage="Where you’re looking, what you need, and whether there’s a house to sell first."
+            placeholderMessage="Tell us where you’re looking, what you need, and whether there’s a house to sell first."
           />
         </div>
       </section>

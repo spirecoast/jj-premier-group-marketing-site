@@ -27,11 +27,11 @@ export const HOME_FAQS: Faq[] = [
   {
     q: "What does it cost to sell a home in Florida?",
     answer:
-      "The documentary stamp tax on the deed at $0.70 per $100 of the price, which the seller pays by custom on this coast; the owner's title policy, which depends on the county; and commission, which is negotiable and set in the listing agreement.",
+      "It's the documentary stamp tax on the deed at $0.70 per $100 of the price, which the seller pays by custom on this coast; the owner's title policy, which depends on the county; and commission, which is negotiable and set in the listing agreement.",
     a: (
       <>
         <p>
-          Three things: the documentary stamp tax on the deed, at $0.70 per $100 of the price, which the seller pays by custom here; the owner&rsquo;s title policy, which depends on the county; and commission, which is negotiable and set in the listing agreement.
+          There are three things: the documentary stamp tax on the deed, at $0.70 per $100 of the price, which the seller pays by custom here; the owner&rsquo;s title policy, which depends on the county; and commission, which is negotiable and set in the listing agreement.
         </p>
         <p className="mt-3">
           <Link href="/sell" className="link-rule">The full answer, with the closing statement</Link>
@@ -72,11 +72,11 @@ export const HOME_FAQS: Faq[] = [
   {
     q: "Which areas does JJ Premier Group cover?",
     answer:
-      "Lakewood Ranch, Sarasota and Bradenton, Florida, as a mother and daughter team with Coldwell Banker Realty. Buyers, sellers and investors.",
+      "We cover Lakewood Ranch, Sarasota and Bradenton, Florida, as a mother and daughter team with Coldwell Banker Realty. We work with buyers, sellers and investors.",
     a: (
       <>
         <p>
-          Lakewood Ranch, Sarasota and Bradenton, as a mother and daughter team with Coldwell Banker Realty. Buyers, sellers and investors, first home or fifth.
+          We cover Lakewood Ranch, Sarasota and Bradenton, as a mother and daughter team with Coldwell Banker Realty. We work with buyers, sellers and investors, first home or fifth.
         </p>
         <p className="mt-3">
           <Link href="/neighborhoods" className="link-rule">The neighborhoods we know</Link>

@@ -75,7 +75,7 @@ export const HOME_VALUE_COPY = {
       },
       {
         title: "The elevation certificate and the flood zone.",
-        body: "Which zone, the finished floor against base flood elevation, and whether a certificate exists at all. Two houses on one street can sit in different zones.",
+        body: "It comes down to which zone, where the finished floor sits against base flood elevation, and whether a certificate exists at all. Two houses on one street can sit in different zones.",
       },
       {
         title: "The seawall and the dock.",
@@ -83,11 +83,11 @@ export const HOME_VALUE_COPY = {
       },
       {
         title: "The condition inside.",
-        body: "Kitchens, baths, floors, windows and what's been permitted and what hasn't. The roll's year built says when the house went up, not what's been done since.",
+        body: "That means kitchens, baths, floors, windows, and what's been permitted and what hasn't. The roll's year built says when the house went up, not what's been done since.",
       },
       {
         title: "The HOA or CDD position.",
-        body: "The dues, the reserves, a pending assessment, a CDD bond still on the tax bill. The buyer's lender reads the estoppel; the roll doesn't.",
+        body: "That means the dues, the reserves, a pending assessment and a CDD bond still on the tax bill. The buyer's lender reads the estoppel; the roll doesn't.",
       },
     ],
     outro: "None of that is a reason to guess. It's the reason the number comes after we've stood in the house.",
@@ -96,9 +96,9 @@ export const HOME_VALUE_COPY = {
     eyebrow: "04 · The ask",
     title: "That's the public record. The number that matters is the one after we walk it.",
     body:
-      "Give us the address and the timing, and Joelyn or Jessica will pull the four comparable sales, drive the street, and call you with the number and the reason for it. A range in writing with the addresses behind it, within a day. No listing agreement attached; the number is yours either way.",
+      "Give us the address and the timing, and Joelyn or Jessica will pull the four comparable sales, drive the street, and call you with the number and the reason for it. You get a range in writing with the addresses behind it, within a day. No listing agreement attached; the number is yours either way.",
     submit: "Get the number",
-    placeholder: "The year of the roof, anything you already know needs doing, and whether there's a house to buy next.",
+    placeholder: "Tell us the year of the roof, anything you already know needs doing, and whether there's a house to buy next.",
     /** Carried into the message so the call starts from the record the seller already saw. */
     messageIntro: (address: string) => `Public record for ${address}:`,
     messageNoParcel: "No qualified sale at this address in the window.",

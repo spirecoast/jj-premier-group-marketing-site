@@ -46,7 +46,7 @@ const COPY: Record<LeadForm, Next> = {
     eyebrow: "Received",
     title: "Got it.",
     body: "We’ll pull the comparable sales, drive the street, and come back with a number and the reason for it. No listing agreement attached; the number is yours either way.",
-    line: "If you want to see how we think about pricing before the call, the Tide archive is the place: what the three markets did, month by month, in plain language.",
+    line: "If you want to see how we think about pricing before the call, the Tide archive is the place: it says what the three markets did each month, in plain language.",
     href: tide.href,
     label: "Read Tide",
   },
@@ -69,7 +69,7 @@ const COPY: Record<LeadForm, Next> = {
   letter: {
     eyebrow: "You’re on the list",
     title: "Tide is on its way.",
-    body: "Tide goes out once a month. One page, written for you, about what happened on streets like yours and what it means. We don’t share your address, and you can stop any time.",
+    body: "Tide goes out once a month. It’s one page, written for you, about what happened on streets like yours and what it means. We don’t share your address, and you can stop any time.",
     line: "In the meantime, Encore has what’s on tonight, this weekend and all season, at every stage, hall and gallery near you.",
     href: encore.href,
     label: "Open the Encore calendar",
@@ -88,8 +88,8 @@ const COPY: Record<LeadForm, Next> = {
   },
   calendar: {
     eyebrow: "You’re on the list",
-    title: "Encore lands every Monday.",
-    body: "The full week of shows, concerts and openings, in one email. We don’t share your address, and you can stop any time.",
+    title: "Encore comes out every Monday.",
+    body: "The full week of shows, concerts and openings comes in one email. We don’t share your address, and you can stop any time.",
     line: "No need to wait for Monday. The whole season is on the calendar now, and you can narrow it to a venue or a category.",
     href: encore.href,
     label: "Open the Encore calendar",
@@ -171,7 +171,7 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
         {bookingUrl ? (
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">
             <p className="t-eyebrow text-amber">Or pick a time</p>
-            <p className="t-body max-w-[380px] text-body">Fifteen minutes on the phone, at a time that suits you.</p>
+            <p className="t-body max-w-[380px] text-body">It’s fifteen minutes on the phone, at a time that suits you.</p>
             <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="link-rule self-start">
               Book 15 minutes ↗
             </a>

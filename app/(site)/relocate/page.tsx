@@ -19,7 +19,7 @@ import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Moving to the Suncoast",
   description:
-    "Six questions, no email, and a dated relocation plan: the Florida contract deadlines, the week insurance has to be bound, the homestead cycle your move-in lands in, and the days the state gives a new resident. Every rule with its source.",
+    "Six questions, no email, and you get a dated relocation plan: the Florida contract deadlines, the week insurance has to be bound, the homestead cycle your move-in falls in, and the days the state gives a new resident. Every rule comes with its source.",
   path: "/relocate",
   fileImage: true, // opengraph-image.tsx beside this page
 });

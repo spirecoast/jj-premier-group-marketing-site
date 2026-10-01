@@ -15,7 +15,7 @@ export const POSTS: Post[] = [
     slug: "what-to-ask-before-you-buy-in-a-gated-community",
     cover: img("library/lwr-lakefront-row", "Lakefront homes along a quiet street"),
     excerpt:
-      "HOA dues, CDD assessments, reserves, rules and the estoppel letter. The documents that decide whether a house in a master-planned community is the right one.",
+      "HOA dues, CDD assessments, reserves, rules and the estoppel letter are the documents that decide whether a house in a master-planned community is the right one.",
     publishedAt: "2026-09-01",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],
@@ -51,7 +51,7 @@ export const POSTS: Post[] = [
     slug: "inspections-on-the-suncoast-what-a-good-one-covers",
     cover: img("library/listing-exterior-canal-golden", "A canal-front home in the late light"),
     excerpt:
-      "The four-point, the wind mitigation, the termite letter, the roof, the seawall and the dock. Why an inspection here is different from the one you had up north.",
+      "An inspection here covers the four-point, the wind mitigation, the termite letter, the roof, the seawall and the dock. Here’s why it’s different from the one you had up north.",
     publishedAt: "2026-08-14",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Guides"],
@@ -90,7 +90,7 @@ export const POSTS: Post[] = [
     slug: "selling-a-home-you-dont-live-in",
     cover: img("library/moment-contract", "A contract on a kitchen island"),
     excerpt:
-      "Out of state, out of season, or handling a home. How a sale runs when the owner isn’t here, from the keys to the closing.",
+      "Whether you’ve moved away, you’re only here in season, or you’re settling an estate, here’s how a sale runs when the owner isn’t here.",
     publishedAt: "2026-07-22",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],
@@ -127,7 +127,7 @@ export const POSTS: Post[] = [
     edition: "Q3 2026",
     cover: img("library/manatee-river-dusk", "The Manatee River at dusk"),
     excerpt:
-      "One page, once a quarter. What your street actually did, what it means for you, and what we got wrong last time.",
+      "One page comes once a quarter, with what your street actually did, what it means for you, and what we got wrong last time.",
     publishedAt: "2026-07-15",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Market report"],
@@ -138,7 +138,7 @@ export const POSTS: Post[] = [
       ),
       h(2, "The streets"),
       p(
-        "Cliffside Terrace in The Lake Club: four sales, all inside nine days, all at or above list. Waterside Way: three sales, thirty-one, forty and fifty-two days, all below the first price. The difference was not the houses. It was the first number.",
+        "Cliffside Terrace in The Lake Club had four sales, all inside nine days, all at or above list. Waterside Way had three sales, at thirty-one, forty and fifty-two days, all below the first price. The difference was not the houses. It was the first number.",
         "West of the Trail in Sarasota did the same thing with fewer homes: twenty-three closings at a median of $742, and the three that took longest were the three that started highest.",
       ),
       h(2, "What we got wrong"),
@@ -159,7 +159,7 @@ export const POSTS: Post[] = [
     edition: "Q2 2026",
     cover: img("library/place-storm-gulf", "A storm over the Gulf"),
     excerpt:
-      "The spring letter, with the winter's predictions marked against what happened. Bradenton was the surprise.",
+      "The spring letter marks the winter's predictions against what happened. Bradenton was the surprise.",
     publishedAt: "2026-04-15",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Market report"],
@@ -184,7 +184,7 @@ export const POSTS: Post[] = [
     slug: "ask-us-about-the-water-table",
     cover: img("library/place-mangrove-tunnel", "A mangrove tunnel on the bay"),
     excerpt:
-      "Flood zones X, AE and VE, elevation certificates, and why the insurance quote is now the first question on any waterfront street.",
+      "This one covers flood zones X, AE and VE, elevation certificates, and why the insurance quote is now the first question on any waterfront street.",
     publishedAt: "2026-05-20",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],

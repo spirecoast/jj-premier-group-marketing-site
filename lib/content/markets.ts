@@ -13,7 +13,7 @@ export const MARKETS: readonly Market[] = [
     county: "Manatee County",
     image: img("library/lwr-fairways-bay-aerial", "Fairways, palms and bay water from the air", "55% 40%"),
     blurb:
-      "Villages built around lakes and preserves, each with its own feel, and a Main Street and Waterside that give the evenings somewhere to go.",
+      "The villages are built around lakes and preserves, each with its own feel, and Main Street and Waterside give the evenings somewhere to go.",
   },
   {
     slug: "sarasota",
@@ -21,7 +21,7 @@ export const MARKETS: readonly Market[] = [
     county: "Sarasota County",
     image: img("library/place-sea-oats-dusk", "Sea oats over a Gulf beach at dusk", "50% 55%"),
     blurb:
-      "The bayfront, the keys, and the streets west of the Trail, with the opera house, the orchestra and the gallery district a few minutes from any of them.",
+      "Sarasota is the bayfront, the keys and the streets west of the Trail, and the opera house, the orchestra and the gallery district are a few minutes from any of them.",
   },
   {
     slug: "bradenton",
@@ -29,7 +29,7 @@ export const MARKETS: readonly Market[] = [
     county: "Manatee County",
     image: img("library/bradenton-riverwalk-golden", "Bradenton Riverwalk at golden hour"),
     blurb:
-      "The Manatee River, the Riverwalk, the canal streets west of 75th, and a downtown with the county's theater and an arts village of its own.",
+      "Bradenton is the Manatee River, the Riverwalk, the canal streets west of 75th, and a downtown with the county's theater and an arts village of its own.",
   },
 ] as const;
 

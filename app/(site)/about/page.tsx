@@ -28,7 +28,7 @@ const FRAMES = {
 const VALUES = [
   {
     title: "We're specific",
-    body: "The flood zone, the age of the roof, which end of the street is the good one. You make decisions with details, so that's what we give you.",
+    body: "We tell you the flood zone, the age of the roof and which end of the street is the good one. You make decisions with details, so that's what we give you.",
   },
   {
     title: "We tell you what we think",
@@ -71,9 +71,6 @@ export default async function AboutPage() {
             </p>
             <p className="t-body max-w-measure text-body">
               Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
-            </p>
-            <p className="t-body max-w-measure text-body">
-              We like these houses and we like this coast, and we won&rsquo;t call a kitchen stunning when the honest word is rebuilt, and full of light at four in the afternoon. Between the two of us, you&rsquo;re covered from the first call to the keys.
             </p>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">

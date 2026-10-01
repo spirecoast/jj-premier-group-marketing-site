@@ -25,7 +25,7 @@ export function CalendarPreview({ events }: { events: Event[] }) {
           number="09"
           eyebrow={site.calendarName}
           size="display"
-          title={<span id="encore-title">Theater, music and art this week, close to home.</span>}
+          title={<span id="encore-title">What’s on this week in theater, music and art, close to home.</span>}
           titleClassName="max-w-[820px]"
           aside={
             <Link href="/calendar" className="link-rule">

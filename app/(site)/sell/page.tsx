@@ -15,7 +15,7 @@ import { faqJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Selling on the Suncoast",
   description:
-    "The sold price, not the list. A number with the four comparable sales behind it, eight weeks of preparation that return their cost, and a first-weekend report on the Monday.",
+    "We price to the sold price, not the list. You get a number with the four comparable sales behind it, eight weeks of preparation that return their cost, and a first-weekend report on the Monday.",
   path: "/sell",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -36,7 +36,7 @@ const STEPS: Step[] = [
   },
   {
     when: "The weeks before · preparation",
-    title: "Paint, light, the front door",
+    title: "Paint, light and the front door come first",
     body:
       "Those are the changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we'll say so before you spend a dollar. Good photographers book up early, so we'll plan the date together.",
   },
@@ -44,13 +44,13 @@ const STEPS: Step[] = [
     when: "Going live",
     title: "The first weekend",
     body:
-      "Photos in the afternoon light, live on a Thursday, showings from Friday. On Monday you'll hear how many came through, what they said, and whether the number is right.",
+      "Photos are taken in the afternoon light, the listing goes live on a Thursday, and showings start Friday. On Monday you'll hear how many came through, what they said, and whether the number is right.",
   },
   {
     when: "Contract to close",
     title: "The offers",
     body:
-      "Every offer laid out side by side: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn't always the best, and we'll tell you which one is. Then inspection, appraisal and closing.",
+      "Every offer is laid out side by side: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn't always the best, and we'll tell you which one is. Then come inspection, appraisal and closing.",
   },
 ];
 
@@ -59,11 +59,11 @@ const FAQS: Faq[] = [
   {
     q: "How do you arrive at the number?",
     answer:
-      "Recent closed sales near you, adjusted for the things that matter here: the water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a buyer will. You get the number and the sales behind it in writing. A comparative market analysis from a REALTOR is not an appraisal; the buyer's lender orders that later.",
+      "We start with recent closed sales near you, adjusted for the things that matter here: the water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a buyer will. You get the number and the sales behind it in writing. A comparative market analysis from a REALTOR is not an appraisal; the buyer's lender orders that later.",
     a: (
       <>
         <p>
-          Four closed sales from the last six months, inside half a mile, adjusted for the things that matter here: the
+          We pull four closed sales from the last six months, inside half a mile, adjusted for the things that matter here: the
           water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a
           buyer will. You get the number and the four addresses behind it, in writing.
         </p>
@@ -96,17 +96,17 @@ const FAQS: Faq[] = [
   {
     q: "What does it cost to sell?",
     answer:
-      "Three things on the closing statement: the Florida documentary stamp tax on the deed at $0.70 per $100 of the price, which the seller pays by custom on this coast; the owner's title policy, which the seller customarily pays in Manatee County and the buyer pays in Sarasota County; and commission, which is negotiable and set in the listing agreement. Add a few hundred dollars of title and recording fees and prorated taxes or HOA dues.",
+      "There are three things on the closing statement: the Florida documentary stamp tax on the deed at $0.70 per $100 of the price, which the seller pays by custom on this coast; the owner's title policy, which the seller customarily pays in Manatee County and the buyer pays in Sarasota County; and commission, which is negotiable and set in the listing agreement. Add a few hundred dollars of title and recording fees and prorated taxes or HOA dues.",
     a: (
       <>
         <p>
-          Three things, all on the closing statement. The state documentary stamp tax on the deed, at $0.70 per $100 of
-          the price, which the seller pays by custom on this coast: $7,000 on a $1,000,000 sale. The owner’s title
+          There are three things, all on the closing statement. The first is the state documentary stamp tax on the deed, at $0.70 per $100 of
+          the price, which the seller pays by custom on this coast: $7,000 on a $1,000,000 sale. The second is the owner’s title
           policy, which the seller customarily pays in Manatee and Hillsborough counties and the buyer pays in Sarasota
           County; at Florida’s promulgated rate that’s $5,075 on $1,000,000.
         </p>
         <p className="mt-4">
-          And commission, which is negotiable and set in the listing agreement. Since August 2024, what you offer the
+          The third is commission, which is negotiable and set in the listing agreement. Since August 2024, what you offer the
           buyer’s agent, if anything, is a separate line and a separate decision, and we walk you through both before
           you sign. Add a few hundred dollars of title and recording fees, and prorated taxes or HOA dues to the day
           of closing.
@@ -184,7 +184,7 @@ export default async function SellPage() {
         <div className="flex flex-col gap-7">
           <div className="flex flex-col gap-3.5">
             <p className="t-eyebrow text-amber">Selling</p>
-            <h1 className="t-display max-w-[640px] text-navy">The sold price, not the list.</h1>
+            <h1 className="t-display max-w-[640px] text-navy">We price to the sold price, not the list.</h1>
           </div>
           <p className="t-lead max-w-[560px] text-body">
             Here is what we’d do: a number with the four comparable sales behind it, eight weeks of preparation
@@ -213,7 +213,7 @@ export default async function SellPage() {
       <section className="container-site flex flex-col gap-10 pb-section">
         <SectionHeading
           eyebrow="How it goes"
-          title="Four steps, from the walk-through to the closing table."
+          title="There are four steps, from the walk-through to the closing table."
         />
         <Steps items={STEPS} />
       </section>
@@ -260,7 +260,7 @@ export default async function SellPage() {
           </p>
           {/* The public record, before the call: what the street sold for, and what you'd keep. */}
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">
-            <p className="t-eyebrow text-amber">The public record, first</p>
+            <p className="t-eyebrow text-amber">The public record first</p>
             <ul className="flex flex-wrap gap-x-8 gap-y-3">
               <li>
                 <RuleLink href="/sell/sold">What sold on your street</RuleLink>
@@ -282,7 +282,7 @@ export default async function SellPage() {
             form="sell"
             fields={["name", "email", "phone", "address", "timing", "message"]}
             submitLabel="Get the number"
-            placeholderMessage="The year of the roof, anything you already know needs doing, and whether there’s a house to buy next."
+            placeholderMessage="Tell us the year of the roof, anything you already know needs doing, and whether there’s a house to buy next."
           />
         </div>
       </section>
@@ -291,7 +291,7 @@ export default async function SellPage() {
       {sellersFirst.length ? (
         <section className="bg-parchment">
           <div className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-            <SectionHeading eyebrow="Sellers, in their words" title="What they say after the closing." />
+            <SectionHeading eyebrow="Sellers in their words" title="What they say after the closing." />
             <TestimonialSlider testimonials={sellersFirst} />
           </div>
         </section>
@@ -300,7 +300,7 @@ export default async function SellPage() {
       {/* The questions asked at the kitchen island. */}
       <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <SectionHeading eyebrow="Asked at the kitchen island" title="The number, the cost, and the calendar." />
+          <SectionHeading eyebrow="Asked at the kitchen island" title="They ask about the number, the cost and the calendar." />
           <p className="t-body max-w-[420px] text-body">
             One or two sentences each, because you have probably done this before. Florida contracts and county custom
             decide most of it, and we’ll say which is which.

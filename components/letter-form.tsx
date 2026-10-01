@@ -53,7 +53,7 @@ export function LetterForm({
     router.push(state.redirectTo as Route);
   }, [state.ok, state.redirectTo, inline, form, channel, router]);
 
-  const successText = form === "letter" ? "You are on the list. The next report lands at the start of the month." : "You are on the list. Encore lands every Monday.";
+  const successText = form === "letter" ? "You’re on the list. The next report comes out at the start of the month." : "You’re on the list. Encore comes out every Monday.";
 
   if (state.ok) {
     return (

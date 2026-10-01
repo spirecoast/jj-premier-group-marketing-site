@@ -95,7 +95,7 @@ function inquiryCopy(l: Listing) {
   if (l.status === "pending") {
     return {
       eyebrow: "Under contract",
-      title: "Spoken for, for now.",
+      title: "Another buyer has this one under contract.",
       body: "Contracts come back more often than people expect. Tell us the timing and you’re the first call if this one does, and the first to hear about the next one on this water.",
       submit: "Ask about this home",
       cta: "Ask about this home",

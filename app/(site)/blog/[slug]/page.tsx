@@ -110,7 +110,7 @@ export default async function PostPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      <CtaBand image={RIVER} eyebrow="Tide, by email" title="Once a month, one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
+      <CtaBand image={RIVER} eyebrow="Tide, by email" title="Once a month you get one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

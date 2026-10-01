@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const description =
     editorial?.neighborhood.tagline ??
     record?.description ??
-    `${name}, ${marketName(market)}: jurisdiction, ZIPs, zoned schools, evacuation zone, builders and association, from county and district sources.`;
+    `${name} is in ${marketName(market)}. This page carries its jurisdiction, ZIPs, zoned schools, evacuation zone, builders and association, from county and district sources.`;
   return pageMetadata({
     title: `${name} · ${where}${record?.type ? ` · ${TYPE_LABEL[record.type]}` : ""}`,
     description,
@@ -224,7 +224,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
               </Fact>
             ))}
             {record?.amenities.length ? (
-              <Fact label="Amenities, per the association or builder">{record.amenities.join(" · ")}</Fact>
+              <Fact label="Amenities per the association or builder">{record.amenities.join(" · ")}</Fact>
             ) : null}
           </dl>
         </section>

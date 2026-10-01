@@ -266,7 +266,7 @@ export function ListView({ index, slugs, today, list, shared, onSaveAll }: { ind
   const runs = events.filter((e) => e.x);
   const missing = slugs.length - events.length;
   if (!events.length) {
-    return <Empty title={shared ? "This list has nothing coming up." : "Nothing saved yet."} body={shared ? "The shows on it have passed, or the link is incomplete." : "Tap Save on any show and it lands here. The list stays on this device until you share it."} />;
+    return <Empty title={shared ? "This list has nothing coming up." : "Nothing saved yet."} body={shared ? "The shows on it have passed, or the link is incomplete." : "Tap Save on any show and it's saved here. The list stays on this device until you share it."} />;
   }
   const groups = byDay(occs);
   return (

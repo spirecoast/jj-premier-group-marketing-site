@@ -7,7 +7,7 @@ export default function Image() {
   return brandOgImage({
     eyebrow: "Selling · Net proceeds",
     title: "What you’d walk away with.",
-    meta: "Doc stamps, title, prorations, payoff: the sheet before the listing.",
+    meta: "One sheet before the listing covers doc stamps, title, prorations and payoff.",
     photo: "/images/library/moment-contract.jpg",
   });
 }

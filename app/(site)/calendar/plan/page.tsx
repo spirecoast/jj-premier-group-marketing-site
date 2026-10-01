@@ -40,8 +40,8 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
           size="display"
           title={
             <>
-              Houses by day.
-              <br className="hidden sm:block" /> Encore by night.
+              Showings fill the day.
+              <br className="hidden sm:block" /> Encore fills the evening.
             </>
           }
           aside={

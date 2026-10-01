@@ -9,7 +9,7 @@ export function LetterBand({ image }: { image: ImageRef }) {
     <CtaBand
       image={image}
       eyebrow={`10 · ${site.reportLong}`}
-      title="The three markets, once a month, in plain language."
+      title="One page a month on the three markets, written in plain language."
       body="Once a month, one page on what happened in Lakewood Ranch, Sarasota and Bradenton, and what it means for you."
       minHeight="min-h-[560px]"
     >

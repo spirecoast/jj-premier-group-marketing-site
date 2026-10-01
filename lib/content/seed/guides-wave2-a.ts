@@ -134,7 +134,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     slug: "flood-zones-and-elevation-certificates-on-the-suncoast",
     cover: img("library/bradenton-canal-ranch-twilight", "A canal-front ranch house at twilight in West Bradenton"),
     excerpt:
-      "X, AE and VE on one page. How to look up the exact parcel in either county, what an elevation certificate does now that FEMA prices flood insurance differently, the thirty-day wait and its loan exception, and what a seller has to tell you about floods.",
+      "Zones X, AE and VE are explained on one page: how to look up the exact parcel in either county, what an elevation certificate does now that FEMA prices flood insurance differently, the thirty-day wait and its loan exception, and what a seller has to tell you about floods.",
     publishedAt: "2026-10-01",
     author: JESSICA,
     categories: ["Guides"],
@@ -234,7 +234,7 @@ export const WAVE2_GUIDES_A: Post[] = [
       p(
         "Read it next to the elevation certificate and the claims history. A house that flooded once and was repaired properly can be a fine house. A disclosure that’s blank because the seller never carried flood insurance is a question, not an answer.",
       ),
-      quote("Zone first, certificate second, quote third. Then we can talk about the kitchen."),
+      quote("The zone comes first, the certificate second and the quote third. Then we can talk about the kitchen."),
       p(
         "Send us the address and we’ll pull the zone, the certificate and the disclosure before you write an offer. If the three don’t agree, that’s the conversation to have first.",
       ),
@@ -266,7 +266,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     slug: "cdd-fees-in-lakewood-ranch-village-by-village",
     cover: img("library/lwr-fairways-bay-aerial", "Lakewood Ranch fairways and lakes from the air"),
     excerpt:
-      "Three kinds of district collect on the Ranch: the numbered community development districts in the original villages, the Stewardship District across the newer ones, and Windward’s own. Which villages sit in which, the two lines they put on the tax bill, and how to read a parcel’s bill before you write an offer.",
+      "Three kinds of district collect on the Ranch: the numbered community development districts in the original villages, the Stewardship District across the newer ones, and Windward’s own. This guide shows which villages sit in which, the two lines they put on the tax bill, and how to read a parcel’s bill before you write an offer.",
     publishedAt: "2026-10-01",
     author: JOELYN,
     categories: ["Guides", "Lakewood Ranch"],
@@ -418,7 +418,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     slug: "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
     cover: img("library/place-storm-gulf", "A storm over the Gulf"),
     excerpt:
-      "The season’s dates, why an evacuation zone isn’t a flood zone, what the two storms of 2024 did to this coast and to its rules, and what to ask about a house that was rebuilt afterward.",
+      "This guide covers the season’s dates, why an evacuation zone isn’t a flood zone, what the two storms of 2024 did to this coast and to its rules, and what to ask about a house that was rebuilt afterward.",
     publishedAt: "2026-10-01",
     author: JOELYN,
     categories: ["Guides"],
@@ -546,7 +546,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     slug: "homestead-save-our-homes-and-portability",
     cover: img("library/kitchen-white-palms", "A white kitchen with palms outside the window"),
     excerpt:
-      "The two exemption tiers, the March deadline, the cap that keeps a long-time owner’s bill low, why it resets the January after a sale, how much of it you can carry to the next house, and why the tax figure on a listing was never going to be yours.",
+      "This guide covers the two exemption tiers, the March deadline, the cap that keeps a long-time owner’s bill low, why it resets the January after a sale, how much of it you can carry to the next house, and why the tax figure on a listing was never going to be yours.",
     publishedAt: "2026-10-01",
     author: JESSICA,
     categories: ["Guides"],
@@ -620,7 +620,7 @@ export const WAVE2_GUIDES_A: Post[] = [
       ),
       h(2, "What to do with this"),
       p(
-        "Three things, in order. Get the seller’s just value and assessed value from the property appraiser’s record, because the difference is what you’ll lose and what they could carry. Run your own first full-year bill off just value, the two tiers and the millage, the tax rate per thousand dollars of value, which the August notice of proposed property taxes, the TRIM notice, spells out. And if you’re selling a Florida homestead to buy here, put the portability form on the moving checklist with a date beside it.",
+        "Do three things, in order. Get the seller’s just value and assessed value from the property appraiser’s record, because the difference is what you’ll lose and what they could carry. Run your own first full-year bill off just value, the two tiers and the millage, the tax rate per thousand dollars of value, which the August notice of proposed property taxes, the TRIM notice, spells out. And if you’re selling a Florida homestead to buy here, put the portability form on the moving checklist with a date beside it.",
       ),
       quote("The listing’s tax line belongs to the seller. Yours starts the January after you close."),
       p(

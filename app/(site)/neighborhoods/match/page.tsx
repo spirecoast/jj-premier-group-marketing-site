@@ -10,8 +10,8 @@ import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 export async function generateMetadata(): Promise<Metadata> {
   const count = (await getIndexEntries()).length;
   return pageMetadata({
-    title: "Atlas match · Ten questions about the place, none about you",
-    description: `Answer up to ten questions about the place and the home, from market and county to home type, gating, association, CDD, water, evacuation zone and distance, and Atlas narrows its ${count.toLocaleString()} places to the ones whose facts fit. No ranking, no score.`,
+    title: "Atlas match · Ten questions about the place and none about you",
+    description: `Answer up to ten questions about the place and the home, from market and county to home type, gating, association, CDD, water, evacuation zone and distance, and Atlas narrows its ${count.toLocaleString()} places to the ones whose facts fit. There is no ranking and no score.`,
     path: "/neighborhoods/match",
     fileImage: true, // opengraph-image.tsx beside this page
   });
@@ -51,7 +51,7 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
         <div className="flex flex-col gap-3.5">
           <p className="t-eyebrow text-amber">01 · Atlas match</p>
           <h1 id="match-title" className="t-display max-w-[820px] text-navy">
-            Ten questions about the place. None about you.
+            We ask ten questions about the place and none about you.
           </h1>
         </div>
         <p className="t-lead max-w-[600px] text-body">
@@ -75,7 +75,7 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
         <div className="flex flex-col gap-3.5">
           <p className="t-eyebrow text-amber">02 · How it reads the catalog</p>
           <h2 id="match-how-title" className="t-h1 max-w-[760px] text-navy">
-            One field per question, and nothing guessed.
+            Each question reads one field, and nothing is guessed.
           </h2>
         </div>
         <ol className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-5">

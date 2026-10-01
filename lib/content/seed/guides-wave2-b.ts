@@ -64,7 +64,7 @@ export const WAVE2_GUIDES_B: Post[] = [
     slug: "homeowners-wind-and-flood-insurance-on-this-coast",
     cover: img("library/place-storm-gulf", "A storm building over the Gulf"),
     excerpt:
-      "Roof age, the wind mitigation report, opening protection, the elevation certificate and the zone. Citizens, My Safe Florida Home, NFIP against private flood, the thirty-day wait and the binding stop. What moves the number, and what to do about it.",
+      "The quote turns on roof age, the wind mitigation report, opening protection, the elevation certificate and the zone. This guide also covers Citizens, My Safe Florida Home, NFIP against private flood, the thirty-day wait and the binding stop: what moves the number, and what to do about it.",
     publishedAt: "2026-09-23",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Guides"],
@@ -74,7 +74,7 @@ export const WAVE2_GUIDES_B: Post[] = [
       ),
       h(2, "The roof"),
       pl(
-        "Roof age, first. Florida law says an insurer can’t refuse to write or renew a policy solely because of the roof’s age when the roof is under fifteen years old ([Florida Statutes 627.7011(5)](https://www.flsenate.gov/Laws/Statutes/2024/627.7011)). Ask for the permit for the last replacement; its date is the age the insurer uses.",
+        "Roof age comes first. Florida law says an insurer can’t refuse to write or renew a policy solely because of the roof’s age when the roof is under fifteen years old ([Florida Statutes 627.7011(5)](https://www.flsenate.gov/Laws/Statutes/2024/627.7011)). Ask for the permit for the last replacement; its date is the age the insurer uses.",
         "Past that age, the same statute gives you a path: an inspection showing five or more years of useful life left, and the insurer can’t turn the policy down on age alone. It doesn’t stop them pricing the roof, so plan the replacement in your number if it’s near the end.",
       ),
       h(2, "The wind mitigation report"),
@@ -132,7 +132,7 @@ export const WAVE2_GUIDES_B: Post[] = [
     slug: "barrier-island-rules-island-by-island",
     cover: img("library/gulf-beach-aerial", "A barrier island beach from the air"),
     excerpt:
-      "Anna Maria Island’s three cities, Longboat Key’s two counties, Lido and St. Armands under the city, Siesta Key under the county. Height, short-term rentals and the rebuild rule, with the code behind each one, and where we couldn’t verify a rule, we say so.",
+      "Anna Maria Island has three cities, Longboat Key spans two counties, Lido and St. Armands sit under the city, and Siesta Key sits under the county. This guide covers height, short-term rentals and the rebuild rule, with the code behind each one, and where we couldn’t verify a rule, we say so.",
     publishedAt: "2026-09-25",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],
@@ -196,7 +196,7 @@ export const WAVE2_GUIDES_B: Post[] = [
     slug: "condo-and-hoa-documents-after-the-2022-law",
     cover: img("library/sarasota-bayfront-blue-hour", "Sarasota’s bayfront towers at blue hour"),
     excerpt:
-      "The milestone inspection, the structural integrity reserve study, what ‘waived reserves’ used to mean and no longer can, and the exact documents to ask for in the inspection period: the report, the study, the budget, the estoppel certificate and the association’s website.",
+      "This guide covers the milestone inspection, the structural integrity reserve study, what ‘waived reserves’ used to mean and no longer can, and the exact documents to ask for in the inspection period: the report, the study, the budget, the estoppel certificate and the association’s website.",
     publishedAt: "2026-09-27",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Guides"],
@@ -265,7 +265,7 @@ export const WAVE2_GUIDES_B: Post[] = [
     slug: "getting-here-and-getting-around",
     cover: img("library/place-skyway-bridge", "The Sunshine Skyway Bridge over lower Tampa Bay"),
     excerpt:
-      "Four airports, one interstate, the Skyway, the county line through Lakewood Ranch, two bridges to Anna Maria Island and two bus systems. How to measure a commute honestly, with no minutes anywhere, because the minutes are yours to drive.",
+      "There are four airports, one interstate, the Skyway, the county line through Lakewood Ranch, two bridges to Anna Maria Island and two bus systems. This guide shows how to measure a commute honestly, with no minutes anywhere, because the minutes are yours to drive.",
     publishedAt: "2026-09-29",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],

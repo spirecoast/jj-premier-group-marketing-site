@@ -89,7 +89,7 @@ export const MORE = {
   heading: "Three more ways in.",
   atlas: {
     name: "Atlas match",
-    line: "Ten questions about the place, none about you. Atlas narrows every neighborhood on the map to the ones whose facts fit: county, gating, association, CDD, water and evacuation zone.",
+    line: "Atlas asks ten questions about the place and none about you. It narrows every neighborhood on the map to the ones whose facts fit: county, gating, association, CDD, water and evacuation zone.",
     href: "/neighborhoods/match",
     label: "Try Atlas match",
   },
@@ -101,7 +101,7 @@ export const MORE = {
   },
   tide: {
     name: "Tide · Once a month",
-    line: "What happened on streets like yours this month, in plain language. One email, and you can stop any time.",
+    line: "Tide tells you what happened on streets like yours this month, in plain language. It’s one email, and you can stop any time.",
     label: "Send me Tide",
   },
   talk: "Rather talk? Call or text us.",

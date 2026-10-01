@@ -9,7 +9,7 @@ export const HERO = {
   eyebrow: "Relocating",
   title: "Moving here from somewhere else.",
   lead:
-    "If you're buying from a few states away, the first visit is often the only one before the offer. So we pull the flood map, the roof age and the HOA file before you land, walk the house on video, and put every date on one page.",
+    "If you're buying from a few states away, the first visit is often the only one before the offer. So we pull the flood map, the roof age and the HOA file before you arrive, walk the house on video, and put every date on one page.",
   body: "Six questions, no email, and you get a dated plan: the contract deadlines the Florida form sets, the week insurance has to be bound, and the days the state gives you once you're here.",
 };
 
@@ -38,7 +38,7 @@ export const QUESTIONS = {
   work: {
     label: "Will you be working from here?",
     options: { remote: "Remotely", commute: "Driving somewhere", na: "Doesn't apply" } as const,
-    commuteTo: { label: "Where to?", placeholder: "Downtown Sarasota, the airport, a hospital campus", hint: "Context for us, nothing more." },
+    commuteTo: { label: "Where to?", placeholder: "Downtown Sarasota, the airport, a hospital campus", hint: "This is context for us, nothing more." },
   },
   county: {
     label: "Which county are you looking in?",
@@ -51,8 +51,8 @@ export const QUESTIONS = {
 
 export const PLAN = {
   eyebrow: "Your plan",
-  title: "Every date, and the rule behind it.",
-  genericTitle: "A plan to read, then adjust.",
+  title: "Every date comes with the rule behind it.",
+  genericTitle: "Read the plan, then adjust it.",
   intro: "Dates come from the Florida contract's defaults and the state's own deadlines, each with its source. The planning rules are ours and say so. Nothing here is advice on your contract; that's a conversation.",
   basisLabel: "Why this date",
   sourceLabel: "Source",
@@ -123,7 +123,7 @@ export const FROM_AWAY = {
     },
     {
       title: "A written update after every step",
-      body: "Inspection, appraisal, insurance, title: a short note after each one with what happened, what's next and the date it happens. You never have to ask where things stand from three time zones away.",
+      body: "After inspection, appraisal, insurance and title, you get a short note with what happened, what's next and the date it happens. You never have to ask where things stand from three time zones away.",
     },
     {
       title: "Closing without flying down",
