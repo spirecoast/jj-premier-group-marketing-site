@@ -207,8 +207,8 @@ export default async function ListingPage({ params }: { params: Params }) {
       {/* Gallery: the hero and up to four frames. */}
       <section className="container-site flex flex-col gap-5 pt-8 md:pt-10" aria-label="Photographs">
         <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-3 gap-y-1 t-mono-sm text-graphite-500">
-          <Link href={"/listings" as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
-            Search
+          <Link href={"/buy" as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">
+            Buy
           </Link>
           <span aria-hidden="true">/</span>
           <Link href={`/listings?market=${listing.market}` as Route} className="-my-2 inline-block py-2 transition-colors hover:text-navy">

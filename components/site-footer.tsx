@@ -53,7 +53,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
             <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
             <p className="t-quote text-navy">{site.tagline}</p>
           </div>
-          <Column title="Search" links={footerNav.search} />
+          <Column title="Places" links={footerNav.places} />
           <Column title="The team" links={footerNav.team} />
           <div className="flex flex-col gap-3.5">
             <p className="t-eyebrow text-linen-700">Direct</p>

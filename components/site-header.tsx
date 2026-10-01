@@ -3,10 +3,11 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { primaryNav, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { CbMark } from "./cb-mark";
+import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
 
 /** Routes whose first screen is a photograph the header sits over. */
@@ -57,8 +58,11 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   }, [open]);
 
   const solid = !overlay || scrolled || open;
-  // On the home page the hero content is inset 56px inside the framed photograph.
+  // On the home page the hero content is inset 56px inside the framed photograph,
+  // and the header follows. That costs 112px, so the product descriptors need
+  // 1400px there before they fit beside the 185px brokerage mark; 1320 elsewhere.
   const homeInset = pathname === "/";
+  const descriptorVisible = homeInset ? "min-[1400px]:inline" : "min-[1320px]:inline";
 
   return (
     <header
@@ -79,33 +83,57 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-start gap-7 lg:flex min-[1320px]:gap-9">
-          {primaryNav.map((item) => {
+        <nav
+          aria-label="Primary"
+          className="hidden items-center gap-5 lg:flex xl:gap-6 min-[1320px]:gap-7"
+        >
+          {primaryNav.map((item, i) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const firstProduct = item.product && !primaryNav[i - 1]?.product;
             return (
-              <Link
-                key={item.href}
-                href={item.href as Route}
-                aria-current={active ? "page" : undefined}
-                aria-label={item.sub ? `${item.label}, ${item.sub}` : undefined}
-                className={cn(
-                  "group/nav flex flex-col items-start whitespace-nowrap border-b py-1.5 text-linen-200 transition-colors hover:text-white",
-                  active ? "border-sky-300" : "border-transparent",
-                )}
-              >
-                <span className="t-label">{item.label}</span>
-                {item.sub ? (
-                  <span className="hidden font-mono text-[9px] uppercase leading-none tracking-[0.14em] text-linen-200/55 transition-colors group-hover/nav:text-linen-200/80 min-[1320px]:block">
-                    {item.sub}
-                  </span>
+              <Fragment key={item.href}>
+                {firstProduct ? (
+                  // The hairline between the pages and the product family.
+                  <span aria-hidden="true" className="mx-0.5 h-5 w-px shrink-0 self-center bg-linen-200/25 min-[1320px]:mx-1.5" />
                 ) : null}
-              </Link>
+                <Link
+                  href={item.href as Route}
+                  aria-current={active ? "page" : undefined}
+                  aria-label={item.product && item.sub ? `${item.label}, ${item.sub}` : undefined}
+                  className={cn(
+                    "flex h-8 items-center whitespace-nowrap border-b text-linen-200 transition-colors hover:text-white",
+                    active ? "border-sky-300" : "border-transparent",
+                  )}
+                >
+                  {item.product ? (
+                    <span className="flex items-baseline gap-2">
+                      <span className="font-display text-[19px] font-light leading-none tracking-[-0.01em]">{item.label}</span>
+                      {item.sub ? (
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "hidden font-mono text-[9px] uppercase leading-none tracking-[0.14em]",
+                            // Over the hero photograph the descriptor goes full linen with a
+                            // faint shadow so it reads across the bright cloud band.
+                            solid ? "text-linen-200/85" : "text-linen-200 [text-shadow:0_1px_2px_rgb(0_0_0/0.35)]",
+                            descriptorVisible,
+                          )}
+                        >
+                          {item.sub}
+                        </span>
+                      ) : null}
+                    </span>
+                  ) : (
+                    <span className="t-label">{item.label}</span>
+                  )}
+                </Link>
+              </Fragment>
             );
           })}
         </nav>
 
         <div className="flex items-center gap-6">
-          <CbMark tone="white" width={185} className="hidden opacity-90 md:block" />
+          <CbMark tone="white" width={185} className="hidden shrink-0 opacity-90 md:block" />
           <button
             type="button"
             className="t-label flex h-11 items-center px-2 text-linen-200 transition-colors hover:text-white lg:hidden"
@@ -129,25 +157,39 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
       >
         <div className="container-site flex min-h-full flex-col justify-between gap-12 py-10">
           <nav aria-label="Primary, mobile" className="flex flex-col">
-            {primaryNav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href as Route}
-                className="flex items-baseline gap-4 border-b border-linen-200/15 py-4 text-linen-200 transition-colors hover:text-white"
-              >
-                <span className="t-display">{item.label}</span>
-                {item.sub ? <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-linen-200/60">{item.sub}</span> : null}
-              </Link>
-            ))}
+            {primaryNav.map((item) => {
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href as Route}
+                  aria-current={active ? "page" : undefined}
+                  className="flex items-baseline gap-4 border-b border-linen-200/15 py-4 text-linen-200 transition-colors hover:text-white"
+                >
+                  <span className="t-display">{item.label}</span>
+                  {item.sub ? (
+                    <>
+                      <span className="sr-only">, </span>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-linen-200/60">{item.sub}</span>
+                    </>
+                  ) : null}
+                </Link>
+              );
+            })}
           </nav>
           <div className="flex flex-col gap-8">
             <div className="grid gap-6 sm:grid-cols-2">
               {contacts.map((c) => (
                 <div key={c.name} className="flex flex-col gap-1.5">
                   <p className="t-eyebrow text-mist">{c.name}</p>
-                  <a href={`tel:${c.phoneE164}`} className="font-mono text-base text-linen-200 hover:text-white">
+                  <TrackedLink
+                    event="Phone tap"
+                    props={{ where: "header" }}
+                    href={`tel:${c.phoneE164}`}
+                    className="font-mono text-base text-linen-200 hover:text-white"
+                  >
                     {c.phone}
-                  </a>
+                  </TrackedLink>
                   <a href={`mailto:${c.email}`} className="t-small break-all text-linen-200 hover:text-white">
                     {c.email}
                   </a>

@@ -94,25 +94,36 @@ export const products: readonly Product[] = [
   },
 ] as const;
 
-export type NavItem = { href: string; label: string; /** A second, smaller line: what a named product is. */ sub?: string };
+export type NavItem = {
+  href: string;
+  label: string;
+  /** What it is, in a few words: the descriptor beside a product name, the second line in the phone menu. */
+  sub?: string;
+  /** A named product (Atlas, Encore, Tide): the desktop nav sets it in the display serif with its descriptor on the baseline. */
+  product?: boolean;
+};
 
-/** Primary navigation. The three products sit together, each with its descriptor beneath. */
+/**
+ * Primary navigation. The plain pages first (Buy, Sell, the team), then a
+ * hairline, then the three products as a group. "Buy" goes to /buy until
+ * there are live listings to search.
+ */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/listings", label: "Search", sub: "Homes for sale" },
+  { href: "/buy", label: "Buy", sub: "Homes for sale" },
   { href: "/sell", label: "Sell", sub: "Your home" },
-  { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods" },
-  { href: "/calendar", label: "Encore", sub: "Arts calendar" },
-  { href: "/blog", label: "Tide", sub: "Newsletter" },
   { href: "/about", label: "Joelyn & Jessica", sub: "Meet the team" },
+  { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods", product: true },
+  { href: "/calendar", label: "Encore", sub: "Arts calendar", product: true },
+  { href: "/blog", label: "Tide", sub: "Newsletter", product: true },
 ] as const;
 
 /** Secondary links used in the footer columns. */
 export const footerNav = {
-  search: [
+  places: [
     { href: "/neighborhoods?market=lakewood-ranch", label: "Lakewood Ranch" },
     { href: "/neighborhoods?market=sarasota", label: "Sarasota" },
     { href: "/neighborhoods?market=bradenton", label: "Bradenton" },
-    { href: "/listings", label: "Find your home" },
+    { href: "/buy", label: "Buy" },
   ],
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
