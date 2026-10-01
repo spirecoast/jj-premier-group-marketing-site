@@ -89,7 +89,7 @@ export const products: readonly Product[] = [
     tag: "Newsletter",
     long: "Tide · The Coast real estate newsletter",
     href: "/blog",
-    line: "What happened on your street this month, in plain language, and what it means for you.",
+    line: "What the three markets did last month, in plain language, and what it means for you.",
     accent: "var(--color-sky-700)",
   },
 ] as const;

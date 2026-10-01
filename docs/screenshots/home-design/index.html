@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home page design treatments</title>
+<style>
+  :root { --navy: #2e4a5c; --paper: #faf8f5; --parchment: #f1e9dc; --hairline: #e4ded2; --amber: #7a5a1c; --body: #3a3d42; --muted: #63666a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--body); font: 16px/1.6 Jost, Helvetica, Arial, sans-serif; }
+  main { max-width: 1600px; margin: 0 auto; padding: 48px 32px 96px; }
+  h1 { font: 300 44px/1.05 Newsreader, Georgia, serif; color: var(--navy); margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font: 300 30px/1.1 Newsreader, Georgia, serif; color: var(--navy); margin: 64px 0 20px; }
+  .eyebrow { font: 500 11px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--amber); margin: 0 0 12px; }
+  .lead { max-width: 70ch; color: var(--muted); margin: 0; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: start; }
+  .v { background: #fff; border: 1px solid var(--hairline); padding: 20px; }
+  .v.shipped { border-color: var(--navy); }
+  .v h3 { font: 300 24px/1.15 Newsreader, Georgia, serif; color: var(--navy); margin: 0 0 6px; }
+  .v .tag { font: 500 10px/1.5 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; background: var(--navy); padding: 3px 8px; display: inline-block; margin-left: 8px; vertical-align: middle; }
+  .v p { font-size: 15px; color: var(--body); margin: 0 0 16px; }
+  .shots { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 12px; align-items: start; }
+  .shots figure { margin: 0; }
+  .shots img { display: block; width: 100%; height: auto; border: 1px solid var(--hairline); background: #fff; }
+  .shots figcaption { font: 400 10px/1.5 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .full { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .full img { display: block; width: 100%; height: auto; border: 1px solid var(--hairline); }
+  .extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: 12px; }
+  .extra figure { margin: 0; }
+  .extra img { display: block; width: 100%; height: auto; border: 1px solid var(--hairline); background: #fff; }
+  .extra figcaption { font: 400 10px/1.5 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .note { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
+  a { color: var(--navy); }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">JJ Premier Group · home page · Wave 2 design</p>
+  <h1>The sections after the hero, made to feel alive.</h1>
+  <p class="lead">The client's note on sections 03, 04 and 05: well designed but sterile, blocks of text, especially What we do. Every treatment below keeps the same copy, the same links and live facts, the same section numbers and grounds as main, and uses only the site's own system: library photography, the display serif, mono eyebrows, hairlines, paper and parchment. Each screenshot is a 1440 desktop capture with its 390 phone capture beside it (click to open at full size). The outlined card in each row is the one shipped on <code>wave2-design</code>; the others stay in <code>components/home/variants/</code> behind a one-line default. The shipped cards also carry the captures the review asked for (the doors at 768, 1024 and 1280, the Both-get cards at 390, the product band at 768), taken after the review fixes.</p>
+
+  <h2>04 · What we do for you</h2>
+  <div class="row">
+    <section class="v">
+      <h3>Plain <span style="font-size:14px;color:#63666a">(Wave 0, for comparison)</span></h3>
+      <p>Two columns of numbered steps on paper. Correct, and the part the client called a block of text.</p>
+      <div class="shots">
+        <figure><a href="what-plain-1440.jpg"><img src="what-plain-1440.jpg" alt="What we do, plain, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="what-plain-390.jpg"><img src="what-plain-390.jpg" alt="What we do, plain, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+    </section>
+    <section class="v">
+      <h3>Photo-led</h3>
+      <p>Each column opens with a tall moment photograph carrying its own heading, the steps follow with the numeral set large in the serif, and "Both get" closes as a navy band. Strong opener, but the images front-load and the steps return to a text wall below them.</p>
+      <div class="shots">
+        <figure><a href="what-photo-1440.jpg"><img src="what-photo-1440.jpg" alt="What we do, photo-led, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="what-photo-390.jpg"><img src="what-photo-390.jpg" alt="What we do, photo-led, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+    </section>
+    <section class="v shipped">
+      <h3>Editorial timeline <span class="tag">Shipped</span></h3>
+      <p>A rail per column with a square tick and mono numeral at each step; photographs are let into the rail where the story turns (showings, the keys; the house seen from above, the first weekend), and "Both get" is three photo-backed cards. The steps read as a sequence instead of a list, on desktop and as a scroll story on phones.</p>
+      <p class="note">After review: each tile renders inside the step it follows (the lists count 4 and 6), the two-agents card carries the team's own photograph and the walk-through tile an aerial of a lot so no picture repeats the doors, the Both-get cards are 2:1 on phones with white body text over a deeper shade, and every picture is sized to its drawn crop.</p>
+      <div class="shots">
+        <figure><a href="what-timeline-1440.jpg"><img src="what-timeline-1440.jpg" alt="What we do, timeline, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="what-timeline-390.jpg"><img src="what-timeline-390.jpg" alt="What we do, timeline, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+      <div class="extra">
+        <figure><a href="what-timeline-both-390.jpg"><img src="what-timeline-both-390.jpg" alt="The Both-get cards at 390" loading="lazy"></a><figcaption>Both get · 390</figcaption></figure>
+      </div>
+    </section>
+    <section class="v">
+      <h3>Magazine spread</h3>
+      <p>A full-bleed aerial carries the heading and the two columns come up over its lower edge as white cards, step titles set as italic pull quotes. Handsome, but a second full-bleed photograph three sections after the hero competes with it, and the white cards sit low-contrast on paper.</p>
+      <div class="shots">
+        <figure><a href="what-spread-1440.jpg"><img src="what-spread-1440.jpg" alt="What we do, spread, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="what-spread-390.jpg"><img src="what-spread-390.jpg" alt="What we do, spread, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+    </section>
+  </div>
+
+  <h2>03 · Buy or sell</h2>
+  <div class="row">
+    <section class="v">
+      <h3>Plain <span style="font-size:14px;color:#63666a">(Wave 0, for comparison)</span></h3>
+      <p>Two white text cards on parchment with a rule that draws on hover.</p>
+      <div class="shots">
+        <figure><a href="doors-plain-1440.jpg"><img src="doors-plain-1440.jpg" alt="Buy or sell, plain, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="doors-plain-390.jpg"><img src="doors-plain-390.jpg" alt="Buy or sell, plain, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+    </section>
+    <section class="v shipped">
+      <h3>Photo doors <span class="tag">Shipped</span></h3>
+      <p>Each door is a split card: the moment on the left leaf (walking into the empty room; the house the way a buyer sees it) with the door's name set over it, the one line and the way in on the right. The photograph eases 3.5% on hover and the Sky rule draws, the same card grammar as the rest of the site; on phones the photograph sits above the words.</p>
+      <p class="note">After review: the doors run one per row until 1024 (the split needs about 540px of door), sit two per row from 1024 with the photograph above the words until 1279, and split again from 1280; the heading holds on one line at every width, and the photograph is decorative so the link is named by its heading.</p>
+      <div class="shots">
+        <figure><a href="doors-photo-1440.jpg"><img src="doors-photo-1440.jpg" alt="Buy or sell, photo doors, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="doors-photo-390.jpg"><img src="doors-photo-390.jpg" alt="Buy or sell, photo doors, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+      <div class="extra">
+        <figure><a href="doors-photo-768.jpg"><img src="doors-photo-768.jpg" alt="Buy or sell, photo doors, at 768" loading="lazy"></a><figcaption>768</figcaption></figure>
+        <figure><a href="doors-photo-1024.jpg"><img src="doors-photo-1024.jpg" alt="Buy or sell, photo doors, at 1024" loading="lazy"></a><figcaption>1024</figcaption></figure>
+        <figure><a href="doors-photo-1280.jpg"><img src="doors-photo-1280.jpg" alt="Buy or sell, photo doors, at 1280" loading="lazy"></a><figcaption>1280</figcaption></figure>
+      </div>
+    </section>
+  </div>
+
+  <h2>05 · Atlas, Encore and Tide</h2>
+  <div class="row">
+    <section class="v">
+      <h3>Plain <span style="font-size:14px;color:#63666a">(Wave 0, for comparison)</span></h3>
+      <p>Three white cards with an accent tick, the constellation small inside the Atlas card.</p>
+      <div class="shots">
+        <figure><a href="three-plain-1440.jpg"><img src="three-plain-1440.jpg" alt="The three, plain, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="three-plain-390.jpg"><img src="three-plain-390.jpg" alt="The three, plain, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+    </section>
+    <section class="v shipped">
+      <h3>Pictures <span class="tag">Shipped</span></h3>
+      <p>Each card opens with its own picture, all drawn in code: the constellation of every place on linen with a graticule for Atlas, the calendar's own key art for Encore, and a newsletter page in hairlines under a masthead rule for Tide. Names, lines, live facts and links are untouched.</p>
+      <p class="note">After review: the heads are 3:2 (2:1 where the cards stack full width at the tablet), the Tide page's hairlines spread to fill its head, and the Encore key art is hidden from assistive technology. The Tide line now reads "What the three markets did last month…" so the page does not repeat one sentence three times.</p>
+      <div class="shots">
+        <figure><a href="three-pictures-1440.jpg"><img src="three-pictures-1440.jpg" alt="The three, pictures, at 1440" loading="lazy"></a><figcaption>1440</figcaption></figure>
+        <figure><a href="three-pictures-390.jpg"><img src="three-pictures-390.jpg" alt="The three, pictures, at 390" loading="lazy"></a><figcaption>390</figcaption></figure>
+      </div>
+      <div class="extra">
+        <figure><a href="three-pictures-768.jpg"><img src="three-pictures-768.jpg" alt="The three, pictures, at 768" loading="lazy"></a><figcaption>768</figcaption></figure>
+      </div>
+    </section>
+  </div>
+
+  <h2>The home page as shipped</h2>
+  <p class="lead" style="margin-bottom:20px">Full-length captures of the branch's default after the review fixes: photo doors, the timeline, the pictures band, on main's section numbers and alternating grounds, with main's guides on the Tide card.</p>
+  <div class="full">
+    <figure style="margin:0"><a href="home-1440-full.jpg"><img src="home-1440-full.jpg" alt="The home page at 1440" loading="lazy"></a></figure>
+    <figure style="margin:0"><a href="home-390-full.jpg"><img src="home-390-full.jpg" alt="The home page at 390" loading="lazy"></a></figure>
+  </div>
+</main>
+</body>
+</html>

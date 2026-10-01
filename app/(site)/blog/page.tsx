@@ -52,7 +52,7 @@ export default async function ReportPage() {
           as="h1"
           size="display"
           eyebrow={site.reportLong}
-          title={<span id="report-title">What happened on your street this month, in plain language.</span>}
+          title={<span id="report-title">One page a month on what the three markets did.</span>}
           titleClassName="max-w-[820px]"
         />
 
