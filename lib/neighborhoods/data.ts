@@ -66,8 +66,16 @@ export async function getIndexableSlugs(): Promise<string[]> {
   return (await getAllRecords()).filter((r) => r.research === "full").map((r) => r.slug);
 }
 
+/**
+ * The browser's index: the search index file, plus the four match fields
+ * (water, association, CDD, evacuation zone) read from the full record.
+ */
 export function getIndexEntries(): Promise<IndexEntry[]> {
-  if (!index) index = readJson<NeighborhoodSearchEntry[]>("neighborhoods.search.json").then((rows) => rows.map(toIndexEntry));
+  if (!index) {
+    index = Promise.all([readJson<NeighborhoodSearchEntry[]>("neighborhoods.search.json"), recordMap()]).then(([rows, map]) =>
+      rows.map((row) => toIndexEntry(row, map.get(row.slug))),
+    );
+  }
   return index;
 }
 

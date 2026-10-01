@@ -1,5 +1,5 @@
 import type { MarketSlug } from "@/lib/content/types";
-import type { NeighborhoodLevel, NeighborhoodSearchEntry, NeighborhoodStatus, NeighborhoodType } from "./types";
+import type { EvacuationZone, NeighborhoodLevel, NeighborhoodRecord, NeighborhoodSearchEntry, NeighborhoodStatus, NeighborhoodType, WaterAccess } from "./types";
 
 /**
  * The slim row the browser receives: the search index with short keys and
@@ -26,9 +26,17 @@ export type IndexEntry = {
   r: 0 | 1; // 1 = researched in full, 0 = registry-only
   ba: 0 | 1; // Palmetto / Ellenton / Parrish group
   q: string; // normalized search text
+  /** Atlas match reads these four; the search index file does not carry them, so the server fills them from the full record. */
+  w: WaterAccess | null; // water access
+  ho: 1 | null; // 1 = an association is on record; null = not known
+  cd: 1 | null; // 1 = a community development district is on record; null = not known
+  ev: EvacuationZone | null; // evacuation zone / level
 };
 
-export function toIndexEntry(e: NeighborhoodSearchEntry): IndexEntry {
+/** The record fields the search index leaves out but the match needs. */
+export type IndexExtra = Pick<NeighborhoodRecord, "waterAccess" | "hoa" | "cdd" | "evacuationZone">;
+
+export function toIndexEntry(e: NeighborhoodSearchEntry, x?: IndexExtra): IndexEntry {
   return {
     s: e.slug,
     n: e.name,
@@ -49,5 +57,9 @@ export function toIndexEntry(e: NeighborhoodSearchEntry): IndexEntry {
     r: e.research === "full" ? 1 : 0,
     ba: e.bradentonArea ? 1 : 0,
     q: e.q,
+    w: x?.waterAccess ?? null,
+    ho: x?.hoa?.name ? 1 : null,
+    cd: x?.cdd ? 1 : null,
+    ev: x?.evacuationZone ?? null,
   };
 }

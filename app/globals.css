@@ -1054,6 +1054,17 @@
     height: 380px;
     background: #f7f3ec;
   }
+  /* Atlas match: the point picker. */
+  .match-map {
+    position: relative;
+    height: 320px;
+    background: #f7f3ec;
+  }
+  .match-map .maplibregl-ctrl-attrib {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: rgba(250, 248, 245, 0.85);
+  }
   .explorer-hero-map .maplibregl-ctrl-attrib {
     font-family: var(--font-mono);
     font-size: 10px;
