@@ -277,6 +277,25 @@ Deliberate keeps from the review passes:
 - The Coldwell Banker mark sizes (150 in the nav, 220 in the footer) follow the approved mockup.
 - The privacy and terms pages carry a "draft for legal review" label until counsel signs off.
 
+## Security headers, legal pages and the error pages
+
+- `next.config.ts` `headers()` sets `X-Content-Type-Options`, `Referrer-Policy`,
+  `Permissions-Policy`, `X-Frame-Options: SAMEORIGIN` (not DENY: the Studio's Presentation tool
+  frames site pages from `/studio`) and a `Content-Security-Policy-Report-Only` whose hosts are
+  derived from the same env vars the app reads (Plausible host, MapTiler or OpenFreeMap, the
+  Sanity project, Clerk's frontend API decoded from the publishable key). `/studio`, `/portal`
+  and `/auth` get wider variants. It stays report-only until a per-request nonce is issued from
+  `proxy.ts`: Next's inline hydration scripts and the inlined Plausible queue need
+  `'unsafe-inline'`, and the dev server needs `'unsafe-eval'`. Watch the browser console for
+  `[Report Only]` violations after adding any third-party script.
+- The privacy policy names the stack as deployed: Plausible (cookieless), Vercel, Supabase,
+  Zapier to the brokerage's CRM (the Home Platform), Resend for team notifications only, MapTiler
+  for tiles. Production needs `NEXT_PUBLIC_MAPTILER_KEY` set for the map paragraph to be exact;
+  without it the explorer falls back to OpenFreeMap.
+- `app/global-error.tsx` is the last-resort page (own `<html>`, seed phone numbers, fallback font
+  stacks); `app/(site)/error.tsx` handles errors inside the site layout; both `not-found.tsx`
+  files share `components/not-found-content.tsx`.
+
 ## Still open (needs the client or the brokerage)
 
 Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:

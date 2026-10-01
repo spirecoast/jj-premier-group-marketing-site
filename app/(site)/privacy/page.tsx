@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSiteSettings } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
+import { MAP_PROVIDER } from "@/lib/neighborhoods/map-style";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
@@ -9,7 +10,10 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 });
 
-const UPDATED = "September 5, 2026";
+const UPDATED = "October 1, 2026";
+
+/** Named from the same switch the explorer uses, so the page is true under either configuration. */
+const MAP_PROVIDER_NAME = MAP_PROVIDER === "maptiler" ? "MapTiler" : "OpenFreeMap";
 
 export default async function PrivacyPage() {
   const settings = await getSiteSettings();
@@ -27,18 +31,21 @@ export default async function PrivacyPage() {
 
         <h2>What we collect</h2>
         <p>
-          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, we collect your email address.
+          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, we collect your email address and, where our systems record it, the date and time you gave consent to receive it.
         </p>
         <p>
-          <strong>What your browser sends.</strong> Like most websites, our hosting provider records the pages you visit, the time, your IP address, the browser you use and the page that referred you. If you arrive from an advertisement or an email, the campaign tags in the link are stored for the length of your visit so we know what brought you here.
+          <strong>What your browser sends.</strong> Like most websites, our hosting provider, Vercel, records the pages you visit, the time, your IP address, the browser you use and the page that referred you. If you arrive from an advertisement or an email, the campaign tags in the link are stored in your browser for the length of your visit so we know what brought you here.
         </p>
         <p>
-          <strong>Analytics and the CRM pixel.</strong> We use Google Analytics 4 to understand which pages are read, with IP addresses anonymised. We also load a tracking script from our customer relationship system, Follow Up Boss, which records the listings and pages viewed by a visitor who has already identified themselves through a form, so the agent who calls you back knows what you have looked at. Neither tool captures form contents; forms are sent to us directly by this site.
+          <strong>Maps.</strong> The Atlas neighborhood explorer draws its map from tiles served by {MAP_PROVIDER_NAME}. Your browser fetches those tiles directly, so {MAP_PROVIDER_NAME} sees your IP address in the same way any website you visit does. It does not receive your name or anything you type here.
+        </p>
+        <p>
+          <strong>Analytics.</strong> We use Plausible to count which pages are read. Plausible is designed to work without cookies or stored IP addresses, which is why we do not show a consent banner. Forms are not sent to Plausible; they are sent to us directly by this site.
         </p>
 
         <h2>How we use it</h2>
         <p>
-          To answer the enquiry you sent, to show you homes and prepare valuations you asked for, to send you the Tide newsletter or the weekly Encore Arts Calendar email if you subscribed, to keep our records of the work we do for you as Florida law requires, and to improve this website. We do not sell personal information, and we do not use it for anything unrelated to real estate.
+          To answer the enquiry you sent, to show you homes and prepare valuations you asked for, to keep our records of the work we do for you as Florida law requires, and to improve this website. If you subscribed, your email address is used to send you the Tide newsletter, once a month, and the Encore Arts Calendar email, once a week on Mondays, when those begin. This website does not itself send email to visitors; the only email it sends is a notification to the two of us when a form arrives. We do not sell personal information, and we do not use it for anything unrelated to real estate.
         </p>
 
         <h2>Phone numbers and text messages</h2>
@@ -48,19 +55,19 @@ export default async function PrivacyPage() {
 
         <h2>Who sees it</h2>
         <p>
-          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: our web host, our content management system, our database host, the automation service that schedules our emails, our email delivery service, Google Analytics, and Follow Up Boss, the CRM that stores enquiries. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
+          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; the customer relationship system our brokerage provides, where we work on each enquiry, delivered to it through Zapier or a direct connection; Resend, which delivers the notification email to our team when a form arrives; Plausible, for the page counts described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
         </p>
 
         <h2>How long we keep it</h2>
         <p>
-          Enquiries stay in our CRM while we work with you and for as long as Florida brokerage record-keeping rules require afterwards, currently five years for transaction records. You can ask us to delete an enquiry that never became a transaction at any time.
+          Enquiries stay in the site database and in the brokerage’s customer relationship system while we work with you and for as long as Florida brokerage record-keeping rules require afterwards; we currently expect that to be about five years for transaction records, and counsel will confirm the period. You can ask us to delete an enquiry that never became a transaction at any time.
         </p>
 
         <h2>Your choices</h2>
         <ul>
-          <li>Every marketing email carries an unsubscribe link, and it works with one click.</li>
+          <li>Every Tide and Encore email carries an unsubscribe link, and it works with one click. You can also email either of us at the addresses below and we will take you off the list.</li>
           <li>Reply STOP to any text message to stop receiving them.</li>
-          <li>Write to us to see, correct or delete the personal information we hold about you.</li>
+          <li>To see, correct or delete the personal information we hold about you, email either of us at the addresses below. We will confirm when it is done.</li>
           <li>Your browser lets you refuse cookies; the site works without them.</li>
         </ul>
 
