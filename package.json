@@ -20,6 +20,7 @@
     "nbhd:refresh-gis": "node neighborhood-data/scripts/refresh-gis.mjs",
     "nbhd:check-builders": "node neighborhood-data/scripts/check-builders.mjs",
     "nbhd:discover": "node neighborhood-data/scripts/discover.mjs",
+    "sales:ingest": "node scripts/sales/ingest.mjs",
     "predev": "node scripts/copy-maplibre-worker.mjs",
     "prebuild": "node scripts/copy-maplibre-worker.mjs && node scripts/check-copy.mjs"
   },

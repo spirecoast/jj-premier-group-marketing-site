@@ -51,6 +51,8 @@ type Props = {
   placeholderMessage?: string;
   /** Pre-filled message, e.g. the place and budget carried over from the home page. */
   defaultMessage?: string;
+  /** Pre-filled street address, e.g. the street carried over from the sold search. */
+  defaultAddress?: string;
 };
 
 function FieldError({ messages, id }: { messages?: string[]; id: string }) {
@@ -79,6 +81,7 @@ export function LeadForm({
   columns = true,
   placeholderMessage = "Tell us the timing, and what you’re looking at.",
   defaultMessage,
+  defaultAddress,
 }: Props) {
   const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
   const [utm, setUtm] = useState<Record<string, string>>({});
@@ -180,7 +183,7 @@ export function LeadForm({
               {LABELS.address}
               {form !== "valuation" ? <span className="normal-case tracking-normal opacity-70"> (optional)</span> : null}
             </label>
-            <input id={`${uid}-address`} name="address" autoComplete="street-address" required={form === "valuation"} placeholder="Street address, city" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
+            <input id={`${uid}-address`} name="address" autoComplete="street-address" required={form === "valuation"} placeholder="Street address, city" defaultValue={defaultAddress} className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
             <FieldError id={`${uid}-address-err`} messages={err("address")} />
           </div>
         ) : null}

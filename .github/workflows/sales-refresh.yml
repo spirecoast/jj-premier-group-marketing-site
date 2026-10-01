@@ -1,0 +1,51 @@
+# Refreshes data/sales/ from the Manatee and Sarasota County Property
+# Appraisers and opens a pull request with the result. Manual for now:
+# run it from the Actions tab. Uncomment `schedule` for a weekly run.
+# See docs/SALES-DATA.md.
+name: Refresh county sales data
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "17 9 * * 1" # Mondays 09:17 UTC, after both counties' overnight rebuilds
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download and normalize the county files
+        run: node scripts/sales/ingest.mjs
+
+      - name: Summarize
+        run: |
+          echo "## Sales data refresh" >> "$GITHUB_STEP_SUMMARY"
+          node -e '
+            const m = require("./data/sales/manifest.json");
+            for (const [k, c] of Object.entries(m.counties)) console.log(`- ${c.label}: ${c.rows} qualified sales, ${c.from} to ${c.to}`);
+            console.log(`- window from ${m.windowStart}, generated ${m.generatedAt}`);
+          ' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open a pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/sales-refresh
+          title: "Sales data: refresh county records"
+          commit-message: "Sales data: refresh county records"
+          body: |
+            Automated refresh of `data/sales/` from the Manatee and Sarasota County Property Appraisers (public record, Florida Statutes ch. 119; names stripped at ingest).
+
+            Check the manifest diff for row counts and the date range before merging. See `docs/SALES-DATA.md`.
+          labels: data
+          add-paths: data/sales
+          delete-branch: true

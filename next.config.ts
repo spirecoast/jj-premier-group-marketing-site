@@ -116,6 +116,12 @@ const COMMON_HEADERS = [
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  // lib/sales reads data/sales/*.json.gz at request time; make sure the
+  // files travel with the functions that need them.
+  outputFileTracingIncludes: {
+    "/api/sales": ["./data/sales/**"],
+    "/sell/sold": ["./data/sales/**"],
+  },
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.
     formats: ["image/avif", "image/webp"],
