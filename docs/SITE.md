@@ -239,6 +239,8 @@ Useful switches:
 
 ## Launch checklist
 
+The operator's runbook for the cutover itself (client and brokerage checklist, Vercel variables, Zapier, Supabase, DNS, verification, first week) is `docs/LAUNCH.md`; the list below is the short form.
+
 1. Add the custom domain to the Vercel project and set `NEXT_PUBLIC_SITE_URL` to it (with
    `https://`). Every canonical, sitemap entry, Open Graph URL and ICS UID uses this value.
 2. Remove `NEXT_PUBLIC_ROBOTS_NOINDEX` (or set it empty) in the production environment and
