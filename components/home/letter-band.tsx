@@ -3,12 +3,12 @@ import { LetterForm } from "@/components/letter-form";
 import type { ImageRef } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
-/** 08 · Tide, the newsletter. One line about what it is, and one field. */
+/** 10 · Tide, the newsletter. One line about what it is, and one field. */
 export function LetterBand({ image }: { image: ImageRef }) {
   return (
     <CtaBand
       image={image}
-      eyebrow={`08 · ${site.reportLong}`}
+      eyebrow={`10 · ${site.reportLong}`}
       title="What happened on your street this month, in plain language."
       body="Once a month, one page on what happened in Lakewood Ranch, Sarasota and Bradenton, and what it means for you."
       minHeight="min-h-[560px]"

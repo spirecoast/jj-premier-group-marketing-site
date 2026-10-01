@@ -1,32 +1,25 @@
 import { ButtonLink } from "@/components/buttons";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
-import { TestimonialSlider } from "@/components/testimonial-slider";
-import type { ImageRef, Testimonial } from "@/lib/content/types";
+import type { ImageRef } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
 /**
- * 02 · Meet Joelyn and Jessica. The portrait, a client's sentence, and the
- * paragraph the team wrote about what they do. No figures.
+ * 06 · Meet Joelyn and Jessica. The portrait, the paragraph the team wrote
+ * about what they do, and two buttons. No figures and no proof slot: what
+ * the team does for a client is section 03.
  */
-export function Meet({ duo, testimonials }: { duo: ImageRef; testimonials: Testimonial[] }) {
+export function Meet({ duo }: { duo: ImageRef }) {
   return (
     <section className="bg-parchment" aria-labelledby="meet-title">
-      <div className="container-site grid items-center gap-14 py-section md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12 lg:grid-cols-[1fr_1.25fr] lg:gap-20">
-        <div className="relative flex flex-col md:block md:h-[560px] lg:h-[640px]">
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-linen-100 md:absolute md:left-0 md:top-0 md:h-[88%] md:w-[82%]">
-            <Photo image={duo} sizes="(min-width: 1024px) 460px, 100vw" />
-          </div>
-          {testimonials.length ? (
-            <div className="relative z-10 -mt-10 ml-auto w-[88%] bg-navy p-7 sm:w-[70%] md:absolute md:bottom-0 md:right-0 md:m-0 md:w-[52%]">
-              <TestimonialSlider testimonials={testimonials} tone="dark" size="compact" />
-            </div>
-          ) : null}
+      <div className="container-site grid items-center gap-12 py-section md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:grid-cols-[1fr_1.25fr] lg:gap-20">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-linen-100 md:max-h-[560px] lg:max-h-[600px]">
+          <Photo image={duo} sizes="(min-width: 1024px) 460px, 100vw" />
         </div>
 
         <div className="flex flex-col gap-8">
           <SectionHeading
-            number="02"
+            number="06"
             eyebrow="Meet Joelyn & Jessica"
             size="display"
             title={<span id="meet-title">Two agents. One team. Fully focused on you.</span>}

@@ -4,7 +4,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { MARKETS } from "@/lib/content/markets";
 
 /**
- * 03 · Three places. One tall photograph per place, the name set large, and
+ * 05 · Three places. One tall photograph per place, the name set large, and
  * the paragraph that says what living there’s like. Figures arrive with the
  * data feed; until then the photograph and the words carry it.
  */
@@ -12,7 +12,7 @@ export function Places() {
   return (
     <section className="container-site flex flex-col gap-12 py-section" aria-labelledby="places-title">
       <SectionHeading
-        number="03"
+        number="05"
         eyebrow="Three places we know by heart"
         size="display"
         title={<span id="places-title">Lakewood Ranch, Sarasota and Bradenton. Pick the one that feels like you.</span>}

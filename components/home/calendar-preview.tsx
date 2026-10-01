@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EventCard } from "@/components/event-card";
+import { LetterForm } from "@/components/letter-form";
 import { Photo } from "@/components/photo";
 import { img } from "@/lib/content/seed/helpers";
 import { SectionHeading } from "@/components/section-heading";
@@ -9,19 +10,28 @@ import { site } from "@/lib/site";
 /** A theater interior above the cards, so the section reads as a night out before it reads as a list. */
 const HOUSE = img("library/culture-opera-house-red-seats", "A theater auditorium before the house lights go down", "50% 60%");
 
-/** 07 · Encore Arts Calendar. Theater, music and art, carried with the same weight as the homes. */
+/**
+ * 09 · Encore Arts Calendar. Theater, music and art, carried with the same
+ * weight as the homes. The Monday sign-up lives inside the section, with the
+ * full calendar one link away.
+ */
 export function CalendarPreview({ events }: { events: Event[] }) {
   const [feature, ...rows] = events;
   if (!feature) return null;
   return (
-    <section className="bg-linen-100" aria-labelledby="encore-title">
+    <section className="bg-parchment" aria-labelledby="encore-title">
       <div className="container-site flex flex-col gap-12 py-section">
         <SectionHeading
-          number="07"
+          number="09"
           eyebrow={site.calendarName}
           size="display"
           title={<span id="encore-title">Theater, music and art this week, close to home.</span>}
           titleClassName="max-w-[820px]"
+          aside={
+            <Link href="/calendar" className="link-rule">
+              The full calendar
+            </Link>
+          }
         />
         <div className="relative aspect-[16/7] max-h-[440px] w-full overflow-hidden bg-navy">
           <Photo image={HOUSE} sizes="(min-width: 1280px) 1200px, 100vw" />
@@ -32,13 +42,13 @@ export function CalendarPreview({ events }: { events: Event[] }) {
             {rows.slice(0, 3).map((e) => (
               <EventCard key={e.slug} variant="row" event={e} />
             ))}
-            <Link
-              href="/calendar#subscribe"
-              className="flex items-center justify-between gap-6 bg-sky-700 px-6 py-[22px] text-white transition-colors hover:bg-sky-800"
-            >
-              <span className="font-display text-[20px] font-light italic">Get {site.calendarShort} every Monday.</span>
-              <span className="t-label shrink-0 whitespace-nowrap text-mist">Subscribe →</span>
-            </Link>
+            <div id="encore-subscribe" className="flex flex-col gap-4 bg-navy p-6 text-white">
+              <p className="font-display text-[22px] font-light italic leading-[1.2]">Get {site.calendarShort} every Monday.</p>
+              <p className="t-small text-mist">
+                What’s on this week in Lakewood Ranch, Sarasota and Bradenton, in one email. No listings in it.
+              </p>
+              <LetterForm form="calendar" label={`Send me ${site.calendarShort}`} tone="dark" />
+            </div>
           </div>
         </div>
       </div>

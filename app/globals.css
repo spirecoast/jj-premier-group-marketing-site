@@ -676,11 +676,7 @@
     color: var(--color-linen-200);
   }
 
-  /* Hero photograph: the slow push-in, the shade, the passing veil of light. */
-  .hero-img {
-    animation: var(--animate-push);
-    will-change: transform;
-  }
+  /* Hero photograph: one motion (the drift, defined below) and the shade. */
   .hero-shade {
     position: absolute;
     inset: 0;
@@ -688,24 +684,6 @@
       linear-gradient(180deg, rgb(20 37 48 / 0.42) 0%, transparent 22%),
       linear-gradient(90deg, rgb(20 37 48 / 0.62) 0%, rgb(20 37 48 / 0.44) 38%, rgb(20 37 48 / 0.14) 68%, rgb(20 37 48 / 0.02) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.42) 0%, transparent 42%);
-  }
-  .hero-veil {
-    position: absolute;
-    top: -20%;
-    bottom: -20%;
-    left: 0;
-    width: 26%;
-    background: linear-gradient(90deg, transparent, rgb(255 246 228 / 0.5), transparent);
-    filter: blur(28px);
-    animation: veil 5.2s cubic-bezier(0.3, 0.6, 0.3, 1) 0.5s both;
-    pointer-events: none;
-    mix-blend-mode: screen;
-  }
-  @keyframes veil {
-    0% { transform: translateX(-30%) skewX(-12deg); opacity: 0; }
-    18% { opacity: 0.55; }
-    60% { opacity: 0.35; }
-    100% { transform: translateX(160%) skewX(-12deg); opacity: 0; }
   }
   .hero-line {
     display: block;
@@ -855,31 +833,22 @@
   .hero-img { object-position: 30% 60% !important; }
 }
 
-/* The hero photograph breathes: a slow drift and a soft light that moves across the frame. */
+/* The hero photograph breathes: one slow drift, and nothing else moving on the frame. */
 @keyframes hero-drift {
   from { transform: scale(1) translate3d(0, 0, 0); }
   to { transform: scale(1.16) translate3d(-2.6%, -2%, 0); }
-}
-@keyframes hero-glow {
-  from { transform: translate3d(-8%, 6%, 0); opacity: 0.55; }
-  to { transform: translate3d(8%, -4%, 0); opacity: 0.95; }
 }
 .hero-img {
   animation: hero-drift 24s ease-in-out infinite alternate;
   will-change: transform;
 }
-.hero-light {
-  position: absolute;
-  inset: -25%;
-  pointer-events: none;
-  background:
-    radial-gradient(42% 36% at 68% 22%, rgb(255 208 140 / 0.34), transparent 70%),
-    radial-gradient(30% 26% at 30% 78%, rgb(137 212 227 / 0.16), transparent 70%);
-  mix-blend-mode: screen;
-  animation: hero-glow 28s ease-in-out infinite alternate;
-}
 @media (prefers-reduced-motion: reduce) {
-  .hero-img, .hero-light { animation: none; }
+  .hero-img { animation: none; }
+}
+
+/* Home · 02 Buy or sell. The door's rule draws under the copy on hover; the card never lifts. */
+.door .card-line {
+  background: var(--color-sky-700);
 }
 
 /* ---- Neighborhood explorer ------------------------------------------------ */

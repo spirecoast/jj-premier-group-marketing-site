@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CalendarPreview } from "@/components/home/calendar-preview";
+import { Doors } from "@/components/home/doors";
 import { FindHome } from "@/components/home/find-home";
 import { Hero } from "@/components/home/hero";
 import { LetterBand } from "@/components/home/letter-band";
@@ -7,7 +8,8 @@ import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
 import { Questions } from "@/components/home/questions";
 import { Three, type ThreeFacts } from "@/components/home/three";
-import { getPosts, getTeam, getTestimonials, getUpcomingEvents } from "@/lib/content";
+import { WhatWeDo } from "@/components/home/what-we-do";
+import { getPosts, getTeam, getUpcomingEvents } from "@/lib/content";
 import { getEncoreIndex, localDay } from "@/lib/encore/data";
 import { addDays, occurrences, shortDay, weekday } from "@/lib/encore/select";
 import { getAllRecords, getIndexEntries } from "@/lib/neighborhoods/data";
@@ -37,22 +39,29 @@ const FRAMES = {
 };
 
 export default async function HomePage() {
-  const [team, events, testimonials, posts, records, entries] = await Promise.all([
+  const [team, events, posts, records, entries] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
-    getTestimonials(),
     getPosts(),
     getAllRecords(),
     getIndexEntries(),
   ]);
   const facts = threeFacts({ posts, records, entries });
 
+  /* The order, numbered the way the eyebrows read:
+     01 hero · 02 Buy or sell · 03 What we do for you · 04 the three products ·
+     05 Three places · 06 Meet Joelyn & Jessica · 07 Find your home ·
+     08 The questions people ask first · 09 Encore, with the Monday sign-up ·
+     10 Tide. Two grounds only, paper and parchment; the parchment carries the
+     heavy sections (03, 06, 09). */
   return (
     <>
       <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
-      <Meet duo={FRAMES.duo} testimonials={testimonials} />
-      <Places />
+      <Doors />
+      <WhatWeDo />
       <Three facts={facts} />
+      <Places />
+      <Meet duo={FRAMES.duo} />
       <FindHome image={FRAMES.kitchen} />
       <Questions />
       <CalendarPreview events={events} />

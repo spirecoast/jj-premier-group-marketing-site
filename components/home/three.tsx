@@ -38,7 +38,7 @@ function Constellation({ points }: { points: [number, number][] }) {
 export function Three({ facts }: { facts: ThreeFacts }) {
   const [atlas, encore, tide] = products;
   return (
-    <section className="bg-linen-100" aria-labelledby="three-title">
+    <section aria-labelledby="three-title">
       <div className="container-site flex flex-col gap-12 py-section">
         <SectionHeading
           number="04"
@@ -47,8 +47,8 @@ export function Three({ facts }: { facts: ThreeFacts }) {
           title={<span id="three-title">Atlas, Encore and Tide. The map, the nights out, and the market, kept current.</span>}
           titleClassName="max-w-[900px]"
         />
-        <ul className="grid gap-5 lg:grid-cols-3">
-          <li className="flex">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
+          <li className="flex min-w-0">
             <Panel product={atlas} cta="Open Atlas">
               <Constellation points={facts.atlas.points} />
               <p className="t-record text-graphite-600">
@@ -56,7 +56,7 @@ export function Three({ facts }: { facts: ThreeFacts }) {
               </p>
             </Panel>
           </li>
-          <li className="flex">
+          <li className="flex min-w-0">
             <Panel product={encore} cta="Open Encore">
               <div className="flex gap-8">
                 <div className="flex flex-col gap-1">
@@ -69,9 +69,9 @@ export function Three({ facts }: { facts: ThreeFacts }) {
                 </div>
               </div>
               {facts.encore.titles.length ? (
-                <ul className="flex flex-col gap-1.5 border-t border-hairline pt-4">
+                <ul className="flex min-w-0 flex-col gap-1.5 border-t border-hairline pt-4">
                   {facts.encore.titles.map((t) => (
-                    <li key={t} className="t-small truncate text-body">
+                    <li key={t} className="t-small min-w-0 truncate text-body">
                       {t}
                     </li>
                   ))}
@@ -79,16 +79,16 @@ export function Three({ facts }: { facts: ThreeFacts }) {
               ) : null}
             </Panel>
           </li>
-          <li className="flex">
+          <li className="flex min-w-0">
             <Panel product={tide} cta="Read Tide">
               <div className="flex flex-col gap-1">
                 <span className="font-display text-[2.25rem] font-light leading-none text-navy">{facts.tide.nextMonth}</span>
                 <span className="t-mono-sm text-graphite-500">the next report lands</span>
               </div>
               {facts.tide.guides.length ? (
-                <ul className="flex flex-col gap-1.5 border-t border-hairline pt-4">
+                <ul className="flex min-w-0 flex-col gap-1.5 border-t border-hairline pt-4">
                   {facts.tide.guides.map((g) => (
-                    <li key={g.slug} className="t-small truncate text-body">
+                    <li key={g.slug} className="t-small min-w-0 truncate text-body">
                       {g.title}
                     </li>
                   ))}
@@ -109,7 +109,7 @@ function Panel({ product, cta, children }: { product: (typeof products)[number];
   return (
     <Link
       href={product.href as Route}
-      className="card group flex w-full flex-col gap-5 border border-hairline bg-white p-7 transition-colors hover:border-deep-harbor"
+      className="card group flex w-full min-w-0 flex-col gap-5 border border-hairline bg-white p-7 transition-colors hover:border-deep-harbor"
       style={{ borderTopWidth: 3, borderTopColor: product.accent }}
     >
       <div className="flex flex-col gap-2">
