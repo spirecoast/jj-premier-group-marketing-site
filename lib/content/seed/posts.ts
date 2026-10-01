@@ -1,4 +1,5 @@
 import type { Post } from "../types";
+import { WAVE2_GUIDES_A } from "./guides-wave2-a";
 import { h, img, p, quote, rich } from "./helpers";
 
 /**
@@ -88,7 +89,7 @@ export const POSTS: Post[] = [
     slug: "selling-a-home-you-dont-live-in",
     cover: img("library/moment-contract", "A contract on a kitchen island"),
     excerpt:
-      "Out of state, out of season, or handling a family home. How a sale runs when the owner isn’t here, from the keys to the closing.",
+      "Out of state, out of season, or handling a home. How a sale runs when the owner isn’t here, from the keys to the closing.",
     publishedAt: "2026-07-22",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],
@@ -231,4 +232,5 @@ export const POSTS: Post[] = [
       p("Tell us the timing. October is when the plan gets easy."),
     ),
   },
+  ...WAVE2_GUIDES_A,
 ];

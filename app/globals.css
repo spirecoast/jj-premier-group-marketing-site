@@ -800,6 +800,13 @@
   .prose-jj ol {
     padding-left: 1.25em;
   }
+  /* Guide bodies (Tide) keep their list markers; the legal pages style their own lists. */
+  .prose-jj.guide ul {
+    list-style: disc;
+  }
+  .prose-jj.guide ol {
+    list-style: decimal;
+  }
   .prose-jj li + li {
     margin-top: 0.4em;
   }

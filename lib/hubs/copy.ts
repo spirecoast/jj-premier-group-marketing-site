@@ -85,7 +85,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
           "Manatee County classifies evacuation levels A through E, with A called first, and publishes a lookup by address. Every researched place on the Atlas carries the level we checked at one address point; levels follow property lines, so confirm the exact address.",
       },
     ],
-    guides: ["what-to-ask-before-you-buy-in-a-gated-community", "ask-us-about-the-water-table", "thinking-about-spring-start-in-october", "selling-a-home-you-dont-live-in"],
+    guides: ["cdd-fees-in-lakewood-ranch-village-by-village", "homestead-save-our-homes-and-portability", "what-to-ask-before-you-buy-in-a-gated-community", "getting-here-and-getting-around"],
     sources: [
       { label: "Buying on the Suncoast · closing costs and timing", href: "/buy", supports: "title custom by county, the county line, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
@@ -144,7 +144,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
           "Sarasota County publishes storm evacuation zones by address. Every researched place on the Atlas carries the zone we checked at one address point, with the county’s lookup linked; zones follow property lines, so confirm the exact address.",
       },
     ],
-    guides: ["ask-us-about-the-water-table", "inspections-on-the-suncoast-what-a-good-one-covers", "selling-a-home-you-dont-live-in", "thinking-about-spring-start-in-october"],
+    guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "homeowners-wind-and-flood-insurance-on-this-coast", "barrier-island-rules-island-by-island"],
     sources: [
       { label: "Buying on the Suncoast · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
@@ -206,7 +206,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
           "The building’s insurance and reserves, which matter as much as the flood zone, plus the milestone inspection report Florida requires for condominium and cooperative buildings three stories or higher and, for a condominium, the structural integrity reserve study. The zone is AE along the Manatee River and X south of 6th Avenue.",
       },
     ],
-    guides: ["inspections-on-the-suncoast-what-a-good-one-covers", "ask-us-about-the-water-table", "what-to-ask-before-you-buy-in-a-gated-community", "selling-a-home-you-dont-live-in"],
+    guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "barrier-island-rules-island-by-island", "condo-and-hoa-documents-after-the-2022-law"],
     sources: [
       { label: "Buying on the Suncoast · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },

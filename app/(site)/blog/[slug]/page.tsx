@@ -83,7 +83,7 @@ export default async function PostPage({ params }: { params: Params }) {
             {formatDateLong(noon(post.publishedAt))}
           </p>
         </header>
-        <RichText value={post.body} className="text-[1.125rem]" />
+        <RichText value={post.body} className="guide text-[1.125rem]" />
       </article>
 
       {more.length ? (
