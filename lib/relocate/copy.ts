@@ -9,7 +9,7 @@ export const HERO = {
   eyebrow: "Relocating",
   title: "Moving here from somewhere else.",
   lead:
-    "Many of the people we talk to are buying from a few states away, and the first visit is often the only one before the offer. So we pull the flood map, the roof age and the HOA file before you land, walk the house on video, and put every date on one page.",
+    "If you're buying from a few states away, the first visit is often the only one before the offer. So we pull the flood map, the roof age and the HOA file before you land, walk the house on video, and put every date on one page.",
   body: "Six questions, no email, and you get a dated plan: the contract deadlines the Florida form sets, the week insurance has to be bound, and the days the state gives you once you're here.",
 };
 

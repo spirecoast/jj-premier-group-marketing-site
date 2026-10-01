@@ -2,6 +2,13 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
+import { matchParcel, stripTypedUnit, type ParcelQuery } from "./parcel";
+import { parseTypedStreet, streetKey } from "./street";
+import type { County, PropertyUse, Sale } from "./types";
+
+export { matchParcel, parcelCount, parseHouseNumber, parseTypedUnit, stripTypedUnit, type ParcelQuery } from "./parcel";
+export { parseTypedStreet, streetKey } from "./street";
+export type { County, PropertyUse, Sale } from "./types";
 
 /**
  * County sales data: the qualified, arm's-length sales from the last 24
@@ -11,37 +18,6 @@ import { gunzipSync } from "node:zlib";
  * the price. The whole set stays on the server; the route handler sends at
  * most 50 rows at a time.
  */
-
-export type County = "manatee" | "sarasota";
-export type PropertyUse = "single-family" | "condo" | "townhome" | "villa" | "vacant" | "other";
-
-export type Sale = {
-  county: County;
-  parcelId: string;
-  number: string;
-  predir: string;
-  street: string;
-  suffix: string;
-  postdir: string;
-  unit: string;
-  city: string;
-  zip: string;
-  lat?: number;
-  lng?: number;
-  /** ISO date, YYYY-MM-DD. */
-  saleDate: string;
-  salePrice: number;
-  qualified: boolean;
-  /** FDOR qualification code: 01 deed, 02 evidence, 03/04 qualified but the roll changed since. */
-  qualCode: string;
-  instrument: string;
-  livingArea: number | null;
-  lotSqft: number | null;
-  yearBuilt: number | null;
-  beds: number | null;
-  baths: number | null;
-  propertyUse: PropertyUse;
-};
 
 export type Manifest = {
   generatedAt: string;
@@ -85,80 +61,6 @@ export type SalesSummary = {
 
 const DATA_DIR = path.join(process.cwd(), "data", "sales");
 const COUNTIES: County[] = ["manatee", "sarasota"];
-
-/** The suffixes a visitor might type, each folded to nothing so "Lilac Sky Dr" and "Lilac Sky Drive" meet. */
-const SUFFIX_WORDS = new Set([
-  "st", "street", "dr", "drive", "blvd", "boulevard", "ct", "court", "ln", "lane", "way", "cir", "circle", "pl", "place",
-  "ter", "terr", "terrace", "trl", "trail", "pkwy", "parkway", "ave", "av", "avenue", "rd", "road", "loop", "run", "path",
-  "pt", "point", "cv", "cove", "sq", "square", "hwy", "highway", "bnd", "bend", "row", "walk", "pass", "xing", "crossing",
-  "gln", "glen", "mnr", "manor", "plz", "plaza", "rdg", "ridge", "vw", "view", "lndg", "landing", "aly", "alley", "key", "ky",
-  "cres", "crescent", "expy", "expressway", "trce", "trace", "holw", "hollow", "pike",
-]);
-const DIR_WORDS = new Set(["n", "s", "e", "w", "ne", "nw", "se", "sw", "north", "south", "east", "west"]);
-/** Typed suffix → the abbreviation the counties store, so "Street" and "St" compare equal. */
-const SUFFIX_ABBR: Record<string, string> = {
-  street: "ST", st: "ST", drive: "DR", dr: "DR", boulevard: "BLVD", blvd: "BLVD", court: "CT", ct: "CT", lane: "LN", ln: "LN", way: "WAY",
-  circle: "CIR", cir: "CIR", place: "PL", pl: "PL", terrace: "TER", terr: "TER", ter: "TER", trail: "TRL", trl: "TRL", parkway: "PKWY", pkwy: "PKWY",
-  avenue: "AVE", ave: "AVE", av: "AVE", road: "RD", rd: "RD", loop: "LOOP", run: "RUN", path: "PATH", point: "PT", pt: "PT", cove: "CV", cv: "CV",
-  square: "SQ", sq: "SQ", highway: "HWY", hwy: "HWY", bend: "BND", bnd: "BND", row: "ROW", walk: "WALK", pass: "PASS", crossing: "XING", xing: "XING",
-  glen: "GLN", gln: "GLN", manor: "MNR", mnr: "MNR", plaza: "PLZ", plz: "PLZ", ridge: "RDG", rdg: "RDG", view: "VW", vw: "VW", landing: "LNDG", lndg: "LNDG",
-  alley: "ALY", aly: "ALY", key: "KY", ky: "KY", crescent: "CRES", cres: "CRES", expressway: "EXPY", expy: "EXPY", trace: "TRCE", trce: "TRCE",
-  hollow: "HOLW", holw: "HOLW", pike: "PIKE",
-};
-const DIR_ABBR: Record<string, string> = { north: "N", south: "S", east: "E", west: "W", n: "N", s: "S", e: "E", w: "W", ne: "NE", nw: "NW", se: "SE", sw: "SW" };
-
-/** The suffix and directionals a visitor typed, normalized to the county's spelling; "" when not typed. */
-export function parseTypedStreet(input: string): { predir: string; suffix: string; postdir: string } {
-  const words = input
-    .toLowerCase()
-    .replace(/[.,#]/g, " ")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .split(/[\s-]+/)
-    .filter(Boolean);
-  if (words.length > 1 && /^\d+[a-z]?$/.test(words[0]) && !ORDINAL.test(words[0])) words.shift();
-  const unitAt = words.findIndex((w) => UNIT_WORDS.has(w));
-  if (unitAt > 0) words.splice(unitAt);
-  let postdir = "";
-  let suffix = "";
-  let predir = "";
-  if (words.length > 1 && DIR_WORDS.has(words[words.length - 1])) postdir = DIR_ABBR[words.pop() as string];
-  if (words.length > 1 && SUFFIX_WORDS.has(words[words.length - 1])) suffix = SUFFIX_ABBR[words.pop() as string] ?? "";
-  if (!postdir && words.length > 1 && DIR_WORDS.has(words[words.length - 1])) postdir = DIR_ABBR[words.pop() as string];
-  if (words.length > 1 && DIR_WORDS.has(words[0])) predir = DIR_ABBR[words.shift() as string];
-  return { predir, suffix, postdir };
-}
-const UNIT_WORDS = new Set(["unit", "apt", "ste", "suite", "bldg", "lot"]);
-const ORDINAL = /^(\d+)(st|nd|rd|th)$/;
-
-/**
- * "5133 96th St E" → "96", "Midnight Pass Road" → "midnightpass". A leading
- * house number and a trailing unit are dropped, directionals fold away, one
- * trailing suffix folds away (the county stores the name and the suffix
- * apart, so a name that ends in a suffix word, Midnight Pass, keeps it when
- * `stripSuffix` is false), ordinals keep their number, and what is left is
- * lower-case alphanumerics.
- */
-export function streetKey(input: string, { stripSuffix = true }: { stripSuffix?: boolean } = {}): string {
-  const words = input
-    .toLowerCase()
-    .replace(/[.,#]/g, " ")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .split(/[\s-]+/)
-    .filter(Boolean);
-  if (words.length > 1 && /^\d+[a-z]?$/.test(words[0]) && !ORDINAL.test(words[0])) words.shift();
-  const unitAt = words.findIndex((w) => UNIT_WORDS.has(w));
-  if (unitAt > 0) words.splice(unitAt);
-  if (words.length > 1 && DIR_WORDS.has(words[words.length - 1])) words.pop();
-  if (stripSuffix && words.length > 1 && SUFFIX_WORDS.has(words[words.length - 1])) words.pop();
-  if (words.length > 1 && DIR_WORDS.has(words[words.length - 1])) words.pop();
-  if (words.length > 1 && DIR_WORDS.has(words[0])) words.shift();
-  return words
-    .map((w) => {
-      const m = w.match(ORDINAL);
-      return m ? m[1] : w;
-    })
-    .join("");
-}
 
 /** The address as it reads on the page: number, directionals, name, suffix, unit. Never a name. */
 export function formatSaleAddress(s: Sale): string {
@@ -338,6 +240,22 @@ export async function searchByStreet(q: StreetQuery): Promise<StreetResult> {
     return { match: "ambiguous", streets, zips, rows: [], total: hit.length, summary: summarize([]) };
   }
   return { match, streets, zips, rows: hit.slice(0, limit), total: hit.length, summary: summarize(hit) };
+}
+
+/**
+ * The qualified sales on one parcel, newest first: the exact house number
+ * on the typed street in the typed ZIP (lib/sales/parcel.ts). Empty when
+ * the number is not on the record, the ZIP is missing, or the street is
+ * unknown; the page says so rather than guessing a neighbour.
+ */
+export async function findParcelSales(q: ParcelQuery): Promise<Sale[]> {
+  const { byStreet } = await index();
+  const typed = stripTypedUnit(q.street ?? "");
+  if (typed.length < 2) return [];
+  const asTyped = streetKey(typed, { stripSuffix: false });
+  const folded = streetKey(typed);
+  const rows = asTyped === folded ? (byStreet.get(folded) ?? []) : [...(byStreet.get(asTyped) ?? []), ...(byStreet.get(folded) ?? [])];
+  return matchParcel(rows, q);
 }
 
 /** "N TAMIAMI TRL", "69TH ST NW": the street as the county spells it, without a house number. */

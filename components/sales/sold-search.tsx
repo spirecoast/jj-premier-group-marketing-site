@@ -4,35 +4,8 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { track } from "@/lib/analytics";
-import { cn } from "@/lib/utils";
 import { SOLD_COPY as C } from "./copy";
-
-/** One row as /api/sales returns it: the property and the sale, never a name. */
-type Row = {
-  county: "manatee" | "sarasota";
-  address: string;
-  city: string;
-  zip: string;
-  saleDate: string;
-  salePrice: number;
-  livingArea: number | null;
-  pricePerSqft: number | null;
-  yearBuilt: number | null;
-  propertyUse: keyof typeof C.results.typeLabel;
-  qualCode: string;
-  rollChanged: boolean;
-};
-
-type Summary = {
-  count: number;
-  homes: number;
-  lots: number;
-  medianPricePerSqft: number | null;
-  sqftSampleSize: number;
-  medianPrice: number | null;
-  from: string | null;
-  to: string | null;
-};
+import { SalesTable, saleFlagged, titleCase, usd, type SaleRow as Row, type SalesSummary as Summary } from "./sales-table";
 
 type Api =
   | {
@@ -59,24 +32,6 @@ type Props = {
   /** manifest.windowMonths: the "last N months" every line on the page refers to. */
   months: number;
 };
-
-const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-const int = new Intl.NumberFormat("en-US");
-const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-
-function fmtDate(iso: string) {
-  const d = new Date(`${iso}T00:00:00Z`);
-  return Number.isNaN(d.getTime()) ? iso : dateFmt.format(d);
-}
-
-/** "LILAC SKY DR" → "Lilac Sky Dr"; ordinals and directionals keep their case. */
-function titleCase(s: string) {
-  return s
-    .toLowerCase()
-    .split(" ")
-    .map((w) => (/^(n|s|e|w|ne|nw|se|sw)$/.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
-    .join(" ");
-}
 
 export function SoldSearch({ loaded, asOf, counties, months }: Props) {
   const uid = useId();
@@ -143,7 +98,6 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
   const failed = state.status === "done" && state.data && !state.data.ok ? state.data : null;
   const sourceLine = C.results.source(counties.length ? counties.join(" / ") : C.results.sourceDefault, asOf ?? "—");
   const askAddress = sent ? [sent.street, sent.zip].filter(Boolean).join(", ") : "";
-  const flagged = (r: Row) => r.rollChanged || r.propertyUse === "vacant";
 
   return (
     <>
@@ -231,77 +185,11 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                 </p>
               </div>
 
-              {/* Phones: a stacked list. From md up: the table. */}
-              <ul className="flex flex-col divide-y divide-hairline border-y border-hairline md:hidden">
-                {data.rows.map((r, i) => {
-                  const changed = flagged(r);
-                  return (
-                    <li key={`${r.address}-${r.saleDate}-${i}`} className="flex flex-col gap-1.5 py-4">
-                      <div className="flex items-baseline justify-between gap-4">
-                        <span className="t-body text-navy">{titleCase(r.address)}</span>
-                        <span className="t-record shrink-0 text-navy">{usd.format(r.salePrice)}</span>
-                      </div>
-                      <span className="t-mono-sm text-graphite-500">
-                        {fmtDate(r.saleDate)} · {titleCase(r.city)} {r.zip}
-                        {changed ? <span title={C.results.rollChanged}> ·&nbsp;†</span> : null}
-                      </span>
-                      <span className="t-small text-body">
-                        {[
-                          r.livingArea ? `${int.format(r.livingArea)} sq ft` : null,
-                          r.pricePerSqft ? `${usd.format(r.pricePerSqft)}/sq ft` : null,
-                          r.yearBuilt ? `built ${r.yearBuilt}` : null,
-                          C.results.typeLabel[r.propertyUse] ?? C.results.typeLabel.other,
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="hidden overflow-x-auto md:block">
-                <table className="w-full min-w-[720px] border-collapse text-left">
-                  <thead>
-                    <tr className="border-b border-hairline">
-                      <Th>{C.results.columns.address}</Th>
-                      <Th>{C.results.columns.date}</Th>
-                      <Th align="right">{C.results.columns.price}</Th>
-                      <Th align="right">{C.results.columns.sqft}</Th>
-                      <Th align="right">{C.results.columns.perSqft}</Th>
-                      <Th align="right">{C.results.columns.year}</Th>
-                      <Th>{C.results.columns.type}</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.rows.map((r, i) => {
-                      const changed = flagged(r);
-                      return (
-                        <tr key={`${r.address}-${r.saleDate}-${i}`} className="border-b border-hairline align-baseline">
-                          <td className="py-3 pr-4">
-                            <span className="t-body text-navy">{titleCase(r.address)}</span>
-                            <span className="block t-mono-sm text-graphite-500">
-                              {titleCase(r.city)} {r.zip}
-                              {changed ? <span title={C.results.rollChanged}> ·&nbsp;†</span> : null}
-                            </span>
-                          </td>
-                          <Td className="whitespace-nowrap">{fmtDate(r.saleDate)}</Td>
-                          <Td align="right" className="t-record text-navy">
-                            {usd.format(r.salePrice)}
-                          </Td>
-                          <Td align="right">{r.livingArea ? int.format(r.livingArea) : "—"}</Td>
-                          <Td align="right">{r.pricePerSqft ? usd.format(r.pricePerSqft) : "—"}</Td>
-                          <Td align="right">{r.yearBuilt ?? "—"}</Td>
-                          <Td>{C.results.typeLabel[r.propertyUse] ?? C.results.typeLabel.other}</Td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <SalesTable rows={data.rows} />
 
               <div className="flex flex-col gap-2">
                 {data.truncated ? <p className="t-small text-graphite-500">{C.results.truncated(data.rows.length, data.total, Boolean(data.query.zip))}</p> : null}
-                {data.rows.some(flagged) ? <p className="t-small max-w-measure text-graphite-500">† {C.results.rollChanged}</p> : null}
+                {data.rows.some(saleFlagged) ? <p className="t-small max-w-measure text-graphite-500">† {C.results.rollChanged}</p> : null}
                 <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
                 <p className="t-small max-w-measure text-graphite-500">{C.results.note}</p>
               </div>
@@ -332,16 +220,4 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
       </section>
     </>
   );
-}
-
-function Th({ children, align }: { children: React.ReactNode; align?: "right" }) {
-  return (
-    <th scope="col" className={cn("t-eyebrow py-3 pr-4 font-medium text-graphite-500", align === "right" && "text-right")}>
-      {children}
-    </th>
-  );
-}
-
-function Td({ children, align, className }: { children: React.ReactNode; align?: "right"; className?: string }) {
-  return <td className={cn("t-body py-3 pr-4 text-body tabular-nums", align === "right" && "text-right", className)}>{children}</td>;
 }

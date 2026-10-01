@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RuleLink } from "@/components/buttons";
 import { JsonLd } from "@/components/json-ld";
 import { SOLD_COPY as C } from "@/components/sales/copy";
 import { SoldSearch } from "@/components/sales/sold-search";
@@ -41,6 +42,7 @@ export default async function SoldPage() {
         </div>
         <p className="t-lead max-w-[560px] text-body">{C.lead}</p>
         <p className="t-body max-w-measure text-body">{C.body(months)}</p>
+        <RuleLink href="/sell/home-value">Have an address? Start with the public record for the house itself</RuleLink>
       </section>
       <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} />
     </>

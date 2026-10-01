@@ -121,6 +121,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/sales": ["./data/sales/**"],
     "/sell/sold": ["./data/sales/**"],
+    "/sell/home-value": ["./data/sales/**"],
   },
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.

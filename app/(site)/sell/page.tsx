@@ -266,6 +266,9 @@ export default async function SellPage() {
                 <RuleLink href="/sell/sold">What sold on your street</RuleLink>
               </li>
               <li>
+                <RuleLink href="/sell/home-value">The record for your address</RuleLink>
+              </li>
+              <li>
                 <RuleLink href="/sell/net-proceeds">What you’d keep at closing</RuleLink>
               </li>
             </ul>

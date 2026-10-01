@@ -70,6 +70,12 @@ export default async function ValuationPage() {
             </Link>
             .
           </p>
+          <p className="t-small max-w-[420px] text-graphite-500">
+            <Link href="/sell/home-value" className="text-navy underline underline-offset-4 hover:text-harbor-700">
+              Start with the public record
+            </Link>{" "}
+            for your own address: the street, the roll, and what neither can see.
+          </p>
         </div>
         <div className="flex flex-col gap-4">
           <div className="border border-hairline bg-white p-6 sm:p-8">

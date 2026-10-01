@@ -111,6 +111,12 @@ record should be a fact about the property or the transaction.
   most 50 rows newest first, a summary computed over every match on the
   street, `Cache-Control: s-maxage=60`. With no data it answers 503
   `{ error: "no-data" }` and the page shows its "not loaded yet" state.
+  With `&number=` (one to eight digits; a ZIP is then required) the
+  response adds `parcel`: that house's own qualified sales, newest first,
+  from `findParcelSales` (exact number, street key and ZIP; a typed unit
+  picks the unit). `/sell/home-value` reads it for "This address on the
+  record". The pure matcher and street parsing live in `lib/sales/parcel.ts`
+  and `lib/sales/street.ts` so `lib/sales/parcel.test.ts` runs on a fixture.
 - `next.config.ts` lists `data/sales/**` in `outputFileTracingIncludes`
   for the route and the page so the files ship with the serverless
   functions.

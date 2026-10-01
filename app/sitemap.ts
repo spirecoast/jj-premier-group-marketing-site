@@ -23,6 +23,7 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/relocate", priority: 0.7, changeFrequency: "monthly" },
   { path: "/sell", priority: 0.7, changeFrequency: "monthly" },
   { path: "/sell/sold", priority: 0.6, changeFrequency: "weekly" },
+  { path: "/sell/home-value", priority: 0.7, changeFrequency: "weekly" },
   { path: "/sell/net-proceeds", priority: 0.6, changeFrequency: "monthly" },
   { path: "/valuation", priority: 0.7, changeFrequency: "monthly" },
   { path: "/about", priority: 0.6, changeFrequency: "monthly" },
