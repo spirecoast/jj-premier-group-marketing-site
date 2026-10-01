@@ -9,7 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "check:copy": "node scripts/check-copy.mjs",
-    "test:unit": "tsx --test lib/*.test.ts",
+    "test:unit": "tsx --test \"lib/**/*.test.ts\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

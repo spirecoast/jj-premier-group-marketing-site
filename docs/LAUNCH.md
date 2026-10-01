@@ -17,7 +17,7 @@ must supply are written `<like-this>`. Nothing in this file is a real secret.
 | Repo | `spirecoast/real-estate`, branch `main`. The checkout also has a `marketing` remote (`spirecoast/jj-premier-group-marketing-site`) at the same commit. **Verify** in Vercel → Settings → Git which repository the project builds from before relying on "merge to `main` deploys". |
 | Site URL resolution | `lib/site.ts`: `NEXT_PUBLIC_SITE_URL` if it is a valid absolute URL, else `https://` + `VERCEL_PROJECT_PRODUCTION_URL`, else `https://jjpremiergroup.com`. Canonicals, `og:url`, sitemap `<loc>`, `robots.txt` host and ICS UIDs all use it. |
 | Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/portal /studio /api/ /auth /unsubscribe`, plus the sitemap line. |
-| Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/relocate` → `/buy`, `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. |
+| Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
 | CRM | The Coldwell Banker Home Platform, reached through a Zapier Catch Hook. Env: `CRM_PROVIDER=webhook`, `CRM_WEBHOOK_URL`. Follow Up Boss code stays in the repo behind the provider switch and is not used. |
 | Database | Supabase Postgres through Drizzle (`lib/db`). Leads are mirrored into the `contacts` and `events` tables (there is no table called `leads`). |
 | Visitor email | The site never emails a visitor. The reply a visitor gets comes from the agent's own Coldwell Banker mailbox through a Zapier step. The team's internal "New lead" copy and the delivery alert go through Resend when it is configured. |
@@ -358,10 +358,12 @@ opengraph.xyz) and confirm the card renders; the preview's `noindex` does not st
 ### 5.3 Redirects and 404
 
 ```bash
-for p in /lakewood-ranch/the-lake-club /relocate /neighborhoods/lake-club; do
+for p in /lakewood-ranch/the-lake-club /neighborhoods/lake-club; do
   curl -sS -o /dev/null -w "$p -> %{http_code} %{redirect_url}\n" $P$p
 done
-# 2026-10-01: 308 to /neighborhoods/the-lake-club, /buy, /neighborhoods/the-lake-club
+# 2026-10-01: 308 to /neighborhoods/the-lake-club, /neighborhoods/the-lake-club
+curl -sS -o /dev/null -w '%{http_code}\n' $P/relocate
+# 200: the relocation planner is a page now (the old /relocate -> /buy redirect was removed)
 
 curl -sS -o /dev/null -w '%{http_code}\n' $P/this-does-not-exist
 # 2026-10-01: 404 (the branded not-found page)
@@ -516,10 +518,10 @@ curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' http://jjpremiergroup.
 curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' https://www.jjpremiergroup.com/
 # 308 https://jjpremiergroup.com/
 
-for p in /lakewood-ranch/the-lake-club /relocate /neighborhoods/lake-club; do
+for p in /lakewood-ranch/the-lake-club /neighborhoods/lake-club; do
   curl -sS -o /dev/null -w "$p -> %{http_code} %{redirect_url}\n" $D$p
 done
-# 308 to the destinations in section 5.3, on the new host
+# 308 to the destinations in section 5.3, on the new host; /relocate is a 200
 
 curl -sS -o /dev/null -w '%{http_code}\n' $D/this-does-not-exist
 # 404
