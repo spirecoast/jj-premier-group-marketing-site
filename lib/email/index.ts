@@ -21,8 +21,11 @@ export type SendEmailInput = {
   /**
    * 'marketing' triggers the Fair Housing checker before send and is the only
    * path that should ever carry an unsubscribe footer. 'transactional'
-   * (lead confirmations, internal team notifications, magic links) bypasses
-   * the FH check and ships unconditionally. Defaults to 'transactional'.
+   * (internal team notifications and alerts) bypasses the FH check and ships
+   * unconditionally. Defaults to 'transactional'.
+   *
+   * Nothing here addresses a visitor: the site never emails the people who
+   * fill in its forms. Their replies come from the agents' own mailboxes.
    */
   category?: EmailCategory;
 };

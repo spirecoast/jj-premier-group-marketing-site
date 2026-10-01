@@ -17,10 +17,10 @@ jj-premier-brand-system.vercel.app).
 | Content types and data API | `lib/content/` — pages call `getListings()`, `getUpcomingEvents()`, … and never touch a source |
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
-| Lead capture | `lib/fub.ts` (Follow Up Boss client), `actions/submit-lead.ts` (the one server action), `lib/leads.ts`, `lib/lead-alert.ts` |
+| Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres → CRM → team email → Plausible), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `scripts/test-lead.mjs` |
 | Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/sitemap.ts`, `app/robots.ts` |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
-| Analytics | `components/analytics.tsx` (Plausible + Follow Up Boss Pixel, env-gated), `lib/analytics.ts` (custom events) |
+| Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
 | Encore dataset | `lib/content/encore/encore-calendar.json` (the source), `lib/content/encore.ts` (the converter) |
 | Neighborhood explorer | `components/explorer/*` (map, panel, card), `components/place-map.tsx`, `lib/neighborhoods/*` (data access, search, URL state, brand map style) |
 | Neighborhood dataset | `neighborhood-data/` (the catalog, its schema, scripts and docs; see its `CLAUDE-CODE-HANDOFF.md`) |
@@ -183,28 +183,38 @@ To bring Sanity online:
 
 Tier notes, cost levers and the archive requirement are in `docs/handoff/integrations/sanity.md`.
 
-## Leads: one action, one endpoint
+## Leads: one action, one pipeline
 
 Every form (`components/lead-form.tsx`, `components/letter-form.tsx`) posts to
-`actions/submit-lead.ts`, which sends a Follow Up Boss **event** (`POST /v1/events`, never
-`/v1/people`) with the registered system headers. Event type by form:
+`actions/submit-lead.ts`, which validates and hands off to `lib/lead-pipeline.ts`:
 
-| Form | Type |
-|---|---|
-| contact, buy | General Inquiry |
-| sell, valuation | Seller Inquiry |
-| listing | Property Inquiry |
-| letter, calendar | Registration |
+1. **Postgres first** (`leads` + `lead_deliveries`, plus the portal's `contacts`/`events`), when
+   `DATABASE_URL` is set. The lead row exists before anything external is tried.
+2. **CRM** through `lib/crm.ts`. `CRM_PROVIDER=webhook` (the default when `CRM_WEBHOOK_URL` is
+   set) POSTs the payload to a Zapier Catch Hook, which runs Compass "Create a New Lead" into the
+   Home Platform; 8s timeout, one retry, any 2xx is success. `fub` keeps the old Follow Up Boss
+   client (`lib/fub.ts`); `none` means no CRM. The result lands in `leads.delivery_status`.
+3. **Team email** with the full payload to `TEAM_NOTIFY_EMAIL` (Resend), reply-to the visitor.
+4. **Alert** to `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) when the CRM step failed.
+5. **Server-side Plausible** `Lead server` event (`form`, `channel: server`), with the visitor's
+   User-Agent and IP forwarded, as a backstop for visitors whose ad blocker stops the script.
 
-Response handling in `lib/fub.ts`: 201/200 success; **204 = the lead flow is archived and the lead
-was dropped** → error-level log plus an alert email to `LEAD_ALERT_EMAIL`; 429 honours
-`Retry-After`; 5xx retries with backoff. The consent checkbox is unchecked by default, never
-required, and its state and timestamp travel with the lead (message text and a `sms-consent` /
-`no-sms-consent` tag). When `DATABASE_URL` is set the lead is also mirrored into the portal's
-`contacts` table; when `TEAM_NOTIFY_EMAIL` is set the team gets an email copy.
+Then a `LeadForm` sends the visitor to `/thanks/<form>` (what happens next, both direct numbers,
+"Book 15 minutes" when `NEXT_PUBLIC_BOOKING_URL` is set, one next step; `noindex`; fires the `Lead`
+goal). The `LetterForm` bars stay inline: the success line shows where the bar was and `Subscribe`
+fires there. With JavaScript off the inline success state shows for every form. The visitor sees an error only
+when nothing kept the lead; in production a deployment with no sink at all logs an error at boot
+(`instrumentation.ts`) and `GET /api/health` reports `ok: false`.
 
-The Follow Up Boss Pixel is loaded only when `NEXT_PUBLIC_FUB_PIXEL_ID` is set. **Form capture must
-stay off** in the Follow Up Boss admin; forms already post server-side.
+**The site never emails a visitor.** No confirmation, no welcome series. Replies come from the
+agents' own Coldwell Banker mailboxes (a Zapier step if they want a template).
+
+Consent: every form with an email field shows an unchecked **email** box; forms with a phone also
+show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in
+`lib/leads.ts`). Neither is required. State, timestamp and `CONSENT_WORDING_VERSION` are stored on
+the lead and travel as `consent:email` / `consent:sms` tags. The Tide and Encore boxes imply email
+consent and record `IMPLIED_CONSENT_VERSION` (`implied:subscribe`) instead, since the visitor saw
+the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTEGRATIONS.md`.
 
 ## Commands
 
@@ -228,8 +238,9 @@ Useful switches:
 
   | Goal | Fired from | Props |
   | --- | --- | --- |
-  | `Lead` | every `LeadForm` on success | `form`: contact, buy, sell, valuation, listing |
-  | `Subscribe` | the `LetterForm` bars (Tide band, Encore row) on success | `form`: letter or calendar |
+  | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing · `market` |
+  | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row) inline on success | `form`: letter or calendar |
+  | `Lead server` | `lib/plausible-server.ts`, from the server action, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script; never add it to `Lead` |
   | `Calendar feed` | ICS links: the calendar page feed, Encore's filtered subscribe, the event page | `kind`: feed, event, performance, list · `filter`: `all`, the feed query, or the event slug |
   | `Phone tap` | `tel:` and `sms:` links | `where`: action-bar, action-bar-text, contact, contact-text, footer (the header's links join once the nav lands) |
   | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
@@ -240,7 +251,7 @@ Useful switches:
 - First-touch attribution lives in `components/utm-tracker.tsx`: the landing path, external referrer,
   timestamp and any `utm_*`, `gclid` or `fbclid` are kept in `localStorage` for 90 days (no cookies),
   never overwritten while fresh, and forwarded by every form as `utm__<key>` hidden fields into
-  `contacts.utm`.
+  `contacts.utm`, `leads.source` and the `source` block of the CRM webhook payload.
 
 ## Launch checklist
 
@@ -258,7 +269,8 @@ The operator's runbook for the cutover itself (client and brokerage checklist, V
 5. Submit the sitemap in Google Search Console and Bing Webmaster Tools.
 6. Confirm the custom 404 renders on the live domain (`/this-does-not-exist`).
 - `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) receives the alert when a lead cannot be
-  delivered to Follow Up Boss, including the archived-flow 204 case.
+  delivered to the CRM (webhook rejected or unreachable; with `CRM_PROVIDER=fub`, also the
+  archived-flow 204 case).
 - `CRON_SECRET` protects `GET /api/cron/archive-events` (Bearer token), scheduled weekly in
   `vercel.json`.
 
@@ -307,8 +319,8 @@ Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:
 
 1. Office street address and zip for the footer, JSON-LD and the privacy page.
 2. Joelyn's Florida licence number (Jessica's is in; the footer hides a name until its number exists).
-3. Follow Up Boss system registration (`FUB_SYSTEM`, `FUB_SYSTEM_KEY`) and the API key. Until they
-   are set, leads are mirrored to the database and emailed only, and production logs an alert.
+3. The Zapier Catch Hook URL (`CRM_WEBHOOK_URL`) and the Zap into the Home Platform. Until it is
+   set, leads are mirrored to the database and emailed only, and production logs an alert.
 4. The Sanity project and dataset, then the seed script and webhook in the section above.
 5. Consent wording sign-off from counsel (`CONSENT_WORDING` in `lib/leads.ts`) and 10DLC
    registration before any texting starts.
@@ -319,7 +331,7 @@ Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:
 
 Also worth knowing:
 
-- Market-letter subscribers are sent to Follow Up Boss as a Registration event and mirrored to the
-  database, but are not enrolled in the portal's older welcome-email series.
+- Tide and Encore subscribers go through the same pipeline as every other lead (tagged
+  `consent:email`) and are mirrored to the database. Nothing emails them from the site.
 - Every statistic on the site carries its source and date in the seed content. When the numbers
   are replaced in Sanity, keep the source field filled.

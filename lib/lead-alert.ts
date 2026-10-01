@@ -1,83 +1,118 @@
 import "server-only";
+import type { CrmFailure, CrmLead } from "@/lib/crm";
 import { escapeHtml, sendEmail } from "@/lib/email";
 
 /**
- * Internal alerting for the lead pipeline. Two jobs:
- *  1. Tell the team about every lead (belt and braces next to the CRM).
- *  2. Raise an error-level alert when Follow Up Boss reports the lead flow is
- *     archived (204) or the CRM could not be reached, so nothing disappears silently.
+ * Internal email for the lead pipeline. Two jobs, both addressed to the team,
+ * never to the visitor (the site does not email visitors; replies go out from
+ * the agents' own Coldwell Banker mailboxes through Zapier):
+ *
+ *  1. notifyTeamOfLead — every lead, with the full payload, to TEAM_NOTIFY_EMAIL.
+ *     This is the safety net when the CRM path is down.
+ *  2. alertLeadDelivery — an error-level alert when the CRM path failed, to
+ *     LEAD_ALERT_EMAIL (falling back to TEAM_NOTIFY_EMAIL).
  */
-
-export type LeadSummary = {
-  form: string;
-  fubType: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone?: string;
-  message?: string;
-  consent: boolean;
-  consentAt?: string;
-  property?: string;
-  pageUrl?: string;
-};
 
 function alertRecipient(): string | undefined {
   return process.env.LEAD_ALERT_EMAIL || process.env.TEAM_NOTIFY_EMAIL;
 }
 
-function leadHtml(lead: LeadSummary): string {
-  const rows: [string, string | undefined][] = [
+/** For subjects and the table: never the email address, which would end up in log lines. */
+function fullName(lead: CrmLead): string {
+  return `${lead.firstName} ${lead.lastName}`.trim() || "subscriber";
+}
+
+function consentLine(lead: CrmLead): string {
+  const parts = [
+    lead.consent.email ? "Email: yes" : "Email: no",
+    lead.consent.sms ? "Calls/texts: yes" : "Calls/texts: no",
+  ];
+  if (lead.consent.timestamp) parts.push(`at ${lead.consent.timestamp}`);
+  parts.push(`(wording ${lead.consent.wordingVersion}; both boxes unchecked by default)`);
+  return parts.join(" · ");
+}
+
+function leadHtml(lead: CrmLead): string {
+  const rows: [string, string | null | undefined][] = [
     ["Form", lead.form],
-    ["CRM event type", lead.fubType],
-    ["Name", `${lead.firstName} ${lead.lastName}`.trim()],
+    ["Name", fullName(lead)],
     ["Email", lead.email],
     ["Phone", lead.phone],
-    ["Property", lead.property],
     ["Message", lead.message],
-    ["Call/text consent", lead.consent ? `Yes · ${lead.consentAt ?? ""}` : "No"],
-    ["Page", lead.pageUrl],
+    ["Timing", lead.timing],
+    ["House to sell first", lead.sellFirst],
+    ["Market", lead.market],
+    ["Address to value", lead.propertyAddress],
+    ["Property", lead.property?.title ?? lead.property?.street],
+    ["Consent", consentLine(lead)],
+    ["Tags", lead.tags.join(", ")],
+    ["Source", lead.source.utm_source ? `${lead.source.utm_source} / ${lead.source.utm_medium ?? ""} / ${lead.source.utm_campaign ?? ""}` : "direct"],
+    ["Page", lead.source.page],
+    ["Referrer", lead.source.referrer],
+    ["Submitted", lead.submittedAt],
+    ["Test lead", lead.test ? "YES — from scripts/test-lead.mjs, ignore" : null],
   ];
-  return `<table cellpadding="6" style="font-family:Helvetica,Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows
+  const table = `<table cellpadding="6" style="font-family:Helvetica,Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows
     .filter(([, v]) => v)
     .map(
       ([k, v]) =>
-        `<tr><td style="color:#63666A;vertical-align:top">${escapeHtml(k)}</td><td>${escapeHtml(String(v))}</td></tr>`,
+        `<tr><td style="color:#63666A;vertical-align:top;white-space:nowrap">${escapeHtml(k)}</td><td style="white-space:pre-wrap">${escapeHtml(String(v))}</td></tr>`,
     )
     .join("")}</table>`;
+  // The full payload, exactly as the CRM webhook received it, so nothing is lost
+  // if Zapier or the CRM dropped the lead.
+  const json = `<details style="margin-top:16px"><summary style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#63666A;cursor:pointer">Full payload (JSON)</summary><pre style="font-size:12px;white-space:pre-wrap;word-break:break-word">${escapeHtml(JSON.stringify(lead, null, 2))}</pre></details>`;
+  return table + json;
 }
 
-export async function notifyTeamOfLead(lead: LeadSummary): Promise<boolean> {
+export async function notifyTeamOfLead(
+  lead: CrmLead,
+  context: { leadId?: string | null; crmDelivered: boolean; crmProvider: string },
+): Promise<{ ok: boolean; id?: string; error?: string; skipped?: boolean }> {
   const to = process.env.TEAM_NOTIFY_EMAIL;
-  if (!to) return false;
+  if (!to) return { ok: false, skipped: true, error: "TEAM_NOTIFY_EMAIL not set" };
+  const status = context.crmDelivered
+    ? `Also sent to the CRM (${context.crmProvider}).`
+    : context.crmProvider === "none"
+      ? "No CRM is configured on this deployment; this email and the database are the record."
+      : `The CRM (${context.crmProvider}) did NOT accept it; see the alert. Enter it by hand.`;
   const res = await sendEmail({
     to,
-    subject: `New lead · ${lead.form} · ${lead.firstName} ${lead.lastName}`.trim(),
-    html: `<p>New website lead.</p>${leadHtml(lead)}`,
+    subject: `${lead.test ? "TEST · " : ""}New lead · ${lead.form} · ${fullName(lead)}`,
+    html: `<p style="font-family:Helvetica,Arial,sans-serif;font-size:14px">New website lead. ${escapeHtml(status)}${context.leadId ? ` Database id ${escapeHtml(context.leadId)}.` : ""}</p>${leadHtml(lead)}`,
     replyTo: lead.email,
   });
   // The email helper returns a dev no-op when Resend is not configured; that is not delivery.
-  return res.ok && res.id !== "dev-noop";
+  if (!res.ok) return { ok: false, error: res.error };
+  if (res.id === "dev-noop") return { ok: false, skipped: true, error: "Resend not configured" };
+  return { ok: true, id: res.id };
 }
 
+const HEADLINES: Record<CrmFailure, string> = {
+  fub_archived_204:
+    "Follow Up Boss returned 204: the lead flow for this source is ARCHIVED. The lead below was accepted and discarded by the CRM. Un-archive the source in Follow Up Boss and re-enter this lead by hand.",
+  not_configured: "No CRM is configured on this production deployment. The lead below was NOT sent to the CRM.",
+  rejected: "The CRM webhook rejected the lead below. Check the Zap (or the CRM) and enter it by hand.",
+  network: "The CRM webhook could not be reached. Enter the lead below by hand and check the integration.",
+};
+
 export async function alertLeadDelivery(
-  reason: "fub_archived_204" | "fub_not_configured" | "fub_failed",
-  lead: LeadSummary,
-  detail?: string,
+  reason: CrmFailure,
+  lead: CrmLead,
+  context: { provider: string; detail?: string; leadId?: string | null; mirrored: boolean; notified: boolean },
 ): Promise<void> {
-  console.error(`[lead-alert] ${reason}`, { email: lead.email, form: lead.form, detail });
+  console.error(`[lead-alert] ${reason}`, { form: lead.form, leadId: context.leadId, provider: context.provider, detail: context.detail });
   const to = alertRecipient();
   if (!to) return;
-  const headline =
-    reason === "fub_archived_204"
-      ? "Follow Up Boss returned 204: the lead flow for this source is ARCHIVED. The lead below was accepted and discarded by the CRM. Un-archive the source in Follow Up Boss and re-enter this lead by hand."
-      : reason === "fub_not_configured"
-        ? "Follow Up Boss credentials are not configured on this deployment. The lead below was NOT sent to the CRM."
-        : "Follow Up Boss rejected or could not receive the lead below. Enter it by hand and check the integration.";
+  const kept = [
+    context.mirrored ? `saved in the database${context.leadId ? ` (id ${context.leadId})` : ""}` : null,
+    context.notified ? "in the team notification email" : null,
+  ].filter(Boolean);
+  const where = kept.length ? `The lead is ${kept.join(" and ")}.` : "The lead was NOT kept anywhere else: this email is the only copy.";
   await sendEmail({
     to,
-    subject: `ALERT · lead not delivered to Follow Up Boss (${reason})`,
-    html: `<p><strong>${escapeHtml(headline)}</strong></p>${detail ? `<p style="font-family:monospace">${escapeHtml(detail)}</p>` : ""}${leadHtml(lead)}`,
+    subject: `ALERT · lead not delivered to CRM (${context.provider}: ${reason})`,
+    html: `<p style="font-family:Helvetica,Arial,sans-serif;font-size:14px"><strong>${escapeHtml(HEADLINES[reason])}</strong> ${escapeHtml(where)}</p>${context.detail ? `<p style="font-family:monospace;font-size:12px">${escapeHtml(context.detail)}</p>` : ""}${leadHtml(lead)}`,
     replyTo: lead.email,
   });
 }

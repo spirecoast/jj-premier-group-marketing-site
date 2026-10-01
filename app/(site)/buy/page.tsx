@@ -278,7 +278,7 @@ export default async function BuyPage() {
         <div className="border border-hairline bg-white p-6 sm:p-8">
           <LeadForm
             form="buy"
-            fields={["name", "email", "phone", "timing", "message"]}
+            fields={["name", "email", "phone", "timing", "sellFirst", "message"]}
             submitLabel="Tell us the timing"
             placeholderMessage="Where you’re looking, what you need, and whether there’s a house to sell first."
           />

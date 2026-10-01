@@ -25,6 +25,143 @@ Future-phase services from §3 are listed at the bottom — **don't set up yet.*
 
 ---
 
+## 0) Lead delivery (forms → Postgres → Zapier → Home Platform)
+
+The team's CRM is the Home Platform (Compass's platform at Coldwell Banker
+Realty). It has no API, so leads reach it through Zapier. Follow Up Boss is
+no longer used.
+
+**The rule: the site never emails a visitor.** No confirmation, no welcome
+series, no drip. The only email the site sends goes to the team. Replies to
+the visitor go out from Joelyn's and Jessica's own Coldwell Banker mailboxes,
+through a Zapier step if the team wants a templated first reply.
+
+### What happens on every form submit (`lib/lead-pipeline.ts`)
+
+1. **Postgres first.** A row in `leads` (the exact payload, consent + timestamp
+   + wording version, source/UTM) plus the `contacts`/`events` rows the portal
+   reads. Migration `0006_leads_and_deliveries.sql`.
+2. **CRM.** `lib/crm.ts` POSTs the payload to `CRM_WEBHOOK_URL` (8s timeout,
+   one retry, any 2xx is success). The result lands in `leads.delivery_status`
+   and a `lead_deliveries` row.
+3. **Team email.** The full payload to `TEAM_NOTIFY_EMAIL` via Resend, with
+   reply-to set to the visitor. This is the safety net when Zapier is down.
+4. **Alert.** If the CRM step failed (or no CRM is configured in production),
+   an ALERT email to `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`)
+   saying where the lead was kept.
+5. **Conversion backstop.** A server-side Plausible event named `Lead server`
+   (props `form`, `channel: server`) with the visitor's User-Agent and IP
+   forwarded. The browser owns the real goals: `Lead` fires on the thank-you
+   page, `Subscribe` inline on the Tide/Encore bars. Never add `Lead server`
+   to `Lead`; it exists to show what ad blockers hid.
+6. A lead form sends the visitor to `/thanks/<form>`; the Tide and Encore bars
+   stay inline. They see an error only if **nothing** kept the lead.
+
+### Env vars
+
+| Var | What |
+|---|---|
+| `CRM_PROVIDER` | `webhook` (default when `CRM_WEBHOOK_URL` is set), `fub`, or `none` |
+| `CRM_WEBHOOK_URL` | The Zapier Catch Hook URL |
+| `TEAM_NOTIFY_EMAIL` | Every lead, full payload (needs `RESEND_API_KEY` + `RESEND_FROM_EMAIL`) |
+| `LEAD_ALERT_EMAIL` | CRM failure alerts; falls back to `TEAM_NOTIFY_EMAIL` |
+| `DATABASE_URL` | The Postgres mirror; run `npm run db:migrate` so `0006` is applied |
+| `NEXT_PUBLIC_BOOKING_URL` | Shows "Book 15 minutes" on the thank-you pages when set |
+| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Also enables the server-side `Lead server` backstop event |
+| `LEAD_TEST_SECRET` | Bearer token for `POST /api/leads` on the live site (launch test only) |
+
+In production at least one of Postgres, the CRM webhook or the team email must
+be configured. With no CRM at all, set `CRM_PROVIDER=none` explicitly: an unset
+or invalid `CRM_PROVIDER` in production sends the "not configured" alert on
+every lead, an explicit `none` does not. The server logs an error at boot if none is (`instrumentation.ts`),
+and `GET /api/health` returns `{ ok, sinks }` — booleans and the provider name
+only, never values.
+
+### The webhook payload
+
+```json
+{
+  "form": "buy",
+  "firstName": "Pat", "lastName": "Example",
+  "email": "pat@example.com", "phone": "(941) 555-0100",
+  "message": "…", "market": "sarasota", "propertyAddress": null,
+  "timing": "Inside three months", "sellFirst": "Yes",
+  "property": null,
+  "consent": { "email": true, "sms": false, "timestamp": "2026-10-01T15:04:05.000Z", "wordingVersion": "2026-10-01.2" },
+  "source": { "page": "https://jjpremiergroup.com/buy", "referrer": "…", "utm_source": "google", "utm_medium": "cpc",
+              "utm_campaign": "…", "utm_term": null, "utm_content": null, "gclid": "…", "fbclid": null,
+              "landingPath": "/buy", "firstTouchReferrer": null, "firstTouchAt": "2026-10-01T14:58:00.000Z" },
+  "submittedAt": "2026-10-01T15:04:05.000Z",
+  "tags": ["form:buy", "market:sarasota", "consent:email", "source:google", "site:jjpremiergroup"],
+  "site": "jjpremiergroup.com",
+  "test": false
+}
+```
+
+`form` is one of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`,
+`calendar`. `property` is set on listing inquiries only (`slug`, `title`,
+`street`, `city`, `state`, `zip`, `price`, `mls`, `url`). The letter and
+calendar boxes imply email consent, so they always carry `consent:email`, with
+`wordingVersion` set to `implied:subscribe` (no checkbox was shown).
+`source` is the visitor's 90-day first touch from `components/utm-tracker.tsx`
+(`readFirstTouch()`): the campaign tags, the landing path, the external referrer
+and when it was recorded, plus the page the form was on. `test: true` (and a
+`test` tag) marks a rehearsal lead from `scripts/test-lead.mjs`.
+
+### The Zap
+
+Trigger: **Webhooks by Zapier → Catch Hook**. Copy its URL into
+`CRM_WEBHOOK_URL`. Then:
+
+1. *(Optional)* **Filter**: continue only if `test` is not `true`.
+2. **Compass → Create a New Lead**. Field map:
+
+   | Compass field | From the payload |
+   |---|---|
+   | First name | `firstName` |
+   | Last name | `lastName` (may be empty for the letter/calendar boxes) |
+   | Email | `email` |
+   | Phone | `phone` |
+   | Tags | `tags` (Zapier joins arrays with commas; pick "comma-separated" if asked) |
+
+   Nothing else fits a Compass field. Put `message`, `timing`, `sellFirst`,
+   `market`, `propertyAddress` and `source.utm_*` into the Zap's note or
+   email step so the agent sees them.
+3. *(Optional)* **Gmail/Outlook → Send email** from the agent's own
+   Coldwell Banker mailbox, to `email`, as the first reply. This is the only
+   place a visitor ever receives email, and it comes from a person.
+
+Zapier returns 200 as soon as the hook catches the payload, so a failing
+later step does not alert the site. Watch the Zap history after launch.
+
+### Launch test
+
+```bash
+# straight to the Catch Hook, to give the Zap editor a full sample (no site needed)
+CRM_WEBHOOK_URL="<hook url>" node scripts/test-lead.mjs --hook --form buy
+# through the local dev server (open in development, no secret needed)
+node scripts/test-lead.mjs --form buy
+# through the live site
+LEAD_TEST_SECRET=… node scripts/test-lead.mjs --live https://jjpremiergroup.com --form sell
+```
+
+Through the site it posts a test lead (tagged `test`) and prints which sinks
+accepted it. Then check: the `leads` row, the Zap history, the team inbox, and
+the Plausible goal.
+
+### Consent
+
+Every form that asks for an email shows an unchecked **email** box
+("Yes, you can email me about the market and my search. I can stop any time by
+replying 'stop' to any email.");
+forms that ask for a phone also show the unchecked **calls/texts** box. Neither
+is required. The state, timestamp and `CONSENT_WORDING_VERSION` (lib/leads.ts)
+are stored on the lead and carried as `consent:email` / `consent:sms` tags.
+Bump the version whenever the wording changes. Subscribers from the Tide and
+Encore bars record `implied:subscribe` instead.
+
+---
+
 ## 1) Clerk
 
 ### Provision
@@ -93,7 +230,8 @@ team via Clerk dashboard with the same emails. No additional plumbing needed.
 Storage / Realtime work but are not currently used now that Clerk owns auth.
 
 ### Apply schema migrations
-Three migrations in `lib/db/migrations/`:
+Migrations in `lib/db/migrations/` (apply all, in order; `0006` adds the
+`leads` and `lead_deliveries` tables the forms write to):
 - `0000_init_contacts_events.sql` — `contacts` + `events` tables, RLS enabled (deny-by-default)
 - `0001_agents_sequences_routing.sql` — `agents`, `sequences`,
   `sequence_enrollments`, `lead_routing_rules` + FKs from `contacts`/`events` →
@@ -162,14 +300,14 @@ for now.
 | `TEAM_NOTIFY_EMAIL` | Internal inbox for new-lead notifications (e.g., `[email protected]` — can be a Google Workspace alias) |
 
 ### Where these are consumed
-- `lib/email/index.ts:7,36` — Resend client + from-address resolution
-- `app/(marketing)/contact/actions.ts:122` — internal team notification
-  recipient
+- `lib/email/index.ts` — Resend client + from-address resolution
+- `lib/lead-alert.ts` — the team notification (`TEAM_NOTIFY_EMAIL`) and the
+  CRM failure alert (`LEAD_ALERT_EMAIL`)
 
 ### Verify
-After deploy, submit the contact form. You should receive:
-1. A confirmation email at the submitted address (from `RESEND_FROM_EMAIL`)
-2. A "New lead: …" email at `TEAM_NOTIFY_EMAIL`
+After deploy, submit the contact form. You should receive one email, a
+"New lead · contact · …" at `TEAM_NOTIFY_EMAIL`. The visitor receives
+nothing from the site.
 
 Resend logs every send under **Logs** in their dashboard — useful for debugging
 deliverability.
@@ -199,7 +337,7 @@ After Vercel deploy:
 - Inngest dashboard → your app → Sync new app → enter
   `https://your-prod-domain.com/api/inngest`
 - Inngest hits `PUT /api/inngest`, discovers the registered functions
-  (currently: `welcome-series`)
+  (the portal failsafes; there is no welcome series)
 - Re-sync after every deploy that adds/changes functions
 
 ### Local dev
@@ -208,11 +346,10 @@ npx inngest-cli@latest dev
 ```
 Auto-discovers `localhost:3000/api/inngest`. UI at `localhost:8288`.
 
-### Trigger flow (for context, no action needed)
-- `lead.captured` event fires from `app/(marketing)/contact/actions.ts` and
-  `lib/actions/newsletter.ts`
-- `welcome-series` function picks it up → 5 emails over 14 days, consent
-  re-checked on every step
+### What runs there
+Only the cron failsafes in `lib/inngest/functions.ts` (new lead untouched for
+24h, qualified lead untouched for 5d, sphere 90d, birthdays, closing
+anniversaries). They create portal tasks; they never email anyone.
 
 ---
 
@@ -242,16 +379,18 @@ INNGEST_EVENT_KEY                 # from Inngest (mark as Secret)
 INNGEST_SIGNING_KEY               # from Inngest (mark as Secret)
 UNSUBSCRIBE_SECRET                # `openssl rand -base64 48` (mark as Secret)
 NEXT_PUBLIC_SITE_URL              # https://your-prod-domain.com
+CRM_WEBHOOK_URL                   # the Zapier Catch Hook (mark as Secret)
+LEAD_ALERT_EMAIL                  # optional; defaults to TEAM_NOTIFY_EMAIL
+LEAD_TEST_SECRET                  # `openssl rand -hex 24` (mark as Secret)
+NEXT_PUBLIC_BOOKING_URL           # optional; the booking page link
 ```
 
 `UNSUBSCRIBE_SECRET` is the HMAC key used to sign marketing-email unsubscribe
 links. **Required in production** — `lib/unsubscribe.ts` throws at boot if it's
 missing or shorter than 32 chars when `NODE_ENV=production`.
 
-`NEXT_PUBLIC_SITE_URL` is consumed in:
-- `app/layout.tsx:19` (metadata base for OG tags)
-- `app/auth/login/actions.ts:33` (magic link `emailRedirectTo`)
-- `app/(marketing)/contact/actions.ts:123` (template links)
+`NEXT_PUBLIC_SITE_URL` is consumed in `lib/site.ts` (metadata base, absolute
+links, the listing URL in the CRM payload).
 
 ### Custom domain
 Settings → Domains → Add. Vercel auto-provisions SSL. Then loop back to
@@ -272,10 +411,11 @@ to the prod domain.
 6. Inngest dashboard → sync app to `https://your-domain.com/api/inngest`
 7. Verify end-to-end:
    - `https://your-domain.com/` renders
-   - `/contact` form submits → row in `contacts`, event in `events`, two emails
-     sent (lead confirmation + team notify), `lead.captured` event in Inngest
-   - Footer newsletter signup → row in `contacts` with `consent_email=true`,
-     confirmation email
+   - `/contact` form submits → rows in `leads` and `contacts`, the Zap runs,
+     one "New lead" email at `TEAM_NOTIFY_EMAIL`, visitor lands on
+     `/thanks/contact`. No email to the visitor.
+   - Tide box signup → `leads` row tagged `consent:email`, visitor lands on
+     `/thanks/letter`
    - `/portal` redirects to `/auth/login` → magic link arrives → callback links
      auth user to agent → land on `/portal` Today view
    - `/portal/contacts` shows the test submissions

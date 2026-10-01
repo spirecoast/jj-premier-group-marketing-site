@@ -251,6 +251,82 @@ export const leadRoutingRules = pgTable(
   ],
 );
 
+/**
+ * leads — one row per public form submission, written before any delivery is
+ * attempted. This is the mirror of record: whatever the CRM, Zapier or Resend
+ * do afterwards, the lead is here. `contact_id` links the contacts row the
+ * portal reads; `payload` is the exact JSON sent to the CRM webhook.
+ *
+ * `delivery_status` summarises the CRM attempt: 'pending' until tried,
+ * 'delivered', 'failed', or 'skipped' (no provider configured).
+ */
+export const leads = pgTable(
+  "leads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contactId: uuid("contact_id").references(() => contacts.id, {
+      onDelete: "set null",
+    }),
+    form: text("form").notNull(),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    email: text("email").notNull(),
+    phone: text("phone"),
+    message: text("message"),
+    market: text("market"),
+    propertyAddress: text("property_address"),
+    timing: text("timing"),
+    sellFirst: text("sell_first"),
+    consentEmail: boolean("consent_email").default(false).notNull(),
+    consentSms: boolean("consent_sms").default(false).notNull(),
+    consentAt: timestamp("consent_at", { withTimezone: true }),
+    consentWordingVersion: text("consent_wording_version"),
+    source: jsonb("source"),
+    payload: jsonb("payload"),
+    isTest: boolean("is_test").default(false).notNull(),
+    deliveryStatus: text("delivery_status").default("pending").notNull(),
+    deliveryError: text("delivery_error"),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("leads_submitted_idx").on(table.submittedAt.desc()),
+    index("leads_email_idx").on(table.email),
+    index("leads_delivery_status_idx")
+      .on(table.deliveryStatus)
+      .where(sql`${table.deliveryStatus} <> 'delivered'`),
+  ],
+);
+
+/**
+ * lead_deliveries — one row per sink per lead: what was tried, what came back.
+ * sink: 'crm_webhook' | 'fub' | 'team_email' | 'plausible'.
+ * status: 'ok' | 'failed' | 'skipped'.
+ */
+export const leadDeliveries = pgTable(
+  "lead_deliveries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    leadId: uuid("lead_id")
+      .references(() => leads.id, { onDelete: "cascade" })
+      .notNull(),
+    sink: text("sink").notNull(),
+    status: text("status").notNull(),
+    statusCode: integer("status_code"),
+    attempts: integer("attempts").default(1).notNull(),
+    detail: text("detail"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("lead_deliveries_lead_idx").on(table.leadId, table.createdAt.desc())],
+);
+
 export type Agent = typeof agents.$inferSelect;
 export type NewAgent = typeof agents.$inferInsert;
 export type Contact = typeof contacts.$inferSelect;
@@ -264,4 +340,8 @@ export type NewSequenceEnrollment = typeof sequenceEnrollments.$inferInsert;
 export type LeadRoutingRule = typeof leadRoutingRules.$inferSelect;
 export type NewLeadRoutingRule = typeof leadRoutingRules.$inferInsert;
 export type Task = typeof tasks.$inferSelect;
+export type Lead = typeof leads.$inferSelect;
+export type NewLead = typeof leads.$inferInsert;
+export type LeadDelivery = typeof leadDeliveries.$inferSelect;
+export type NewLeadDelivery = typeof leadDeliveries.$inferInsert;
 export type NewTask = typeof tasks.$inferInsert;

@@ -43,6 +43,13 @@
       "when": 1778230000000,
       "tag": "0005_clerk_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790000000000,
+      "tag": "0006_leads_and_deliveries",
+      "breakpoints": true
     }
   ]
 }

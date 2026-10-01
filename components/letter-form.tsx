@@ -1,5 +1,7 @@
 "use client";
 
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
@@ -8,31 +10,43 @@ import { initialLeadState, type LeadFormState } from "@/lib/leads";
 import { cn } from "@/lib/utils";
 
 /**
- * The email-only bar from the Coast Market Report band and the Encore
- * subscribe row. Sends a Registration event to Follow Up Boss.
+ * The email-only bar from the Tide band and the Encore subscribe row.
+ * Subscribing is the request for email, so no consent box is shown; the lead
+ * is tagged consent:email on its way to the CRM. The bar stays where it is on
+ * success (`inline`, the default): the inline line shows and the Subscribe goal
+ * fires here. `inline={false}` sends the visitor to /thanks/letter or
+ * /thanks/calendar instead, which then fires the goal.
  */
 export function LetterForm({
   form = "letter",
   label = "Send me the report",
   className,
   tone = "light",
+  inline = true,
 }: {
   form?: "letter" | "calendar";
   label?: string;
   className?: string;
   tone?: "light" | "dark";
+  /** Stay on the page with the inline success line (default) instead of going to the thank-you page. */
+  inline?: boolean;
 }) {
   const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
   const [utm, setUtm] = useState<Record<string, string>>({});
   const successRef = useRef<HTMLParagraphElement>(null);
+  const router = useRouter();
   useEffect(() => {
     setUtm(readUtm());
   }, []);
   useEffect(() => {
     if (!state.ok) return;
     successRef.current?.focus();
-    track("Subscribe", { form });
-  }, [state.ok, form]);
+    if (inline || !state.redirectTo) {
+      track("Subscribe", { form });
+      return;
+    }
+    router.push(state.redirectTo as Route);
+  }, [state.ok, state.redirectTo, inline, form, router]);
 
   const successText = form === "letter" ? "You are on the list. The next report lands at the start of the month." : "You are on the list. Encore lands every Monday.";
 

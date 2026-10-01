@@ -1,14 +1,22 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
 import { readUtm } from "@/components/utm-tracker";
-import { CONSENT_WORDING, initialLeadState, type LeadForm as LeadFormKind, type LeadFormState } from "@/lib/leads";
+import {
+  CONSENT_EMAIL_WORDING,
+  CONSENT_WORDING,
+  SELL_FIRST_OPTIONS,
+  initialLeadState,
+  type LeadForm as LeadFormKind,
+  type LeadFormState,
+} from "@/lib/leads";
 import { cn } from "@/lib/utils";
 
-export type LeadField = "name" | "email" | "phone" | "timing" | "address" | "message";
+export type LeadField = "name" | "email" | "phone" | "timing" | "sellFirst" | "address" | "message";
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
@@ -16,7 +24,7 @@ const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   sell: { title: "Got it.", body: "We’ll come back with a plan and a number, and the reason for the number." },
   listing: { title: "Got it.", body: "We’ll confirm the showing with you. Tell us if the timing changes." },
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
-  letter: { title: "You’re on the list.", body: "One page, once a quarter, written for you. The next report lands at the start of the quarter." },
+  letter: { title: "You’re on the list.", body: "Tide goes out once a month. One page, written for you." },
   calendar: { title: "You’re on the list.", body: "The full calendar, every Monday." },
 };
 
@@ -25,6 +33,7 @@ const LABELS: Record<LeadField, string> = {
   email: "Email",
   phone: "Phone",
   timing: "When are you moving?",
+  sellFirst: "Is there a house to sell first?",
   address: "Street address",
   message: "Message",
 };
@@ -54,9 +63,11 @@ function FieldError({ messages, id }: { messages?: string[]; id: string }) {
 }
 
 /**
- * Every public form. Posts to actions/submit-lead.ts, which sends a Follow Up
- * Boss event. The consent box is unchecked by default, is never required, and
- * its wording is the compliance draft pending legal review.
+ * Every public form. Posts to actions/submit-lead.ts, which mirrors the lead
+ * to Postgres, hands it to the CRM webhook and emails the team, then sends the
+ * visitor to /thanks/[form]. Both consent boxes are unchecked by default and
+ * never required; the call/text wording is the compliance draft pending legal
+ * review. With JavaScript off the inline "Got it." state shows instead.
  */
 export function LeadForm({
   form,
@@ -73,6 +84,7 @@ export function LeadForm({
   const [utm, setUtm] = useState<Record<string, string>>({});
   const [pageUrl, setPageUrl] = useState("");
   const uid = useId();
+  const router = useRouter();
 
   const successRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -82,8 +94,10 @@ export function LeadForm({
   useEffect(() => {
     if (!state.ok) return;
     successRef.current?.focus();
-    track("Lead", { form: state.form ?? form });
-  }, [state.ok, state.form, form]);
+    // The thank-you page fires the analytics goal. The inline state below is
+    // the fallback for a submission without JavaScript.
+    if (state.redirectTo) router.push(state.redirectTo as Route);
+  }, [state.ok, state.redirectTo, router]);
 
   const labelColor = tone === "dark" ? "text-mist" : undefined;
   const inputColor = tone === "dark" ? "text-linen-200 border-linen-200/50 placeholder:text-linen-200/50" : undefined;
@@ -171,7 +185,7 @@ export function LeadForm({
           </div>
         ) : null}
         {has("timing") ? (
-          <div className={cn("field", columns && "sm:col-span-2")}>
+          <div className={cn("field", columns && !has("sellFirst") && "sm:col-span-2")}>
             <label htmlFor={`${uid}-timing`} className={cn("field-label", labelColor)}>
               {LABELS.timing} <span className="normal-case tracking-normal opacity-70">(optional)</span>
             </label>
@@ -181,6 +195,19 @@ export function LeadForm({
               <option>Three to six months</option>
               <option>Six to twelve months</option>
               <option>Just watching the market</option>
+            </select>
+          </div>
+        ) : null}
+        {has("sellFirst") ? (
+          <div className={cn("field", columns && !has("timing") && "sm:col-span-2")}>
+            <label htmlFor={`${uid}-sell-first`} className={cn("field-label", labelColor)}>
+              {LABELS.sellFirst} <span className="normal-case tracking-normal opacity-70">(optional)</span>
+            </label>
+            <select id={`${uid}-sell-first`} name="sellFirst" defaultValue="" className={cn("field-input", inputColor)}>
+              <option value="">Choose one</option>
+              {SELL_FIRST_OPTIONS.map((o) => (
+                <option key={o}>{o}</option>
+              ))}
             </select>
           </div>
         ) : null}
@@ -194,12 +221,20 @@ export function LeadForm({
         ) : null}
       </div>
 
-      {has("phone") ? (
-        <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
-          <input type="checkbox" name="consent" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
-          <span>{CONSENT_WORDING}</span>
-        </label>
-      ) : null}
+      <div className="flex flex-col gap-4">
+        {has("email") ? (
+          <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
+            <input type="checkbox" name="consentEmail" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
+            <span>{CONSENT_EMAIL_WORDING}</span>
+          </label>
+        ) : null}
+        {has("phone") ? (
+          <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
+            <input type="checkbox" name="consent" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
+            <span>{CONSENT_WORDING}</span>
+          </label>
+        ) : null}
+      </div>
 
       {state.formError ? (
         <p className="t-small text-danger" role="alert">

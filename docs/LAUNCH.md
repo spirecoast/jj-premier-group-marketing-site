@@ -36,7 +36,7 @@ looks like. Collect the answers in writing (email is fine) before section 6.
 | # | Item | Why it matters | Verified when |
 |---|---|---|---|
 | 1.1 | **Office street address and zip** | `officeAddress.street` and `zip` are empty in `lib/content/seed/settings.ts`, so the footer shows "Lakewood Ranch, FL", the RealEstateAgent JSON-LD has no `streetAddress`, and the privacy page's contact block has no address. The Google Business Profile address must match these character for character. | The brokerage sends the registered office address for the team; it is put in `settings.ts` (street, zip, suite line exactly as the brokerage writes it) and deployed; the footer, `/contact`, `/privacy` and the JSON-LD on `/` all show the same string. |
-| 1.2 | **Brokerage sign-off and the compliance contact** | `docs/handoff/COMPLIANCE.md` says nothing ships without the brokerage compliance contact's review. Specific points to put in front of them: the footer (brokerage name directly below the phone and emails, 61J2-10.025(3)(a)); the team name is not set larger than the brokerage name (61J2-10.026); the CB mark at 185px header / 220px footer and the Equal Housing mark; the decision to show **no license numbers** (lawful under 61J2, but Coldwell Banker Realty's own policy must be confirmed by the broker of record); the "draft for legal review" label on `/privacy` and `/terms` (comes off only when counsel signs); the consent wording `CONSENT_WORDING` in `lib/leads.ts`; both agents titled REALTOR® (requires current NAR membership). | A dated email from the compliance contact naming the preview URL and saying the footer, marks, no-license-number decision, privacy and terms are approved; the name and email of the contact recorded here: `<compliance contact>`. |
+| 1.2 | **Brokerage sign-off and the compliance contact** | `docs/handoff/COMPLIANCE.md` says nothing ships without the brokerage compliance contact's review. Specific points to put in front of them: the footer (brokerage name directly below the phone and emails, 61J2-10.025(3)(a)); the team name is not set larger than the brokerage name (61J2-10.026); the CB mark at 185px header / 220px footer and the Equal Housing mark; the decision to show **no license numbers** (lawful under 61J2, but Coldwell Banker Realty's own policy must be confirmed by the broker of record); the "draft for legal review" label on `/privacy` and `/terms` (comes off only when counsel signs); the consent wording (`CONSENT_WORDING` for calls/texts and `CONSENT_EMAIL_WORDING` for email, both in `lib/leads.ts`); both agents titled REALTOR® (requires current NAR membership). | A dated email from the compliance contact naming the preview URL and saying the footer, marks, no-license-number decision, privacy and terms are approved; the name and email of the contact recorded here: `<compliance contact>`. |
 | 1.3 | **Home Platform: Zapier connection authorization** | Section 3 depends on the "Compass" app in Zapier accepting a Coldwell Banker Home Platform login. If it only accepts compass.com accounts, the Zap's CRM step must change (for example, to the Lead Flows address in 1.5). Also decide whose account the connection uses: the leads land in that agent's Contacts. | In Zapier → Apps → Connections, a "Compass" connection exists, signed in as `<agent who owns the leads>`, and a test lead created from the Zap editor appears in Home Platform Contacts. |
 | 1.4 | **Home Platform: Marketing Center email** | Tide (monthly) and Encore (weekly Monday) are promised on the forms and the privacy page. If the Marketing Center can send to a list, subscribers are exported from Supabase `contacts` (`consent_email = true`) and imported there; if not, a send tool is chosen before the first promised issue. Either way the sends carry the office postal address, the brokerage name and a working unsubscribe (CAN-SPAM). | The agents confirm in the Home Platform whether Marketing Center exists for them, whether it sends to an imported list, and who will build the two templates. Decision recorded: `<Marketing Center | other tool>`; first send dates: `<Tide>` and `<Encore>`. |
 | 1.5 | **Home Platform: lead-intake address** | A backup path if the Zapier action fails or is not authorised: the Home Platform's Lead Flows (CRM settings) may issue an email address that parses incoming leads. If it does, the team's "New lead" email can be forwarded there. | The agents open CRM settings → Lead Flows and report whether a forwarding address exists: `<address or "none">`. |
@@ -61,7 +61,7 @@ What the project has today (names only, read through the Vercel API on 2026-10-0
 `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`,
 `UNSUBSCRIBE_SECRET`, `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`,
 `NEXT_PUBLIC_SANITY_API_VERSION`, `SANITY_WRITE_TOKEN`, `SANITY_VIEWER_TOKEN`, `SANITY_REVALIDATE_SECRET`,
-`FUB_API_KEY`, `FUB_SYSTEM`, `FUB_SYSTEM_KEY`, `FUB_LEAD_SOURCE`, `NEXT_PUBLIC_FUB_PIXEL_ID`,
+`FUB_API_KEY`, `FUB_SYSTEM`, `FUB_SYSTEM_KEY`, `FUB_LEAD_SOURCE`,
 `LEAD_ALERT_EMAIL`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_ROBOTS_NOINDEX`, `CRON_SECRET`,
 `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`, all on both Production and Preview. Not present yet:
 `TEAM_NOTIFY_EMAIL`, `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`, `NEXT_PUBLIC_LISTINGS_URL`, `CRM_PROVIDER`,
@@ -105,7 +105,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 
 | Group | Variables | Why |
 |---|---|---|
-| Follow Up Boss | `FUB_API_KEY`, `FUB_SYSTEM`, `FUB_SYSTEM_KEY`, `FUB_LEAD_SOURCE`, `NEXT_PUBLIC_FUB_PIXEL_ID` | The CRM is the Home Platform. With `CRM_PROVIDER=webhook` these are ignored; an empty pixel id means no pixel script. |
+| Follow Up Boss | `FUB_API_KEY`, `FUB_SYSTEM`, `FUB_SYSTEM_KEY`, `FUB_LEAD_SOURCE` | The CRM is the Home Platform. With `CRM_PROVIDER=webhook` these are ignored. The pixel is gone from the site; `NEXT_PUBLIC_FUB_PIXEL_ID` can be deleted. |
 | Clerk | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL`, `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | The agent portal is not launching. `app/layout.tsx` wraps the tree in `ClerkProvider` only when the publishable key is set; keep it unset so the public site has no Clerk dependency. `/portal` answers 307 to `/auth/no-access`. |
 | Sanity | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `SANITY_WRITE_TOKEN`, `SANITY_VIEWER_TOKEN`, `SANITY_REVALIDATE_SECRET` | Empty project id = the site renders the seed content in `lib/content/seed`. Bringing Sanity online is its own task in `docs/SITE.md`. |
 | Inngest | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` | Nothing on the public site sends Inngest events. `lib/inngest/functions.ts` still holds a latent visitor-facing welcome series that would send through Resend; nothing enqueues it and with the keys unset it can never fire, which keeps the "the site never emails visitors" promise true. |
@@ -130,26 +130,23 @@ team's web leads). Each submission uses one task per step that runs.
 
 ### 3.2 What the payload contains
 
-The site sends one JSON object per submission. The table is the intent: the data `actions/submit-lead.ts`
-collects today. On `main` the action folds the form name, timing, market, address and consent into the
-message text; separate top-level keys such as `form`, `consent`, `consentAt`, `timing`, `market` and
-`address` exist only once the webhook provider landing in this wave is merged. **Verify** every key name
-against the merged provider and the Catch Hook sample from step 3.1.3; the Filter step in 3.3 needs a
-top-level `form` key, so if the sample lacks one the provider must add it before the Zap is built. Expect:
+The site sends one JSON object per submission, built in `lib/lead-pipeline.ts` and sent by
+`lib/crm.ts`; the full sample and the Zapier field map are in `docs/INTEGRATIONS.md` ("Lead delivery").
+The Filter step in 3.3 keys on the top-level `form`. Expect:
 
 | Field | Source | Notes |
 |---|---|---|
 | form | hidden `form` input | One of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`, `calendar`. |
-| firstName, lastName | name fields | A single-word name arrives as `firstName` only; "Jane Doe" typed in one box is split. `letter` and `calendar` have no name. |
-| email | required on every form | |
-| phone | optional | As typed; not normalised. |
-| message | optional | Also the timing, market, address-to-value and property lines, one per line. |
-| timing, market, address | optional | `market` is one of `lakewood-ranch`, `sarasota`, `bradenton`. |
-| property (street, city, state, code, price, mlsNumber, url) | `listing` form only | |
-| consent, consentAt | the unchecked-by-default checkbox | Boolean plus ISO timestamp when checked. |
-| pageUrl, pageTitle, pageReferrer | hidden inputs and the Referer header | |
-| campaign (source, medium, term, content, campaign) | first-touch UTM from `components/utm-tracker.tsx` | Present only when the visitor arrived with `utm_source`. |
-| tags | built by the action | Always `website` and `form:<form>`; `market:<market>` when set; exactly one of `sms-consent` or `no-sms-consent`; `campaign:<utm_campaign>` when set. |
+| firstName, lastName | name fields | "Jane Doe" typed in the first box is split. `letter` and `calendar` have no name (empty strings). |
+| email | required on every form | Lower-cased. |
+| phone | optional | As typed; not normalised. `null` when empty. |
+| message, timing, sellFirst, market, propertyAddress | optional | `market` is one of `lakewood-ranch`, `sarasota`, `bradenton`; `sellFirst` is the buy form's "Is there a house to sell first?" answer; `propertyAddress` the valuation/sell address. |
+| property (slug, title, street, city, state, zip, price, mls, url) | `listing` form only | `null` otherwise. |
+| consent (email, sms, timestamp, wordingVersion) | the two unchecked-by-default boxes | `letter`/`calendar` imply `email: true` with `wordingVersion` `implied:subscribe`; otherwise `wordingVersion` is `CONSENT_WORDING_VERSION` in `lib/leads.ts`. |
+| source (page, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, landingPath, firstTouchReferrer, firstTouchAt) | the page URL, the Referer header and the 90-day first touch from `components/utm-tracker.tsx` | Absent values are `null`, never missing. |
+| submittedAt | the server clock | ISO timestamp. |
+| tags | built by the pipeline | `form:<form>`; `market:<market>` when set; `consent:email` and `consent:sms` when given; `source:<utm_source or direct>`; `site:jjpremiergroup`; `test` on rehearsal leads. |
+| site, test | constants | `jjpremiergroup.com`; `test` is `true` only from `scripts/test-lead.mjs`. |
 
 ### 3.3 Filter by form kind
 
@@ -166,7 +163,8 @@ Add **Filter by Zapier** after the trigger. Two sensible rules; pick one and wri
   only (section 4.5), which is also where the Marketing Center import comes from.
 
 A honeypot submission never reaches the webhook (the action returns a fake success before sending), so
-no bot filter is needed here.
+no bot filter is needed here. Add a Filter on `test` **(Boolean) Is false** before the CRM step if
+rehearsal leads from `scripts/test-lead.mjs` should stay out of the Home Platform.
 
 ### 3.4 Action: Compass → Create a New Lead
 
@@ -228,18 +226,22 @@ the message headers: `dmarc=pass`), and reads correctly on a phone.
 
 ### 3.6 Test with `scripts/test-lead.mjs`
 
-The script is being written in this wave. Its intent: post one fully populated sample lead (every field
-in 3.2 present, `form` selectable, tags included, the email address a test inbox, a `test` marker in the
-message) to a webhook URL so the Catch Hook has a complete sample and the whole Zap can be exercised
-without touching a live form. Run it with the hook URL in the environment; read the header of the script
-for its exact flags:
+The script posts one fully populated sample lead (every field in 3.2, `form` selectable, tags included,
+`test: true`, a test address at `jjpremiergroup.com`, a "TEST LEAD" message). Two modes:
 
 ```bash
-CRM_WEBHOOK_URL="<Zapier Catch Hook URL>" node scripts/test-lead.mjs
+# Straight to the Catch Hook, so the Zap editor has a complete sample and the whole Zap can be
+# exercised without touching a live form:
+CRM_WEBHOOK_URL="<Zapier Catch Hook URL>" node scripts/test-lead.mjs --hook --form buy
+
+# Through the site itself (POST /api/leads → the same pipeline as the forms), which also prints
+# which sinks accepted the lead (Postgres, CRM, team email, Plausible):
+node scripts/test-lead.mjs --port 3000 --form buy                                     # local dev
+LEAD_TEST_SECRET=… node scripts/test-lead.mjs --live https://<preview or prod host> --form buy
 ```
 
 Then: Zap History shows the run with every step green; Home Platform shows the contact with the tags;
-the test inbox has the reply from the agent's mailbox. Repeat once with `form=letter` to confirm the
+the test inbox has the reply from the agent's mailbox. Repeat once with `--form letter` to confirm the
 filter in 3.3 skips the email step. Delete the test contacts from the CRM.
 
 Turn the Zap **on** only when 1.3 and 1.7 are done and the preview's end-to-end check (5.4) has passed.
@@ -376,14 +378,18 @@ live: `contact` (`/contact`), `buy` (`/buy`), `sell` (`/sell`), `valuation` (`/v
 `listing` (a listing page, only visible with `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`, so skip unless a real
 listing exists), `letter` (the Tide box), `calendar` (the Encore box). For each:
 
-1. The page shows the thank-you state (no "We could not send that just now").
+1. The browser lands on `/thanks/<form>` (no "We could not send that just now"); the page shows both
+   direct numbers and, when `NEXT_PUBLIC_BOOKING_URL` is set, the "Book 15 minutes" link.
 2. Zap History has one run, every step green (or the email step skipped by the filter for `letter`/`calendar`).
-3. Home Platform Contacts has the test contact with tags `website`, `form:<form>` and `no-sms-consent`.
-4. Supabase `contacts` has the row, `events` has the `form_submit` row.
+3. Home Platform Contacts has the test contact with tags `form:<form>`, `source:direct` and `site:jjpremiergroup`
+   (plus `market:<market>` when the form carried one).
+4. Supabase `leads` has the row with `delivery_status = delivered` and a `lead_deliveries` row per sink;
+   `contacts` has the row, `events` has the `form_submit` row.
 5. `TEAM_NOTIFY_EMAIL` received "New lead · <form> · Test …" with reply-to set to the test address.
 6. The test inbox received the agent's reply (not for `letter`/`calendar`).
 
-Submit `contact` once more with the consent box **checked**: tag `sms-consent`, `consent_sms_at` set.
+Submit `contact` once more with both consent boxes **checked**: tags `consent:email` and `consent:sms`,
+`leads.consent_at` and `contacts.consent_sms_at` set.
 Submit once with the honeypot filled (in the browser console set `document.querySelector('input[name=website]').value='x'`
 before submitting): the page thanks you, nothing arrives anywhere.
 
@@ -580,10 +586,11 @@ Three layers, fastest first:
    TTL the domain resolves to nothing, as it did before launch. Leave the Vercel domain rows in place
    so re-adding the records brings it straight back.
 
-The Zap can be turned off independently; leads then still land in Supabase and the team inbox. Whether
-`LEAD_ALERT_EMAIL` gets an alert per lead while it is off depends on what a paused Catch Hook answers and
-how the webhook provider landing in this wave treats that answer (**verify** by turning the Zap off and
-submitting one test lead on the preview); until that is known, check Zap History by hand each morning.
+The Zap can be turned off independently; leads then still land in Supabase and the team inbox. The
+provider treats any non-2xx from the Catch Hook as a failure (one retry, then an alert to
+`LEAD_ALERT_EMAIL` per lead and `delivery_status = failed` on the row); whether a paused Zap's hook answers
+2xx or not is Zapier's choice (**verify** by turning the Zap off and submitting one test lead on the
+preview); until that is known, check Zap History by hand each morning.
 
 ## 7. First week
 

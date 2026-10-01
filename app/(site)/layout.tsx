@@ -9,6 +9,13 @@ import { UtmTracker } from "@/components/utm-tracker";
 import { getSiteSettings, getTeam } from "@/lib/content";
 import { organizationJsonLd } from "@/lib/seo";
 
+/**
+ * Gives every page under the site, and the server actions the forms post to,
+ * 30s instead of the default: the lead pipeline waits on Postgres, the CRM
+ * webhook (8s + one retry) and Resend in turn.
+ */
+export const maxDuration = 30;
+
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [settings, team] = await Promise.all([getSiteSettings(), getTeam()]);
   const { isEnabled: isDraft } = await draftMode();
