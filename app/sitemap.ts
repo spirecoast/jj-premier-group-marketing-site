@@ -6,11 +6,14 @@ import {
   getPostSlugs,
   getVenueSlugs,
 } from "@/lib/content";
+import { MARKETS } from "@/lib/content/markets";
 import { getIndexableSlugs } from "@/lib/neighborhoods/data";
 import { absoluteUrl } from "@/lib/seo";
 
 const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [
   { path: "/", priority: 1, changeFrequency: "daily" },
+  // The three market hubs: the first page to read for each place.
+  ...MARKETS.map((m) => ({ path: `/${m.slug}`, priority: 0.9, changeFrequency: "weekly" as const })),
   { path: "/listings", priority: 0.9, changeFrequency: "daily" },
   { path: "/calendar", priority: 0.9, changeFrequency: "daily" },
   { path: "/calendar/plan", priority: 0.6, changeFrequency: "weekly" },

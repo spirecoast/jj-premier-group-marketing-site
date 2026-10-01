@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "check:copy": "node scripts/check-copy.mjs",
     "test:unit": "tsx --test lib/*.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -20,7 +21,7 @@
     "nbhd:check-builders": "node neighborhood-data/scripts/check-builders.mjs",
     "nbhd:discover": "node neighborhood-data/scripts/discover.mjs",
     "predev": "node scripts/copy-maplibre-worker.mjs",
-    "prebuild": "node scripts/copy-maplibre-worker.mjs"
+    "prebuild": "node scripts/copy-maplibre-worker.mjs && node scripts/check-copy.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.2",

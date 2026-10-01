@@ -136,9 +136,10 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     // Routes from the placeholder site, kept alive for any links in the wild.
+    // /lakewood-ranch itself is now the market hub (app/(site)/lakewood-ranch).
     return [
-      { source: "/lakewood-ranch", destination: "/neighborhoods?market=lakewood-ranch", permanent: true },
-      { source: "/lakewood-ranch/:slug", destination: "/neighborhoods/:slug", permanent: true },
+      // Old place paths under the hub, but not the hub's own share image route.
+      { source: "/lakewood-ranch/:slug((?!opengraph-image).*)", destination: "/neighborhoods/:slug", permanent: true },
       { source: "/relocate", destination: "/buy", permanent: true },
       // The editorial slug before the neighborhood dataset arrived.
       { source: "/neighborhoods/lake-club", destination: "/neighborhoods/the-lake-club", permanent: true },
