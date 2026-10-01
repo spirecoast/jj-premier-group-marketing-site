@@ -12,7 +12,7 @@ jj-premier-brand-system.vercel.app).
 | Brand tokens (the single definition) | `app/globals.css` `@theme`, `styles/tokens.css`, `docs/handoff/design/BRAND-TOKENS.md` |
 | Fonts | `app/layout.tsx` (Newsreader, Cormorant Garamond, Jost, IBM Plex Mono via `next/font`) |
 | Site chrome | `components/site-header.tsx`, `site-footer.tsx`, `mobile-action-bar.tsx`, `app/(site)/layout.tsx` |
-| Home page sections | `components/home/*` |
+| Home page sections | `components/home/*`, in page order: 01 `hero`, 02 `meet`, 03 `doors`, 04 `what-we-do`, 05 `three`, 06 `places`, 07 `find-home`, 08 `questions`, 09 `calendar-preview` (Encore), 10 `letter-band` (Tide); composed in `app/(site)/page.tsx` |
 | Component library | `components/*` (cards, bands, forms, headings, wordmark, CB mark, Equal Housing mark) |
 | Content types and data API | `lib/content/` — pages call `getListings()`, `getUpcomingEvents()`, … and never touch a source |
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
@@ -49,7 +49,7 @@ still works on the same theme.
   descriptor" and the visible descriptor is `aria-hidden`, so it is read once. The phone menu
   keeps every item at display size with its descriptor on the baseline. "Buy" goes to `/buy`
   until there are live listings to search. The home page carries the three products as section
-  04 with a live fact from each, and page eyebrows use the long form ("Tide · The Coast real
+  05 with a live fact from each, and page eyebrows use the long form ("Tide · The Coast real
   estate newsletter"). To rename one, change it there; the pages read the value.
 - The phone menu is a fixed panel inside the header, so the header must not carry a
   `backdrop-filter` while the menu is open (a backdrop filter would make the header the panel's

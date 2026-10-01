@@ -14,6 +14,7 @@ import { site } from "@/lib/site";
  */
 export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef; team: TeamMember[] }) {
   const names = team.map((m) => m.name).join(" & ");
+  const meetLabel = team.length ? `Meet ${team.map((m) => m.name).join(" and ")}` : "Meet the team";
 
   return (
     <section className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">
@@ -23,19 +24,22 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
           <Photo image={image} priority sizes="(min-width: 1024px) 1248px, 100vw" className="hero-img" />
           <div className="hero-shade" aria-hidden="true" />
 
-          {/* Cameo */}
-          <div className="rise d2 absolute left-6 top-header flex items-center gap-4 pt-4 sm:pt-6 lg:left-14 lg:pt-7">
-            <div className="cameo-orbit relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20 lg:h-[88px] lg:w-[88px]" aria-hidden="true">
-              <div className="relative h-[52px] w-[52px] overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] sm:h-16 sm:w-16 lg:h-[72px] lg:w-[72px]">
-                <Photo image={cameo} sizes="72px" />
+          {/* Cameo: the photograph and the names are one link to the team page. The
+              focus ring is the site's own, Sky 300 on this photographic ground. */}
+          <div className="rise d2 absolute left-6 top-header pt-4 sm:pt-6 lg:left-14 lg:pt-7">
+            <Link href="/about" aria-label={meetLabel} className="flex items-center gap-4">
+              <div className="cameo-orbit relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20 lg:h-[88px] lg:w-[88px]" aria-hidden="true">
+                <div className="relative h-[52px] w-[52px] overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] sm:h-16 sm:w-16 lg:h-[72px] lg:w-[72px]">
+                  <Photo image={cameo} sizes="72px" />
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <p className="text-[14px] font-medium text-white text-shadow-photo">{names}</p>
-              <p className="font-mono text-[10px] tracking-[0.12em] text-mist">
-                REALTORS® · {site.brokerage.toUpperCase().replace(" REALTY", "")}
-              </p>
-            </div>
+              <div className="flex flex-col gap-0.5">
+                <p className="text-[14px] font-medium text-white text-shadow-photo">{names}</p>
+                <p className="font-mono text-[10px] tracking-[0.12em] text-mist">
+                  REALTORS® · {site.brokerage.toUpperCase().replace(" REALTY", "")}
+                </p>
+              </div>
+            </Link>
           </div>
 
           {/* Scroll cue: desktop furniture */}

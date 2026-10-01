@@ -5,13 +5,13 @@ import type { ImageRef } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
 /**
- * 06 · Meet Joelyn and Jessica. The portrait, the paragraph the team wrote
+ * 02 · Meet Joelyn and Jessica, directly under the hero. The portrait, the paragraph the team wrote
  * about what they do, and two buttons. No figures and no proof slot: what
- * the team does for a client is section 03.
+ * the team does for a client is section 04.
  */
 export function Meet({ duo }: { duo: ImageRef }) {
   return (
-    <section className="bg-parchment" aria-labelledby="meet-title">
+    <section className="bg-paper" aria-labelledby="meet-title">
       <div className="container-site grid items-center gap-12 py-section md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:grid-cols-[1fr_1.25fr] lg:gap-20">
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-linen-100 md:max-h-[560px] lg:max-h-[600px]">
           <Photo image={duo} sizes="(min-width: 1024px) 460px, 100vw" />
@@ -19,7 +19,7 @@ export function Meet({ duo }: { duo: ImageRef }) {
 
         <div className="flex flex-col gap-8">
           <SectionHeading
-            number="06"
+            number="02"
             eyebrow="Meet Joelyn & Jessica"
             size="display"
             title={<span id="meet-title">Two agents. One team. Fully focused on you.</span>}

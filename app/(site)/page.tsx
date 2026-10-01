@@ -49,19 +49,19 @@ export default async function HomePage() {
   const facts = threeFacts({ posts, records, entries });
 
   /* The order, numbered the way the eyebrows read:
-     01 hero · 02 Buy or sell · 03 What we do for you · 04 the three products ·
-     05 Three places · 06 Meet Joelyn & Jessica · 07 Find your home ·
+     01 hero · 02 Meet Joelyn & Jessica · 03 Buy or sell · 04 What we do for you ·
+     05 the three products · 06 Three places · 07 Find your home ·
      08 The questions people ask first · 09 Encore, with the Monday sign-up ·
-     10 Tide. Two grounds only, paper and parchment; the parchment carries the
-     heavy sections (03, 06, 09). */
+     10 Tide. Two grounds only, paper and parchment, alternating from 02 on
+     paper: parchment carries 03, 05, 07 and 09. */
   return (
     <>
       <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
+      <Meet duo={FRAMES.duo} />
       <Doors />
       <WhatWeDo />
       <Three facts={facts} />
       <Places />
-      <Meet duo={FRAMES.duo} />
       <FindHome image={FRAMES.kitchen} />
       <Questions />
       <CalendarPreview events={events} />

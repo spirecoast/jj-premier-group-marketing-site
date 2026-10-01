@@ -2,7 +2,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { products } from "@/lib/site";
 
 /**
- * 03 · What we do for you. Process and promises only: what a buyer gets,
+ * 04 · What we do for you. Process and promises only: what a buyer gets,
  * what a seller gets, and the three things both get. Nothing here is a
  * record; the team is new, and the page says what happens instead. Two
  * columns on desktop with a short third band, stacked on phones.
@@ -123,10 +123,10 @@ function Column({ id, eyebrow, title, items }: { id: string; eyebrow: string; ti
 
 export function WhatWeDo() {
   return (
-    <section className="bg-parchment" aria-labelledby="what-title">
+    <section className="bg-paper" aria-labelledby="what-title">
       <div className="container-site flex flex-col gap-14 py-section">
         <SectionHeading
-          number="03"
+          number="04"
           eyebrow="What we do for you"
           size="display"
           title={<span id="what-title">Here’s what we’d do, for a buyer and for a seller.</span>}

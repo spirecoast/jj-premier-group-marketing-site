@@ -30,7 +30,7 @@ function Constellation({ points }: { points: [number, number][] }) {
 }
 
 /**
- * 04 · The three. Atlas, Encore and Tide as one family: the name set large,
+ * 05 · The three. Atlas, Encore and Tide as one family: the name set large,
  * what it is in a line, and a live fact from each so the panel is never
  * decorative. Nothing here is typed by hand; every number comes from the
  * data behind the product.
@@ -38,10 +38,10 @@ function Constellation({ points }: { points: [number, number][] }) {
 export function Three({ facts }: { facts: ThreeFacts }) {
   const [atlas, encore, tide] = products;
   return (
-    <section aria-labelledby="three-title">
+    <section className="bg-parchment" aria-labelledby="three-title">
       <div className="container-site flex flex-col gap-12 py-section">
         <SectionHeading
-          number="04"
+          number="05"
           eyebrow="Three things we built for you"
           size="display"
           title={<span id="three-title">Atlas, Encore and Tide. The map, the nights out, and the market, kept current.</span>}
