@@ -95,6 +95,12 @@ export function ExplorerPanel(p: Props) {
             <h1 className="font-display text-[clamp(1.375rem,2.2vw,1.75rem)] font-light leading-[1.1] text-navy">
               Every place in Lakewood Ranch, Sarasota and Bradenton.
             </h1>
+            <p className="t-small text-body">
+              Not sure where to start?{" "}
+              <Link href="/neighborhoods/match" className="text-harbor-700 underline underline-offset-4 hover:text-navy">
+                Answer ten questions
+              </Link>
+            </p>
           </div>
           <ShareButton title="Atlas · JJ Premier Group" what="explorer-view" className="mt-1 shrink-0" />
         </div>

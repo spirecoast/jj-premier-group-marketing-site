@@ -160,20 +160,30 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
             {primaryNav.map((item) => {
               const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
-                <Link
-                  key={item.href}
-                  href={item.href as Route}
-                  aria-current={active ? "page" : undefined}
-                  className="flex items-baseline gap-4 border-b border-linen-200/15 py-4 text-linen-200 transition-colors hover:text-white"
-                >
-                  <span className="t-display">{item.label}</span>
-                  {item.sub ? (
-                    <>
-                      <span className="sr-only">, </span>
-                      <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-linen-200/60">{item.sub}</span>
-                    </>
+                <div key={item.href} className="flex flex-col border-b border-linen-200/15">
+                  <Link
+                    href={item.href as Route}
+                    aria-current={active ? "page" : undefined}
+                    className="flex items-baseline gap-4 py-4 text-linen-200 transition-colors hover:text-white"
+                  >
+                    <span className="t-display">{item.label}</span>
+                    {item.sub ? (
+                      <>
+                        <span className="sr-only">, </span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-linen-200/60">{item.sub}</span>
+                      </>
+                    ) : null}
+                  </Link>
+                  {item.secondary ? (
+                    // The one quieter line under an item: the planner under Buy.
+                    <Link
+                      href={item.secondary.href as Route}
+                      className="t-small -mt-1 self-start pb-4 text-linen-200/80 transition-colors hover:text-white"
+                    >
+                      {item.secondary.label}
+                    </Link>
                   ) : null}
-                </Link>
+                </div>
               );
             })}
           </nav>

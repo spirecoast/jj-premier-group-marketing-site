@@ -213,6 +213,20 @@ export default async function BuyPage() {
         </div>
       </section>
 
+      {/* Two ways in before the steps: the planner for people arriving from somewhere else, the ten questions for anyone not sure where to look yet. */}
+      <section className="container-site pb-section" aria-label="Before the steps">
+        <ul className="grid gap-6 border-y border-hairline py-7 md:grid-cols-2 md:gap-12">
+          <li className="flex flex-col gap-3">
+            <p className="t-body max-w-[44ch] text-body">Moving here from somewhere else? The planner takes your timing and puts the move in order.</p>
+            <RuleLink href="/relocate">Plan the move</RuleLink>
+          </li>
+          <li className="flex flex-col gap-3">
+            <p className="t-body max-w-[44ch] text-body">Not sure which neighborhood yet? Ten questions, and Atlas narrows the map to the places that fit.</p>
+            <RuleLink href="/neighborhoods/match">Answer ten questions</RuleLink>
+          </li>
+        </ul>
+      </section>
+
       {/* Four steps, and the day each one happens. */}
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="buy-steps-title">
         <SectionHeading

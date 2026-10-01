@@ -110,6 +110,9 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
             <h1 className="t-display max-w-[860px] text-navy">What&rsquo;s on stage, in the hall and on the walls, close to home.</h1>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link href="/calendar/plan" className="link-rule">
+              Plan a visit
+            </Link>
             <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" />
             <a
               href={`/api/calendar.ics${feedQuery(filter)}`}

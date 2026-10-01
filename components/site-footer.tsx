@@ -48,12 +48,13 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
         <div className="absolute inset-0 bg-linear-to-b from-harbor-950/25 via-transparent via-45% to-linen-200" />
       </div>
       <div className="container-site flex flex-col gap-16 pt-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1fr]">
           <div className="flex flex-col items-start gap-6">
             <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
             <p className="t-quote text-navy">{site.tagline}</p>
           </div>
           <Column title="Places" links={footerNav.places} />
+          <Column title="Tools" links={footerNav.tools} />
           <Column title="The team" links={footerNav.team} />
           <div className="flex flex-col gap-3.5">
             <p className="t-eyebrow text-linen-700">Direct</p>

@@ -5,7 +5,8 @@ import { MARKETS } from "@/lib/content/markets";
 
 /**
  * 05 · Three places. One tall photograph per place, the name set large, and
- * the paragraph that says what living there’s like. Figures arrive with the
+ * the paragraph that says what living there’s like. Each card opens the
+ * place's own page; the map is one link further in. Figures arrive with the
  * data feed; until then the photograph and the words carry it.
  */
 export function Places() {
@@ -22,7 +23,7 @@ export function Places() {
         {MARKETS.map((m, i) => (
           <li key={m.slug} className="flex">
             <Link
-              href={`/neighborhoods?market=${m.slug}`}
+              href={`/${m.slug}`}
               className={`place-card group relative flex w-full min-h-[380px] flex-col justify-end overflow-hidden bg-navy text-white sm:min-h-[440px] ${i === 1 ? "lg:min-h-[580px]" : "lg:min-h-[520px]"}`}
             >
               <div className="absolute inset-0">
@@ -38,13 +39,16 @@ export function Places() {
                   {m.blurb}
                 </p>
                 <span className="t-label mt-2 inline-flex items-center gap-2 text-mist">
-                  Explore the neighborhoods <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  Read about {m.name} <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </span>
               </div>
             </Link>
           </li>
         ))}
       </ul>
+      <Link href="/neighborhoods" className="link-rule self-start">
+        See all three on the map
+      </Link>
     </section>
   );
 }

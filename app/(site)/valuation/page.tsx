@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { RuleLink } from "@/components/buttons";
 import { LeadForm } from "@/components/lead-form";
 import { Photo } from "@/components/photo";
@@ -61,6 +62,13 @@ export default async function ValuationPage() {
           </p>
           <p className="t-mono-sm max-w-[420px] text-graphite-500">
             A comp-based answer from Joelyn or Jessica within a day · no algorithm guess
+          </p>
+          <p className="t-small max-w-[420px] text-graphite-500">
+            Rather look before you ask? The county record is open:{" "}
+            <Link href="/sell/sold" className="text-navy underline underline-offset-4 hover:text-harbor-700">
+              what sold on your street
+            </Link>
+            .
           </p>
         </div>
         <div className="flex flex-col gap-4">

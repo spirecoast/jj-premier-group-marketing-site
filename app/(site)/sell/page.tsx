@@ -258,6 +258,18 @@ export default async function SellPage() {
           <p className="t-mono-sm max-w-[400px] text-graphite-500">
             A comp-based answer from Joelyn or Jessica soon after · no algorithm guess
           </p>
+          {/* The public record, before the call: what the street sold for, and what you'd keep. */}
+          <div className="flex flex-col gap-3 border-t border-hairline pt-5">
+            <p className="t-eyebrow text-amber">The public record, first</p>
+            <ul className="flex flex-wrap gap-x-8 gap-y-3">
+              <li>
+                <RuleLink href="/sell/sold">What sold on your street</RuleLink>
+              </li>
+              <li>
+                <RuleLink href="/sell/net-proceeds">What you’d keep at closing</RuleLink>
+              </li>
+            </ul>
+          </div>
           <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
             <Photo image={FRAMES.contract} sizes="(min-width: 1024px) 420px, 100vw" />
           </div>

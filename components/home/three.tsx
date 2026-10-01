@@ -49,7 +49,7 @@ export function Three({ facts }: { facts: ThreeFacts }) {
         />
         <ul className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
           <li className="flex min-w-0">
-            <Panel product={atlas} cta="Open Atlas">
+            <Panel product={atlas} cta="Open Atlas" also={{ href: "/neighborhoods/match", label: "Answer ten questions" }}>
               <Constellation points={facts.atlas.points} />
               <p className="t-record text-graphite-600">
                 {facts.atlas.places.toLocaleString()} places · {facts.atlas.areas} areas · one map
@@ -57,7 +57,7 @@ export function Three({ facts }: { facts: ThreeFacts }) {
             </Panel>
           </li>
           <li className="flex min-w-0">
-            <Panel product={encore} cta="Open Encore">
+            <Panel product={encore} cta="Open Encore" also={{ href: "/calendar/plan", label: "Plan a visit" }}>
               <div className="flex gap-8">
                 <div className="flex flex-col gap-1">
                   <span className="font-display text-[3rem] font-light leading-none text-navy">{facts.encore.tonight}</span>
@@ -105,20 +105,48 @@ export function Three({ facts }: { facts: ThreeFacts }) {
   );
 }
 
-function Panel({ product, cta, children }: { product: (typeof products)[number]; cta: string; children: React.ReactNode }) {
+/**
+ * One product panel. The name and the main action both open the product; the
+ * optional second link is the way in for someone who'd rather be asked than
+ * handed a map (Atlas) or a calendar (Encore). Two links in one card means the
+ * card itself is no longer an anchor.
+ */
+function Panel({
+  product,
+  cta,
+  also,
+  children,
+}: {
+  product: (typeof products)[number];
+  cta: string;
+  also?: { href: Route; label: string };
+  children: React.ReactNode;
+}) {
   return (
-    <Link
-      href={product.href as Route}
-      className="card group flex w-full min-w-0 flex-col gap-5 border border-hairline bg-white p-7 transition-colors hover:border-deep-harbor"
+    <div
+      className="card flex w-full min-w-0 flex-col gap-5 border border-hairline bg-white p-7"
       style={{ borderTopWidth: 3, borderTopColor: product.accent }}
     >
       <div className="flex flex-col gap-2">
         <p className="t-mono-sm text-graphite-500">{product.tag}</p>
-        <h3 className="font-display text-[clamp(2.5rem,4vw,3.5rem)] font-light leading-none text-navy">{product.name}</h3>
+        <h3 className="font-display text-[clamp(2.5rem,4vw,3.5rem)] font-light leading-none text-navy">
+          <Link href={product.href as Route} className="transition-colors hover:text-harbor-700">
+            {product.name}
+          </Link>
+        </h3>
         <p className="t-body max-w-[36ch] text-body">{product.line}</p>
       </div>
       <div className="flex flex-col gap-4">{children}</div>
-      <span className="link-rule mt-auto self-start">{cta}</span>
-    </Link>
+      <div className="mt-auto flex flex-wrap items-baseline gap-x-6 gap-y-3">
+        <Link href={product.href as Route} className="link-rule">
+          {cta}
+        </Link>
+        {also ? (
+          <Link href={also.href} className="link-rule">
+            {also.label}
+          </Link>
+        ) : null}
+      </div>
+    </div>
   );
 }

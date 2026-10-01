@@ -101,6 +101,8 @@ export type NavItem = {
   sub?: string;
   /** A named product (Atlas, Encore, Tide): the desktop nav sets it in the display serif with its descriptor on the baseline. */
   product?: boolean;
+  /** One quieter line under the item in the phone menu only; the desktop line stays six items wide. */
+  secondary?: { href: string; label: string };
 };
 
 /**
@@ -109,7 +111,7 @@ export type NavItem = {
  * there are live listings to search.
  */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/buy", label: "Buy", sub: "Homes for sale" },
+  { href: "/buy", label: "Buy", sub: "Homes for sale", secondary: { href: "/relocate", label: "Moving here from somewhere else?" } },
   { href: "/sell", label: "Sell", sub: "Your home" },
   { href: "/about", label: "Joelyn & Jessica", sub: "Meet the team" },
   { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods", product: true },
@@ -119,11 +121,20 @@ export const primaryNav: readonly NavItem[] = [
 
 /** Secondary links used in the footer columns. */
 export const footerNav = {
+  // Each place goes to its own page; the map is one link in from there.
   places: [
-    { href: "/neighborhoods?market=lakewood-ranch", label: "Lakewood Ranch" },
-    { href: "/neighborhoods?market=sarasota", label: "Sarasota" },
-    { href: "/neighborhoods?market=bradenton", label: "Bradenton" },
+    { href: "/lakewood-ranch", label: "Lakewood Ranch" },
+    { href: "/sarasota", label: "Sarasota" },
+    { href: "/bradenton", label: "Bradenton" },
     { href: "/buy", label: "Buy" },
+  ],
+  // The tools, in the order a move happens.
+  tools: [
+    { href: "/relocate", label: "Relocation planner" },
+    { href: "/sell/sold", label: "What sold on your street" },
+    { href: "/sell/net-proceeds", label: "Net proceeds" },
+    { href: "/neighborhoods/match", label: "Atlas match" },
+    { href: "/calendar/plan", label: "Plan a visit" },
   ],
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
