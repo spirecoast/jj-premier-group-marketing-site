@@ -244,11 +244,14 @@ the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTE
   visit's channel is kept for the session and every form sends it as `source`, so the lead is tagged
   `source:<channel>`; a first visit with no `utm_*` also gets `utm_source=<channel>`,
   `utm_medium=social` in the first-touch record (`docs/MEASUREMENT.md` §4).
-- **`/refer`**: "Know someone moving here?" The `referral` form asks for the referrer's name, email
-  and (optional) phone, the first name of the person moving and a note; nothing else about that
-  person. The copy says we write back to the referrer first and only reach out once they've told
-  the person. No gifts or rewards are mentioned (anything like that is cleared with the brokerage
-  first). Tags `form:referral`; a `General Inquiry` like `contact`.
+- **`/refer`**: "Know someone moving here?" The `referral` form is two labelled groups: "About you"
+  (the referrer's first name, last name, email and phone) and "About them" (the person moving: first
+  name, last name, email and/or phone, what they're planning, a note), plus a required box: "They know
+  I'm passing their details along and expect to hear from Joelyn and Jessica." The referred person
+  travels under `referral` in the payload with a CRM note naming the referrer (`lib/crm.ts`,
+  `docs/INTEGRATIONS.md`). The copy says we write back to the referrer first and reach out to the
+  person at their pace. No gifts or rewards are mentioned (anything like that is cleared with the
+  brokerage first). Tags `form:referral`; a `General Inquiry` like `contact`.
 - **`/reviews`**: the Google review link from `NEXT_PUBLIC_GOOGLE_REVIEW_URL` (an `https` URL; when
   it's empty the page says the link is coming soon), and the `review-permission` form: name, email,
   the words, and a required box ("You can use these words on the site with my first name and the

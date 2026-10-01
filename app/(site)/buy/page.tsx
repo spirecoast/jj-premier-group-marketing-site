@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ButtonLink, RuleLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
@@ -23,6 +24,16 @@ export const metadata: Metadata = pageMetadata({
 const FRAMES = {
   hero: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
   keys: img("library/moment-key-handoff", "Keys handed across a table at a closing", "50% 40%"),
+  /* The two doors before the steps: the drive in over the bay, and a street of homes on the water. Decorative; the link is named by its words. */
+  doors: {
+    relocate: img("library/place-skyway-bridge", "", "50% 55%"),
+    match: img("library/lwr-lakefront-row", "", "50% 55%"),
+  },
+  /* Let into the steps: the house seen at four in the afternoon, and the contract on the island. */
+  tiles: {
+    2: img("library/listing-kitchen-4pm-island", "", "50% 50%"),
+    3: img("library/moment-contract", "", "50% 55%"),
+  },
 };
 
 /** Four steps, and the day each one happens. Linen-led: every term defined. */
@@ -215,15 +226,29 @@ export default async function BuyPage() {
 
       {/* Two ways in before the steps: the planner for people arriving from somewhere else, the ten questions for anyone not sure where to look yet. */}
       <section className="container-site pb-section" aria-label="Before the steps">
-        <ul className="grid gap-6 border-y border-hairline py-7 md:grid-cols-2 md:gap-12">
-          <li className="flex flex-col gap-3">
-            <p className="t-body max-w-[44ch] text-body">Moving here from somewhere else? The planner takes your timing and puts the move in order.</p>
-            <RuleLink href="/relocate">Plan the move</RuleLink>
-          </li>
-          <li className="flex flex-col gap-3">
-            <p className="t-body max-w-[44ch] text-body">Not sure which neighborhood yet? Ten questions, and Atlas narrows the map to the places that fit.</p>
-            <RuleLink href="/neighborhoods/match">Answer ten questions</RuleLink>
-          </li>
+        <ul className="grid gap-5 md:grid-cols-2">
+          {(
+            [
+              { href: "/relocate", image: FRAMES.doors.relocate, body: "Moving here from somewhere else? The planner takes your timing and puts the move in order.", cta: "Plan the move" },
+              { href: "/neighborhoods/match", image: FRAMES.doors.match, body: "Not sure which neighborhood yet? Ten questions, and Atlas narrows the map to the places that fit.", cta: "Answer ten questions" },
+            ] as const
+          ).map((d) => (
+            <li key={d.href} className="flex">
+              {/* A door: the photograph on the left leaf, the line and the way in on the right. The whole card is the link. */}
+              <Link href={d.href} className="door card group grid w-full border border-hairline bg-white transition-colors hover:border-navy focus-visible:border-navy sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+                <div className="relative aspect-[16/10] overflow-hidden bg-navy sm:aspect-auto sm:min-h-[200px]">
+                  <Photo image={d.image} sizes="(min-width: 1024px) 280px, (min-width: 640px) 40vw, 100vw" className="card-img" />
+                </div>
+                <div className="flex flex-col gap-5 p-6 sm:p-7">
+                  <p className="t-body max-w-[44ch] text-body">{d.body}</p>
+                  <span className="card-line mt-auto w-full" aria-hidden="true" />
+                  <span className="t-label inline-flex items-center gap-2 text-harbor-700">
+                    {d.cta} <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  </span>
+                </div>
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
 
@@ -233,7 +258,7 @@ export default async function BuyPage() {
           eyebrow="How it goes"
           title={<span id="buy-steps-title">There are four steps, from the first call to the keys.</span>}
         />
-        <Steps items={STEPS} />
+        <Steps items={STEPS} tiles={FRAMES.tiles} />
       </section>
 
       {/* Three we’d go and see this week. */}

@@ -22,7 +22,18 @@ const VIEW_LABEL: Record<EncoreView, string> = { days: "Days", week: "Week", mon
  * the body all reflect. The first paint uses the slice the server sent; the
  * full index arrives once and every move after that is instant.
  */
-export function Encore({ initial, today, initialIndex }: { initial: EncoreState; today: string; initialIndex: EncoreIndex }) {
+export function Encore({
+  initial,
+  today,
+  initialIndex,
+  masthead = false,
+}: {
+  initial: EncoreState;
+  today: string;
+  initialIndex: EncoreIndex;
+  /** The page opens with a masthead carrying the eyebrow and heading (components/masthead.tsx), so this leaves them out and keeps the links. */
+  masthead?: boolean;
+}) {
   const [index, setIndex] = useState<EncoreIndex>(initialIndex);
   const [full, setFull] = useState(false);
   const [view, setView] = useState<EncoreView>(initial.view);
@@ -103,12 +114,14 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
 
   return (
     <div className="encore">
-      <div className="container-site flex flex-col gap-8 pt-10 md:pt-14">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-amber">Encore Arts Calendar</p>
-            <h1 className="t-display max-w-[860px] text-navy">What&rsquo;s on stage, in the hall and on the walls, close to home.</h1>
-          </div>
+      <div className={cn("container-site flex flex-col gap-8", masthead ? "pt-8 md:pt-10" : "pt-10 md:pt-14")}>
+        <div className={cn("flex flex-wrap items-end gap-6", masthead ? "justify-end" : "justify-between")}>
+          {masthead ? null : (
+            <div className="flex flex-col gap-3">
+              <p className="t-eyebrow text-amber">Encore Arts Calendar</p>
+              <h1 className="t-display max-w-[860px] text-navy">What&rsquo;s on stage, in the hall and on the walls, close to home.</h1>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <Link href="/calendar/plan" className="link-rule">
               Plan a visit

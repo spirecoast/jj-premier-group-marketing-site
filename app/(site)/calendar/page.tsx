@@ -2,6 +2,7 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { Encore } from "@/components/encore/encore";
 import { LetterForm } from "@/components/letter-form";
+import { Masthead } from "@/components/masthead";
 import { TrackedLink } from "@/components/tracked-link";
 import { getVenues } from "@/lib/content";
 import { MARKETS, marketName } from "@/lib/content/markets";
@@ -52,7 +53,15 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <Encore initial={initial} today={today} initialIndex={slice} />
+      {/* The masthead carries the eyebrow and the heading; the calendar keeps its links and toolbar. */}
+      <Masthead
+        route="/calendar"
+        eyebrow="Encore Arts Calendar"
+        title={<span id="encore-title">What&rsquo;s on stage, in the hall and on the walls, close to home.</span>}
+        titleId="encore-title"
+        titleClassName="max-w-[860px]"
+      />
+      <Encore initial={initial} today={today} initialIndex={slice} masthead />
 
       <section id="subscribe" className="scroll-mt-header bg-linen-200">
         <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">

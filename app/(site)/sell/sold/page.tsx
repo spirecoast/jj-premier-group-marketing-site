@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { RuleLink } from "@/components/buttons";
 import { JsonLd } from "@/components/json-ld";
+import { Masthead } from "@/components/masthead";
 import { SOLD_COPY as C } from "@/components/sales/copy";
 import { SoldSearch } from "@/components/sales/sold-search";
 import { getSalesManifest } from "@/lib/sales";
@@ -35,11 +36,8 @@ export default async function SoldPage() {
           { name: "What sold on your street", path: "/sell/sold" },
         ])}
       />
-      <section className="container-site flex flex-col gap-7 py-section">
-        <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">{C.eyebrow}</p>
-          <h1 className="t-display max-w-[720px] text-navy">{C.title}</h1>
-        </div>
+      <Masthead route="/sell/sold" eyebrow={C.eyebrow} title={C.title} titleId="sold-title" titleClassName="max-w-[720px]" />
+      <section className="container-site flex flex-col gap-7 py-section" aria-label="What the record shows">
         <p className="t-lead max-w-[560px] text-body">{C.lead}</p>
         <p className="t-body max-w-measure text-body">{C.body(months)}</p>
         <RuleLink href="/sell/home-value">Have an address? Start with the public record for the house itself</RuleLink>

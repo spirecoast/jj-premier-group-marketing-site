@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { channelFromPath } from "../components/utm-tracker";
 import { CHANNELS } from "./channels/copy";
-import { LEAD_CHANNELS, LEAD_FORMS, LEAD_GOAL, leadSchema } from "./leads";
+import { checkFairHousing } from "./fair-housing";
+import { LEAD_CHANNELS, LEAD_FORMS, LEAD_GOAL, REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, leadSchema } from "./leads";
+import { REFER, referStrings } from "./refer/copy";
 import { allSocialLinks, socialLinks, socialNetwork } from "./site";
 
 const base = { email: "pat@example.com" };
@@ -15,13 +17,54 @@ describe("lead forms: referral and review-permission", () => {
     assert.equal(LEAD_GOAL["review-permission"], "Review permission");
   });
 
-  it("a referral needs the referrer's name and the person's first name", () => {
+  it("a referral needs the referrer's name, the person's first name, a way to reach them and the ticked box", () => {
     const missing = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat" });
     assert.equal(missing.success, false);
-    assert.ok(!missing.success && missing.error.flatten().fieldErrors.referredName);
-    const ok = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", message: "Moving in spring" });
+    const errors = !missing.success ? missing.error.flatten().fieldErrors : {};
+    assert.ok(errors.referredName);
+    assert.ok(errors.referredEmail);
+    assert.ok(errors.referralConsent);
+
+    const noReach = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referralConsent: "on" });
+    assert.ok(!noReach.success && noReach.error.flatten().fieldErrors.referredEmail);
+
+    const badEmail = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredEmail: "not-an-email", referralConsent: "on" });
+    assert.ok(!badEmail.success && badEmail.error.flatten().fieldErrors.referredEmail);
+
+    const phoneOnly = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredPhone: "(941) 555-0100", referralConsent: "on" });
+    assert.ok(phoneOnly.success);
+
+    const ok = leadSchema.safeParse({
+      ...base,
+      form: "referral",
+      firstName: "Pat",
+      lastName: "Example",
+      referredName: "Sam",
+      referredLastName: "Referred",
+      referredEmail: "Sam@Example.com",
+      referredPlan: "Moving here",
+      referralConsent: "on",
+      message: "Moving in spring",
+    });
     assert.ok(ok.success);
     assert.equal(ok.success && ok.data.referredName, "Sam");
+    assert.equal(ok.success && ok.data.referredPlan, "Moving here");
+    assert.equal(ok.success && ok.data.referralConsent, true);
+
+    const junkPlan = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredPhone: "1", referredPlan: "Renting", referralConsent: "on" });
+    assert.ok(junkPlan.success);
+    assert.equal(junkPlan.success && junkPlan.data.referredPlan, undefined);
+  });
+
+  it("the referral form's labels, the box and the plans pass the Fair Housing check", () => {
+    for (const { where, text } of referStrings()) {
+      const result = checkFairHousing(text);
+      assert.ok(result.passed, `${where}: ${JSON.stringify(result)}`);
+    }
+    for (const text of [REFERRAL_CONSENT_WORDING, ...REFERRAL_PLANS, ...Object.values(REFER.form)]) {
+      assert.ok(checkFairHousing(text).passed, text);
+    }
+    assert.deepEqual([...REFERRAL_PLANS], ["Buying", "Selling", "Moving here"]);
   });
 
   it("a review permission needs the words and the ticked box", () => {

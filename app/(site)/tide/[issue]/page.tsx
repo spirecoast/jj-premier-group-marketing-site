@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
+import { Masthead } from "@/components/masthead";
 import { IssueChart } from "@/components/tide/issue-chart";
 import { formatDateLong } from "@/lib/content/format";
 import { fill } from "@/lib/issues/copy";
@@ -129,17 +130,22 @@ export default async function TideIssuePage({ params }: { params: Params }) {
       />
 
       <article className="flex flex-col">
-        {/* (a) Masthead */}
+        {/* (a) Masthead: the Tide photograph with the breadcrumb on it, then the title block as it was. */}
+        <Masthead
+          route="/tide/[issue]"
+          crumbs={
+            <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-linen-200 text-shadow-soft">
+              <Link href="/tide" className="-my-2 inline-block py-2 transition-colors hover:text-white">
+                Tide
+              </Link>
+              <span aria-hidden="true">/</span>
+              <span className="text-white" aria-current="page">
+                {model.issueLabel}
+              </span>
+            </nav>
+          }
+        />
         <header className="container-site flex flex-col gap-8 pt-10 pb-12 md:pt-14 md:pb-16">
-          <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
-            <Link href="/tide" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
-              Tide
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="text-navy" aria-current="page">
-              {model.issueLabel}
-            </span>
-          </nav>
           <div className="flex flex-col gap-5 border-t-2 border-deep-harbor pt-8">
             <p className="t-eyebrow text-amber">{model.eyebrow}</p>
             <h1 className="flex flex-col gap-2 text-navy">

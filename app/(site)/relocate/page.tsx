@@ -3,6 +3,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
+import { Masthead } from "@/components/masthead";
 import { Photo } from "@/components/photo";
 import { Ask } from "@/components/relocate/ask";
 import { PlanView } from "@/components/relocate/plan-view";
@@ -105,15 +106,10 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
         ]}
       />
 
-      {/* 01 · Hero. The planner is right underneath; nothing is gated. */}
-      <section className="container-site grid gap-8 py-section print:hidden lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-20">
-        <div className="flex flex-col gap-7">
-          <div className="flex flex-col gap-3.5">
-            <p className="t-eyebrow text-amber">{HERO.eyebrow}</p>
-            <h1 className="t-display max-w-[640px] text-navy">{HERO.title}</h1>
-          </div>
-          <p className="t-lead max-w-[600px] text-body">{HERO.lead}</p>
-        </div>
+      {/* 01 · Hero: the masthead carries the eyebrow and the heading. The planner is right underneath; nothing is gated. */}
+      <Masthead route="/relocate" eyebrow={HERO.eyebrow} title={HERO.title} titleId="relocate-title" titleClassName="max-w-[760px]" className="print:hidden" />
+      <section className="container-site grid gap-8 py-section print:hidden lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-20" aria-label="What the planner does">
+        <p className="t-lead max-w-[600px] text-body">{HERO.lead}</p>
         <p className="t-body max-w-measure text-body lg:pb-2">{HERO.body}</p>
       </section>
 

@@ -9,6 +9,8 @@ import { readChannel, readUtm } from "@/components/utm-tracker";
 import {
   CONSENT_EMAIL_WORDING,
   CONSENT_WORDING,
+  REFERRAL_CONSENT_WORDING,
+  REFERRAL_PLANS,
   REVIEW_CONSENT_WORDING,
   SELL_FIRST_OPTIONS,
   initialLeadState,
@@ -19,7 +21,24 @@ import { REFER } from "@/lib/refer/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { cn } from "@/lib/utils";
 
-export type LeadField = "name" | "email" | "phone" | "timing" | "sellFirst" | "address" | "referredName" | "message" | "reviewConsent";
+export type LeadField =
+  | "name"
+  | "email"
+  | "phone"
+  | "timing"
+  | "sellFirst"
+  | "address"
+  | "referredName"
+  | "referredLastName"
+  | "referredEmail"
+  | "referredPhone"
+  | "referredPlan"
+  | "referralConsent"
+  | "message"
+  | "reviewConsent";
+
+/** The fields that describe the person being referred; any of them puts the form into its two groups. */
+const REFERRED_FIELDS: readonly LeadField[] = ["referredName", "referredLastName", "referredEmail", "referredPhone", "referredPlan", "referralConsent"];
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
@@ -40,10 +59,18 @@ const LABELS: Record<LeadField, string> = {
   timing: "When are you moving?",
   sellFirst: "Is there a house to sell first?",
   address: "Street address",
-  referredName: "Their first name",
+  referredName: REFER.form.referredName,
+  referredLastName: REFER.form.referredLastName,
+  referredEmail: REFER.form.referredEmail,
+  referredPhone: REFER.form.referredPhone,
+  referredPlan: REFER.form.referredPlan,
+  referralConsent: REFERRAL_CONSENT_WORDING,
   message: "Message",
   reviewConsent: REVIEW_CONSENT_WORDING,
 };
+
+/** Legends for the two groups on the referral form. */
+const GROUPS = { you: REFER.form.aboutYou, them: REFER.form.aboutThem } as const;
 
 type Props = {
   form: LeadFormKind;
@@ -60,13 +87,28 @@ type Props = {
   defaultMessage?: string;
   /** Pre-filled street address, e.g. the street carried over from the sold search. */
   defaultAddress?: string;
-  /** Label overrides, e.g. "Your first name" on the referral form. `name` relabels the first-name box. */
-  labels?: Partial<Record<LeadField, string>>;
+  /** Label overrides, e.g. "Your first name" on the referral form. `name` relabels the first-name box, `lastName` the last-name box. */
+  labels?: Partial<Record<LeadField | "lastName", string>>;
   /** The message box is required (the review-permission form, where it holds the words). */
   messageRequired?: boolean;
   /** Show the email and call/text consent boxes (default). Off where they'd be out of place, e.g. a review permission. */
   marketingConsent?: boolean;
 };
+
+/**
+ * A labelled group of fields: a fieldset with its legend set as an eyebrow
+ * (the referral form's "About you" and "About them"). With no legend the
+ * children render as they are.
+ */
+function Group({ legend, legendClassName, className, children }: { legend?: string; legendClassName?: string; className?: string; children: React.ReactNode }) {
+  if (!legend) return <>{children}</>;
+  return (
+    <fieldset className={cn("m-0 min-w-0 border-0 p-0", className)}>
+      <legend className={cn("t-eyebrow mb-6 p-0 text-amber", legendClassName)}>{legend}</legend>
+      {children}
+    </fieldset>
+  );
+}
 
 function FieldError({ messages, id }: { messages?: string[]; id: string }) {
   if (!messages?.length) return null;
@@ -143,6 +185,20 @@ export function LeadForm({
   const has = (f: LeadField) => fields.includes(f);
   const label = (f: LeadField) => labels[f] ?? LABELS[f];
   const err = (k: string) => (state.errors as Record<string, string[] | undefined> | undefined)?.[k];
+  /* The referral form: "About you" and "About them", each a fieldset with its legend, the note in the second. */
+  const them = fields.some((f) => REFERRED_FIELDS.includes(f));
+  const optional = <span className="normal-case tracking-normal opacity-70">(optional)</span>;
+
+  const message = has("message") ? (
+    <div className={cn("field", columns && "sm:col-span-2")}>
+      <label htmlFor={`${uid}-message`} className={cn("field-label", labelColor)}>
+        {label("message")}
+        {messageRequired ? null : <span className="normal-case tracking-normal opacity-70"> (optional)</span>}
+      </label>
+      <textarea id={`${uid}-message`} name="message" rows={messageRequired ? 6 : 4} required={messageRequired} placeholder={placeholderMessage} defaultValue={defaultMessage} className={cn("field-input resize-y", inputColor)} aria-invalid={Boolean(err("message"))} aria-describedby={err("message") ? `${uid}-message-err` : undefined} />
+      <FieldError id={`${uid}-message-err`} messages={err("message")} />
+    </div>
+  ) : null;
 
   return (
     <form action={action} noValidate className={cn("flex flex-col gap-7", className)}>
@@ -161,7 +217,8 @@ export function LeadForm({
         </label>
       </div>
 
-      <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
+      <Group legend={them ? GROUPS.you : undefined} legendClassName={labelColor}>
+        <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
         {has("name") ? (
           <>
             <div className="field">
@@ -173,7 +230,7 @@ export function LeadForm({
             </div>
             <div className="field">
               <label htmlFor={`${uid}-last`} className={cn("field-label", labelColor)}>
-                Last name <span className="normal-case tracking-normal opacity-70">(optional)</span>
+                {labels.lastName ?? "Last name"} {optional}
               </label>
               <input id={`${uid}-last`} name="lastName" autoComplete="family-name" className={cn("field-input", inputColor)} />
             </div>
@@ -191,7 +248,7 @@ export function LeadForm({
         {has("phone") ? (
           <div className="field">
             <label htmlFor={`${uid}-phone`} className={cn("field-label", labelColor)}>
-              {LABELS.phone} <span className="normal-case tracking-normal opacity-70">(optional)</span>
+              {label("phone")} {optional}
             </label>
             <input id={`${uid}-phone`} type="tel" name="phone" autoComplete="tel" placeholder="(941) 555-0100" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("phone"))} aria-describedby={err("phone") ? `${uid}-phone-err` : undefined} />
             <FieldError id={`${uid}-phone-err`} messages={err("phone")} />
@@ -234,28 +291,81 @@ export function LeadForm({
             </select>
           </div>
         ) : null}
-        {has("referredName") ? (
-          <div className={cn("field", columns && "sm:col-span-2")}>
-            <label htmlFor={`${uid}-referred`} className={cn("field-label", labelColor)}>
-              {label("referredName")}
-            </label>
-            <input id={`${uid}-referred`} name="referredName" autoComplete="off" required className={cn("field-input", inputColor)} aria-invalid={Boolean(err("referredName"))} aria-describedby={err("referredName") ? `${uid}-referred-err` : undefined} />
-            <FieldError id={`${uid}-referred-err`} messages={err("referredName")} />
+        {them ? null : message}
+        </div>
+      </Group>
+
+      {them ? (
+        <Group legend={GROUPS.them} legendClassName={labelColor} className="border-t border-hairline pt-7">
+          <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
+            {has("referredName") ? (
+              <div className="field">
+                <label htmlFor={`${uid}-referred`} className={cn("field-label", labelColor)}>
+                  {label("referredName")}
+                </label>
+                <input id={`${uid}-referred`} name="referredName" autoComplete="off" required className={cn("field-input", inputColor)} aria-invalid={Boolean(err("referredName"))} aria-describedby={err("referredName") ? `${uid}-referred-err` : undefined} />
+                <FieldError id={`${uid}-referred-err`} messages={err("referredName")} />
+              </div>
+            ) : null}
+            {has("referredLastName") ? (
+              <div className="field">
+                <label htmlFor={`${uid}-referred-last`} className={cn("field-label", labelColor)}>
+                  {label("referredLastName")} {optional}
+                </label>
+                <input id={`${uid}-referred-last`} name="referredLastName" autoComplete="off" className={cn("field-input", inputColor)} />
+              </div>
+            ) : null}
+            {has("referredEmail") ? (
+              <div className="field">
+                <label htmlFor={`${uid}-referred-email`} className={cn("field-label", labelColor)}>
+                  {label("referredEmail")}
+                </label>
+                <input id={`${uid}-referred-email`} type="email" name="referredEmail" autoComplete="off" placeholder="them@example.com" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("referredEmail"))} aria-describedby={`${uid}-reach${err("referredEmail") ? ` ${uid}-referred-email-err` : ""}`} />
+                <FieldError id={`${uid}-referred-email-err`} messages={err("referredEmail")} />
+              </div>
+            ) : null}
+            {has("referredPhone") ? (
+              <div className="field">
+                <label htmlFor={`${uid}-referred-phone`} className={cn("field-label", labelColor)}>
+                  {label("referredPhone")}
+                </label>
+                <input id={`${uid}-referred-phone`} type="tel" name="referredPhone" autoComplete="off" placeholder="(941) 555-0100" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("referredPhone"))} aria-describedby={`${uid}-reach${err("referredPhone") ? ` ${uid}-referred-phone-err` : ""}`} />
+                <FieldError id={`${uid}-referred-phone-err`} messages={err("referredPhone")} />
+              </div>
+            ) : null}
+            {has("referredEmail") || has("referredPhone") ? (
+              <p id={`${uid}-reach`} className={cn("t-small -mt-2 text-graphite-500", columns && "sm:col-span-2")}>
+                {REFER.form.reach}
+              </p>
+            ) : null}
+            {has("referredPlan") ? (
+              <div className={cn("field", columns && "sm:col-span-2")}>
+                <label htmlFor={`${uid}-referred-plan`} className={cn("field-label", labelColor)}>
+                  {label("referredPlan")} {optional}
+                </label>
+                <select id={`${uid}-referred-plan`} name="referredPlan" defaultValue="" className={cn("field-input", inputColor)}>
+                  <option value="">{REFER.form.planPrompt}</option>
+                  {REFERRAL_PLANS.map((o) => (
+                    <option key={o}>{o}</option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+            {message}
           </div>
-        ) : null}
-        {has("message") ? (
-          <div className={cn("field", columns && "sm:col-span-2")}>
-            <label htmlFor={`${uid}-message`} className={cn("field-label", labelColor)}>
-              {label("message")}
-              {messageRequired ? null : <span className="normal-case tracking-normal opacity-70"> (optional)</span>}
-            </label>
-            <textarea id={`${uid}-message`} name="message" rows={messageRequired ? 6 : 4} required={messageRequired} placeholder={placeholderMessage} defaultValue={defaultMessage} className={cn("field-input resize-y", inputColor)} aria-invalid={Boolean(err("message"))} aria-describedby={err("message") ? `${uid}-message-err` : undefined} />
-            <FieldError id={`${uid}-message-err`} messages={err("message")} />
-          </div>
-        ) : null}
-      </div>
+        </Group>
+      ) : null}
 
       <div className="flex flex-col gap-4">
+        {has("referralConsent") ? (
+          <div className="flex flex-col gap-2">
+            <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
+              <input type="checkbox" name="referralConsent" value="on" required className="mt-1 size-4 shrink-0 accent-sky-700" aria-invalid={Boolean(err("referralConsent"))} aria-describedby={err("referralConsent") ? `${uid}-referral-err` : undefined} />
+              <span>{label("referralConsent")}</span>
+            </label>
+            <FieldError id={`${uid}-referral-err`} messages={err("referralConsent")} />
+          </div>
+        ) : null}
         {has("reviewConsent") ? (
           <div className="flex flex-col gap-2">
             <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>

@@ -853,6 +853,23 @@
   .hero-img { animation: none; }
 }
 
+/* The page mastheads (components/masthead.tsx): the same drift, slower, and a
+   shade that rises from the lower third where the heading sits. */
+.masthead-img {
+  animation: hero-drift 30s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.masthead-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(20 37 48 / 0.28) 0%, transparent 28%),
+    linear-gradient(0deg, rgb(20 37 48 / 0.78) 0%, rgb(20 37 48 / 0.42) 38%, rgb(20 37 48 / 0.06) 70%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .masthead-img { animation: none; }
+}
+
 /* Home · 02 Buy or sell. The door's rule draws under the copy on hover; the card never lifts. */
 .door .card-line {
   background: var(--color-sky-700);

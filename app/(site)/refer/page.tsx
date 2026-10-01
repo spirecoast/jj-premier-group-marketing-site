@@ -13,9 +13,11 @@ export const metadata: Metadata = pageMetadata({
 
 /**
  * /refer — for past clients and friends of the team. The form is the
- * `referral` kind (lib/leads.ts): the referrer's name and email, the first
- * name of the person moving and a note. Nothing else about that person is
- * asked, and the team writes back to the referrer before anyone else.
+ * `referral` kind (lib/leads.ts) in two groups: about you (the referrer's
+ * name, email and phone) and about them (the person moving: name, an email
+ * or a phone, what they're planning, a note), plus the required box saying
+ * they know their details are being passed along. The team writes back to
+ * the referrer first.
  */
 export default function ReferPage() {
   return (
@@ -30,8 +32,8 @@ export default function ReferPage() {
           <div className="border border-hairline bg-white p-6 sm:p-8">
             <LeadForm
               form="referral"
-              fields={["name", "email", "phone", "referredName", "message"]}
-              labels={{ name: REFER.form.name, email: REFER.form.email, referredName: REFER.form.referredName, message: REFER.form.message }}
+              fields={["name", "email", "phone", "referredName", "referredLastName", "referredEmail", "referredPhone", "referredPlan", "message", "referralConsent"]}
+              labels={{ name: REFER.form.name, lastName: REFER.form.lastName, email: REFER.form.email, phone: REFER.form.phone, message: REFER.form.message }}
               placeholderMessage={REFER.form.placeholder}
               submitLabel={REFER.form.submit}
             />

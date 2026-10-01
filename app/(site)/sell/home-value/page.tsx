@@ -3,6 +3,7 @@ import { RuleLink } from "@/components/buttons";
 import { HOME_VALUE_COPY as C } from "@/components/home-value/copy";
 import { HomeValueLookup } from "@/components/home-value/home-value-lookup";
 import { JsonLd } from "@/components/json-ld";
+import { Masthead } from "@/components/masthead";
 import { SectionHeading } from "@/components/section-heading";
 import { getSalesManifest } from "@/lib/sales";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
@@ -38,12 +39,9 @@ export default async function HomeValuePage() {
           { name: "What your house is worth", path: "/sell/home-value" },
         ])}
       />
-      {/* The question, and what this page does with it. */}
-      <section className="container-site flex flex-col gap-7 py-section">
-        <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">{C.eyebrow}</p>
-          <h1 className="t-display max-w-[760px] text-navy">{C.title}</h1>
-        </div>
+      {/* The question on the masthead, and what this page does with it underneath. */}
+      <Masthead route="/sell/home-value" eyebrow={C.eyebrow} title={C.title} titleId="home-value-title" titleClassName="max-w-[760px]" />
+      <section className="container-site flex flex-col gap-7 py-section" aria-label="What this page does">
         <p className="t-lead max-w-[600px] text-body">{C.lead}</p>
         <p className="t-body max-w-measure text-body">{C.body(months)}</p>
         <p className="t-mono-sm max-w-[560px] text-graphite-500">{C.mono}</p>

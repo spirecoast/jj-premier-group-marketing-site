@@ -108,6 +108,19 @@ export const REVIEW_CONSENT_WORDING =
   "You can use these words on the site with my first name and the place we bought or sold.";
 export const REVIEW_CONSENT_VERSION = "review:2026-10-01.1";
 
+/**
+ * The referral box (/refer). Required on that form: the referrer confirms the
+ * person knows their details are being passed along and expects to hear from
+ * the team. Stored with its own version on the lead's `referral` so the
+ * words the referrer ticked can be matched later.
+ */
+export const REFERRAL_CONSENT_WORDING = "They know I’m passing their details along and expect to hear from Joelyn and Jessica.";
+export const REFERRAL_CONSENT_VERSION = "referral:2026-10-01.1";
+
+/** What the person being referred is planning: the options in the select on /refer, in this order. */
+export const REFERRAL_PLANS = ["Buying", "Selling", "Moving here"] as const;
+export type ReferralPlan = (typeof REFERRAL_PLANS)[number];
+
 /** The "is there a house to sell first?" answers, asked on the buy form. */
 export const SELL_FIRST_OPTIONS = ["Yes", "No", "Not sure yet"] as const;
 
@@ -148,8 +161,21 @@ export const leadSchema = z
     pageTitle: optionalText(300),
     /** The /from/<channel> the visitor came through; anything else is dropped, never an error. */
     source: z.enum(LEAD_CHANNELS).optional().catch(undefined),
-    /** Referral form: the first name of the person moving. Nothing else about them is asked. */
+    /** Referral form: the person moving. Their first name, an email or a phone, and what they're planning. */
     referredName: optionalText(100),
+    referredLastName: optionalText(100),
+    referredEmail: z
+      .string()
+      .trim()
+      .max(320)
+      .optional()
+      .transform((v) => (v ? v : undefined))
+      .refine((v) => v === undefined || z.string().email().safeParse(v).success, "A working email address, or leave it blank and give their phone"),
+    referredPhone: optionalText(40),
+    /** One of REFERRAL_PLANS; anything else is dropped, never an error. */
+    referredPlan: z.enum(REFERRAL_PLANS).optional().catch(undefined),
+    /** Referral form: the box saying they know their details are being passed along. */
+    referralConsent: checkbox,
     /** Review-permission form: the box under the words. */
     reviewConsent: checkbox,
     /** Calls and texts. */
@@ -168,6 +194,12 @@ export const leadSchema = z
     }
     if (d.form === "referral" && !d.referredName) {
       ctx.addIssue({ code: "custom", path: ["referredName"], message: "Their first name, please" });
+    }
+    if (d.form === "referral" && !d.referredEmail && !d.referredPhone) {
+      ctx.addIssue({ code: "custom", path: ["referredEmail"], message: "Their email or their phone, so we can reach them" });
+    }
+    if (d.form === "referral" && !d.referralConsent) {
+      ctx.addIssue({ code: "custom", path: ["referralConsent"], message: "Tick the box once they know you’re passing their details along" });
     }
     if (d.form === "review-permission" && !d.message) {
       ctx.addIssue({ code: "custom", path: ["message"], message: "The words you’d like to share" });

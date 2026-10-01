@@ -17,7 +17,8 @@
  * Forms: contact, buy, sell, listing, valuation, letter, calendar, referral
  * (/refer) and review-permission (/reviews). Each payload carries only the
  * fields its form can send: no marketing boxes on review-permission, no
- * timing or market on either of the last two.
+ * timing or market on either of the last two, and the referred person's
+ * details plus the ticked box on the referral.
  */
 
 const args = process.argv.slice(2);
@@ -66,6 +67,11 @@ const lead = {
   address: form === "valuation" || form === "sell" ? "1 Test Street, Sarasota, FL" : "",
   pageUrl: `${base}/${form === "letter" ? "blog" : form === "calendar" ? "calendar" : form === "referral" ? "refer" : form === "review-permission" ? "reviews" : form}`,
   referredName: referral ? "Sam" : "",
+  referredLastName: referral ? "Referred" : "",
+  referredEmail: referral ? `test+referred-${stamp}@jjpremiergroup.com` : "",
+  referredPhone: referral ? "(941) 555-0198" : "",
+  referredPlan: referral ? "Moving here" : "",
+  referralConsent: referral ? "on" : "",
   reviewConsent: review ? "on" : "",
   consent: marketing ? "on" : "",
   consentEmail: marketing ? "on" : "",
@@ -100,7 +106,22 @@ function samplePayload() {
       form === "listing"
         ? { slug: "sample-listing", title: "Sample listing", street: "1 Test Street", city: "Sarasota", state: "FL", zip: "34236", price: 1, mls: "TEST", url: `${base}/listings/sample-listing` }
         : null,
-    referral: referral ? { firstName: lead.referredName } : null,
+    referral: referral
+      ? {
+          firstName: lead.referredName,
+          lastName: lead.referredLastName,
+          email: lead.referredEmail,
+          phone: lead.referredPhone,
+          plan: lead.referredPlan,
+          told: true,
+          toldAt: now,
+          toldWordingVersion: "referral:2026-10-01.1",
+          referredBy: `${lead.firstName} ${lead.lastName}`,
+          referredByEmail: lead.email,
+          referredByPhone: lead.phone,
+          note: `Came via a referral from ${lead.firstName} ${lead.lastName} (${lead.email}, ${lead.phone}). ${lead.firstName} ${lead.lastName} says ${lead.referredName} ${lead.referredLastName} knows their details were passed along and expects to hear from Joelyn and Jessica. Planning: moving here. Reach them at ${lead.referredEmail}, ${lead.referredPhone}. Note from ${lead.firstName}: ${lead.message}`,
+        }
+      : null,
     consent: {
       email: consentEmail,
       sms: consentSms,

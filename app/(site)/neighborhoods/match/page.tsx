@@ -1,6 +1,7 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
+import { Masthead } from "@/components/masthead";
 import { AtlasMatch } from "@/components/match/atlas-match";
 import { DATASET_VERSION, getIndexEntries } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
@@ -40,20 +41,23 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
         ])}
       />
 
-      <section className="container-site flex flex-col gap-7 pt-10 pb-10 md:pt-14" aria-labelledby="match-title">
-        <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-2 text-graphite-500">
-          <Link href="/neighborhoods" className="underline-offset-4 hover:text-navy hover:underline">
-            Atlas
-          </Link>
-          <span aria-hidden="true">›</span>
-          <span>Match</span>
-        </nav>
-        <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">01 · Atlas match</p>
-          <h1 id="match-title" className="t-display max-w-[820px] text-navy">
-            We ask ten questions about the place and none about you.
-          </h1>
-        </div>
+      <Masthead
+        route="/neighborhoods/match"
+        eyebrow="01 · Atlas match"
+        title="We ask ten questions about the place and none about you."
+        titleId="match-title"
+        crumbs={
+          <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-2 text-linen-200 text-shadow-soft">
+            <Link href="/neighborhoods" className="underline-offset-4 hover:text-white hover:underline">
+              Atlas
+            </Link>
+            <span aria-hidden="true">›</span>
+            <span>Match</span>
+          </nav>
+        }
+      />
+
+      <section className="container-site flex flex-col gap-7 pt-10 pb-10 md:pt-14" aria-label="What the questions do">
         <p className="t-lead max-w-[600px] text-body">
           Answer what matters and skip the rest. Every answer narrows the {count.toLocaleString()} places in Atlas by one fact we hold from a county,
           district, association or builder source.

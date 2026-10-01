@@ -1,5 +1,5 @@
 import "server-only";
-import { deliverLeadToCrm, LEAD_SITE, leadTags, type CrmLead, type CrmResult } from "@/lib/crm";
+import { deliverLeadToCrm, LEAD_SITE, leadTags, type CrmLead, type CrmResult, type LeadReferral } from "@/lib/crm";
 import { alertLeadDelivery, notifyTeamOfLead } from "@/lib/lead-alert";
 import { getCrmProvider } from "@/lib/lead-sinks";
 import {
@@ -8,6 +8,7 @@ import {
   IMPLIED_CONSENT_VERSION,
   NO_MARKETING_CONSENT_FORMS,
   NOT_SHOWN_CONSENT_VERSION,
+  REFERRAL_CONSENT_VERSION,
   REVIEW_CONSENT_VERSION,
   type LeadInput,
 } from "@/lib/leads";
@@ -64,6 +65,42 @@ function splitName(first: string, last: string): { firstName: string; lastName: 
 
 const nul = (v: string | undefined | null): string | null => (v ? v : null);
 
+/**
+ * The referred person, with the note the CRM shows on their contact: that
+ * they came via a referral, who referred them, and what they're planning.
+ * Only when the form is the referral and the box was ticked (the schema
+ * requires both).
+ */
+function buildReferral(data: LeadInput, referrer: { firstName: string; lastName: string }, now: Date): LeadReferral | null {
+  if (data.form !== "referral" || !data.referredName || !data.referralConsent) return null;
+  const them = `${data.referredName} ${data.referredLastName ?? ""}`.trim();
+  const referredBy = `${referrer.firstName} ${referrer.lastName}`.trim();
+  const reach = [data.referredEmail?.toLowerCase(), data.referredPhone].filter(Boolean).join(", ");
+  const note = [
+    `Came via a referral from ${referredBy} (${[data.email.toLowerCase(), data.phone].filter(Boolean).join(", ")}).`,
+    `${referredBy} says ${them} knows their details were passed along and expects to hear from Joelyn and Jessica.`,
+    data.referredPlan ? `Planning: ${data.referredPlan.toLowerCase()}.` : null,
+    reach ? `Reach them at ${reach}.` : null,
+    data.message ? `Note from ${referrer.firstName}: ${data.message}` : null,
+  ]
+    .filter((l): l is string => Boolean(l))
+    .join(" ");
+  return {
+    firstName: data.referredName,
+    lastName: nul(data.referredLastName),
+    email: data.referredEmail ? data.referredEmail.toLowerCase() : null,
+    phone: nul(data.referredPhone),
+    plan: nul(data.referredPlan),
+    told: true,
+    toldAt: now.toISOString(),
+    toldWordingVersion: REFERRAL_CONSENT_VERSION,
+    referredBy,
+    referredByEmail: data.email.toLowerCase(),
+    referredByPhone: nul(data.phone),
+    note,
+  };
+}
+
 /** Shape the validated form input into the payload every sink receives. */
 export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmLead {
   const { firstName, lastName } = splitName(data.firstName || "", data.lastName || "");
@@ -110,7 +147,7 @@ export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmL
             url: data.propertySlug ? `${site.url}/listings/${data.propertySlug}` : null,
           }
         : null,
-    referral: data.form === "referral" && data.referredName ? { firstName: data.referredName } : null,
+    referral: buildReferral(data, { firstName, lastName }, now),
     consent: {
       email: consentEmail,
       sms: consentSms,
@@ -202,6 +239,12 @@ async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: str
             consent_review: lead.consent.review,
             consent_review_at: lead.consent.reviewAt,
             referred_first_name: lead.referral?.firstName ?? null,
+            referred_last_name: lead.referral?.lastName ?? null,
+            referred_email: lead.referral?.email ?? null,
+            referred_phone: lead.referral?.phone ?? null,
+            referred_plan: lead.referral?.plan ?? null,
+            referral_told_at: lead.referral?.toldAt ?? null,
+            referral_note: lead.referral?.note ?? null,
             consent_at: lead.consent.timestamp,
             page_url: lead.source.page,
             test: lead.test,

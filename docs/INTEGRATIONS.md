@@ -102,8 +102,17 @@ only, never values.
 
 `form` is one of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`,
 `calendar`, `referral` (`/refer`) and `review-permission` (`/reviews`).
-`referral` is `{ "firstName": "…" }` on a referral (the person who's moving;
-nothing else about them is collected) and `null` otherwise.
+`referral` is set on a referral from `/refer` and `null` otherwise. The lead's
+own `firstName`, `lastName`, `email` and `phone` are the **referrer's**; the
+person who is moving is under `referral`: `firstName`, `lastName`, `email`,
+`phone` (at least one of email and phone), `plan` (`Buying`, `Selling`,
+`Moving here` or null), `told: true` with `toldAt` and `toldWordingVersion`
+(the referrer ticked "They know I'm passing their details along and expect to
+hear from Joelyn and Jessica."), `referredBy` (the referrer's name),
+`referredByEmail`, `referredByPhone`, and `note`: one paragraph saying the
+contact came via a referral, who referred them, what they're planning, how to
+reach them and the referrer's note. Create the CRM contact from `referral.*`
+and put `referral.note` on it; the lead is tagged `form:referral`.
 `consent.timestamp` and `consent.wordingVersion` describe the email and
 call/text boxes only. A review permission shows neither box, so it carries
 `email: false`, `sms: false`, `timestamp: null` and `wordingVersion:
@@ -138,7 +147,11 @@ Trigger: **Webhooks by Zapier → Catch Hook**. Copy its URL into
 
    Nothing else fits a Compass field. Put `message`, `timing`, `sellFirst`,
    `market`, `propertyAddress` and `source.utm_*` into the Zap's note or
-   email step so the agent sees them.
+   email step so the agent sees them. For `form:referral`, a Filter or Path
+   on `referral` not empty creates the contact from `referral.firstName`,
+   `referral.lastName`, `referral.email` and `referral.phone` with
+   `referral.note` as the contact's note (it names the referrer and says the
+   contact came via a referral); the referrer's thank-you goes to `email`.
 3. *(Optional)* **Gmail/Outlook → Send email** from the agent's own
    Coldwell Banker mailbox, to `email`, as the first reply. This is the only
    place a visitor ever receives email, and it comes from a person.

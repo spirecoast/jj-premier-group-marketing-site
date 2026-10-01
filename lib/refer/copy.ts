@@ -2,42 +2,54 @@
  * The words on /refer, and the confirmation after the referral form.
  *
  * Plain strings and no imports, so scripts/check-copy.mjs can run the Fair
- * Housing check over every sentence. The person being referred hasn't agreed
- * to anything: the form asks only for their first name, and the copy says we
- * reach out only after the referrer has told them. No gifts or rewards are
- * mentioned (Florida limits paying unlicensed people for referrals; anything
- * like that is cleared with the brokerage first).
+ * Housing check over every sentence. The form is two groups: about you (the
+ * referrer) and about them (the person moving: name, email or phone, what
+ * they are planning, a note), and a required box confirming they know their
+ * details are being passed along (REFERRAL_CONSENT_WORDING and REFERRAL_PLANS
+ * in lib/leads.ts, checked by the same script). No gifts or rewards are mentioned (Florida
+ * limits paying unlicensed people for referrals; anything like that is
+ * cleared with the brokerage first).
  */
 
 export const REFER = {
   title: "Refer someone · Know someone moving here?",
   description:
-    "Know someone moving to Lakewood Ranch, Sarasota or Bradenton? Tell us the timing and we’ll take it from there, once you’ve told them we’ll be in touch.",
+    "Know someone moving to Lakewood Ranch, Sarasota or Bradenton? Let them know you’re passing their details along, then tell us the timing and we’ll take it from there.",
   eyebrow: "Refer someone",
   heading: "Know someone moving here?",
   lead: "Tell us the timing and we’ll take it from there.",
-  body: "Give us your details, their first name and whatever you know: when they’re thinking of moving, where they’re looking, what they’ve asked you about the coast. We won’t contact them on the strength of this form. We’ll write back to you first, and we only reach out once you’ve told them we’ll be in touch.",
+  body: "Give us your details and theirs, and tell us whatever you know about the move: when they’re thinking of going, where they’re looking and what they’ve asked you about the coast. Tell them first that you’re passing their details along. We’ll write back to you, and we’ll reach out to them at their pace.",
   steps: [
-    { when: "First", title: "You tell us", body: "Give us your name and email, their first name, and a note about the timing." },
-    { when: "Then", title: "We write back to you", body: "We say thank you and ask how they’d like to hear from us." },
-    { when: "After that", title: "You tell them", body: "We only reach out once you have, and we go at their pace." },
+    { when: "First", title: "You tell them", body: "Tell them you’re passing their details to us and that we’ll be in touch." },
+    { when: "Then", title: "You tell us", body: "Give us your name and email, their name and a way to reach them, and a note about the timing." },
+    { when: "After that", title: "We take it from there", body: "We write back to you to say thank you, and we reach out to them at their pace." },
   ],
   form: {
+    aboutYou: "About you",
     name: "Your first name",
+    lastName: "Your last name",
     email: "Your email",
+    phone: "Your phone",
+    aboutThem: "About them",
     referredName: "Their first name",
+    referredLastName: "Their last name",
+    referredEmail: "Their email",
+    referredPhone: "Their phone",
+    reach: "Their email or their phone is enough. You don’t need both.",
+    referredPlan: "What they’re planning",
+    planPrompt: "Choose one",
     message: "A note about the timing",
     placeholder: "Tell us when they’re thinking of moving, where they’re looking and anything they’ve asked you about.",
     submit: "Send",
   },
-  privacy: "We don’t ask for their number or email here. That’s theirs to give.",
+  privacy: "We hold their details the same way we hold yours, and we only use them to get in touch about the move.",
   success: {
     title: "Thank you.",
-    body: "We’ll write back to you first. We only reach out to them once you’ve told them we’ll be in touch.",
+    body: "We’ll write back to you first, and we’ll reach out to them at their pace.",
   },
   thanks: {
     title: "Thank you.",
-    body: "We’ll write back to you first, and we only reach out to them once you’ve told them we’ll be in touch. If the timing changes on their side, tell us and we’ll go at their pace.",
+    body: "We’ll write back to you first, and we’ll reach out to them at their pace. If the timing changes on their side, tell us and we’ll follow it.",
     line: "If they’re still deciding where, Atlas has every place we work on one map, with the facts behind each one. It’s worth sending them the link.",
   },
 } as const;

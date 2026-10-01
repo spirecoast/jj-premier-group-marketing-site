@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RuleLink } from "@/components/buttons";
+import { Masthead } from "@/components/masthead";
 import { NetProceedsCalculator } from "@/components/net-proceeds/calculator";
 import { SectionHeading } from "@/components/section-heading";
 import { CFO_TITLE_URL, CHECKED, CONDO_STATUTE_URL, MANATEE_RECORDING_URL, NOVEMBER_DISCOUNT_PCT, SOURCES, TAX_DISCOUNT_URL } from "@/lib/net-proceeds";
@@ -37,12 +38,9 @@ const ORDER = ["docStamps", "titleRates", "titleCustom", "estoppel", "estoppelSt
 export default function NetProceedsPage() {
   return (
     <>
-      {/* Hero: the question, and what the sheet does with it. */}
-      <section className="container-site flex flex-col gap-7 py-section">
-        <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">Selling · Net proceeds</p>
-          <h1 className="t-display max-w-[640px] text-navy">What you&rsquo;d walk away with.</h1>
-        </div>
+      {/* Hero: the question on the masthead, and what the sheet does with it underneath. */}
+      <Masthead route="/sell/net-proceeds" eyebrow="Selling · Net proceeds" title={<>What you&rsquo;d walk away with.</>} titleId="net-proceeds-title" titleClassName="max-w-[640px]" className="print:hidden" />
+      <section className="container-site flex flex-col gap-7 py-section" aria-label="What the sheet does">
         <p className="t-lead max-w-[600px] text-body">
           Put in the price and what&rsquo;s owed, and the sheet fills in the rest: doc stamps at the state rate, the title
           policy at Florida&rsquo;s promulgated rate, the tax proration to the day before closing. Every line says where its

@@ -10,9 +10,9 @@
  * so it can gate a build.
  *
  * Sources: the market hubs (lib/hubs/copy.ts), the channel landing pages
- * (lib/channels/copy.ts), /refer (lib/refer/copy.ts) and /reviews
- * (lib/reviews/copy.ts). A new page with hand-written copy adds its own
- * `<page>Strings()` here.
+ * (lib/channels/copy.ts), /refer (lib/refer/copy.ts, plus the referral box
+ * and the plans from lib/leads.ts) and /reviews (lib/reviews/copy.ts). A new
+ * page with hand-written copy adds its own `<page>Strings()` here.
  *
  * The newsletter templates (lib/issues/copy.ts) get the same checker with
  * rules of their own: no superlatives and no license numbers. They carry
@@ -23,7 +23,7 @@ import { checkFairHousing } from "../lib/fair-housing.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
-import { REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
+import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
 import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
 import { tideWebStrings } from "../lib/tide/copy.ts";
@@ -34,6 +34,8 @@ const SOURCES = [
   ...referStrings(),
   ...reviewsStrings(),
   { where: "lib/leads.ts: REVIEW_CONSENT_WORDING", text: REVIEW_CONSENT_WORDING },
+  { where: "lib/leads.ts: REFERRAL_CONSENT_WORDING", text: REFERRAL_CONSENT_WORDING },
+  ...REFERRAL_PLANS.map((p) => ({ where: `lib/leads.ts: REFERRAL_PLANS ${p}`, text: p })),
 ];
 
 /** Hub-specific rules on top of the brokerage list. Places, never people; no figures. */

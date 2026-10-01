@@ -79,9 +79,10 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="container-site grid gap-14 pb-section lg:grid-cols-2 lg:gap-20" aria-label="The team">
+      {/* One per row, the portrait beside the bio: the duo photograph above stays the lead. */}
+      <section className="container-site flex flex-col gap-14 pb-section lg:gap-20" aria-label="The team">
         {team.map((m) => (
-          <AgentCard key={m.slug} member={m} full as="h2" />
+          <AgentCard key={m.slug} member={m} full as="h2" className="border-t border-hairline pt-10 lg:pt-14" />
         ))}
       </section>
 

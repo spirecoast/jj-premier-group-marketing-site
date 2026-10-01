@@ -24,6 +24,12 @@ export const metadata: Metadata = pageMetadata({
 const FRAMES = {
   hero: img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%"),
   contract: img("library/moment-contract", "A contract on a kitchen island", "50% 45%"),
+  island: img("library/listing-living-room-terrazzo", "A living room with terrazzo floors and the light coming in", "50% 50%"),
+  /* Let into the steps: the house seen from above on day one, and the exterior in the evening light the photographs are taken in. */
+  tiles: {
+    1: img("library/listing-aerial-lot-morning", "", "50% 50%"),
+    3: img("library/listing-twilight-exterior-pool", "", "50% 55%"),
+  },
 };
 
 /** Four steps. Harbor-led: shorter sentences, the number first. */
@@ -215,7 +221,7 @@ export default async function SellPage() {
           eyebrow="How it goes"
           title="There are four steps, from the walk-through to the closing table."
         />
-        <Steps items={STEPS} />
+        <Steps items={STEPS} tiles={FRAMES.tiles} />
       </section>
 
       {/* What the street actually did. */}
@@ -305,6 +311,9 @@ export default async function SellPage() {
             One or two sentences each, because you have probably done this before. Florida contracts and county custom
             decide most of it, and we’ll say which is which.
           </p>
+          <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
+            <Photo image={FRAMES.island} sizes="(min-width: 1024px) 420px, 100vw" />
+          </div>
         </div>
         <FaqAccordion items={FAQS} />
       </section>

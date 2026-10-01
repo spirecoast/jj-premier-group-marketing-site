@@ -4,6 +4,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { TrackedLink } from "@/components/tracked-link";
 import { getSiteSettings, getTeam } from "@/lib/content";
 import { isMarketSlug } from "@/lib/content/markets";
+import { mapEmbedUrl, mapLinkUrl, mapQuery } from "@/lib/map-embed";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -34,7 +35,9 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
     .join(", ");
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${settings.brokerageName} ${office}`)}`;
+  // The pin: the office address once it is filled in, else NEXT_PUBLIC_MAP_QUERY, else the brokerage in Lakewood Ranch.
+  const query = mapQuery(settings);
+  const mapsUrl = mapLinkUrl(query);
 
   return (
     <section className="container-site grid gap-12 py-section lg:grid-cols-[1.3fr_1fr] lg:gap-20" aria-labelledby="contact-title">
@@ -85,11 +88,19 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </address>
           <p className="t-small text-body-muted">By appointment. We’re usually in a house, so call or text first.</p>
         </div>
-        <div className="relative flex aspect-[3/2] items-center justify-center overflow-hidden border border-hairline bg-white p-6">
-          <span className="absolute inset-x-0 top-1/2 h-px bg-hairline" aria-hidden="true" />
-          <span className="absolute inset-y-0 left-1/2 w-px bg-hairline" aria-hidden="true" />
-          <span className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border border-rule" aria-hidden="true" />
-          <div className="relative flex flex-col items-center gap-3 bg-white px-6 py-4 text-center">
+        {/* The map: Google's keyless embed, loaded once the frame is near the viewport, with the plain link under it for anyone whose browser blocks the frame. */}
+        <div className="flex flex-col gap-3">
+          <div className="relative aspect-[4/3] overflow-hidden border border-hairline bg-linen-100 sm:aspect-[3/2]">
+            <iframe
+              src={mapEmbedUrl(query)}
+              title={`Map · ${query}`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen={false}
+              className="absolute inset-0 h-full w-full border-0"
+            />
+          </div>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <p className="t-mono-sm text-graphite-500">Map · {settings.officeAddress.city}, {settings.officeAddress.state}</p>
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="link-rule">
               Open in Google Maps ↗

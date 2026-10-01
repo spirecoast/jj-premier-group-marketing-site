@@ -76,6 +76,32 @@ export type LeadProperty = {
   url: string | null;
 };
 
+/**
+ * Referral form only: the person who is moving, as the referrer gave them.
+ * The lead's own firstName/lastName/email/phone are the referrer's; these are
+ * the person to create in the CRM, with `note` as the contact's note. The
+ * referrer ticked REFERRAL_CONSENT_WORDING (lib/leads.ts), so `told` is
+ * always true here, with the time and the wording version it was ticked under.
+ */
+export type LeadReferral = {
+  firstName: string;
+  lastName: string | null;
+  email: string | null;
+  phone: string | null;
+  /** Buying, Selling or Moving here (REFERRAL_PLANS), when the referrer said. */
+  plan: string | null;
+  told: true;
+  toldAt: string;
+  toldWordingVersion: string;
+  /** The referrer's name, e.g. "Pat Example". */
+  referredBy: string;
+  /** The referrer's email, and phone when given, for the note and the thank-you. */
+  referredByEmail: string;
+  referredByPhone: string | null;
+  /** The CRM note: that the contact came via a referral, who referred them, and what they're planning. */
+  note: string;
+};
+
 /** The JSON a Zapier Catch Hook receives. Field map: docs/INTEGRATIONS.md. */
 export type CrmLead = {
   form: LeadForm;
@@ -90,11 +116,8 @@ export type CrmLead = {
   sellFirst: string | null;
   /** Listing inquiries only. */
   property: LeadProperty | null;
-  /**
-   * Referral form only: the first name of the person who's moving. No contact
-   * details for them are asked; the team writes back to the referrer first.
-   */
-  referral: { firstName: string } | null;
+  /** Referral form only: the person who's moving and the note for the CRM (LeadReferral). */
+  referral: LeadReferral | null;
   consent: LeadConsent;
   source: LeadSource;
   submittedAt: string;
@@ -186,7 +209,7 @@ async function deliverViaFub(lead: CrmLead): Promise<CrmResult> {
     lead.market ? `Market: ${lead.market}` : undefined,
     lead.propertyAddress ? `Address to value: ${lead.propertyAddress}` : undefined,
     lead.property?.title ? `Property: ${lead.property.title}` : undefined,
-    lead.referral ? `Referral: ${lead.referral.firstName} (we reach out only after the referrer has told them)` : undefined,
+    lead.referral ? lead.referral.note : undefined,
     lead.consent.review ? `Review permission: YES at ${lead.consent.reviewAt} (wording ${lead.consent.reviewWordingVersion})` : undefined,
     lead.source.channel ? `Came through: /from/${lead.source.channel}` : undefined,
     "",

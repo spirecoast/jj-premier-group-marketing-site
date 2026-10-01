@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CtaBand } from "@/components/cta-band";
 import { LetterForm } from "@/components/letter-form";
+import { Masthead } from "@/components/masthead";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 import { TideIssueCard } from "@/components/tide/issue-card";
@@ -51,18 +52,17 @@ export default async function ReportPage() {
 
   return (
     <>
-      <section className="container-site flex flex-col gap-12 py-section" aria-labelledby="report-title">
-        <SectionHeading
-          as="h1"
-          size="display"
-          eyebrow={site.reportLong}
-          title={<span id="report-title">One page a month on what the three markets did.</span>}
-          titleClassName="max-w-[820px]"
-        />
+      <Masthead
+        route="/blog"
+        eyebrow={site.reportLong}
+        title={<span id="report-title">One page a month on what the three markets did.</span>}
+        titleId="report-title"
+      />
 
+      <section className="container-site flex flex-col gap-12 py-section" aria-label="The reports">
         {latest ? (
           <div className="flex flex-col gap-3">
-            <TideIssueCard card={latest} priority wide />
+            <TideIssueCard card={latest} wide />
             <Link href="/tide" className="t-small self-start py-2 text-sky-700 underline underline-offset-4 hover:text-navy">
               {TIDE_WEB_COPY.everyIssue}
             </Link>
@@ -76,9 +76,9 @@ export default async function ReportPage() {
                 <TideIssueCard card={c} />
               </li>
             ))}
-            {reports.map((p, i) => (
+            {reports.map((p) => (
               <li key={p.slug} className="flex">
-                <PostCard post={p} priority={!latest && i === 0} />
+                <PostCard post={p} />
               </li>
             ))}
           </ul>

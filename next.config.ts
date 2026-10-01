@@ -71,7 +71,8 @@ function basePolicy(): Directives {
     "font-src": ["'self'", "data:"],
     "connect-src": ["'self'", PLAUSIBLE_HOST, MAP_HOST, ...SANITY_API, ...(CLERK_FAPI ? [CLERK_FAPI] : []), ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
-    "frame-src": ["'self'", ...VERCEL_PREVIEW],
+    // www.google.com: the keyless Google Maps embed on /contact (lib/map-embed.ts).
+    "frame-src": ["'self'", "https://www.google.com", ...VERCEL_PREVIEW],
     "media-src": ["'self'", "blob:"],
     "manifest-src": ["'self'"],
     // report-uri for browsers without the Reporting API, report-to (with the Reporting-Endpoints header) for the rest.
