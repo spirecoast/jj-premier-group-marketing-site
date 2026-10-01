@@ -111,7 +111,11 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" />
-            <a href={`/api/calendar.ics${feedQuery(filter)}`} className="link-rule">
+            <a
+              href={`/api/calendar.ics${feedQuery(filter)}`}
+              className="link-rule"
+              onClick={() => track("Calendar feed", { kind: "feed", filter: activeFilters ? feedQuery(filter).slice(1) : "all" })}
+            >
               Subscribe{activeFilters ? " to this filter" : ""}
             </a>
           </div>
@@ -260,7 +264,12 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
         {mode === "mine" && my.list.length ? (
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-hairline pt-6">
             <ShareButton title="My Encore list" url={encoreHref({ list: my.list })} what="my-list" label="Share my list" />
-            <a href={`/api/calendar.ics?${my.list.map((s) => `event=${encodeURIComponent(s)}`).join("&")}`} className="link-rule" hidden>
+            <a
+              href={`/api/calendar.ics?${my.list.map((s) => `event=${encodeURIComponent(s)}`).join("&")}`}
+              className="link-rule"
+              hidden
+              onClick={() => track("Calendar feed", { kind: "list", filter: `${my.list.length} events` })}
+            >
               Add all to my calendar
             </a>
             <button type="button" className="t-mono-sm text-graphite-500 underline underline-offset-4 hover:text-navy" onClick={my.clear}>

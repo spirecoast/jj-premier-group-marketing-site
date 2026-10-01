@@ -34,7 +34,7 @@ export function LetterForm({
     track("Subscribe", { form });
   }, [state.ok, form]);
 
-  const successText = form === "letter" ? "You are on the list. The next report lands at the start of the quarter." : "You are on the list. Encore lands every Monday.";
+  const successText = form === "letter" ? "You are on the list. The next report lands at the start of the month." : "You are on the list. Encore lands every Monday.";
 
   if (state.ok) {
     return (

@@ -4,6 +4,7 @@ import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { footerNav, site } from "@/lib/site";
 import { img } from "@/lib/content/seed/helpers";
 import { Photo } from "./photo";
+import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
 import { Wordmark } from "./wordmark";
@@ -59,9 +60,9 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
             <ul className="flex flex-col gap-2.5 text-[14px]">
               {/* The team line, as the revised mockup shows; each agent's direct line stays on the contact page. */}
               <li>
-                <a href={`tel:${settings.primaryPhoneE164}`} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
+                <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "footer" }} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
                   {settings.primaryPhoneDisplay}
-                </a>
+                </TrackedLink>
                 <span className="sr-only"> {site.name}</span>
               </li>
               {team.map((m) => (
@@ -113,11 +114,6 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href={"/studio" as Route} className="-my-2 inline-block py-2 hover:text-navy">
-                Editor
-              </Link>
-            </li>
           </ul>
         </div>
       </div>

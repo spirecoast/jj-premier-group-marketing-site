@@ -217,10 +217,25 @@ Useful switches:
 
 - `NEXT_PUBLIC_ROBOTS_NOINDEX=true` sets `noindex, nofollow` on every page and in `robots.txt`.
   Turn it on for previews and the pre-launch domain, off at launch.
-- `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` loads Plausible (outbound links and tagged events). The forms fire
-  `Lead` (prop `form`: contact, buy, sell, valuation, listing, …) and `Subscribe` (prop `form`:
-  letter or calendar). Add both as goals in Plausible. `NEXT_PUBLIC_PLAUSIBLE_HOST` only for a
-  self-hosted instance.
+- `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` loads Plausible (outbound links and tagged events). Custom events
+  go through `track()` in `lib/analytics.ts`; register each as a goal in Plausible, with the props
+  as custom properties:
+
+  | Goal | Fired from | Props |
+  | --- | --- | --- |
+  | `Lead` | every `LeadForm` on success | `form`: contact, buy, sell, valuation, listing |
+  | `Subscribe` | the `LetterForm` bars (Tide band, Encore row) on success | `form`: letter or calendar |
+  | `Calendar feed` | ICS links: the calendar page feed, Encore's filtered subscribe, the event page | `kind`: feed, event, performance, list · `filter`: `all`, the feed query, or the event slug |
+  | `Phone tap` | `tel:` and `sms:` links | `where`: action-bar, action-bar-text, contact, contact-text, footer (the header's links join once the nav lands) |
+  | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
+  | `Explore` | the Atlas and Encore | `action`: select, filter, calendar-day |
+
+  Server-rendered `tel:`/`sms:` and ICS anchors use `components/tracked-link.tsx`, which fires the goal
+  on click and leaves the navigation alone. `NEXT_PUBLIC_PLAUSIBLE_HOST` only for a self-hosted instance.
+- First-touch attribution lives in `components/utm-tracker.tsx`: the landing path, external referrer,
+  timestamp and any `utm_*`, `gclid` or `fbclid` are kept in `localStorage` for 90 days (no cookies),
+  never overwritten while fresh, and forwarded by every form as `utm__<key>` hidden fields into
+  `contacts.utm`.
 
 ## Launch checklist
 

@@ -16,6 +16,8 @@ export type SheetPosition = "peek" | "half" | "full";
 type Props = {
   loading: boolean;
   error: boolean;
+  /** Fetch the index again after it failed to load. */
+  onRetry: () => void;
   q: string;
   onQuery: (q: string) => void;
   filters: Filters;
@@ -226,12 +228,20 @@ export function ExplorerPanel(p: Props) {
                 : "Zoom out, widen the filters, or search for a place by name."}
             </p>
             {p.searching ? (
-              <Link href={`/contact?message=${encodeURIComponent(`Looking for: ${p.q}`)}`} className="link-rule self-start">
+              <Link href={`/contact?message=${encodeURIComponent(`Looking for: ${p.q}`)}${p.filters.market ? `&market=${p.filters.market}` : ""}`} className="link-rule self-start">
                 Ask us about it
               </Link>
             ) : null}
           </div>
-        ) : null}
+        ) : (
+          <div className="flex flex-col gap-3 px-5 py-8">
+            <p className="t-h3 text-navy">The catalog did not load.</p>
+            <p className="t-small text-body-muted">Check the connection and try again. The map still works without it.</p>
+            <button type="button" className="link-rule self-start" onClick={p.onRetry}>
+              Try again
+            </button>
+          </div>
+        )}
 
         {p.listed.length > limit ? (
           <div className="px-5 py-4">

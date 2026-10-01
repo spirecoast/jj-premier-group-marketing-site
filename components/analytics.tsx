@@ -6,8 +6,9 @@ import Script from "next/script";
  *
  * Plausible: set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to the site's domain as it is
  * registered in Plausible (no protocol). Custom events fire through
- * lib/analytics.ts: "Lead" on every lead form, "Subscribe" on the report
- * and Encore boxes. Add those two as goals in the Plausible dashboard.
+ * lib/analytics.ts; the goal names and their props are listed in
+ * docs/SITE.md (Lead, Subscribe, Calendar feed, Phone tap, Share, Explore).
+ * Add each as a goal in the Plausible dashboard.
  *
  * Follow Up Boss: the Pixel is here for activity tracking and source
  * attribution only. Form capture MUST stay off in Admin > Integrations —

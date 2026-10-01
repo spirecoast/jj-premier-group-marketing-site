@@ -2,6 +2,7 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { Encore } from "@/components/encore/encore";
 import { LetterForm } from "@/components/letter-form";
+import { TrackedLink } from "@/components/tracked-link";
 import { getVenues } from "@/lib/content";
 import { MARKETS, marketName } from "@/lib/content/markets";
 import { getEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
@@ -53,7 +54,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     <>
       <Encore initial={initial} today={today} initialIndex={slice} />
 
-      <section className="bg-linen-200">
+      <section id="subscribe" className="scroll-mt-header bg-linen-200">
         <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
           <div className="flex flex-col gap-3">
             <p className="t-eyebrow text-amber">Every Monday</p>
@@ -64,9 +65,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
             <LetterForm form="calendar" label="Subscribe" />
             <p className="t-small text-linen-700">
               Prefer your own calendar app?{" "}
-              <a href="/api/calendar.ics" className="text-navy underline underline-offset-4 hover:text-harbor-700">
+              <TrackedLink href="/api/calendar.ics" event="Calendar feed" props={{ kind: "feed", filter: "all" }} className="text-navy underline underline-offset-4 hover:text-harbor-700">
                 Subscribe to the feed
-              </a>
+              </TrackedLink>
               , or narrow it to a category or a venue above and subscribe to just that.
             </p>
           </div>

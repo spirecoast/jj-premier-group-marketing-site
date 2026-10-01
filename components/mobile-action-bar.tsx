@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { track } from "@/lib/analytics";
 
 /**
  * Sticky call and text bar on phones. 48px targets, navy furniture.
@@ -16,7 +17,7 @@ export function MobileActionBar({ phoneE164 }: { phoneE164: string }) {
       data-mobile-bar
       className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-sky-300/20 bg-navy pb-[env(safe-area-inset-bottom)] md:hidden ${onListing ? "grid-cols-3" : "grid-cols-2"}`}
     >
-      <a href={`tel:${phoneE164}`} className={cell}>
+      <a href={`tel:${phoneE164}`} className={cell} onClick={() => track("Phone tap", { where: "action-bar" })}>
         Call
       </a>
       {onListing ? (
@@ -24,7 +25,7 @@ export function MobileActionBar({ phoneE164 }: { phoneE164: string }) {
           Showing
         </a>
       ) : null}
-      <a href={`sms:${phoneE164}`} className={`${cell} border-l border-sky-300/20`}>
+      <a href={`sms:${phoneE164}`} className={`${cell} border-l border-sky-300/20`} onClick={() => track("Phone tap", { where: "action-bar-text" })}>
         Text
       </a>
     </div>

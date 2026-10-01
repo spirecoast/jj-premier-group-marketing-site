@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
+import { TrackedLink } from "@/components/tracked-link";
 import { getSiteSettings, getTeam } from "@/lib/content";
+import { isMarketSlug } from "@/lib/content/markets";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -11,8 +13,24 @@ export const metadata: Metadata = pageMetadata({
   path: "/contact",
 });
 
-export default async function ContactPage() {
-  const [team, settings] = await Promise.all([getTeam(), getSiteSettings()]);
+type SearchParams = Record<string, string | string[] | undefined>;
+
+function first(v: string | string[] | undefined): string | undefined {
+  const s = Array.isArray(v) ? v[0] : v;
+  return s?.trim() ? s.trim().slice(0, 1000) : undefined;
+}
+
+/**
+ * Accepts `?message=`, `?place=` and `?market=` so the Atlas's "ask us about
+ * it" link and any neighborhood page can hand the visitor over with the
+ * place already in the box and the market attached to the lead.
+ */
+export default async function ContactPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const [team, settings, params] = await Promise.all([getTeam(), getSiteSettings(), searchParams]);
+  const place = first(params.place);
+  const defaultMessage = first(params.message) ?? (place ? `Asking about ${place}.` : undefined);
+  const marketParam = first(params.market);
+  const market = isMarketSlug(marketParam) ? marketParam : undefined;
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
     .join(", ");
@@ -31,7 +49,7 @@ export default async function ContactPage() {
           Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box, and one of us will write or call back.
         </p>
         <div className="border border-hairline bg-white p-6 sm:p-8">
-          <LeadForm form="contact" fields={["name", "email", "phone", "timing", "message"]} submitLabel="Send" />
+          <LeadForm form="contact" fields={["name", "email", "phone", "timing", "message"]} submitLabel="Send" defaultMessage={defaultMessage} hidden={{ market }} />
         </div>
       </div>
 
@@ -45,12 +63,12 @@ export default async function ContactPage() {
                 <p className="t-mono-sm text-graphite-500">
                   {m.title}
                 </p>
-                <a href={`tel:${m.phoneE164}`} className="font-mono text-[15px] text-navy hover:text-harbor-700">
+                <TrackedLink href={`tel:${m.phoneE164}`} event="Phone tap" props={{ where: "contact" }} className="font-mono text-[15px] text-navy hover:text-harbor-700">
                   {m.phone}
-                </a>
-                <a href={`sms:${m.phoneE164}`} className="t-small text-harbor-700 hover:text-navy">
+                </TrackedLink>
+                <TrackedLink href={`sms:${m.phoneE164}`} event="Phone tap" props={{ where: "contact-text" }} className="t-small text-harbor-700 hover:text-navy">
                   Text {m.name.split(" ")[0]}
-                </a>
+                </TrackedLink>
                 <a href={`mailto:${m.email}`} className="t-small break-all text-harbor-700 hover:text-navy">
                   {m.email}
                 </a>

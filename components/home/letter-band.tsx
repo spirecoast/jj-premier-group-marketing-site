@@ -9,8 +9,8 @@ export function LetterBand({ image }: { image: ImageRef }) {
     <CtaBand
       image={image}
       eyebrow={`08 · ${site.reportLong}`}
-      title="What happened on your street this quarter, in plain language."
-      body="Once a quarter, one page on what happened in Lakewood Ranch, Sarasota and Bradenton, and what it means for you."
+      title="What happened on your street this month, in plain language."
+      body="Once a month, one page on what happened in Lakewood Ranch, Sarasota and Bradenton, and what it means for you."
       minHeight="min-h-[560px]"
     >
       <LetterForm tone="dark" />

@@ -80,7 +80,7 @@ function threeFacts({
   const sun = addDays(fri, 2);
   const weekend = occurrences(index, fri < today ? today : fri, sun, {}, now);
   const month = Number(today.slice(5, 7));
-  const nextQuarterMonth = [1, 4, 7, 10].find((m) => m > month) ?? 1;
+  const nextReportMonth = (month % 12) + 1;
   const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return {
     atlas: {
@@ -95,7 +95,7 @@ function threeFacts({
       titles: [...new Set((tonight.length ? tonight : weekend).map((o) => o.e.t))].slice(0, 3),
     },
     tide: {
-      nextMonth: MONTHS[nextQuarterMonth - 1]!,
+      nextMonth: MONTHS[nextReportMonth - 1]!,
       guides: posts.filter((p) => !p.categories.includes("Market report")).slice(0, 2).map((p) => ({ title: p.title, slug: p.slug })),
     },
   };

@@ -40,6 +40,7 @@ function boundsOf(entries: IndexEntry[]): Bounds | null {
 export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerState; datasetVersion: string; asOf: string }) {
   const [entries, setEntries] = useState<IndexEntry[] | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [q, setQ] = useState(initial.q);
   const [filters, setFilters] = useState<Filters>(initial.filters);
   const [place, setPlace] = useState<string | null>(initial.place);
@@ -63,6 +64,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
 
   useEffect(() => {
     const ctrl = new AbortController();
+    setLoadError(false);
     fetch(`/api/neighborhoods/index?v=${encodeURIComponent(datasetVersion)}`, { signal: ctrl.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: { entries: IndexEntry[] }) => setEntries(data.entries))
@@ -70,7 +72,8 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
         if (err?.name !== "AbortError") setLoadError(true);
       });
     return () => ctrl.abort();
-  }, [datasetVersion]);
+  }, [datasetVersion, loadAttempt]);
+  const retryLoad = useCallback(() => setLoadAttempt((n) => n + 1), []);
 
   const by = useMemo(() => new Map((entries ?? []).map((e) => [e.s, e])), [entries]);
   const selected = place ? (by.get(place) ?? null) : null;
@@ -182,6 +185,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
       <ExplorerPanel
         loading={!entries && !loadError}
         error={loadError}
+        onRetry={retryLoad}
         q={q}
         onQuery={(v) => {
           setQ(v);

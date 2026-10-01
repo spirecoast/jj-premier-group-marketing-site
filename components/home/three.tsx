@@ -98,7 +98,7 @@ export function Three({ facts }: { facts: ThreeFacts }) {
           </li>
         </ul>
         <p className="t-mono-sm text-graphite-500">
-          One email, if you want it: {site.calendarShort} every Monday, {site.reportName} once a quarter. The boxes are further down.
+          One email, if you want it: {site.calendarShort} every Monday, {site.reportName} once a month. The boxes are further down.
         </p>
       </div>
     </section>

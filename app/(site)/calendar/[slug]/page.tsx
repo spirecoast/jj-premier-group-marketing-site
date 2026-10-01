@@ -10,6 +10,7 @@ import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { SaveInline } from "@/components/encore/save-inline";
 import { ShareButton } from "@/components/share-button";
+import { TrackedLink } from "@/components/tracked-link";
 import { subcategoryLabel } from "@/lib/encore/categories";
 import { getEvent, getEventSlugs, getListings, getUpcomingEvents } from "@/lib/content";
 import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, formatRun, weekdayName } from "@/lib/content/format";
@@ -141,9 +142,15 @@ export default async function EventPage({ params }: { params: Params }) {
                       {shownPerformances.map((p) => (
                         <li key={p.startsAt} className="flex items-baseline justify-between gap-3 border-b border-hairline py-1.5 last:border-b-0">
                           <span className="t-record text-navy">{formatEventWhen(p.startsAt, p.endsAt, p.allDay)}</span>
-                          <a href={`/api/calendar.ics?event=${event.slug}&at=${encodeURIComponent(p.startsAt)}`} className="t-mono-sm shrink-0 text-harbor-700 underline underline-offset-4 hover:text-navy" aria-label={`Add ${formatEventWhen(p.startsAt, p.endsAt, p.allDay)} to your calendar`}>
+                          <TrackedLink
+                            href={`/api/calendar.ics?event=${event.slug}&at=${encodeURIComponent(p.startsAt)}`}
+                            event="Calendar feed"
+                            props={{ kind: "performance", filter: event.slug }}
+                            className="t-mono-sm shrink-0 text-harbor-700 underline underline-offset-4 hover:text-navy"
+                            aria-label={`Add ${formatEventWhen(p.startsAt, p.endsAt, p.allDay)} to your calendar`}
+                          >
                             + Cal
-                          </a>
+                          </TrackedLink>
                         </li>
                       ))}
                     </ul>
@@ -190,9 +197,9 @@ export default async function EventPage({ params }: { params: Params }) {
             ) : (
               <p className="t-small text-body-muted">{free ? "Free. No ticket needed." : "Tickets at the door or from the venue."}</p>
             )}
-            <a href={`/api/calendar.ics?event=${event.slug}`} className="link-rule self-start">
+            <TrackedLink href={`/api/calendar.ics?event=${event.slug}`} event="Calendar feed" props={{ kind: "event", filter: event.slug }} className="link-rule self-start">
               {upcomingPerformances.length > 1 ? "Add every date to your calendar" : "Add to your calendar"}
-            </a>
+            </TrackedLink>
           </aside>
         </div>
       </article>
