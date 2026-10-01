@@ -34,7 +34,7 @@ export async function submitLead(
   const parsed = leadSchema.safeParse(raw);
   if (!parsed.success) {
     const errors = parsed.error.flatten().fieldErrors as Record<string, string[] | undefined>;
-    const rendered = new Set(["firstName", "lastName", "email", "phone", "address", "timing", "sellFirst", "message"]);
+    const rendered = new Set(["firstName", "lastName", "email", "phone", "address", "timing", "sellFirst", "message", "referredName", "reviewConsent"]);
     const hidden = Object.keys(errors).filter((k) => !rendered.has(k));
     return {
       ok: false,

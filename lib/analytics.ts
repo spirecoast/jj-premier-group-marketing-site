@@ -9,7 +9,8 @@ declare global {
   }
 }
 
-export type AnalyticsEvent = "Lead" | "Subscribe" | "Calendar feed" | "Phone tap" | "Share" | "Explore";
+/** Every goal and its props are mapped to the funnel in docs/MEASUREMENT.md. */
+export type AnalyticsEvent = "Lead" | "Subscribe" | "Review permission" | "Calendar feed" | "Phone tap" | "Share" | "Explore";
 
 export function track(event: AnalyticsEvent, props?: Record<string, string | number | boolean>) {
   if (typeof window === "undefined") return;

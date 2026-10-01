@@ -6,9 +6,9 @@ import Script from "next/script";
  *
  * Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to the site's domain as it is registered in
  * Plausible (no protocol). Custom events fire through lib/analytics.ts; the
- * goal names and their props are listed in docs/SITE.md (Lead, Subscribe,
- * Calendar feed, Phone tap, Share, Explore). Add each as a goal in the
- * Plausible dashboard. The lead pipeline also sends a separate "Lead server"
+ * goal names, their props and the funnel they answer are in
+ * docs/MEASUREMENT.md (Lead, Subscribe, Review permission, Calendar feed,
+ * Phone tap, Share, Explore). Add each as a goal in the Plausible dashboard. The lead pipeline also sends a separate "Lead server"
  * goal from the server (lib/plausible-server.ts) as an ad-blocker backstop.
  *
  * There is no CRM pixel: the team's CRM is the Home Platform, reached through

@@ -5,18 +5,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { submitLead } from "@/actions/submit-lead";
-import { readUtm } from "@/components/utm-tracker";
+import { readChannel, readUtm } from "@/components/utm-tracker";
 import {
   CONSENT_EMAIL_WORDING,
   CONSENT_WORDING,
+  REVIEW_CONSENT_WORDING,
   SELL_FIRST_OPTIONS,
   initialLeadState,
   type LeadForm as LeadFormKind,
   type LeadFormState,
 } from "@/lib/leads";
+import { REFER } from "@/lib/refer/copy";
+import { REVIEWS } from "@/lib/reviews/copy";
 import { cn } from "@/lib/utils";
 
-export type LeadField = "name" | "email" | "phone" | "timing" | "sellFirst" | "address" | "message";
+export type LeadField = "name" | "email" | "phone" | "timing" | "sellFirst" | "address" | "referredName" | "message" | "reviewConsent";
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
@@ -26,6 +29,8 @@ const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
   letter: { title: "You’re on the list.", body: "Tide goes out once a month. One page, written for you." },
   calendar: { title: "You’re on the list.", body: "The full calendar, every Monday." },
+  referral: REFER.success,
+  "review-permission": REVIEWS.success,
 };
 
 const LABELS: Record<LeadField, string> = {
@@ -35,7 +40,9 @@ const LABELS: Record<LeadField, string> = {
   timing: "When are you moving?",
   sellFirst: "Is there a house to sell first?",
   address: "Street address",
+  referredName: "Their first name",
   message: "Message",
+  reviewConsent: REVIEW_CONSENT_WORDING,
 };
 
 type Props = {
@@ -53,6 +60,12 @@ type Props = {
   defaultMessage?: string;
   /** Pre-filled street address, e.g. the street carried over from the sold search. */
   defaultAddress?: string;
+  /** Label overrides, e.g. "Your first name" on the referral form. `name` relabels the first-name box. */
+  labels?: Partial<Record<LeadField, string>>;
+  /** The message box is required (the review-permission form, where it holds the words). */
+  messageRequired?: boolean;
+  /** Show the email and call/text consent boxes (default). Off where they'd be out of place, e.g. a review permission. */
+  marketingConsent?: boolean;
 };
 
 function FieldError({ messages, id }: { messages?: string[]; id: string }) {
@@ -82,9 +95,13 @@ export function LeadForm({
   placeholderMessage = "Tell us the timing, and what you’re looking at.",
   defaultMessage,
   defaultAddress,
+  labels = {},
+  messageRequired = false,
+  marketingConsent = true,
 }: Props) {
   const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
   const [utm, setUtm] = useState<Record<string, string>>({});
+  const [channel, setChannel] = useState<string | null>(null);
   const [pageUrl, setPageUrl] = useState("");
   const uid = useId();
   const router = useRouter();
@@ -92,6 +109,7 @@ export function LeadForm({
   const successRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     setUtm(readUtm());
+    setChannel(readChannel());
     setPageUrl(window.location.href);
   }, []);
   useEffect(() => {
@@ -123,6 +141,7 @@ export function LeadForm({
   }
 
   const has = (f: LeadField) => fields.includes(f);
+  const label = (f: LeadField) => labels[f] ?? LABELS[f];
   const err = (k: string) => (state.errors as Record<string, string[] | undefined> | undefined)?.[k];
 
   return (
@@ -130,6 +149,7 @@ export function LeadForm({
       <input type="hidden" name="form" value={form} />
       <input type="hidden" name="pageUrl" value={pageUrl} />
       {Object.entries(hidden).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
+      {channel && !hidden.source ? <input type="hidden" name="source" value={channel} /> : null}
       {Object.entries(utm).map(([k, v]) => (
         <input key={k} type="hidden" name={`utm__${k}`} value={v} />
       ))}
@@ -146,7 +166,7 @@ export function LeadForm({
           <>
             <div className="field">
               <label htmlFor={`${uid}-first`} className={cn("field-label", labelColor)}>
-                First name
+                {labels.name ?? "First name"}
               </label>
               <input id={`${uid}-first`} name="firstName" autoComplete="given-name" required className={cn("field-input", inputColor)} aria-invalid={Boolean(err("firstName"))} aria-describedby={err("firstName") ? `${uid}-first-err` : undefined} />
               <FieldError id={`${uid}-first-err`} messages={err("firstName")} />
@@ -162,7 +182,7 @@ export function LeadForm({
         {has("email") ? (
           <div className="field">
             <label htmlFor={`${uid}-email`} className={cn("field-label", labelColor)}>
-              {LABELS.email}
+              {label("email")}
             </label>
             <input id={`${uid}-email`} type="email" name="email" autoComplete="email" required placeholder="you@example.com" className={cn("field-input", inputColor)} aria-invalid={Boolean(err("email"))} aria-describedby={err("email") ? `${uid}-email-err` : undefined} />
             <FieldError id={`${uid}-email-err`} messages={err("email")} />
@@ -214,24 +234,44 @@ export function LeadForm({
             </select>
           </div>
         ) : null}
+        {has("referredName") ? (
+          <div className={cn("field", columns && "sm:col-span-2")}>
+            <label htmlFor={`${uid}-referred`} className={cn("field-label", labelColor)}>
+              {label("referredName")}
+            </label>
+            <input id={`${uid}-referred`} name="referredName" autoComplete="off" required className={cn("field-input", inputColor)} aria-invalid={Boolean(err("referredName"))} aria-describedby={err("referredName") ? `${uid}-referred-err` : undefined} />
+            <FieldError id={`${uid}-referred-err`} messages={err("referredName")} />
+          </div>
+        ) : null}
         {has("message") ? (
           <div className={cn("field", columns && "sm:col-span-2")}>
             <label htmlFor={`${uid}-message`} className={cn("field-label", labelColor)}>
-              {LABELS.message} <span className="normal-case tracking-normal opacity-70">(optional)</span>
+              {label("message")}
+              {messageRequired ? null : <span className="normal-case tracking-normal opacity-70"> (optional)</span>}
             </label>
-            <textarea id={`${uid}-message`} name="message" rows={4} placeholder={placeholderMessage} defaultValue={defaultMessage} className={cn("field-input resize-y", inputColor)} />
+            <textarea id={`${uid}-message`} name="message" rows={messageRequired ? 6 : 4} required={messageRequired} placeholder={placeholderMessage} defaultValue={defaultMessage} className={cn("field-input resize-y", inputColor)} aria-invalid={Boolean(err("message"))} aria-describedby={err("message") ? `${uid}-message-err` : undefined} />
+            <FieldError id={`${uid}-message-err`} messages={err("message")} />
           </div>
         ) : null}
       </div>
 
       <div className="flex flex-col gap-4">
-        {has("email") ? (
+        {has("reviewConsent") ? (
+          <div className="flex flex-col gap-2">
+            <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
+              <input type="checkbox" name="reviewConsent" value="on" required className="mt-1 size-4 shrink-0 accent-sky-700" aria-invalid={Boolean(err("reviewConsent"))} aria-describedby={err("reviewConsent") ? `${uid}-review-err` : undefined} />
+              <span>{label("reviewConsent")}</span>
+            </label>
+            <FieldError id={`${uid}-review-err`} messages={err("reviewConsent")} />
+          </div>
+        ) : null}
+        {marketingConsent && has("email") ? (
           <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
             <input type="checkbox" name="consentEmail" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
             <span>{CONSENT_EMAIL_WORDING}</span>
           </label>
         ) : null}
-        {has("phone") ? (
+        {marketingConsent && has("phone") ? (
           <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
             <input type="checkbox" name="consent" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
             <span>{CONSENT_WORDING}</span>

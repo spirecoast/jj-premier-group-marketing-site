@@ -29,6 +29,9 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/about", priority: 0.6, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.6, changeFrequency: "weekly" },
   { path: "/contact", priority: 0.5, changeFrequency: "yearly" },
+  // /from/* are bio and post links: noindex and left out on purpose.
+  { path: "/refer", priority: 0.4, changeFrequency: "yearly" },
+  { path: "/reviews", priority: 0.4, changeFrequency: "yearly" },
   { path: "/privacy", priority: 0.2, changeFrequency: "yearly" },
   { path: "/terms", priority: 0.2, changeFrequency: "yearly" },
 ];

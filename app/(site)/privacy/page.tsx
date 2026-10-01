@@ -31,10 +31,10 @@ export default async function PrivacyPage() {
 
         <h2>What we collect</h2>
         <p>
-          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, we collect your email address and, where our systems record it, the date and time you gave consent to receive it.
+          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. If you tell us about someone who is moving here, we collect only their first name and your note, and we contact them only after you have told them we will. If you send us words about working with us, we keep them with the permission you gave, and nothing appears on the site until we have checked it with you. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, we collect your email address and, where our systems record it, the date and time you gave consent to receive it.
         </p>
         <p>
-          <strong>What your browser sends.</strong> Like most websites, our hosting provider, Vercel, records the pages you visit, the time, your IP address, the browser you use and the page that referred you. If you arrive from an advertisement or an email, the campaign tags in the link are stored in your browser for the length of your visit so we know what brought you here.
+          <strong>What your browser sends.</strong> Like most websites, our hosting provider, Vercel, records the pages you visit, the time, your IP address, the browser you use and the page that referred you. When you first arrive we store, in your browser for up to 90 days, the page you landed on, the site or social profile that sent you and any campaign tags in the link; they travel with any form you send.
         </p>
         <p>
           <strong>Maps.</strong> The Atlas neighborhood explorer draws its map from tiles served by {MAP_PROVIDER_NAME}. Your browser fetches those tiles directly, so {MAP_PROVIDER_NAME} sees your IP address in the same way any website you visit does. It does not receive your name or anything you type here.

@@ -14,7 +14,10 @@
  *
  * The lead is tagged "test" everywhere it lands (leads.is_test, the CRM tags,
  * the team email subject) so the Zap can filter it and nobody calls it back.
- * Forms: contact, buy, sell, listing, valuation, letter, calendar.
+ * Forms: contact, buy, sell, listing, valuation, letter, calendar, referral
+ * (/refer) and review-permission (/reviews). Each payload carries only the
+ * fields its form can send: no marketing boxes on review-permission, no
+ * timing or market on either of the last two.
  */
 
 const args = process.argv.slice(2);
@@ -41,20 +44,31 @@ if (!hookMode && live && !secret) {
 
 const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
 const emailOnly = form === "letter" || form === "calendar";
+const review = form === "review-permission";
+const referral = form === "referral";
+/** The email and call/text boxes: every form with a name field except the review permission. */
+const marketing = !emailOnly && !review;
+/** A phone field: not on the subscribe bars or the review permission. */
+const withPhone = !emailOnly && !review;
+/** Timing select and a market (hidden, from a hub, the planner or Atlas match): the original enquiry forms only. */
+const withTiming = !emailOnly && !review && !referral;
+const withMarket = withTiming;
 const lead = {
   form,
   firstName: emailOnly ? "" : "Test",
   lastName: emailOnly ? "" : `Lead ${stamp}`,
   email: `test+${stamp}@jjpremiergroup.com`,
-  phone: emailOnly ? "" : "(941) 555-0199",
+  phone: withPhone ? "(941) 555-0199" : "",
   message: `TEST LEAD from scripts/test-lead.mjs at ${new Date().toISOString()}. Ignore; do not call.`,
-  timing: emailOnly ? "" : "Just watching the market",
+  timing: withTiming ? "Just watching the market" : "",
   sellFirst: form === "buy" ? "Not sure yet" : "",
-  market: emailOnly ? "" : "sarasota",
+  market: withMarket ? "sarasota" : "",
   address: form === "valuation" || form === "sell" ? "1 Test Street, Sarasota, FL" : "",
-  pageUrl: `${base}/${form === "letter" ? "blog" : form === "calendar" ? "calendar" : form}`,
-  consent: emailOnly ? "" : "on",
-  consentEmail: emailOnly ? "" : "on",
+  pageUrl: `${base}/${form === "letter" ? "blog" : form === "calendar" ? "calendar" : form === "referral" ? "refer" : form === "review-permission" ? "reviews" : form}`,
+  referredName: referral ? "Sam" : "",
+  reviewConsent: review ? "on" : "",
+  consent: marketing ? "on" : "",
+  consentEmail: marketing ? "on" : "",
   utm: { utm_source: "launch-test", utm_medium: "script", utm_campaign: "rehearsal", landing_path: "/", captured_at: new Date().toISOString() },
   test: true,
 };
@@ -62,12 +76,14 @@ const lead = {
 /** The payload as lib/lead-pipeline.ts builds it, for --hook mode. Keep in step with CrmLead in lib/crm.ts. */
 function samplePayload() {
   const now = new Date().toISOString();
-  const consentEmail = true;
-  const consentSms = !emailOnly;
+  // Subscribing implies email; otherwise the rehearsal ticks both boxes wherever the form shows them.
+  const consentEmail = emailOnly || marketing;
+  const consentSms = marketing && withPhone;
   const tags = [`form:${form}`];
   if (lead.market) tags.push(`market:${lead.market}`);
   if (consentEmail) tags.push("consent:email");
   if (consentSms) tags.push("consent:sms");
+  if (review) tags.push("consent:review");
   tags.push("source:launch-test", "site:jjpremiergroup", "test");
   return {
     form,
@@ -84,8 +100,18 @@ function samplePayload() {
       form === "listing"
         ? { slug: "sample-listing", title: "Sample listing", street: "1 Test Street", city: "Sarasota", state: "FL", zip: "34236", price: 1, mls: "TEST", url: `${base}/listings/sample-listing` }
         : null,
-    consent: { email: consentEmail, sms: consentSms, timestamp: now, wordingVersion: emailOnly ? "implied:subscribe" : "2026-10-01.2" },
+    referral: referral ? { firstName: lead.referredName } : null,
+    consent: {
+      email: consentEmail,
+      sms: consentSms,
+      timestamp: consentEmail || consentSms ? now : null,
+      wordingVersion: emailOnly ? "implied:subscribe" : marketing ? "2026-10-01.2" : "none:not-shown",
+      review,
+      reviewAt: review ? now : null,
+      reviewWordingVersion: review ? "review:2026-10-01.1" : null,
+    },
     source: {
+      channel: null,
       page: lead.pageUrl,
       referrer: null,
       utm_source: lead.utm.utm_source,

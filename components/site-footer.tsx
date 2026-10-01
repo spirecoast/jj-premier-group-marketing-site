@@ -1,13 +1,27 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { Briefcase, Camera, Globe, House, Mailbox, MapPin, MessagesSquare, SquarePlay, type LucideIcon } from "lucide-react";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
-import { footerNav, site } from "@/lib/site";
+import { allSocialLinks, footerNav, site, type SocialNetwork } from "@/lib/site";
 import { img } from "@/lib/content/seed/helpers";
 import { Photo } from "./photo";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
 import { Wordmark } from "./wordmark";
+
+/** The three market hubs: a click on one counts as Explore {action: "hub"}. */
+const HUB_PATHS = new Set(["/lakewood-ranch", "/sarasota", "/bradenton"]);
+
+/**
+ * Plausible's tagged-events classes, so the hub links stay `next/link` (client
+ * navigation and prefetch). The script sees Link's preventDefault and only
+ * records the goal; it never takes over the navigation.
+ */
+function hubGoalClasses(href: string): string | undefined {
+  if (!HUB_PATHS.has(href)) return undefined;
+  return `plausible-event-name=Explore plausible-event-action=hub plausible-event-where=footer plausible-event-hub=${href.slice(1)}`;
+}
 
 function Column({ title, links }: { title: string; links: readonly { href: string; label: string }[] }) {
   return (
@@ -16,7 +30,7 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
       <ul className="flex flex-col gap-2.5 text-[14px]">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href as Route} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
+            <Link href={l.href as Route} className={["-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
               {l.label}
             </Link>
           </li>
@@ -25,6 +39,21 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
     </div>
   );
 }
+
+/**
+ * lucide-react has no brand marks (they were dropped from the set), so each
+ * network gets a plain glyph and its name as the accessible label.
+ */
+const SOCIAL_ICON: Record<SocialNetwork, LucideIcon> = {
+  google: MapPin,
+  youtube: SquarePlay,
+  instagram: Camera,
+  facebook: MessagesSquare,
+  nextdoor: Mailbox,
+  linkedin: Briefcase,
+  zillow: House,
+  other: Globe,
+};
 
 const PIER = img("library/venice-pier-sunrise", "A fishing pier reaching into the Gulf at sunrise", "62% 55%");
 
@@ -35,6 +64,7 @@ const PIER = img("library/venice-pier-sunrise", "A fishing pier reaching into th
  */
 export function SiteFooter({ settings, team }: { settings: SiteSettings; team: TeamMember[] }) {
   const year = new Date().getFullYear();
+  const social = allSocialLinks(settings.socialLinks);
   // Registered full name beside each confirmed number; an unconfirmed license is omitted, never guessed.
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
@@ -79,15 +109,25 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               <br />
               {office}
             </address>
-            {settings.socialLinks.length ? (
-              <ul className="mt-1 flex flex-wrap gap-4 text-[14px]">
-                {settings.socialLinks.map((s) => (
-                  <li key={s.url}>
-                    <a href={s.url} rel="noopener noreferrer" target="_blank" className="text-navy hover:text-harbor-700">
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
+            {social.length ? (
+              <ul className="mt-1 flex flex-wrap gap-2" aria-label="The team elsewhere">
+                {social.map((s) => {
+                  const Icon = SOCIAL_ICON[s.network];
+                  return (
+                    <li key={s.url}>
+                      <a
+                        href={s.url}
+                        rel="me noopener noreferrer"
+                        target="_blank"
+                        aria-label={`${s.label} (opens in a new tab)`}
+                        title={s.label}
+                        className="flex size-11 items-center justify-center border border-rule text-navy transition-colors hover:border-navy hover:text-harbor-700"
+                      >
+                        <Icon className="size-[18px]" strokeWidth={1.5} aria-hidden="true" />
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             ) : null}
           </div>

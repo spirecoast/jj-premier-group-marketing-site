@@ -9,8 +9,15 @@ import { site } from "@/lib/site";
 
 export const revalidate = 3600;
 
+/** The unfiltered feed's window: a phone calendar refreshes this every few hours, so it stays small. */
+const DEFAULT_DAYS = 90;
+/** Filtered feeds, and the full feed (`?all=1`), run six months out. */
+const FULL_DAYS = 183;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 /**
- * GET /api/calendar.ics                       → every upcoming event
+ * GET /api/calendar.ics                       → the next 90 days, every category and market
+ * GET /api/calendar.ics?all=1                 → every upcoming event, six months out
  * GET /api/calendar.ics?event=slug            → one production, every date
  * GET /api/calendar.ics?event=slug&at=<iso>   → one performance
  * GET /api/calendar.ics?category=music&market=sarasota&venue=van-wezel
@@ -27,8 +34,12 @@ export async function GET(request: NextRequest) {
   const marketParam = sp.get("market");
   const market = isRegionSlug(marketParam) ? marketParam : undefined;
   const venue = sp.get("venue")?.match(/^[a-z0-9-]{1,120}$/) ? sp.get("venue")! : undefined;
+  const all = sp.get("all") === "1";
   const now = new Date();
-  const horizon = new Date(now.getTime() + 183 * 24 * 60 * 60 * 1000);
+  // Unfiltered and not asked for in full: the rolling 90-day window.
+  const windowed = !(all || category || market || venue);
+  const days = windowed ? DEFAULT_DAYS : FULL_DAYS;
+  const horizon = new Date(now.getTime() + days * DAY_MS);
   let events: Occurrence[];
   if (slug) {
     const e = await getEvent(slug);
@@ -38,7 +49,9 @@ export async function GET(request: NextRequest) {
     events = (chosen.length ? chosen : perfs).map((p) => ({ event: e, ...p }));
   } else {
     const [dated, onView] = await Promise.all([getOccurrences({ from: now, to: horizon, category, market, venue }), getOnView({ category, market })]);
-    events = [...dated, ...onView.filter((e) => !venue || e.venue.slug === venue).map((e) => ({ event: e, startsAt: e.startsAt, endsAt: e.endsAt, allDay: true }))];
+    // Exhibitions: every current run, plus (in the 90-day feed) only the ones opening inside the window.
+    const runs = onView.filter((e) => (!venue || e.venue.slug === venue) && (!windowed || Date.parse(e.startsAt) <= horizon.getTime()));
+    events = [...dated, ...runs.map((e) => ({ event: e, startsAt: e.startsAt, endsAt: e.endsAt, allDay: true }))];
   }
   const feedName = [category ? EVENT_CATEGORY_LABEL[category] : undefined, market ? marketName(market) : undefined, venue ? events[0]?.event.venue.name : undefined]
     .filter(Boolean)

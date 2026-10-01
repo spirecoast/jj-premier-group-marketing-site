@@ -1,6 +1,6 @@
 import "server-only";
 import { sendLeadEvent, type FubProperty } from "@/lib/fub";
-import { FUB_TYPE, type LeadForm } from "@/lib/leads";
+import { FUB_TYPE, IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION, type LeadForm } from "@/lib/leads";
 import { getCrmProvider, type CrmProvider } from "@/lib/lead-sinks";
 import { site } from "@/lib/site";
 
@@ -24,13 +24,29 @@ export type { CrmProvider };
 export type LeadConsent = {
   email: boolean;
   sms: boolean;
-  /** When either box was ticked; null when neither was. */
+  /** When the email or call/text box was ticked (or email was implied by subscribing); null when neither. Never the review box. */
   timestamp: string | null;
-  /** lib/leads.ts CONSENT_WORDING_VERSION at the time of submission. */
+  /**
+   * The marketing-consent wording the visitor saw (lib/leads.ts):
+   * CONSENT_WORDING_VERSION beside the two boxes, IMPLIED_CONSENT_VERSION
+   * (`implied:subscribe`) on the Tide and Encore bars, NOT_SHOWN_CONSENT_VERSION
+   * (`none:not-shown`) on a form that shows neither box (review-permission).
+   */
   wordingVersion: string;
+  /**
+   * Review-permission form only: the visitor ticked REVIEW_CONSENT_WORDING
+   * (their words, first name and place on the site). Always false elsewhere.
+   */
+  review: boolean;
+  /** When the review box was ticked; null otherwise. */
+  reviewAt: string | null;
+  /** REVIEW_CONSENT_VERSION when `review` is true; null otherwise. */
+  reviewWordingVersion: string | null;
 };
 
 export type LeadSource = {
+  /** The /from/<channel> landing page the visitor came through this session (youtube, instagram, facebook, nextdoor). */
+  channel: string | null;
   page: string | null;
   referrer: string | null;
   utm_source: string | null;
@@ -74,6 +90,11 @@ export type CrmLead = {
   sellFirst: string | null;
   /** Listing inquiries only. */
   property: LeadProperty | null;
+  /**
+   * Referral form only: the first name of the person who's moving. No contact
+   * details for them are asked; the team writes back to the referrer first.
+   */
+  referral: { firstName: string } | null;
   consent: LeadConsent;
   source: LeadSource;
   submittedAt: string;
@@ -95,6 +116,10 @@ export function leadTags(input: {
   market?: string | null;
   consentEmail: boolean;
   consentSms: boolean;
+  /** Review-permission form: the visitor gave permission to use their words. */
+  consentReview?: boolean;
+  /** The /from/<channel> page this session came through; wins over utm_source. */
+  channel?: string | null;
   utmSource?: string | null;
   test?: boolean;
 }): string[] {
@@ -102,7 +127,8 @@ export function leadTags(input: {
   if (input.market) tags.push(`market:${input.market}`);
   if (input.consentEmail) tags.push("consent:email");
   if (input.consentSms) tags.push("consent:sms");
-  tags.push(`source:${(input.utmSource || "direct").toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`);
+  if (input.consentReview) tags.push("consent:review");
+  tags.push(`source:${(input.channel || input.utmSource || "direct").toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`);
   tags.push("site:jjpremiergroup");
   if (input.test) tags.push("test");
   return tags;
@@ -160,9 +186,14 @@ async function deliverViaFub(lead: CrmLead): Promise<CrmResult> {
     lead.market ? `Market: ${lead.market}` : undefined,
     lead.propertyAddress ? `Address to value: ${lead.propertyAddress}` : undefined,
     lead.property?.title ? `Property: ${lead.property.title}` : undefined,
+    lead.referral ? `Referral: ${lead.referral.firstName} (we reach out only after the referrer has told them)` : undefined,
+    lead.consent.review ? `Review permission: YES at ${lead.consent.reviewAt} (wording ${lead.consent.reviewWordingVersion})` : undefined,
+    lead.source.channel ? `Came through: /from/${lead.source.channel}` : undefined,
     "",
     `Form: ${lead.form} · ${lead.site}`,
-    `Email consent: ${lead.consent.email ? `YES at ${lead.consent.timestamp}` : "NO"} · Call/text consent: ${lead.consent.sms ? `YES at ${lead.consent.timestamp}` : "NO"} (both unchecked by default; wording ${lead.consent.wordingVersion})`,
+    lead.consent.wordingVersion === NOT_SHOWN_CONSENT_VERSION
+      ? "Email and call/text consent: not asked on this form"
+      : `Email consent: ${lead.consent.email ? `YES at ${lead.consent.timestamp}` : "NO"} · Call/text consent: ${lead.consent.sms ? `YES at ${lead.consent.timestamp}` : "NO"} (${lead.consent.wordingVersion === IMPLIED_CONSENT_VERSION ? "email implied by subscribing" : "both unchecked by default"}; wording ${lead.consent.wordingVersion})`,
   ].filter((l): l is string => l !== undefined && l !== null);
 
   const property: FubProperty | undefined = lead.property
@@ -189,9 +220,9 @@ async function deliverViaFub(lead: CrmLead): Promise<CrmResult> {
       tags: ["website", ...lead.tags],
     },
     property,
-    campaign: lead.source.utm_source
+    campaign: lead.source.utm_source || lead.source.channel
       ? {
-          source: lead.source.utm_source,
+          source: (lead.source.utm_source ?? lead.source.channel)!,
           medium: lead.source.utm_medium ?? undefined,
           term: lead.source.utm_term ?? undefined,
           content: lead.source.utm_content ?? undefined,

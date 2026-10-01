@@ -146,9 +146,65 @@ export const footerNav = {
     { href: "/sell", label: "Selling" },
     { href: "/valuation", label: "What is my home worth" },
     { href: "/contact", label: "Contact" },
+    { href: "/refer", label: "Refer someone" },
+    { href: "/reviews", label: "Tell us how it went" },
   ],
   legal: [
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
   ],
 } as const satisfies Record<string, readonly NavItem[]>;
+
+export type SocialNetwork = "google" | "youtube" | "instagram" | "facebook" | "nextdoor" | "linkedin" | "zillow" | "other";
+
+export type SocialLink = {
+  network: SocialNetwork;
+  /** The visible name, e.g. "YouTube". Also the icon's accessible name. */
+  label: string;
+  /** The team's own profile, not a login page. */
+  url: string;
+};
+
+/**
+ * The team's social profiles: the footer row and `sameAs` in the
+ * RealEstateAgent JSON-LD. Empty until the client sends the live URLs
+ * (docs/LAUNCH.md 1.11 and 1.12); nothing renders while it is empty. The
+ * `socialLinks` field in Sanity's site settings adds to this list once
+ * Sanity is live.
+ *
+ *   { network: "youtube", label: "YouTube", url: "https://www.youtube.com/@…" },
+ */
+export const socialLinks: readonly SocialLink[] = [];
+
+const NETWORK_HOSTS: [RegExp, SocialNetwork][] = [
+  [/(^|\.)youtube\.com$|(^|\.)youtu\.be$/, "youtube"],
+  [/(^|\.)instagram\.com$/, "instagram"],
+  [/(^|\.)facebook\.com$|(^|\.)fb\.com$/, "facebook"],
+  [/(^|\.)nextdoor\.com$/, "nextdoor"],
+  [/(^|\.)linkedin\.com$/, "linkedin"],
+  [/(^|\.)zillow\.com$/, "zillow"],
+  [/(^|\.)g\.page$|(^|\.)google\.com$|^maps\.app\.goo\.gl$|^g\.co$/, "google"],
+];
+
+/** The network a profile URL belongs to, from its host. */
+export function socialNetwork(url: string): SocialNetwork {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return NETWORK_HOSTS.find(([re]) => re.test(host))?.[1] ?? "other";
+  } catch {
+    return "other";
+  }
+}
+
+/** The code list plus any added in the CMS, deduplicated by URL; empty URLs are dropped. */
+export function allSocialLinks(cms: readonly { label: string; url: string }[] = []): SocialLink[] {
+  const seen = new Set<string>();
+  const out: SocialLink[] = [];
+  for (const l of [...socialLinks, ...cms.map((c) => ({ ...c, network: socialNetwork(c.url) }))]) {
+    const url = l.url.trim();
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    out.push({ network: l.network, label: l.label || l.network, url });
+  }
+  return out;
+}

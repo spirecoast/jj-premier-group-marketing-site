@@ -45,8 +45,8 @@ looks like. Collect the answers in writing (email is fine) before section 6.
 | 1.8 | **Registrar and DNS access** | The domain's nameservers are Cloudflare. Section 6 adds records there. Someone must be able to log in to the Cloudflare account that holds `jjpremiergroup.com` (and the registrar, in case the nameservers ever need changing). | Josh can open the zone `jjpremiergroup.com` in Cloudflare and sees the DNS tab. Account owner recorded: `<owner>`. Registrar recorded: `<registrar>`. |
 | 1.9 | **Current listing page URL** | Same value as 1.6, listed separately because the agents can answer it today without the brokerage. | `NEXT_PUBLIC_LISTINGS_URL` set in Vercel and the link on `/listings` opens it. |
 | 1.10 | **Stellar MLS IDX request to the broker** | No MLS data or MLS wording may appear until an IDX licence exists; the licence needs the broker's signature and Stellar's approval and takes weeks. It does not block launch, but the clock starts only when the broker is asked. | The broker of record has the request in writing with a date; vendor or feed choice recorded: `<vendor | custom feed | not yet>`. |
-| 1.11 | **Google Business Profile** | The client is creating it. Name, address and phone on the profile must match the footer and the JSON-LD exactly (same punctuation, same suite line). Its URL goes into `socialLinks` in `settings.ts` so it appears in `sameAs`. | The profile is verified by Google, its website field is `https://jjpremiergroup.com`, and its URL is recorded: `<GBP URL>`. |
-| 1.12 | **Social URLs** | `socialLinks` is empty in `settings.ts`; the footer and `sameAs` show nothing until it is filled. | A list of live profile URLs the team actually maintains (Instagram, Facebook, LinkedIn, Zillow, RealSatisfied): `<urls>`. Each opens to the team's profile, not a login page. |
+| 1.11 | **Google Business Profile** | The client is creating it. Name, address and phone on the profile must match the footer and the JSON-LD exactly (same punctuation, same suite line). Its URL goes into `socialLinks` in `lib/site.ts` (`{ network: "google", label: "Google", url }`) so it appears in the footer and in `sameAs`. Its review short link (Business Profile → Get more reviews) goes into `NEXT_PUBLIC_GOOGLE_REVIEW_URL`, which turns on the "Write a Google review" button on `/reviews`. | The profile is verified by Google, its website field is `https://jjpremiergroup.com`, and both URLs are recorded: `<GBP URL>`, `<review link>`. |
+| 1.12 | **Social URLs** | `socialLinks` in `lib/site.ts` is deliberately empty (the Sanity site settings can add more once Sanity is live); the footer's icon row and `sameAs` in the RealEstateAgent JSON-LD render nothing until it is filled. Each entry is `{ network, label, url }`, `network` one of google, youtube, instagram, facebook, nextdoor, linkedin, zillow, other. The bio links on those profiles point at `/from/youtube`, `/from/instagram`, `/from/facebook` and `/from/nextdoor` (noindex landing pages that tag the lead `source:<channel>`). | A list of live profile URLs the team actually maintains (YouTube, Instagram, Facebook, Nextdoor, LinkedIn, Zillow): `<urls>`. Each opens to the team's profile, not a login page. They are added to `lib/site.ts` and deployed; the footer shows one icon per profile and `/` carries them in `sameAs`. |
 | 1.13 | **Trust-section facts** | Every factual claim on the site (years licensed, memberships, designations, markets served, the office) must come from the agents in writing; nothing is hand-typed from memory. The home page carries no figures by design. | For every fact the agents want stated, a one-line source (the DBPR record, the NAR card, the designation certificate) is on file; anything without one stays off the site. |
 | 1.14 | **Client quotes** | `TESTIMONIALS` is empty. A quote goes live only through the Sanity `testimonial` document with `permissionOnFile` checked, so until Sanity is online there are none. | Written permission from each client is on file; the quote text, the client's first name and the date are recorded; they are entered when Sanity is live (`docs/SITE.md`, "Content: seed now, Sanity when ready"). |
 
@@ -100,6 +100,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION` | Harmless while `NEXT_PUBLIC_SANITY_PROJECT_ID` is empty (`production` and `2026-09-01` in `.env.example`). |
 | `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS` | Leave empty. `true` would put the sample listings on the live site. |
 | `NEXT_PUBLIC_PLAUSIBLE_HOST` | Leave empty (plausible.io). Only for a self-hosted instance. |
+| `NEXT_PUBLIC_GOOGLE_REVIEW_URL` | The Google Business Profile review link from 1.11 (`https://g.page/r/…`). Shows "Write a Google review" on `/reviews`; empty shows a "coming soon" line. Must be `https`. Inlined at build time like every `NEXT_PUBLIC_*` value, so setting or changing it needs a redeploy (6.6). |
 
 ### Stay unset at launch
 
@@ -136,16 +137,17 @@ The Filter step in 3.3 keys on the top-level `form`. Expect:
 
 | Field | Source | Notes |
 |---|---|---|
-| form | hidden `form` input | One of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`, `calendar`. |
+| form | hidden `form` input | One of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`, `calendar`, `referral` (`/refer`), `review-permission` (`/reviews`). |
 | firstName, lastName | name fields | "Jane Doe" typed in the first box is split. `letter` and `calendar` have no name (empty strings). |
 | email | required on every form | Lower-cased. |
 | phone | optional | As typed; not normalised. `null` when empty. |
 | message, timing, sellFirst, market, propertyAddress | optional | `market` is one of `lakewood-ranch`, `sarasota`, `bradenton`; `sellFirst` is the buy form's "Is there a house to sell first?" answer; `propertyAddress` the valuation/sell address. |
 | property (slug, title, street, city, state, zip, price, mls, url) | `listing` form only | `null` otherwise. |
-| consent (email, sms, timestamp, wordingVersion) | the two unchecked-by-default boxes | `letter`/`calendar` imply `email: true` with `wordingVersion` `implied:subscribe`; otherwise `wordingVersion` is `CONSENT_WORDING_VERSION` in `lib/leads.ts`. |
-| source (page, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, landingPath, firstTouchReferrer, firstTouchAt) | the page URL, the Referer header and the 90-day first touch from `components/utm-tracker.tsx` | Absent values are `null`, never missing. |
+| referral (firstName) | `referral` form only | The first name of the person who's moving; nothing else about them is asked. `null` otherwise. Write back to the referrer (`firstName`, `email`) first: the page promises we reach out only after they've told the person. |
+| consent (email, sms, timestamp, wordingVersion, review, reviewAt, reviewWordingVersion) | the two unchecked-by-default boxes; the review box on `/reviews` | `timestamp` and `wordingVersion` are about email and calls/texts only. `letter`/`calendar` imply `email: true` with `wordingVersion` `implied:subscribe`; `review-permission` shows neither box, so `email` and `sms` are `false`, `timestamp` is `null` and `wordingVersion` is `none:not-shown`; everything else carries `CONSENT_WORDING_VERSION` from `lib/leads.ts`. `review` is `true` only on `review-permission` (the box is required there), with its own `reviewAt` and `reviewWordingVersion` (`REVIEW_CONSENT_VERSION`). |
+| source (channel, page, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, landingPath, firstTouchReferrer, firstTouchAt) | the page URL, the Referer header and the 90-day first touch from `components/utm-tracker.tsx` | Absent values are `null`, never missing. `channel` is youtube, instagram, facebook or nextdoor when the visit came through `/from/<channel>`. |
 | submittedAt | the server clock | ISO timestamp. |
-| tags | built by the pipeline | `form:<form>`; `market:<market>` when set; `consent:email` and `consent:sms` when given; `source:<utm_source or direct>`; `site:jjpremiergroup`; `test` on rehearsal leads. |
+| tags | built by the pipeline | `form:<form>`; `market:<market>` when set; `consent:email` and `consent:sms` when given; `consent:review` on a review permission; `source:<channel, else utm_source, else direct>`; `site:jjpremiergroup`; `test` on rehearsal leads. |
 | site, test | constants | `jjpremiergroup.com`; `test` is `true` only from `scripts/test-lead.mjs`. |
 
 ### 3.3 Filter by form kind
@@ -161,6 +163,12 @@ Add **Filter by Zapier** after the trigger. Two sensible rules; pick one and wri
 - Only enquiries reach the CRM: put the same filter directly after the trigger and route `letter`
   and `calendar` to a Google Sheet or to the Supabase mirror only. Subscribers are then in Supabase
   only (section 4.5), which is also where the Marketing Center import comes from.
+
+Two later form kinds need the same thought. `referral` is an enquiry from the referrer, so the
+enquiry reply suits it, but nobody should contact the person named in `referral.firstName` until the
+referrer has told them. `review-permission` is not an enquiry: leave it out of the Outlook step
+(`form` **Does not exactly match** `review-permission`) and have an agent thank the client by hand;
+the words are in `message` and the permission in `consent.review`.
 
 A honeypot submission never reaches the webhook (the action returns a fake success before sending), so
 no bot filter is needed here. Add a Filter on `test` **(Boolean) Is false** before the CRM step if
@@ -562,8 +570,9 @@ the test contact.
 ### 6.10 Plausible live check
 
 Plausible → the `jjpremiergroup.com` site → Realtime. Your own visits from 6.8 show up. Goals →
-add **Lead** and **Subscribe** as custom events if not already there (property `form`). The test lead in 6.9
-appears as one `Lead` goal with `form = contact`.
+add the custom events and properties listed in `docs/MEASUREMENT.md` §3 (Lead, Subscribe, Review
+permission, Calendar feed, Phone tap, Share, Explore, Lead server, Outbound Link: Click). The test
+lead in 6.9 appears as one `Lead` goal with `form = contact`.
 
 ### 6.11 Uptime monitor
 

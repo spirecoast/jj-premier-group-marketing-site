@@ -2,7 +2,15 @@ import "server-only";
 import { deliverLeadToCrm, LEAD_SITE, leadTags, type CrmLead, type CrmResult } from "@/lib/crm";
 import { alertLeadDelivery, notifyTeamOfLead } from "@/lib/lead-alert";
 import { getCrmProvider } from "@/lib/lead-sinks";
-import { CONSENT_WORDING_VERSION, EMAIL_ONLY_FORMS, IMPLIED_CONSENT_VERSION, type LeadInput } from "@/lib/leads";
+import {
+  CONSENT_WORDING_VERSION,
+  EMAIL_ONLY_FORMS,
+  IMPLIED_CONSENT_VERSION,
+  NO_MARKETING_CONSENT_FORMS,
+  NOT_SHOWN_CONSENT_VERSION,
+  REVIEW_CONSENT_VERSION,
+  type LeadInput,
+} from "@/lib/leads";
 import { sendPlausibleEvent } from "@/lib/plausible-server";
 import { site } from "@/lib/site";
 
@@ -60,14 +68,20 @@ const nul = (v: string | undefined | null): string | null => (v ? v : null);
 export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmLead {
   const { firstName, lastName } = splitName(data.firstName || "", data.lastName || "");
   const impliedEmail = EMAIL_ONLY_FORMS.includes(data.form);
-  const consentEmail = impliedEmail || data.consentEmail;
-  const consentSms = data.consent;
+  // A form that shows neither marketing box can't collect that consent, whatever was posted.
+  const marketingShown = !NO_MARKETING_CONSENT_FORMS.includes(data.form);
+  const consentEmail = impliedEmail || (marketingShown && data.consentEmail);
+  const consentSms = marketingShown && data.consent;
+  const consentReview = data.form === "review-permission" && data.reviewConsent;
   const utm = ctx.utm;
+  const channel = data.source ?? null;
   const tags = leadTags({
     form: data.form,
     market: data.market,
     consentEmail,
     consentSms,
+    consentReview,
+    channel,
     utmSource: utm.utm_source,
     test: ctx.test,
   });
@@ -96,14 +110,21 @@ export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmL
             url: data.propertySlug ? `${site.url}/listings/${data.propertySlug}` : null,
           }
         : null,
+    referral: data.form === "referral" && data.referredName ? { firstName: data.referredName } : null,
     consent: {
       email: consentEmail,
       sms: consentSms,
+      // Email and call/text consent only; the review permission has its own clock below.
       timestamp: consentEmail || consentSms ? now.toISOString() : null,
       // Subscribers saw the band copy, not the checkbox: their consent is implied by subscribing.
-      wordingVersion: impliedEmail ? IMPLIED_CONSENT_VERSION : CONSENT_WORDING_VERSION,
+      // A form with no marketing boxes records that none were shown.
+      wordingVersion: impliedEmail ? IMPLIED_CONSENT_VERSION : marketingShown ? CONSENT_WORDING_VERSION : NOT_SHOWN_CONSENT_VERSION,
+      review: consentReview,
+      reviewAt: consentReview ? now.toISOString() : null,
+      reviewWordingVersion: consentReview ? REVIEW_CONSENT_VERSION : null,
     },
     source: {
+      channel,
       page: nul(data.pageUrl) ?? nul(ctx.referrer),
       referrer: nul(ctx.referrer),
       utm_source: nul(utm.utm_source),
@@ -155,7 +176,7 @@ async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: str
           phone: lead.phone,
           type: ["lead"],
           lifecycleStage: "new",
-          source: lead.source.utm_source ?? "website",
+          source: lead.source.channel ?? lead.source.utm_source ?? "website",
           sourceDetail: `${lead.form}_form`,
           utm: lead.source.utm_source || lead.source.gclid || lead.source.fbclid ? lead.source : null,
           consentEmail: lead.consent.email,
@@ -178,6 +199,9 @@ async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: str
             property: lead.property?.title ?? lead.propertyAddress,
             consent_email: lead.consent.email,
             consent_sms: lead.consent.sms,
+            consent_review: lead.consent.review,
+            consent_review_at: lead.consent.reviewAt,
+            referred_first_name: lead.referral?.firstName ?? null,
             consent_at: lead.consent.timestamp,
             page_url: lead.source.page,
             test: lead.test,

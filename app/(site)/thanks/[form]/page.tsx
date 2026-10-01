@@ -3,8 +3,11 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ButtonLink, RuleLink } from "@/components/buttons";
 import { ThanksGoal } from "@/components/thanks-goal";
+import { TrackedLink } from "@/components/tracked-link";
 import { getTeam } from "@/lib/content";
 import { LEAD_FORMS, LEAD_GOAL, type LeadForm } from "@/lib/leads";
+import { REFER } from "@/lib/refer/copy";
+import { REVIEWS } from "@/lib/reviews/copy";
 import { pageMetadata } from "@/lib/seo";
 import { products } from "@/lib/site";
 
@@ -71,6 +74,18 @@ const COPY: Record<LeadForm, Next> = {
     href: encore.href,
     label: "Open the Encore calendar",
   },
+  referral: {
+    eyebrow: "Received",
+    ...REFER.thanks,
+    href: atlas.href,
+    label: "Open Atlas",
+  },
+  "review-permission": {
+    eyebrow: "Received",
+    ...REVIEWS.thanks,
+    href: encore.href,
+    label: "Open the Encore calendar",
+  },
   calendar: {
     eyebrow: "You’re on the list",
     title: "Encore lands every Monday.",
@@ -85,7 +100,7 @@ function isLeadForm(value: string): value is LeadForm {
   return (LEAD_FORMS as readonly string[]).includes(value);
 }
 
-/** Only the seven forms exist; anything else is a 404 at the router, before the page streams. */
+/** Only the lead forms exist; anything else is a 404 at the router, before the page streams. */
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -143,12 +158,12 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
             {team.map((m) => (
               <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">
                 <p className="t-h4 text-navy">{m.name}</p>
-                <a href={`tel:${m.phoneE164}`} className="font-mono text-[15px] text-navy hover:text-harbor-700">
+                <TrackedLink href={`tel:${m.phoneE164}`} event="Phone tap" props={{ where: "thanks" }} className="font-mono text-[15px] text-navy hover:text-harbor-700">
                   {m.phone}
-                </a>
-                <a href={`sms:${m.phoneE164}`} className="t-small text-harbor-700 hover:text-navy">
+                </TrackedLink>
+                <TrackedLink href={`sms:${m.phoneE164}`} event="Phone tap" props={{ where: "thanks-text" }} className="t-small text-harbor-700 hover:text-navy">
                   Text {m.name.split(" ")[0]}
-                </a>
+                </TrackedLink>
               </li>
             ))}
           </ul>

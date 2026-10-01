@@ -1,6 +1,7 @@
 import "server-only";
 import type { CrmFailure, CrmLead } from "@/lib/crm";
 import { escapeHtml, sendEmail } from "@/lib/email";
+import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION } from "@/lib/leads";
 
 /**
  * Internal email for the lead pipeline. Two jobs, both addressed to the team,
@@ -23,12 +24,17 @@ function fullName(lead: CrmLead): string {
 }
 
 function consentLine(lead: CrmLead): string {
-  const parts = [
-    lead.consent.email ? "Email: yes" : "Email: no",
-    lead.consent.sms ? "Calls/texts: yes" : "Calls/texts: no",
-  ];
-  if (lead.consent.timestamp) parts.push(`at ${lead.consent.timestamp}`);
-  parts.push(`(wording ${lead.consent.wordingVersion}; both boxes unchecked by default)`);
+  const parts: string[] = [];
+  if (lead.consent.wordingVersion === NOT_SHOWN_CONSENT_VERSION) {
+    // e.g. the review permission: no email or call/text box on the form.
+    parts.push("Email and calls/texts: not asked on this form");
+  } else {
+    parts.push(lead.consent.email ? "Email: yes" : "Email: no", lead.consent.sms ? "Calls/texts: yes" : "Calls/texts: no");
+    if (lead.consent.timestamp) parts.push(`at ${lead.consent.timestamp}`);
+    const how = lead.consent.wordingVersion === IMPLIED_CONSENT_VERSION ? "email implied by subscribing; no box shown" : "both boxes unchecked by default";
+    parts.push(`(wording ${lead.consent.wordingVersion}; ${how})`);
+  }
+  if (lead.consent.review) parts.push(`Review permission: yes at ${lead.consent.reviewAt} (wording ${lead.consent.reviewWordingVersion})`);
   return parts.join(" · ");
 }
 
@@ -44,8 +50,10 @@ function leadHtml(lead: CrmLead): string {
     ["Market", lead.market],
     ["Address to value", lead.propertyAddress],
     ["Property", lead.property?.title ?? lead.property?.street],
+    ["Referring", lead.referral ? `${lead.referral.firstName}. We reach out only after the referrer has told them; write back to the referrer first.` : null],
     ["Consent", consentLine(lead)],
     ["Tags", lead.tags.join(", ")],
+    ["Came through", lead.source.channel ? `/from/${lead.source.channel}` : null],
     ["Source", lead.source.utm_source ? `${lead.source.utm_source} / ${lead.source.utm_medium ?? ""} / ${lead.source.utm_campaign ?? ""}` : "direct"],
     ["Page", lead.source.page],
     ["Referrer", lead.source.referrer],

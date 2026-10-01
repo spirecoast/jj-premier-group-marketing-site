@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { Event, Listing, SiteSettings, TeamMember } from "@/lib/content/types";
 import { formatAddress } from "@/lib/content/format";
-import { site } from "@/lib/site";
+import { allSocialLinks, site } from "@/lib/site";
 
 export function absoluteUrl(path: string): string {
   return new URL(path, site.url).toString();
@@ -80,6 +80,7 @@ function postalAddress(a: { street: string; city: string; state: string; zip: st
 
 /** RealEstateAgent for the team, used on the home and about pages. */
 export function organizationJsonLd(settings: SiteSettings, team: TeamMember[]) {
+  const sameAs = allSocialLinks(settings.socialLinks).map((s) => s.url);
   return {
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
@@ -98,7 +99,8 @@ export function organizationJsonLd(settings: SiteSettings, team: TeamMember[]) {
       name,
     })),
     employee: team.map((m) => personJsonLd(m, settings)),
-    sameAs: settings.socialLinks.map((s) => s.url),
+    // The team's profiles (lib/site.ts socialLinks plus the CMS list); omitted while there are none.
+    ...(sameAs.length ? { sameAs } : {}),
   };
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isLeadChannel, type LeadChannel } from "@/lib/leads";
 
 const UTM_KEYS = [
   "utm_source",
@@ -30,6 +31,15 @@ export type FirstTouch = Partial<Record<(typeof UTM_KEYS)[number], string>> & {
   /** The referring site, when it was not this one. */
   referrer?: string;
 };
+
+/** sessionStorage key for the /from/<channel> page this visit came through. */
+export const CHANNEL_KEY = "channel";
+
+/** The channel in a /from/<channel> path, or null. */
+export function channelFromPath(pathname: string): LeadChannel | null {
+  const m = /^\/from\/([a-z]+)\/?$/.exec(pathname);
+  return m && isLeadChannel(m[1]) ? m[1] : null;
+}
 
 function storage(): Storage | null {
   try {
@@ -87,6 +97,18 @@ function externalReferrer(): string | undefined {
 export function UtmTracker() {
   useEffect(() => {
     if (typeof window === "undefined") return;
+    // A /from/<channel> page is a link in a bio or a post: remember the channel
+    // for this visit, even when an older first touch already exists, so a lead
+    // sent from any page afterwards carries source:<channel>.
+    const channel = channelFromPath(window.location.pathname);
+    if (channel) {
+      try {
+        window.sessionStorage.setItem(CHANNEL_KEY, channel);
+      } catch {
+        // blocked storage: the landing page's own form still sends its hidden source
+      }
+    }
+
     const store = storage();
     if (!store) return;
     if (readStored()) return;
@@ -99,6 +121,13 @@ export function UtmTracker() {
     for (const k of UTM_KEYS) {
       const v = params.get(k);
       if (v) record[k] = v.slice(0, 200);
+    }
+    // The UTM equivalent for a /from/<channel> first touch: the channel as the
+    // source when the link named none, and "social" as the medium only when it
+    // carried neither (a tagged medium is never overwritten).
+    if (channel && !record.utm_source) {
+      if (!record.utm_medium) record.utm_medium = "social";
+      record.utm_source = channel;
     }
     const referrer = externalReferrer();
     if (referrer) record.referrer = referrer.slice(0, 200);
@@ -127,6 +156,17 @@ export function readUtm(): Record<string, string> {
     if (typeof v === "string" && v) out[k] = v;
   }
   return out;
+}
+
+/** The /from/<channel> this visit came through, for the forms' hidden `source` field (client-only). */
+export function readChannel(): LeadChannel | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = window.sessionStorage.getItem(CHANNEL_KEY);
+    return isLeadChannel(v) ? v : null;
+  } catch {
+    return null;
+  }
 }
 
 /** The typed first-touch record, for anything that wants more than flat strings. */

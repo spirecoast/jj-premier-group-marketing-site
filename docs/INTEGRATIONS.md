@@ -87,8 +87,10 @@ only, never values.
   "message": "…", "market": "sarasota", "propertyAddress": null,
   "timing": "Inside three months", "sellFirst": "Yes",
   "property": null,
-  "consent": { "email": true, "sms": false, "timestamp": "2026-10-01T15:04:05.000Z", "wordingVersion": "2026-10-01.2" },
-  "source": { "page": "https://jjpremiergroup.com/buy", "referrer": "…", "utm_source": "google", "utm_medium": "cpc",
+  "referral": null,
+  "consent": { "email": true, "sms": false, "timestamp": "2026-10-01T15:04:05.000Z", "wordingVersion": "2026-10-01.2",
+               "review": false, "reviewAt": null, "reviewWordingVersion": null },
+  "source": { "channel": null, "page": "https://jjpremiergroup.com/buy", "referrer": "…", "utm_source": "google", "utm_medium": "cpc",
               "utm_campaign": "…", "utm_term": null, "utm_content": null, "gclid": "…", "fbclid": null,
               "landingPath": "/buy", "firstTouchReferrer": null, "firstTouchAt": "2026-10-01T14:58:00.000Z" },
   "submittedAt": "2026-10-01T15:04:05.000Z",
@@ -99,7 +101,17 @@ only, never values.
 ```
 
 `form` is one of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`,
-`calendar`. `property` is set on listing inquiries only (`slug`, `title`,
+`calendar`, `referral` (`/refer`) and `review-permission` (`/reviews`).
+`referral` is `{ "firstName": "…" }` on a referral (the person who's moving;
+nothing else about them is collected) and `null` otherwise.
+`consent.timestamp` and `consent.wordingVersion` describe the email and
+call/text boxes only. A review permission shows neither box, so it carries
+`email: false`, `sms: false`, `timestamp: null` and `wordingVersion:
+"none:not-shown"` (any marketing consent posted with it is ignored); its own
+permission is `consent.review: true` with `reviewAt` and
+`reviewWordingVersion`, and the lead is tagged `consent:review`. `source.channel` is youtube, instagram,
+facebook or nextdoor when the visit came through `/from/<channel>`; the
+`source:` tag uses it ahead of `utm_source`. `property` is set on listing inquiries only (`slug`, `title`,
 `street`, `city`, `state`, `zip`, `price`, `mls`, `url`). The letter and
 calendar boxes imply email consent, so they always carry `consent:email`, with
 `wordingVersion` set to `implied:subscribe` (no checkbox was shown).

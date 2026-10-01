@@ -4,13 +4,30 @@
  *
  *   node scripts/check-copy.mjs        (Node 22.18+ strips the TypeScript types itself)
  *
- * Runs lib/fair-housing.ts over every string in lib/hubs/copy.ts, plus a
- * stricter list for the hubs: nothing about people (demographics, income,
- * schools, safety, age), no prices or figures, no license
- * numbers. Exits 1 on any flag so it can gate a build.
+ * Runs lib/fair-housing.ts over every string in the copy files below, plus a
+ * stricter list on top: nothing about people (demographics, income, schools,
+ * safety, age), no prices or figures, no license numbers. Exits 1 on any flag
+ * so it can gate a build.
+ *
+ * Sources: the market hubs (lib/hubs/copy.ts), the channel landing pages
+ * (lib/channels/copy.ts), /refer (lib/refer/copy.ts) and /reviews
+ * (lib/reviews/copy.ts). A new page with hand-written copy adds its own
+ * `<page>Strings()` here.
  */
 import { checkFairHousing } from "../lib/fair-housing.ts";
+import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
+import { REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
+import { referStrings } from "../lib/refer/copy.ts";
+import { reviewsStrings } from "../lib/reviews/copy.ts";
+
+const SOURCES = [
+  ...hubStrings(),
+  ...channelStrings(),
+  ...referStrings(),
+  ...reviewsStrings(),
+  { where: "lib/leads.ts: REVIEW_CONSENT_WORDING", text: REVIEW_CONSENT_WORDING },
+];
 
 /** Hub-specific rules on top of the brokerage list. Places, never people; no figures. */
 const HUB_RULES = [
@@ -28,7 +45,7 @@ const HUB_RULES = [
 
 let flagged = 0;
 let checked = 0;
-for (const { where, text } of hubStrings()) {
+for (const { where, text } of SOURCES) {
   checked += 1;
   const result = checkFairHousing(text);
   const extra = HUB_RULES.filter((r) => r.pattern.test(text)).map((r) => ({ pattern: r.pattern.source, reason: r.reason }));

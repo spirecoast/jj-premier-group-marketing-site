@@ -121,9 +121,14 @@ builder source with its checked date).
   (comma-separated slugs of a shared list). `lib/encore/url.ts` parses and prints it.
 - **My list.** Save keeps slugs in `localStorage` (`encore:list`); "Share my list" turns it into a
   `?list=` link, and a visitor who opens one can save it all to their own list.
-- **Feeds.** `/api/calendar.ics` accepts `category`, `market` and `venue` for a subscription of
-  just that filter, `event=<slug>` for one production, and `event=<slug>&at=<iso>` for a single
-  performance (the "+ Cal" links on event pages).
+- **Feeds.** `/api/calendar.ics` with no parameters is a rolling **90-day** window (every dated
+  performance in the next 90 days, plus the exhibitions on view now or opening inside the window),
+  because calendar apps refetch it every few hours and the six-month file was over a megabyte.
+  `?all=1` is the full feed (six months of performances plus every current and upcoming run).
+  `category`, `market` and `venue` give a six-month subscription of just that filter,
+  `event=<slug>` one production, and `event=<slug>&at=<iso>` a single performance (the "+ Cal"
+  links on event pages). The "Subscribe" links on `/calendar` point at the 90-day feed; a
+  subscriber's calendar rolls forward on every refresh, so nothing has to change on their side.
 - **Plan a visit.** `/calendar/plan` is for someone coming to look at homes: arrival and
   departure (up to 14 days, the coming weekend by default), the markets to see, optional
   category preferences and an evenings-only toggle, all in the URL (`from`, `to`, `market`,
@@ -154,7 +159,8 @@ builder source with its checked date).
   and so on), in the brand palette. `components/key-art.tsx` renders it wherever a card or hero
   needs a picture, and the event share image uses the same SVG. A venue photo added in Sanity
   (`image`) overrides it automatically, so no picture on the site needs a license.
-- The ICS feed emits one VEVENT per performance for the next six months plus every current run.
+- The ICS feed emits one VEVENT per performance: the next 90 days by default, six months with
+  `?all=1` or any filter, plus the current runs.
 
 When Sanity is live the same shape lives in the `event` document (performances, presenter, room,
 firstDate, runsThrough, status) and `scripts/seed-sanity.ts` imports the dataset once. To refresh
@@ -228,6 +234,36 @@ the lead and travel as `consent:email` / `consent:sms` tags. The Tide and Encore
 consent and record `IMPLIED_CONSENT_VERSION` (`implied:subscribe`) instead, since the visitor saw
 the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTEGRATIONS.md`.
 
+## Growth pages: channels, referrals and reviews
+
+- **Channel landings** `/from/youtube`, `/from/instagram`, `/from/facebook`, `/from/nextdoor`: the
+  links for bios and posts. One component (`components/growth/channel-landing.tsx`) and one copy file
+  (`lib/channels/copy.ts`): a line in the team's voice, one primary action (the relocation planner
+  for YouTube and Instagram, What sold on your street for Facebook and Nextdoor), then Atlas match,
+  the Encore visit planner and the Tide bar. `noindex, nofollow` and left out of the sitemap. The
+  visit's channel is kept for the session and every form sends it as `source`, so the lead is tagged
+  `source:<channel>`; a first visit with no `utm_*` also gets `utm_source=<channel>`,
+  `utm_medium=social` in the first-touch record (`docs/MEASUREMENT.md` §4).
+- **`/refer`**: "Know someone moving here?" The `referral` form asks for the referrer's name, email
+  and (optional) phone, the first name of the person moving and a note; nothing else about that
+  person. The copy says we write back to the referrer first and only reach out once they've told
+  the person. No gifts or rewards are mentioned (anything like that is cleared with the brokerage
+  first). Tags `form:referral`; a `General Inquiry` like `contact`.
+- **`/reviews`**: the Google review link from `NEXT_PUBLIC_GOOGLE_REVIEW_URL` (an `https` URL; when
+  it's empty the page says the link is coming soon), and the `review-permission` form: name, email,
+  the words, and a required box ("You can use these words on the site with my first name and the
+  place we bought or sold", `REVIEW_CONSENT_WORDING`, versioned `REVIEW_CONSENT_VERSION`). Stored
+  like every lead, tagged `consent:review`. **Nothing from it is displayed anywhere on the site**; a
+  quote goes up only when someone enters it as a Sanity `testimonial` with `permissionOnFile`.
+- **Where they're linked.** `/refer` and `/reviews` sit at the end of the footer's "The team"
+  column and in the sitemap; the `/from/*` pages are linked only from the profiles themselves.
+- **Copy check.** Each page's strings live in a `copy.ts` (`lib/channels`, `lib/refer`,
+  `lib/reviews`) and `scripts/check-copy.mjs` (prebuild) runs the Fair Housing list and the stricter
+  hub rules over them alongside the hubs.
+- **Social links.** `socialLinks` in `lib/site.ts` (empty until the client sends the URLs) plus any
+  in the Sanity site settings feed the footer's icon row and `sameAs` on the RealEstateAgent
+  JSON-LD; both render nothing while the list is empty.
+
 ## Commands
 
 ```bash
@@ -250,13 +286,17 @@ Useful switches:
 
   | Goal | Fired from | Props |
   | --- | --- | --- |
-  | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing · `market` |
-  | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row) inline on success | `form`: letter or calendar |
+  | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing, referral · `market` · `source` (the `/from/<channel>`, or none) |
+  | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row, `/from/*`) inline on success | `form`: letter or calendar · `source` when there is a channel |
+  | `Review permission` | `/thanks/review-permission` after the `/reviews` form | `form` · `market` · `source` |
   | `Lead server` | `lib/plausible-server.ts`, from the server action, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script; never add it to `Lead` |
   | `Calendar feed` | ICS links: the calendar page feed, Encore's filtered subscribe, the event page, the visit plan | `kind`: feed, event, performance, list, plan · `filter`: `all`, the feed query, or the event slug |
-  | `Phone tap` | `tel:` and `sms:` links | `where`: action-bar, action-bar-text, contact, contact-text, footer (the header's links join once the nav lands) |
+  | `Phone tap` | `tel:` and `sms:` links | `where`: header, footer, action-bar, action-bar-text, contact, contact-text, thanks, thanks-text, from-<channel> |
   | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
-  | `Explore` | the Atlas and Encore | `action`: select, filter, calendar-day, visit-plan |
+  | `Explore` | the tools, the footer's hub links, the `/from/*` buttons | `action`: select, filter, match, calendar-day, visit-plan, relocate-plan, sold-search, home-value, net-proceeds, hub, channel-cta, channel-more |
+
+  The full list of props, the funnel each goal answers and the exact Plausible setup are in
+  `docs/MEASUREMENT.md`.
 
   Server-rendered `tel:`/`sms:` and ICS anchors use `components/tracked-link.tsx`, which fires the goal
   on click and leaves the navigation alone. `NEXT_PUBLIC_PLAUSIBLE_HOST` only for a self-hosted instance.
@@ -276,8 +316,9 @@ The operator's runbook for the cutover itself (client and brokerage checklist, V
 3. Set `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` to the bare domain and confirm a pageview in the dashboard.
 4. Google Business Profile: the client is creating it. The name, address and phone on the profile
    must match the footer, the contact page and the RealEstateAgent JSON-LD exactly (same
-   punctuation, same suite line). Once the profile is live, put its URL in `sameAs` in
-   `lib/content/seed/settings.ts` (or the Sanity site settings) alongside the social links.
+   punctuation, same suite line). Once the profile is live, add it to `socialLinks` in
+   `lib/site.ts` (or the Sanity site settings) alongside the social links, which puts it in
+   `sameAs`, and set `NEXT_PUBLIC_GOOGLE_REVIEW_URL` to its review link for `/reviews`.
 5. Submit the sitemap in Google Search Console and Bing Webmaster Tools.
 6. Confirm the custom 404 renders on the live domain (`/this-does-not-exist`).
 - `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) receives the alert when a lead cannot be

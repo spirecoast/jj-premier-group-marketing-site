@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
-import { readUtm } from "@/components/utm-tracker";
+import { readChannel, readUtm } from "@/components/utm-tracker";
 import { initialLeadState, type LeadFormState } from "@/lib/leads";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,7 @@ export function LetterForm({
   className,
   tone = "light",
   inline = true,
+  source,
 }: {
   form?: "letter" | "calendar";
   label?: string;
@@ -30,23 +31,27 @@ export function LetterForm({
   tone?: "light" | "dark";
   /** Stay on the page with the inline success line (default) instead of going to the thank-you page. */
   inline?: boolean;
+  /** The /from/<channel> page this bar sits on; otherwise the visit's channel, if any, is sent. */
+  source?: string;
 }) {
   const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
   const [utm, setUtm] = useState<Record<string, string>>({});
+  const [channel, setChannel] = useState<string | null>(source ?? null);
   const successRef = useRef<HTMLParagraphElement>(null);
   const router = useRouter();
   useEffect(() => {
     setUtm(readUtm());
-  }, []);
+    if (!source) setChannel(readChannel());
+  }, [source]);
   useEffect(() => {
     if (!state.ok) return;
     successRef.current?.focus();
     if (inline || !state.redirectTo) {
-      track("Subscribe", { form });
+      track("Subscribe", channel ? { form, source: channel } : { form });
       return;
     }
     router.push(state.redirectTo as Route);
-  }, [state.ok, state.redirectTo, inline, form, router]);
+  }, [state.ok, state.redirectTo, inline, form, channel, router]);
 
   const successText = form === "letter" ? "You are on the list. The next report lands at the start of the month." : "You are on the list. Encore lands every Monday.";
 
@@ -64,6 +69,7 @@ export function LetterForm({
   return (
     <form action={action} noValidate className={cn("flex w-full min-w-0 max-w-[520px] flex-col gap-2", className)}>
       <input type="hidden" name="form" value={form} />
+      {channel ? <input type="hidden" name="source" value={channel} /> : null}
       {Object.entries(utm).map(([k, v]) => (
         <input key={k} type="hidden" name={`utm__${k}`} value={v} />
       ))}
