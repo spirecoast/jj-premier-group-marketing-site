@@ -28,6 +28,8 @@ export type SendEmailInput = {
    * fill in its forms. Their replies come from the agents' own mailboxes.
    */
   category?: EmailCategory;
+  /** Files to attach (the newsletter hand-off attaches the finished issue). */
+  attachments?: { filename: string; content: Buffer; contentType?: string }[];
 };
 
 export type SendEmailResult =
@@ -82,6 +84,7 @@ export async function sendEmail(
       subject: input.subject,
       html: input.html,
       replyTo: input.replyTo,
+      attachments: input.attachments,
     });
     if (error) return { ok: false, error: error.message };
     return { ok: true, id: data?.id ?? "" };

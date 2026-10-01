@@ -1,13 +1,14 @@
 # Refreshes data/sales/ from the Manatee and Sarasota County Property
-# Appraisers and opens a pull request with the result. Manual for now:
-# run it from the Actions tab. Uncomment `schedule` for a weekly run.
-# See docs/SALES-DATA.md.
+# Appraisers and opens a pull request with the result, every Sunday and on
+# demand from the Actions tab. Merge the PR in the last week of each month so
+# the Tide run on the 1st can move on to the next complete month
+# (docs/ISSUES.md). See docs/SALES-DATA.md.
 name: Refresh county sales data
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "17 9 * * 1" # Mondays 09:17 UTC, after both counties' overnight rebuilds
+  schedule:
+    - cron: "0 9 * * 0" # Sundays 09:00 UTC, after both counties' overnight rebuilds
 
 permissions:
   contents: write

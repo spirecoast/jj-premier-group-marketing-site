@@ -62,3 +62,6 @@ public/vendor/
 
 # county sales source files downloaded by scripts/sales/ingest.mjs
 /.cache/
+
+# local scratch (scripts/issue-preview.mjs writes here)
+/scratchpad/

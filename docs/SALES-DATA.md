@@ -37,12 +37,13 @@ under a minute; the output is about 1.7MB gzipped and must stay under 8MB.
 ### Refresh cadence
 
 The county files change nightly (Manatee) and after each roll update
-(Sarasota). `.github/workflows/sales-refresh.yml` runs the script and opens
-a pull request with the new files. It is **manual only** (`workflow_dispatch`)
-for now; the commented `schedule` block turns it into a weekly run once the
-team wants that. Review the PR's manifest diff (row counts, date range) before
-merging; a county file that fails to download fails the run rather than
-writing an empty county.
+(Sarasota). `.github/workflows/sales-refresh.yml` runs the script every
+Sunday at 09:00 UTC (and on demand from the Actions tab) and opens a pull
+request with the new files. Review the PR's manifest diff (row counts, date
+range) before merging; a county file that fails to download fails the run
+rather than writing an empty county. Merge one in the last week of each month:
+the Tide issue built on the 1st reads whatever data is deployed, and without a
+refresh it covers the same month as the run before (docs/ISSUES.md).
 
 ## Output
 

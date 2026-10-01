@@ -88,7 +88,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_MAPTILER_KEY` | already set | MapTiler tiles for Atlas. Add the launch domain as an allowed origin (section 5.6). |
 | `NEXT_PUBLIC_LISTINGS_URL` | `<URL from 1.6>` | The "See our current listings" link on `/listings`. Empty hides the link. |
 | `NEXT_PUBLIC_ROBOTS_NOINDEX` | **removed from Production** (or empty); `true` on Preview | The index gate. Section 6.5 flips it. |
-| `CRON_SECRET` | already set | Bearer token for `GET /api/cron/archive-events`, which `vercel.json` runs every Monday 09:00 UTC. The job is a no-op until Sanity is live, but the route must stay protected. |
+| `CRON_SECRET` | already set | Bearer token for `GET /api/cron/archive-events`, which `vercel.json` runs every Monday 09:00 UTC (a no-op until Sanity is live, but the route must stay protected), and for the two newsletter hand-offs, `/api/issues/encore` (Mondays 10:00 UTC) and `/api/issues/tide` (the 1st, 12:00 UTC), which email the finished issue to `TEAM_NOTIFY_EMAIL` (`docs/ISSUES.md`). |
 
 ### Optional; set if the value exists, otherwise leave empty
 
@@ -101,6 +101,8 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS` | Leave empty. `true` would put the sample listings on the live site. |
 | `NEXT_PUBLIC_PLAUSIBLE_HOST` | Leave empty (plausible.io). Only for a self-hosted instance. |
 | `NEXT_PUBLIC_GOOGLE_REVIEW_URL` | The Google Business Profile review link from 1.11 (`https://g.page/r/…`). Shows "Write a Google review" on `/reviews`; empty shows a "coming soon" line. Must be `https`. Inlined at build time like every `NEXT_PUBLIC_*` value, so setting or changing it needs a redeploy (6.6). |
+| `ISSUE_PREVIEW_SECRET` | `openssl rand -hex 24`. The `?secret=` for the newsletter previews at `/api/issues/encore` and `/api/issues/tide`; unset, both answer 404. Mark as Sensitive. (`docs/ISSUES.md`) |
+| `ISSUE_WEBHOOK_URL` | A Zapier Catch Hook that receives each finished issue (Encore on Mondays, Tide on the 1st) for an Outlook draft or the Marketing Center. Unset, the issue goes only to `TEAM_NOTIFY_EMAIL`. Mark as Sensitive. (`docs/ISSUES.md`) |
 
 ### Stay unset at launch
 
@@ -650,6 +652,31 @@ URLs in the message, the same email several times a day, or Zap runs climbing wi
 enquiries. If that starts: add a Zapier filter on the obvious patterns (message contains `http`) as a
 stopgap the same day, and open an issue to add Cloudflare Turnstile to `components/lead-form.tsx`
 (a code change). Do not switch on Vercel's Attack Challenge Mode for this; it challenges every visitor.
+
+### 7.6 The first Encore and Tide
+
+The site builds both newsletters and emails each finished issue to `TEAM_NOTIFY_EMAIL`; it never
+sends to subscribers (`docs/ISSUES.md` has the whole flow).
+
+1. Set `ISSUE_PREVIEW_SECRET` (and `ISSUE_WEBHOOK_URL` if the Zap exists) in Production, redeploy,
+   and check `GET /api/health` shows `issues.previewSecret`, `teamEmail`, `resend` and `cronSecret`
+   as `true`.
+2. Open `https://jjpremiergroup.com/api/issues/encore?secret=<ISSUE_PREVIEW_SECRET>` and the same for
+   `/api/issues/tide` with the agents. Read the warnings in the first team email: while the office
+   street address and ZIP are empty (1.1) every issue warns that CAN-SPAM needs them.
+3. The first Monday after cutover, 10:00 UTC: "Encore for Monday <date>: ready to send" arrives in the
+   team inbox. The agents send it from the chosen tool (1.4) to the export in `docs/ISSUES.md`.
+4. The 1st, 12:00 UTC: "Tide, <Month YYYY>: ready to send". The county appraisers post a sale only after
+   they've qualified it (Manatee runs about two months behind), so Tide covers the latest month that's
+   complete for all three places, never a partial one: on October 1, that's July. The agents replace
+   the dashed "what it means" box with two paragraphs before sending. The county-data refresh PR
+   ("Sales data: refresh county records") now opens every Sunday at 09:00 UTC
+   (`.github/workflows/sales-refresh.yml`); **merge one in the last week of each month**, or the run on
+   the 1st repeats the prior month (the team email warns when it does). `docs/SALES-DATA.md` says what
+   to check in its diff.
+5. Vercel → Project → Cron Jobs: both jobs listed, last run 200. A 422 means the issue was held from the
+   webhook (a Fair Housing flag, or a month that isn't complete) and the team got an alert; a 502 means
+   neither the team email nor the webhook took it. The JSON says which.
 
 ## 8. Who does what, in order
 

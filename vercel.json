@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/archive-events",
       "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/issues/encore",
+      "schedule": "0 10 * * 1"
+    },
+    {
+      "path": "/api/issues/tide",
+      "schedule": "0 12 1 * *"
     }
   ]
 }

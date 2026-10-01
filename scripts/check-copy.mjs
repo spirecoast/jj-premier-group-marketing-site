@@ -13,10 +13,15 @@
  * (lib/channels/copy.ts), /refer (lib/refer/copy.ts) and /reviews
  * (lib/reviews/copy.ts). A new page with hand-written copy adds its own
  * `<page>Strings()` here.
+ *
+ * The newsletter templates (lib/issues/copy.ts) get the same checker with
+ * rules of their own: no superlatives and no license numbers. They carry
+ * figures, filled in from the data, so the no-figures rule doesn't apply.
  */
 import { checkFairHousing } from "../lib/fair-housing.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
+import { issueStrings } from "../lib/issues/copy.ts";
 import { REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
 import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
@@ -43,12 +48,19 @@ const HUB_RULES = [
   { pattern: /\b(SL|BK)\s?\d{5,}\b/i, reason: "a license number" },
 ];
 
+/** The newsletters' rules: figures are fine (they're computed), praise and license numbers are not. */
+const ISSUE_RULES = [
+  { pattern: /\b(best|finest|greatest|biggest|hottest|amazing|stunning|incredible|perfect|unbeatable|ultimate|world-class|must-see|exclusive|spectacular|breathtaking)\b/i, reason: "a superlative" },
+  { pattern: /\b(SL|BK)\s?\d{5,}\b/i, reason: "a license number" },
+];
+
 let flagged = 0;
 let checked = 0;
-for (const { where, text } of SOURCES) {
+const all = [...SOURCES.map((s) => ({ ...s, rules: HUB_RULES })), ...issueStrings().map((s) => ({ ...s, rules: ISSUE_RULES }))];
+for (const { where, text, rules } of all) {
   checked += 1;
   const result = checkFairHousing(text);
-  const extra = HUB_RULES.filter((r) => r.pattern.test(text)).map((r) => ({ pattern: r.pattern.source, reason: r.reason }));
+  const extra = rules.filter((r) => r.pattern.test(text)).map((r) => ({ pattern: r.pattern.source, reason: r.reason }));
   const flags = [...(result.passed ? [] : result.flags), ...extra];
   if (!flags.length) continue;
   flagged += 1;
