@@ -1,5 +1,6 @@
 import type { Post } from "../types";
 import { WAVE2_GUIDES_A } from "./guides-wave2-a";
+import { WAVE2_GUIDES_B } from "./guides-wave2-b";
 import { h, img, p, quote, rich } from "./helpers";
 
 /**
@@ -233,4 +234,5 @@ export const POSTS: Post[] = [
     ),
   },
   ...WAVE2_GUIDES_A,
+  ...WAVE2_GUIDES_B,
 ];

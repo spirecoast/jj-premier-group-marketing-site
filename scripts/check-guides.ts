@@ -27,6 +27,14 @@ const PEOPLE_RULES: { pattern: RegExp; reason: string }[] = [
   { pattern: /!/, reason: "an exclamation mark (house rule)" },
 ];
 
+/**
+ * Proper names that carry a rule word without making the claim. "My Safe
+ * Florida Home" is the state's wind mitigation grant program; the guides
+ * have to call it by name. Scrubbed before the people rules run; the
+ * brokerage check in lib/fair-housing.ts still sees the raw text.
+ */
+const PROPER_NAMES: RegExp[] = [/My Safe Florida Home/g];
+
 /** Every string a guide puts on the page, with where it came from. */
 function guideStrings(): { where: string; text: string }[] {
   const out: { where: string; text: string }[] = [];
@@ -53,7 +61,8 @@ let checked = 0;
 for (const { where, text } of guideStrings()) {
   checked += 1;
   const result = checkFairHousing(text);
-  const extra = PEOPLE_RULES.filter((r) => r.pattern.test(text)).map((r) => ({ pattern: r.pattern.source, reason: r.reason }));
+  const scrubbed = PROPER_NAMES.reduce((t, re) => t.replace(re, "the program"), text);
+  const extra = PEOPLE_RULES.filter((r) => r.pattern.test(scrubbed)).map((r) => ({ pattern: r.pattern.source, reason: r.reason }));
   const flags = [...(result.passed ? [] : result.flags), ...extra];
   if (!flags.length) continue;
   flagged += 1;
