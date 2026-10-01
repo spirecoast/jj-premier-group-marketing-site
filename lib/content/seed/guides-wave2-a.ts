@@ -77,7 +77,7 @@ const FLOODSMART_EC = "https://agents.floodsmart.gov/write-policy/elevation-cert
 const RR2_FAQ = "https://agents.floodsmart.gov/sites/default/files/media/document/2025-07/fema-nfip-risk-rating-2.0-FAQs.pdf";
 const FEMA_WAIT = "https://www.fema.gov/fema-common-faq/waiting-period-activating-flood-policy";
 const CFO_FLOOD = "https://www.myfloridacfo.com/division/consumers/storm/flood-disaster-faqs";
-const FS_689_302 = "https://www.flsenate.gov/Laws/Statutes/2024/689.302";
+const FS_689_302 = "https://www.flsenate.gov/Laws/Statutes/2026/689.302";
 const HB_1049 = "https://www.flsenate.gov/Session/Bill/2024/1049";
 const FBC_FLOOD = "https://www.floridabuilding.org/fbc/thecode/2017-6edition/basf_2017_flood_061217.pdf";
 
@@ -120,7 +120,7 @@ const MANATEE_PAO_PORT = "https://www.manateepao.gov/definitions/portability-of-
 const SARASOTA_PAO_SOH = "https://www.sarasotapropertyappraiser.gov/exemptions/homestead/save-our-homesportability/";
 
 const GUIDE_INSPECTIONS = "/blog/inspections-on-the-suncoast-what-a-good-one-covers";
-const GUIDE_FLOOD = "/blog/flood-zones-and-elevation-certificates-on-the-suncoast";
+const GUIDE_FLOOD = "/guides/flood-zones-and-elevation-certificates-on-the-suncoast";
 const GUIDE_GATED = "/blog/what-to-ask-before-you-buy-in-a-gated-community";
 const ATLAS = "/neighborhoods";
 const village = (slug: string) => `${ATLAS}/${slug}`;
@@ -229,7 +229,7 @@ export const WAVE2_GUIDES_A: Post[] = [
         a("October 1, 2024", HB_1049),
         ", Florida has required the seller of a home to hand the buyer ",
         a("a flood disclosure at or before the contract is signed", FS_689_302),
-        ". It states whether the seller has filed an insurance claim for flood damage to the property and whether they’ve received federal assistance for flood damage to it, and it reminds you that a homeowners policy doesn’t cover floods.",
+        ". Since October 1, 2025, it states whether the seller knows of flooding that damaged the property while they owned it, whether they’ve filed a flood insurance claim on it, and whether they’ve received assistance for flood damage to it, from FEMA or anyone else. It also reminds you that a homeowners policy doesn’t cover floods.",
       ),
       p(
         "Read it next to the elevation certificate and the claims history. A house that flooded once and was repaired properly can be a fine house. A disclosure that’s blank because the seller never carried flood insurance is a question, not an answer.",
@@ -511,7 +511,7 @@ export const WAVE2_GUIDES_A: Post[] = [
       li("The substantial damage determination, if one was issued, and what it required."),
       li(
         "A new elevation certificate if the floor was raised, and the flood policy’s claims history. ",
-        a("Since October 1, 2024, between the two storms, the seller’s flood disclosure has to say whether they filed a flood claim or took federal assistance", FS_689_302),
+        a("The seller’s flood disclosure has to say whether they know of flood damage while they owned the house, whether they filed a flood claim and whether they received assistance for flood damage", FS_689_302),
         "; ",
         a("our flood-zone guide", GUIDE_FLOOD),
         " covers it.",

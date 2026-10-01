@@ -9,6 +9,7 @@ import { TideIssueCard } from "@/components/tide/issue-card";
 import { getPosts } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { formatDateLong } from "@/lib/content/format";
+import { guideHref } from "@/lib/guides/slugs";
 import type { Post } from "@/lib/content/types";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -29,7 +30,7 @@ const isReport = (p: Post) => p.categories.includes("Market report");
 
 function PostCard({ post, priority }: { post: Post; priority?: boolean }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="card group flex w-full flex-col border border-hairline bg-white transition-colors duration-[120ms] hover:border-deep-harbor">
+    <Link href={guideHref(post.slug)} className="card group flex w-full flex-col border border-hairline bg-white transition-colors duration-[120ms] hover:border-deep-harbor">
       <div className="relative aspect-[3/2] overflow-hidden bg-linen-100">
         <Photo image={post.cover} priority={priority} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="card-img" />
       </div>

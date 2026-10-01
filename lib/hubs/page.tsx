@@ -19,6 +19,7 @@ import { DATASET_VERSION } from "@/lib/neighborhoods/data";
 import { TYPE_LABEL, hostOf, monthYear } from "@/lib/neighborhoods/format";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
+import { guideHref } from "@/lib/guides/slugs";
 import { site } from "@/lib/site";
 
 /**
@@ -39,7 +40,7 @@ const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d
 
 function GuideCard({ post }: { post: Post }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="card group flex w-full flex-col border border-hairline bg-white transition-colors duration-[120ms] hover:border-deep-harbor">
+    <Link href={guideHref(post.slug)} className="card group flex w-full flex-col border border-hairline bg-white transition-colors duration-[120ms] hover:border-deep-harbor">
       <div className="relative aspect-[3/2] overflow-hidden bg-linen-100">
         <Photo image={post.cover} sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw" className="card-img" />
       </div>

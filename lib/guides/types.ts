@@ -1,0 +1,148 @@
+import type { ImageRef } from "@/lib/content/types";
+
+/**
+ * A guide is structured data, not Portable Text: sections of blocks, each
+ * block one of a small set of kinds, every figure and factual block with a
+ * "Source:" line. docs/GUIDES.md explains how to author one.
+ */
+
+/** A run of paragraph text, or a run that carries a link. */
+export type Inline = string | { text: string; href: string };
+
+/** One source line: a page we opened, with the day we opened it. A source with no href is one that would not load. */
+export type Source = { label: string; href?: string; note?: string };
+
+export type ParagraphBlock = { kind: "paragraph"; segs: Inline[]; source?: Source };
+export type DefinitionBlock = { kind: "definition"; term: string; definition: string; source?: Source };
+export type PullQuoteBlock = { kind: "pull-quote"; text: string };
+export type TableBlock = { kind: "table"; title: string; columns: string[]; rows: string[][]; source: Source };
+export type SubheadBlock = { kind: "subhead"; text: string };
+
+/** The site's own tools, named once so a guide can point at them without hand-typing paths. */
+export type Tool = "atlas" | "atlas-match" | "relocate" | "sold" | "home-value" | "net-proceeds" | "contact";
+export type CalloutBlock = { kind: "callout"; tool: Tool; eyebrow: string; body: string; cta: string };
+
+/* ---- Figures ------------------------------------------------------------ */
+
+/** Series slots are assigned in fixed order and never cycled (dataviz rule). */
+export type Series = 0 | 1 | 2;
+
+export type BarSegment = { label: string; value: number; series: Series; hatched?: boolean };
+export type BarFigure = {
+  type: "bar";
+  unit: string;
+  /** The axis maximum. Bars are drawn to this scale. */
+  max: number;
+  rows: { label: string; sub?: string; segments: BarSegment[] }[];
+  legend: { label: string; series: Series; hatched?: boolean }[];
+};
+
+export type ComparisonCell = string | { text: string; mark: "yes" | "no" | "dash" };
+export type ComparisonFigure = {
+  type: "comparison";
+  columns: string[];
+  rows: { label: string; sub?: string; cells: ComparisonCell[] }[];
+};
+
+export type MatrixFigure = {
+  type: "matrix";
+  columns: string[];
+  rows: { label: string; sub?: string; cells: ("yes" | "no" | "partial")[] }[];
+  legend: { yes: string; partial: string; no: string };
+};
+
+export type TimelineLane = { label: string; sub?: string; start: number; end: number; series: Series; hatched?: boolean; text?: string };
+export type TimelineFigure = {
+  type: "timeline";
+  /** The axis runs 0..max in `unit`. */
+  max: number;
+  unit: string;
+  ticks: { at: number; label: string }[];
+  markers: { at: number; label: string }[];
+  lanes: TimelineLane[];
+  legend: { label: string; series: Series; hatched?: boolean }[];
+};
+
+/** An illustrative elevation certificate drawn as a house against the base flood elevation. Every number is hypothetical. */
+export type ElevationExampleFigure = {
+  type: "worked-example";
+  example: "elevation-certificate";
+  datum: string;
+  zone: string;
+  bfe: number;
+  lowestFloor: number;
+  garageSlab: number;
+  machinery: number;
+  lowestAdjacentGrade: number;
+  highestAdjacentGrade: number;
+  floodOpenings: number;
+  /** The item labels as the form prints them, so the figure can be read against the real certificate. */
+  items: { code: string; label: string; value: string; verdict?: "above" | "below" }[];
+};
+
+export type MapCalloutFigure = {
+  type: "map-callout";
+  places: { name: string; covers: string; body: string; href: string; cta: string }[];
+};
+
+export type ChecklistFigure = {
+  type: "checklist";
+  items: { text: string; detail?: string }[];
+};
+
+export type LadderFigure = {
+  type: "ladder";
+  steps: { code: string; name: string; means: string; lender: string; insurer: string; building: string; series: Series }[];
+  columns: { lender: string; insurer: string; building: string };
+};
+
+export type FigureSpec = BarFigure | ComparisonFigure | MatrixFigure | TimelineFigure | ElevationExampleFigure | MapCalloutFigure | ChecklistFigure | LadderFigure;
+
+export type FigureBlock = {
+  kind: "figure";
+  /** "The zones", "The example" — the mono eyebrow after "Fig. 03". */
+  eyebrow: string;
+  title: string;
+  /** One line on how to read it. */
+  reading: string;
+  figure: FigureSpec;
+  /** A note under the drawing, before the source line. */
+  note?: string;
+  source: Source;
+  /** An optional pointer at one of the site's tools, set in the figure's foot. */
+  tool?: { tool: Tool; cta: string };
+};
+
+export type Block = ParagraphBlock | DefinitionBlock | PullQuoteBlock | TableBlock | SubheadBlock | CalloutBlock | FigureBlock;
+
+export type Section = {
+  /** The short slug used as the anchor. */
+  id: string;
+  title: string;
+  /** The one-line "why it matters", set under the section header. */
+  lead: string;
+  blocks: Block[];
+  sources: Source[];
+};
+
+export type Guide = {
+  slug: string;
+  title: string;
+  /** The one-sentence promise under the title on the cover. */
+  promise: string;
+  /** Short "How to use this guide" paragraphs. */
+  howToUse: string[];
+  /** Three questions the reader keeps coming back to. */
+  questions: [string, string, string];
+  cover: ImageRef;
+  author: { name: string; slug: string };
+  publishedAt: string;
+  updatedAt: string;
+  /** The day the sources were opened, printed on every source line. */
+  checked: string;
+  sections: Section[];
+  /** The "On one page" summary at the end: label and the line to fill in or remember. */
+  onOnePage: { title: string; reading: string; rows: { label: string; value: string }[] };
+  /** The closing: what we'll do if you send us the address. */
+  next: { eyebrow: string; title: string; body: string; cta: string; tool: Tool };
+};

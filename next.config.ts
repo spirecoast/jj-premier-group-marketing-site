@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
 
 /*
  * Security headers. Everything below is derived from the same env vars the
@@ -155,6 +156,8 @@ const nextConfig: NextConfig = {
       // /relocate is the relocation planner now; its old redirect to /buy is gone.
       // The editorial slug before the neighborhood dataset arrived.
       { source: "/neighborhoods/lake-club", destination: "/neighborhoods/the-lake-club", permanent: true },
+      // Guides rebuilt as long-form pages (lib/guides) moved from Tide to /guides; the old links follow.
+      ...REBUILT_GUIDE_SLUGS.map((slug) => ({ source: `/blog/${slug}`, destination: `/guides/${slug}`, permanent: true })),
     ];
   },
 };

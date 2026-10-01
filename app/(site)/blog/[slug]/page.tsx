@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { CtaBand } from "@/components/cta-band";
 import { LetterForm } from "@/components/letter-form";
@@ -9,6 +9,7 @@ import { RichText } from "@/components/rich-text";
 import { getPost, getPostSlugs, getPosts, getSiteSettings, getTeamMember } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import { img } from "@/lib/content/seed/helpers";
+import { guideHref, isRebuiltGuide } from "@/lib/guides/slugs";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -17,7 +18,8 @@ const RIVER = img("library/kitchen-navy-island", "A navy kitchen island with wov
 const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d);
 
 export async function generateStaticParams() {
-  return (await getPostSlugs()).map((slug) => ({ slug }));
+  // Rebuilt guides live at /guides; next.config.ts redirects the old path, and the page below does too.
+  return (await getPostSlugs()).filter((slug) => !isRebuiltGuide(slug)).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -35,6 +37,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function PostPage({ params }: { params: Params }) {
   const { slug } = await params;
+  if (isRebuiltGuide(slug)) permanentRedirect(`/guides/${slug}`);
   const post = await getPost(slug);
   if (!post) notFound();
   const [posts, author, settings] = await Promise.all([getPosts(), getTeamMember(post.author.slug), getSiteSettings()]);
@@ -94,7 +97,7 @@ export default async function PostPage({ params }: { params: Params }) {
           <ul className="grid gap-5 md:grid-cols-2">
             {more.map((p) => (
               <li key={p.slug} className="flex">
-                <Link href={`/blog/${p.slug}`} className="card group flex w-full gap-5 border border-hairline bg-white p-4 transition-colors duration-[120ms] hover:border-deep-harbor">
+                <Link href={guideHref(p.slug)} className="card group flex w-full gap-5 border border-hairline bg-white p-4 transition-colors duration-[120ms] hover:border-deep-harbor">
                   <div className="relative h-24 w-32 shrink-0 overflow-hidden bg-linen-100">
                     <Photo image={p.cover} sizes="128px" className="card-img" />
                   </div>

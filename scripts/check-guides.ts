@@ -4,6 +4,9 @@
  *   npx tsx scripts/check-guides.ts              every guide in the seed
  *   npx tsx scripts/check-guides.ts <slug> ...   only those guides
  *
+ * Covers the Tide guides in the seed and the rebuilt long-form guides in
+ * lib/guides/* (every string they render, figures and sources included).
+ *
  * Runs lib/fair-housing.ts over every string a guide renders (title, excerpt,
  * cover alt, every paragraph, heading, list item and quote), plus the
  * places-not-people rules the hubs use: nothing about demographics, income,
@@ -15,6 +18,7 @@
  */
 import { checkFairHousing } from "../lib/fair-housing";
 import { POSTS } from "../lib/content/seed/posts";
+import { GUIDES, guideStrings as rebuiltGuideStrings } from "../lib/guides";
 
 const PEOPLE_RULES: { pattern: RegExp; reason: string }[] = [
   { pattern: /\bschools?\b(?!\s+(district(’|')?s?\s+)?(tax|taxes|levy|levies))/i, reason: "school reference (only school taxes may be named, in the homestead guide)" },
@@ -52,6 +56,10 @@ function guideStrings(): { where: string; text: string }[] {
       const text = children.map((c) => (typeof c.text === "string" ? c.text : "")).join("");
       add(`${blk.style ?? "block"} ${i + 1}`, text);
     });
+  }
+  for (const g of GUIDES) {
+    if (only.size && !only.has(g.slug)) continue;
+    out.push(...rebuiltGuideStrings(g));
   }
   return out;
 }

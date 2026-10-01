@@ -54,7 +54,7 @@ const list = (...items: string[]): RichText => items.map((t) => block(t, "normal
 const sources = (...items: string[]): RichText => rich(h(2, "Sources"), list(...items.map((s) => `${s} (${CHECKED})`)));
 
 const INSPECTIONS = "/blog/inspections-on-the-suncoast-what-a-good-one-covers";
-const FLOOD_GUIDE = "/blog/flood-zones-and-elevation-certificates-on-the-suncoast";
+const FLOOD_GUIDE = "/guides/flood-zones-and-elevation-certificates-on-the-suncoast";
 const GATED = "/blog/what-to-ask-before-you-buy-in-a-gated-community";
 
 export const WAVE2_GUIDES_B: Post[] = [

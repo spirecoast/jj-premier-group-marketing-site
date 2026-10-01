@@ -7,6 +7,8 @@ import {
   getVenueSlugs,
 } from "@/lib/content";
 import { MARKETS } from "@/lib/content/markets";
+import { getGuideSlugs } from "@/lib/guides";
+import { isRebuiltGuide } from "@/lib/guides/slugs";
 import { getIndexableSlugs } from "@/lib/neighborhoods/data";
 import { absoluteUrl } from "@/lib/seo";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
@@ -30,6 +32,7 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/about", priority: 0.6, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.6, changeFrequency: "weekly" },
   { path: "/tide", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/guides", priority: 0.7, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.5, changeFrequency: "yearly" },
   // /from/* are bio and post links: noindex and left out on purpose.
   { path: "/refer", priority: 0.4, changeFrequency: "yearly" },
@@ -64,7 +67,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...events.map((s) => entry(`/calendar/${s}`, 0.6, "weekly" as const)),
     ...venues.map((s) => entry(`/venues/${s}`, 0.5, "monthly" as const)),
     ...neighborhoods.map((s) => entry(`/neighborhoods/${s}`, 0.7, "weekly" as const)),
-    ...posts.map((s) => entry(`/blog/${s}`, 0.5, "monthly" as const)),
+    ...posts.filter((s) => !isRebuiltGuide(s)).map((s) => entry(`/blog/${s}`, 0.5, "monthly" as const)),
+    ...getGuideSlugs().map((s) => entry(`/guides/${s}`, 0.7, "monthly" as const)),
     ...TIDE_ISSUES.map((e) => entry(`/tide/${e.issue}`, 0.6, "monthly" as const)),
   ];
 }
