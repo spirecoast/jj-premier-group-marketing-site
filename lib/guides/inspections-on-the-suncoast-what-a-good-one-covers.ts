@@ -70,7 +70,7 @@ export const INSPECTIONS_GUIDE: Guide = {
     "Forms and rules change. Each part of this guide tells you where its facts come from. Before you count on them for one house, check with your inspector and your insurance agent.",
   ],
   questions: ["How old are the roof and the four systems?", "What did the inspector see, and what couldn’t they see?", "What does the insurance company need?"],
-  cover: img("library/listing-exterior-canal-golden", "A canal-front home in the late light"),
+  cover: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-08-14",
   updatedAt: "2026-10-02",

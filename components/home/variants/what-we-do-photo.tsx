@@ -13,8 +13,8 @@ import { BOTH_PROMISES, BUYER_PROMISES, SELLER_PROMISES, WHAT_WE_DO, type Step }
 
 /** The two lead photographs, kept with the treatment that uses them. Alt text checked with checkFairHousing (lib/fair-housing.ts). */
 const LEAD = {
-  buyer: img("library/moment-crossing-room", "Two people walking through an empty, sunlit room", "50% 50%"),
-  seller: img("library/listing-exterior-canal-golden", "A house on a canal in the last of the afternoon light", "50% 60%"),
+  buyer: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%"),
+  seller: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 60%"),
 };
 function Column({ id, eyebrow, title, items, image }: { id: string; eyebrow: string; title: string; items: Step[]; image: ImageRef }) {
   return (

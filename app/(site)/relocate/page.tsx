@@ -26,7 +26,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 const FRAMES = {
-  away: img("library/place-skyway-bridge", "The Skyway bridge over the bay, from the water", "50% 55%"),
+  away: img("library/place-skyway-bridge", "The Sunshine Skyway Bridge over Tampa Bay, from above", "50% 55%"),
 };
 
 const FAQ_ITEMS: Faq[] = FAQS.map((f) => ({

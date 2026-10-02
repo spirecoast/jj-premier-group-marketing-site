@@ -74,9 +74,9 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   },
   "/sell/sold": {
     kind: "photo",
-    photo: "library/listing-hero-estate-twilight",
-    position: "50% 55%",
-    alt: "A house lit at twilight, the pool still in front of it",
+    photo: "library/listing-twilight-exterior-pool",
+    position: "50% 60%",
+    alt: "A one-story house behind its pool, under a blue sky",
   },
   "/sell/home-value": {
     kind: "photo",

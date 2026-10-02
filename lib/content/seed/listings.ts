@@ -35,8 +35,8 @@ export const LISTINGS: Listing[] = [
     cardNote: "LAKEFRONT · POOL",
     hero: img("library/listing-hero-estate-twilight", "18 Cliffside Terrace at twilight", "62% 58%"),
     gallery: [
-      img("library/listing-kitchen-4pm-island", "The kitchen at four in the afternoon"),
-      img("library/listing-living-room-terrazzo", "Living room with terrazzo floors"),
+      img("library/listing-kitchen-4pm-island", "The kitchen"),
+      img("library/listing-living-room-terrazzo", "The living room"),
       img("library/listing-primary-bath-terrazzo", "Primary bath with a freestanding tub"),
       img("library/lwr-lakefront-row", "The lakefront from the lanai"),
       img("library/listing-aerial-lot-morning", "Aerial view of the lot in the morning"),
@@ -130,12 +130,12 @@ export const LISTINGS: Listing[] = [
     annualTaxes: 21_400,
     featured: true,
     cardNote: "POOL · DOCK",
-    hero: img("library/listing-twilight-exterior-pool", "312 Riverwalk Court, pool at twilight"),
+    hero: img("library/listing-twilight-exterior-pool", "312 Riverwalk Court, the pool"),
     gallery: [
       img("library/listing-dock-view-sunset", "The dock at sunset"),
       img("library/moment-poolside", "Poolside in the late afternoon"),
       img("library/interior-jalousie", "Jalousie windows in the morning room"),
-      img("library/listing-living-room-terrazzo", "Living room, terrazzo floors"),
+      img("library/listing-living-room-terrazzo", "The living room"),
     ],
     description: p(
       "A deep-water canal on the north end of Siesta Key, a seawall and dock rebuilt in 2023, and a lift rated for a 30-footer. The pool faces west over the water.",
@@ -180,7 +180,7 @@ export const LISTINGS: Listing[] = [
     cardNote: "CANAL · FLOOD ZONE X",
     hero: img("library/bradenton-canal-ranch-twilight", "4419 Bayshore Lane at twilight"),
     gallery: [
-      img("library/listing-exterior-canal-golden", "The canal side at golden hour"),
+      img("library/listing-exterior-canal-golden", "Homes on the canals, from above"),
       img("library/interior-jalousie", "The Florida room"),
       img("library/listing-kitchen-4pm-island", "Kitchen, renovated 2020"),
     ],
@@ -267,7 +267,7 @@ export const LISTINGS: Listing[] = [
     annualTaxes: 16_300,
     featured: false,
     cardNote: "BEACH · 2016",
-    hero: img("library/place-sea-oats-dusk", "Sea oats on the dunes at dusk, two houses from the beach"),
+    hero: img("library/place-sea-oats-dusk", "The dunes at sunrise, two houses from the beach"),
     gallery: [img("library/place-sea-oats-wind", "The dune path to the beach")],
     description: p(
       "Two houses from the beach access on the north end of Anna Maria, built in 2016 to the current elevation code. Under contract after twenty-two days.",

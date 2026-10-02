@@ -8,6 +8,6 @@ export default function Image() {
     eyebrow: "What sold on your street",
     title: "See the public record, street by street.",
     meta: "Every qualified sale the county appraiser recorded in the last 24 months.",
-    photo: "/images/library/lwr-lakefront-row.jpg",
+    photo: "/images/library/listing-twilight-exterior-pool.jpg",
   });
 }

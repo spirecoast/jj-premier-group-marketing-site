@@ -100,7 +100,7 @@ export const FLOOD_GUIDE: Guide = {
     "Maps and rules change. Each drawing names its sources, and the full list is at the end. Before you count on them for one house, check with the county, a surveyor and your insurance agent.",
   ],
   questions: ["What flood zone is the house in?", "How high does the house sit?", "When will the flood policy start?"],
-  cover: img("library/bradenton-canal-ranch-twilight", "A canal-front ranch house at twilight in West Bradenton", "50% 55%"),
+  cover: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 55%"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-10-01",
   updatedAt: "2026-10-02",

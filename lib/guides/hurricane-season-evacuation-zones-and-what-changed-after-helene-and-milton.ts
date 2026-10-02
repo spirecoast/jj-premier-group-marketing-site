@@ -85,7 +85,7 @@ export const HURRICANE_GUIDE: Guide = {
     "Storm records and county rules change. Each part of this guide says where its facts come from. Before you count on them for one house, check with the county and your insurance agent.",
   ],
   questions: ["What evacuation zone is the house in?", "What did the two storms do on this street?", "Was the house repaired, or rebuilt to today’s rules?"],
-  cover: img("library/place-storm-gulf", "A storm over the Gulf", "50% 50%"),
+  cover: img("library/place-storm-gulf", "Storm clouds over the water", "50% 50%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-10-01",
   updatedAt: "2026-10-02",

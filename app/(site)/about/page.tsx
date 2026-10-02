@@ -21,7 +21,7 @@ export const metadata: Metadata = pageMetadata({
 
 const FRAMES = {
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
-  coast: img("library/place-sea-oats-dusk", "Sea oats on the dunes at dusk", "50% 60%"),
+  coast: img("library/place-sea-oats-dusk", "Dunes and sea oats at sunrise on a Florida beach", "50% 60%"),
 };
 
 /** From the brand voice document: how the writing, and the work, sounds. */

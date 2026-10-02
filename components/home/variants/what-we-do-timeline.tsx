@@ -23,7 +23,7 @@ const TILES: Record<"buyer" | "seller", Record<number, ImageRef>> = {
     4: img("library/moment-key-handoff", "", "50% 40%"),
   },
   seller: {
-    1: img("library/listing-aerial-lot-morning", "", "50% 50%"),
+    1: img("library/listing-exterior-canal-golden", "", "50% 50%"),
     4: img("library/listing-twilight-exterior-pool", "", "50% 55%"),
   },
 };

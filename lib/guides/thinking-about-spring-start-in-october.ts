@@ -86,7 +86,7 @@ export const READY_TO_SELL_GUIDE: Guide = {
     "The timings in this guide are our own plan, unless a source says otherwise. Each part says where its facts come from. Before you count on a rule, check it with your insurance agent, your association and the title company.",
   ],
   questions: ["When do you want to list?", "What will the buyer’s insurance company ask?", "Which papers do you need to find?"],
-  cover: img("library/moment-key-handoff", "Keys handed over at a closing table"),
+  cover: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-08-28",
   updatedAt: "2026-10-02",

@@ -19,7 +19,7 @@ export const MARKETS: readonly Market[] = [
     slug: "sarasota",
     name: "Sarasota",
     county: "Sarasota County",
-    image: img("library/place-sea-oats-dusk", "Sea oats over a Gulf beach at dusk", "50% 55%"),
+    image: img("library/place-sea-oats-dusk", "Dunes and sea oats at sunrise on a Florida beach", "50% 55%"),
     blurb:
       "Sarasota is the bayfront, the keys and the streets west of the Trail, and the opera house, the orchestra and the gallery district are a few minutes from any of them.",
   },

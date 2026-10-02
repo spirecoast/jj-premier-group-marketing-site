@@ -27,7 +27,7 @@ export const DOORS: Door[] = [
       "First, one call and two questions: when do you need to be in, and is there a house to sell first? Those two answers set everything else.",
     cta: "How buying goes",
     also: { href: "/relocate", label: "Moving here from somewhere else?" },
-    image: img("library/moment-crossing-room", "Two people walking through an empty, sunlit room", "50% 50%"),
+    image: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%"),
   },
   {
     href: "/sell",
@@ -36,7 +36,7 @@ export const DOORS: Door[] = [
       "First, we come to the house, both of us, and walk it the way a buyer will. You get the number in writing that day or the next, with the sales behind it.",
     cta: "How selling goes",
     also: { href: "/sell/sold", label: "What sold on your street" },
-    image: img("library/listing-exterior-canal-golden", "A house on a canal in the last of the afternoon light", "50% 60%"),
+    image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 60%"),
   },
 ];
 

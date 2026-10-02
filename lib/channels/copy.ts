@@ -43,7 +43,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     heading: "You’ve seen the coast. Now plan the move.",
     line: "We’re Joelyn and Jessica. If one of our videos has you thinking about Lakewood Ranch, Sarasota or Bradenton, start here: tell the planner when you’re coming and it puts the whole move on a calendar, from the contract deadlines to the week the insurance has to be bound.",
     cta: { href: "/relocate", label: "Plan the move", note: RELOCATE_NOTE },
-    image: { name: "library/place-skyway-bridge", alt: "The Skyway bridge over the bay, from the water", position: "50% 55%" },
+    image: { name: "library/place-skyway-bridge", alt: "The Sunshine Skyway Bridge over Tampa Bay, from above", position: "50% 55%" },
   },
   instagram: {
     slug: "instagram",
@@ -67,7 +67,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     heading: "Wondering what your home’s worth? Start with your street.",
     line: "Type in your street and you’ll see the sales the county recorded there: the address, the date, the price and the living area. It’s the public record, not an estimate.",
     cta: { href: "/sell/sold", label: "See what sold on your street", note: SOLD_NOTE },
-    image: { name: "library/listing-exterior-canal-golden", alt: "A two-story house on a canal, reflected in the water" },
+    image: { name: "library/listing-exterior-canal-golden", alt: "Homes on canals by the water, from above" },
   },
   nextdoor: {
     slug: "nextdoor",
@@ -79,7 +79,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     heading: "Hi, neighbor. Here’s what sold on your street.",
     line: "We’re Joelyn and Jessica, with Coldwell Banker Realty. Type in your street and you’ll see what the county recorded there: the address, the date, the price and the living area. If you’d like to know what it means for your house, ask us.",
     cta: { href: "/sell/sold", label: "See what sold on your street", note: SOLD_NOTE },
-    image: { name: "library/lwr-lakefront-row", alt: "A row of houses across a lake at sunset, a heron on the bank" },
+    image: { name: "library/lakes-aerial-sunset", alt: "Lakefront streets from the air at sunset" },
   },
 };
 

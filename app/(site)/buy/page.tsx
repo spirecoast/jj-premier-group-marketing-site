@@ -23,11 +23,11 @@ export const metadata: Metadata = pageMetadata({
 /* Editorial photography for the page. Listings come from the content layer. */
 const FRAMES = {
   hero: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
-  keys: img("library/moment-key-handoff", "Keys handed across a table at a closing", "50% 40%"),
+  keys: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
   /* The two doors before the steps: the drive in over the bay, and a street of homes on the water. Decorative; the link is named by its words. */
   doors: {
     relocate: img("library/place-skyway-bridge", "", "50% 55%"),
-    match: img("library/lwr-lakefront-row", "", "50% 55%"),
+    match: img("library/lakes-aerial-sunset", "", "50% 55%"),
   },
   /* Let into the steps: the house seen at four in the afternoon, and the contract on the island. */
   tiles: {

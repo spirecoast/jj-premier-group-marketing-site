@@ -13,7 +13,7 @@ export const POSTS: Post[] = [
     _id: "post-guide-hoa-cdd",
     title: "What to ask before you buy in a gated community",
     slug: "what-to-ask-before-you-buy-in-a-gated-community",
-    cover: img("library/lwr-lakefront-row", "Lakefront homes along a quiet street"),
+    cover: img("library/lakes-aerial-sunset", "Lakefront streets from the air at sunset"),
     excerpt: "Who runs a master-planned community, what it costs each year, what the rules are, and the two papers the law says you get.",
     publishedAt: "2026-09-01",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
@@ -48,7 +48,7 @@ export const POSTS: Post[] = [
     _id: "post-guide-inspections",
     title: "Home inspections on the Suncoast: what a good one covers",
     slug: "inspections-on-the-suncoast-what-a-good-one-covers",
-    cover: img("library/listing-exterior-canal-golden", "A canal-front home in the late light"),
+    cover: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above"),
     excerpt: "The reports to order, what each one looks at, and why a house near salt water needs a few more than one inland.",
     publishedAt: "2026-08-14",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
@@ -86,7 +86,7 @@ export const POSTS: Post[] = [
     _id: "post-guide-selling-from-away",
     title: "Selling a home you don’t live in",
     slug: "selling-a-home-you-dont-live-in",
-    cover: img("library/moment-contract", "A contract on a kitchen island"),
+    cover: img("library/moment-contract", "A pen on the signature line of a contract"),
     excerpt:
       "How a sale runs when you’re away, what you can sign from where you are, and what the title company will ask for.",
     publishedAt: "2026-07-22",
@@ -155,7 +155,7 @@ export const POSTS: Post[] = [
     title: "What we got wrong last quarter, and the two streets that proved it.",
     slug: "q2-2026-what-we-got-wrong",
     edition: "Q2 2026",
-    cover: img("library/place-storm-gulf", "A storm over the Gulf"),
+    cover: img("library/place-storm-gulf", "Storm clouds over the water"),
     excerpt:
       "The spring letter marks the winter's predictions against what happened. Bradenton was the surprise.",
     publishedAt: "2026-04-15",
@@ -180,7 +180,7 @@ export const POSTS: Post[] = [
     _id: "post-water-table",
     title: "Ask us about the water table.",
     slug: "ask-us-about-the-water-table",
-    cover: img("library/place-mangrove-tunnel", "A mangrove tunnel on the bay"),
+    cover: img("library/place-mangrove-tunnel", "A waterway through the mangroves"),
     excerpt:
       "This one covers flood zones X, AE and VE, elevation certificates, and why the insurance quote is now the first question on any waterfront street.",
     publishedAt: "2026-05-20",
@@ -210,7 +210,7 @@ export const POSTS: Post[] = [
     _id: "post-start-in-october",
     title: "Getting your house ready to sell",
     slug: "thinking-about-spring-start-in-october",
-    cover: img("library/moment-key-handoff", "Keys handed over at a closing table"),
+    cover: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring"),
     excerpt:
       "What to do before you list, in what order, and how long each step takes.",
     publishedAt: "2026-08-28",

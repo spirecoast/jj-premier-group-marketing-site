@@ -132,7 +132,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     _id: "post-guide-flood-zones",
     title: "Flood zones and flood insurance, explained",
     slug: "flood-zones-and-elevation-certificates-on-the-suncoast",
-    cover: img("library/bradenton-canal-ranch-twilight", "A canal-front ranch house at twilight in West Bradenton"),
+    cover: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above"),
     excerpt:
       "What a flood zone is, how to find the zone for a house, and what to check before you make an offer.",
     publishedAt: "2026-10-01",
@@ -415,7 +415,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     _id: "post-guide-hurricane-season",
     title: "Hurricane season, evacuation zones and the 2024 storms, explained",
     slug: "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
-    cover: img("library/place-storm-gulf", "A storm over the Gulf"),
+    cover: img("library/place-storm-gulf", "Storm clouds over the water"),
     excerpt: "What an evacuation zone is, what Helene and Milton did to this coast, and what to ask about a house that was rebuilt since.",
     publishedAt: "2026-10-01",
     author: JOELYN,

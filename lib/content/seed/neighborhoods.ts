@@ -84,7 +84,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "siesta-key",
     market: "sarasota",
     tagline: "Eight miles of barrier island, two bridges, and canals that reach the bay.",
-    hero: img("library/place-barrier-island", "The barrier island shoreline"),
+    hero: img("library/place-barrier-island", "Sunset on Siesta Key Beach, past the posts of an old pier"),
     overview: p(
       "Siesta Key is the barrier island south-west of downtown Sarasota, connected by the north and south bridges. The north end is mostly single-family canal streets; the village and the condominium towers cluster mid-island; the south end runs to Turtle Beach.",
       "Most of the island is in flood zone AE or VE, and newer construction is elevated. Canal depth and bridge clearance vary street by street, which is the first question we ask about any waterfront listing here.",
@@ -176,7 +176,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "anna-maria-island",
     market: "bradenton",
     tagline: "Seven miles of island, three cities, and a height limit that keeps it low.",
-    hero: img("library/place-sea-oats-wind", "Sea oats in the wind on Anna Maria Island"),
+    hero: img("library/place-sea-oats-wind", "A beach path through the sea oats on Anna Maria Island"),
     overview: p(
       "Anna Maria Island is the barrier island at the mouth of Tampa Bay, made up of the cities of Anna Maria, Holmes Beach and Bradenton Beach. A three-story height limit and small lots keep the housing to cottages, elevated new construction and low condominiums.",
       "The whole island is in a special flood hazard zone, and post-2016 construction is elevated to the current code. Short-term rental rules differ by city.",

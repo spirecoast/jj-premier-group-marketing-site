@@ -23,11 +23,11 @@ export const metadata: Metadata = pageMetadata({
 /* Editorial photography for the page. Solds come from the content layer. */
 const FRAMES = {
   hero: img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%"),
-  contract: img("library/moment-contract", "A contract on a kitchen island", "50% 45%"),
-  island: img("library/listing-living-room-terrazzo", "A living room with terrazzo floors and the light coming in", "50% 50%"),
+  contract: img("library/moment-contract", "A pen on the signature line of a contract", "50% 45%"),
+  island: img("library/listing-living-room-terrazzo", "A sunlit living room", "50% 50%"),
   /* Let into the steps: the house seen from above on day one, and the exterior in the evening light the photographs are taken in. */
   tiles: {
-    1: img("library/listing-aerial-lot-morning", "", "50% 50%"),
+    1: img("library/listing-exterior-canal-golden", "", "50% 50%"),
     3: img("library/listing-twilight-exterior-pool", "", "50% 55%"),
   },
 };
