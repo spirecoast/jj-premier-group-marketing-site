@@ -86,11 +86,11 @@ export const POSTS: Post[] = [
   },
   {
     _id: "post-guide-selling-from-away",
-    title: "Selling a home you don’t live in.",
+    title: "Selling a home you don’t live in",
     slug: "selling-a-home-you-dont-live-in",
     cover: img("library/moment-contract", "A contract on a kitchen island"),
     excerpt:
-      "Whether you’ve moved away, you’re only here in season, or you’re settling an estate, here’s how a sale runs when the owner isn’t here.",
+      "How a sale runs when you’re away, what you can sign from where you are, and what the title company will ask for.",
     publishedAt: "2026-07-22",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],
@@ -210,11 +210,11 @@ export const POSTS: Post[] = [
   },
   {
     _id: "post-start-in-october",
-    title: "Thinking about spring? Start in October.",
+    title: "Getting your house ready to sell",
     slug: "thinking-about-spring-start-in-october",
     cover: img("library/moment-key-handoff", "Keys handed over at a closing table"),
     excerpt:
-      "Prep takes eight weeks and the good photographers book six ahead. The sellers who list in February started in the fall.",
+      "What to do before you list, in what order, and how long each step takes.",
     publishedAt: "2026-08-28",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Selling"],

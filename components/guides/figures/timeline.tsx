@@ -4,6 +4,15 @@ import { FigureTable, HatchDefs, Legend, hatchUrl, seriesFill } from "./shared";
 
 const H = 20;
 
+/** The word for one unit on the axis, for the phone's marker list: "Day 30", "Week 8". */
+const unitWord = (unit: string) => {
+  const u = unit.toLowerCase();
+  if (u.startsWith("day")) return "Day";
+  if (u.startsWith("week")) return "Week";
+  if (u.startsWith("month")) return "Month";
+  return unit;
+};
+
 /** One lane's track: an SVG with percentage coordinates, so the bar stretches and the text doesn't. */
 function Track({ lane, id, pct, max }: { lane: TimelineLane; id: string; pct: (v: number) => number; max: number }) {
   const wide = lane.end - lane.start >= max * 0.2;
@@ -67,7 +76,7 @@ export function TimelineFigureView({ figure, title }: { figure: TimelineFigure; 
         <div className="h-9" />
         <div className="relative h-9" aria-hidden="true">
           {figure.markers.map((m) => (
-            <span key={m.label} className={`absolute top-0 max-w-[48%] font-mono text-[10px] uppercase leading-tight tracking-[0.12em] text-graphite-600 ${pct(m.at) > 60 ? "-translate-x-full pr-2 text-right" : "pl-2"}`} style={{ left: `${pct(m.at)}%` }}>
+            <span key={m.label} className={`absolute top-0 max-w-[48%] whitespace-nowrap font-mono text-[10px] uppercase leading-tight tracking-[0.12em] text-graphite-600 ${pct(m.at) > 60 ? "-translate-x-full pr-2 text-right" : "pl-2"}`} style={{ left: `${pct(m.at)}%` }}>
               {m.label}
             </span>
           ))}
@@ -112,7 +121,7 @@ export function TimelineFigureView({ figure, title }: { figure: TimelineFigure; 
           {figure.markers.map((m) => (
             <li key={m.label} className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-graphite-600">
               <span className="h-3 w-px bg-coral" aria-hidden="true" />
-              Day {m.at}: {m.label}
+              {unitWord(figure.unit)} {m.at}: {m.label}
             </li>
           ))}
         </ul>
