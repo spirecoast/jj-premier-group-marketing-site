@@ -264,7 +264,7 @@ export const WAVE2_GUIDES_A: Post[] = [
     _id: "post-guide-cdd-villages",
     title: "CDD fees in Lakewood Ranch, explained",
     slug: "cdd-fees-in-lakewood-ranch-village-by-village",
-    cover: img("library/lwr-fairways-bay-aerial", "Lakewood Ranch fairways and lakes from the air"),
+    cover: img("library/lwr-fairways-bay-aerial", "Fairways, palms and bay water from the air"),
     excerpt: "What a community development district is, which district your village is in, and how to read the two lines on your tax bill.",
     publishedAt: "2026-10-01",
     author: JOELYN,

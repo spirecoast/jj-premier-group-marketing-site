@@ -32,7 +32,7 @@ const TILES: Record<"buyer" | "seller", Record<number, ImageRef>> = {
 const BOTH: ImageRef[] = [
   img("photos/duo-square", "", "50% 31%"), // faces clear of the title on the 2:1 phone card
   img("library/place-storm-gulf", "", "50% 40%"),
-  img("library/art-woodblock-bay", "", "50% 50%"),
+  img("library/tampa-bay-sunset", "", "50% 60%"),
 ];
 
 function Rail({ id, eyebrow, title, items, tiles }: { id: string; eyebrow: string; title: string; items: Step[]; tiles: Record<number, ImageRef> }) {

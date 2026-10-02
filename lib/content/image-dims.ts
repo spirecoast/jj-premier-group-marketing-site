@@ -27,6 +27,12 @@ export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   "/images/library/place-skyway-bridge.jpg": { width: 2560, height: 1438 },
   "/images/library/place-storm-gulf.jpg": { width: 2560, height: 1707 },
   "/images/library/sarasota-bayfront-blue-hour.jpg": { width: 2560, height: 1917 },
+  "/images/library/bradenton-courthouse.jpg": { width: 2560, height: 1440 },
+  "/images/library/bradenton-robinson-preserve.jpg": { width: 2560, height: 3840 },
+  "/images/library/golf-course-lakes-aerial.jpg": { width: 2560, height: 1706 },
+  "/images/library/lakefront-houses-palms.jpg": { width: 2560, height: 1707 },
+  "/images/library/palm-lined-street.jpg": { width: 2560, height: 1707 },
+  "/images/library/tampa-bay-sunset.jpg": { width: 2560, height: 1706 },
   // Generated frames from the original brand handoff (1200px and 1376px wide; soft when shown large).
   "/images/library/arch-breeze-block.jpg": { width: 1376, height: 768 },
   "/images/library/art-gouache-shoreline.jpg": { width: 1376, height: 768 },

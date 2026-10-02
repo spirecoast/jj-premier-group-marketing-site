@@ -64,7 +64,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
     kind: "photo",
     photo: "library/lwr-fairways-bay-aerial",
     position: "50% 55%",
-    alt: "Fairways, lakes and rooftops in Lakewood Ranch from the air",
+    alt: "Fairways, lakes and rooftops from the air",
   },
   "/relocate": {
     kind: "photo",

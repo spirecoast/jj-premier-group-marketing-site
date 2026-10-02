@@ -27,7 +27,7 @@ export const MARKETS: readonly Market[] = [
     slug: "bradenton",
     name: "Bradenton",
     county: "Manatee County",
-    image: img("library/bradenton-riverwalk-golden", "Bradenton Riverwalk at golden hour"),
+    image: img("library/bradenton-courthouse", "The Manatee County Courthouse in downtown Bradenton"),
     blurb:
       "Bradenton is the Manatee River, the Riverwalk, the canal streets west of 75th, and a downtown with the county's theater and an arts village of its own.",
   },

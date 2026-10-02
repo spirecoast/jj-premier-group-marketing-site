@@ -13,7 +13,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "the-lake-club",
     market: "lakewood-ranch",
     tagline: "The gated village on the lakes, east of Lorraine Road.",
-    hero: img("library/lwr-lakefront-row", "Lakefront homes in The Lake Club"),
+    hero: img("library/lakefront-houses-palms", "Houses with balconies along a lake, under palms"),
     overview: p(
       "The Lake Club is a gated village on the east side of Lakewood Ranch, built out between 2006 and 2022 around a chain of lakes and preserve. Lots run from a quarter acre to over an acre, and most streets end at water.",
       "The HOA owns the Grande Clubhouse, two pools, tennis and pickleball, and a fitness building; membership is included with the property. Lakewood Ranch Golf and Country Club is a separate, optional membership.",
@@ -37,7 +37,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "country-club-east",
     market: "lakewood-ranch",
     tagline: "Golf-course lots inside the gate, with the clubhouse a bike ride away.",
-    hero: img("library/listing-aerial-lot-morning", "A Country Club East lot from above"),
+    hero: img("library/golf-course-lakes-aerial", "A golf course, lakes and homes from the air"),
     overview: p(
       "Country Club East sits between Lorraine Road and the preserve, with homes built from 2007 onward along the Royal Lakes and Royal Reserve courses. Most lots face a fairway, a lake, or both.",
       "The HOA maintains the Retreat, a resident clubhouse with a pool and fitness room. Golf and the main clubhouse are through Lakewood Ranch Golf and Country Club, an optional equity membership.",
@@ -61,7 +61,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     market: "lakewood-ranch",
     county: "Sarasota County",
     tagline: "The newest villages, on the Sarasota County side, around a town center you can walk to.",
-    hero: img("library/lwr-waterside-promenade", "The promenade at Waterside Place"),
+    hero: img("library/lakes-aerial-sunset", "Lakefront streets from the air at sunset"),
     overview: p(
       "Waterside is the Sarasota County portion of Lakewood Ranch, opened in 2017 around seven lakes and the Waterside Place town center. Villages include Lakehouse Cove, Shoreview, Wild Blue and Emerald Landing; each has its own HOA and amenity center.",
       "The Sunday Farmers' Market and the lakefront promenade are the reason most people ask about it. University Town Center is ten minutes north and the interstate is at Fruitville Road.",
@@ -107,7 +107,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "west-of-the-trail",
     market: "sarasota",
     tagline: "The streets between Tamiami Trail and the bay, from downtown south to Siesta Drive.",
-    hero: img("library/place-oak-canopy", "A street under the oak canopy west of the Trail"),
+    hero: img("library/palm-lined-street", "A quiet street lined with palms"),
     overview: p(
       "West of the Trail describes the neighborhoods between US 41 and Sarasota Bay south of downtown: Harbor Acres, Cherokee Park, Avondale, McClellan Park, Granada and others. Streets were platted from the 1920s onward and the housing is a mix of original block ranches and new construction on the same lots.",
       "Most of the area is outside the special flood hazard zone away from the immediate bayfront. Selby Gardens, Southside Village and the hospital are inside it.",
@@ -130,7 +130,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "west-bradenton",
     market: "bradenton",
     tagline: "Canal streets west of 75th, Palma Sola Bay, and the island bridge eight minutes away.",
-    hero: img("library/bradenton-canal-ranch-twilight", "A canal-front ranch in West Bradenton at twilight"),
+    hero: img("library/bradenton-robinson-preserve", "The boardwalk through the mangroves at Robinson Preserve in Bradenton"),
     overview: p(
       "West Bradenton runs from 75th Street West to Palma Sola Bay, a grid of 1960s and 1970s subdivisions with canals cut to the bay. Most lots are a quarter acre, most houses are single-level block, and there’s no HOA on the older streets.",
       "Flood zones vary block to block; several canal streets sit in zone X, which changes the insurance conversation. The Anna Maria bridge is at the end of Manatee Avenue.",
@@ -153,7 +153,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     slug: "downtown-bradenton",
     market: "bradenton",
     tagline: "The Riverwalk, the Village of the Arts, and the county's theater in ten square blocks.",
-    hero: img("library/bradenton-riverwalk-golden", "The Bradenton Riverwalk"),
+    hero: img("library/bradenton-courthouse", "The Manatee County Courthouse in downtown Bradenton"),
     overview: p(
       "Downtown Bradenton sits on the south bank of the Manatee River, with the Riverwalk along the water, Old Main Street running south, and the Village of the Arts beyond 9th Avenue. Housing is condominiums on the river, 1920s bungalows in the Village, and new townhouse infill.",
       "The Manatee Performing Arts Center and the Bishop Museum are both downtown. Lakewood Ranch is twenty-five minutes east on State Road 64.",

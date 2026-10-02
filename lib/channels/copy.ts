@@ -55,7 +55,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     heading: "Thanks for following along. Here’s where to start.",
     line: "Moving here from somewhere else? The relocation planner asks six questions and gives you the move on a calendar: the contract deadlines, the week insurance has to be bound, and when homestead comes into it.",
     cta: { href: "/relocate", label: "Plan the move", note: RELOCATE_NOTE },
-    image: { name: "library/lwr-waterside-promenade", alt: "The lakeside promenade at Waterside Place in Lakewood Ranch, at dusk" },
+    image: { name: "library/lakes-aerial-sunset", alt: "Lakefront streets from the air at sunset" },
   },
   facebook: {
     slug: "facebook",

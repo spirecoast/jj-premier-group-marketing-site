@@ -123,7 +123,7 @@ export const POSTS: Post[] = [
     title: "Inventory doubled on the Ranch this quarter and prices did not move.",
     slug: "q3-2026-inventory-doubled-prices-did-not-move",
     edition: "Q3 2026",
-    cover: img("library/manatee-river-dusk", "The Manatee River at dusk"),
+    cover: img("library/tampa-bay-sunset", "Sunset over Tampa Bay"),
     excerpt:
       "One page comes once a quarter, with what your street actually did, what it means for you, and what we got wrong last time.",
     publishedAt: "2026-07-15",
