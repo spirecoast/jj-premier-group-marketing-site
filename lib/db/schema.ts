@@ -6,6 +6,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uuid,
@@ -327,6 +328,26 @@ export const leadDeliveries = pgTable(
   (table) => [index("lead_deliveries_lead_idx").on(table.leadId, table.createdAt.desc())],
 );
 
+/**
+ * questionnaire_answers — the website questionnaire behind the private /q links.
+ * One row per person per question; respondent is 'joelyn' or 'jessica'.
+ * value is the free text, choice the picked option (null when none).
+ * The ids and wording of the questions live in lib/questionnaire/questions.ts.
+ */
+export const questionnaireAnswers = pgTable(
+  "questionnaire_answers",
+  {
+    respondent: text("respondent").notNull(),
+    questionId: text("question_id").notNull(),
+    value: text("value"),
+    choice: text("choice"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.respondent, table.questionId] })],
+);
+
 export type Agent = typeof agents.$inferSelect;
 export type NewAgent = typeof agents.$inferInsert;
 export type Contact = typeof contacts.$inferSelect;
@@ -345,3 +366,5 @@ export type NewLead = typeof leads.$inferInsert;
 export type LeadDelivery = typeof leadDeliveries.$inferSelect;
 export type NewLeadDelivery = typeof leadDeliveries.$inferInsert;
 export type NewTask = typeof tasks.$inferInsert;
+export type QuestionnaireAnswer = typeof questionnaireAnswers.$inferSelect;
+export type NewQuestionnaireAnswer = typeof questionnaireAnswers.$inferInsert;

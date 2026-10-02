@@ -145,6 +145,15 @@ const nextConfig: NextConfig = {
       { source: "/studio/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(studioPolicy()) }] },
       { source: "/portal/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(clerkPolicy()) }] },
       { source: "/auth/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(clerkPolicy()) }] },
+      // The private questionnaire links: the token is in the path, so no referrer, no caching, no indexing.
+      {
+        source: "/q/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
     ];
   },
   async redirects() {

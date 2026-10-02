@@ -263,6 +263,9 @@ Migrations in `lib/db/migrations/` (apply all, in order; `0006` adds the
   `agents`
 - `0002_auth_policies.sql` — `is_active_agent()` SQL helper + SELECT/UPDATE
   policies for authenticated agents
+- `0007_questionnaire.sql` — `questionnaire_answers` for the private questionnaire
+  links (`docs/SITE.md`), RLS enabled. `IF NOT EXISTS`, because the server also
+  creates the table on first use.
 
 Apply via either:
 ```bash

@@ -318,6 +318,55 @@ the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTE
   in the Sanity site settings feed the footer's icon row and `sameAs` on the RealEstateAgent
   JSON-LD; both render nothing while the list is empty.
 
+## The questionnaire: private links for Joelyn, Jessica and the owner
+
+The website questionnaire (121 questions in 10 sections, the facts the site still needs from the
+team) lives on the site at three private links. Nobody needs an account.
+
+- **Routes.** `/q/<token>` in its own route group, `app/(questionnaire)`: no site header, footer,
+  analytics or lead pixels, and nothing loaded from another origin. Joelyn's token shows her own
+  section plus the eight shared ones (team, promises, first questions, footer and legal, accounts
+  and tools, photos, Tide and Encore, anything else) and hides Jessica's; Jessica's is the mirror.
+  Each sees 107 questions, numbered 1 to 107 on their own link; the compiled view and the
+  exports use the source numbering, 1 to 121. The admin token shows the compiled view: both answers to every question
+  side by side (stacked on phones), each person's progress and last save, an "Answers differ"
+  marker on shared questions, Print, and Download Markdown / Download CSV from
+  `/q/<admin token>/export?format=md|csv` (checks the admin token, 404 for anything else). Any
+  other token is a 404 that says nothing about what the link was for.
+- **Kept private.** `robots: noindex, nofollow`, `X-Robots-Tag`, `Referrer-Policy: no-referrer`
+  and `Cache-Control: no-store` on `/q/:path*` (`next.config.ts`), `Disallow: /q/` in
+  `app/robots.ts`, and not in the sitemap. `proxy.ts` lets `/q` through untouched.
+- **Code.** The questions are `lib/questionnaire/questions.ts`, copied verbatim from the
+  questionnaire artifact; ids are the storage keys, so never rename one. Who sees what and the
+  numbering are in `model.ts`, the Markdown and CSV in `compile.ts`, the save rules (Zod, 10,000
+  characters an answer, only your own questions and the options a question offers) in
+  `validate.ts`, the wording around the questions in `copy.ts` (checked by `check:copy`), and the
+  pages in `components/questionnaire/*`. Tests: `lib/questionnaire/questionnaire.test.ts`.
+- **Storage.** Postgres table `questionnaire_answers` (respondent, question_id, value, choice,
+  updated_at; primary key respondent + question_id; RLS on, no policies), migration
+  `0007_questionnaire.sql`. `lib/questionnaire/store.ts` also runs the same `CREATE TABLE IF NOT
+  EXISTS` and `ENABLE ROW LEVEL SECURITY` once per server process, so the links work even if the
+  migration hasn't been run. Saves go through a server action that checks the token again and
+  writes only that person's rows. `updated_at` is when the answer was typed, and an older copy
+  never overwrites a newer one.
+- **Without a database.** Every change is written to the browser's `localStorage` straight away
+  (`jj-questionnaire:v1:<joelyn|jessica>`) and sent ~900ms after typing stops; the local copy is
+  cleared only once the server confirms it. With no `DATABASE_URL` the form says answers are kept on
+  this device until the database is connected, and the status reads "Kept on this device". A failed
+  save reads "Couldn't save, kept on this device". The next time the link is opened with a working
+  database, anything kept locally that is newer than the server copy is sent and then cleared. The
+  admin page says plainly when the database isn't connected; answers typed before then are only on
+  the phone or computer they were typed on until that person opens their link again.
+- **Tokens.** `lib/questionnaire/access.ts` holds only the SHA-256 of each token, compared in
+  constant time. The raw links are kept outside the repo by whoever sends them (never in code,
+  commits, docs or issues). To rotate one:
+  1. `node -e "console.log(require('crypto').randomBytes(18).toString('base64url'))"` for a new token.
+  2. `node -e "console.log(require('crypto').createHash('sha256').update(process.argv[1]).digest('hex'))" <token>`
+     for its hash.
+  3. Replace that role's `sha256` in `TOKEN_HASHES`, deploy, and send the new
+     `https://<site>/q/<token>` link. The old link stops working on deploy; answers stay, since
+     they're stored by person, not by token.
+
 ## Commands
 
 ```bash
