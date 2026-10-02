@@ -130,11 +130,11 @@ const village = (slug: string) => `${ATLAS}/${slug}`;
 export const WAVE2_GUIDES_A: Post[] = [
   {
     _id: "post-guide-flood-zones",
-    title: "Flood zones and elevation certificates on the Suncoast.",
+    title: "Flood zones and flood insurance, explained",
     slug: "flood-zones-and-elevation-certificates-on-the-suncoast",
     cover: img("library/bradenton-canal-ranch-twilight", "A canal-front ranch house at twilight in West Bradenton"),
     excerpt:
-      "Zones X, AE and VE are explained on one page: how to look up the exact parcel in either county, what an elevation certificate does now that FEMA prices flood insurance differently, the thirty-day wait and its loan exception, and what a seller has to tell you about floods.",
+      "What a flood zone is, how to find the zone for a house, and what to check before you make an offer.",
     publishedAt: "2026-10-01",
     author: JESSICA,
     categories: ["Guides"],

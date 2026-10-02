@@ -21,13 +21,15 @@ export function BarFigureView({ figure, title }: { figure: BarFigure; title: str
           const total = row.segments.reduce((n, s) => n + s.value, 0);
           const pct = (total / figure.max) * 100;
           const inside = pct >= 55;
+          // White type disappears into a hatch, so a hatched bar's label sits on its own white chip.
+          const onHatch = inside && row.segments.some((s) => s.hatched);
           const label = row.segments.map((s) => s.label).join(" + ");
           let x = 0;
           return (
-            <li key={row.label} className="grid grid-cols-1 gap-1.5 sm:grid-cols-[200px_1fr] sm:items-center sm:gap-5">
+            <li key={row.label} className="grid grid-cols-1 gap-1.5 sm:grid-cols-[220px_1fr] sm:items-center sm:gap-5">
               <div className="flex flex-col">
-                <span className="text-[14px] font-medium leading-snug text-ink">{row.label}</span>
-                {row.sub ? <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-graphite-500">{row.sub}</span> : null}
+                <span className="text-[15px] font-medium leading-snug text-ink">{row.label}</span>
+                {row.sub ? <span className="text-[13px] leading-snug text-body-muted">{row.sub}</span> : null}
               </div>
               <div className="relative">
                 <svg width="100%" height={H + 2} viewBox={`0 0 100 ${H + 2}`} preserveAspectRatio="none" aria-hidden="true" className="block overflow-visible">
@@ -53,7 +55,7 @@ export function BarFigureView({ figure, title }: { figure: BarFigure; title: str
                 </svg>
                 <span
                   aria-hidden="true"
-                  className={`pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[11px] tabular-nums ${inside ? "text-white" : "text-ink"}`}
+                  className={`pointer-events-none absolute top-1/2 -translate-y-1/2 whitespace-nowrap font-mono text-[11px] tabular-nums ${onHatch ? "bg-white px-1.5 py-0.5 text-ink" : inside ? "text-white" : "text-ink"}`}
                   style={inside ? { right: `calc(${100 - pct}% + 10px)` } : { left: `calc(${pct}% + 10px)` }}
                 >
                   {label}

@@ -9,6 +9,11 @@ import { LadderFigureView } from "./figures/ladder";
 import { MapCalloutView } from "./figures/map-callout";
 import { MatrixFigureView } from "./figures/matrix";
 import { TimelineFigureView } from "./figures/timeline";
+import { CoastFigureView } from "./figures/coast";
+import { DecidesView } from "./figures/decides";
+import { QuestionsView } from "./figures/questions";
+import { TwoHousesView } from "./figures/two-houses";
+import { ZoneCardsView } from "./figures/zone-cards";
 
 const two = (n: number) => String(n).padStart(2, "0");
 
@@ -31,6 +36,16 @@ function Drawing({ block }: { block: FigureBlock }) {
       return <ChecklistView figure={f} />;
     case "ladder":
       return <LadderFigureView figure={f} title={block.title} />;
+    case "coast":
+      return <CoastFigureView figure={f} title={block.title} />;
+    case "zone-cards":
+      return <ZoneCardsView figure={f} title={block.title} />;
+    case "two-houses":
+      return <TwoHousesView figure={f} title={block.title} />;
+    case "decides":
+      return <DecidesView figure={f} />;
+    case "questions":
+      return <QuestionsView figure={f} />;
   }
 }
 

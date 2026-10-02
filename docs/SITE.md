@@ -35,9 +35,15 @@ still works on the same theme.
   client's direction; `MarketSlug` has three values.
 - Photographs: sources stay JPEG under `public/images` (2560px max on the long side); `next.config.ts`
   asks the image optimizer for AVIF first and WebP second, so browsers never receive the source
-  file. Every photo goes through `components/photo.tsx`. Provenance: the 50 library files are
-  Adobe Stock (September 2026); the team photos are the team's own; files supplied by the client
-  in Slack are noted as such in `lib/content/image-dims.ts` until their source is confirmed.
+  file. Every photo goes through `components/photo.tsx`. Provenance, as of October 2026:
+  six library files are Adobe Stock photos the client supplied on September 22, 2026
+  (`venice-pier-sunrise`, `gulf-beach-aerial`, `modern-home-pool-dusk`, `kitchen-navy-island`,
+  `kitchen-white-palms`, `lakes-aerial-sunset`); two came from the team in Slack
+  (`culture-opera-house-red-seats`, `lwr-fairways-bay-aerial`); the rest of `public/images/library`
+  are generated frames from the original brand handoff, 1200px or 1376px wide, which look soft
+  when shown large and are being replaced with images the client approves. Nothing on the site
+  was downloaded or licensed from Adobe Stock by us. The team photos in `public/images/photos` are
+  the team's own. `lib/content/image-dims.ts` groups the files the same way.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
   **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
   `/calendar`) and **Tide** (the newsletter and its archive, `/blog`). The desktop nav is two

@@ -1974,6 +1974,17 @@
     margin-top: 0.08em;
     color: var(--color-navy);
   }
+  /* The cover ground: deep harbor, a teal glow from the upper right, and a
+     fine grid like the Virtus covers. */
+  .guide-cover-ground {
+    background-color: var(--color-harbor-950);
+    background-image:
+      linear-gradient(rgb(199 231 239 / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(199 231 239 / 0.055) 1px, transparent 1px),
+      radial-gradient(110% 90% at 88% 18%, rgb(53 137 156 / 0.55), transparent 62%),
+      linear-gradient(165deg, var(--color-harbor-950) 0%, var(--color-harbor-900) 55%, var(--color-navy) 100%);
+    background-size: 56px 56px, 56px 56px, 100% 100%, 100% 100%;
+  }
   /* Section numerals: the ghost numeral behind the section title. */
   .guide-ghost {
     font-family: var(--font-display);

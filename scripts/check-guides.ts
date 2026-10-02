@@ -18,7 +18,8 @@
  */
 import { checkFairHousing } from "../lib/fair-housing";
 import { POSTS } from "../lib/content/seed/posts";
-import { GUIDES, guideStrings as rebuiltGuideStrings } from "../lib/guides";
+import { GUIDES, guideProse, guideStrings as rebuiltGuideStrings } from "../lib/guides";
+import { readability, sentences, words } from "../lib/guides/readability";
 
 const PEOPLE_RULES: { pattern: RegExp; reason: string }[] = [
   { pattern: /\bschools?\b(?!\s+(district(’|')?s?\s+)?(tax|taxes|levy|levies))/i, reason: "school reference (only school taxes may be named, in the homestead guide)" },
@@ -76,6 +77,28 @@ for (const { where, text } of guideStrings()) {
   flagged += 1;
   console.error(`\n✗ ${where}\n  "${text.slice(0, 160)}${text.length > 160 ? "…" : ""}"`);
   for (const f of flags) console.error(`  - ${f.reason}  (/${f.pattern}/)`);
+}
+
+/*
+ * Reading level for the rebuilt guides. The client asked for guides a third
+ * grader could follow; the template's limit is a Flesch-Kincaid grade of 5
+ * over the prose and no sentence over 24 words (docs/GUIDES.md).
+ */
+const MAX_GRADE = 5;
+const MAX_SENTENCE_WORDS = 24;
+const onlyGuides = new Set(process.argv.slice(2));
+for (const g of GUIDES) {
+  if (onlyGuides.size && !onlyGuides.has(g.slug)) continue;
+  const prose = guideProse(g).map((s) => s.text);
+  const r = readability(prose);
+  const long = prose.flatMap((t) => sentences(t)).filter((s) => words(s).length > MAX_SENTENCE_WORDS);
+  const ok = r.grade <= MAX_GRADE && long.length === 0;
+  console.log(`${ok ? "✓" : "✗"} ${g.slug}: reading grade ${r.grade} over ${r.words} words, ${(r.words / Math.max(1, r.sentences)).toFixed(1)} words a sentence`);
+  if (!ok) {
+    flagged += 1;
+    if (r.grade > MAX_GRADE) console.error(`  - reading grade ${r.grade} is over ${MAX_GRADE}`);
+    for (const s of long) console.error(`  - ${words(s).length} words: "${s}"`);
+  }
 }
 
 if (flagged) {

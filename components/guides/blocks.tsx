@@ -119,13 +119,18 @@ function Table({ block }: { block: TableBlock }) {
 export function Blocks({ blocks, firstFigure }: { blocks: Block[]; firstFigure: number }) {
   let fig = firstFigure - 1;
   let paragraphs = 0;
+  // The drop cap opens a section, so it only goes on a paragraph that is the
+  // section's first block, and never on a word set in capitals (VE, FEMA),
+  // where one big letter would split the word in two.
+  const opensWithParagraph = blocks[0]?.kind === "paragraph";
   return (
     <div className="flex flex-col gap-7">
       {blocks.map((b, i) => {
         switch (b.kind) {
           case "paragraph": {
             paragraphs += 1;
-            const first = paragraphs === 1;
+            const lead = b.segs.map((x) => (typeof x === "string" ? x : x.text)).join("");
+            const first = paragraphs === 1 && opensWithParagraph && /^[A-Z][a-z’']/.test(lead);
             return (
               <div key={i} className="flex max-w-measure flex-col gap-2">
                 <p className={`guide-text ${first ? "guide-drop" : ""}`}>

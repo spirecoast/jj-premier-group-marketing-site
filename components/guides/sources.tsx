@@ -18,7 +18,7 @@ export function GuideSources({ guide }: { guide: Guide }) {
           Sources and further reading
         </h2>
         <p className="t-small max-w-measure text-body-muted">
-          Every page below was opened on the day shown. Maps get redrawn and rules change; confirm the particulars of a house with the county, the surveyor and your insurance agent before you rely on them.
+          We opened every page below on the day shown. Maps and rules change, so check the details for one house with the county, a surveyor and your insurance agent.
         </p>
       </div>
       <ol className="flex flex-col divide-y divide-hairline border-y border-hairline">

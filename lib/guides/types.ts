@@ -96,7 +96,78 @@ export type LadderFigure = {
   columns: { lender: string; insurer: string; building: string };
 };
 
-export type FigureSpec = BarFigure | ComparisonFigure | MatrixFigure | TimelineFigure | ElevationExampleFigure | MapCalloutFigure | ChecklistFigure | LadderFigure;
+/**
+ * The coast seen from the side, from the Gulf to higher ground, with the big
+ * flood drawn across it. A drawing of the idea, not of a real place. The
+ * three zones are drawn in this order, left to right: VE, AE, X.
+ */
+export type CoastFigure = {
+  type: "coast";
+  /** The dashed line's label: the base flood. */
+  floodLine: string;
+  /** The solid line's label: the water on an ordinary day. */
+  calmWater: string;
+  zones: [CoastZone, CoastZone, CoastZone];
+};
+export type CoastZone = { code: string; name: string; means: string };
+
+/** One card per zone: the letter, what it means, the lender's rule and the building rule. */
+export type ZoneCardsFigure = {
+  type: "zone-cards";
+  cards: {
+    code: string;
+    /** "Highest risk", "High risk", "Lower risk". */
+    name: string;
+    tone: "highest" | "high" | "lower";
+    means: string;
+    /** "maybe" draws a half-filled mark: not required by the base rule, but sometimes required (a lender, Citizens). */
+    lender: { mark: "yes" | "no" | "maybe"; text: string };
+    build: string;
+  }[];
+  labels: { lender: string; build: string };
+};
+
+/**
+ * Two houses on the same street against the same flood line, side by side.
+ * Heights are in feet and are illustrative; the figure's note must say so.
+ */
+export type TwoHousesFigure = {
+  type: "two-houses";
+  floodLine: number;
+  floodLabel: string;
+  floorLabel: string;
+  houses: [TwoHouse, TwoHouse];
+};
+export type TwoHouse = { name: string; floor: number; verdict: "above" | "below"; says: string };
+
+/** Two panels that answer different questions: what the zone decides, what the house decides. */
+export type DecidesFigure = {
+  type: "decides";
+  panels: [DecidesPanel, DecidesPanel];
+};
+export type DecidesPanel = { eyebrow: string; title: string; items: string[] };
+
+/** Numbered questions set large, the way a form asks them, with a yes-or-no box beside each. */
+export type QuestionsFigure = {
+  type: "questions";
+  items: { question: string; note?: string }[];
+  answers: [string, string];
+};
+
+export type FigureSpec =
+  | BarFigure
+  | ComparisonFigure
+  | MatrixFigure
+  | TimelineFigure
+  | ElevationExampleFigure
+  | MapCalloutFigure
+  | ChecklistFigure
+  | LadderFigure
+  | CoastFigure
+  | ZoneCardsFigure
+  | TwoHousesFigure
+  | DecidesFigure
+  | QuestionsFigure;
 
 export type FigureBlock = {
   kind: "figure";

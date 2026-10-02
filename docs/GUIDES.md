@@ -1,17 +1,25 @@
 # Guides (`/guides`)
 
-The long-form, data-rich guides. The first one is *Flood zones and elevation
-certificates on the Suncoast*; the other seven Tide guides are to be rebuilt to the
-same template. This note is the template.
+The guides are free, ungated web pages with a print stylesheet so they also read as
+a document. The first one rebuilt to this template is *Flood zones and flood
+insurance, explained*. Every other guide is to be rebuilt the same way, and the
+client wants one of these for every topic a buyer or seller runs into. This note is
+the template.
 
-The bar is the client's own guides from his financial firm: 20-odd pages, 4,700 to
-6,900 words, a cover with a one-sentence promise, "How to use this guide", a
-numbered contents, three questions the reader keeps coming back to, numbered
-sections that each open with why they matter, figures labelled "Fig. 03" with a
-title and a one-line reading instruction, a "Source:" line under every figure and
-factual block, a call-out to the firm's tool where it helps, and a one-page
-worksheet at the end. Ours stay web pages, free and ungated, with a print
-stylesheet so they also read as a document.
+## What the client asked for
+
+He compared the first long version with the guides from his financial firm (Virtus)
+and called it "nonsensical" and "too clever". The brief now:
+
+- **Simple.** Write at about a third-grade reading level. Explain each thing well and
+  no more than that. No cuteness, no clever titles, no jargon left unexplained.
+- **Story and pictures.** Teach with a small story ("picture two houses on the same
+  street") and one clear figure per section, the way the Virtus pages do.
+- **Shorter.** The flood guide went from about 5,500 words to about 1,600 words of
+  prose. Aim for 1,200 to 2,000 words of prose and 8 to 12 minutes of reading.
+- **Premium.** A calm, dark, typographic cover. Short numbered sections on navy
+  bands. Generous type. A worksheet at the end. Sources gathered at the foot, not
+  scattered through the text.
 
 ## Where things live
 
@@ -19,23 +27,46 @@ stylesheet so they also read as a document.
 |---|---|
 | A guide's content | `lib/guides/<slug>.ts`, exporting one `Guide` object |
 | The types | `lib/guides/types.ts` |
-| The registry, counts, text extraction | `lib/guides/index.ts` (`GUIDES`, `getGuide`, `guideStrings`, `guideWordCount`, `guideReadingMinutes`, `guideSources`, `guideFigures`, `TOOLS`) |
+| The registry, counts, text extraction | `lib/guides/index.ts` (`GUIDES`, `getGuide`, `guideStrings`, `guideProse`, `guideWordCount`, `guideReadingMinutes`, `guideSources`, `guideFigures`, `TOOLS`) |
+| The reading-level measure | `lib/guides/readability.ts` (Flesch-Kincaid grade, sentences, syllables) |
 | The slugs the old `/blog` paths redirect from | `lib/guides/slugs.ts` (`REBUILT_GUIDE_SLUGS`, `guideHref`); imported by `next.config.ts` for the 308s and by every card that links a guide |
 | The page | `app/(site)/guides/[slug]/page.tsx`, its OG image beside it, the index at `app/(site)/guides/page.tsx` |
-| Components | `components/guides/` — `cover`, `contents` (client; sticky with the active section highlighted, a folded list on phones), `section-header`, `blocks` (paragraph, definition, subhead, pull quote, table, callout), `figure` (the frame) and `figures/*` (one component per figure kind), `one-page`, `sources`, `guide-card` |
-| Styles | `app/globals.css`, the "Guides" block: `.guide-text`, `.guide-drop`, `.guide-ghost`, the `.series-N` fills, and the `@media print` rules scoped to `#guide-article` |
-| Checks | `npx tsx scripts/check-guides.ts` (Fair Housing and the places-not-people rules over every string, seed guides and rebuilt guides alike), `lib/guides/guides.test.ts` (structure: every section has a lead and sources, every figure has a source line, 5 to 7 figures, length, the house rules) |
-| Screenshots and the print PDF | `docs/screenshots/guides-v2/`; the PDF is produced with Playwright's `page.pdf()` under `media: "print"` |
+| Components | `components/guides/`: `cover` (the typographic cover with contour lines), `contents` (sticky, with the active section highlighted, folded on phones), `section-header`, `blocks`, `figure` (the frame) and `figures/*` (one component per figure kind), `one-page`, `sources`, `guide-card` |
+| Styles | `app/globals.css`, the "Guides" block: `.guide-cover-ground`, `.guide-text`, `.guide-drop`, `.guide-ghost`, the `.series-N` fills, and the `@media print` rules scoped to `#guide-article` |
+| Checks | `npx tsx scripts/check-guides.ts` (Fair Housing and the places-not-people rules over every string, plus the reading level of each rebuilt guide) and `lib/guides/guides.test.ts` (structure, length, reading level, no links in paragraphs, the house rules) |
 
-## The data shape
+## The voice
+
+- Short sentences, about ten words on average. No sentence over 24 words.
+- Everyday words. When an official term has to appear (base flood elevation,
+  elevation certificate), say what it is in plain words the first time.
+- Second person, with contractions: "you", "you'll", "doesn't". "We" for Joelyn and
+  Jessica only where they'd actually do the thing.
+- One idea per paragraph, two to four sentences each.
+- Story first, rule second: picture the place or the house, then explain.
+- No superlatives, no exclamation marks, no stacked comma fragments, never "lands" as a
+  verb, no flippant asides, nothing invented about Joelyn or Jessica.
+- Plain titles that say what the section is: "How to find the zone for a house", not
+  "Look up the parcel, not the street".
+
+The checks hold the line: the prose (promise, how to use, section leads, paragraphs,
+definitions and figure notes) must measure a Flesch-Kincaid grade of 5 or lower, and
+no sentence may run past 24 words. The flood guide measures 3.2, with about 10 words a
+sentence. Official terms cost syllables you can't avoid, so keep the sentences around
+them short.
+
+Fair Housing: places and rules, never people. No demographics, income, safety or
+crime, schools, age or familial status. No license numbers. No premium dollar figures.
+
+## The shape
 
 ```ts
 const GUIDE: Guide = {
   slug, title,
   promise,            // one sentence under the title on the cover
-  howToUse: [...],    // two or three short paragraphs
+  howToUse: [...],    // two short paragraphs
   questions: [q1, q2, q3],
-  cover: img("library/…", "alt", "50% 55%"),
+  cover: img("library/…", "alt", "50% 55%"),   // used for the card and the share image only
   author: { name, slug }, publishedAt, updatedAt,
   checked: "checked October 1, 2026",   // printed on every source line
   sections: [{ id, title, lead, blocks: [...], sources: [...] }],
@@ -44,83 +75,76 @@ const GUIDE: Guide = {
 };
 ```
 
+Each section: a plain title, a one- or two-sentence `lead` that says why it matters,
+a few short paragraphs, then one figure. Subheads are fine for a list of zones or
+steps.
+
 Block kinds, in `lib/guides/types.ts`:
 
 | Kind | What it is | Source line |
 |---|---|---|
-| `paragraph` | `segs: Inline[]` — strings and `{ text, href }` links. The first paragraph in a section gets the drop cap. | optional `source`, shown in print |
-| `definition` | `term` and a plain `definition`; use it the first time a term appears | optional |
+| `paragraph` | plain strings only, with no links (the test checks). The section's first block gets the drop cap if it's a paragraph that starts with an ordinary word. | optional `source`, printed in the PDF |
+| `definition` | `term` and a plain `definition`; use it for the one term a section turns on | optional |
 | `subhead` | an h3 inside a section | — |
-| `pull-quote` | a sentence that appears in the guide's own text, set large on navy | — |
 | `table` | `title`, `columns`, `rows` | required |
-| `callout` | a pointer at one of the site's tools: `tool` is one of `atlas`, `atlas-match`, `relocate`, `sold`, `home-value`, `net-proceeds`, `contact` (paths in `TOOLS`) | — |
-| `figure` | `eyebrow`, `title`, `reading`, `figure` (one of the kinds below), optional `note` and `tool` | required |
+| `callout` | a pointer at one of the site's tools (`TOOLS`) | — |
+| `figure` | `eyebrow`, `title`, `reading`, `figure` (a kind below), optional `note` and `tool` | required |
 
-Figure kinds (`FigureSpec.type`) and the component that draws each:
+Figure kinds for the plain guides (the older table-like kinds still exist for later
+use: `comparison`, `matrix`, `timeline`, `worked-example`, `ladder`):
 
 | Type | Draws | Use it for |
 |---|---|---|
-| `bar` | horizontal bars to one scale, a legend when two or more series, a table twin | a few numbers that are compared (days, feet, counts) |
-| `comparison` | a table of options against the points that differ, with ✓ / ✕ marks | "leave it or move it" choices |
-| `matrix` | things × questions with filled, half and empty marks | "what each document tells you" |
-| `timeline` | lanes on one axis with markers (a contract, a closing), hatched for a wait | a purchase, a season, a statutory clock |
-| `worked-example` | an illustrative house against its base flood elevation with the certificate's item codes beside it (`example: "elevation-certificate"`) | reading a form; add a variant per form |
-| `map-callout` | one card per portal or office with its link | where to look something up |
-| `checklist` | a worksheet with boxes and the detail under each line | "before you write an offer" |
-| `ladder` | a stair of steps, each read three ways (lender, insurer, building code) | ordered categories |
+| `coast` | the coast from the side, Gulf to higher ground, with the big flood as a dashed line and a house in each zone | what a zone is |
+| `zone-cards` | one card per zone: the letter set large, what it means, the lender's rule, the building rule | the three zones |
+| `two-houses` | two houses on one street against one flood line, to one scale | why the floor height matters (heights are made up and the note says so) |
+| `decides` | two panels: what one thing decides, and what another decides | "the zone decides this, the house decides that" |
+| `questions` | numbered questions set the way a form asks them, with yes and no boxes | a form's questions in plain words |
+| `bar` | horizontal bars to one scale | a few numbers compared (days, feet) |
+| `map-callout` | one card per website or office with its link | where to look something up |
+| `checklist` | a worksheet with boxes and a line of detail under each | "before you make an offer" |
 
-Series colours are assigned in fixed order and never cycled: slot 0 Harbor 800, slot 1
-Coral (`--color-coral`, the one saturated accent added for the guides), slot 2 Sky 600.
-Marks carry the colour; text never does. Every drawn figure ships with a real `<table>`
-under "Read this figure as a table"; the matrix, comparison and ladder are tables
-already. Bars are 22px thick with a square baseline, gridlines are solid hairlines, a
-hatch is the only texture and it means "not yet". The brand palette is muted by
-design, so the dataviz validator's chroma-floor check is waived for it; the other five
-checks (lightness band, CVD separation, normal-vision floor, contrast, legend present)
-pass for the three slots on white, and every mark is also labelled in text.
+Words never sit inside a drawing except short labels like zone letters; the line
+labels and meanings are set as text under it so they stay readable on a phone. Every
+drawn figure carries a real `<table>` under "Read this figure as a table". Series
+colours are fixed: Harbor 800, Coral, Sky 600; zones use Coral (VE), Sky 600 (AE) and
+the success green (X).
+
+## The cover
+
+Dark harbor with a fine grid and faint contour lines, set the way the Virtus covers
+are, with the mono "Guide · 8 sections · 11 min read" line, the title, the promise and
+the byline. No photograph on the cover itself: a cover photo needs the client's
+approval, and a 1200px library frame stretched to full width looked grainy. The
+`cover` image still feeds the guide's card and share image, where it's small. When
+the client approves a photo for a guide, it can return to the cover at 2400px or wider.
 
 ## The sourcing rule
 
-Every figure, every table and every factual paragraph names the page it came from.
-The rules:
+Every figure, every table and every fact names the page it came from, but not inside
+the sentence: sources go on the figure's source line, in the section's `sources`
+list, and in "Where this comes from" at the foot.
 
 1. Open the page the day you write. Put the day in `checked` and reuse the `Source`
    objects (named once, `S.zones`, `S.ecForm`, …) across the guide.
-2. Never state a fact you didn't read on the page you cite. If the page is a PDF,
-   extract its text and quote from that. If a page would not load, add it as a
-   source with no `href` and a `note` saying so; the foot prints the note.
-3. Hypothetical numbers (a worked example, the days on a timeline) are labelled
-   "illustrative" on the figure's note and in its source line, and the test checks for
-   the word on every worked example.
-4. No premium dollar figures. No figures about people. Places and rules only.
-5. Section `sources` lists the pages the section drew on; the foot ("Where this comes
-   from") is built from them in first-use order, then the figure sources one per figure.
-
-## The voice
-
-Plain, first person plural, contractions. Define every term the first time it
-appears (use a `definition` block or a clause). No superlatives, no exclamation marks,
-no stacked comma fragments ("phrase, phrase, phrase." is banned; write a sentence
-with a verb), never "lands" as a verb, no flippant asides, nothing invented about
-Joelyn or Jessica. Each section's `lead` is the "why this matters" in one or two
-sentences. Byline: number first, decision at the end.
-
-Fair Housing: places and rules, never people. No demographics, income, safety or
-crime, schools, age, familial status. No license numbers. `scripts/check-guides.ts`
-and the unit test run the brokerage list plus these house rules over every string a
-guide renders, figures and source labels included.
+2. Never state a fact you didn't read on the page you cite. If a page would not load,
+   add it as a source with no `href` and a `note` saying so.
+3. Made-up numbers (the two houses, a sample timeline) are labelled "made up" or
+   "illustrative" in the figure's note and source line; the test checks.
+4. Arithmetic is shown: the "1 in 4 over 30 years" paragraph carries its working as a
+   source note.
+5. A plain-language version of a legal text says so ("The real form uses the exact
+   words in Florida law").
 
 ## Adding a guide
 
 1. Write `lib/guides/<slug>.ts` and add it to `GUIDES` in `lib/guides/index.ts` and to
    `REBUILT_GUIDE_SLUGS` in `lib/guides/slugs.ts`. The old `/blog/<slug>` path redirects
-   with a 308 from `next.config.ts`, the blog index and the hubs point their cards at
-   `/guides/<slug>` through `guideHref`, and the sitemap lists the new path.
-2. Keep the seed `Post` in `lib/content/seed/*` for now: the hubs and the blog index
-   still read its cover and excerpt for the card.
+   with a 308, cards point at `/guides/<slug>` through `guideHref`, and the sitemap
+   lists the new path.
+2. Update the seed `Post` in `lib/content/seed/*` so its title and excerpt match the
+   guide's title and promise; the hubs and the blog index still read it for the card.
 3. Run `npx tsx scripts/check-guides.ts`, `npm run test:unit`, `npx tsc --noEmit`,
-   `npm run check:copy`, `npm run build`.
-4. Screenshot at 1440 and 390 into `docs/screenshots/guides-v2/` and print to PDF so
-   the client can compare it with his samples.
-5. Cover and figure photographs: library photos for now; list Adobe Stock search
-   strings for the final images in the scratchpad `IMAGES.md` and let the client pick.
+   `npm run check:copy` and `npm run build`.
+4. Screenshot at 1440 and 390 and read it on the phone width. If a figure's text wraps
+   badly at 390, fix the figure.

@@ -48,6 +48,16 @@ function figureStrings(f: FigureSpec): string[] {
       return f.items.flatMap((i) => [i.text, i.detail ?? ""]);
     case "ladder":
       return [f.columns.lender, f.columns.insurer, f.columns.building, ...f.steps.flatMap((s) => [s.code, s.name, s.means, s.lender, s.insurer, s.building])];
+    case "coast":
+      return [f.floodLine, f.calmWater, ...f.zones.flatMap((z) => [z.code, z.name, z.means])];
+    case "zone-cards":
+      return [f.labels.lender, f.labels.build, ...f.cards.flatMap((c) => [c.code, c.name, c.means, c.lender.text, c.build])];
+    case "two-houses":
+      return [f.floodLabel, f.floorLabel, ...f.houses.flatMap((h) => [h.name, h.says])];
+    case "decides":
+      return f.panels.flatMap((p) => [p.eyebrow, p.title, ...p.items]);
+    case "questions":
+      return [...f.answers, ...f.items.flatMap((i) => [i.question, i.note ?? ""])];
   }
 }
 
@@ -106,10 +116,24 @@ export function guideWordCount(g: Guide): number {
     .reduce((n, s) => n + words(s.text), 0);
 }
 
-/** Reading time at 230 words a minute, rounded up, plus a minute for every two figures. */
+/**
+ * The prose a reader reads in order: the promise, how to use the guide, each
+ * section's lead, its paragraphs and definitions, and the figures' reading
+ * lines and notes. Headings, labels, figure data and sources are left out.
+ * This is what the reading-level check measures.
+ */
+export function guideProse(g: Guide): { where: string; text: string }[] {
+  return guideStrings(g).filter((s) => /: (promise|how to use|section \d+ lead|.*\b(paragraph|definition)\b|.*figure .* note)/.test(s.where) && !/\bsource\b/.test(s.where));
+}
+
+/**
+ * Reading time: the prose at 200 words a minute (plain text read with care),
+ * plus twenty seconds a figure, rounded up.
+ */
 export function guideReadingMinutes(g: Guide): number {
   const figures = g.sections.flatMap((s) => s.blocks).filter((b) => b.kind === "figure").length;
-  return Math.ceil(guideWordCount(g) / 230 + figures / 2);
+  const prose = guideProse(g).reduce((n, s) => n + s.text.split(/\s+/).filter(Boolean).length, 0);
+  return Math.ceil(prose / 200 + figures / 3);
 }
 
 /** All distinct sources across a guide, in first-use order, for the foot. */

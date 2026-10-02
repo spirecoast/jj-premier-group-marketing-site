@@ -56,7 +56,7 @@ export default function NetProceedsPage() {
         <SectionHeading
           number="01"
           eyebrow="The sheet"
-          title="Price, minus each line, equals the number."
+          title="Start with the price and take away each line. What’s left is yours."
           aside={<RuleLink href="/sell">How selling with us goes</RuleLink>}
           className="print:hidden"
         />

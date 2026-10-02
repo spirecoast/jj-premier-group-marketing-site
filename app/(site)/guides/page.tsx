@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Guides",
-  description: "Long-form guides to buying and selling on the Suncoast: the rules, the documents and the deadlines, drawn out and sourced. Free, with no sign-up.",
+  description: "Plain-language guides to buying and selling a home in Lakewood Ranch, Sarasota and Bradenton. Each one explains a topic simply, with pictures and a worksheet. They’re free, with no sign-up.",
   path: "/guides",
 });
 
@@ -25,11 +25,11 @@ export default function GuidesIndex() {
           as="h1"
           size="display"
           eyebrow="Guides"
-          title={<span id="guides-index-title">The things people ask us before they buy or sell, drawn out.</span>}
+          title={<span id="guides-index-title">Guides to the questions people ask before they buy or sell.</span>}
           titleClassName="max-w-[860px]"
           aside={
             <p className="t-body max-w-[380px] text-body">
-              Each guide is sourced line by line, with figures you can read as tables and a one-page worksheet at the end. The shorter pieces and the monthly letter are on{" "}
+              Each guide explains one topic in plain words, with pictures and a worksheet at the end. Every fact comes with its source. Our monthly letter is on{" "}
               <Link href="/blog" className="underline decoration-harbor-300 underline-offset-2 hover:text-navy">
                 {site.reportName}
               </Link>
@@ -46,7 +46,7 @@ export default function GuidesIndex() {
         </ul>
       </section>
 
-      <CtaBand image={BAND} eyebrow={`${site.reportName}, by email`} title="Once a month, one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
+      <CtaBand image={BAND} eyebrow={`${site.reportName}, by email`} title="Get one page from us each month." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>
