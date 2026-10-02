@@ -11,11 +11,10 @@ import { h, img, p, quote, rich } from "./helpers";
 export const POSTS: Post[] = [
   {
     _id: "post-guide-hoa-cdd",
-    title: "What to ask before you buy in a gated community.",
+    title: "What to ask before you buy in a gated community",
     slug: "what-to-ask-before-you-buy-in-a-gated-community",
     cover: img("library/lwr-lakefront-row", "Lakefront homes along a quiet street"),
-    excerpt:
-      "HOA dues, CDD assessments, reserves, rules and the estoppel letter are the documents that decide whether a house in a master-planned community is the right one.",
+    excerpt: "Who runs a master-planned community, what it costs each year, what the rules are, and the two papers the law says you get.",
     publishedAt: "2026-09-01",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],

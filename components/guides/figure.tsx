@@ -14,6 +14,8 @@ import { DecidesView } from "./figures/decides";
 import { QuestionsView } from "./figures/questions";
 import { TwoHousesView } from "./figures/two-houses";
 import { ZoneCardsView } from "./figures/zone-cards";
+import { VillagesView } from "./figures/villages";
+import { PartsView } from "./figures/parts";
 import { SketchView } from "./figures/sketch";
 import { HousePointsView } from "./figures/house-points";
 import { TiersFigureView } from "./figures/tiers";
@@ -50,6 +52,10 @@ function Drawing({ block }: { block: FigureBlock }) {
       return <DecidesView figure={f} />;
     case "questions":
       return <QuestionsView figure={f} />;
+    case "villages":
+      return <VillagesView figure={f} title={block.title} />;
+    case "parts":
+      return <PartsView figure={f} title={block.title} />;
     case "sketch":
       return <SketchView figure={f} title={block.title} />;
     case "year":

@@ -227,7 +227,7 @@ export const HURRICANE_GUIDE: Guide = {
               },
             ],
           },
-          note: "Sarasota County’s own lookup map wouldn’t open for us when we checked. The county’s 311 page links to it.",
+          note: "In Sarasota County, the 311 page links to the county’s lookup map.",
           source: { label: "Manatee County, Know your evacuation level; Sarasota County 311, Know your evacuation level; FEMA Flood Map Service Center", href: MANATEE_EVAC },
         },
       ],

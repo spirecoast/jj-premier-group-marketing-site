@@ -262,11 +262,10 @@ export const WAVE2_GUIDES_A: Post[] = [
 
   {
     _id: "post-guide-cdd-villages",
-    title: "CDD fees in Lakewood Ranch, village by village.",
+    title: "CDD fees in Lakewood Ranch, explained",
     slug: "cdd-fees-in-lakewood-ranch-village-by-village",
     cover: img("library/lwr-fairways-bay-aerial", "Lakewood Ranch fairways and lakes from the air"),
-    excerpt:
-      "Three kinds of district collect on the Ranch: the numbered community development districts in the original villages, the Stewardship District across the newer ones, and Windward’s own. This guide shows which villages sit in which, the two lines they put on the tax bill, and how to read a parcel’s bill before you write an offer.",
+    excerpt: "What a community development district is, which district your village is in, and how to read the two lines on your tax bill.",
     publishedAt: "2026-10-01",
     author: JOELYN,
     categories: ["Guides", "Lakewood Ranch"],

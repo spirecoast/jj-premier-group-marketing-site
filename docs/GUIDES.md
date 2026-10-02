@@ -103,6 +103,8 @@ use: `comparison`, `matrix`, `timeline`, `worked-example`, `ladder`):
 | `bar` | horizontal bars to one scale | a few numbers compared (days, feet) |
 | `map-callout` | one card per website or office with its link | where to look something up |
 | `checklist` | a worksheet with boxes and a line of detail under each | "before you make an offer" |
+| `villages` | one block per kind of district, each row a district with its villages set as chips | which district a village is in |
+| `parts` | a building from the front with a numbered mark on each part, the parts listed as text under it | the parts a reserve study must cover |
 | `sketch` | a fixed drawing with numbered marks on it (`scene`: `islands` from above, the road `corridor` from the Skyway to the islands, a `house` from the side, a `seawall` in section); the words for each mark are set under it as text | which government runs each island, the parts of a house an inspection covers, the parts of a seawall |
 | `year` | one calendar year as a strip of twelve months, with shaded spans and numbered marks; positions are months from January 1 (0 to 12) | the hurricane season, the four dates in the tax year |
 | `tiers` | a home's value as a column, lowest at the bottom, cut into exempt and taxed bands, each with its words beside it | the two parts of the homestead exemption |

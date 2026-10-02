@@ -10,6 +10,7 @@ const unitWord = (unit: string) => {
   if (u.startsWith("day")) return "Day";
   if (u.startsWith("week")) return "Week";
   if (u.startsWith("month")) return "Month";
+  if (u.startsWith("year")) return "Year";
   return unit;
 };
 

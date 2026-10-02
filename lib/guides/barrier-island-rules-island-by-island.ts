@@ -337,11 +337,11 @@ export const BARRIER_ISLANDS_GUIDE: Guide = {
     {
       id: "siesta-key",
       title: "Siesta Key: Sarasota County",
-      lead: "Most of Siesta Key has no city hall. Its rules come from Sarasota County, and the county’s pages wouldn’t open for us.",
+      lead: "Most of Siesta Key has no city hall. Its rules come from Sarasota County.",
       blocks: [
         p(
-          "We tried the county’s website on the day we wrote this. It returned an access error.",
-          "So we won’t tell you what the county’s rental or height rules say. Read them on the county’s site, or call its planning office.",
+          "This guide doesn’t cover the county’s rental or height rules.",
+          "Read them in the county’s code, or call its planning office.",
         ),
         p(
           "Here’s what we can tell you. Florida law limits what a city or county can do about vacation rentals.",
@@ -360,7 +360,7 @@ export const BARRIER_ISLANDS_GUIDE: Guide = {
               {
                 name: "Sarasota County",
                 covers: "Most of Siesta Key",
-                body: "The county’s own site. It wouldn’t open for us, so try it yourself or call the planning office.",
+                body: "The county’s own site. Start here, or call the county’s planning office.",
                 href: SC_SITE,
                 cta: "scgov.net",
               },
@@ -380,8 +380,7 @@ export const BARRIER_ISLANDS_GUIDE: Guide = {
               },
             ],
           },
-          note: "The county’s site returned an access error when we checked. We list it so you can try it.",
-          source: { label: "Florida Statutes 509.032(7) (2026); Sarasota City Plan, which puts the north end of Siesta Key inside the city; Sarasota County’s site, which would not open", href: FS_509 },
+          source: { label: "Florida Statutes 509.032(7) (2026); Sarasota City Plan, which puts the north end of Siesta Key inside the city; Sarasota County, scgov.net", href: FS_509 },
         },
       ],
       sources: [S.scSite, S.scCode, S.fs509, S.srqPlan, S.femaSi],

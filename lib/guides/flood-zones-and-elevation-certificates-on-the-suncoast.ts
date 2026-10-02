@@ -282,7 +282,7 @@ export const FLOOD_GUIDE: Guide = {
               },
             ],
           },
-          note: "Sarasota County’s flood map page wouldn’t open for us. The city’s page links to the county’s map tool, so start there.",
+          note: "In Sarasota County, the city’s page links to the county’s map tool, so start there.",
           source: { label: "FEMA Flood Map Service Center; Manatee County, Floodplain management; City of Sarasota, Flood map information", href: SARASOTA_CITY_MAPS },
         },
         p("Write down the zone and the date of the map. Papers from different years can show different zones."),

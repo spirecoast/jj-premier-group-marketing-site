@@ -155,6 +155,26 @@ export type QuestionsFigure = {
 };
 
 /**
+ * Villages grouped by the district they sit in: one block per kind of
+ * district, each with one row per district and that district's villages set
+ * as chips. The CDD guide's "which district is my village in".
+ */
+export type VillagesFigure = {
+  type: "villages";
+  groups: { title: string; sub: string; series: Series; rows: { name: string; villages: string[] }[] }[];
+};
+
+/**
+ * A building drawn from the front with a numbered mark on each part a
+ * reserve study must cover. The drawing is fixed and carries only the
+ * numbers; the parts are listed as text under it, in the same order.
+ */
+export type PartsFigure = {
+  type: "parts";
+  items: { label: string; means?: string }[];
+};
+
+/**
  * A fixed drawing with numbered marks on it: the islands from above, the
  * roads from the Skyway to the islands, a house from the side, a seawall in
  * section. The drawing is part of the scene; the words for each mark come
@@ -214,6 +234,8 @@ export type FigureSpec =
   | TwoHousesFigure
   | DecidesFigure
   | QuestionsFigure
+  | VillagesFigure
+  | PartsFigure
   | SketchFigure
   | YearFigure
   | TiersFigure

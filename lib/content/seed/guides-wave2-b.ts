@@ -190,11 +190,10 @@ export const WAVE2_GUIDES_B: Post[] = [
 
   {
     _id: "post-guide-condo-hoa-documents",
-    title: "Condo and HOA documents after the 2022 law.",
+    title: "Condo documents after the 2022 law, explained",
     slug: "condo-and-hoa-documents-after-the-2022-law",
     cover: img("library/sarasota-bayfront-blue-hour", "Sarasota’s bayfront towers at blue hour"),
-    excerpt:
-      "This guide covers the milestone inspection, the structural integrity reserve study, what ‘waived reserves’ used to mean and no longer can, and the exact documents to ask for in the inspection period: the report, the study, the budget, the estoppel certificate and the association’s website.",
+    excerpt: "The two documents Florida’s 2022 condo law created, what changed about reserves, and what to ask for before you buy.",
     publishedAt: "2026-09-27",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Guides"],
