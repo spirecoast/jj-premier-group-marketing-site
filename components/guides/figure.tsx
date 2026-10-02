@@ -14,6 +14,9 @@ import { DecidesView } from "./figures/decides";
 import { QuestionsView } from "./figures/questions";
 import { TwoHousesView } from "./figures/two-houses";
 import { ZoneCardsView } from "./figures/zone-cards";
+import { HousePointsView } from "./figures/house-points";
+import { TiersFigureView } from "./figures/tiers";
+import { YearFigureView } from "./figures/year";
 
 const two = (n: number) => String(n).padStart(2, "0");
 
@@ -46,6 +49,12 @@ function Drawing({ block }: { block: FigureBlock }) {
       return <DecidesView figure={f} />;
     case "questions":
       return <QuestionsView figure={f} />;
+    case "year":
+      return <YearFigureView figure={f} title={block.title} />;
+    case "tiers":
+      return <TiersFigureView figure={f} title={block.title} />;
+    case "house-points":
+      return <HousePointsView figure={f} title={block.title} />;
   }
 }
 

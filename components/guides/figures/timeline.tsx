@@ -49,7 +49,7 @@ function Axis({ figure, pct }: { figure: TimelineFigure; pct: (v: number) => num
   return (
     <div className="relative h-6 border-t border-graphite-300" aria-hidden="true">
       {figure.ticks.map((t) => (
-        <span key={t.at} className="absolute top-1 -translate-x-1/2 font-mono text-[10px] tabular-nums text-graphite-500" style={{ left: `${pct(t.at)}%` }}>
+        <span key={t.at} className={`absolute top-1 font-mono text-[10px] tabular-nums text-graphite-500 ${t.at === 0 ? "" : "-translate-x-1/2"}`} style={{ left: `${pct(t.at)}%` }}>
           {t.label}
         </span>
       ))}

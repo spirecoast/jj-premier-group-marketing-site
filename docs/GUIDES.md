@@ -103,6 +103,9 @@ use: `comparison`, `matrix`, `timeline`, `worked-example`, `ladder`):
 | `bar` | horizontal bars to one scale | a few numbers compared (days, feet) |
 | `map-callout` | one card per website or office with its link | where to look something up |
 | `checklist` | a worksheet with boxes and a line of detail under each | "before you make an offer" |
+| `year` | one calendar year as a strip of twelve months, with shaded spans and numbered marks; positions are months from January 1 (0 to 12) | the hurricane season, the four dates in the tax year |
+| `tiers` | a home's value as a column, lowest at the bottom, cut into exempt and taxed bands, each with its words beside it | the two parts of the homestead exemption |
+| `house-points` | a house from the side with numbered points on the parts a wind inspection checks | the wind mitigation report |
 
 Words never sit inside a drawing except short labels like zone letters; the line
 labels and meanings are set as text under it so they stay readable on a phone. Every

@@ -60,11 +60,10 @@ const GATED = "/blog/what-to-ask-before-you-buy-in-a-gated-community";
 export const WAVE2_GUIDES_B: Post[] = [
   {
     _id: "post-guide-wind-flood-insurance",
-    title: "Wind and flood insurance on this coast: what drives the quote.",
+    title: "Wind and flood insurance on this coast, explained",
     slug: "homeowners-wind-and-flood-insurance-on-this-coast",
     cover: img("library/place-storm-gulf", "A storm building over the Gulf"),
-    excerpt:
-      "The quote turns on roof age, the wind mitigation report, opening protection, the elevation certificate and the zone. This guide also covers Citizens, My Safe Florida Home, NFIP against private flood, the thirty-day wait and the binding stop: what moves the number, and what to do about it.",
+    excerpt: "What a homeowners policy covers, what sets its price near the water, and what to check before you make an offer.",
     publishedAt: "2026-09-23",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Guides"],

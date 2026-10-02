@@ -414,11 +414,10 @@ export const WAVE2_GUIDES_A: Post[] = [
 
   {
     _id: "post-guide-hurricane-season",
-    title: "Hurricane season, evacuation zones, and what changed after Helene and Milton.",
+    title: "Hurricane season, evacuation zones and the 2024 storms, explained",
     slug: "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
     cover: img("library/place-storm-gulf", "A storm over the Gulf"),
-    excerpt:
-      "This guide covers the season’s dates, why an evacuation zone isn’t a flood zone, what the two storms of 2024 did to this coast and to its rules, and what to ask about a house that was rebuilt afterward.",
+    excerpt: "What an evacuation zone is, what Helene and Milton did to this coast, and what to ask about a house that was rebuilt since.",
     publishedAt: "2026-10-01",
     author: JOELYN,
     categories: ["Guides"],
@@ -542,11 +541,10 @@ export const WAVE2_GUIDES_A: Post[] = [
 
   {
     _id: "post-guide-homestead",
-    title: "Homestead, Save Our Homes and portability.",
+    title: "Homestead, Save Our Homes and portability, explained",
     slug: "homestead-save-our-homes-and-portability",
     cover: img("library/kitchen-white-palms", "A white kitchen with palms outside the window"),
-    excerpt:
-      "This guide covers the two exemption tiers, the March deadline, the cap that keeps a long-time owner’s bill low, why it resets the January after a sale, how much of it you can carry to the next house, and why the tax figure on a listing was never going to be yours.",
+    excerpt: "Why the tax on a listing isn’t yours, what homestead takes off your bill, and what you can carry to the next house.",
     publishedAt: "2026-10-01",
     author: JESSICA,
     categories: ["Guides"],

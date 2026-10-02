@@ -1,4 +1,7 @@
 import { FLOOD_GUIDE } from "./flood-zones-and-elevation-certificates-on-the-suncoast";
+import { WIND_AND_FLOOD_GUIDE } from "./homeowners-wind-and-flood-insurance-on-this-coast";
+import { HOMESTEAD_GUIDE } from "./homestead-save-our-homes-and-portability";
+import { HURRICANE_GUIDE } from "./hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton";
 import { SELLING_FROM_AWAY_GUIDE } from "./selling-a-home-you-dont-live-in";
 import { READY_TO_SELL_GUIDE } from "./thinking-about-spring-start-in-october";
 import type { Block, FigureSpec, Guide, Inline, Source, Tool } from "./types";
@@ -7,7 +10,7 @@ export * from "./types";
 export { REBUILT_GUIDE_SLUGS, guideHref, isRebuiltGuide } from "./slugs";
 
 /** Every rebuilt guide, in the order the index lists them. */
-export const GUIDES: Guide[] = [FLOOD_GUIDE, SELLING_FROM_AWAY_GUIDE, READY_TO_SELL_GUIDE];
+export const GUIDES: Guide[] = [FLOOD_GUIDE, SELLING_FROM_AWAY_GUIDE, READY_TO_SELL_GUIDE, HOMESTEAD_GUIDE, WIND_AND_FLOOD_GUIDE, HURRICANE_GUIDE];
 
 export function getGuide(slug: string): Guide | undefined {
   return GUIDES.find((g) => g.slug === slug);
@@ -60,6 +63,12 @@ function figureStrings(f: FigureSpec): string[] {
       return f.panels.flatMap((p) => [p.eyebrow, p.title, ...p.items]);
     case "questions":
       return [...f.answers, ...f.items.flatMap((i) => [i.question, i.note ?? ""])];
+    case "year":
+      return [...f.spans.map((s) => s.label), ...f.marks.flatMap((m) => [m.label, m.detail])];
+    case "tiers":
+      return [f.axis, f.legend.exempt, f.legend.partial, f.legend.taxed, ...f.bands.flatMap((b) => [b.range, b.label, b.detail])];
+    case "house-points":
+      return f.points.flatMap((p) => [p.label, p.detail]);
   }
 }
 

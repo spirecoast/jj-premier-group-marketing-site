@@ -154,6 +154,40 @@ export type QuestionsFigure = {
   answers: [string, string];
 };
 
+/**
+ * One calendar year as a strip of twelve months, with shaded spans and
+ * numbered marks. Positions are months from January 1, 0 to 12: March 1
+ * is 2, June 1 is 5, September 10 is about 8.3.
+ */
+export type YearFigure = {
+  type: "year";
+  spans: { from: number; to: number; label: string; series: Series; hatched?: boolean }[];
+  marks: { at: number; label: string; detail: string }[];
+};
+
+/**
+ * A home's value drawn as a column, lowest value at the bottom, cut into
+ * bands that are exempt or taxed. `from` and `to` set each band's height
+ * against `top`; `range` is the words for it, since the drawing carries none.
+ */
+export type TiersFigure = {
+  type: "tiers";
+  /** The small line over the column, saying what it measures. */
+  axis: string;
+  top: number;
+  bands: { from: number; to: number; range: string; label: string; detail: string; tone: "exempt" | "partial" | "taxed" }[];
+  legend: { exempt: string; partial: string; taxed: string };
+};
+
+/** The spots on the house-points drawing a point can name. */
+export type HousePoint = "roof-cover" | "roof-deck" | "roof-wall" | "roof-shape" | "water-barrier" | "openings";
+
+/** A house from the side with numbered points on the parts a wind inspection checks. */
+export type HousePointsFigure = {
+  type: "house-points";
+  points: { at: HousePoint; label: string; detail: string }[];
+};
+
 export type FigureSpec =
   | BarFigure
   | ComparisonFigure
@@ -167,7 +201,10 @@ export type FigureSpec =
   | ZoneCardsFigure
   | TwoHousesFigure
   | DecidesFigure
-  | QuestionsFigure;
+  | QuestionsFigure
+  | YearFigure
+  | TiersFigure
+  | HousePointsFigure;
 
 export type FigureBlock = {
   kind: "figure";

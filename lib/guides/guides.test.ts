@@ -13,13 +13,20 @@ const HOUSE_RULES: { pattern: RegExp; reason: string }[] = [
   { pattern: /!/, reason: "an exclamation mark" },
   { pattern: /\blands\b/i, reason: "“lands” as a verb" },
   { pattern: /\b(best|finest|greatest|amazing|stunning|incredible|perfect|unbeatable|ultimate|world-class|spectacular|breathtaking)\b/i, reason: "a superlative" },
-  { pattern: /\bschools?\b/i, reason: "a school reference" },
+  { pattern: /\bschools?\b(?!\s+(district(’|')?s?\s+)?(tax|taxes|levy|levies))/i, reason: "a school reference (only school taxes may be named, in the homestead guide)" },
   { pattern: /\b(safe|safety|unsafe|crime)\b/i, reason: "a safety or crime reference" },
   { pattern: /\bfamil(y|ies)\b|\b(kids?|children)\b/i, reason: "a familial-status reference" },
   { pattern: /\b(retire(e|es|d|ment)?|seniors?|55\s?\+|active adult|age[- ]restricted)\b/i, reason: "an age reference" },
   { pattern: /\b(SL|BK)\s?\d{5,}\b/i, reason: "a license number" },
   { pattern: /\$\s?\d/, reason: "a dollar figure (no premium figures in a guide)" },
 ];
+
+/**
+ * Proper names that carry a rule word without making the claim, scrubbed
+ * before the house rules run (the same list as scripts/check-guides.ts).
+ * "My Safe Florida Home" is the state's wind mitigation grant program.
+ */
+const PROPER_NAMES: RegExp[] = [/My Safe Florida Home/g];
 
 describe("rebuilt guides", () => {
   test("every rebuilt slug has a guide and every guide is listed as rebuilt", () => {
@@ -99,7 +106,8 @@ describe("rebuilt guides", () => {
         for (const { where, text } of guideStrings(g)) {
           const fh = checkFairHousing(text);
           if (!fh.passed) flagged.push(`${where}: ${fh.flags.map((f) => f.reason).join(", ")}`);
-          for (const r of HOUSE_RULES) if (r.pattern.test(text)) flagged.push(`${where}: ${r.reason}`);
+          const scrubbed = PROPER_NAMES.reduce((t, re) => t.replace(re, "the program"), text);
+          for (const r of HOUSE_RULES) if (r.pattern.test(scrubbed)) flagged.push(`${where}: ${r.reason}`);
         }
         assert.deepEqual(flagged, []);
       });

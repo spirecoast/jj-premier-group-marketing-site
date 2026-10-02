@@ -5,6 +5,9 @@
  */
 export const REBUILT_GUIDE_SLUGS = [
   "flood-zones-and-elevation-certificates-on-the-suncoast",
+  "homestead-save-our-homes-and-portability",
+  "homeowners-wind-and-flood-insurance-on-this-coast",
+  "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
   "selling-a-home-you-dont-live-in",
   "thinking-about-spring-start-in-october",
 ] as const;
