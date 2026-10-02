@@ -155,6 +155,18 @@ export type QuestionsFigure = {
 };
 
 /**
+ * A fixed drawing with numbered marks on it: the islands from above, the
+ * roads from the Skyway to the islands, a house from the side, a seawall in
+ * section. The drawing is part of the scene; the words for each mark come
+ * from the guide and are set under the drawing as text.
+ */
+export type SketchFigure = {
+  type: "sketch";
+  scene: "islands" | "corridor" | "house" | "seawall";
+  marks: { code: string; name: string; body: string }[];
+};
+
+/**
  * One calendar year as a strip of twelve months, with shaded spans and
  * numbered marks. Positions are months from January 1, 0 to 12: March 1
  * is 2, June 1 is 5, September 10 is about 8.3.
@@ -202,6 +214,7 @@ export type FigureSpec =
   | TwoHousesFigure
   | DecidesFigure
   | QuestionsFigure
+  | SketchFigure
   | YearFigure
   | TiersFigure
   | HousePointsFigure;

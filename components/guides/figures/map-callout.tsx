@@ -3,7 +3,7 @@ import type { MapCalloutFigure } from "@/lib/guides/types";
 /** The portals and offices a reader goes to, one card each with a drawn mark. */
 export function MapCalloutView({ figure }: { figure: MapCalloutFigure }) {
   return (
-    <ol className="grid gap-4 md:grid-cols-3">
+    <ol className={`grid gap-4 ${figure.places.length === 4 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
       {figure.places.map((p, i) => (
         <li key={p.name} className="flex flex-col gap-3 border border-hairline bg-white p-5">
           <div className="flex items-start justify-between gap-3">

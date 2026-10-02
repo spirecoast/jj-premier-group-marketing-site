@@ -10,6 +10,9 @@ export const REBUILT_GUIDE_SLUGS = [
   "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
   "selling-a-home-you-dont-live-in",
   "thinking-about-spring-start-in-october",
+  "inspections-on-the-suncoast-what-a-good-one-covers",
+  "barrier-island-rules-island-by-island",
+  "getting-here-and-getting-around",
 ] as const;
 
 export function isRebuiltGuide(slug: string): boolean {

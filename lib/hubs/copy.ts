@@ -213,7 +213,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
       { label: "West Bradenton", href: "/neighborhoods/west-bradenton", supports: "canal streets in zone X, zones block to block, the elevation certificate" },
       { label: "Downtown Bradenton", href: "/neighborhoods/downtown-bradenton", supports: "AE along the river, X south of 6th Avenue, a building’s insurance and reserves" },
       { label: "Anna Maria Island", href: "/neighborhoods/anna-maria-island", supports: "seven miles, three cities, the height limit, AE and VE island-wide, rental rules by city, the two bridges" },
-      { label: "Tide · Inspections on the Suncoast", href: "/blog/inspections-on-the-suncoast-what-a-good-one-covers", supports: "the seawall, the dock, the roof" },
+      { label: "Guide · Home inspections on the Suncoast", href: "/guides/inspections-on-the-suncoast-what-a-good-one-covers", supports: "the seawall, the dock, the roof" },
       { label: "Tide · Selling a home you don’t live in", href: "/blog/selling-a-home-you-dont-live-in", supports: "selling from away" },
       { label: "Tide · What to ask before you buy in a gated community", href: "/blog/what-to-ask-before-you-buy-in-a-gated-community", supports: "the CDD line on the tax bill" },
       { label: "Atlas · the neighborhood explorer", href: "/neighborhoods?market=bradenton", supports: "area, place, CDD and evacuation-zone counts in section 02, computed from the catalog at build time" },

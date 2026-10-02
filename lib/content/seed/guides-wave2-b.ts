@@ -53,7 +53,7 @@ const list = (...items: string[]): RichText => items.map((t) => block(t, "normal
 /** The sources footer: one bullet per source, each with the day it was checked. */
 const sources = (...items: string[]): RichText => rich(h(2, "Sources"), list(...items.map((s) => `${s} (${CHECKED})`)));
 
-const INSPECTIONS = "/blog/inspections-on-the-suncoast-what-a-good-one-covers";
+const INSPECTIONS = "/guides/inspections-on-the-suncoast-what-a-good-one-covers";
 const FLOOD_GUIDE = "/guides/flood-zones-and-elevation-certificates-on-the-suncoast";
 const GATED = "/blog/what-to-ask-before-you-buy-in-a-gated-community";
 
@@ -127,11 +127,10 @@ export const WAVE2_GUIDES_B: Post[] = [
 
   {
     _id: "post-guide-barrier-island-rules",
-    title: "Barrier island rules, island by island.",
+    title: "Barrier island rules, island by island",
     slug: "barrier-island-rules-island-by-island",
     cover: img("library/gulf-beach-aerial", "A barrier island beach from the air"),
-    excerpt:
-      "Anna Maria Island has three cities, Longboat Key spans two counties, Lido and St. Armands sit under the city, and Siesta Key sits under the county. This guide covers height, short-term rentals and the rebuild rule, with the code behind each one, and where we couldn’t verify a rule, we say so.",
+    excerpt: "Which government makes the rules on each island, the three rules that change at the bridge, and how to check them for one house.",
     publishedAt: "2026-09-25",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],
@@ -260,11 +259,10 @@ export const WAVE2_GUIDES_B: Post[] = [
 
   {
     _id: "post-guide-getting-here",
-    title: "Getting here and getting around.",
+    title: "Getting here and getting around",
     slug: "getting-here-and-getting-around",
     cover: img("library/place-skyway-bridge", "The Sunshine Skyway Bridge over lower Tampa Bay"),
-    excerpt:
-      "There are four airports, one interstate, the Skyway, the county line through Lakewood Ranch, two bridges to Anna Maria Island and two bus systems. This guide shows how to measure a commute honestly, with no minutes anywhere, because the minutes are yours to drive.",
+    excerpt: "The airports, the roads, the bridges and the buses, and how to test a drive before you count on it.",
     publishedAt: "2026-09-29",
     author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
     categories: ["Guides"],

@@ -108,7 +108,7 @@ export const DIFFERENT = {
       title: "The contract is AS IS, with an inspection window",
       body: `The standard Florida form sells the home as it stands and gives you ${FACTS.contract.inspectionDays} days from the effective date, unless the blank is filled differently, to inspect and walk away with your deposit. What the inspection finds becomes a credit conversation, not a repair list.`,
       source: "frbar-asis",
-      guide: { label: "What a good inspection covers", href: "/blog/inspections-on-the-suncoast-what-a-good-one-covers" },
+      guide: { label: "What a good inspection covers", href: "/guides/inspections-on-the-suncoast-what-a-good-one-covers" },
     },
   ] satisfies DifferentCard[],
 };

@@ -47,11 +47,10 @@ export const POSTS: Post[] = [
   },
   {
     _id: "post-guide-inspections",
-    title: "Inspections on the Suncoast: what a good one covers.",
+    title: "Home inspections on the Suncoast: what a good one covers",
     slug: "inspections-on-the-suncoast-what-a-good-one-covers",
     cover: img("library/listing-exterior-canal-golden", "A canal-front home in the late light"),
-    excerpt:
-      "An inspection here covers the four-point, the wind mitigation, the termite letter, the roof, the seawall and the dock. Here’s why it’s different from the one you had up north.",
+    excerpt: "The reports to order, what each one looks at, and why a house near salt water needs a few more than one inland.",
     publishedAt: "2026-08-14",
     author: { name: "Jessica Garza", slug: "jessica-garza" },
     categories: ["Guides"],

@@ -4,13 +4,16 @@ import { HOMESTEAD_GUIDE } from "./homestead-save-our-homes-and-portability";
 import { HURRICANE_GUIDE } from "./hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton";
 import { SELLING_FROM_AWAY_GUIDE } from "./selling-a-home-you-dont-live-in";
 import { READY_TO_SELL_GUIDE } from "./thinking-about-spring-start-in-october";
+import { BARRIER_ISLANDS_GUIDE } from "./barrier-island-rules-island-by-island";
+import { GETTING_HERE_GUIDE } from "./getting-here-and-getting-around";
+import { INSPECTIONS_GUIDE } from "./inspections-on-the-suncoast-what-a-good-one-covers";
 import type { Block, FigureSpec, Guide, Inline, Source, Tool } from "./types";
 
 export * from "./types";
 export { REBUILT_GUIDE_SLUGS, guideHref, isRebuiltGuide } from "./slugs";
 
 /** Every rebuilt guide, in the order the index lists them. */
-export const GUIDES: Guide[] = [FLOOD_GUIDE, SELLING_FROM_AWAY_GUIDE, READY_TO_SELL_GUIDE, HOMESTEAD_GUIDE, WIND_AND_FLOOD_GUIDE, HURRICANE_GUIDE];
+export const GUIDES: Guide[] = [FLOOD_GUIDE, SELLING_FROM_AWAY_GUIDE, READY_TO_SELL_GUIDE, HOMESTEAD_GUIDE, WIND_AND_FLOOD_GUIDE, HURRICANE_GUIDE, INSPECTIONS_GUIDE, BARRIER_ISLANDS_GUIDE, GETTING_HERE_GUIDE];
 
 export function getGuide(slug: string): Guide | undefined {
   return GUIDES.find((g) => g.slug === slug);
@@ -63,6 +66,8 @@ function figureStrings(f: FigureSpec): string[] {
       return f.panels.flatMap((p) => [p.eyebrow, p.title, ...p.items]);
     case "questions":
       return [...f.answers, ...f.items.flatMap((i) => [i.question, i.note ?? ""])];
+    case "sketch":
+      return f.marks.flatMap((m) => [m.code, m.name, m.body]);
     case "year":
       return [...f.spans.map((s) => s.label), ...f.marks.flatMap((m) => [m.label, m.detail])];
     case "tiers":

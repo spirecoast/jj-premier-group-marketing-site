@@ -119,7 +119,7 @@ const MANATEE_PAO_SOH = "https://www.manateepao.gov/definitions/exemptions-save-
 const MANATEE_PAO_PORT = "https://www.manateepao.gov/definitions/portability-of-save-our-homes/";
 const SARASOTA_PAO_SOH = "https://www.sarasotapropertyappraiser.gov/exemptions/homestead/save-our-homesportability/";
 
-const GUIDE_INSPECTIONS = "/blog/inspections-on-the-suncoast-what-a-good-one-covers";
+const GUIDE_INSPECTIONS = "/guides/inspections-on-the-suncoast-what-a-good-one-covers";
 const GUIDE_FLOOD = "/guides/flood-zones-and-elevation-certificates-on-the-suncoast";
 const GUIDE_GATED = "/blog/what-to-ask-before-you-buy-in-a-gated-community";
 const ATLAS = "/neighborhoods";
