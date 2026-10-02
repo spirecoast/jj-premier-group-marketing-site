@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
+import { TideMasthead } from "@/components/art/tide-art";
 import { Photo } from "@/components/photo";
-import { masthead, type MastheadRoute } from "@/lib/content/mastheads";
+import { mastheadPhoto, mastheadSlot, type MastheadRoute } from "@/lib/content/mastheads";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  /** Which slot in lib/content/mastheads.ts to draw the photograph from. */
+  /** Which slot in lib/content/mastheads.ts to draw from. */
   route: MastheadRoute;
   eyebrow?: ReactNode;
   /** Without a title the band carries only the crumbs (and the eyebrow, if given): the heading stays on the page below. */
@@ -23,22 +24,26 @@ type Props = {
 };
 
 /**
- * The masthead: a full-width photograph that opens a page, 3:1 from the
- * desktop and 4:3 on phones, with the page's eyebrow and heading set over the
- * calm lower third in the hero grammar of /buy. The photograph comes from one
- * data file (lib/content/mastheads.ts) so the client's key art can replace
- * today's library photograph without touching a page. One motion only, the
- * slow drift the home hero uses, and none at all for anyone who asked for
- * reduced motion.
+ * The masthead: a full-width band that opens a page, 3:1 from the desktop
+ * and 4:3 on phones, with the page's eyebrow and heading set over the calm
+ * lower third in the hero grammar of /buy. The band is a photograph or a
+ * piece drawn from the product's data, chosen in one data file
+ * (lib/content/mastheads.ts) so a page never names its own picture. One
+ * motion only, the slow drift the home hero uses (the art drifts the same
+ * way), and none at all for anyone who asked for reduced motion.
  */
 export function Masthead({ route, eyebrow, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className }: Props) {
-  const image = masthead(route);
+  const slot = mastheadSlot(route);
   return (
     <section className={cn("relative overflow-hidden bg-navy", className)} aria-labelledby={titleId}>
       <div className="relative aspect-[4/3] sm:aspect-[2/1] lg:aspect-[3/1] lg:max-h-[600px]">
-        {/* The band is the viewport's width at every size; it is the page's first paint, so it loads eagerly. */}
-        <Photo image={image} priority={priority} sizes="100vw" className="masthead-img" />
-        <div className="masthead-shade" aria-hidden="true" />
+        {slot.kind === "art" ? (
+          <TideMasthead alt={slot.alt} />
+        ) : (
+          /* The band is the viewport's width at every size; it is the page's first paint, so it loads eagerly. */
+          <Photo image={mastheadPhoto(slot)} priority={priority} sizes="100vw" className="masthead-img" />
+        )}
+        <div className={cn("masthead-shade", slot.kind === "art" && "masthead-shade-art")} aria-hidden="true" />
       </div>
       <div className="absolute inset-0 flex flex-col justify-end">
         <div className="container-site flex flex-col gap-3.5 pb-8 sm:pb-10 lg:pb-12">

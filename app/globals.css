@@ -871,6 +871,40 @@
   .masthead-img { animation: none; }
 }
 
+/* The data portraits (components/art): the deep ground every one sits on,
+   the Tide masthead's two motions (the ridges' slow drift, the horizon's
+   breathing), and a lighter shade for the heading over art, where the ground
+   is already dark. Both motions are off for anyone who asked for reduced
+   motion; neither touches layout. */
+.art-ground {
+  background: linear-gradient(180deg, var(--color-harbor-950) 0%, var(--color-harbor-900) 100%);
+}
+@keyframes art-drift {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.06) translate3d(-1.5%, -1%, 0); }
+}
+.art-drift {
+  animation: art-drift 36s ease-in-out infinite alternate;
+  transform-origin: 50% 60%;
+  will-change: transform;
+}
+@keyframes art-breathe {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+.art-breathe {
+  animation: art-breathe 9s ease-in-out infinite alternate;
+}
+.masthead-shade-art {
+  background:
+    linear-gradient(180deg, rgb(20 37 48 / 0.18) 0%, transparent 24%),
+    linear-gradient(0deg, rgb(20 37 48 / 0.72) 0%, rgb(20 37 48 / 0.38) 34%, rgb(20 37 48 / 0.04) 62%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-drift,
+  .art-breathe { animation: none; }
+}
+
 /* Home · 02 Buy or sell. The door's rule draws under the copy on hover; the card never lifts. */
 .door .card-line {
   background: var(--color-sky-700);

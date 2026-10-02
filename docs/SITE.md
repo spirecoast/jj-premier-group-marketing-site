@@ -14,6 +14,7 @@ jj-premier-brand-system.vercel.app).
 | Site chrome | `components/site-header.tsx`, `site-footer.tsx`, `mobile-action-bar.tsx`, `app/(site)/layout.tsx` |
 | Home page sections | `components/home/*`, in page order: 01 `hero`, 02 `meet`, 03 `doors`, 04 `what-we-do`, 05 `three`, 06 `places`, 07 `find-home`, 08 `questions`, 09 `calendar-preview` (Encore), 10 `letter-band` (Tide); composed in `app/(site)/page.tsx`. The design treatments for 03, 04 and 05 live in `components/home/variants/` and are chosen by the `variant` default in `doors.tsx`, `what-we-do.tsx` and `three.tsx`; the gallery is `docs/screenshots/home-design/index.html` |
 | Component library | `components/*` (cards, bands, forms, headings, wordmark, CB mark, Equal Housing mark) |
+| Data portraits | `lib/art/*` (pure geometry: Tide ridgeline, Atlas star chart, Encore season clock, with tests) and `components/art/*` (the server components that load the data and draw the SVG); on the home page's 05 and as Tide's masthead via `lib/content/mastheads.ts` |
 | Content types and data API | `lib/content/` — pages call `getListings()`, `getUpcomingEvents()`, … and never touch a source |
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
@@ -165,6 +166,31 @@ builder source with its checked date).
 When Sanity is live the same shape lives in the `event` document (performances, presenter, room,
 firstDate, runsThrough, status) and `scripts/seed-sanity.ts` imports the dataset once. To refresh
 the dataset before then, replace the JSON file and rebuild.
+
+## The data portraits
+
+The three products each draw their own picture from their own data, on the server, as inline SVG
+(`components/art/*`, geometry in `lib/art/*`). Nothing is typed by hand and nothing is a file, so
+the pictures are never grainy and never out of date; the raw data stays on the server.
+
+- **Tide** is a ridgeline of the market's sale prices: one ridge per month, the oldest at the back
+  and the newest at the front, each the smoothed distribution of that month's qualified home sale
+  prices in the three markets (a Gaussian kernel density over log price, `lib/art/tide.ts`). The
+  months are the ones ending with the latest month complete in all three markets, the same month
+  the Tide issue reports on (`lib/art/load.ts`). It is the masthead on `/blog`, `/tide` and every
+  issue page, composed once at 3:1 and once at 4:3, and the card head on the home page.
+- **Atlas** is every place in the index as a point of light (`lib/art/atlas.ts`): areas the bright
+  stars, communities the field, enclaves faint; each market in its own light; threads between the
+  areas and from each community to its nearest neighbour.
+- **Encore** is a season clock (`lib/art/encore.ts`): the next 365 days as a ring, today at the top,
+  every performance a stroke at its day in its category's light, stacked outward on busy days;
+  exhibitions as arcs inside the ring. The category lights are the `art` colours in
+  `lib/encore/categories.ts`, separate from the chip colours.
+
+All three share the deep ground and the luminous set in `lib/art/palette.ts`. The masthead version
+drifts slowly and its horizon breathes; both stop under `prefers-reduced-motion` and neither moves
+layout. A masthead slot in `lib/content/mastheads.ts` is either a photograph (at least 2000px
+wide, held to it by `lib/content/mastheads.test.ts`) or an art piece.
 
 ## Search and answer engines
 

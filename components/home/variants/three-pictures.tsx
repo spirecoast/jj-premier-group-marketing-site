@@ -1,19 +1,22 @@
 import type { Route } from "next";
 import Link from "next/link";
-import { KeyArt } from "@/components/key-art";
+import { AtlasCard } from "@/components/art/atlas-art";
+import { EncoreCard } from "@/components/art/encore-art";
+import { TideCard } from "@/components/art/tide-art";
 import { SectionHeading } from "@/components/section-heading";
 import { products } from "@/lib/site";
-import { Constellation } from "../constellation";
 import type { ThreeFacts } from "../three-facts";
 
 /**
- * "Pictures": the three on parchment, each card opening with its own
- * picture, drawn in code so nothing here needs a license or a hand-typed
- * figure. Atlas gets the constellation of every place on linen with a
- * graticule; Encore gets the calendar's own key art; Tide gets a newsletter
- * page drawn in hairlines under its masthead rule. The heads are 3:2, and
- * 2:1 at the tablet where the cards stack full width. The names, lines,
- * live facts and links are the Wave 0 ones, untouched.
+ * "Pictures": the three on parchment, each card opening with a portrait
+ * drawn from its own data on the server (components/art), so nothing here
+ * needs a license or a hand-typed figure. Atlas is every place in the index
+ * as a point of light, a star chart of the coast; Encore is the season as a
+ * clock, every performance a stroke at its day; Tide is a ridgeline of the
+ * market's sale prices, one ridge per month. All three sit on the same deep
+ * ground with the same light. The heads are 3:2, and 2:1 at the tablet
+ * where the cards stack full width. The names, lines, live facts and links
+ * are the Wave 0 ones, untouched.
  */
 export function ThreePictures({ facts }: { facts: ThreeFacts }) {
   const [atlas, encore, tide] = products;
@@ -34,11 +37,9 @@ export function ThreePictures({ facts }: { facts: ThreeFacts }) {
               cta="Open Atlas"
               also={{ href: "/neighborhoods/match", label: "Answer ten questions" }}
               head={
-                <div className="relative aspect-[3/2] overflow-hidden bg-linen-100 md:aspect-[2/1] lg:aspect-[3/2]">
-                  <span className="absolute inset-y-0 left-1/2 w-px bg-linen-300" aria-hidden="true" />
-                  <span className="absolute inset-x-0 top-1/2 h-px bg-linen-300" aria-hidden="true" />
-                  <Constellation points={facts.atlas.points} className="absolute inset-0 h-full w-full p-4" opacity={0.6} />
-                </div>
+                <Head>
+                  <AtlasCard />
+                </Head>
               }
             >
               <p className="t-record text-graphite-600">
@@ -52,9 +53,9 @@ export function ThreePictures({ facts }: { facts: ThreeFacts }) {
               cta="Open Encore"
               also={{ href: "/calendar/plan", label: "Plan a visit" }}
               head={
-                <div className="relative aspect-[3/2] overflow-hidden bg-linen-100 md:aspect-[2/1] lg:aspect-[3/2]" aria-hidden="true">
-                  <KeyArt category="theater" seed="encore-home" ratio={3 / 2} />
-                </div>
+                <Head>
+                  <EncoreCard />
+                </Head>
               }
             >
               <div className="flex gap-8">
@@ -79,7 +80,15 @@ export function ThreePictures({ facts }: { facts: ThreeFacts }) {
             </Panel>
           </li>
           <li className="flex min-w-0">
-            <Panel product={tide} cta="Read Tide" head={<Masthead dateline={tide.long.split(" · ")[1] ?? tide.tag} />}>
+            <Panel
+              product={tide}
+              cta="Read Tide"
+              head={
+                <Head>
+                  <TideCard />
+                </Head>
+              }
+            >
               <div className="flex flex-col gap-1">
                 <span className="font-display text-[2.25rem] font-light leading-none text-navy">{facts.tide.nextMonth}</span>
                 <span className="t-mono-sm text-graphite-500">next issue</span>
@@ -101,35 +110,11 @@ export function ThreePictures({ facts }: { facts: ThreeFacts }) {
   );
 }
 
-/**
- * A newsletter page drawn in hairlines: the masthead rule, the dateline, and
- * three columns of text that fill the page whatever its height (the lines
- * are spread, not stacked). Widths are per cent of the column; 0 is the
- * headline bar that opens the first column.
- */
-function Masthead({ dateline }: { dateline: string }) {
-  const columns = [
-    [0, 100, 94, 98, 90, 100, 96, 88, 100, 92, 97, 100, 90, 72],
-    [100, 92, 100, 88, 96, 100, 84, 98, 100, 90, 95, 100, 86, 60],
-    [96, 100, 90, 100, 94, 86, 100, 92, 98, 100, 88, 100, 94, 48],
-  ];
+/** The picture box every card opens with: the portraits' deep ground, 3:2, and 2:1 where the cards stack. */
+function Head({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex aspect-[3/2] flex-col gap-4 overflow-hidden bg-parchment p-6 md:aspect-[2/1] lg:aspect-[3/2]" aria-hidden="true">
-      <div className="flex flex-col gap-1 border-t-2 border-navy pt-1">
-        <div className="flex items-baseline justify-between border-t border-navy pt-2">
-          <span className="t-mono-sm text-navy">{dateline}</span>
-          <span className="t-mono-sm hidden text-graphite-500 sm:inline">once a month</span>
-        </div>
-      </div>
-      <div className="grid min-h-0 flex-1 grid-cols-3 gap-4">
-        {columns.map((col, c) => (
-          <div key={c} className="flex flex-col justify-between">
-            {col.map((w, i) =>
-              w === 0 ? <span key={i} className="h-[5px] w-4/5 bg-navy" /> : <span key={i} className="h-px bg-linen-500/70" style={{ width: `${w}%` }} />,
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="art-ground relative aspect-[3/2] overflow-hidden md:aspect-[2/1] lg:aspect-[3/2]" aria-hidden="true">
+      {children}
     </div>
   );
 }
