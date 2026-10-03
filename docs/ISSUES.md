@@ -143,15 +143,22 @@ the Fair Housing checker.
   or more behind the previous one, or the data is more than a month old); skip a month that
   already went out.
 - **The story:** the same hand-written words as the web issue (lib/tide/issues.ts, "Writing the
-  narrative" below): the opening in place of the plain intro, then "If you're buying" and "If
-  you're selling" with the line on what county records can't show, the market figures, and "What
-  to watch next month". The loader (`lib/issues/load.ts`) takes the entry pinned to the month the
-  email covers, or the unpinned entry for this month's issue. **Until the story is written**, the
-  draft opens with a dashed box, "Facts to write from", listing the month's notable figures
-  (`writingFacts` in `lib/tide/narrative.ts`: the largest change against a typical month, each
-  market's figures against its typical month, the month before, where the median price and the
-  price per square foot part ways, the busiest and quietest months on the chart, the busiest
-  street), and a dashed box where the story goes. Both are for the writer, never a reader.
+  narrative" below). The headline, once written, is the title under the wordmark and the dek is the
+  preheader and the first lines; then the story (`opening`) in place of the plain intro; "If you're
+  buying" and "If you're selling" as three numbered moves each (the move, why, and its link, tagged
+  like every other link), or the first format's single paragraph, with the line on what county
+  records can't show; each market's written paragraphs in place of its computed one, and its one
+  move under them, set off with an amber rule; and "What to watch next month". A field that isn't
+  written falls back to the computed line or is left out. The loader (`lib/issues/load.ts`) takes
+  the entry pinned to the month the email covers, or the unpinned entry for this month's issue.
+  **Until the story (`opening`) is written**, the draft opens with a dashed box, "Facts to write
+  from", listing the month's notable figures (`writingFacts` in `lib/tide/narrative.ts`: the
+  largest change against a typical month; the three markets together against their typical month
+  and the same month a year before; each market's figures against its typical month, the month
+  before and the same month a year before; its sales by kind of home and by price band; where the
+  median price and the price per square foot part ways; the busiest and quietest months on the
+  chart; the busiest street), and a dashed box where the story goes. Both are for the writer, never
+  a reader.
 - **The signed notes:** "From Joelyn and Jessica", one slot each. A note written in
   `commentary` shows in full, signed with her name; an empty slot is a dashed box ("Joelyn: a few
   sentences here in your own words, if you'd like. Or delete this box and nothing is said for
@@ -193,36 +200,73 @@ Two months: the **issue month** is when it goes out (October 2026); the **data m
 latest month complete in all three markets, looking back from the month before the issue (July
 2026 on the October 1 data, as in "The month" above).
 
+The page is a long monthly letter: the story first, then each place as a chapter, then what to do.
+Every hand-written field is optional, and each section shows what's written and falls back to
+computed lines (or leaves its slot out) for the rest, so the page reads as finished at every stage.
 The sections, always in this order:
 
-1. **Masthead.** "Tide", the issue month, then **the opening**: the month's story in two to four
-   sentences (`opening`), or, before it's written, one plain line: "Here's how home sales went in
-   July 2026 in Lakewood Ranch, Sarasota and Bradenton, straight from the county's public record."
-   Under it, in small type: "The county posts sales a few weeks late, so this issue looks back at
-   July 2026. That's the newest month that's complete for all three places." and the source line.
-   No fake prose stands in for a story that isn't written.
-2. **If you're buying, if you're selling** (only once written): two cards side by side, then the
-   line "These are closed sales from county records. They don't show asking prices, how long a
-   home was for sale, or how many homes are for sale now."
-3. **The three markets**, side by side (stacked on a phone): qualified home sales, the median price
-   (homes), the median $/sq ft (homes with a living area) and the share new-build or vacant on the
-   roll, each over its **typical month**, the median of that figure over the twelve months before
-   the data month, with the sample under it.
-4. **Chart: home sales each month**, the last twelve complete months ending with the data
-   month, one line per market. The axis starts at zero.
-5. **Chart: median price per square foot each month**, same months. The axis starts at a round step under the
-   lowest value, and the chart and its note both say where ("Axis starts at $200").
-6. **The busiest streets:** the five streets per market with the most sales in the data month (two or
-   more each, ties alphabetical). Street and city only, never a house number or a name.
+1. **Cover.** The month's photograph full-bleed under the harbor wash (`components/tide/cover.tsx`,
+   with the guide covers' `.guide-cover-*` classes); the header sits over it. "Tide · October 2026",
+   then the `headline` in the display face (until it's written: "Home sales in July 2026"), the
+   `dek` (until then: "Here's how Lakewood Ranch, Sarasota and Bradenton did, with every number from
+   the county's public record."), and the mono line "Figures for July 2026 from the county record ·
+   8 min read". The reading time is computed from the words on the page (200 a minute, plus a minute
+   for every three figures). From 1024px up the issue's contents run along the foot as anchor links.
+   The cover rotates through three photos by issue month (`lib/tide/cover.ts`).
+2. **The story.** `opening`, three to five paragraphs at about 66 characters a line, the first with
+   a drop cap, then the line on why this month ("The county posts sales a few weeks late…"). Before
+   the story is written the section is "About this issue" and carries that line alone.
+3. **One big figure.** The three markets' home sales together, very large on the dark harbor band,
+   with one computed line under it ("home sales across the three markets in July, 7% more than a
+   typical month"), the typical month and the same month a year before, and each market's share as
+   a thin bar.
+4. **Three market chapters** (`components/tide/market-chapter.tsx`), one per market: the name set
+   big; a quiet strip with the month's sales (against a typical month and the same month a year
+   before), the median price, the median per square foot and the new-build share, each with its
+   typical month and its year-before figure; the market's `markets[slug]` paragraphs, or the
+   computed paragraph the email uses until they're written; the twelve-month sales sparkline with
+   the typical month dashed; the busiest streets as one line; the price bands as a stacked bar
+   (`components/tide/price-bands.tsx`); the kinds of home (`components/tide/home-mix.tsx`); the
+   `marketMoves[slug]` line, set apart with an amber rule (only once written); and links to the hub
+   and to Atlas filtered to that market (`/neighborhoods?market=<slug>`).
+5. **If you're buying, if you're selling** (only once written): three numbered moves each (the move
+   in the display face, why in body text, one quiet link), or the first format's paragraph, then the
+   line "These are closed sales from county records. They don't show asking prices, how long a home
+   was for sale, or how many homes are for sale now."
+6. **Twelve months on the record:** the two charts. Home sales each month, the last twelve complete
+   months ending with the data month, one line per market, the axis from zero; and the median price
+   per square foot each month, the axis from a round step under the lowest value, labelled ("Axis
+   starts at $200").
 7. **What to watch next month** (only once written): one or two things, from `watch`.
 8. **From Joelyn and Jessica:** a short note from each, in her own words, signed with her name
    (`components/tide/team-notes.tsx`). Only a written note shows; with neither written the section
    isn't there. In sample previews (`NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`) an empty slot shows as
    a dashed box marked "Placeholder, not published".
-9. **New guides this month:** the posts published in the issue month (market reports left out).
-10. **The ask and the source:** the Tide subscribe bar (`components/letter-form.tsx`), then
-   "County property appraisers, public record, qualified sales, as of <the manifest's date>." and
-   the methods line from the email.
+9. **Out this month:** up to three Encore events in the issue month from the live calendar
+   (`loadEncoreIndex()`, picked in `lib/tide/encore.ts`: one per market where it can, none sold out,
+   leaning to events with their own picture, spread over different days), as event cards. The page
+   revalidates hourly so these stay current; a month with nothing left on the calendar drops the
+   section.
+10. **Read next:** the posts published in the issue month (market reports left out), linked to
+   `/guides/<slug>` for the rebuilt guides.
+11. **The ask, then method and sources:** the Tide subscribe bar (`components/letter-form.tsx`),
+   then, small, the source line with the county files' as-of date, the methods line from the email
+   and the Fair Housing line with the Equal Housing mark.
+
+The new figures, all computed in `lib/tide/issue.ts` from the same rows as the rest:
+
+- **The same month a year before** (`lastYear` per market, `combined.lastYear`): its sales, median
+  price and median per square foot, and the data month's change against each. Null when the record
+  doesn't reach that month (the county files start in October 2024; a county file that starts after
+  the month began doesn't count as reaching it).
+- **Kinds of home** (`mix`): single-family; condos, villas and townhomes together; and lots the
+  county lists as empty (vacant on the roll). Count, whole-percent share of the month's home sales
+  (the three add up to 100) and the median price, taken the way the market's median is (land and
+  parcels changed since the sale left out).
+- **Price bands** (`bands`): under $400K, $400K to $750K, $750K to $1.5M, $1.5M and up, as the share
+  of the homes in the median price.
+- **All three markets together** (`combined`): the month's home sales, against the median of the
+  three markets' combined monthly sales over the twelve months before, and each market's share.
 
 The charts are inline SVG drawn on the server (`components/tide/issue-chart.tsx`, geometry in
 `lib/tide/chart.ts`), no chart library. Each market keeps one color and one end-marker shape:
@@ -259,21 +303,39 @@ checked against the page.
 2. Pick the one or two things that changed most for a buyer or a seller. A month where the median
    price rose but the price per square foot didn't is a story about which homes sold, not about
    prices; say so plainly.
-3. Write four fields, short:
-   - `opening`: one paragraph, two to four sentences, that tells the month as something a person
-     can picture ("Picture someone house hunting in Bradenton in July. They had lots of
-     company.").
-   - `buyers` and `sellers`: one paragraph each, two to four sentences, on what to do differently
-     because of this month. Name the places. Be honest about what county records can't tell
-     (asking prices, how long homes sat, how many are for sale): the page says it under the two
-     cards, so don't imply them.
+3. Write the fields. Each is optional, and the page shows what's there. Think of each section as
+   three things: a picture a reader can feel (the elephant), one clear thing to do (the rider), and
+   an easy next step (the path).
+   - `headline`: one sentence, the month's story, 18 words at most. It's set big on the cover and
+     is the email's title.
+   - `dek`: one or two sentences under it.
+   - `opening`: the story, three to five paragraphs of one to five sentences each, told as
+     something a person can picture ("Picture someone house hunting in Bradenton in July. They had
+     lots of company."). An issue without a headline (the first format) opens with one paragraph of
+     two to four sentences.
+   - `markets`: per market (`"lakewood-ranch"`, `sarasota`, `bradenton`), two or three paragraphs,
+     the story of that place this month.
+   - `marketMoves`: per market, one sentence: the one thing to do if you're buying or selling there.
+   - `buying` and `selling`: three moves each, `{ move, why, link? }`. `move` is one short
+     imperative sentence (14 words at most); `why` is one to three sentences that make it real;
+     `link` is `{ href, label }` to a page on the site: `/sell`, `/sell/home-value`,
+     `/sell/net-proceeds`, `/sell/sold`, `/buy`, `/neighborhoods` (with `?market=<slug>` for one
+     place), `/neighborhoods/match`, `/relocate`, `/calendar`, `/contact`, a hub, or
+     `/guides/<slug>` for a rebuilt guide. The test fails any other.
+   - `buyers` and `sellers`: the first format, one paragraph each, read only when `buying` or
+     `selling` isn't written.
    - `watch`: one or two things to look for next month, a sentence or two each.
-   A reader should get the whole issue in about three minutes.
+   Be honest about what county records can't tell (asking prices, how long homes sat, how many are
+   for sale): the page says it under the moves, so don't imply them. Say "stand-alone houses"
+   rather than "single-family" in the words: the places-not-people check reads "family" as a
+   familial-status reference (the computed labels on the page aren't run through that rule).
 4. Run `npm run test:unit`. `lib/tide/narrative.test.ts` builds the issue from `data/sales` and
    fails on any number in the narrative that the page doesn't compute, within rounding (half a
    point on a percent; 1% on a dollar figure or a count, so "about $400,000" for $399,450 passes).
    The figures it knows are every number on the page plus the differences a writer quotes: against
-   the typical month and against the month before, in sales, dollars and percent. Write figures in
+   the typical month, the month before and the same month a year before, in sales, dollars and
+   percent; the kinds of home, the price bands (and the shares under and over each band's edge, so
+   "$400K", "$1.5M" and "64% sold under $750K" pass) and the three markets together. Write figures in
    digits ("12%", "1,080"); a figure spelled out ("twelve percent") fails, since the check can't see
    it. It also checks the shape (sentence counts above), a reading level of about sixth grade (the
    Flesch-Kincaid grade of the whole narrative at 6.5 or under) and no sentence over 24 words.
@@ -464,10 +526,13 @@ is, the sender is the agents, and an unsubscribe has been tried end to end.
 | `lib/tide/notes.ts` | Reads the narrative and decides which signed notes show. |
 | `lib/tide/narrative.ts`, `lib/tide/narrative.test.ts` | The figures a narrative may quote, the number check, the facts to write from; the tests check the October 2026 narrative against `data/sales`. |
 | `components/tide/team-notes.tsx` | The "From Joelyn and Jessica" slots. |
+| `components/tide/cover.tsx`, `market-chapter.tsx`, `moves.tsx`, `sparkline.tsx`, `price-bands.tsx`, `home-mix.tsx` | The web issue's cover, market chapters, buying and selling moves, and the small drawings in each chapter. |
+| `lib/tide/cover.ts` | The three cover photos and which issue month takes which. |
+| `lib/tide/encore.ts`, `lib/tide/encore.test.ts` | "Out this month": the Encore picks for the issue month. |
 | `lib/voice.ts`, `lib/voice.test.ts`, `scripts/copy-literals.mjs` | The phrases that read as machine-written, and the source scan that runs them over the whole site in `npm run check:copy`. |
 | `lib/tide/copy.ts` | Every fixed string on the web issue, `/tide` and the archive card, and the "facts to write from" lines. |
 | `lib/tide/chart.ts`, `components/tide/issue-chart.tsx` | Chart geometry and the server-drawn SVG. |
 | `lib/tide/load.ts` | Server: loads the sales, the manifest and the posts for a web issue. |
 | `app/(site)/tide/` | `/tide`, `/tide/<issue>` and its share image. |
 | `lib/tide/issue.test.ts` | Unit tests on a twelve-month, three-market fixture. |
-| `docs/screenshots/tide/` | The web issue at 1440 and 390, the charts, `/tide` and `/blog`. |
+| `docs/screenshots/tide/` | The web issue at 1440 and 390, the charts, `/tide` and `/blog` (from before the letter layout). |

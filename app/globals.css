@@ -2383,3 +2383,83 @@ body:not(:has([data-header-overlay])) .header-overlay {
   background-color: rgb(46 74 92 / 0.9);
   backdrop-filter: blur(24px);
 }
+
+/* -----------------------------------------------------------------------------
+   Tide (/tide/<issue>) — the monthly letter. The cover reuses the guide
+   cover's photo, wash and ground; these set the letter's reading type.
+   ----------------------------------------------------------------------------- */
+@layer components {
+  .tide-prose {
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    line-height: 1.78;
+    color: var(--color-body);
+    @media (min-width: 64rem) {
+      font-size: 1.1875rem;
+    }
+  }
+  .tide-story > p:first-child {
+    font-size: 1.1875rem;
+    color: var(--color-ink);
+    @media (min-width: 64rem) {
+      font-size: 1.3125rem;
+      line-height: 1.7;
+    }
+  }
+  /* The wash is a touch deeper than the guides': the headline is longer and sits lower. */
+  .tide-cover-wash {
+    background:
+      linear-gradient(0deg, rgb(20 37 48 / 0.94) 0%, rgb(20 37 48 / 0.62) 42%, rgb(20 37 48 / 0.18) 78%, rgb(20 37 48 / 0.35) 100%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.62) 0%, rgb(20 37 48 / 0.1) 72%);
+  }
+}
+
+/* Print: the letter prints as a document. No chrome or form; the cover and
+   the dark figure band print light; a chapter's figures never split. */
+@media print {
+  html:has(#tide-issue) body > :not(main) {
+    display: none !important;
+  }
+  #tide-issue {
+    color: #000;
+  }
+  #tide-issue .tide-cover {
+    margin-top: 0 !important;
+    color: #000 !important;
+    background: none !important;
+  }
+  #tide-issue .tide-cover img,
+  #tide-issue .tide-cover-wash {
+    display: none !important;
+  }
+  #tide-issue .tide-cover > .container-site {
+    min-height: 0 !important;
+    padding-top: 0.25in !important;
+  }
+  #tide-issue .tide-cover h1,
+  #tide-issue .tide-cover p,
+  #tide-issue .tide-figure,
+  #tide-issue .tide-figure * {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+  #tide-issue .tide-figure {
+    background: none !important;
+  }
+  #tide-issue .container-site {
+    padding-inline: 0.25in;
+  }
+  #tide-issue .tide-chapter {
+    break-before: page;
+  }
+  #tide-issue aside,
+  #tide-issue figure,
+  #tide-issue .tide-move,
+  #tide-issue [data-tide-advice] li {
+    break-inside: avoid;
+  }
+  #tide-issue form,
+  #tide-issue section[aria-labelledby="ask-title"] {
+    display: none !important;
+  }
+}

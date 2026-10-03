@@ -6,6 +6,7 @@ import { checkFairHousing } from "../fair-housing";
 import { aiTells } from "../voice";
 import { FOOTER_COPY, TIDE_COPY } from "./copy";
 import { FOOTER, FOOTER_NO_STREET, LICENSE, MANIFEST_COMPLETE, MANIFEST_SHORT, SITE, SUPERLATIVES, sale, salesFixture } from "./fixtures";
+import { narrativeOf } from "../tide/notes";
 import { ZIP_MARKET, zipMarketsFromAtlas } from "./tide-markets";
 import {
   addMonths,
@@ -163,7 +164,7 @@ describe("buildTideIssue", () => {
     assert.ok(flat(draft.text).includes(facts[0]!));
     assert.ok(draft.html.includes("Facts to write from"));
 
-    const narrative = { opening: ["Picture July in Bradenton."], buyers: ["Buy by the square foot."], sellers: ["Sell by the square foot."], watch: ["Watch August."] };
+    const narrative = narrativeOf({ opening: ["Picture July in Bradenton."], buyers: ["Buy by the square foot."], sellers: ["Sell by the square foot."], watch: ["Watch August."] })!;
     const written = buildTideIssue({
       sales: salesFixture(),
       manifest: MANIFEST_COMPLETE,
@@ -192,6 +193,47 @@ describe("buildTideIssue", () => {
     assert.equal(done.needsEdit, false);
     assert.equal(done.placeholder, undefined);
     assert.ok(!done.html.includes("dashed"));
+  });
+  it("carries the headline, dek, story, market paragraphs and moves, and the numbered moves", () => {
+    const notes = [
+      { key: "joelyn" as const, name: "Joelyn Nauman", first: "Joelyn", paragraphs: null },
+      { key: "jessica" as const, name: "Jessica Garza", first: "Jessica", paragraphs: null },
+    ];
+    const narrative = narrativeOf({
+      headline: "July was a busy month in Bradenton.",
+      dek: "Sales ran ahead of a typical month.",
+      opening: ["Picture July in Bradenton.", "A second paragraph."],
+      markets: { sarasota: ["Sarasota had a steady month.", "Its second paragraph."] },
+      marketMoves: { sarasota: "Price by the square foot." },
+      buying: [
+        { move: "Compare by the square foot.", why: "Two homes can share a median and differ by size.", link: { href: "/neighborhoods", label: "Look on Atlas" } },
+        { move: "Look at last year too.", why: "July a year before tells you more than June." },
+      ],
+      selling: [{ move: "Start from the street.", why: "Buyers look at what sold nearby.", link: { href: "/sell/sold", label: "What sold on your street" } }],
+      buyers: ["The old paragraph."],
+    })!;
+    const issue = buildTideIssue({ sales: salesFixture(), manifest: MANIFEST_COMPLETE, today: "2026-09-15", footer: FOOTER, writing: { narrative, notes, facts: ["A fact."] } });
+    const text = flat(issue.text);
+    assert.ok(issue.html.includes("July was a busy month in Bradenton."), "the headline is the title");
+    assert.equal(issue.preheader, "Sales ran ahead of a typical month.");
+    for (const s of [
+      "Sales ran ahead of a typical month.",
+      "Picture July in Bradenton. A second paragraph.",
+      "1. Compare by the square foot. Two homes can share a median and differ by size. Look on Atlas: https://jjpremiergroup.com/neighborhoods?utm_source=tide",
+      "2. Look at last year too.",
+      "1. Start from the street.",
+      "Sarasota had a steady month. Its second paragraph.",
+      "One move in Sarasota: Price by the square foot.",
+    ]) {
+      assert.ok(text.includes(s), s);
+    }
+    assert.ok(!text.includes("The old paragraph."), "the moves replace the first format's paragraph");
+    assert.ok(!text.includes("FACTS TO WRITE FROM"));
+    // Markets without written paragraphs keep the computed one.
+    assert.ok(text.includes(marketParagraph(issue.markets[0]!, "2026-07")));
+    assert.ok(!text.includes(marketParagraph(issue.markets[1]!, "2026-07")));
+    assert.ok(issue.html.includes(`${SITE}/sell/sold?utm_source=tide`));
+    assert.ok(!/\{\w+\}/.test(issue.html + issue.text));
   });
   it("links to /sell/sold, /relocate and the three hubs", () => {
     for (const p of ["/sell/sold", "/relocate", "/lakewood-ranch", "/sarasota", "/bradenton"]) assert.ok(issue.html.includes(`${SITE}${p}?utm_source=tide`), p);

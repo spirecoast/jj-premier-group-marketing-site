@@ -76,6 +76,7 @@ export const TIDE_COPY = {
   marketStreetsNone: "No street had more than one sale.",
   marketZips: "Counted by ZIP code: {zips}.",
   marketLink: "More on {market}",
+  marketMoveLabel: "One move in {market}",
   buyersHeading: "If you’re buying",
   sellersHeading: "If you’re selling",
   limits: "These are closed sales from county records. They don’t show asking prices, how long a home was for sale, or how many homes are for sale now.",
@@ -92,7 +93,7 @@ export const TIDE_COPY = {
   linkRelocate: "The relocation planner, for a move here",
   source: "Source: County property appraisers, public record, qualified sales, as of {asOf}.",
   methods:
-    "A qualified sale is one the appraiser treats as arm’s length (codes 01 to 04). Home sales leave out commercial and other non-residential parcels. Markets are counted by ZIP as Atlas draws them, so Bradenton includes Palmetto, Parrish, Ellenton and the island cities; an address the county gives as Lakewood Ranch counts there; and sales elsewhere in the two counties, such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted. New build or vacant on the roll means the roll shows the parcel as vacant, a year built in or after the sale year, or a change to the parcel after the sale. The median price and the per-square-foot median leave out parcels vacant on the roll or changed after the sale; the sales count and the new-build share keep them. Streets need two sales to be listed, ties go alphabetically, and a street carries its postal city only when that city isn’t one of the three markets. Not MLS data.",
+    "A qualified sale is one the appraiser treats as arm’s length (codes 01 to 04). Home sales leave out commercial and other non-residential parcels. Markets are counted by ZIP as Atlas draws them, so Bradenton includes Palmetto, Parrish, Ellenton and the island cities; an address the county gives as Lakewood Ranch counts there; and sales elsewhere in the two counties, such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted. New build or vacant on the roll means the roll shows the parcel as vacant, a year built in or after the sale year, or a change to the parcel after the sale. The median price and the per-square-foot median leave out parcels vacant on the roll or changed after the sale; the sales count and the new-build share keep them. Streets need two sales to be listed, ties go alphabetically, and a street carries its postal city only when that city isn’t one of the three markets. The price bands count the same homes as the median price. The kinds of home count every home sale, with each kind’s median taken the way the market’s is; condos, villas and townhomes are counted together, and lots the county lists as empty are the parcels vacant on the roll. The three markets’ typical month is the median of their combined monthly sales over the twelve months before, and the same month a year before is compared only when the record reaches it. Not MLS data.",
 } as const;
 
 /** Every template above, with where it lives, for the Fair Housing and style checks. */

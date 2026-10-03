@@ -14,6 +14,10 @@ export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   "/images/guides/selling-a-home-you-dont-live-in.jpg": { width: 2400, height: 1350 },
   "/images/guides/thinking-about-spring-start-in-october.jpg": { width: 2400, height: 1426 },
   "/images/guides/what-to-ask-before-you-buy-in-a-gated-community.jpg": { width: 2400, height: 1599 },
+  // Free Adobe Stock Tide covers, licensed through the Adobe connector on October 3, 2026 (stock IDs in docs/SITE.md).
+  "/images/tide/tide-1.jpg": { width: 2400, height: 1348 },
+  "/images/tide/tide-2.jpg": { width: 2400, height: 1129 },
+  "/images/tide/tide-3.jpg": { width: 2400, height: 1800 },
   // Supplied by the team in Slack, September 2026.
   "/images/library/lwr-fairways-bay-aerial.jpg": { width: 2560, height: 1180 },
   "/images/library/culture-opera-house-red-seats.jpg": { width: 2560, height: 1777 },

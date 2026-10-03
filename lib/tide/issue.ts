@@ -6,6 +6,7 @@ import {
   counted,
   latestCompleteMonth,
   marketOf,
+  marketParagraph,
   monthBounds,
   previousMonth,
   tideStats,
@@ -14,11 +15,13 @@ import {
   type TideMarket,
   type TideStreet,
 } from "../issues/tide-monthly";
-import { median } from "../sales/stats";
+import type { ImageRef } from "../content/types";
+import { median, rollChanged } from "../sales/stats";
 import type { Sale } from "../sales/types";
 import { TIDE_WEB_COPY as W } from "./copy";
+import { tideCover } from "./cover";
 import type { TideIssueEntry } from "./issues";
-import { narrativeOf, noteSlots, type Narrative, type NoteSlot } from "./notes";
+import { narrativeOf, narrativeParagraphs, noteSlots, type Narrative, type NoteSlot } from "./notes";
 
 /**
  * The Tide web issue (/tide/<issue>) as data. Every figure is computed from
@@ -58,6 +61,50 @@ export type MonthPoint = {
   newBuildPct: number | null;
 };
 
+/** The same month a year before the data month, and the data month's change against it. */
+export type LastYear = {
+  month: string;
+  count: number;
+  medianPrice: number | null;
+  medianPpsf: number | null;
+  /** The data month against it, in percent, unrounded; null when either side is missing or zero. */
+  countPct: number | null;
+  pricePct: number | null;
+  ppsfPct: number | null;
+};
+
+export type MixKey = "single-family" | "attached" | "land";
+/** One kind of home in the data month: how many sold, their share of the market's home sales, and their median price. */
+export type MixPart = {
+  key: MixKey;
+  label: string;
+  count: number;
+  /** Whole percent of the month's home sales; the three parts add up to 100. Null with no sales. */
+  share: number | null;
+  /** Over the homes of this kind the county lists as built and unchanged since the sale; null with fewer than two (and always for land). */
+  medianPrice: number | null;
+  priceSample: number;
+};
+
+export type BandKey = "under-400k" | "400k-750k" | "750k-1.5m" | "1.5m-up";
+/** A price band: [from, to) in dollars, `to` null for the top band. */
+export type PriceBand = { key: BandKey; label: string; from: number; to: number | null; count: number; share: number | null };
+/** The month's homes by price, over the same homes as the median price. */
+export type Bands = { sample: number; bands: PriceBand[] };
+
+/** All three markets together for the data month. */
+export type Combined = {
+  count: number;
+  /** The median of the three markets' combined monthly sales over the twelve months before; null with fewer than three. */
+  typical: number | null;
+  /** Against the typical month: sales and percent (unrounded). */
+  diff: number | null;
+  pct: number | null;
+  lastYear: { month: string; count: number; pct: number | null } | null;
+  /** Each market's part of the total, whole percents adding to 100. */
+  parts: { market: MarketSlug; name: string; count: number; share: number | null }[];
+};
+
 export type IssueMarket = {
   market: MarketSlug;
   name: string;
@@ -69,6 +116,13 @@ export type IssueMarket = {
   streets: TideStreet[];
   /** The chart months, oldest first. */
   series: MonthPoint[];
+  /** The same month a year earlier; null when the data doesn't reach it. */
+  lastYear: LastYear | null;
+  /** Single-family, then condos, villas and townhomes, then land (parcels vacant on the roll). */
+  mix: MixPart[];
+  bands: Bands;
+  /** The hand-written paragraphs for this market when written; else the computed paragraph the email uses. */
+  story: { paragraphs: string[]; written: boolean };
 };
 
 export type ChartSeries = { market: MarketSlug; name: string; values: (number | null)[] };
@@ -109,12 +163,24 @@ export type IssueModel = {
   intro: string;
   description: string;
   markets: IssueMarket[];
+  combined: Combined;
+  /** The cover photograph, rotated by issue month. */
+  cover: ImageRef;
+  /** About how long the page takes to read, in whole minutes. */
+  minutes: number;
   charts: { sales: ChartModel; ppsf: ChartModel };
   guides: IssueGuide[];
-  /** The month's story in the site's voice, hand-written in lib/tide/issues.ts; null until its opening is written. */
+  /** The month's words in the site's voice, hand-written in lib/tide/issues.ts; null until any of it is written. Each field may be empty. */
   narrative: Narrative | null;
   /** The plain line the page opens with while there's no narrative. */
   framing: string;
+  /** The cover's headline and dek: the written ones, or computed lines until they're written. */
+  headline: string;
+  dek: string;
+  /** "Figures for July 2026 from the county record · 9 min read". */
+  coverLine: string;
+  /** The line under the combined figure: "home sales across the three markets in July, 7% more than a typical month". */
+  combinedLine: string;
   /**
    * The signed notes to show: only the ones Joelyn or Jessica wrote; in sample
    * previews (NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true) both, an empty one as a
@@ -210,6 +276,129 @@ export function marketRows(sales: Sale[], month: string, market: MarketSlug): Sa
   return sales.filter((s) => counted(s) && s.saleDate >= from && s.saleDate <= to && marketOf(s) === market);
 }
 
+/** Whole percents of the total that add up to 100 (largest remainder, ties to the earlier part); null each with a zero total. */
+export function shares(counts: number[]): (number | null)[] {
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) return counts.map(() => null);
+  const raw = counts.map((c) => (100 * c) / total);
+  const out = raw.map(Math.floor);
+  let left = 100 - out.reduce((a, b) => a + b, 0);
+  const order = raw.map((r, i) => ({ rem: r - out[i]!, i })).sort((a, b) => b.rem - a.rem || a.i - b.i);
+  for (const { i } of order) {
+    if (left <= 0) break;
+    out[i]! += 1;
+    left -= 1;
+  }
+  return out;
+}
+
+export const pctChange = (now: number | null, then: number | null): number | null => (now === null || then === null || then === 0 ? null : (100 * (now - then)) / then);
+
+/**
+ * Whether the data covers the whole of `month`: some counted sale falls in
+ * it, and every county file starts on or before its first day (the record
+ * begins in October 2024, so a month before that, or a partial first month,
+ * isn't compared against).
+ */
+export function monthCovered(sales: Sale[], month: string, manifest?: TideManifest): boolean {
+  const { from } = monthBounds(month);
+  const starts = Object.values(manifest?.counties ?? {}).map((c) => c?.from ?? null);
+  if (starts.some((d) => d && d > from)) return false;
+  return sales.some((s) => counted(s) && s.saleDate.slice(0, 7) === month);
+}
+
+/** Per market, the same month a year before `month` and the change against it; null for every market when the data doesn't cover it. */
+export function lastYearFor(sales: Sale[], month: string, manifest?: TideManifest): Record<MarketSlug, LastYear | null> {
+  const then = addMonths(month, -12);
+  const none = { "lakewood-ranch": null, sarasota: null, bradenton: null };
+  if (!monthCovered(sales, then, manifest)) return none;
+  const now = new Map(tideStats(sales, month).map((s) => [s.market, s]));
+  return Object.fromEntries(
+    tideStats(sales, then).map((p) => {
+      const n = now.get(p.market)!;
+      return [
+        p.market,
+        {
+          month: then,
+          count: p.count,
+          medianPrice: p.medianPrice,
+          medianPpsf: p.medianPpsf,
+          countPct: pctChange(n.count, p.count),
+          pricePct: pctChange(n.medianPrice, p.medianPrice),
+          ppsfPct: pctChange(n.medianPpsf, p.medianPpsf),
+        },
+      ];
+    }),
+  ) as Record<MarketSlug, LastYear | null>;
+}
+
+const MIX_LABEL: Record<MixKey, string> = { "single-family": W.mixSingleFamily, attached: W.mixAttached, land: W.mixLand };
+const MIX: { key: MixKey; uses: Sale["propertyUse"][] }[] = [
+  { key: "single-family", uses: ["single-family"] },
+  { key: "attached", uses: ["condo", "villa", "townhome"] },
+  { key: "land", uses: ["vacant"] },
+];
+
+/** The month's home sales by kind: single-family; condos, villas and townhomes; and land (vacant on the roll). Medians leave out land and parcels changed since the sale, as the market's median does. */
+export function homeMix(rows: Sale[]): MixPart[] {
+  const parts = MIX.map(({ key, uses }) => {
+    const of = rows.filter((r) => uses.includes(r.propertyUse));
+    const priced = key === "land" ? [] : of.filter((r) => !rollChanged(r)).map((r) => r.salePrice);
+    return { key, count: of.length, priced };
+  });
+  const sh = shares(parts.map((p) => p.count));
+  return parts.map((p, i) => ({
+    key: p.key,
+    label: MIX_LABEL[p.key],
+    count: p.count,
+    share: sh[i]!,
+    medianPrice: p.priced.length >= 2 ? Math.round(median(p.priced) as number) : null,
+    priceSample: p.priced.length,
+  }));
+}
+
+/** The four price bands, in dollars: under $400k, $400k to $750k, $750k to $1.5M, $1.5M and up. */
+export const PRICE_BANDS: { key: BandKey; from: number; to: number | null }[] = [
+  { key: "under-400k", from: 0, to: 400_000 },
+  { key: "400k-750k", from: 400_000, to: 750_000 },
+  { key: "750k-1.5m", from: 750_000, to: 1_500_000 },
+  { key: "1.5m-up", from: 1_500_000, to: null },
+];
+const BAND_LABEL: Record<BandKey, string> = {
+  "under-400k": W.bandUnder400,
+  "400k-750k": W.band400to750,
+  "750k-1.5m": W.band750to1500,
+  "1.5m-up": W.band1500up,
+};
+
+/** The month's homes by price band, over the homes in the median price (built, unchanged since the sale). */
+export function priceBands(rows: Sale[]): Bands {
+  const prices = rows.filter((r) => r.propertyUse !== "vacant" && !rollChanged(r)).map((r) => r.salePrice);
+  const counts = PRICE_BANDS.map((b) => prices.filter((p) => p >= b.from && (b.to === null || p < b.to)).length);
+  const sh = shares(counts);
+  return { sample: prices.length, bands: PRICE_BANDS.map((b, i) => ({ ...b, label: BAND_LABEL[b.key], count: counts[i]!, share: sh[i]! })) };
+}
+
+/** All three markets together: the month's sales, against the typical month of the combined totals and the same month a year before. */
+export function combinedFor(sales: Sale[], month: string, markets: Pick<IssueMarket, "market" | "name" | "stats" | "lastYear">[]): Combined {
+  const count = markets.reduce((a, m) => a + m.stats.count, 0);
+  const prior = monthsEnding(addMonths(month, -1), 12);
+  const covered = new Set(sales.filter(counted).map((s) => s.saleDate.slice(0, 7)));
+  const reached = prior.filter((m) => covered.has(m));
+  const totals = monthlySeries(sales, reached);
+  const typical = medianOf(reached.map((_, i) => MARKET_ORDER.reduce((a, k) => a + totals[k][i]!.count, 0)));
+  const ly = markets.every((m) => m.lastYear) ? markets.reduce((a, m) => a + m.lastYear!.count, 0) : null;
+  const sh = shares(markets.map((m) => m.stats.count));
+  return {
+    count,
+    typical,
+    diff: typical === null ? null : count - typical,
+    pct: pctChange(count, typical),
+    lastYear: ly === null ? null : { month: addMonths(month, -12), count: ly, pct: pctChange(count, ly) },
+    parts: markets.map((m, i) => ({ market: m.market, name: m.name, count: m.stats.count, share: sh[i]! })),
+  };
+}
+
 /** A tick step of 1, 2, 2.5 or 5 times a power of ten giving about `target` intervals. */
 export function niceStep(span: number, target = 4): number {
   if (span <= 0) return 1;
@@ -290,10 +479,33 @@ export function issueText(m: Omit<IssueModel, "fairHousing">): string[] {
     ...[m.charts.sales, m.charts.ppsf].flatMap((c) => [c.title, c.note, c.axisLabel, c.baselineLabel ?? "", ...c.monthLabels]),
     ...m.guides.flatMap((g) => [g.title, g.excerpt]),
     m.framing,
-    ...(m.narrative ? [...m.narrative.opening, ...m.narrative.buyers, ...m.narrative.sellers, ...m.narrative.watch] : []),
+    m.headline,
+    m.dek,
+    m.coverLine,
+    m.combinedLine,
+    m.cover.alt,
+    ...m.markets.flatMap((x) => [...x.story.paragraphs, ...x.mix.map((p) => p.label), ...x.bands.bands.map((b) => b.label)]),
+    ...narrativeParagraphs(m.narrative),
+    ...(m.narrative ? [...m.narrative.buying, ...m.narrative.selling].map((mv) => mv.link?.label ?? "") : []),
     ...m.notes.flatMap((n) => n.paragraphs ?? []),
     ...Object.values(W),
   ].filter(Boolean);
+}
+
+/** Words read at 200 a minute, plus a minute for every three figures on the page (the two charts and three per market), rounded up. */
+export function readingMinutes(paragraphs: string[]): number {
+  const words = paragraphs.reduce((n, p) => n + p.split(/\s+/).filter(Boolean).length, 0);
+  const figures = 2 + 3 * MARKET_ORDER.length;
+  return Math.max(1, Math.ceil(words / 200 + figures / 3));
+}
+
+/** "home sales across the three markets in July, 7% more than a typical month". */
+export function combinedLine(c: Combined, dataMonth: string): string {
+  const month = monthLabel(dataMonth).split(" ")[0]!;
+  if (c.pct === null) return fill(W.combinedNoTypical, { month });
+  const r = Math.round(Math.abs(c.pct));
+  if (r === 0) return fill(W.combinedSame, { month });
+  return fill(c.pct > 0 ? W.combinedMore : W.combinedFewer, { month, pct: String(r) });
 }
 
 export function buildIssueModel(input: IssueInput): IssueModel {
@@ -306,19 +518,36 @@ export function buildIssueModel(input: IssueInput): IssueModel {
   const base = baselines(sales, dataMonth);
   const stats = tideStats(sales, dataMonth);
 
-  const markets: IssueMarket[] = stats.map((s) => ({
-    market: s.market,
-    name: s.name,
-    href: HUB[s.market],
-    stats: s,
-    baseline: base[s.market],
-    streets: topStreets(marketRows(sales, dataMonth, s.market), STREETS_PER_MARKET),
-    series: series[s.market],
-  }));
+  const lastYear = lastYearFor(sales, dataMonth, manifest);
+  const narrative = narrativeOf(entry);
+  const markets: IssueMarket[] = stats.map((s) => {
+    const rows = marketRows(sales, dataMonth, s.market);
+    const written = narrative?.markets[s.market] ?? [];
+    return {
+      market: s.market,
+      name: s.name,
+      href: HUB[s.market],
+      stats: s,
+      baseline: base[s.market],
+      streets: topStreets(rows, STREETS_PER_MARKET),
+      series: series[s.market],
+      lastYear: lastYear[s.market],
+      mix: homeMix(rows),
+      bands: priceBands(rows),
+      story: written.length ? { paragraphs: written, written: true } : { paragraphs: [marketParagraph(s, dataMonth)], written: false },
+    };
+  });
+  const combined = combinedFor(sales, dataMonth, markets);
 
   const asOfDay = manifest.generatedAt && !Number.isNaN(Date.parse(manifest.generatedAt)) ? easternDay(new Date(manifest.generatedAt)) : null;
   const asOf = asOfDay ? dateLong(asOfDay) : null;
-  const narrative = narrativeOf(entry);
+  const minutes = readingMinutes([
+    ...narrativeParagraphs(narrative),
+    ...(narrative?.opening.length ? [] : [W.note, W.intro]),
+    ...markets.flatMap((m) => (m.story.written ? [] : m.story.paragraphs)),
+  ]);
+  const headline = narrative?.headline ?? fill(W.headlineFallback, { data: dataLabel });
+  const dek = narrative?.dek ?? W.dekFallback;
 
   const model: Omit<IssueModel, "fairHousing"> = {
     issue: entry.issue,
@@ -333,6 +562,13 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     intro: W.intro,
     description: fill(W.description, { issue: issueLabel, data: dataLabel }),
     markets,
+    combined,
+    cover: tideCover(entry.issue),
+    minutes,
+    headline,
+    dek,
+    coverLine: fill(W.coverLine, { data: dataLabel, minutes: String(minutes) }),
+    combinedLine: combinedLine(combined, dataMonth),
     charts: {
       sales: chart(
         "sales",
@@ -347,7 +583,7 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     },
     guides: guidesForMonth(input.posts, entry.issue),
     narrative,
-    commentary: narrative ? [...narrative.opening, ...narrative.buyers, ...narrative.sellers, ...narrative.watch] : null,
+    commentary: narrative ? narrativeParagraphs(narrative) : null,
     framing: fill(W.framing, { data: dataLabel }),
     notes: noteSlots(entry.commentary, input.showSamples ? "draft" : "public"),
     asOf,

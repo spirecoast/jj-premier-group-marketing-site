@@ -15,7 +15,7 @@ import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
 
 /** Routes whose first screen is a photograph the header sits over. */
-const OVERLAY_ROUTES = [/^\/$/, /^\/neighborhoods\/[^/]+$/, /^\/venues\/[^/]+$/];
+const OVERLAY_ROUTES = [/^\/$/, /^\/neighborhoods\/[^/]+$/, /^\/venues\/[^/]+$/, /^\/tide\/\d{4}-\d{2}$/];
 
 type Contact = { name: string; phone: string; phoneE164: string; email: string };
 

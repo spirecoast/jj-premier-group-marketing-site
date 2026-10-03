@@ -27,7 +27,7 @@ export const loadIssueModel = cache(async (issue: string): Promise<IssueModel | 
     sales,
     manifest: {
       generatedAt: manifest.generatedAt,
-      counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c?.label ?? k, to: c?.to ?? null }])),
+      counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c?.label ?? k, to: c?.to ?? null, from: c?.from ?? null }])),
     },
     posts,
     showSamples: process.env.NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true",

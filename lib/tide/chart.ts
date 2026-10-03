@@ -105,3 +105,57 @@ export function chartGeometry(c: ChartModel, variant: Variant): ChartGeometry {
     baselineNote: c.zeroBased ? null : c.baselineLabel,
   };
 }
+
+/**
+ * A market's sparkline: its monthly sales as one line in a small box, the
+ * axis from zero so the height reads as volume, with the typical month as a
+ * dashed reference and the last point marked. Pure numbers for
+ * components/tide/sparkline.tsx.
+ */
+export type SparkGeometry = {
+  width: number;
+  height: number;
+  points: { x: number; y: number; value: number; month: string }[];
+  /** The typical month's height, or null when there isn't one. */
+  typicalY: number | null;
+  max: number;
+};
+
+export function sparkGeometry(
+  series: { month: string; value: number }[],
+  typical: number | null,
+  { width = 320, height = 72, pad = 6 }: { width?: number; height?: number; pad?: number } = {},
+): SparkGeometry {
+  const max = Math.max(1, ...series.map((p) => p.value), typical ?? 0);
+  const n = series.length;
+  const x = (i: number) => (n <= 1 ? width / 2 : pad + ((width - 2 * pad) * i) / (n - 1));
+  const y = (v: number) => height - pad - (v / max) * (height - 2 * pad);
+  return {
+    width,
+    height,
+    points: series.map((p, i) => ({ x: x(i), y: y(p.value), value: p.value, month: p.month })),
+    typicalY: typical === null ? null : y(typical),
+    max,
+  };
+}
+
+/**
+ * A horizontal stacked bar of shares (whole percents adding up to 100): each
+ * segment's x and width in a box `width` wide, with a hairline gap between
+ * segments that never eats a small one. Null shares draw nothing.
+ */
+export function stackGeometry(shares: (number | null)[], width = 100, gap = 0.6): { x: number; w: number; share: number }[] {
+  const total = shares.reduce<number>((a, s) => a + (s ?? 0), 0);
+  if (!total) return [];
+  const drawn = shares.filter((s): s is number => (s ?? 0) > 0);
+  const room = width - gap * Math.max(0, drawn.length - 1);
+  let x = 0;
+  const out: { x: number; w: number; share: number }[] = [];
+  for (const s of shares) {
+    if (!s) continue;
+    const w = (room * s) / total;
+    out.push({ x, w, share: s });
+    x += w + gap;
+  }
+  return out;
+}
