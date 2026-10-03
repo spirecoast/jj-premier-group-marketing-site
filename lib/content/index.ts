@@ -132,6 +132,8 @@ export async function getUpcomingEvents(q: EventQuery = {}): Promise<Event[]> {
   if (!q.includePast) {
     events = events.filter((e) => lastMoment(e) >= now);
   }
+  // Called off or moved: the event's own page says so, lists and the calendar leave it out.
+  events = events.filter((e) => e.status !== "cancelled" && e.status !== "postponed");
   if (q.market) events = events.filter((e) => e.venue.market === q.market);
   if (q.category) events = events.filter((e) => e.category === q.category);
   if (q.venue) events = events.filter((e) => e.venue.slug === q.venue);

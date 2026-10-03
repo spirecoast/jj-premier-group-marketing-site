@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { VisitPlan } from "@/components/encore/visit-plan";
 import { SectionHeading } from "@/components/section-heading";
-import { getEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
+import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { parsePlanState } from "@/lib/encore/plan";
 import { pageMetadata } from "@/lib/seo";
 
@@ -27,7 +27,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const params = await searchParams;
   const today = localDay(Date.now());
   const { state, trimmed } = parsePlanState(params, today);
-  const slice = sliceIndex(getEncoreIndex(), state.from, state.to);
+  const slice = sliceIndex(await loadEncoreIndex(), state.from, state.to);
 
   return (
     <>

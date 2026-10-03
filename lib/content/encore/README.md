@@ -1,5 +1,9 @@
 # Encore Arts Calendar — data build (collected 2026-09-22)
 
+This file is now the **seed and the fallback**: the live calendar is in Supabase (`encore_*`
+tables), refreshed weekly and checked daily by the collector in `lib/encore/collect`. See
+docs/SITE.md, "Keeping Encore current". Edit events in the database, not here.
+
 782 listings · 2,229 upcoming dates · 105 venues · Sarasota, Bradenton, Lakewood Ranch · through 2028-01-09.
 Every listing was taken from the venue's or presenter's own site (or the ticketing page it links to); `sources` holds those URLs.
 

@@ -185,7 +185,7 @@ builder source with its checked date).
   `runsThrough`; the list view shows these in the "On view now" strip via `getOnView()`.
 - Items marked `announced` and the three whose venue is still to be confirmed are left off.
   Sold-out productions show "Sold out" and their offers carry `SoldOut` in the Event JSON-LD.
-- **Key art.** No stock photographs. An event without a venue-supplied `image` gets art drawn in
+- **Key art.** No stock photographs. An event without the presenter's own image (see "Images" below) gets art drawn in
   code by `lib/encore/key-art.ts`: one motif per category (staff and notes, proscenium and
   spotlight, hung frames, sound waves, film strip, bunting, balloons, market awnings), varied by
   a seed from the event slug and by subcategory (jazz, choral, orchestra, circus, ballet, comedy
@@ -196,8 +196,126 @@ builder source with its checked date).
   `?all=1` or any filter, plus the current runs.
 
 When Sanity is live the same shape lives in the `event` document (performances, presenter, room,
-firstDate, runsThrough, status) and `scripts/seed-sanity.ts` imports the dataset once. To refresh
-the dataset before then, replace the JSON file and rebuild.
+firstDate, runsThrough, status) and `scripts/seed-sanity.ts` imports the dataset once.
+
+### Keeping Encore current
+
+The calendar lives in Supabase Postgres (`encore_*` tables, migration `0012_encore.sql`) and
+refreshes itself from the venues' and presenters' own sites. The JSON file is the seed and the
+fallback: `lib/encore/live.ts` reads the tables (five minutes in memory, then the pages' hourly
+ISR) and uses the JSON whenever the database is missing, down, slow (8 s) or empty, so a build
+never needs it.
+
+- **Tables.** `encore_venues`, `encore_events`, `encore_performances` (one row per date and time,
+  with `status` scheduled / cancelled / postponed / removed, `availability` on-sale / few-left /
+  sold-out / not-on-sale / unknown, price range, `checked_at`), `encore_sources` (one row per
+  feed: adapter, `config` overrides, frequency, `last_ok_at`, `last_error`, counts),
+  `encore_checks` (every status/price reading), `encore_review_queue`, `encore_images`,
+  `encore_runs`. RLS on, no policies: only DATABASE_URL reads them.
+- **Sources and adapters** (`lib/encore/collect/`). `sources.ts` lists all 83 domains from the
+  source audit, each with its adapter. Generic: The Events Calendar REST (`tribe`), iCal
+  (`ical`), schema.org Event JSON-LD and plain event pages (`jsonld` / `pages`, with per-site
+  readers in `adapters/sites.ts`), Squarespace JSON (`squarespace`). Platforms: Tessitura TNEW's
+  own JSON (`tnew`: Orchestra, Ringling, Asolo Rep, Opera, Ballet), OvationTix
+  (`ovationtix`: Artist Series, SCD, Urbanite, SCA, Via Nova), TicketSpice (`ticketspice`).
+  Per site: Van Wezel, SILL, MPAC. Sources the audit found closed to automation (captchas,
+  Cloudflare and Akamai challenges, prose-only gallery pages) are listed as `manual` and never
+  fetched. A row's `config` in `encore_sources` is merged over the code's, so a moved URL can be
+  fixed with one UPDATE and no deploy; `enabled = false` pauses a source.
+- **Manners.** One request at a time per host, 1.2 to 2 seconds apart (Van Wezel's paging five
+  seconds apart), real browser headers, 20-second timeouts, one retry, robots.txt honoured for
+  `User-agent: *` (and FST's ticketing host and WBTT's Salesforce site never fetched). A source
+  whose content hash hasn't changed since its last good run is marked checked and skipped.
+- **What applies on its own and what waits** (`reconcile.ts`). Known events update
+  themselves: a date added or dropped, a time moved, status (on sale, few left, sold out,
+  cancelled, postponed), price, ticket link, a run's closing day, the image. Matching is by a
+  link that belongs to one event only, then by title, dates and venue together. Dates are only
+  added from structured sources (feeds, APIs, listings with times); a date is dropped only when
+  the source lists every date and more than half of them haven't vanished at once (that goes to
+  review). Dates read off a page's prose never add or move anything. Everything new goes to
+  `encore_review_queue`, because a new listing needs a description written fresh (never copied)
+  and a check of its category and venue.
+- **Schedule** (`vercel.json`). `/api/encore/collect` early Sunday (05:17 UTC), the weekly
+  refresh of every due source and then the images; `/api/encore/check` daily (07:41 UTC), the
+  sources with performances in the next 21 days, read again for status and price only. Each
+  route stops starting work about a minute before its 300-second limit, reports `remaining`
+  and `remainingImages`, and calls itself again (up to eight times) until both are 0; a daily
+  check with time to spare finishes whatever the weekly run left due. Both accept
+  `Authorization: Bearer $CRON_SECRET` or `$ENCORE_COLLECT_SECRET`; `?only=<id>,<id>` runs
+  named sources whether due or not.
+- **Health.** `GET /api/encore/status` (same secret) returns every source with its last good
+  run, last error and counts, the review queue by kind, the last runs, and counts of events,
+  dates in the next 21 days and how many were checked, images. `?queue=1` adds the pending
+  items. `npx tsx --conditions=react-server scripts/encore-collect.ts status` prints the same
+  from a terminal that can reach the database.
+- **Seeding.** `scripts/encore-collect.ts seed` (over DATABASE_URL) or `POST /api/encore/seed`
+  (same secret, for when only Vercel reaches the database) loads the JSON. It only adds what is
+  missing, so it is safe to run again.
+- **Local runs.** `scripts/encore-collect.ts collect --file /tmp/encore.json --images
+  public/encore-local` keeps everything in a JSON file and the images on disk; start the site
+  with `ENCORE_SNAPSHOT_FILE=/tmp/encore.json` to see it. `scripts/encore-probe.ts` runs adapters
+  live and prints what they found against the dataset, per source; `--record <dir>` saves the
+  responses (the unit tests' fixtures in `lib/encore/collect/__fixtures__` came from it).
+
+**Event pages.** The side panel is "From the venue" (`components/encore/venue-panel.tsx`):
+the next dates as the source lists them, each with its status and its price when published,
+"Checked … ago" from the last reading, the price or range, the venue, and buttons to tickets
+and to the presenter's own page. It stands in for an embedded venue page: it uses the site's
+type, fits a phone and loads no third-party frame. A production that is called off keeps its
+page (with the dates struck through) and leaves the calendar and every list.
+
+**Images.** Each event's picture is the presenter's own promotional image for that event (the
+og:image or JSON-LD image of its page, or the listing's card art), used to promote their own
+event, credited under it ("Image: <presenter>", linked to the page it came from). The collector
+resizes it to at most 1600px wide as WebP and stores it in the public `encore-images` bucket
+(`encore_images` keeps the source URL, the page, the credit and the size). Logos, icons and
+anything under 400px wide are refused, and key art stays the fallback. To take one down on
+request: `update encore_images set hidden = true where event_slug = '<slug>';` (the collector
+never touches `hidden`, so it stays down), then call `/api/encore/collect?only=<source id>` or
+wait for the hourly ISR.
+
+### Reviewing the queue
+
+1. Read the pending items: `GET /api/encore/status?queue=1` or
+   `scripts/encore-collect.ts review`. Each has its source, the page, the first date, what the
+   source said (`payload`: title, dates, price, image, the source's own wording for reference
+   only) and a proposal (`proposed`: slug, venue, market, presenter).
+2. **New event, worth listing:** add it with a description written fresh in the site's voice
+   (one factual sentence, never the source's words), the right `category`/`site_category`/
+   `subcategory`, the venue (`venue_key`, adding an `encore_venues` row if it's a new place),
+   `origin = 'review'`, `source_id`, the page in `sources`, then its dates in
+   `encore_performances`. Mark the item `status = 'approved'`, `event_slug = '<slug>'`. The next
+   run keeps it current like any other event.
+3. **Not for the calendar** (a class, a fitness session, a rental under a company's name, a
+   duplicate): `update encore_review_queue set status = 'rejected', reviewed_at = now(),
+   reviewed_by = '<name>' where id = …;`. A rejected or approved item never comes back.
+4. **Already listed under another slug:** `status = 'merged'`, `event_slug = '<that slug>'`,
+   and add the item's page to that event's `sources` so the next run matches it by link.
+5. **change / removed:** the collector wouldn't make the change on its own (most of a run's
+   dates gone, a run's dates read off prose, a production no longer on its ticketing
+   platform). Check the source, make the change in `encore_events`/`encore_performances` (or
+   hide the event: `hidden = true`) and approve or reject the item.
+
+Claude can do all of this with the Supabase connector (only INSERT/UPDATE; deletes belong in
+app code) given this section.
+
+### When an adapter breaks
+
+`/api/encore/status` shows it: `lastError`, `failures`, or a source whose `eventsFound` fell to
+nothing. Then:
+
+1. Run it alone against the live site:
+   `npx tsx scripts/encore-probe.ts <source id> --record /tmp/rec --json /tmp/out.json` (or
+   `/api/encore/collect?only=<source id>` on Vercel) and read the error and the saved response.
+2. A moved page or a new listing URL is configuration: `update encore_sources set config =
+   config || '{"listings": ["https://…"]}' where id = '<source id>';` (merged over `sources.ts`).
+   Put the same fix in `sources.ts` when convenient.
+3. A changed page layout is code: fix the reader in `lib/encore/collect/adapters/`, save a new
+   trimmed fixture under `__fixtures__/`, update its test in `collect.test.ts`, and run
+   `npm run -s test:unit`.
+4. A site that now blocks automated reading (a captcha or a JS challenge): set its `adapter`
+   to `manual` in `sources.ts` and keep its events by hand through the review steps above.
+   Never route around a block or a robots.txt rule.
 
 ## The data portraits
 

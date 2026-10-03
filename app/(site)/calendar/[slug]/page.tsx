@@ -3,14 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EventCard } from "@/components/event-card";
 import { JsonLd } from "@/components/json-ld";
-import { KeyArt } from "@/components/key-art";
+import { EventHero } from "@/components/encore/event-hero";
+import { VenuePanel } from "@/components/encore/venue-panel";
 import { ListingCard } from "@/components/listing-card";
-import { Photo } from "@/components/photo";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { SaveInline } from "@/components/encore/save-inline";
 import { ShareButton } from "@/components/share-button";
-import { TrackedLink } from "@/components/tracked-link";
 import { subcategoryLabel } from "@/lib/encore/categories";
 import { getEvent, getEventSlugs, getListings, getUpcomingEvents } from "@/lib/content";
 import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, formatRun, weekdayName } from "@/lib/content/format";
@@ -50,18 +49,11 @@ export default async function EventPage({ params }: { params: Params }) {
   ]);
   const others = atVenue.filter((e) => e.slug !== event.slug).slice(0, 3);
   const listings = nearby.slice(0, 3);
-  const address = formatAddress(event.venue.address);
   const mapsUrl = event.venue.geo
     ? `https://www.google.com/maps/search/?api=1&query=${event.venue.geo.lat},${event.venue.geo.lng}`
-    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${event.venue.name}, ${address}`)}`;
-  const free = event.priceNote?.toLowerCase().startsWith("free");
-  const soldOut = event.status === "sold-out";
-  const nowIso = new Date().toISOString();
-  const upcomingPerformances = (event.performances ?? []).filter((p) => (p.endsAt ?? p.startsAt) >= nowIso);
-  const shownPerformances = upcomingPerformances.slice(0, 8);
-  const morePerformances = upcomingPerformances.length - shownPerformances.length;
-  const run = formatRun(event);
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${event.venue.name}, ${formatAddress(event.venue.address)}`)}`;
   const isRun = Boolean(event.runsThrough) && !event.performances?.length;
+  const renderedAt = new Date().toISOString();
 
   return (
     <>
@@ -89,13 +81,7 @@ export default async function EventPage({ params }: { params: Params }) {
           </span>
         </nav>
 
-        <div className={event.image ? "relative aspect-[16/9] overflow-hidden bg-linen-100" : "relative aspect-[21/9] overflow-hidden bg-linen-100 max-h-[420px]"}>
-          {event.image ? (
-            <Photo image={event.image} priority sizes="(min-width: 1024px) 1248px, 100vw" />
-          ) : (
-            <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={21 / 9} />
-          )}
-        </div>
+        <EventHero event={event} />
 
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
           <div className="flex flex-col gap-8">
@@ -125,82 +111,12 @@ export default async function EventPage({ params }: { params: Params }) {
                 ) : (
                   event.source
                 )}
-                {" · "}confirm times against the venue before you go
+
               </p>
             ) : null}
           </div>
 
-          <aside className="flex flex-col gap-6 self-start border border-hairline bg-white p-7 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
-            <dl className="flex flex-col gap-5">
-              <div className="flex flex-col gap-1">
-                <dt className="t-mono-sm text-graphite-500">{upcomingPerformances.length > 1 ? "Dates" : "When"}</dt>
-                {isRun ? (
-                  <dd className="t-record text-navy">{run}</dd>
-                ) : upcomingPerformances.length > 1 ? (
-                  <dd className="flex flex-col gap-1.5">
-                    <ul className="flex flex-col">
-                      {shownPerformances.map((p) => (
-                        <li key={p.startsAt} className="flex items-baseline justify-between gap-3 border-b border-hairline py-1.5 last:border-b-0">
-                          <span className="t-record text-navy">{formatEventWhen(p.startsAt, p.endsAt, p.allDay)}</span>
-                          <TrackedLink
-                            href={`/api/calendar.ics?event=${event.slug}&at=${encodeURIComponent(p.startsAt)}`}
-                            event="Calendar feed"
-                            props={{ kind: "performance", filter: event.slug }}
-                            className="t-mono-sm shrink-0 text-harbor-700 underline underline-offset-4 hover:text-navy"
-                            aria-label={`Add ${formatEventWhen(p.startsAt, p.endsAt, p.allDay)} to your calendar`}
-                          >
-                            + Cal
-                          </TrackedLink>
-                        </li>
-                      ))}
-                    </ul>
-                    {morePerformances > 0 ? (
-                      <span className="t-mono-sm text-graphite-500">
-                        and {morePerformances} more{run ? `, ${run.toLowerCase()}` : ""}
-                      </span>
-                    ) : run ? (
-                      <span className="t-mono-sm text-graphite-500">{run}</span>
-                    ) : null}
-                  </dd>
-                ) : (
-                  <dd className="t-record text-navy">{formatEventWhen(event.startsAt, event.endsAt, event.allDay)}</dd>
-                )}
-              </div>
-              <div className="flex flex-col gap-1">
-                <dt className="t-mono-sm text-graphite-500">Where</dt>
-                <dd className="flex flex-col gap-1">
-                  <Link href={`/venues/${event.venue.slug}`} className="t-h4 text-navy transition-colors hover:text-harbor-700">
-                    {event.venue.name}
-                  </Link>
-                  <span className="t-small text-body-muted">{address}</span>
-                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="link-rule mt-1 self-start">
-                    Open in Google Maps ↗
-                  </a>
-                </dd>
-              </div>
-              {event.room ? (
-                <div className="flex flex-col gap-1">
-                  <dt className="t-mono-sm text-graphite-500">Room</dt>
-                  <dd className="t-record text-navy">{event.room}</dd>
-                </div>
-              ) : null}
-              <div className="flex flex-col gap-1">
-                <dt className="t-mono-sm text-graphite-500">Tickets</dt>
-                <dd className="t-record text-navy">{soldOut ? "Sold out" : (event.priceNote ?? "See the venue")}</dd>
-              </div>
-            </dl>
-            {event.ticketUrl ? (
-              <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" className="btn btn-navy">
-                {soldOut ? "Details at the venue" : free ? "Details at the venue" : "Get tickets"}
-                <span className="btn-dash" aria-hidden="true" />
-              </a>
-            ) : (
-              <p className="t-small text-body-muted">{free ? "Free. No ticket needed." : "Tickets at the door or from the venue."}</p>
-            )}
-            <TrackedLink href={`/api/calendar.ics?event=${event.slug}`} event="Calendar feed" props={{ kind: "event", filter: event.slug }} className="link-rule self-start">
-              {upcomingPerformances.length > 1 ? "Add every date to your calendar" : "Add to your calendar"}
-            </TrackedLink>
-          </aside>
+          <VenuePanel event={event} mapsUrl={mapsUrl} renderedAt={renderedAt} />
         </div>
       </article>
 

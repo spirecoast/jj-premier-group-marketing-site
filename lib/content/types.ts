@@ -129,7 +129,33 @@ export type Venue = {
 /** One dated performance of a production. `allDay` when the venue published no time. */
 export type Performance = { startsAt: string; endsAt?: string; allDay?: boolean };
 
-export type EventStatus = "scheduled" | "sold-out";
+export type EventStatus = "scheduled" | "sold-out" | "cancelled" | "postponed";
+
+/** What the venue's own listing said about one date at the last check (extension: lib/encore/collect). */
+export type VenueDateStatus = "on-sale" | "few-left" | "sold-out" | "cancelled" | "postponed" | "not-on-sale" | "unknown";
+
+export type VenueDate = {
+  startsAt: string;
+  allDay?: boolean;
+  status: VenueDateStatus;
+  priceMin?: number;
+  priceMax?: number;
+  ticketUrl?: string;
+};
+
+/**
+ * The "From the venue" panel's facts (extension): the next dates as the
+ * source lists them, with status and price, and when they were last read.
+ */
+export type EventLive = {
+  dates: VenueDate[];
+  /** ISO time of the last status/price read; undefined when only the hand-collected record exists. */
+  checkedAt?: string;
+  priceMin?: number;
+  priceMax?: number;
+  /** The event's page on the venue's or presenter's site. */
+  venuePage?: string;
+};
 
 /**
  * A calendar entry is a production or program. `startsAt` is its next
@@ -158,6 +184,9 @@ export type Event = {
   /** Finer grain from the dataset: "chamber", "comedy", "ballet", "exhibition"… */
   subcategory?: string;
   performances?: Performance[];
+  /** The presenter's own image is credited on the page (extension). */
+  imageCredit?: { name: string; url?: string };
+  live?: EventLive;
   /** ISO date of the run's first day, for exhibitions and series. */
   firstDate?: string;
   /** ISO date of the run's last day, for exhibitions and series. */

@@ -18,10 +18,12 @@ export const seedSource: ContentSource = {
     return process.env.NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true" ? LISTINGS : [];
   },
   async events() {
-    return encoreEvents();
+    const { loadEncoreSnapshot } = await import("@/lib/encore/live");
+    return encoreEvents(new Date(), await loadEncoreSnapshot());
   },
   async venues() {
-    return encoreVenues();
+    const { loadEncoreSnapshot } = await import("@/lib/encore/live");
+    return encoreVenues(await loadEncoreSnapshot());
   },
   async neighborhoods() {
     return NEIGHBORHOODS;

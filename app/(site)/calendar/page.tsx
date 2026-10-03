@@ -6,7 +6,7 @@ import { Masthead } from "@/components/masthead";
 import { TrackedLink } from "@/components/tracked-link";
 import { getVenues } from "@/lib/content";
 import { MARKETS, marketName } from "@/lib/content/markets";
-import { getEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
+import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { addDays, monthEnd, monthStart, weekStart } from "@/lib/encore/select";
 import { parseEncoreState } from "@/lib/encore/url";
 import { pageMetadata } from "@/lib/seo";
@@ -33,7 +33,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const initial = parseEncoreState(params);
   const today = localDay(Date.now());
   const anchor = initial.date || today;
-  const index = getEncoreIndex();
+  const index = await loadEncoreIndex();
 
   // The slice covers today's spotlight, the strip's counts for two weeks, and the requested window.
   let from = today;

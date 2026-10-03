@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { getEvent } from "@/lib/content";
 import { zonedInstant } from "@/lib/content/encore";
 import type { Event } from "@/lib/content/types";
-import { getEncoreIndex, localDay } from "@/lib/encore/data";
+import { loadEncoreIndex, localDay } from "@/lib/encore/data";
 import { SHOWINGS, buildPlan, marketList, parsePlanState, planHref, stayDays } from "@/lib/encore/plan";
 import { daysInRange, longDay } from "@/lib/encore/select";
 import { esc, icsResponse, stamp, vcalendar, vevent } from "@/lib/ics";
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     .filter((p, i, all) => all.findIndex((q) => q.slug === p.slug && q.start === p.start) === i)
     .slice(0, 80);
   if (!wanted.length) {
-    const plan = buildPlan(getEncoreIndex(), state, today, now.getTime());
+    const plan = buildPlan(await loadEncoreIndex(), state, today, now.getTime());
     wanted = plan.days.flatMap((d) => [...(d.matinee ? [d.matinee] : []), ...d.picks]).map((o) => ({ slug: o.e.s, start: o.start }));
   }
 

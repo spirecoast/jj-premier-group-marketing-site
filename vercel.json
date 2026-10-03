@@ -15,6 +15,14 @@
     {
       "path": "/api/search/reindex",
       "schedule": "23 8 * * *"
+    },
+    {
+      "path": "/api/encore/collect",
+      "schedule": "17 5 * * 0"
+    },
+    {
+      "path": "/api/encore/check",
+      "schedule": "41 7 * * *"
     }
   ]
 }

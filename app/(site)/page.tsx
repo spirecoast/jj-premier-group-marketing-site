@@ -11,6 +11,7 @@ import { Three, type ThreeFacts } from "@/components/home/three";
 import { WhatWeDo } from "@/components/home/what-we-do";
 import { getPosts, getTeam, getUpcomingEvents } from "@/lib/content";
 import { getEncoreIndex, localDay } from "@/lib/encore/data";
+import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { addDays, occurrences, shortDay, weekday } from "@/lib/encore/select";
 import { getAllRecords, getIndexEntries } from "@/lib/neighborhoods/data";
 import { img } from "@/lib/content/seed/helpers";
@@ -39,12 +40,14 @@ const FRAMES = {
 };
 
 export default async function HomePage() {
+  // The Encore pieces below (the season ring, tonight's count) read the snapshot loaded here.
   const [team, events, posts, records, entries] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
     getPosts(),
     getAllRecords(),
     getIndexEntries(),
+    loadEncoreSnapshot(),
   ]);
   const facts = threeFacts({ posts, records, entries });
 

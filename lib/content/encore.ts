@@ -1,57 +1,24 @@
+import type { DatasetEvent, DatasetVenue } from "@/lib/encore/collect/known";
+import { isTicketingUrl } from "@/lib/encore/collect/util";
+import { jsonSnapshot } from "@/lib/encore/store/convert";
+import type { EncoreSnapshot, StoreEvent, StorePerformance } from "@/lib/encore/store/types";
 import data from "./encore/encore-calendar.json";
 import { isMarketSlug } from "./markets";
-import type { Address, Event, EventCategory, MarketSlug, Performance, Venue } from "./types";
+import type { Address, Event, EventCategory, MarketSlug, Performance, Venue, VenueDate } from "./types";
 
 /**
- * The Encore Arts Calendar dataset: every listing taken from the venue's or
+ * The Encore Arts Calendar: every listing taken from the venue's or
  * presenter's own site, one record per production with all of its
- * performances. This module turns it into the site's Venue and Event shapes.
- * It serves the calendar until the same records live in Sanity; the seed
- * script pushes them there unchanged.
+ * performances. This module turns a snapshot of it into the site's Venue and
+ * Event shapes. The snapshot comes from the encore_* tables, kept current by
+ * the collector (lib/encore/live.ts loads it); the JSON file in
+ * ./encore/ is the seed and the fallback when the database can't be reached.
  */
 
-type RawVenue = {
-  key: string;
-  name: string | null;
-  type: string | null;
-  address: string | null;
-  city: string | null;
-  market: string | null;
-  website: string | null;
-  eventsUrl: string | null;
-  residentCompanies: string[];
-  notes: string | null;
-  eventCount: number;
-};
+type RawVenue = DatasetVenue;
 
-type RawEvent = {
-  slug: string;
-  title: string;
-  presenter: string | null;
-  market: string;
-  category: string;
-  siteCategory: string;
-  subcategory: string | null;
-  venueKey: string | null;
-  venueName: string | null;
-  room: string | null;
-  city: string | null;
-  startDate: string;
-  endDate: string | null;
-  startTime: string | null;
-  nextDate: string | null;
-  nextTime: string | null;
-  performances: { date: string; time: string | null }[];
-  recurrence: string | null;
-  price: string | null;
-  ticketUrl: string | null;
-  sources: string[];
-  description: string | null;
-  status: "scheduled" | "announced" | "sold-out";
-  notes: string | null;
-};
-
-const raw = data as unknown as { venues: RawVenue[]; events: RawEvent[] };
+/** The bundled dataset as a snapshot: the seed, and the fallback. */
+export const JSON_SNAPSHOT: EncoreSnapshot = jsonSnapshot(data as unknown as { venues: DatasetVenue[]; events: DatasetEvent[]; generatedAt?: string });
 
 /* ---- Time: the dataset's times are local (America/New_York) ---------------- */
 
@@ -93,23 +60,6 @@ function parseAddress(v: RawVenue): Address {
 
 const marketOf = (v: string | null | undefined, fallback: MarketSlug = "sarasota"): MarketSlug => (isMarketSlug(v) ? v : fallback);
 
-const venueList: Venue[] = raw.venues
-  .filter((v) => v.name && v.key !== "venue-tbd")
-  .map((v) => ({
-    _id: `venue-${v.key}`,
-    name: v.name!,
-    slug: v.key,
-    address: parseAddress(v),
-    website: v.website ?? undefined,
-    market: marketOf(v.market),
-  }));
-
-const venueByKey = new Map(venueList.map((v) => [v.slug, v]));
-
-export function encoreVenues(): Venue[] {
-  return venueList;
-}
-
 /* ---- Events ------------------------------------------------------------------ */
 
 const CATEGORIES: EventCategory[] = ["music", "theater", "gallery", "festival", "family", "market", "film", "talks"];
@@ -118,61 +68,116 @@ const categoryOf = (c: string): EventCategory => (CATEGORIES.includes(c as Event
 /** Default length of a performance when the venue does not publish one. */
 const HOURS: Record<EventCategory, number> = { music: 2, theater: 2.5, gallery: 2, festival: 3, family: 2, market: 4, film: 2, talks: 1.5 };
 
-function performancesOf(e: RawEvent, category: EventCategory): Performance[] {
-  const hours = HOURS[category];
-  return e.performances
-    .map((p) => {
-      if (p.time) {
-        const start = zonedInstant(p.date, p.time);
-        return { startsAt: start.toISOString(), endsAt: new Date(start.getTime() + hours * 3600_000).toISOString() };
-      }
-      return { startsAt: noon(p.date), allDay: true as const };
-    })
-    .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+function perfOf(p: Pick<StorePerformance, "date" | "time">, hours: number): Performance {
+  if (p.time) {
+    const start = zonedInstant(p.date, p.time);
+    return { startsAt: start.toISOString(), endsAt: new Date(start.getTime() + hours * 3600_000).toISOString() };
+  }
+  return { startsAt: noon(p.date), allDay: true };
 }
 
-const built: Omit<Event, "startsAt" | "endsAt" | "allDay">[] = raw.events
-  .filter((e) => e.status !== "announced" && e.venueKey && venueByKey.has(e.venueKey))
-  .map((e) => {
-    const venue = venueByKey.get(e.venueKey!)!;
-    // The dataset's own eight categories; siteCategory folds film and talks into six.
-    const category = categoryOf(e.category);
-    const performances = performancesOf(e, category);
-    const sold = e.status === "sold-out";
-    return {
-      _id: `event-${e.slug}`,
-      title: e.title,
-      slug: e.slug,
-      summary: e.description ?? "",
-      venue: { name: venue.name, slug: venue.slug, market: venue.market, address: venue.address, geo: venue.geo },
-      category,
-      ticketUrl: e.ticketUrl ?? undefined,
-      priceNote: sold ? "Sold out" : (e.price ?? undefined),
-      // No placeholder photograph: pages draw key art for the category until a venue supplies art.
-      image: undefined,
-      source: e.presenter ?? venue.name,
-      sourceUrl: e.sources[0],
-      featured: false,
-      presenter: e.presenter ?? undefined,
-      room: e.room ?? undefined,
-      subcategory: e.subcategory ?? undefined,
-      performances,
-      runsThrough: e.endDate ?? undefined,
-      firstDate: e.startDate,
-      status: sold ? "sold-out" : "scheduled",
-    };
-  });
+/** The event's page on the presenter's or venue's own site: the first source that isn't a ticket seller. */
+function venuePage(e: StoreEvent): string | undefined {
+  return e.sources.find((u) => !isTicketingUrl(u)) ?? e.sources[0];
+}
+
+function venueDateOf(p: StorePerformance, hours: number): VenueDate {
+  const base = perfOf(p, hours);
+  const status = p.status === "cancelled" || p.status === "postponed" ? p.status : p.availability;
+  return {
+    startsAt: base.startsAt,
+    allDay: base.allDay,
+    status,
+    priceMin: p.priceMin ?? undefined,
+    priceMax: p.priceMax ?? undefined,
+    ticketUrl: p.ticketUrl ?? undefined,
+  };
+}
+
+type Built = { venues: Venue[]; events: Omit<Event, "startsAt" | "endsAt" | "allDay">[] };
+const builtCache = new WeakMap<EncoreSnapshot, Built>();
+
+/** Venues and events from a snapshot (memoised per snapshot). */
+export function buildEncore(snap: EncoreSnapshot): Built {
+  const hit = builtCache.get(snap);
+  if (hit) return hit;
+  const venues: Venue[] = snap.venues
+    .filter((v) => v.name && v.key !== "venue-tbd")
+    .map((v) => ({
+      _id: `venue-${v.key}`,
+      name: v.name!,
+      slug: v.key,
+      address: parseAddress(v),
+      website: v.website ?? undefined,
+      market: marketOf(v.market),
+    }));
+  const venueByKey = new Map(venues.map((v) => [v.slug, v]));
+  const images = new Map(snap.images.filter((i) => i.publicUrl && !i.hidden).map((i) => [i.eventSlug, i]));
+  const events = snap.events
+    .filter((e) => !e.hidden && e.status !== "announced" && e.venueKey && venueByKey.has(e.venueKey))
+    .map((e) => {
+      const venue = venueByKey.get(e.venueKey!)!;
+      // The dataset's own eight categories; siteCategory folds film and talks into six.
+      const category = categoryOf(e.category);
+      const hours = HOURS[category];
+      const listed = e.performances.filter((p) => p.status !== "removed");
+      const scheduled = listed.filter((p) => p.status === "scheduled");
+      // A production called off entirely keeps its dates so its page can say so.
+      const shown = scheduled.length || !listed.length ? scheduled : listed;
+      const performances = shown.map((p) => perfOf(p, hours)).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+      const status = e.status === "sold-out" || e.status === "cancelled" || e.status === "postponed" ? e.status : "scheduled";
+      const img = images.get(e.slug);
+      const event: Omit<Event, "startsAt" | "endsAt" | "allDay"> = {
+        _id: `event-${e.slug}`,
+        title: e.title,
+        slug: e.slug,
+        summary: e.description ?? "",
+        venue: { name: venue.name, slug: venue.slug, market: venue.market, address: venue.address, geo: venue.geo },
+        category,
+        ticketUrl: e.ticketUrl ?? undefined,
+        priceNote: status === "sold-out" ? "Sold out" : status === "cancelled" ? "Cancelled" : status === "postponed" ? "Postponed" : (e.price ?? undefined),
+        // The presenter's own image when the collector found one; otherwise pages draw key art for the category.
+        image: img?.publicUrl && img.width && img.height ? { src: img.publicUrl, alt: img.alt || e.title, width: img.width, height: img.height } : undefined,
+        imageCredit: img?.publicUrl ? { name: img.credit, url: img.pageUrl ?? undefined } : undefined,
+        source: e.presenter ?? venue.name,
+        sourceUrl: e.sources[0],
+        featured: false,
+        presenter: e.presenter ?? undefined,
+        room: e.room ?? undefined,
+        subcategory: e.subcategory ?? undefined,
+        performances,
+        runsThrough: e.endDate ?? undefined,
+        firstDate: e.startDate,
+        status,
+        live: {
+          dates: listed.map((p) => venueDateOf(p, hours)).sort((a, b) => a.startsAt.localeCompare(b.startsAt)),
+          checkedAt: e.checkedAt ?? undefined,
+          priceMin: e.priceMin ?? undefined,
+          priceMax: e.priceMax ?? undefined,
+          venuePage: venuePage(e),
+        },
+      };
+      return event;
+    });
+  const out = { venues, events };
+  builtCache.set(snap, out);
+  return out;
+}
+
+export function encoreVenues(snap: EncoreSnapshot = JSON_SNAPSHOT): Venue[] {
+  return buildEncore(snap).venues;
+}
 
 /**
  * Events with `startsAt` set to the next performance on or after `from`, or
  * the run's first day for exhibitions and date-only listings. Anything whose
  * last date is behind `from` is left out.
  */
-export function encoreEvents(from: Date = new Date()): Event[] {
+export function encoreEvents(from: Date = new Date(), snap: EncoreSnapshot = JSON_SNAPSHOT): Event[] {
   const nowIso = from.toISOString();
   const today = nowIso.slice(0, 10);
   const out: Event[] = [];
-  for (const e of built) {
+  for (const e of buildEncore(snap).events) {
     const perfs = e.performances ?? [];
     if (perfs.length) {
       const next = perfs.find((p) => (p.endsAt ?? p.startsAt) >= nowIso) ?? null;
