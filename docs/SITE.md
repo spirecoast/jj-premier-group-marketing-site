@@ -241,9 +241,10 @@ model (384 dimensions) built into Supabase Edge Functions. No other vendor.
    rank chunks that match every word first, a query with quotes or a minus sign keeps its strict
    web-search meaning) and a nearest-neighbour list (HNSW, cosine), each ranked on its own and
    fused with reciprocal rank fusion (k = 50, equal weights, the pattern in Supabase's hybrid
-   search guide). A neighbour below 0.78 cosine similarity doesn't count (gte-small puts
-   unrelated English at about 0.70–0.77), so nonsense returns nothing rather than ten loose
-   matches. The excerpt is `ts_headline` with the matched words wrapped in U+E000/U+E001,
+   search guide). A neighbour below 0.80 cosine similarity doesn't count, and when nothing
+   matches by keyword the best neighbour must reach 0.83 or the search returns nothing. On the
+   live index, gibberish scored 0.79–0.81 against the short event listings and real questions
+   0.82 and up; both numbers are `FUSION` in `lib/search/query.ts`. The excerpt is `ts_headline` with the matched words wrapped in U+E000/U+E001,
    which the page turns into `<mark>`; no HTML ever travels in a result. At most three
    sections of one page are shown. If the query can't be embedded, the same function runs
    keyword-only.
@@ -300,7 +301,7 @@ normalisation. `verify_jwt` is on; it has no database access. The file in
 **Tuning:** `FUSION` in `lib/search/query.ts` holds the match count, the weights, RRF k and the
 similarity floor. `search_hybrid` also returns `keyword_rank` and `semantic_rank` for each row,
 so a query can be inspected in the SQL editor:
-`select * from search_hybrid('flood insurance', '<vector>'::extensions.vector, 10, 1, 1, 50, 0.78);`
+`select * from search_hybrid('flood insurance', '<vector>'::extensions.vector, 10, 1, 1, 50, 0.80);`
 
 ## Search and answer engines
 

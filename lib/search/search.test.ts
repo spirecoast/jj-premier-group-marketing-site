@@ -354,12 +354,13 @@ describe("query", () => {
     const { sql: text, params } = new PgDialect().sqlToQuery(hybridSql({ q: evil, embedding: v }));
     assert.match(text, /from public\.search_hybrid\(\$1, \$2::extensions\.vector\(384\), \$3::int, \$4::float, \$5::float, \$6::int, \$7::float\)/);
     assert.ok(!text.includes("drop table"));
-    assert.deepEqual(params, [evil, vectorLiteral(v), 10, 1, 1, 50, 0.78]);
+    assert.deepEqual(params, [evil, vectorLiteral(v), 10, 1, 1, 50, 0.8, vectorLiteral(v), 0.83]);
+    assert.match(text, /where exists \(select 1 from h where keyword_rank is not null\) or \(select max\(1 - \(d\.embedding operator\(extensions\.<=>\) \$8::extensions\.vector\(384\)\)\) from public\.search_documents d join h on h\.id = d\.id\) >= \$9::float order by score desc/);
   });
 
   test("without an embedding the call is keyword-only: semantic weight 0 and a similarity floor nothing reaches", () => {
     const { params } = new PgDialect().sqlToQuery(hybridSql({ q: "cdd", embedding: null, matchCount: 99 }));
-    assert.deepEqual(params, ["cdd", vectorLiteral(KEYWORD_ONLY_VECTOR), 30, 1, 0, 50, 2]);
+    assert.deepEqual(params, ["cdd", vectorLiteral(KEYWORD_ONLY_VECTOR), 30, 1, 0, 50, 2, vectorLiteral(KEYWORD_ONLY_VECTOR), 0.83]);
   });
 
   test("vectors must be 384 finite numbers", () => {

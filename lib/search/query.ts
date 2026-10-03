@@ -13,12 +13,13 @@ export const QUERY_LIMITS = { min: 2, max: 200 } as const;
 
 /**
  * The fusion settings. RRF k = 50 and equal weights are the Supabase guide's
- * defaults. gte-small puts unrelated English text at a cosine similarity of
- * about 0.70 to 0.77 and related text above 0.8, so a nearest neighbour below
- * 0.78 isn't counted as a semantic match: a query about nothing on the site
- * returns its keyword matches, or nothing, instead of ten loose neighbours.
+ * defaults. On the live index (October 2026), gte-small put gibberish
+ * ("xyzzy blorp", "asdf qwerty") at 0.79 to 0.81 against the short event
+ * listings and real questions at 0.82 and up. So a neighbour below 0.80 isn't
+ * a semantic match, and when nothing matches by keyword at all, the best
+ * semantic match must reach 0.83 or the search returns nothing.
  */
-export const FUSION = { matchCount: 10, fullTextWeight: 1, semanticWeight: 1, rrfK: 50, minSimilarity: 0.78 } as const;
+export const FUSION = { matchCount: 10, fullTextWeight: 1, semanticWeight: 1, rrfK: 50, minSimilarity: 0.8, semanticOnlyMin: 0.83 } as const;
 
 export type QueryCheck = { ok: true; q: string } | { ok: false; q: string; error: string };
 
@@ -54,6 +55,7 @@ export type HybridParams = {
   semanticWeight?: number;
   rrfK?: number;
   minSimilarity?: number;
+  semanticOnlyMin?: number;
 };
 
 /** The call to search_hybrid(), fully parameterised. A null embedding asks for keyword matches only. */
@@ -61,7 +63,9 @@ export function hybridSql(p: HybridParams): SQL {
   const keywordOnly = p.embedding === null;
   const vec = vectorLiteral(p.embedding ?? KEYWORD_ONLY_VECTOR);
   const matchCount = Math.max(1, Math.min(30, Math.trunc(p.matchCount ?? FUSION.matchCount)));
-  return sql`select id, kind, title, section_title, url, snippet, score from public.search_hybrid(${p.q}, ${vec}::extensions.vector(384), ${matchCount}::int, ${p.fullTextWeight ?? FUSION.fullTextWeight}::float, ${keywordOnly ? 0 : (p.semanticWeight ?? FUSION.semanticWeight)}::float, ${p.rrfK ?? FUSION.rrfK}::int, ${keywordOnly ? 2 : (p.minSimilarity ?? FUSION.minSimilarity)}::float)`;
+  // When no row matched by keyword, keep the results only if the best one is a
+  // strong semantic match (FUSION.semanticOnlyMin); otherwise the query is noise.
+  return sql`with h as (select id, kind, title, section_title, url, snippet, score, keyword_rank from public.search_hybrid(${p.q}, ${vec}::extensions.vector(384), ${matchCount}::int, ${p.fullTextWeight ?? FUSION.fullTextWeight}::float, ${keywordOnly ? 0 : (p.semanticWeight ?? FUSION.semanticWeight)}::float, ${p.rrfK ?? FUSION.rrfK}::int, ${keywordOnly ? 2 : (p.minSimilarity ?? FUSION.minSimilarity)}::float)) select id, kind, title, section_title, url, snippet, score from h where exists (select 1 from h where keyword_rank is not null) or (select max(1 - (d.embedding operator(extensions.<=>) ${vec}::extensions.vector(384))) from public.search_documents d join h on h.id = d.id) >= ${p.semanticOnlyMin ?? FUSION.semanticOnlyMin}::float order by score desc`;
 }
 
 export type HybridRow = { id: string; kind: string; title: string; section_title: string | null; url: string; snippet: string | null; score: number | string };
