@@ -69,7 +69,7 @@ const COPY: Record<LeadForm, Next> = {
   letter: {
     eyebrow: "You’re on the list",
     title: "Tide is on its way.",
-    body: "Tide goes out once a month. It’s one page, written for you, about what happened on streets like yours and what it means. We don’t share your address, and you can stop any time.",
+    body: "Tide goes out once a month. It’s one short page on how home sales went in Lakewood Ranch, Sarasota and Bradenton, and what that means if you’re buying or selling. We don’t share your address, and you can stop any time.",
     line: "In the meantime, Encore has what’s on tonight, this weekend and all season, at every stage, hall and gallery near you.",
     href: encore.href,
     label: "Open the Encore calendar",

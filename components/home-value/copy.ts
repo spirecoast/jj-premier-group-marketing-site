@@ -115,7 +115,7 @@ export const HOME_VALUE_COPY = {
   source: (counties: string, asOf: string) => `Source: ${counties}, public record, as of ${asOf}.`,
   sourceDefault: "Manatee County Property Appraiser and Sarasota County Property Appraiser",
   links: {
-    sold: "Only want the street? What sold on your street",
+    sold: "Just the street, without the house: what sold on your street",
     valuation: "Skip the record and ask for the number",
   },
 } as const;

@@ -229,7 +229,7 @@ export const SELLING_FROM_AWAY_GUIDE: Guide = {
           "You can be in any state or any country. The two witnesses can join by video too, but they must be in the United States.",
         ),
         p(
-          "Which way? That depends on the title company. Some accept video signing and some don’t.",
+          "How you sign depends on the title company. Some accept video signing and some don’t.",
           "We ask on the first call, and we’ll tell you plainly if a trip is needed.",
         ),
         {
@@ -336,7 +336,7 @@ export const SELLING_FROM_AWAY_GUIDE: Guide = {
           "The court gives that person a paper called letters of administration. It proves they have the power to act.",
         ),
         p(
-          "Can the personal representative sell the house? If the will says so, yes.",
+          "The personal representative can sell the house if the will says so.",
           "If the will doesn’t say so, the court has to approve the sale first.",
         ),
         p(

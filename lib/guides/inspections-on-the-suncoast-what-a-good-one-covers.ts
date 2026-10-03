@@ -191,7 +191,7 @@ export const INSPECTIONS_GUIDE: Guide = {
           "A new version took effect on April 1, 2026. A form is good for up to five years, as long as the house hasn’t changed.",
         ),
         p(
-          "Who can sign it? A licensed home inspector with the state’s wind training, a building code inspector, a licensed contractor, an engineer or an architect.",
+          "A licensed home inspector with the state’s wind training can sign it. So can a building code inspector, a licensed contractor, an engineer or an architect.",
           "Each answer needs a photo or a document to back it up.",
         ),
         {

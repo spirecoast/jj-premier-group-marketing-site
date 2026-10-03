@@ -9,7 +9,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Plan a visit · Encore",
   description:
-    "Coming to look at homes in Lakewood Ranch, Sarasota or Bradenton? Give Encore your dates and the places you want to see, and get a day-by-day plan: showings from ten to four, then the evening's theater, music and openings.",
+    "Plan the days you’re here to look at homes in Lakewood Ranch, Sarasota or Bradenton. Give Encore your dates and the places you want to see, and get a day-by-day plan: showings from ten to four, then the evening's theater, music and openings.",
   path: "/calendar/plan",
 });
 

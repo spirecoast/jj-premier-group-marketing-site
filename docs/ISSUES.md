@@ -102,14 +102,14 @@ the Fair Housing checker.
 
 - **The month:** the latest month the county record has complete in all three markets, looking
   back from the month before today; never a partial month. `?month=YYYY-MM` builds a named one.
-  The issue opens with one sentence saying so: "The county property appraisers post a sale only
-  after they've qualified it, so this issue covers July 2026, the latest month that's complete for
-  all three places." The team subject names the month: "Tide, July 2026: ready to send".
+  The issue says so near the top: "The county posts sales a few weeks late, so this issue looks
+  back at July 2026. That's the newest month that's complete for all three places." The team
+  subject names the month: "Tide, July 2026: ready to send".
 - **Per market**, from the county sales (`data/sales`, docs/SALES-DATA.md), every figure computed:
   - qualified home sales (codes 01 to 04, anything but the non-residential "other" parcels),
     parcels vacant on the roll included;
   - the median price over the homes only, leaving out parcels vacant on the roll or changed since
-    the sale (tile: "Median price, homes"; Lakewood Ranch in July 2026 is $625,000 this way, and
+    the sale (tile: "Median price"; Lakewood Ranch in July 2026 is $625,000 this way, and
     $574,500 with the vacant parcels in);
   - the median price per square foot over the homes with a recorded living area, with the same
     exclusions (as `/sell/sold` does);
@@ -142,9 +142,23 @@ the Fair Housing checker.
   the same month as the run before. The team email warns when that is likely (the month is three
   or more behind the previous one, or the data is more than a month old); skip a month that
   already went out.
-- **What it means:** a dashed box reading "Joelyn and Jessica add two paragraphs here before
-  sending." It is never generated. The issue carries `needsEdit: true` and the placeholder text,
-  so the Zap can refuse to send until it has been replaced.
+- **The story:** the same hand-written words as the web issue (lib/tide/issues.ts, "Writing the
+  narrative" below): the opening in place of the plain intro, then "If you're buying" and "If
+  you're selling" with the line on what county records can't show, the market figures, and "What
+  to watch next month". The loader (`lib/issues/load.ts`) takes the entry pinned to the month the
+  email covers, or the unpinned entry for this month's issue. **Until the story is written**, the
+  draft opens with a dashed box, "Facts to write from", listing the month's notable figures
+  (`writingFacts` in `lib/tide/narrative.ts`: the largest change against a typical month, each
+  market's figures against its typical month, the month before, where the median price and the
+  price per square foot part ways, the busiest and quietest months on the chart, the busiest
+  street), and a dashed box where the story goes. Both are for the writer, never a reader.
+- **The signed notes:** "From Joelyn and Jessica", one slot each. A note written in
+  `commentary` shows in full, signed with her name; an empty slot is a dashed box ("Joelyn: a few
+  sentences here in your own words, if you'd like. Or delete this box and nothing is said for
+  you."). Nothing is ever written for them.
+- **needsEdit:** true while any dashed box is left (the story or a note), with `placeholder` set
+  to "Fill in or delete every dashed box before sending.", so the Zap can refuse to send. With the
+  story and both notes written it is false.
 - **Links:** `/sell/sold`, `/relocate`, and the three hubs.
 - **Source line:** "County property appraisers, public record, qualified sales, as of <the
   manifest's generated date>", then the methods line. When a county file ends before the month
@@ -163,15 +177,17 @@ address in every send.** Fill it in before the first issue goes out.
 ## The web issue
 
 Each Tide issue is also a page on the site, `/tide/<issue>` (`/tide/2026-10`), listed on `/tide`
-and at the top of the archive (`/blog`), in the sitemap, with its own share image. The page is
-rendered from data, not prose: `lib/tide/issue.ts` builds an `IssueModel` from the county sales
-with the same engine functions as the email (`tideStats`, `topStreets`, `latestCompleteMonth` in
-`lib/issues/tide-monthly.ts`), so the page and the email give the same figures. Nothing on the page
-is typed: every number comes from the model, and every sentence from the templates in
-`lib/tide/copy.ts`, which `npm run check:copy` (and so every build) runs through the Fair Housing
-checker with the issue rules (no superlatives, no license numbers, never "lands"). The model also
-runs `checkFairHousing` over every string it carries, street names and the agents' paragraphs
-included, and the build stops if one is flagged.
+and at the top of the archive (`/blog`), in the sitemap, with its own share image. The figures are
+rendered from data: `lib/tide/issue.ts` builds an `IssueModel` from the county sales with the same
+engine functions as the email (`tideStats`, `topStreets`, `latestCompleteMonth` in
+`lib/issues/tide-monthly.ts`), so the page and the email give the same figures. Every number in a
+tile, chart or list comes from the model, and every fixed sentence from the templates in
+`lib/tide/copy.ts`. The month's story is hand-written in `lib/tide/issues.ts` (see "Writing the
+narrative"), and every number in it is checked against the model by `lib/tide/narrative.test.ts`.
+`npm run check:copy` (and so every build) runs the templates and the story through the Fair
+Housing checker, the issue rules (no superlatives, no license numbers) and the voice rules
+(`lib/voice.ts`). The model also runs `checkFairHousing` over every string it carries, street names,
+the story and the signed notes included, and the build stops if one is flagged.
 
 Two months: the **issue month** is when it goes out (October 2026); the **data month** is the
 latest month complete in all three markets, looking back from the month before the issue (July
@@ -179,23 +195,32 @@ latest month complete in all three markets, looking back from the month before t
 
 The sections, always in this order:
 
-1. **Masthead.** "Tide", the issue month, and one sentence: "The county record runs behind, so the
-   figures in this issue cover July 2026, the latest month that's complete for all three markets."
-2. **The three markets**, side by side (stacked on a phone): qualified home sales, the median price
+1. **Masthead.** "Tide", the issue month, then **the opening**: the month's story in two to four
+   sentences (`opening`), or, before it's written, one plain line: "Here's how home sales went in
+   July 2026 in Lakewood Ranch, Sarasota and Bradenton, straight from the county's public record."
+   Under it, in small type: "The county posts sales a few weeks late, so this issue looks back at
+   July 2026. That's the newest month that's complete for all three places." and the source line.
+   No fake prose stands in for a story that isn't written.
+2. **If you're buying, if you're selling** (only once written): two cards side by side, then the
+   line "These are closed sales from county records. They don't show asking prices, how long a
+   home was for sale, or how many homes are for sale now."
+3. **The three markets**, side by side (stacked on a phone): qualified home sales, the median price
    (homes), the median $/sq ft (homes with a living area) and the share new-build or vacant on the
    roll, each over its **typical month**, the median of that figure over the twelve months before
    the data month, with the sample under it.
-3. **Chart: closed home sales by month**, the last twelve complete months ending with the data
+4. **Chart: home sales each month**, the last twelve complete months ending with the data
    month, one line per market. The axis starts at zero.
-4. **Chart: median $/sq ft by month**, same months. The axis starts at a round step under the
+5. **Chart: median price per square foot each month**, same months. The axis starts at a round step under the
    lowest value, and the chart and its note both say where ("Axis starts at $200").
-5. **Where it sold:** the five streets per market with the most sales in the data month (two or
+6. **The busiest streets:** the five streets per market with the most sales in the data month (two or
    more each, ties alphabetical). Street and city only, never a house number or a name.
-6. **What it means:** the two paragraphs Joelyn and Jessica write, from the issue's `commentary`.
-   Without it, the section shows only in sample previews (`NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`),
-   as a dashed box marked "Placeholder, not published"; on the live site it is left out.
-7. **Guides this month:** the posts published in the issue month (market reports left out).
-8. **The ask and the source:** the Tide subscribe bar (`components/letter-form.tsx`), then
+7. **What to watch next month** (only once written): one or two things, from `watch`.
+8. **From Joelyn and Jessica:** a short note from each, in her own words, signed with her name
+   (`components/tide/team-notes.tsx`). Only a written note shows; with neither written the section
+   isn't there. In sample previews (`NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`) an empty slot shows as
+   a dashed box marked "Placeholder, not published".
+9. **New guides this month:** the posts published in the issue month (market reports left out).
+10. **The ask and the source:** the Tide subscribe bar (`components/letter-form.tsx`), then
    "County property appraisers, public record, qualified sales, as of <the manifest's date>." and
    the methods line from the email.
 
@@ -208,7 +233,7 @@ its value, and a visually hidden `<table>` under each chart carries every value 
 
 ### Adding next month's issue
 
-One line at the top of `TIDE_ISSUES` in `lib/tide/issues.ts`:
+One entry at the top of `TIDE_ISSUES` in `lib/tide/issues.ts`:
 
 ```ts
 { issue: "2026-11" },
@@ -216,10 +241,76 @@ One line at the top of `TIDE_ISSUES` in `lib/tide/issues.ts`:
 
 Merge a sales-data refresh first (see "The data refresh" above). Without `data`, the page takes the
 latest complete month; once the issue is out, write the month in (`{ issue: "2026-11", data:
-"2026-08" }`) so a later refresh doesn't move it on. When the agents' paragraphs are ready, add
-them as `commentary: ["…", "…"]`. Check the page with `npm run build && npm run start`, then
-`/tide/2026-11`. A month the data no longer reaches (the window is 24 months) is a 404, not a page
-of zeros.
+"2026-08" }`) so a later refresh doesn't move it on. Then write the narrative (below) and add any
+note Joelyn or Jessica sends as `commentary: { joelyn: ["…"], jessica: ["…"] }`, word for word.
+Check the page with `npm run build && npm run start`, then `/tide/2026-11`. A month the data no
+longer reaches (the window is 24 months) is a 404, not a page of zeros.
+
+### Writing the narrative
+
+Each issue's story is written by hand, once a month, in the entry in `lib/tide/issues.ts`. Prose
+computed from numbers reads as templated, so nothing generates it; instead, the numbers in it are
+checked against the page.
+
+1. Start from the facts. The cron's draft on the 1st lists them ("Facts to write from"), or run
+   `npm run issue:preview -- tide` and read the box at the top of `scratchpad/issues/tide-*.txt`.
+   The page itself has the rest: the typical month under each figure, the twelve months on the
+   charts, the busiest streets.
+2. Pick the one or two things that changed most for a buyer or a seller. A month where the median
+   price rose but the price per square foot didn't is a story about which homes sold, not about
+   prices; say so plainly.
+3. Write four fields, short:
+   - `opening`: one paragraph, two to four sentences, that tells the month as something a person
+     can picture ("Picture someone house hunting in Bradenton in July. They had lots of
+     company.").
+   - `buyers` and `sellers`: one paragraph each, two to four sentences, on what to do differently
+     because of this month. Name the places. Be honest about what county records can't tell
+     (asking prices, how long homes sat, how many are for sale): the page says it under the two
+     cards, so don't imply them.
+   - `watch`: one or two things to look for next month, a sentence or two each.
+   A reader should get the whole issue in about three minutes.
+4. Run `npm run test:unit`. `lib/tide/narrative.test.ts` builds the issue from `data/sales` and
+   fails on any number in the narrative that the page doesn't compute, within rounding (half a
+   point on a percent; 1% on a dollar figure or a count, so "about $400,000" for $399,450 passes).
+   The figures it knows are every number on the page plus the differences a writer quotes: against
+   the typical month and against the month before, in sales, dollars and percent. Write figures in
+   digits ("12%", "1,080"); a figure spelled out ("twelve percent") fails, since the check can't see
+   it. It also checks the shape (sentence counts above), a reading level of about sixth grade (the
+   Flesch-Kincaid grade of the whole narrative at 6.5 or under) and no sentence over 24 words.
+5. A data refresh that changes a published month's figures can fail that test. That's on purpose:
+   the words no longer match the record. Rewrite the sentence from the new figures.
+6. `npm run check:copy` (and every build) runs the voice rules, Fair Housing and the
+   places-not-people rules over every narrative and note.
+
+The October 2026 issue (data month July 2026) is the worked example.
+
+### The voice
+
+Plain, direct and warm. The owner's words: "Very plain language, very direct, very warm. Use
+storytelling." And: "zero AI tells".
+
+- Short sentences, contractions, everyday words, about a sixth-grade reading level. Say "the
+  median price" and "a square foot", not "$/sqft".
+- Tell it as a story a person can picture, then the figure. Second person for advice ("If a home
+  you like is priced well above that for its size, ask why.").
+- No questions, no exclamation marks, no superlatives, no adjective a number doesn't back.
+- Places and homes, never people: no "families", "retirees", "young professionals" or any group
+  as a target. No license numbers.
+- Every number comes from the page. County records aren't MLS data: never imply days on market,
+  list prices, price cuts or inventory.
+- The narrative is the site's, unsigned. Never write in Joelyn's or Jessica's voice, never say
+  "we" for them, and never claim anything about how they work. Their notes are theirs, word for
+  word, and a few sentences at most.
+- None of the phrases in `lib/voice.ts`, which `npm run check:copy` flags across the whole site:
+  "the read", "the mark", "the takeaway", "the bottom line", "delve", "dive in", "deep dive",
+  "landscape" as a figure of speech, "navigate", "tapestry", "testament", "it's worth noting", "in
+  today's market", "here's the thing", "let's", "game-changer", "unlock", "robust", "seamless",
+  "elevate", "nestled", "vibrant", "bustling", "a whole new", "isn't just" and "not just X, but
+  Y", "whether you're X or Y", "at the end of the day", "buckle up", "spoiler", a colon-led reveal
+  ("The answer:"), "lands" as a verb, and a short hook question answered straight after
+  ("Wondering what your home's worth? Start with…"). The rules use word boundaries and context,
+  so "the market", a person named Mark, "elevating or rebuilding" a house in a flood zone and a
+  real question ("What is a CDD?") pass; `lib/voice.test.ts` holds the cases both ways.
 
 ## Environment variables
 
@@ -241,11 +332,11 @@ booleans.
   "kind": "tide",
   "subject": "Tide · July 2026",
   "html": "<!doctype html>…",
-  "text": "TIDE · JULY 2026, FROM THE COUNTY RECORDS…",
+  "text": "TIDE · HOW HOME SALES WENT IN JULY 2026…",
   "period": { "from": "2026-07-01", "to": "2026-07-31", "label": "July 2026" },
-  "preheader": "What sold in Lakewood Ranch, Sarasota and Bradenton in July 2026, from the county records.",
+  "preheader": "How home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
   "needsEdit": true,
-  "placeholder": "Joelyn and Jessica add two paragraphs here before sending.",
+  "placeholder": "Fill in or delete every dashed box before sending.",
   "warnings": ["…"],
   "generatedAt": "2026-08-01T12:00:03.000Z"
 }
@@ -266,7 +357,8 @@ The better fit for a list, if the agents have it (docs/LAUNCH.md 1.4 is the open
 2. Upload or paste the attached `.html` file into a custom-HTML template, if the Marketing Center
    takes one (**verify**); otherwise rebuild the two templates once in its editor and paste the
    text from the `.txt` each time.
-3. For Tide, replace the dashed box with the two paragraphs.
+3. For Tide, fill in or delete each dashed box (the story, if it isn't written yet, and the two
+   notes), and delete the "Facts to write from" box.
 4. The Marketing Center adds its own unsubscribe link and keeps its own suppression list. Copy its
    unsubscribes back to Supabase (below) so the next export leaves them out.
 
@@ -368,8 +460,12 @@ is, the sender is the agents, and an unsubscribe has been tried end to end.
 | `scripts/issue-preview.mjs` | Local render to files. |
 | `docs/screenshots/issues/` | The two previews at 600px. |
 | `lib/tide/issue.ts` | The web issue's model (pure): data month, figures, typical months, chart data, streets, guides. |
-| `lib/tide/issues.ts` | The list of web issues, one line each. |
-| `lib/tide/copy.ts` | Every template string on the web issue, `/tide` and the archive card. |
+| `lib/tide/issues.ts` | The list of web issues, with each one's hand-written narrative and the signed notes. |
+| `lib/tide/notes.ts` | Reads the narrative and decides which signed notes show. |
+| `lib/tide/narrative.ts`, `lib/tide/narrative.test.ts` | The figures a narrative may quote, the number check, the facts to write from; the tests check the October 2026 narrative against `data/sales`. |
+| `components/tide/team-notes.tsx` | The "From Joelyn and Jessica" slots. |
+| `lib/voice.ts`, `lib/voice.test.ts`, `scripts/copy-literals.mjs` | The phrases that read as machine-written, and the source scan that runs them over the whole site in `npm run check:copy`. |
+| `lib/tide/copy.ts` | Every fixed string on the web issue, `/tide` and the archive card, and the "facts to write from" lines. |
 | `lib/tide/chart.ts`, `components/tide/issue-chart.tsx` | Chart geometry and the server-drawn SVG. |
 | `lib/tide/load.ts` | Server: loads the sales, the manifest and the posts for a web issue. |
 | `app/(site)/tide/` | `/tide`, `/tide/<issue>` and its share image. |

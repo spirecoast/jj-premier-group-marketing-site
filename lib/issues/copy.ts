@@ -5,9 +5,10 @@
  * can run the Fair Housing checker over every string at build time and the
  * unit tests can check the rules (no superlatives, no license numbers).
  *
- * Voice: the guide's, with contractions. Tide's market paragraphs carry no
- * adjective a number doesn't back; the "what it means" section is written
- * by Joelyn and Jessica, never generated.
+ * Voice: plain, direct and warm, with contractions. Tide's market
+ * paragraphs carry no adjective a number doesn't back. The month's story is
+ * written by hand in lib/tide/issues.ts, and the two signed notes only by
+ * Joelyn and Jessica: neither is ever generated.
  */
 
 export const TEAM_NAMES = "Joelyn Nauman and Jessica Garza";
@@ -46,43 +47,49 @@ export const ENCORE_COPY = {
 
 export const TIDE_COPY = {
   subject: "Tide · {month}",
-  preheader: "What sold in Lakewood Ranch, Sarasota and Bradenton in {month}, from the county records.",
+  preheader: "How home sales went in {month} in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
   eyebrow: "Tide · The Coast real estate newsletter",
-  title: "{month}, from the county records",
-  coverage:
-    "The county property appraisers post a sale only after they’ve qualified it, so this issue covers {month}, the latest month that’s complete for all three places.",
-  intro:
-    "Here’s what the county records show for {month}: the qualified home sales the two property appraisers have published, counted by market. Every figure below is computed from those records; none is typed by hand.",
+  title: "How home sales went in {month}",
+  coverage: "The county posts sales a few weeks late, so this issue looks back at {month}. That’s the newest month that’s complete for all three places.",
+  intro: "Here’s how home sales went in {month} in Lakewood Ranch, Sarasota and Bradenton. Every number comes from the county’s public record of home sales.",
   outside:
-    "Sales outside these three markets’ ZIPs, in places such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted here: {outside} of the {total} qualified home sales the two counties recorded in {month}.",
+    "Sales outside these three places’ ZIP codes, in places such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted here. That’s {outside} of the {total} home sales the two counties recorded in {month}.",
   lag: "The county files run through {through}, so sales recorded after that aren’t counted yet.",
-  figureSales: "Qualified sales",
-  figureMedian: "Median price, homes",
-  figurePpsf: "Median $/sq ft",
-  figureNew: "New build or vacant on the roll",
-  figureSalesPartial: "Qualified sales so far",
-  marketSales: "{market} had {count} qualified home sales in {month}.",
+  figureSales: "Home sales",
+  figureMedian: "Median price",
+  figurePpsf: "Median price per sq ft",
+  figureNew: "New builds or lots",
+  figureSalesPartial: "Home sales so far",
+  marketSales: "{market} had {count} home sales in {month}.",
   marketPartial:
-    "The county has published {count} qualified home {sales} in {market} for {month} so far, and the median month over the past year had {typical}, so the month isn’t complete on the record yet. The figures cover only the sales published so far.",
-  marketPartialNone:
-    "The county hasn’t published any qualified home sales in {market} for {month} yet; the median month over the past year had {typical}. The figures arrive as the appraiser records them.",
-  marketOneSale: "{market} had one qualified home sale in {month}.",
-  marketNone: "{market} had no qualified home sales on the record for {month}.",
-  marketMedian: "Leaving out parcels vacant on the roll or changed since the sale, {n} homes are left, and their median price was {price}.",
-  marketMedianNone: "Leaving out parcels vacant on the roll or changed since the sale, fewer than two homes are left, so there’s no median price.",
-  marketPpsf: "Across the {n} homes with a recorded living area, the median was {ppsf} a square foot.",
-  marketPpsfNone: "Fewer than two homes had a recorded living area, so there’s no median per square foot.",
-  marketNew: "{share} of the sales were new builds or parcels the roll still shows as vacant.",
-  marketStreets: "The streets with the most sales were {streets}.",
-  marketStreetsOne: "The street with the most sales was {streets}.",
+    "The county has posted {count} home {sales} in {market} for {month} so far. A typical month over the past year had {typical}, so the month isn’t complete yet, and these numbers cover only what’s posted.",
+  marketPartialNone: "The county hasn’t posted any home sales in {market} for {month} yet. A typical month over the past year had {typical}.",
+  marketOneSale: "{market} had one home sale in {month}.",
+  marketNone: "{market} had no home sales on the record for {month}.",
+  marketMedian: "Counting only homes the county lists as built, the median price was {price}, from {n} sales.",
+  marketMedianNone: "Fewer than two of the sales were homes the county lists as built, so there’s no median price.",
+  marketPpsf: "The median price per square foot was {ppsf}, from the {n} homes with a size on record.",
+  marketPpsfNone: "Fewer than two homes had a size on record, so there’s no median per square foot.",
+  marketNew: "{share} of the sales were new builds, or lots the county still lists as empty.",
+  marketStreets: "The busiest streets were {streets}.",
+  marketStreetsOne: "The busiest street was {streets}.",
   marketStreetsNone: "No street had more than one sale.",
-  marketZips: "Counted by ZIP: {zips}.",
+  marketZips: "Counted by ZIP code: {zips}.",
   marketLink: "More on {market}",
-  whatItMeansHeading: "What it means",
-  placeholder: "Joelyn and Jessica add two paragraphs here before sending.",
+  buyersHeading: "If you’re buying",
+  sellersHeading: "If you’re selling",
+  limits: "These are closed sales from county records. They don’t show asking prices, how long a home was for sale, or how many homes are for sale now.",
+  watchHeading: "What to watch next month",
+  storyPlaceholder:
+    "This month’s story goes here: an opening a reader can picture, then “If you’re buying”, “If you’re selling” and what to watch next month. Write it in plain words from the numbers below, or delete this box.",
+  notesHeading: "From Joelyn and Jessica",
+  notePlaceholder: "{first}: a few sentences here in your own words, if you’d like. Or delete this box and nothing is said for you.",
+  noteSign: "{name}",
+  /** The line the hand-off quotes while any dashed box is left. */
+  placeholder: "Fill in or delete every dashed box before sending.",
   linksHeading: "Look closer",
   linkSold: "What sold on your street",
-  linkRelocate: "Moving here? The relocation planner",
+  linkRelocate: "The relocation planner, for a move here",
   source: "Source: County property appraisers, public record, qualified sales, as of {asOf}.",
   methods:
     "A qualified sale is one the appraiser treats as arm’s length (codes 01 to 04). Home sales leave out commercial and other non-residential parcels. Markets are counted by ZIP as Atlas draws them, so Bradenton includes Palmetto, Parrish, Ellenton and the island cities; an address the county gives as Lakewood Ranch counts there; and sales elsewhere in the two counties, such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted. New build or vacant on the roll means the roll shows the parcel as vacant, a year built in or after the sale year, or a change to the parcel after the sale. The median price and the per-square-foot median leave out parcels vacant on the roll or changed after the sale; the sales count and the new-build share keep them. Streets need two sales to be listed, ties go alphabetically, and a street carries its postal city only when that city isn’t one of the three markets. Not MLS data.",

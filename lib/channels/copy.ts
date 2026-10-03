@@ -50,10 +50,10 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     name: "Instagram",
     title: "From Instagram · Where to start",
     description:
-      "Thanks for following along. Moving here from somewhere else? The relocation planner turns six questions into a dated plan for the move.",
+      "Thanks for following along. If you’re moving here from somewhere else, the relocation planner turns six questions into a dated plan for the move.",
     eyebrow: "From Instagram",
     heading: "Thanks for following along. Here’s where to start.",
-    line: "Moving here from somewhere else? The relocation planner asks six questions and gives you the move on a calendar: the contract deadlines, the week insurance has to be bound, and when homestead comes into it.",
+    line: "If you’re moving here from somewhere else, the relocation planner asks six questions and gives you the move on a calendar: the contract deadlines, the week insurance has to be bound, and when homestead comes into it.",
     cta: { href: "/relocate", label: "Plan the move", note: RELOCATE_NOTE },
     image: { name: "library/lakes-aerial-sunset", alt: "Lakefront streets from the air at sunset" },
   },
@@ -62,9 +62,9 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     name: "Facebook",
     title: "From Facebook · What sold on your street",
     description:
-      "Wondering what your home’s worth? Start with what sold on your street, from the county’s public record: address, date, price and living area.",
+      "To get a feel for what your home’s worth, start with what sold on your street, from the county’s public record: address, date, price and living area.",
     eyebrow: "From Facebook",
-    heading: "Wondering what your home’s worth? Start with your street.",
+    heading: "To see what your home’s worth, start with your street.",
     line: "Type in your street and you’ll see the sales the county recorded there: the address, the date, the price and the living area. It’s the public record, not an estimate.",
     cta: { href: "/sell/sold", label: "See what sold on your street", note: SOLD_NOTE },
     image: { name: "library/listing-exterior-canal-golden", alt: "Homes on canals by the water, from above" },
@@ -95,16 +95,16 @@ export const MORE = {
   },
   encore: {
     name: "Encore · Plan a visit",
-    line: "Coming down to look at homes? Give Encore your dates and get each day planned: showings from ten to four, then the evening’s theater, music and openings.",
+    line: "If you’re coming down to look at homes, give Encore your dates and get each day planned: showings from ten to four, then the evening’s theater, music and openings.",
     href: "/calendar/plan",
     label: "Plan a visit",
   },
   tide: {
     name: "Tide · Once a month",
-    line: "Tide tells you what happened on streets like yours this month, in plain language. It’s one email, and you can stop any time.",
+    line: "Tide tells you, once a month and in plain words, how home sales went in Lakewood Ranch, Sarasota and Bradenton, and what that means if you’re buying or selling. It’s one email, and you can stop any time.",
     label: "Send me Tide",
   },
-  talk: "Rather talk? Call or text us.",
+  talk: "If you’d rather talk, call or text us.",
 } as const;
 
 export function channelStrings(): { where: string; text: string }[] {

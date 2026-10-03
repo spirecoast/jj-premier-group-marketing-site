@@ -10,9 +10,9 @@
 export const REVIEWS = {
   title: "Reviews · Tell us how it went",
   description:
-    "Bought or sold with Joelyn and Jessica? Tell us how it went: a review on Google, or your own words on this site, with your permission.",
+    "If you bought or sold with Joelyn and Jessica, tell us how it went: a review on Google, or your own words on this site, with your permission.",
   eyebrow: "Reviews",
-  heading: "Bought or sold with us? Tell us how it went.",
+  heading: "If you bought or sold with us, tell us how it went.",
   lead: "There are two ways to do it, and both are up to you. We don’t put anything about you on the site without asking first.",
   google: {
     title: "A review on Google",

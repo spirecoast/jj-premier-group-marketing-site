@@ -14,7 +14,7 @@
 export const REFER = {
   title: "Refer someone · Know someone moving here?",
   description:
-    "Know someone moving to Lakewood Ranch, Sarasota or Bradenton? Let them know you’re passing their details along, then tell us the timing and we’ll take it from there.",
+    "If you know someone moving to Lakewood Ranch, Sarasota or Bradenton, let them know you’re passing their details along, then tell us the timing and we’ll take it from there.",
   eyebrow: "Refer someone",
   heading: "Know someone moving here?",
   lead: "Tell us the timing and we’ll take it from there.",

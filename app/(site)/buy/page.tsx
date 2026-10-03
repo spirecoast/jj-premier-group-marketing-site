@@ -229,8 +229,8 @@ export default async function BuyPage() {
         <ul className="grid gap-5 md:grid-cols-2">
           {(
             [
-              { href: "/relocate", image: FRAMES.doors.relocate, body: "Moving here from somewhere else? The planner takes your timing and puts the move in order.", cta: "Plan the move" },
-              { href: "/neighborhoods/match", image: FRAMES.doors.match, body: "Not sure which neighborhood yet? Ten questions, and Atlas narrows the map to the places that fit.", cta: "Answer ten questions" },
+              { href: "/relocate", image: FRAMES.doors.relocate, body: "If you’re moving here from somewhere else, the planner takes your timing and puts the move in order.", cta: "Plan the move" },
+              { href: "/neighborhoods/match", image: FRAMES.doors.match, body: "If you haven’t picked a neighborhood yet, answer ten questions and Atlas narrows the map to the places that fit.", cta: "Answer ten questions" },
             ] as const
           ).map((d) => (
             <li key={d.href} className="flex">

@@ -89,7 +89,7 @@ export const products: readonly Product[] = [
     tag: "Newsletter",
     long: "Tide · The Coast real estate newsletter",
     href: "/blog",
-    line: "What the three markets did last month and what it means for you, in plain language.",
+    line: "How home sales went in the three markets, once a month, and what it means if you’re buying or selling.",
     accent: "var(--color-sky-700)",
   },
 ] as const;

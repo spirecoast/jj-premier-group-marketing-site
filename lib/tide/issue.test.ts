@@ -108,9 +108,9 @@ describe("the data month", () => {
     assert.equal(pinned.dataMonth, "2026-06");
     assert.equal(pinned.latestComplete, "2026-07");
     assert.equal(pinned.pinned, true);
-    assert.equal(pinned.note, "The county record runs behind, so the figures in this issue cover June 2026.");
+    assert.equal(pinned.note, "The county posts sales a few weeks late, so this issue looks back at June 2026.");
     const m = model();
-    assert.equal(m.note, "The county record runs behind, so the figures in this issue cover July 2026, the latest month that’s complete for all three markets.");
+    assert.equal(m.note, "The county posts sales a few weeks late, so this issue looks back at July 2026. That’s the newest month that’s complete for all three places.");
     assert.equal(m.issueLabel, "October 2026");
     assert.equal(m.dataLabel, "July 2026");
     assert.equal(m.title, "Tide, October 2026");
@@ -288,13 +288,30 @@ describe("the rest of the issue", () => {
       ["cdd", "flood"],
     );
   });
-  it("shows the placeholder only in sample previews, and the agents' paragraphs when written", () => {
-    assert.equal(model().showPlaceholder, false);
-    assert.equal(model().commentary, null);
-    assert.equal(model({ showSamples: true }).showPlaceholder, true);
-    const written = model({ entry: { issue: "2026-10", commentary: ["One.", "Two."] }, showSamples: true });
-    assert.deepEqual(written.commentary, ["One.", "Two."]);
-    assert.equal(written.showPlaceholder, false);
+  it("opens with the plain framing until the story is written, then with the story", () => {
+    assert.equal(model().narrative, null);
+    assert.equal(model().framing, "Here’s how home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, straight from the county’s public record.");
+    const told = model({ entry: { issue: "2026-10", opening: ["Picture July."], buyers: ["Buy."], sellers: [" "], watch: ["Watch."] } });
+    assert.deepEqual(told.narrative, { opening: ["Picture July."], buyers: ["Buy."], sellers: [], watch: ["Watch."] });
+    // A story with no opening isn't one yet.
+    assert.equal(model({ entry: { issue: "2026-10", buyers: ["Buy."] } }).narrative, null);
+  });
+  it("shows a signed note only when it's written; sample previews show both slots", () => {
+    assert.deepEqual(model().notes, []);
+    assert.deepEqual(model({ entry: { issue: "2026-10", commentary: { joelyn: [], jessica: [""] } } }).notes, []);
+    const one = model({ entry: { issue: "2026-10", commentary: { jessica: ["Her words."] } } });
+    assert.deepEqual(
+      one.notes.map((n) => [n.key, n.name, n.paragraphs]),
+      [["jessica", "Jessica Garza", ["Her words."]]],
+    );
+    const preview = model({ showSamples: true, entry: { issue: "2026-10", commentary: { jessica: ["Her words."] } } });
+    assert.deepEqual(
+      preview.notes.map((n) => [n.key, n.paragraphs]),
+      [
+        ["joelyn", null],
+        ["jessica", ["Her words."]],
+      ],
+    );
   });
   it("carries the standard source line with the manifest date", () => {
     assert.equal(model().source, "County property appraisers, public record, qualified sales, as of September 15, 2026.");
@@ -304,12 +321,12 @@ describe("the rest of the issue", () => {
       href: "/tide/2026-10",
       eyebrow: "Tide · Monthly issue",
       title: "Tide, October 2026",
-      excerpt: "What the county record shows for July 2026 in Lakewood Ranch, Sarasota and Bradenton.",
-      data: "Figures for July 2026",
+      excerpt: "How home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
+      data: "Numbers for July 2026",
     });
   });
   it("flags commentary that fails the Fair Housing check", () => {
-    const bad = model({ entry: { issue: "2026-10", commentary: ["It’s perfect for families."] } });
+    const bad = model({ entry: { issue: "2026-10", commentary: { joelyn: ["It’s perfect for families."] } } });
     assert.equal(bad.fairHousing.passed, false);
   });
 });
