@@ -73,7 +73,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
           </p>
           {/* Phones: one orientation line, so the buttons stay inside the first screen. */}
           <p className="rise d3 max-w-[340px] text-[16px] font-medium leading-[1.5] text-body sm:hidden">
-            Buying or selling in Lakewood Ranch, Sarasota or Bradenton? Tell us the timing. We take it from there.
+            Tell us when you want to buy or sell in Lakewood Ranch, Sarasota or Bradenton. We take it from there.
           </p>
           <div className="rise d4 flex flex-wrap gap-3.5">
             <Link

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fair Housing check over hand-written page copy.
+ * Fair Housing and voice check over hand-written site copy.
  *
  *   node scripts/check-copy.mjs        (Node 22.18+ strips the TypeScript types itself)
  *
@@ -17,11 +17,26 @@
  * The newsletter templates (lib/issues/copy.ts) get the same checker with
  * rules of their own: no superlatives and no license numbers. They carry
  * figures, filled in from the data, so the no-figures rule doesn't apply.
- * The Tide web issue's templates (lib/tide/copy.ts) get the same rules, and so
- * does the wording around the private questionnaire (lib/questionnaire/copy.ts;
- * the questions themselves are the client's record and aren't checked), and so do the search
- * page and its page summaries (lib/search/copy.ts).
+ * The Tide web issue's templates and its "facts to write from" lines
+ * (lib/tide/copy.ts) get the same rules, and so does the wording around the
+ * private questionnaire (lib/questionnaire/copy.ts; the questions themselves
+ * are the client's record and aren't checked), and so do the search page and
+ * its page summaries (lib/search/copy.ts).
+ *
+ * Tide's hand-written words (lib/tide/issues.ts: each issue's opening, "If
+ * you're buying", "If you're selling", what to watch, and the notes Joelyn
+ * and Jessica sign) get the issue rules and the places-not-people rules.
+ *
+ * The voice rules (lib/voice.ts: "the read", "the mark", "delve", "let's",
+ * "whether you're", a hook question answered straight after, …) run over all
+ * of it, and over every other string a reader can see in app/, components/
+ * and lib/ (scripts/copy-literals.mjs pulls them out of the source without
+ * running it). lib/search is checked through its copy file, and its voice
+ * flags are printed as warnings only: that directory belongs to the search
+ * work, which fixes them there.
  */
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { checkFairHousing } from "../lib/fair-housing.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
@@ -32,6 +47,11 @@ import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
 import { searchStrings } from "../lib/search/copy.ts";
 import { tideWebStrings } from "../lib/tide/copy.ts";
+import { tideNarrativeStrings } from "../lib/tide/issues.ts";
+import { AI_TELLS } from "../lib/voice.ts";
+import { siteLiterals } from "./copy-literals.mjs";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const SOURCES = [
   ...hubStrings(),
@@ -43,15 +63,21 @@ const SOURCES = [
   ...REFERRAL_PLANS.map((p) => ({ where: `lib/leads.ts: REFERRAL_PLANS ${p}`, text: p })),
 ];
 
-/** Hub-specific rules on top of the brokerage list. Places, never people; no figures. */
-const HUB_RULES = [
+/** Places, never people. */
+const PEOPLE_RULES = [
   { pattern: /\bschools?\b/i, reason: "school reference (zoned schools live on Atlas pages only, with the district link)" },
   { pattern: /\b(safe|safety|unsafe|crime|low[- ]crime)\b/i, reason: "safety or crime reference" },
   { pattern: /\bfamil(y|ies)\b/i, reason: "familial-status reference" },
   { pattern: /\b(kids?|children)\b/i, reason: "familial-status reference" },
   { pattern: /\b(retire(e|es|d|ment)?|seniors?|55\s?\+|active adult|age[- ]restricted)\b/i, reason: "age reference" },
+  { pattern: /\b(young professionals?|millennials|boomers|snowbirds?|empty nesters?)\b/i, reason: "people as a target, not places" },
   { pattern: /\b(best|perfect|ideal) for\b/i, reason: "steering (\"best for\")" },
   { pattern: /\b(demographics?|household income|income level|affluent|wealthy|upscale|luxury buyers?)\b/i, reason: "income or demographic reference" },
+];
+
+/** Hub-specific rules on top of the brokerage list. Places, never people; no figures. */
+const HUB_RULES = [
+  ...PEOPLE_RULES,
   { pattern: /\b(median|average|per square foot|per foot|\$\s?\d)/i, reason: "a figure" },
   { pattern: /\d{1,3}(,\d{3})+/, reason: "a figure" },
   { pattern: /\b(SL|BK)\s?\d{5,}\b/i, reason: "a license number" },
@@ -61,25 +87,62 @@ const HUB_RULES = [
 const ISSUE_RULES = [
   { pattern: /\b(best|finest|greatest|biggest|hottest|amazing|stunning|incredible|perfect|unbeatable|ultimate|world-class|must-see|exclusive|spectacular|breathtaking)\b/i, reason: "a superlative" },
   { pattern: /\b(SL|BK)\s?\d{5,}\b/i, reason: "a license number" },
-  { pattern: /\blands\b/i, reason: "\"lands\" as a verb (say comes out, arrives, falls)" },
+];
+
+/** Tide's story: county records have no list prices, days on market or inventory, so the words never imply them. */
+const NARRATIVE_RULES = [
+  ...ISSUE_RULES,
+  ...PEOPLE_RULES,
+  { pattern: /\b(days on (the )?market|list(ing)? prices?|asking prices? (rose|fell|dropped|climbed)|inventory|months of supply|price cuts?|bidding wars?)\b/i, reason: "a figure county records don't carry (not MLS)" },
+  { pattern: /\?/, reason: "a question in the narrative" },
+];
+
+/** Every rule in lib/voice.ts, as the checker's { pattern, reason, test } shape. */
+const VOICE = AI_TELLS.map((r) => ({ pattern: r.pattern, reason: `reads as machine-written: ${r.reason}`, test: r.test }));
+const hits = (rules, text) => rules.filter((r) => (r.test ? r.test(text.trim()) : r.pattern.test(text.trim())));
+
+const all = [
+  ...SOURCES.map((s) => ({ ...s, rules: [...HUB_RULES, ...VOICE] })),
+  ...issueStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
+  ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  ...searchStrings().map((s) => ({ ...s, rules: ISSUE_RULES, warn: VOICE })),
 ];
 
 let flagged = 0;
 let checked = 0;
-const all = [...SOURCES.map((s) => ({ ...s, rules: HUB_RULES })), ...issueStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...tideWebStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...questionnaireStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...searchStrings().map((s) => ({ ...s, rules: ISSUE_RULES }))];
-for (const { where, text, rules } of all) {
+let warned = 0;
+const show = (mark, where, text, flags) => {
+  console.error(`\n${mark} ${where}\n  "${text.slice(0, 160)}${text.length > 160 ? "…" : ""}"`);
+  for (const f of flags) console.error(`  - ${f.reason}${f.test ? "" : `  (/${f.pattern}/)`}`);
+};
+for (const { where, text, rules, warn } of all) {
   checked += 1;
   const result = checkFairHousing(text);
-  const extra = rules.filter((r) => r.pattern.test(text)).map((r) => ({ pattern: r.pattern.source, reason: r.reason }));
-  const flags = [...(result.passed ? [] : result.flags), ...extra];
+  const flags = [...(result.passed ? [] : result.flags), ...hits(rules, text)];
+  const soft = warn ? hits(warn, text) : [];
+  if (soft.length) {
+    warned += 1;
+    show("!", `${where} (warning)`, text, soft);
+  }
   if (!flags.length) continue;
   flagged += 1;
-  console.error(`\n✗ ${where}\n  "${text.slice(0, 160)}${text.length > 160 ? "…" : ""}"`);
-  for (const f of flags) console.error(`  - ${f.reason}  (/${f.pattern}/)`);
+  show("✗", where, text, flags);
+}
+
+// Every other string a reader can see, through the voice rules only (the Fair Housing pass over pages is the strings above and the guides' own check).
+const literals = siteLiterals(ROOT);
+for (const { where, text } of literals) {
+  checked += 1;
+  const flags = hits(VOICE, text);
+  if (!flags.length) continue;
+  flagged += 1;
+  show("✗", where, text, flags);
 }
 
 if (flagged) {
   console.error(`\n${flagged} of ${checked} strings flagged.`);
   process.exit(1);
 }
-console.log(`✓ ${checked} strings checked, nothing flagged.`);
+console.log(`✓ ${checked} strings checked (${literals.length} of them pulled from the site's source), nothing flagged${warned ? `; ${warned} warning${warned === 1 ? "" : "s"} in lib/search` : ""}.`);

@@ -1,5 +1,6 @@
 import { fullStreet, median, rollChanged, summarize } from "../sales/stats";
 import type { County, Sale } from "../sales/types";
+import { TIDE_FACTS_COPY } from "../tide/copy";
 import { TIDE_COPY, fill } from "./copy";
 import {
   C,
@@ -32,17 +33,32 @@ import {
   type Issue,
   type MarketSlug,
 } from "./render";
+import type { Narrative, NoteSlot } from "../tide/notes";
 import { CITY_MARKET, ZIP_MARKET } from "./tide-markets";
 
 /**
  * Tide, the monthly issue: the previous calendar month from the county
  * sales data, per market. Every figure is computed from the records passed
  * in; the paragraphs are templates (lib/issues/copy.ts) filled with those
- * figures and nothing else. The "what it means" section is a placeholder
- * Joelyn and Jessica replace before sending: it is never generated.
+ * figures and nothing else. The month's story (an opening, "If you're
+ * buying", "If you're selling", what to watch) comes in hand-written from
+ * lib/tide/issues.ts, the same words as the web issue; until it's written the
+ * draft carries the month's facts to write it from and a dashed box. Joelyn's
+ * and Jessica's notes are theirs alone: a dashed box each until they write
+ * one. Nothing here is generated prose.
  *
- * Pure: the sales, the manifest facts, the day and the footer come in.
+ * Pure: the sales, the manifest facts, the day, the footer and the writing come in.
  */
+
+/** The hand-written parts of the issue, from lib/tide/issues.ts by way of lib/issues/load.ts. */
+export type TideWriting = {
+  /** The month's story; null until its opening is written. */
+  narrative: Narrative | null;
+  /** Both signed-note slots, an unwritten one with `paragraphs: null`. */
+  notes: NoteSlot[];
+  /** The month's notable facts (lib/tide/narrative.ts `writingFacts`), shown in the draft until the story is written. */
+  facts: string[];
+};
 
 export type TideManifest = {
   generatedAt: string;
@@ -62,6 +78,8 @@ export type TideIssueInput = {
    */
   month?: string;
   footer: Omit<FooterInput, "product">;
+  /** The story, the notes and the facts. Without it the draft has a dashed box for each. */
+  writing?: TideWriting;
 };
 
 export type TideStreet = { label: string; count: number };
@@ -299,11 +317,28 @@ export function marketParagraph(m: TideMarket, month: string): string {
 const HUB: Record<MarketSlug, string> = { "lakewood-ranch": "/lakewood-ranch", sarasota: "/sarasota", bradenton: "/bradenton" };
 const COUNTY_SHORT: Record<County, string> = { manatee: "Manatee", sarasota: "Sarasota" };
 
+/** The month an issue built on `today` covers: the one named, else the latest complete one, else the previous month (built and held). */
+export function tideMonthFor(sales: Sale[], today: string, month?: string): string {
+  return month ?? latestCompleteMonth(sales, previousMonth(today)) ?? previousMonth(today);
+}
+
+/** A dashed box: a placeholder for the team, or the writer's facts. Never for a reader. */
+function dashedBox(inner: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;"><tr><td style="padding:18px 20px;border:2px dashed ${C.amber};background-color:${C.white};">${inner}</td></tr></table>`;
+}
+const boxLine = (text: string, extra = "") => `<p style="margin:0 0 8px 0;font-family:${SANS};font-size:15px;line-height:1.55;color:${C.amber};${extra}">${esc(text)}</p>`;
+
 export function buildTideIssue(input: TideIssueInput): TideIssue {
   const prev = previousMonth(input.today);
   const latestComplete = latestCompleteMonth(input.sales, prev);
   // The default is never a partial month; without a complete one, the previous month is built and held.
   const month = input.month ?? latestComplete ?? prev;
+  const story = input.writing?.narrative ?? null;
+  const notes: NoteSlot[] = input.writing?.notes ?? [
+    { key: "joelyn", name: "Joelyn Nauman", first: "Joelyn", paragraphs: null },
+    { key: "jessica", name: "Jessica Garza", first: "Jessica", paragraphs: null },
+  ];
+  const facts = input.writing?.facts ?? [];
   const { from, to } = monthBounds(month);
   const monthName = monthLabel(month);
   const campaign = `tide-${month}`;
@@ -383,17 +418,37 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
     ...MARKET_ORDER.map((m) => [MARKET_NAMES[m], HUB[m]] as [string, string]),
   ];
 
-  const placeholderHtml = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:18px 20px;border:2px dashed ${C.amber};background-color:${C.white};"><p style="margin:0;font-family:${SANS};font-size:16px;line-height:1.55;font-style:italic;color:${C.amber};">${esc(TIDE_COPY.placeholder)}</p></td></tr></table>`;
+  // The story: the hand-written opening in place of the plain intro, then buying and selling; or, before it's written, the facts and a box.
+  const opening = story ? story.opening : [intro];
+  const factsHtml = facts.length
+    ? dashedBox(boxLine(TIDE_FACTS_COPY.heading, "font-weight:bold;") + boxLine(TIDE_FACTS_COPY.note, "font-style:italic;") + facts.map((f) => boxLine(`• ${f}`)).join(""))
+    : "";
+  const storyBoxHtml = dashedBox(boxLine(TIDE_COPY.storyPlaceholder, "margin:0;font-style:italic;"));
+  const adviceHtml = story
+    ? [
+        story.buyers.length ? heading(TIDE_COPY.buyersHeading) + story.buyers.map((p) => para(esc(p))).join("") : "",
+        story.sellers.length ? heading(TIDE_COPY.sellersHeading) + story.sellers.map((p) => para(esc(p))).join("") : "",
+        story.buyers.length || story.sellers.length ? small(esc(TIDE_COPY.limits)) : "",
+      ].join("")
+    : "";
+  const watchHtml = story?.watch.length ? heading(TIDE_COPY.watchHeading) + story.watch.map((w) => para(`• ${esc(w)}`, "margin:0 0 10px 0;")).join("") : "";
+  const noteHtml = (n: NoteSlot) =>
+    n.paragraphs
+      ? n.paragraphs.map((p) => para(esc(p))).join("") + para(esc(fill(TIDE_COPY.noteSign, { name: n.name })), "font-style:italic;")
+      : dashedBox(boxLine(fill(TIDE_COPY.notePlaceholder, { first: n.first }), "margin:0;font-style:italic;"));
+  const notesHtml = notes.length ? heading(TIDE_COPY.notesHeading) + notes.map(noteHtml).join("") : "";
+  const placeholders = (story ? 0 : 1) + notes.filter((n) => !n.paragraphs).length;
 
   const foot = footer({ ...input.footer, product: "Tide" }, "tide", campaign);
   const rows = [
     header({ eyebrow: TIDE_COPY.eyebrow, wordmark: "Tide", title, homeHref: url("/blog") }),
     spacer(24),
-    row((coverage ? para(esc(coverage)) : "") + para(esc(intro)) + (outside ? para(esc(outside)) : "") + (lag ? small(esc(lag)) : "")),
+    ...(story ? [] : facts.length ? [row(factsHtml)] : []),
+    row(opening.map((p) => para(esc(p))).join("") + (coverage ? para(esc(coverage)) : "") + (outside ? para(esc(outside)) : "") + (lag ? small(esc(lag)) : "")),
+    ...(story ? (adviceHtml ? [rule(), spacer(16), row(adviceHtml)] : []) : [row(storyBoxHtml)]),
     ...markets.flatMap((m) => [rule(), spacer(16), row(marketHtml(m), "0 32px 16px 32px")]),
-    rule(),
-    spacer(16),
-    row(heading(TIDE_COPY.whatItMeansHeading) + placeholderHtml),
+    ...(watchHtml ? [rule(), spacer(16), row(watchHtml)] : []),
+    ...(notesHtml ? [rule(), spacer(16), row(notesHtml)] : []),
     rule(),
     spacer(16),
     row(heading(TIDE_COPY.linksHeading) + links.map(([label, path]) => para(link(url(path), label), "margin:0 0 8px 0;")).join("")),
@@ -407,11 +462,19 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
     [
       `TIDE · ${title.toUpperCase()}`,
       "",
-      ...(coverage ? [coverage, ""] : []),
-      intro,
+      ...(!story && facts.length ? [`[${TIDE_FACTS_COPY.heading.toUpperCase()}. ${TIDE_FACTS_COPY.note}`, ...facts.map((f) => `- ${f}`), "]", ""] : []),
+      ...opening.flatMap((p, i) => (i ? ["", p] : [p])),
+      ...(coverage ? ["", coverage] : []),
       ...(outside ? ["", outside] : []),
       ...(lag ? ["", lag] : []),
       "",
+      ...(story
+        ? [
+            ...(story.buyers.length ? [textHeading(TIDE_COPY.buyersHeading), ...story.buyers.flatMap((p) => [p, ""])] : []),
+            ...(story.sellers.length ? [textHeading(TIDE_COPY.sellersHeading), ...story.sellers.flatMap((p) => [p, ""])] : []),
+            ...(story.buyers.length || story.sellers.length ? [TIDE_COPY.limits, ""] : []),
+          ]
+        : [`[${TIDE_COPY.storyPlaceholder}]`, ""]),
       ...markets.flatMap((m) => [
         textHeading(m.name),
         `${m.complete ? TIDE_COPY.figureSales : TIDE_COPY.figureSalesPartial}: ${num(m.count)} · ${TIDE_COPY.figureMedian}: ${m.medianPrice !== null ? usd(m.medianPrice) : "–"} · ${TIDE_COPY.figurePpsf}: ${m.medianPpsf !== null ? usd(m.medianPpsf) : "–"} · ${TIDE_COPY.figureNew}: ${m.newBuildPct !== null ? `${m.newBuildPct}%` : "–"}`,
@@ -421,9 +484,13 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
         `${fill(TIDE_COPY.marketLink, { market: m.name })}: ${url(HUB[m.market])}`,
         "",
       ]),
-      textHeading(TIDE_COPY.whatItMeansHeading),
-      `[${TIDE_COPY.placeholder}]`,
-      "",
+      ...(story?.watch.length ? [textHeading(TIDE_COPY.watchHeading), ...story.watch.map((w) => `- ${w}`), ""] : []),
+      ...(notes.length
+        ? [
+            textHeading(TIDE_COPY.notesHeading),
+            ...notes.flatMap((n) => (n.paragraphs ? [...n.paragraphs.flatMap((p) => [p, ""]), fill(TIDE_COPY.noteSign, { name: n.name }), ""] : [`[${fill(TIDE_COPY.notePlaceholder, { first: n.first })}]`, ""])),
+          ]
+        : []),
       textHeading(TIDE_COPY.linksHeading),
       ...links.map(([label, path]) => `- ${label}: ${url(path)}`),
       "",
@@ -442,8 +509,8 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
     html,
     bodyHtml,
     text,
-    needsEdit: true,
-    placeholder: TIDE_COPY.placeholder,
+    needsEdit: placeholders > 0,
+    ...(placeholders > 0 ? { placeholder: TIDE_COPY.placeholder } : {}),
     warnings,
     ...(partial ? { hold: `${monthName} isn't complete on the county record in all three markets` } : {}),
     month,

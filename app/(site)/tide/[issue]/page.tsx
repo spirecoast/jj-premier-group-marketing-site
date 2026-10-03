@@ -5,6 +5,7 @@ import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { IssueChart } from "@/components/tide/issue-chart";
+import { TeamNotes } from "@/components/tide/team-notes";
 import { formatDateLong } from "@/lib/content/format";
 import { fill } from "@/lib/issues/copy";
 import { monthLabel } from "@/lib/issues/render";
@@ -19,7 +20,9 @@ import { site } from "@/lib/site";
  * /tide/<issue>: one Tide issue, rendered from the model in lib/tide/issue.ts.
  * The sections and their order are the standard every issue reuses
  * (docs/ISSUES.md, "The web issue"). The page types no figure: each comes
- * from the county sales through the model.
+ * from the county sales through the model. The month's story and the signed
+ * notes are hand-written in lib/tide/issues.ts, and every number in the story
+ * is checked against the model (lib/tide/narrative.test.ts).
  */
 
 type Params = Promise<{ issue: string }>;
@@ -102,7 +105,8 @@ export default async function TideIssuePage({ params }: { params: Params }) {
   const model = isIssueMonth(issue) ? await loadIssueModel(issue) : null;
   if (!model) notFound();
   const path = `/tide/${model.issue}`;
-  const showWhat = Boolean(model.commentary) || model.showPlaceholder;
+  const story = model.narrative;
+  const advice = story && (story.buyers.length || story.sellers.length) ? story : null;
   let n = 0;
   const no = () => String((n += 1)).padStart(2, "0");
 
@@ -152,10 +156,46 @@ export default async function TideIssuePage({ params }: { params: Params }) {
               <span className="font-display text-[clamp(3.5rem,2rem+6vw,7rem)] leading-[0.9] font-light tracking-[-0.02em]">{W.wordmark}</span>
               <span className="t-h1">{model.issueLabel}</span>
             </h1>
-            <p className="t-lead max-w-[720px] text-body">{model.note}</p>
-            <p className="t-body max-w-measure text-body-muted">{model.intro}</p>
+            {/* id="what-title": the anchor site search links the story to (lib/search/sources.ts). */}
+            <div id="what-title" className="flex max-w-[760px] scroll-mt-24 flex-col gap-4" data-tide-opening="">
+              {(story ? story.opening : [model.framing]).map((p) => (
+                <p key={p.slice(0, 40)} className="t-lead text-ink">
+                  {p}
+                </p>
+              ))}
+            </div>
+            <p className="t-small max-w-measure text-body-muted">
+              {model.note} {model.intro}
+            </p>
           </div>
         </header>
+
+        {/* If you're buying, if you're selling: only once the month's story is written */}
+        {advice ? (
+          <section className="container-site flex flex-col gap-6 pb-section" aria-label={`${W.buyersHeading}, ${W.sellersHeading.toLowerCase()}`}>
+            <div className="grid gap-5 md:grid-cols-2">
+              {(
+                [
+                  ["buyers", W.buyersHeading, advice.buyers],
+                  ["sellers", W.sellersHeading, advice.sellers],
+                ] as const
+              )
+                .filter(([, , ps]) => ps.length)
+                .map(([id, heading, ps]) => (
+                  <div key={id} className="flex flex-col gap-4 border-t-2 border-amber bg-white p-6 md:p-8" data-tide-advice={id}>
+                    <p className="t-eyebrow text-amber">{`${no()} · ${model.dataLabel}`}</p>
+                    <h2 className="t-h2 text-navy">{heading}</h2>
+                    {ps.map((p) => (
+                      <p key={p.slice(0, 40)} className="text-[1.0625rem] leading-[1.65] text-body">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                ))}
+            </div>
+            <p className="t-small max-w-measure text-body-muted">{W.limits}</p>
+          </section>
+        ) : null}
 
         {/* (b) The three markets */}
         <section className="bg-linen-100" aria-labelledby="markets-title">
@@ -209,24 +249,21 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           </div>
         </section>
 
-        {/* (f) What it means: the agents' paragraphs; a marked placeholder only in sample previews */}
-        {showWhat ? (
-          <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="what-title">
-            <SectionTitle id="what-title" eyebrow={`${no()} · ${W.whatEyebrow}`} title={W.whatHeading} />
-            {model.commentary ? (
-              <div className="prose-jj guide flex max-w-measure flex-col gap-5 text-[1.125rem]">
-                {model.commentary.map((p) => (
-                  <p key={p.slice(0, 40)}>{p}</p>
-                ))}
-              </div>
-            ) : (
-              <div className="flex max-w-measure flex-col gap-2 border-2 border-dashed border-warning bg-warning-fill p-6" role="note">
-                <p className="t-mono-sm text-warning">{W.placeholderLabel}</p>
-                <p className="t-body text-ink italic">{W.placeholder}</p>
-              </div>
-            )}
+        {/* (f) What to watch next month, then the signed notes: each only when written (sample previews show empty notes as placeholders) */}
+        {story?.watch.length ? (
+          <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="watch-title">
+            <SectionTitle id="watch-title" eyebrow={`${no()} · ${model.issueLabel}`} title={W.watchHeading} />
+            <ul className="flex max-w-measure flex-col">
+              {story.watch.map((w) => (
+                <li key={w.slice(0, 40)} className="flex gap-4 border-t border-hairline py-4 text-[1.0625rem] leading-[1.65] text-body">
+                  <span className="mt-[0.6em] size-2 shrink-0 rotate-45 bg-amber" aria-hidden="true" />
+                  <span>{w}</span>
+                </li>
+              ))}
+            </ul>
           </section>
         ) : null}
+        {model.notes.length ? <TeamNotes notes={model.notes} eyebrow={`${no()} · ${W.notesEyebrow}`} /> : null}
 
         {/* (g) The guides published that month */}
         <section className="bg-linen-100" aria-labelledby="guides-title">

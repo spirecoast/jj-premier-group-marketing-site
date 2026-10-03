@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { checkFairHousing } from "../fair-housing";
+import { aiTells } from "../voice";
 import { FOOTER_COPY, TIDE_COPY } from "./copy";
 import { FOOTER, FOOTER_NO_STREET, LICENSE, MANIFEST_COMPLETE, MANIFEST_SHORT, SITE, SUPERLATIVES, sale, salesFixture } from "./fixtures";
 import { ZIP_MARKET, zipMarketsFromAtlas } from "./tide-markets";
@@ -75,10 +76,10 @@ describe("tideStats", () => {
   it("writes the paragraph from the figures and nothing else", () => {
     assert.equal(
       marketParagraph(lwr!, "2026-08"),
-      "Lakewood Ranch had 5 qualified home sales in August 2026. Leaving out parcels vacant on the roll or changed since the sale, 3 homes are left, and their median price was $600,000. Across the 3 homes with a recorded living area, the median was $250 a square foot. 60% of the sales were new builds or parcels the roll still shows as vacant. The streets with the most sales were Gander Ter (2) and Lilac Sky Ter (2).",
+      "Lakewood Ranch had 5 home sales in August 2026. Counting only homes the county lists as built, the median price was $600,000, from 3 sales. The median price per square foot was $250, from the 3 homes with a size on record. 60% of the sales were new builds, or lots the county still lists as empty. The busiest streets were Gander Ter (2) and Lilac Sky Ter (2).",
     );
-    assert.ok(marketParagraph(srq!, "2026-08").startsWith("The county has published 1 qualified home sale in Sarasota for August 2026 so far"));
-    assert.ok(marketParagraph(bra!, "2026-08").startsWith("The county hasn’t published any qualified home sales in Bradenton"));
+    assert.ok(marketParagraph(srq!, "2026-08").startsWith("The county has posted 1 home sale in Sarasota for August 2026 so far"));
+    assert.ok(marketParagraph(bra!, "2026-08").startsWith("The county hasn’t posted any home sales in Bradenton"));
   });
 });
 
@@ -119,7 +120,7 @@ describe("helpers", () => {
 describe("buildTideIssue", () => {
   // August 2026 is short in Sarasota and Bradenton, so the default is July.
   const issue = buildTideIssue({ sales: salesFixture(), manifest: MANIFEST_COMPLETE, today: "2026-09-15", footer: FOOTER });
-  const coverage = "The county property appraisers post a sale only after they’ve qualified it, so this issue covers July 2026, the latest month that’s complete for all three places.";
+  const coverage = "The county posts sales a few weeks late, so this issue looks back at July 2026. That’s the newest month that’s complete for all three places.";
 
   it("defaults to the latest month complete in all three markets, never a partial one", () => {
     assert.equal(issue.month, "2026-07");
@@ -134,26 +135,71 @@ describe("buildTideIssue", () => {
     assert.ok(issue.html.includes(coverage));
     const text = flat(issue.text);
     assert.ok(text.includes(coverage));
-    assert.ok(text.indexOf(coverage) < text.indexOf("Here’s what the county records show"));
+    assert.ok(text.indexOf("Here’s how home sales went in July 2026") < text.indexOf(coverage));
+    assert.ok(text.indexOf(coverage) < text.indexOf("Lakewood Ranch -"));
   });
   it("carries the source line with the manifest date", () => {
     assert.equal(issue.asOf, "September 15, 2026");
     assert.ok(flat(issue.text).includes("Source: County property appraisers, public record, qualified sales, as of September 15, 2026."));
     assert.equal(issue.through, null);
   });
-  it("has the placeholder the agents fill in, and says it needs an edit", () => {
+  it("has a dashed box for the story and one for each signed note until they're written, and says it needs an edit", () => {
     assert.equal(issue.needsEdit, true);
-    assert.equal(issue.placeholder, "Joelyn and Jessica add two paragraphs here before sending.");
-    assert.ok(issue.html.includes(TIDE_COPY.placeholder));
-    assert.ok(issue.text.includes(`[${TIDE_COPY.placeholder}]`));
+    assert.equal(issue.placeholder, "Fill in or delete every dashed box before sending.");
+    for (const box of [TIDE_COPY.storyPlaceholder, "Joelyn: a few sentences here in your own words", "Jessica: a few sentences here in your own words"]) {
+      assert.ok(flat(issue.html).includes(box.replace(/[“”]/g, (q) => (q === "“" ? "&ldquo;" : "&rdquo;"))) || flat(issue.html).includes(box), box);
+      assert.ok(flat(issue.text).includes(box), box);
+    }
+    assert.ok(!issue.text.includes(TIDE_COPY.buyersHeading));
+  });
+  it("carries the facts to write from until the story is written, and the story once it is", () => {
+    const facts = ["Largest change against a typical month: home sales in Bradenton went up 12% to 793, from 706."];
+    const notes = [
+      { key: "joelyn" as const, name: "Joelyn Nauman", first: "Joelyn", paragraphs: null },
+      { key: "jessica" as const, name: "Jessica Garza", first: "Jessica", paragraphs: null },
+    ];
+    const draft = buildTideIssue({ sales: salesFixture(), manifest: MANIFEST_COMPLETE, today: "2026-09-15", footer: FOOTER, writing: { narrative: null, notes, facts } });
+    assert.ok(flat(draft.text).includes("FACTS TO WRITE FROM"));
+    assert.ok(flat(draft.text).includes(facts[0]!));
+    assert.ok(draft.html.includes("Facts to write from"));
+
+    const narrative = { opening: ["Picture July in Bradenton."], buyers: ["Buy by the square foot."], sellers: ["Sell by the square foot."], watch: ["Watch August."] };
+    const written = buildTideIssue({
+      sales: salesFixture(),
+      manifest: MANIFEST_COMPLETE,
+      today: "2026-09-15",
+      footer: FOOTER,
+      writing: { narrative, notes: [{ ...notes[0]!, paragraphs: ["My words."] }, notes[1]!], facts },
+    });
+    const text = flat(written.text);
+    assert.ok(!text.includes("FACTS TO WRITE FROM"), "the facts box goes once the story is written");
+    assert.ok(!text.includes(TIDE_COPY.storyPlaceholder));
+    assert.ok(!text.includes("Here’s how home sales went in July 2026"), "the opening replaces the plain intro");
+    for (const s of ["Picture July in Bradenton.", "If you’re buying -", "Buy by the square foot.", "If you’re selling -", "Sell by the square foot.", TIDE_COPY.limits, "What to watch next month -", "- Watch August.", "From Joelyn and Jessica -", "My words. Joelyn Nauman"]) {
+      assert.ok(text.includes(s), s);
+    }
+    assert.ok(text.indexOf("Sell by the square foot.") < text.indexOf("Lakewood Ranch -") && text.indexOf("Lakewood Ranch -") < text.indexOf("Watch August."));
+    // Jessica's slot is still a box, so the draft still needs an edit; with both notes written it doesn't.
+    assert.ok(text.includes("[Jessica: a few sentences here in your own words"));
+    assert.equal(written.needsEdit, true);
+    const done = buildTideIssue({
+      sales: salesFixture(),
+      manifest: MANIFEST_COMPLETE,
+      today: "2026-09-15",
+      footer: FOOTER,
+      writing: { narrative, notes: notes.map((n) => ({ ...n, paragraphs: ["Words."] })), facts },
+    });
+    assert.equal(done.needsEdit, false);
+    assert.equal(done.placeholder, undefined);
+    assert.ok(!done.html.includes("dashed"));
   });
   it("links to /sell/sold, /relocate and the three hubs", () => {
     for (const p of ["/sell/sold", "/relocate", "/lakewood-ranch", "/sarasota", "/bradenton"]) assert.ok(issue.html.includes(`${SITE}${p}?utm_source=tide`), p);
   });
   it("names the median price as the homes' and says what isn't counted", () => {
-    assert.ok(issue.html.includes("Median price, homes"));
+    assert.ok(issue.html.includes("Median price"));
     // The baseline month: 300k, 310k, 320k and 330k in each market.
-    assert.ok(flat(issue.text).includes("Median price, homes: $315,000"));
+    assert.ok(flat(issue.text).includes("Median price: $315,000"));
     assert.ok(flat(issue.text).includes("sales elsewhere in the two counties, such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted."));
     // July has no sales outside the three markets in the fixture; August has one, in Venice.
     assert.deepEqual(issue.counties, { total: 12, outside: 0 });
@@ -162,7 +208,7 @@ describe("buildTideIssue", () => {
     assert.deepEqual(aug.counties, { total: 7, outside: 1 });
     assert.ok(
       flat(aug.text).includes(
-        "Sales outside these three markets’ ZIPs, in places such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted here: 1 of the 7 qualified home sales the two counties recorded in August 2026.",
+        "Sales outside these three places’ ZIP codes, in places such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted here. That’s 1 of the 7 home sales the two counties recorded in August 2026.",
       ),
     );
   });
@@ -214,5 +260,10 @@ describe("buildTideIssue", () => {
     assert.equal(checkFairHousing(issue.text).passed, true);
     assert.ok(!SUPERLATIVES.test(issue.text.replace(/JJ Premier Group/g, "")));
     assert.ok(!LICENSE.test(issue.html));
+  });
+  it("has none of the phrases that read as machine-written", () => {
+    for (const para of issue.text.split(/\n\s*\n/).map((p) => flat(p).trim()).filter(Boolean)) {
+      assert.deepEqual(aiTells(para.replace(/^\[|\]$/g, "")), [], para);
+    }
   });
 });

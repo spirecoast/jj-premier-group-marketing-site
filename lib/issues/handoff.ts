@@ -69,7 +69,7 @@ export type IssuePayload = {
   text: string;
   period: Issue["period"];
   preheader: string;
-  /** True for Tide: the "what it means" placeholder must be replaced before anything is sent. */
+  /** True for Tide while a dashed box is left (the month's story, or a signed note): fill or delete each before anything is sent. */
   needsEdit: boolean;
   placeholder: string | null;
   warnings: string[];
@@ -140,7 +140,12 @@ function teamNote(issue: Issue, webhook: StepResult): string[] {
     `<strong>This is the ${issue.kind === "encore" ? "Encore" : "Tide"} issue for ${esc(issue.period.label)}, built by the website. Nothing has been sent to subscribers.</strong>`,
     `Subject line for subscribers: <strong>${esc(issue.subject)}</strong>`,
   ];
-  if (issue.needsEdit && issue.placeholder) lines.push(`Before it goes out, replace the dashed box (“${esc(issue.placeholder)}”) with your two paragraphs.`);
+  if (issue.needsEdit && issue.placeholder)
+    lines.push(
+      issue.kind === "tide"
+        ? "Before it goes out, fill in or delete each dashed box. There’s one for the month’s story until it’s written, and one each for a short note from Joelyn and from Jessica, in your own words. The issue says nothing for you that you didn’t write."
+        : `Before it goes out, replace the dashed box (“${esc(issue.placeholder)}”).`,
+    );
   lines.push(
     webhook.status === "sent"
       ? "It was also sent to the Zap (ISSUE_WEBHOOK_URL), which puts it where you send from."

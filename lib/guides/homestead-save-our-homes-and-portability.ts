@@ -312,8 +312,8 @@ export const HOMESTEAD_GUIDE: Guide = {
           "The state’s brochure is careful to say it’s not three years from the sale date.",
         ),
         p(
-          "Moving to a home worth more? You carry the whole gap, up to the limit.",
-          "Moving to a home worth less? You carry the same share of the value, not the same dollars.",
+          "If the new home is worth more, you carry the whole gap, up to the limit.",
+          "If it’s worth less, you carry the same share of the value, not the same dollars.",
         ),
         def(
           "Form DR-501T",
@@ -492,7 +492,7 @@ export const HOMESTEAD_GUIDE: Guide = {
           source: { label: "Each step comes from the section it sums up. The sources are listed there and at the end of this guide", href: DOR_PT107 },
           tool: { tool: "contact", cta: "Send us an address" },
         },
-        p("Moving here from another Florida homestead? Put the portability form on your moving list, with a date beside it."),
+        p("If you’re moving here from another Florida homestead, put the portability form on your moving list, with a date beside it."),
       ],
       sources: [S.pt107, S.pt112, S.pt113, S.calendar],
     },

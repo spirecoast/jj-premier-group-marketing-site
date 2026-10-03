@@ -40,7 +40,7 @@ export default async function SoldPage() {
       <section className="container-site flex flex-col gap-7 py-section" aria-label="What the record shows">
         <p className="t-lead max-w-[560px] text-body">{C.lead}</p>
         <p className="t-body max-w-measure text-body">{C.body(months)}</p>
-        <RuleLink href="/sell/home-value">Have an address? Start with the public record for the house itself</RuleLink>
+        <RuleLink href="/sell/home-value">With an address, start with the public record for the house itself</RuleLink>
       </section>
       <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} />
     </>

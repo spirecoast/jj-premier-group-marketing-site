@@ -18,6 +18,7 @@ import { median } from "../sales/stats";
 import type { Sale } from "../sales/types";
 import { TIDE_WEB_COPY as W } from "./copy";
 import type { TideIssueEntry } from "./issues";
+import { narrativeOf, noteSlots, type Narrative, type NoteSlot } from "./notes";
 
 /**
  * The Tide web issue (/tide/<issue>) as data. Every figure is computed from
@@ -110,10 +111,22 @@ export type IssueModel = {
   markets: IssueMarket[];
   charts: { sales: ChartModel; ppsf: ChartModel };
   guides: IssueGuide[];
-  /** The agents' paragraphs, when written. */
+  /** The month's story in the site's voice, hand-written in lib/tide/issues.ts; null until its opening is written. */
+  narrative: Narrative | null;
+  /** The plain line the page opens with while there's no narrative. */
+  framing: string;
+  /**
+   * The signed notes to show: only the ones Joelyn or Jessica wrote; in sample
+   * previews (NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true) both, an empty one as a
+   * marked placeholder.
+   */
+  notes: NoteSlot[];
+  /**
+   * Compatibility for lib/search/sources.ts, which indexes this as the issue's
+   * "What it means" section: the narrative's paragraphs in page order (never
+   * the signed notes), or null. New code reads `narrative`.
+   */
   commentary: string[] | null;
-  /** Show the marked placeholder in "What it means" (sample previews only, and only without commentary). */
-  showPlaceholder: boolean;
   /** The as-of date of the county files, "October 1, 2026". */
   asOf: string | null;
   source: string;
@@ -276,7 +289,9 @@ export function issueText(m: Omit<IssueModel, "fairHousing">): string[] {
     ...m.markets.flatMap((x) => [x.name, ...x.streets.map((s) => s.label)]),
     ...[m.charts.sales, m.charts.ppsf].flatMap((c) => [c.title, c.note, c.axisLabel, c.baselineLabel ?? "", ...c.monthLabels]),
     ...m.guides.flatMap((g) => [g.title, g.excerpt]),
-    ...(m.commentary ?? []),
+    m.framing,
+    ...(m.narrative ? [...m.narrative.opening, ...m.narrative.buyers, ...m.narrative.sellers, ...m.narrative.watch] : []),
+    ...m.notes.flatMap((n) => n.paragraphs ?? []),
     ...Object.values(W),
   ].filter(Boolean);
 }
@@ -303,7 +318,7 @@ export function buildIssueModel(input: IssueInput): IssueModel {
 
   const asOfDay = manifest.generatedAt && !Number.isNaN(Date.parse(manifest.generatedAt)) ? easternDay(new Date(manifest.generatedAt)) : null;
   const asOf = asOfDay ? dateLong(asOfDay) : null;
-  const commentary = entry.commentary?.length ? [...entry.commentary] : null;
+  const narrative = narrativeOf(entry);
 
   const model: Omit<IssueModel, "fairHousing"> = {
     issue: entry.issue,
@@ -331,8 +346,10 @@ export function buildIssueModel(input: IssueInput): IssueModel {
       ),
     },
     guides: guidesForMonth(input.posts, entry.issue),
-    commentary,
-    showPlaceholder: !commentary && Boolean(input.showSamples),
+    narrative,
+    commentary: narrative ? [...narrative.opening, ...narrative.buyers, ...narrative.sellers, ...narrative.watch] : null,
+    framing: fill(W.framing, { data: dataLabel }),
+    notes: noteSlots(entry.commentary, input.showSamples ? "draft" : "public"),
     asOf,
     source: fill(W.source, { asOf: asOf ?? "the last refresh" }),
     methods: TIDE_COPY.methods,

@@ -287,7 +287,7 @@ export const READY_TO_SELL_GUIDE: Guide = {
       blocks: [
         p(
           "Picture a house with a new screened porch. The seller had it built five years ago.",
-          "The buyer’s inspector asks, was it permitted? If no one knows, the sale waits while someone finds out.",
+          "The buyer’s inspector will ask if it was permitted. If no one knows, the sale waits while someone finds out.",
         ),
         p(
           "Both counties let you search permits online for free. Type in the address.",
@@ -399,7 +399,7 @@ export const READY_TO_SELL_GUIDE: Guide = {
       blocks: [
         p(
           "Picture two houses on the same street. One is for sale at a high price and has sat for months. The other sold last month.",
-          "Which one tells you what your house is worth? The one that sold.",
+          "The one that sold is the one that tells you what your house is worth.",
         ),
         p("Don’t price to the listing next door. Price to the sale two doors down."),
         p(
