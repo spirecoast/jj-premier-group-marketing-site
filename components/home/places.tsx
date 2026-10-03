@@ -32,7 +32,7 @@ export function Places() {
               <SharedFrame name={`place-${m.slug}`} role="source" className="absolute inset-0">
                 <Photo image={m.image} sizes="(min-width: 768px) 33vw, 100vw" className="place-img" />
               </SharedFrame>
-              <div className="absolute inset-0 bg-linear-to-t from-harbor-950/85 via-harbor-950/25 to-transparent" aria-hidden="true" />
+              <div className="scrim" aria-hidden="true" />
               <div className="relative flex flex-col gap-3 p-7 lg:p-8">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-mist">{m.county}</p>
                 <h3 className="font-display text-[clamp(2rem,3.2vw,2.75rem)] font-light leading-[1.02] text-white text-shadow-photo">

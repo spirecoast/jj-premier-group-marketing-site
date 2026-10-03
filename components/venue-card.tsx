@@ -16,7 +16,7 @@ export function VenueCard({ venue, upcoming, className }: { venue: Venue; upcomi
       )}
     >
       <SharedFrame name={`venue-${venue.slug}`} role="source" className="relative aspect-[3/2] overflow-hidden bg-linen-100">
-        {venue.image ? <Photo image={venue.image} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="card-img" /> : null}
+        {venue.image ? <Photo image={venue.image} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="card-img" frame={3 / 2} /> : null}
       </SharedFrame>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{marketName(venue.market)}</p>

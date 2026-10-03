@@ -31,7 +31,7 @@ export function DoorsPhoto() {
                 <div className="relative aspect-[16/10] overflow-hidden bg-navy sm:aspect-auto sm:min-h-[320px] lg:aspect-[16/10] lg:min-h-0 xl:aspect-auto xl:min-h-[320px]">
                   {/* sizes is the drawn width of the cover crop: 420px tall at the split (760), 16:10 strips and the 320px-tall tablet split (600). */}
                   <Photo image={{ ...d.image, alt: "" }} sizes="(min-width: 1280px) 760px, (min-width: 640px) 600px, 100vw" className="card-img" />
-                  <div className="absolute inset-0 bg-linear-to-t from-harbor-950/80 via-harbor-950/25 via-50% to-transparent" aria-hidden="true" />
+                  <div className="scrim" aria-hidden="true" />
                   <h3 className="absolute inset-x-0 bottom-0 p-6 font-display text-[clamp(2.25rem,3vw,2.75rem)] font-light leading-none text-white text-shadow-photo lg:p-7">
                     {d.title}
                   </h3>
