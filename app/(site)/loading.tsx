@@ -3,7 +3,10 @@
  * in the brand's navy and sky pinned under the top of the viewport, so a
  * navigation that waits on data shows something instead of nothing. As a
  * segment loading file it is the Suspense fallback: it replaces the page body
- * with the bar and a placeholder until the route resolves.
+ * with the bar and a placeholder until the route resolves. The bar waits
+ * 150 ms before it appears, so a route that resolves quickly, the usual case
+ * with prefetching, never flashes it; the links themselves carry a soft veil
+ * in the meantime (components/link-pending.tsx).
  */
 export default function SiteLoading() {
   return (
@@ -13,6 +16,13 @@ export default function SiteLoading() {
           0% { transform: translateX(-100%); }
           60% { transform: translateX(60%); }
           100% { transform: translateX(100%); }
+        }
+        .site-loading-bar {
+          opacity: 1;
+          transition: opacity 120ms ease 150ms;
+        }
+        @starting-style {
+          .site-loading-bar { opacity: 0; }
         }
         .site-loading-bar::after {
           content: "";

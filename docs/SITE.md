@@ -103,6 +103,35 @@ search index; Resend sends only team-facing email.
 - Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`
   document, with `permissionOnFile` checked.
 
+## Movement between pages
+
+The site moves on the View Transitions API, through React's `ViewTransition` and Next's
+`experimental.viewTransition` flag (`next.config.ts`). The pieces, all in the brand easing and all
+off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
+
+- **The page body.** `components/page-transition.tsx` wraps the page in one boundary keyed by the
+  pathname, so a route change is the old page leaving and the new one arriving: a 240 ms cross-fade
+  (`app/globals.css`, "View transitions"). State changes inside a page (Encore's filters, the map)
+  are updates to the same boundary and run no transition. Browser back and forward run outside a
+  React transition and stay instant.
+- **The nav rule.** The Sky rule under the current page carries one name (`nav-underline`) and
+  slides between items (320 ms). A hover rule draws in under the others at half strength.
+- **Card to hero.** `components/shared-link.tsx` and `components/shared-frame.tsx`: a card's
+  picture grows into the hero of the page it opens (Encore tiles and event cards to the event hero,
+  venue cards to the venue hero, the home page's place cards to the hub heroes). Only the clicked
+  card is named, through a small store the link writes on click (`lib/shared-element.ts`), since a
+  calendar can show one event twice and two boxes with one name cancel the browser's transition.
+  The link prefetches on hover, focus and touch so the page is ready when the change happens; a
+  loading state has no hero to pair with.
+- **The header.** Past the first screen it tucks away on a scroll down and returns on the first
+  scroll up, a route change, keyboard focus, or while the phone menu is open
+  (`components/site-header.tsx`).
+- **Waiting.** The route loading bar (`app/(site)/loading.tsx`) and the veil a clicked link shows
+  (`components/link-pending.tsx`, Next's `useLinkStatus`) both wait 150 ms, so a prefetched route
+  never flashes them.
+- During a route change React waits up to 500 ms (its own cap) for the new page's in-view images
+  and fonts, so a page never fades in with holes. Initial loads are untouched.
+
 ## The neighborhood explorer
 
 `/neighborhoods` is a map product built on the neighborhood dataset in `neighborhood-data/`
