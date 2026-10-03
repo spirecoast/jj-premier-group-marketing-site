@@ -19,7 +19,9 @@ type Contact = { name: string; phone: string; phoneE164: string; email: string }
 
 /**
  * The header is navy furniture. Over a photographic hero it starts
- * transparent and turns solid once the page scrolls; everywhere else it is
+ * transparent and turns solid once the page scrolls (only if the page marks
+ * its hero with data-header-overlay: a place page without a photo has none);
+ * everywhere else it is
  * solid from the first pixel. Collapses to a full-navy menu below `lg`.
  */
 export function SiteHeader({ contacts }: { contacts: Contact[] }) {
@@ -98,7 +100,8 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           ? "border-b border-sky-300/15 bg-navy"
           : solid
             ? "border-b border-sky-300/15 bg-navy/90 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent",
+            : // header-overlay: CSS keeps it solid unless the page really has a hero under it (data-header-overlay).
+              "header-overlay border-b border-transparent bg-transparent",
       )}
     >
       <div
