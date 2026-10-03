@@ -9,6 +9,7 @@ import { knownForSource, type DatasetEvent } from "./known";
 import { reconcile } from "./reconcile";
 import { SOURCES, type SourceSpec } from "./sources";
 import type { Fetcher } from "./types";
+import { isTicketingUrl } from "./util";
 
 /**
  * One collector invocation, shared by the routes (app/api/encore/collect
@@ -67,6 +68,17 @@ export function effectiveSources(states: SourceState[]): (SourceSpec & { state?:
 
 function asDataset(events: StoreEvent[]): DatasetEvent[] {
   return events.map((e) => ({ ...e, performances: e.performances.filter((p) => p.status !== "removed").map((p) => ({ date: p.date, time: p.time || null })) }));
+}
+
+/** Image candidates for current events that have never had one: the event's own page, credited to its presenter. */
+export function missingImages(events: StoreEvent[], tried: Set<string>, today: string) {
+  return events
+    .filter((e) => !e.hidden && !tried.has(e.slug) && ((e.endDate ?? e.startDate) >= today || e.performances.some((p) => p.date >= today)))
+    .map((e) => {
+      const pageUrl = e.sources.find((u) => !isTicketingUrl(u)) ?? e.sources[0] ?? e.ticketUrl;
+      return pageUrl ? { slug: e.slug, pageUrl, credit: e.presenter || e.venueName || new URL(pageUrl).hostname.replace(/^www\./, "") } : null;
+    })
+    .filter((c): c is NonNullable<typeof c> => c !== null);
 }
 
 /** Sources with any performance (or open run) in [today, today+days]. */
@@ -189,6 +201,10 @@ export async function runCollector(opts: RunOptions): Promise<RunResult> {
 
   // Images, while there is time.
   if (opts.mode === "collect" && opts.images) {
+    // Events no source run has offered an image for (sources without an adapter, events the
+    // collector didn't match): look on the event's own page.
+    const tried = new Set(snapshot.images.map((i) => i.eventSlug));
+    await store.queueImages(missingImages(snapshot.events, tried, today));
     const waiting = await store.pendingImages(400);
     const titles = new Map(snapshot.events.map((e) => [e.slug, e.title]));
     const sink = opts.images;
@@ -201,7 +217,17 @@ export async function runCollector(opts: RunOptions): Promise<RunResult> {
           let url = img.imageSourceUrl;
           if (!looksLikeArt(url) && img.pageUrl) url = (await imageFromPage(img.pageUrl, fetcher, titles.get(img.eventSlug))) ?? "";
           if (!url) throw new Error("no image on the event's page");
-          const out = await processImage({ slug: img.eventSlug, url, fetch: fetcher, sink });
+          let out;
+          try {
+            out = await processImage({ slug: img.eventSlug, url, fetch: fetcher, sink });
+          } catch (err) {
+            // A listing's thumbnail is often too small; the event's own page usually has the full image.
+            const small = err instanceof Error && err.message.startsWith("image too small");
+            const better = small && img.pageUrl ? await imageFromPage(img.pageUrl, fetcher, titles.get(img.eventSlug)) : undefined;
+            if (!better || better === url) throw err;
+            url = better;
+            out = await processImage({ slug: img.eventSlug, url, fetch: fetcher, sink });
+          }
           if (img.storagePath && img.storagePath !== out.storagePath) await sink.remove?.(img.storagePath).catch(() => undefined);
           await store.setImage({ ...img, imageSourceUrl: url, alt: titles.get(img.eventSlug) ?? null, ...out, error: null, fetchedAt: new Date().toISOString() });
           result.images.stored += 1;
