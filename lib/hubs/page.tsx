@@ -5,6 +5,7 @@ import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
 import { Photo } from "@/components/photo";
+import { SharedFrame } from "@/components/shared-frame";
 import { SectionHeading } from "@/components/section-heading";
 import { getTeam, getVenues } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
@@ -137,7 +138,10 @@ export async function HubPage({ market }: { market: MarketSlug }) {
 
       {/* 01 · The place */}
       <section className="relative -mt-header min-h-[560px] overflow-hidden bg-navy text-white lg:min-h-[680px]" aria-labelledby="hub-title">
-        <Photo image={m.image} priority sizes="100vw" />
+        {/* The same picture as the home page's card for this place, so one grows into the other. */}
+        <SharedFrame name={`place-${m.slug}`} role="target" className="absolute inset-0">
+          <Photo image={m.image} priority sizes="100vw" />
+        </SharedFrame>
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
           <nav aria-label="Breadcrumb" className="t-eyebrow flex flex-wrap items-center gap-x-3 gap-y-1 text-mist text-shadow-photo">

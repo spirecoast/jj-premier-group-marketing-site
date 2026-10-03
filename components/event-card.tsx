@@ -5,6 +5,8 @@ import { marketName } from "@/lib/content/markets";
 import { cn } from "@/lib/utils";
 import { KeyArt } from "./key-art";
 import { Photo } from "./photo";
+import { SharedFrame } from "./shared-frame";
+import { SharedLink } from "./shared-link";
 
 function placeDay(e: Event, at?: string): string {
   const when = e.runsThrough && !e.performances?.length ? "On view" : weekdayName(at ?? e.startsAt);
@@ -30,6 +32,7 @@ type Props = {
  */
 export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta, at }: Props) {
   const href = `/calendar/${event.slug}` as const;
+  const shared = `evt-${event.slug}`;
   const startsAt = at?.startsAt ?? event.startsAt;
   const endsAt = at ? at.endsAt : event.endsAt;
   const allDay = at ? at.allDay : event.allDay;
@@ -37,12 +40,14 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
 
   if (variant === "feature") {
     return (
-      <Link href={href} className={cn("card group relative block min-h-[420px] overflow-hidden bg-navy lg:min-h-[560px]", className)}>
-        {event.image ? (
-          <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 58vw, 100vw"} priority={priority} className="card-img" />
-        ) : (
-          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={1.3} />
-        )}
+      <SharedLink href={href} shared={shared} className={cn("card group relative block min-h-[420px] overflow-hidden bg-navy lg:min-h-[560px]", className)}>
+        <SharedFrame name={shared} role="source" className="absolute inset-0">
+          {event.image ? (
+            <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 58vw, 100vw"} priority={priority} className="card-img" />
+          ) : (
+            <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={1.3} />
+          )}
+        </SharedFrame>
         <div
           className="pointer-events-none absolute inset-0 bg-linear-to-t from-harbor-950/95 via-harbor-950/60 via-40% to-transparent to-64%"
           aria-hidden="true"
@@ -60,22 +65,25 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
           ) : null}
           <span className="card-line bg-sky-300" aria-hidden="true" />
         </div>
-      </Link>
+      </SharedLink>
     );
   }
 
   if (variant === "row") {
     return (
-      <Link
+      <SharedLink
         href={href}
+        shared={shared}
         className={cn("row-link flex min-w-0 max-w-full items-center gap-4 border border-hairline bg-white p-3.5 pr-4 sm:gap-[18px]", className)}
       >
-        <div
+        <SharedFrame
+          name={shared}
+          role="source"
           className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]"
           title={event.image && event.imageCredit ? `Image: ${event.imageCredit.name}` : undefined}
         >
           {event.image ? <Photo image={event.image} sizes="130px" /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} />}
-        </div>
+        </SharedFrame>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
           <h3 className="t-h3 text-navy">{event.title}</h3>
@@ -89,19 +97,20 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         <span className="row-arrow font-mono text-[14px] text-amber" aria-hidden="true">
           →
         </span>
-      </Link>
+      </SharedLink>
     );
   }
 
   return (
-    <Link
+    <SharedLink
       href={href}
+      shared={shared}
       className={cn(
         "card group flex flex-col border border-hairline bg-white transition-colors duration-[120ms] hover:border-deep-harbor focus-visible:border-deep-harbor",
         className,
       )}
     >
-      <div className="relative aspect-[3/2] overflow-hidden bg-linen-100">
+      <SharedFrame name={shared} role="source" className="relative aspect-[3/2] overflow-hidden bg-linen-100">
         {event.image ? (
           <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"} className="card-img" />
         ) : (
@@ -110,7 +119,7 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         {event.image && event.imageCredit ? (
           <span className="image-credit absolute bottom-0 right-0 max-w-full truncate bg-harbor-950/60 px-2 py-0.5 text-linen-100">Image: {event.imageCredit.name}</span>
         ) : null}
-      </div>
+      </SharedFrame>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
         <h3 className="t-h3 text-navy">{event.title}</h3>
@@ -121,7 +130,7 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         </p>
         <span className="card-line mt-auto bg-sky-300" aria-hidden="true" />
       </div>
-    </Link>
+    </SharedLink>
   );
 }
 

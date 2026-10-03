@@ -294,6 +294,25 @@
     animation-duration: var(--vt-share);
     animation-timing-function: var(--ease-reveal);
   }
+  /* A card's picture and the hero it opens (components/shared-frame.tsx): one
+     group moves and grows between the two boxes while the pictures cross-fade.
+     Both fill the group and crop like the photographs do, so nothing stretches. */
+  ::view-transition-group(.vt-shared) {
+    animation-duration: var(--vt-share);
+    animation-timing-function: var(--ease-reveal);
+    overflow: clip;
+  }
+  ::view-transition-image-pair(.vt-shared) {
+    overflow: clip;
+  }
+  ::view-transition-old(.vt-shared),
+  ::view-transition-new(.vt-shared) {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    animation-duration: var(--vt-share);
+    animation-timing-function: var(--ease-reveal);
+  }
   /* The document root is the frame: header, footer, grounds. It holds still. */
   ::view-transition-old(root),
   ::view-transition-new(root) {
