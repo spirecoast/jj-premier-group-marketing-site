@@ -14,6 +14,7 @@ import { CATEGORY } from "@/lib/encore/categories";
 import { clock, shortDay, through, weekdayShort } from "@/lib/encore/select";
 import { encoreHref } from "@/lib/encore/url";
 import { HUBS } from "@/lib/hubs/copy";
+import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { hubAtlas, hubGuides, hubWeek, type HubEncoreItem } from "@/lib/hubs/data";
 import { DATASET_VERSION } from "@/lib/neighborhoods/data";
 import { TYPE_LABEL, hostOf, monthYear } from "@/lib/neighborhoods/format";
@@ -99,7 +100,8 @@ function SourceLink({ href, children }: { href: string; children: React.ReactNod
 export async function HubPage({ market }: { market: MarketSlug }) {
   const m = getMarket(market)!;
   const copy = HUBS[market];
-  const [atlas, venues, guides, team] = await Promise.all([hubAtlas(market), getVenues(market), hubGuides(market), getTeam()]);
+  const [atlas, venues, guides, team] = await Promise.all([hubAtlas(market), getVenues(market), hubGuides(market), getTeam(), loadEncoreSnapshot()]);
+  // hubWeek reads the Encore index synchronously: the snapshot loaded above.
   const week = hubWeek(market);
   const faqs: Faq[] = copy.faqs.map((f) => ({ q: f.q, answer: f.answer, a: <p>{f.answer}</p> }));
   const path = `/${market}`;

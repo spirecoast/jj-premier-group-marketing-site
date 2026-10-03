@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { KeyArt } from "@/components/key-art";
 import { marketName } from "@/lib/content/markets";
 import { CATEGORY, subcategoryLabel } from "@/lib/encore/categories";
 import type { EncoreEvent } from "@/lib/encore/index-format";
@@ -35,11 +37,28 @@ function Meta({ e }: { e: EncoreEvent }) {
   );
 }
 
-/** A spotlight card: the time large, the title, the venue. The category is a tick of color. */
+/** The card's picture: the presenter's own image, credited, or key art for the category. */
+function TileImage({ e }: { e: EncoreEvent }) {
+  return (
+    <div className="encore-tile-img">
+      {e.img ? (
+        <>
+          <Image src={e.img} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 80vw" className="object-cover" />
+          {e.ic ? <span className="encore-tile-credit">Image: {e.ic}</span> : null}
+        </>
+      ) : (
+        <KeyArt category={e.c} seed={e.s} subcategory={e.sc} ratio={16 / 9} />
+      )}
+    </div>
+  );
+}
+
+/** A spotlight card: the picture, the time large, the title, the venue. The category is a tick of color. */
 export function EventTile({ o, saved, onSave, showDay }: { o: Occ; saved: boolean; onSave: () => void; showDay?: boolean }) {
   const e = o.e;
   return (
     <Link href={`/calendar/${e.s}`} className="encore-tile" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
+      <TileImage e={e} />
       <div className="flex items-baseline justify-between gap-3">
         <span className="encore-tile-time">
           {showDay ? <span className="encore-tile-day">{weekdayShort(o.day)} {shortDay(o.day)}</span> : null}
@@ -81,6 +100,7 @@ export function RunCard({ e, today, saved, onSave }: { e: EncoreEvent; today: st
   const opening = e.f && e.f > today;
   return (
     <Link href={`/calendar/${e.s}`} className="encore-run" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
+      <TileImage e={e} />
       <div className="flex items-baseline justify-between gap-3">
         <span className="t-mono-sm text-graphite-500">{CATEGORY[e.c].label}</span>
         {opening ? <span className="encore-tag">Opens {shortDay(e.f!)}</span> : closing ? <span className="encore-tag is-closing">Closing soon</span> : null}

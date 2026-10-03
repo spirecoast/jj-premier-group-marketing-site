@@ -21,7 +21,8 @@ export type EncoreEvent = {
   r?: string; // runs through (YYYY-MM-DD)
   x?: 1; // exhibition / run with no published times
   sum?: string; // one-line summary
-  img?: string; // image src
+  img?: string; // image src (the presenter's own image)
+  ic?: string; // image credit: the presenter's name
 };
 
 /** [event index, local day YYYY-MM-DD, local time "19:30" or "" for all day, start ms, end ms] */

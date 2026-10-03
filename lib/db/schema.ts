@@ -235,3 +235,6 @@ export type QuestionnaireAnswer = typeof questionnaireAnswers.$inferSelect;
 export type NewQuestionnaireAnswer = typeof questionnaireAnswers.$inferInsert;
 export type SearchDocument = typeof searchDocuments.$inferSelect;
 export type NewSearchDocument = typeof searchDocuments.$inferInsert;
+
+/* Encore (0012_encore.sql) lives in its own file. */
+export * from "./encore-schema";

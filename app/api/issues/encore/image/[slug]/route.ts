@@ -1,7 +1,7 @@
 import { getEvent } from "@/lib/content";
 import { formatEventWhen } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
-import { keyArtDataUri } from "@/lib/encore/key-art";
+import { eventOgPhoto } from "@/lib/encore/og-photo";
 import { brandOgImage } from "@/lib/og";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -30,6 +30,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
     eyebrow: `Encore Arts Calendar · ${marketName(e.venue.market)}`,
     title: e.title,
     meta: `${formatEventWhen(e.startsAt, e.endsAt, e.allDay)} · ${e.venue.name}`,
-    photo: e.image?.src ?? keyArtDataUri({ category: e.category, seed: e.slug, subcategory: e.subcategory, width: 520, height: 630 }),
+    photo: await eventOgPhoto(e),
   });
 }

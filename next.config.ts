@@ -25,6 +25,15 @@ const SANITY_API = SANITY_PROJECT
 /** Violations post here (app/api/csp-report/route.ts) and surface as one-line warnings in the logs. */
 const CSP_REPORT_PATH = "/api/csp-report";
 
+/** Supabase Storage: Encore's event images live in the public `encore-images` bucket. */
+const SUPABASE_HOST = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname;
+  } catch {
+    return "";
+  }
+})() || "dnftoqwqzoekgfeoxest.supabase.co";
+
 /** Vercel injects its preview toolbar on preview deployments only. */
 const VERCEL_PREVIEW = process.env.VERCEL_ENV === "preview" ? ["https://vercel.live"] : [];
 
@@ -46,7 +55,7 @@ function basePolicy(): Directives {
     "frame-ancestors": ["'self'"],
     "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), PLAUSIBLE_HOST, ...VERCEL_PREVIEW],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io"],
+    "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io", `https://${SUPABASE_HOST}`],
     "font-src": ["'self'", "data:"],
     "connect-src": ["'self'", PLAUSIBLE_HOST, MAP_HOST, ...SANITY_API, ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
@@ -103,7 +112,10 @@ const nextConfig: NextConfig = {
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.sanity.io" },
+      { protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/public/encore-images/**" },
+    ],
   },
   async headers() {
     // Later entries override earlier ones for the same header key, so the

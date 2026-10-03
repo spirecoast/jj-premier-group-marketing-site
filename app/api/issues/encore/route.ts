@@ -3,6 +3,7 @@ import { encoreTeamSubject } from "@/lib/issues/encore-weekly";
 import { cronAllowed, handOff, handoffResponse, notFound, previewAllowed, previewResponse } from "@/lib/issues/handoff";
 import { issueToday, loadEncoreIssue } from "@/lib/issues/load";
 import { isDay } from "@/lib/issues/render";
+import { loadEncoreSnapshot } from "@/lib/encore/live";
 
 /**
  * The Monday Encore issue (docs/ISSUES.md).
@@ -27,6 +28,8 @@ function day(request: NextRequest): string {
 }
 
 async function run(request: NextRequest): Promise<Response> {
+  // loadEncoreIssue reads the index synchronously; load the database snapshot first.
+  await loadEncoreSnapshot();
   const issue = await loadEncoreIssue(day(request));
   const result = await handOff(issue, encoreTeamSubject(issue));
   console.info(`[issues] encore ${issue.period.from}: team email ${result.teamEmail.status}, webhook ${result.webhook.status}`);
@@ -36,6 +39,7 @@ async function run(request: NextRequest): Promise<Response> {
 export async function GET(request: NextRequest) {
   if (cronAllowed(request)) return run(request);
   if (!previewAllowed(request)) return notFound();
+  await loadEncoreSnapshot();
   return previewResponse(await loadEncoreIssue(day(request)), request);
 }
 

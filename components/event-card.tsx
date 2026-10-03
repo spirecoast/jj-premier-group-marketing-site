@@ -47,6 +47,9 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
           className="pointer-events-none absolute inset-0 bg-linear-to-t from-harbor-950/95 via-harbor-950/60 via-40% to-transparent to-64%"
           aria-hidden="true"
         />
+        {event.image && event.imageCredit ? (
+          <span className="image-credit absolute right-0 top-0 bg-harbor-950/60 px-2 py-1 text-linen-100">Image: {event.imageCredit.name}</span>
+        ) : null}
         <div className="absolute inset-x-6 bottom-7 flex flex-col gap-3 lg:inset-x-8">
           <p className="t-mono-sm text-sky-300">{placeDay(event, startsAt)}</p>
           <h3 className="font-display text-[clamp(1.625rem,3vw,2.5rem)] font-light leading-[1.04] text-white">
@@ -67,7 +70,10 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         href={href}
         className={cn("row-link flex min-w-0 max-w-full items-center gap-4 border border-hairline bg-white p-3.5 pr-4 sm:gap-[18px]", className)}
       >
-        <div className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]">
+        <div
+          className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]"
+          title={event.image && event.imageCredit ? `Image: ${event.imageCredit.name}` : undefined}
+        >
           {event.image ? <Photo image={event.image} sizes="130px" /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} />}
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -101,6 +107,9 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         ) : (
           <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={3 / 2} />
         )}
+        {event.image && event.imageCredit ? (
+          <span className="image-credit absolute bottom-0 right-0 max-w-full truncate bg-harbor-950/60 px-2 py-0.5 text-linen-100">Image: {event.imageCredit.name}</span>
+        ) : null}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
