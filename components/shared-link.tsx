@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useId, type ComponentProps } from "react";
 import { markShared } from "@/lib/shared-element";
+import { cn } from "@/lib/utils";
+import { LinkPending } from "./link-pending";
 
 const LinkKey = createContext<string | null>(null);
 
@@ -27,7 +29,7 @@ type Props<T extends string> = ComponentProps<typeof Link<T>> & {
  * loading state has no hero to pair with), so the link also prefetches on
  * hover, focus and touch, ahead of the viewport prefetch Link already does.
  */
-export function SharedLink<T extends string>({ shared, onClick, onMouseEnter, onFocus, onTouchStart, children, ...rest }: Props<T>) {
+export function SharedLink<T extends string>({ shared, onClick, onMouseEnter, onFocus, onTouchStart, className, children, ...rest }: Props<T>) {
   const key = useId();
   const router = useRouter();
   const warm = () => {
@@ -37,6 +39,8 @@ export function SharedLink<T extends string>({ shared, onClick, onMouseEnter, on
     <LinkKey.Provider value={key}>
       <Link
         {...rest}
+        // relative, so the pending veil (components/link-pending.tsx) covers the card.
+        className={cn("relative", className)}
         onMouseEnter={(e) => {
           onMouseEnter?.(e);
           warm();
@@ -55,6 +59,7 @@ export function SharedLink<T extends string>({ shared, onClick, onMouseEnter, on
         }}
       >
         {children}
+        <LinkPending />
       </Link>
     </LinkKey.Provider>
   );

@@ -10,6 +10,7 @@ import { primaryNav, site } from "@/lib/site";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { CbMark } from "./cb-mark";
+import { LinkPending } from "./link-pending";
 import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
 
@@ -185,6 +186,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                   ) : (
                     <span className="t-label">{item.label}</span>
                   )}
+                  <LinkPending />
                   {active ? (
                     // The one Sky rule under the current page. It carries a view
                     // transition name, so on a route change it slides from the old

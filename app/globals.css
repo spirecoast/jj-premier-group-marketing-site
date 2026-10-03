@@ -287,6 +287,27 @@
   .nav-link[aria-current="page"]::after {
     display: none;
   }
+
+  /* While a slow route is on its way (components/link-pending.tsx): a soft
+     paper veil over the link, after a 150 ms grace so a prefetched page never
+     shows it. In the nav it is a faint dimming of the item instead. */
+  .link-pending {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: rgb(250 248 245 / 0.45);
+    opacity: 1;
+    /* A transition from a starting style rather than an animation: the reduced
+       motion rule zeroes animation delays but leaves transition delays, so the
+       150 ms grace holds there too and only the fade goes. */
+    transition: opacity 200ms ease 150ms;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+  .nav-link .link-pending {
+    background: rgb(30 52 66 / 0.35);
+  }
 }
 
 /* -----------------------------------------------------------------------------
