@@ -98,6 +98,9 @@ const COMMON_HEADERS = [
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  // Route changes run inside the View Transitions API (components/view-transitions
+  // and the ViewTransition boundaries in app/(site)/layout.tsx and site-header.tsx).
+  experimental: { viewTransition: true },
   // lib/sales reads data/sales/*.json.gz at request time; make sure the
   // files travel with the functions that need them.
   outputFileTracingIncludes: {

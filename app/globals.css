@@ -263,6 +263,62 @@
 }
 
 /* -----------------------------------------------------------------------------
+   View transitions — movement between pages. React names the elements inside
+   each <ViewTransition> boundary for the length of a route change; the classes
+   below (its `default` prop) pick the animation. Quick, in the brand easing,
+   and nothing while reduced motion is on.
+   ----------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --vt-page: 240ms;
+    --vt-share: 320ms;
+  }
+  /* The page body (components/page-transition.tsx): the old page leaves and
+     the new one arrives as two groups, so nothing morphs between sizes. */
+  ::view-transition-group(.vt-page) {
+    animation: none;
+  }
+  ::view-transition-old(.vt-page) {
+    animation: vt-fade-out var(--vt-page) var(--ease-brand) both;
+  }
+  ::view-transition-new(.vt-page) {
+    animation: vt-fade-in var(--vt-page) var(--ease-brand) both;
+  }
+  /* The nav rule (components/site-header.tsx): one name, so it slides between items. */
+  ::view-transition-group(.vt-underline) {
+    animation-duration: var(--vt-share);
+    animation-timing-function: var(--ease-reveal);
+  }
+  ::view-transition-old(.vt-underline),
+  ::view-transition-new(.vt-underline) {
+    animation-duration: var(--vt-share);
+    animation-timing-function: var(--ease-reveal);
+  }
+  /* The document root is the frame: header, footer, grounds. It holds still. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+  @keyframes vt-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  @keyframes vt-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-image-pair(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+}
+
+/* -----------------------------------------------------------------------------
    Type utilities — the scale from the brand system and the website mockup.
    Sizes fluid between the 390 phone canvas and the 1440 desktop canvas.
    ----------------------------------------------------------------------------- */

@@ -90,6 +90,10 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${newsreader.variable} ${cormorant.variable} ${jost.variable} ${plexMono.variable}`}
+      // globals.css sets scroll-behavior: smooth for in-page anchors. This tells the
+      // router, so a route change still jumps to the top at once instead of gliding
+      // there through the page transition.
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-screen bg-paper text-ink antialiased">
         {children}

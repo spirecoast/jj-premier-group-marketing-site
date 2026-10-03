@@ -3,6 +3,7 @@ import { draftMode } from "next/headers";
 import { Analytics } from "@/components/analytics";
 import { JsonLd } from "@/components/json-ld";
 import { MobileActionBar } from "@/components/mobile-action-bar";
+import { PageTransition } from "@/components/page-transition";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { UtmTracker } from "@/components/utm-tracker";
@@ -37,7 +38,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           email: m.email,
         }))}
       />
-      <main id="main">{children}</main>
+      <main id="main">
+        {/* A route change cross-fades the old page into the new one. The header,
+            footer and action bar sit outside the boundary and stay put. */}
+        <PageTransition>{children}</PageTransition>
+      </main>
       <SiteFooter settings={settings} team={team} />
       <MobileActionBar phoneE164={settings.primaryPhoneE164} />
       <Analytics />
