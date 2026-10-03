@@ -66,7 +66,7 @@ export default async function EventPage({ params }: { params: Params }) {
         ])}
       />
 
-      <article className="container-site flex flex-col gap-10 py-10 md:py-14">
+      <article className="container-site flex flex-col gap-12 py-12 md:py-16 lg:gap-16">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
           <Link href="/calendar" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             Encore

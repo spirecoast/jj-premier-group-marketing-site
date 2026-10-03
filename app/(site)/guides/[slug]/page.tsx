@@ -83,7 +83,7 @@ export default async function GuidePage({ params }: { params: Params }) {
         <GuideCover guide={guide} minutes={minutes} updated={updated} />
 
         {/* How to use · Inside this guide · the three questions */}
-        <div className="container-site grid grid-cols-1 gap-10 py-12 md:py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-20 print:grid-cols-1 print:gap-6 print:py-6">
+        <div className="container-site grid grid-cols-1 gap-12 py-14 md:py-20 lg:grid-cols-[1.2fr_1fr] lg:gap-24 print:grid-cols-1 print:gap-6 print:py-6">
           <div className="flex flex-col gap-6">
             <nav aria-label="Breadcrumb" className="t-mono-sm print-hide flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
               <Link href="/guides" className="-my-2 inline-block py-2 transition-colors hover:text-navy">

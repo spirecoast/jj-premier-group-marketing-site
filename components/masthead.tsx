@@ -46,7 +46,7 @@ export function Masthead({ route, eyebrow, title, titleId, as: Tag = "h1", crumb
         <div className={cn("masthead-shade", slot.kind === "art" && "masthead-shade-art")} aria-hidden="true" />
       </div>
       <div className="absolute inset-0 flex flex-col justify-end">
-        <div className="container-site flex flex-col gap-3.5 pb-8 sm:pb-10 lg:pb-12">
+        <div className="container-site flex flex-col gap-4 pb-10 sm:pb-12 lg:pb-16">
           {crumbs}
           {eyebrow ? <p className="rise d1 t-eyebrow text-mist text-shadow-soft">{eyebrow}</p> : null}
           {title ? (
