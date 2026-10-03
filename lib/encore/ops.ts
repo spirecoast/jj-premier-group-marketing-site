@@ -39,9 +39,13 @@ export function encoreImageSink() {
   return url && key ? supabaseSink({ url, serviceKey: key }) : null;
 }
 
-/** Pages that show Encore data: rebuilt on their next request. */
+/**
+ * Pages that show Encore data: rebuilt on their next request. A dynamic page
+ * is named by its file path, route group included: "/calendar/[slug]" alone
+ * matches nothing, so event and venue pages kept their build-time copy.
+ */
 export function refreshPages() {
-  for (const p of ["/calendar", "/calendar/[slug]", "/venues/[slug]", "/api/encore/index", "/", "/sarasota", "/bradenton", "/lakewood-ranch"]) {
+  for (const p of ["/calendar", "/(site)/calendar/[slug]", "/(site)/venues/[slug]", "/api/encore/index", "/", "/sarasota", "/bradenton", "/lakewood-ranch"]) {
     try {
       revalidatePath(p, p.includes("[") ? "page" : undefined);
     } catch {
