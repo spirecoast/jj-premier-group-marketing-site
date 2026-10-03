@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { KeyArt } from "@/components/key-art";
+import { SharedFrame } from "@/components/shared-frame";
+import { SharedLink } from "@/components/shared-link";
 import { marketName } from "@/lib/content/markets";
 import { CATEGORY, subcategoryLabel } from "@/lib/encore/categories";
 import type { EncoreEvent } from "@/lib/encore/index-format";
@@ -40,7 +42,7 @@ function Meta({ e }: { e: EncoreEvent }) {
 /** The card's picture: the presenter's own image, credited, or key art for the category. */
 function TileImage({ e }: { e: EncoreEvent }) {
   return (
-    <div className="encore-tile-img">
+    <SharedFrame name={`evt-${e.s}`} role="source" className="encore-tile-img">
       {e.img ? (
         <>
           <Image src={e.img} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 80vw" className="object-cover" />
@@ -49,7 +51,7 @@ function TileImage({ e }: { e: EncoreEvent }) {
       ) : (
         <KeyArt category={e.c} seed={e.s} subcategory={e.sc} ratio={16 / 9} />
       )}
-    </div>
+    </SharedFrame>
   );
 }
 
@@ -57,7 +59,7 @@ function TileImage({ e }: { e: EncoreEvent }) {
 export function EventTile({ o, saved, onSave, showDay }: { o: Occ; saved: boolean; onSave: () => void; showDay?: boolean }) {
   const e = o.e;
   return (
-    <Link href={`/calendar/${e.s}`} className="encore-tile" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
+    <SharedLink href={`/calendar/${e.s}`} shared={`evt-${e.s}`} className="encore-tile" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
       <TileImage e={e} />
       <div className="flex items-baseline justify-between gap-3">
         <span className="encore-tile-time">
@@ -72,7 +74,7 @@ export function EventTile({ o, saved, onSave, showDay }: { o: Occ; saved: boolea
         <span className={cn("t-mono-sm", e.so ? "text-amber" : "text-graphite-600")}>{e.so ? "Sold out" : (e.pr ?? "Tickets at the venue")}</span>
         <SaveButton saved={saved} onToggle={onSave} title={e.t} />
       </div>
-    </Link>
+    </SharedLink>
   );
 }
 
@@ -99,7 +101,7 @@ export function RunCard({ e, today, saved, onSave }: { e: EncoreEvent; today: st
   const closing = e.r && e.r <= addDaysStr(today, 14);
   const opening = e.f && e.f > today;
   return (
-    <Link href={`/calendar/${e.s}`} className="encore-run" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
+    <SharedLink href={`/calendar/${e.s}`} shared={`evt-${e.s}`} className="encore-run" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
       <TileImage e={e} />
       <div className="flex items-baseline justify-between gap-3">
         <span className="t-mono-sm text-graphite-500">{CATEGORY[e.c].label}</span>
@@ -111,7 +113,7 @@ export function RunCard({ e, today, saved, onSave }: { e: EncoreEvent; today: st
         <span className="t-mono-sm text-graphite-600">{opening && e.r ? `${shortDay(e.f!)} – ${shortDay(e.r)}` : (through(e) ?? "")}</span>
         <SaveButton saved={saved} onToggle={onSave} title={e.t} />
       </div>
-    </Link>
+    </SharedLink>
   );
 }
 

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { EventCard } from "@/components/event-card";
 import { JsonLd } from "@/components/json-ld";
 import { Photo } from "@/components/photo";
+import { SharedFrame } from "@/components/shared-frame";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { getNeighborhoods, getUpcomingEvents, getVenue, getVenueSlugs } from "@/lib/content";
@@ -62,7 +63,11 @@ export default async function VenuePage({ params }: { params: Params }) {
       />
 
       <section data-header-overlay className="relative -mt-header min-h-[520px] overflow-hidden bg-navy text-white lg:min-h-[620px]" aria-labelledby="venue-title">
-        {image ? <Photo image={image} priority sizes="100vw" /> : null}
+        {image ? (
+          <SharedFrame name={`venue-${venue.slug}`} role="target" className="absolute inset-0">
+            <Photo image={image} priority sizes="100vw" />
+          </SharedFrame>
+        ) : null}
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
           <p className="t-eyebrow text-mist text-shadow-photo">

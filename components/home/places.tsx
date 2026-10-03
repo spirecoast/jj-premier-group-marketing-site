@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
+import { SharedFrame } from "@/components/shared-frame";
+import { SharedLink } from "@/components/shared-link";
 import { MARKETS } from "@/lib/content/markets";
 
 /**
@@ -22,13 +24,14 @@ export function Places() {
       <ul className="grid gap-5 md:grid-cols-3 lg:items-start">
         {MARKETS.map((m, i) => (
           <li key={m.slug} className="flex">
-            <Link
+            <SharedLink
               href={`/${m.slug}`}
+              shared={`place-${m.slug}`}
               className={`place-card group relative flex w-full min-h-[380px] flex-col justify-end overflow-hidden bg-navy text-white sm:min-h-[440px] ${i === 1 ? "lg:min-h-[580px]" : "lg:min-h-[520px]"}`}
             >
-              <div className="absolute inset-0">
+              <SharedFrame name={`place-${m.slug}`} role="source" className="absolute inset-0">
                 <Photo image={m.image} sizes="(min-width: 768px) 33vw, 100vw" className="place-img" />
-              </div>
+              </SharedFrame>
               <div className="absolute inset-0 bg-linear-to-t from-harbor-950/85 via-harbor-950/25 to-transparent" aria-hidden="true" />
               <div className="relative flex flex-col gap-3 p-7 lg:p-8">
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-mist">{m.county}</p>
@@ -42,7 +45,7 @@ export function Places() {
                   Read about {m.name} <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </span>
               </div>
-            </Link>
+            </SharedLink>
           </li>
         ))}
       </ul>
