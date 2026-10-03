@@ -8,24 +8,48 @@ import type { StyleSpecification } from "maplibre-gl";
  *
  * Provider: NEXT_PUBLIC_MAPTILER_KEY set → MapTiler (100k loads/month free,
  * then paid, with an SLA). Unset → OpenFreeMap, free and keyless, which keeps
- * previews and local builds working.
+ * previews and local builds working. OpenFreeMap is also the fallback when
+ * MapTiler refuses or fails at runtime (lib/neighborhoods/map-fallback.ts).
  */
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
 /** MapLibre's worker, copied to /public by scripts/copy-maplibre-worker.mjs before every dev and build. */
 export const MAPLIBRE_WORKER_URL = "/vendor/maplibre-gl-worker.mjs";
 
-export const MAP_PROVIDER: "maptiler" | "openfreemap" = MAPTILER_KEY ? "maptiler" : "openfreemap";
+export type MapProvider = "maptiler" | "openfreemap";
 
-const TILES = MAPTILER_KEY
-  ? `https://api.maptiler.com/tiles/v3/tiles.json?key=${MAPTILER_KEY}`
-  : "https://tiles.openfreemap.org/planet";
-const GLYPHS = MAPTILER_KEY
-  ? `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${MAPTILER_KEY}`
-  : "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
-const ATTRIBUTION = MAPTILER_KEY
-  ? '<a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">&copy; OpenStreetMap contributors</a>'
-  : '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">&copy; OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">&copy; OpenStreetMap contributors</a>';
+/** The provider a fresh map starts on. */
+export const MAP_PROVIDER: MapProvider = MAPTILER_KEY ? "maptiler" : "openfreemap";
+
+export const MAPTILER_ORIGIN = "https://api.maptiler.com";
+export const OPENFREEMAP_ORIGIN = "https://tiles.openfreemap.org";
+
+const ATTRIBUTION: Record<MapProvider, string> = {
+  maptiler:
+    '<a href="https://www.maptiler.com/copyright/" target="_blank" rel="noopener">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">&copy; OpenStreetMap contributors</a>',
+  openfreemap:
+    '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">&copy; OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">&copy; OpenStreetMap contributors</a>',
+};
+
+/** Where the vector tiles (TileJSON) and glyphs come from, and the credit line, for one provider. */
+export function providerEndpoints(provider: MapProvider, key: string | undefined = MAPTILER_KEY) {
+  if (provider === "maptiler" && key) {
+    const k = encodeURIComponent(key);
+    return {
+      provider,
+      tiles: `${MAPTILER_ORIGIN}/tiles/v3/tiles.json?key=${k}`,
+      glyphs: `${MAPTILER_ORIGIN}/fonts/{fontstack}/{range}.pbf?key=${k}`,
+      attribution: ATTRIBUTION.maptiler,
+    } as const;
+  }
+  // No key means no MapTiler, whatever was asked for.
+  return {
+    provider: "openfreemap" as const,
+    tiles: `${OPENFREEMAP_ORIGIN}/planet`,
+    glyphs: `${OPENFREEMAP_ORIGIN}/fonts/{fontstack}/{range}.pbf`,
+    attribution: ATTRIBUTION.openfreemap,
+  } as const;
+}
 
 export const MAP_COLORS = {
   paper: "#f7f3ec",
@@ -55,14 +79,20 @@ export const MAP_COLORS = {
 const REGULAR = ["Noto Sans Regular"];
 const BOLD = ["Noto Sans Bold"];
 
-export function buildMapStyle(): StyleSpecification {
+/**
+ * The brand style on a given provider; by default the one this build is set
+ * up for. Pass "openfreemap" to force the keyless fallback. The layers are the
+ * same either way; only the tile, glyph and credit URLs change.
+ */
+export function buildMapStyle(provider: MapProvider = MAP_PROVIDER, key: string | undefined = MAPTILER_KEY): StyleSpecification {
   const c = MAP_COLORS;
+  const at = providerEndpoints(provider, key);
   return {
     version: 8,
     name: "JJ Premier Group",
-    glyphs: GLYPHS,
+    glyphs: at.glyphs,
     sources: {
-      openmaptiles: { type: "vector", url: TILES, attribution: ATTRIBUTION },
+      openmaptiles: { type: "vector", url: at.tiles, attribution: at.attribution },
     },
     layers: [
       { id: "background", type: "background", paint: { "background-color": c.paper } },
