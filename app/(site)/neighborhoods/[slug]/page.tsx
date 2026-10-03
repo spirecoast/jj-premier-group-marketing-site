@@ -158,7 +158,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       {faqs.length ? <JsonLd data={faqJsonLd(faqs)} /> : null}
 
       {n ? (
-        <section className="relative -mt-header min-h-[560px] overflow-hidden bg-navy text-white lg:min-h-[680px]" aria-labelledby="nb-title">
+        <section data-header-overlay className="relative -mt-header min-h-[560px] overflow-hidden bg-navy text-white lg:min-h-[680px]" aria-labelledby="nb-title">
           <Photo image={n.hero} priority sizes="100vw" />
           <div className="hero-shade" aria-hidden="true" />
           <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">

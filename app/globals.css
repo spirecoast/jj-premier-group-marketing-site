@@ -2156,3 +2156,13 @@
     margin: 0.6in 0.7in;
   }
 }
+
+/* Unlayered on purpose: it must beat the header's bg-transparent utility. */
+/* The header starts see-through only over a page that marks its photo hero
+   (data-header-overlay). Over anything else, e.g. an Atlas place without a
+   photo, it stays the solid navy bar so the menu can be read. */
+body:not(:has([data-header-overlay])) .header-overlay {
+  border-bottom-color: rgb(137 212 227 / 0.15);
+  background-color: rgb(46 74 92 / 0.9);
+  backdrop-filter: blur(24px);
+}

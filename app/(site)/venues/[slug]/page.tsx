@@ -61,7 +61,7 @@ export default async function VenuePage({ params }: { params: Params }) {
         ])}
       />
 
-      <section className="relative -mt-header min-h-[520px] overflow-hidden bg-navy text-white lg:min-h-[620px]" aria-labelledby="venue-title">
+      <section data-header-overlay className="relative -mt-header min-h-[520px] overflow-hidden bg-navy text-white lg:min-h-[620px]" aria-labelledby="venue-title">
         {image ? <Photo image={image} priority sizes="100vw" /> : null}
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">

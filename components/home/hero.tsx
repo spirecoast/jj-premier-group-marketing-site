@@ -17,7 +17,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
   const meetLabel = team.length ? `Meet ${team.map((m) => m.name).join(" and ")}` : "Meet the team";
 
   return (
-    <section className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">
+    <section data-header-overlay className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">
       <div className="relative overflow-hidden bg-paper lg:h-[780px] lg:bg-navy">
         {/* Photograph */}
         <div className="relative aspect-[3/2] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
