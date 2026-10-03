@@ -746,6 +746,24 @@
   }
 
   /* Hero photograph: one motion (the drift, defined below) and the shade. */
+  /* The one scrim for type over a card or panel photograph: a faint harbor
+     cast across the whole picture, deepening toward the foot where the words
+     sit. Heroes keep .hero-shade, which also shades the top for the header. */
+  .scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(0deg, rgb(20 37 48 / 0.88) 0%, rgb(20 37 48 / 0.46) 38%, rgb(20 37 48 / 0.08) 70%, transparent 100%),
+      rgb(20 37 48 / 0.1);
+  }
+  /* A picture shown whole on a soft copy of itself (components/photo.tsx). */
+  .photo-fill {
+    object-fit: cover;
+    transform: scale(1.1);
+    opacity: 0.6;
+    filter: blur(24px);
+  }
   .hero-shade {
     position: absolute;
     inset: 0;
@@ -1600,27 +1618,13 @@
     transform: translateY(-2px);
     box-shadow: 0 16px 36px -22px rgba(30, 52, 66, 0.35);
   }
+  /* The tile's picture: 3:2 like every other card, so a rail and a grid read as one family. */
   .encore-tile-img {
     position: relative;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 3 / 2;
     margin: -1rem -1rem 0.375rem;
     overflow: hidden;
     background: var(--color-linen-100);
-  }
-  .encore-tile-credit {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    max-width: 100%;
-    padding: 2px 6px;
-    overflow: hidden;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    color: var(--color-linen-50);
-    background: rgb(20 37 48 / 0.62);
   }
   .encore-tile-time {
     font-family: var(--font-display);
@@ -1716,7 +1720,23 @@
     color: var(--color-graphite-600);
     border-color: var(--color-hairline);
   }
-  /* The presenter's image credit, under a photo. */
+  /* The presenter's image credit: `image-credit` under a photo, `image-credit-on`
+     as the small chip in a card's corner, one face for both. */
+  .image-credit-on {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    padding: 2px 6px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-linen-50);
+    background: rgb(20 37 48 / 0.62);
+  }
   .image-credit {
     font-family: var(--font-mono);
     font-size: 10px;

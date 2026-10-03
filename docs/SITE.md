@@ -38,7 +38,12 @@ search index; Resend sends only team-facing email.
   client's direction; `MarketSlug` has three values.
 - Photographs: sources stay JPEG under `public/images` (2560px max on the long side); `next.config.ts`
   asks the image optimizer for AVIF first and WebP second, so browsers never receive the source
-  file. Every photo goes through `components/photo.tsx`. Provenance, as of October 2026:
+  file. Every photo goes through `components/photo.tsx`, which gives every box the same treatment:
+  square corners, a crop to the box's shape (cards 3:2, the event hero 21:9), and, given the box's
+  `frame`, a picture whose shape is far from it shown whole on a blurred copy of itself (Encore tiles
+  learn the shape on load, since the index carries no dimensions). Type over a card photograph sits
+  on the one `.scrim`; heroes keep `.hero-shade`. Credits are `.image-credit` under a picture and
+  `.image-credit-on` as the chip in a card's corner. Provenance, as of October 2026:
   six library files are Adobe Stock photos the client supplied on September 22, 2026
   (`venice-pier-sunrise`, `gulf-beach-aerial`, `modern-home-pool-dusk`, `kitchen-navy-island`,
   `kitchen-white-palms`, `lakes-aerial-sunset`); two came from the team in Slack

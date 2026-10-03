@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { KeyArt } from "@/components/key-art";
+import { Photo } from "@/components/photo";
 import { SharedFrame } from "@/components/shared-frame";
 import { stockPhoto } from "@/lib/encore/stock";
 import type { Event } from "@/lib/content/types";
@@ -10,7 +10,8 @@ import type { Event } from "@/lib/content/types";
  * drawn for the category otherwise. Promotional images come in every shape
  * (posters, banners, squares), so a wide one fills the frame and anything
  * else sits whole on a soft, blurred copy of itself instead of losing its
- * top and bottom to a crop.
+ * top and bottom to a crop: the Photo component's own rule, given the
+ * hero's frame.
  */
 export function EventHero({ event }: { event: Event }) {
   const img = event.image;
@@ -26,20 +27,11 @@ export function EventHero({ event }: { event: Event }) {
       </figure>
     );
   }
-  const ratio = img.width / img.height;
-  const wide = ratio >= 1.6 && ratio <= 2.6;
   return (
     <figure className="flex flex-col gap-2">
       {/* The card's picture grows into this box on the way in (components/shared-frame.tsx). */}
       <SharedFrame name={`evt-${event.slug}`} role="target" className="relative aspect-[16/9] max-h-[560px] w-full overflow-hidden bg-linen-100 sm:aspect-[21/9]">
-        {wide ? (
-          <Image src={img.src} alt={img.alt} fill priority sizes="(min-width: 1024px) 1248px, 100vw" className="object-cover" />
-        ) : (
-          <>
-            <Image src={img.src} alt="" aria-hidden="true" fill sizes="64px" quality={30} className="scale-110 object-cover opacity-60 blur-2xl" />
-            <Image src={img.src} alt={img.alt} fill priority sizes="(min-width: 1024px) 1248px, 100vw" className="object-contain" />
-          </>
-        )}
+        <Photo image={{ ...img, position: img.position ?? "50% 38%" }} priority sizes="(min-width: 1024px) 1248px, 100vw" frame={21 / 9} />
       </SharedFrame>
       {event.imageCredit ? <ImageCredit credit={event.imageCredit} /> : null}
     </figure>

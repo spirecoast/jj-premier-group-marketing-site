@@ -78,10 +78,7 @@ export function ListingCard(props: OverlayProps | StandardProps) {
         aria-label={`${listing.title}, ${formatPrice(listing.price)}`}
       >
         <Photo image={listing.hero} sizes={sizes} priority={priority} className="card-img" />
-        <div
-          className="pointer-events-none absolute inset-0 bg-linear-to-t from-harbor-950/90 via-harbor-950/55 via-38% to-transparent to-62%"
-          aria-hidden="true"
-        />
+        <div className="scrim" aria-hidden="true" />
         <div className={cn("absolute flex flex-col", large ? "inset-x-7 bottom-6 gap-2.5" : "inset-x-5 bottom-5 gap-1.5")}>
           {large ? <p className="t-mono-sm text-sky-300">{eyebrowFor(listing)}</p> : null}
           <div className="flex items-baseline justify-between gap-4">

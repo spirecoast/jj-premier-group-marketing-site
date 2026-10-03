@@ -21,7 +21,7 @@ function Column({ id, eyebrow, title, items, image }: { id: string; eyebrow: str
     <div className="flex flex-col gap-10" role="group" aria-labelledby={id}>
       <figure className="relative aspect-[4/3] w-full overflow-hidden bg-navy sm:aspect-[16/9] lg:aspect-[5/4]">
         <Photo image={image} sizes="(min-width: 1024px) 600px, 100vw" />
-        <div className="absolute inset-0 bg-linear-to-t from-harbor-950/85 via-harbor-950/30 via-45% to-transparent" aria-hidden="true" />
+        <div className="scrim" aria-hidden="true" />
         <figcaption className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-7 lg:p-9">
           <p className="t-eyebrow text-mist">{eyebrow}</p>
           <h3 id={id} className="t-h2 max-w-[18ch] text-white text-shadow-photo">

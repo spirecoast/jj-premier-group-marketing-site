@@ -33,6 +33,8 @@ type Props = {
 export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta, at }: Props) {
   const href = `/calendar/${event.slug}` as const;
   const shared = `evt-${event.slug}`;
+  // Presenters' images carry no focal point; a little above centre keeps a poster's title and faces in the crop.
+  const image = event.image ? { ...event.image, position: event.image.position ?? "50% 38%" } : undefined;
   const startsAt = at?.startsAt ?? event.startsAt;
   const endsAt = at ? at.endsAt : event.endsAt;
   const allDay = at ? at.allDay : event.allDay;
@@ -42,19 +44,14 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
     return (
       <SharedLink href={href} shared={shared} className={cn("card group relative block min-h-[420px] overflow-hidden bg-navy lg:min-h-[560px]", className)}>
         <SharedFrame name={shared} role="source" className="absolute inset-0">
-          {event.image ? (
-            <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 58vw, 100vw"} priority={priority} className="card-img" />
+          {image ? (
+            <Photo image={image} sizes={sizes ?? "(min-width: 1024px) 58vw, 100vw"} priority={priority} className="card-img" />
           ) : (
             <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={1.3} />
           )}
         </SharedFrame>
-        <div
-          className="pointer-events-none absolute inset-0 bg-linear-to-t from-harbor-950/95 via-harbor-950/60 via-40% to-transparent to-64%"
-          aria-hidden="true"
-        />
-        {event.image && event.imageCredit ? (
-          <span className="image-credit absolute right-0 top-0 bg-harbor-950/60 px-2 py-1 text-linen-100">Image: {event.imageCredit.name}</span>
-        ) : null}
+        <div className="scrim" aria-hidden="true" />
+        {image && event.imageCredit ? <span className="image-credit-on bottom-auto top-0">Image: {event.imageCredit.name}</span> : null}
         <div className="absolute inset-x-6 bottom-7 flex flex-col gap-3 lg:inset-x-8">
           <p className="t-mono-sm text-sky-300">{placeDay(event, startsAt)}</p>
           <h3 className="font-display text-[clamp(1.625rem,3vw,2.5rem)] font-light leading-[1.04] text-white">
@@ -82,7 +79,7 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
           className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]"
           title={event.image && event.imageCredit ? `Image: ${event.imageCredit.name}` : undefined}
         >
-          {event.image ? <Photo image={event.image} sizes="130px" /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} />}
+          {image ? <Photo image={image} sizes="130px" frame={130 / 96} /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} />}
         </SharedFrame>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
@@ -111,14 +108,12 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
       )}
     >
       <SharedFrame name={shared} role="source" className="relative aspect-[3/2] overflow-hidden bg-linen-100">
-        {event.image ? (
-          <Photo image={event.image} sizes={sizes ?? "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"} className="card-img" />
+        {image ? (
+          <Photo image={image} sizes={sizes ?? "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"} className="card-img" frame={3 / 2} />
         ) : (
           <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={3 / 2} />
         )}
-        {event.image && event.imageCredit ? (
-          <span className="image-credit absolute bottom-0 right-0 max-w-full truncate bg-harbor-950/60 px-2 py-0.5 text-linen-100">Image: {event.imageCredit.name}</span>
-        ) : null}
+        {image && event.imageCredit ? <span className="image-credit-on">Image: {event.imageCredit.name}</span> : null}
       </SharedFrame>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>

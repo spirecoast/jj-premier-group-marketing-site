@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
 import { KeyArt } from "@/components/key-art";
 import { SharedFrame } from "@/components/shared-frame";
@@ -8,6 +9,7 @@ import { SharedLink } from "@/components/shared-link";
 import { marketName } from "@/lib/content/markets";
 import { CATEGORY, subcategoryLabel } from "@/lib/encore/categories";
 import type { EncoreEvent } from "@/lib/encore/index-format";
+import { coversFrame } from "@/lib/photo-fit";
 import { clock, shortDay, through, weekdayShort, type Occ } from "@/lib/encore/select";
 import { cn } from "@/lib/utils";
 
@@ -39,17 +41,37 @@ function Meta({ e }: { e: EncoreEvent }) {
   );
 }
 
-/** The card's picture: the presenter's own image, credited, or key art for the category. */
+/**
+ * The card's picture: the presenter's own image, credited, or key art for the
+ * category. Promotional images come in every shape; the index carries no
+ * dimensions, so the shape is read when the image loads, and one far from
+ * the card's 3:2 (a poster, a season banner) sits whole on a blurred copy
+ * of itself, as the event hero does (components/photo.tsx).
+ */
 function TileImage({ e }: { e: EncoreEvent }) {
+  const [whole, setWhole] = useState(false);
+  const sizes = "(min-width: 1024px) 300px, (min-width: 640px) 45vw, 80vw";
   return (
     <SharedFrame name={`evt-${e.s}`} role="source" className="encore-tile-img">
       {e.img ? (
         <>
-          <Image src={e.img} alt="" fill sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 80vw" className="object-cover" />
-          {e.ic ? <span className="encore-tile-credit">Image: {e.ic}</span> : null}
+          {whole ? <Image src={e.img} alt="" aria-hidden="true" fill sizes="64px" quality={30} className="photo-fill" /> : null}
+          <Image
+            src={e.img}
+            alt=""
+            fill
+            sizes={sizes}
+            className={whole ? "object-contain" : "object-cover"}
+            style={whole ? undefined : { objectPosition: "50% 38%" }}
+            onLoad={(ev) => {
+              const img = ev.currentTarget;
+              if (img.naturalWidth && img.naturalHeight) setWhole(!coversFrame(img.naturalWidth / img.naturalHeight, 3 / 2));
+            }}
+          />
+          {e.ic ? <span className="image-credit-on">Image: {e.ic}</span> : null}
         </>
       ) : (
-        <KeyArt category={e.c} seed={e.s} subcategory={e.sc} ratio={16 / 9} />
+        <KeyArt category={e.c} seed={e.s} subcategory={e.sc} ratio={3 / 2} />
       )}
     </SharedFrame>
   );
