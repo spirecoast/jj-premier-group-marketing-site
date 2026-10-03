@@ -922,6 +922,38 @@
       radial-gradient(circle at 70% 70%, rgba(229, 232, 213, 0.6), transparent 45%),
       #f7f3ec;
   }
+  /* The map couldn't be drawn: a soft paper field with one line and a retry, never a grey box. */
+  .map-unavailable {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(211, 226, 234, 0.7), transparent 40%),
+      radial-gradient(circle at 70% 70%, rgba(229, 232, 213, 0.6), transparent 45%),
+      #f7f3ec;
+  }
+  .map-unavailable-note {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+    max-width: 26rem;
+    padding: 1.25rem 1.375rem;
+    background: var(--color-paper);
+    border: 1px solid var(--color-hairline);
+  }
+  /* In the explorer, the note sits in the part of the map the panel or sheet leaves open. */
+  .explorer.is-desktop .map-unavailable {
+    padding-left: calc(420px + 2.5rem);
+  }
+  .explorer.is-mobile .map-unavailable {
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
   .explorer .maplibregl-ctrl-group {
     border-radius: 0;
     box-shadow: none;

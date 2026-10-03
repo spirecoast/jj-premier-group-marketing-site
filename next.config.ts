@@ -11,8 +11,12 @@ const IS_DEV = process.env.NODE_ENV === "development";
 /** Plausible: plausible.io unless self-hosted (components/analytics.tsx). */
 const PLAUSIBLE_HOST = (process.env.NEXT_PUBLIC_PLAUSIBLE_HOST || "https://plausible.io").replace(/\/$/, "");
 
-/** Map tiles and glyphs: MapTiler with a key, OpenFreeMap without (lib/neighborhoods/map-style.ts). */
-const MAP_HOST = process.env.NEXT_PUBLIC_MAPTILER_KEY ? "https://api.maptiler.com" : "https://tiles.openfreemap.org";
+/**
+ * Map tiles and glyphs: MapTiler with a key, OpenFreeMap without
+ * (lib/neighborhoods/map-style.ts). With a key, OpenFreeMap is still listed:
+ * it's the runtime fallback when MapTiler refuses or fails (components/map-runtime.ts).
+ */
+const MAP_HOSTS = [...(process.env.NEXT_PUBLIC_MAPTILER_KEY ? ["https://api.maptiler.com"] : []), "https://tiles.openfreemap.org"];
 
 /** Sanity: the project's API hosts for draft previews and the Studio; the image CDN always. */
 const SANITY_PROJECT = /^[a-z0-9-]+$/.test(process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "")
@@ -57,7 +61,7 @@ function basePolicy(): Directives {
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io", `https://${SUPABASE_HOST}`],
     "font-src": ["'self'", "data:"],
-    "connect-src": ["'self'", PLAUSIBLE_HOST, MAP_HOST, ...SANITY_API, ...VERCEL_PREVIEW],
+    "connect-src": ["'self'", PLAUSIBLE_HOST, ...MAP_HOSTS, ...SANITY_API, ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
     // www.google.com: the keyless Google Maps embed on /contact (lib/map-embed.ts).
     "frame-src": ["'self'", "https://www.google.com", ...VERCEL_PREVIEW],

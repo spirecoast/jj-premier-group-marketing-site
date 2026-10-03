@@ -2,17 +2,42 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MapUnavailable } from "@/components/map-unavailable";
 import { track } from "@/lib/analytics";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import { childrenOf, descendantsOf, pathOf, search, type Filters } from "@/lib/neighborhoods/search";
 import { explorerHref, type ExplorerState, type MapView } from "@/lib/neighborhoods/url";
-import type { Bounds, FitRequest } from "./explorer-map";
+import { withRetry } from "@/lib/retry";
+import type { Bounds, ExplorerMapProps, FitRequest } from "./explorer-map";
 import { ExplorerPanel, type SheetPosition } from "./explorer-panel";
 
-const ExplorerMap = dynamic(() => import("./explorer-map").then((m) => m.ExplorerMap), {
-  ssr: false,
-  loading: () => <div className="explorer-map explorer-map-loading" aria-hidden="true" />,
-});
+/**
+ * The map's code (MapLibre and all) loads as its own chunk. A chunk can fail on
+ * a dropped connection or a deploy mid-visit, so it gets two more tries with a
+ * short pause. If it still doesn't arrive, the map area says so and the list
+ * carries on; "Try again" reloads the page, which keeps the state in the URL.
+ */
+const ExplorerMap = dynamic(
+  () =>
+    withRetry(() => import("./explorer-map"), { retries: 2, baseDelayMs: 600 })
+      .then((m) => m.ExplorerMap)
+      .catch((err: unknown) => {
+        console.warn(`[atlas map] the map's code didn't load: ${err instanceof Error ? err.message : String(err)}`);
+        return MapCodeMissing;
+      }),
+  {
+    ssr: false,
+    loading: () => <div className="explorer-map explorer-map-loading" aria-hidden="true" />,
+  },
+);
+
+function MapCodeMissing(_: ExplorerMapProps) {
+  return (
+    <div className="explorer-map" role="region" aria-label="Map of neighborhoods">
+      <MapUnavailable message="The map didn't load. The list still works." onRetry={() => window.location.reload()} />
+    </div>
+  );
+}
 
 type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
 type FitInput = DistributiveOmit<FitRequest, "id">;
