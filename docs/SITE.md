@@ -20,7 +20,7 @@ jj-premier-brand-system.vercel.app).
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
 | Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres → CRM → team email → Plausible), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `scripts/test-lead.mjs` |
 | Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
-| Site search | `lib/search/*` (chunks, indexer, hybrid query, fallback), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, migration `0010_search.sql`; see "Site search" below |
+| Site search | `lib/search/*` (chunks, indexer, scored hybrid query, fallback, `eval/`), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, `scripts/search-eval.ts`, migrations `0010_search.sql` and `0011_search_score_fusion.sql`; see "Site search" below |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
 | Encore dataset | `lib/content/encore/encore-calendar.json` (the source), `lib/content/encore.ts` (the converter) |
@@ -370,21 +370,71 @@ model (384 dimensions) built into Supabase Edge Functions. No other vendor.
 
 1. A cached answer for the same words from the last five minutes (per server instance).
 2. The query is embedded by the `embed` Edge Function (`supabase/functions/embed`, called with
-   the anon key, 4s timeout), then `search_hybrid()` runs in Postgres over `DATABASE_URL`: a
-   full-text list (`websearch_to_tsquery`, `english`; plain questions match on any word and
-   rank chunks that match every word first, a query with quotes or a minus sign keeps its strict
-   web-search meaning) and a nearest-neighbour list (HNSW, cosine), each ranked on its own and
-   fused with reciprocal rank fusion (k = 50, equal weights, the pattern in Supabase's hybrid
-   search guide). A neighbour below 0.80 cosine similarity doesn't count, and when nothing
-   matches by keyword the best neighbour must reach 0.83 or the search returns nothing. On the
-   live index, gibberish scored 0.79–0.81 against the short event listings and real questions
-   0.82 and up; both numbers are `FUSION` in `lib/search/query.ts`. The excerpt is `ts_headline` with the matched words wrapped in U+E000/U+E001,
-   which the page turns into `<mark>`; no HTML ever travels in a result. At most three
-   sections of one page are shown. If the query can't be embedded, the same function runs
-   keyword-only.
-3. If there's no `DATABASE_URL`, the database errors, or the index returns nothing (say,
-   before the first index), the page answers from an in-memory BM25 keyword search over the
-   same chunks (`lib/search/fallback.ts`). The page never breaks.
+   the anon key, 4s timeout), then `search_scored()` (migration `0011_search_score_fusion.sql`)
+   runs in Postgres over `DATABASE_URL`. It takes the 40 nearest chunks by cosine (HNSW, with
+   `hnsw.ef_search` raised to 200 for the call) and the 40 best full-text matches
+   (`websearch_to_tsquery`, `english`; plain questions match on any word, a query with quotes or
+   a minus sign keeps its strict web-search meaning), and scores every candidate on both
+   signals, each on a fixed 0–1 scale:
+   - **semantic** = (cosine − 0.82) / (0.92 − 0.82), clamped. On the live index gte-small puts
+     gibberish at 0.79–0.82 and strong matches at 0.90–0.94, so 0.82 is the noise floor and
+     0.92 a strong match.
+   - **keyword** = √(share of the query's words the chunk contains, each word weighted by its
+     IDF in the index). 1 when every word is there, whatever the chunk's length; low when it
+     only shares a common word ("price", "fix"). Words the index has never seen count against
+     the match, so nonsense stays near 0.
+   - **score** = 0.8 × semantic + 0.2 × keyword, plus 0.15 when the title is exactly the query
+     (a place or venue typed by name).
+
+   A row is shown only if its score is at least 0.2. In words: a chunk with no word in common
+   needs cosine ≥ 0.845, a chunk with no semantic signal needs every word of the query, and
+   anything between needs some of both. When nothing reaches 0.2, the search returns nothing.
+   The settings are `SCORING` in `lib/search/query.ts` (passed on every call; the function's
+   defaults match). The excerpt is `ts_headline` with the matched words wrapped in
+   U+E000/U+E001, which the page turns into `<mark>`; no HTML ever travels in a result. At most
+   three sections of one page are shown. If the query can't be embedded, the same function runs
+   on keywords alone (semantic = 0, so only chunks with every word pass).
+3. If there's no `DATABASE_URL`, the database errors, the index has nothing yet, or a
+   keyword-only search found nothing, the page answers from an in-memory BM25 keyword search
+   over the same chunks (`lib/search/fallback.ts`). An embedded query that nothing reaches the
+   threshold for is answered with no results, not sent to the fallback. The page never breaks.
+
+**Why not reciprocal rank fusion.** The first version (`search_hybrid()`, 0010) fused the two
+lists with RRF, the pattern in Supabase's hybrid search guide. RRF looks only at each list's
+order: the nearest neighbour gets the same boost whether its cosine is 0.95 or 0.80, a chunk that
+matches one common word ranks like one that matches all of them, and the fused number has no
+meaning of its own, so it can't be thresholded. Gibberish ("xyzzy blorp") came back as theater
+listings until a rule was bolted on outside the fusion. Fusing the scores themselves keeps
+"how good is this match" in the number, which is what a threshold needs.
+
+**The eval** (`lib/search/eval/queries.json`, `scripts/search-eval.ts`): 50 queries a buyer,
+seller or relocator would type (14 keyword, 11 place or venue names, 5 typos, 13 paraphrased
+questions with little or no keyword overlap, 7 gibberish or off-topic queries that should return
+nothing), each labelled with the chunk ids that answer it, written from the index's contents
+before either method was run. Every third query was held out from tuning. Measured on the live
+index, October 2026 (hit@k and MRR over the 43 real queries, top ten after the per-page cap):
+
+| | hit@1 | hit@3 | MRR | real queries with no results | noise with results |
+| --- | --- | --- | --- | --- | --- |
+| RRF (`search_hybrid` + the noise rule), all | 0.651 | 0.814 | 0.755 | 1 of 43 | 4 of 7 |
+| Score fusion (`search_scored`), all | **0.837** | **0.860** | **0.851** | 3 of 43 | **0 of 7** |
+| RRF, held-out third (14 + 2 noise) | 0.643 | 0.929 | 0.780 | 0 | 1 of 2 |
+| Score fusion, held-out third | 0.857 | 0.857 | 0.857 | 1 | 0 of 2 |
+
+By type (MRR, RRF → scored): keyword 0.96 → 1.00, places 0.87 → 1.00, paraphrases 0.53 → 0.74,
+typos 0.51 → 0.40. Typos are the one loss: "siesta kee" and "flod zone" have one real word, a
+made-up one and a weak cosine, so they fall under the threshold, where RRF showed them at ranks
+5 and 3. "hommestead portabilty" fails both ways (gte-small doesn't see through it). Raising
+`hnsw.ef_search` alone doesn't move RRF's numbers (identical at 200); the gain is the fusion.
+Keyword-only mode (no embedding) is much weaker (MRR 0.36, every word required) and leans on the
+in-memory fallback, as before.
+
+How much of this is fitted: the weights and threshold were picked by grid search on the tuning
+two-thirds (29 real + 5 noise queries). Most settings near the chosen one score within 0.01 MRR
+of it, so the exact numbers aren't what's doing the work; the threshold is the fragile part.
+On the tuning split the highest-scoring noise query reached 0.149 and the weakest right answer
+0.174; 0.2 was chosen for margin over the noise, and it costs one held-out query ("flod zone",
+0.194). 50 queries is a small set: treat ±0.05 on these numbers as noise.
 
 `GET /api/search?q=` returns the same JSON (`q`, `source`: hybrid or keyword, `results`), 2–200
 characters, 30 a minute per IP per instance (429 past it), `s-maxage=300`. `/search` itself has
@@ -398,7 +448,8 @@ and stable (`guide:<slug>#<section>`, `place:<slug>`, `post:<slug>`, `tide:<issu
 `event:<slug>`, `venue:<slug>`, `page:<path>#<part>`; later parts of a long chunk end `~2`,
 `~3`), the url with the section's anchor, the body, a `content_hash`, the `embedding` and a
 generated `fts` (title A, section B, body C). RLS on with no policies and execute on
-`search_hybrid` revoked from `anon` and `authenticated`: only the server reads it. Chunks are
+`search_scored` (and the retired `search_hybrid`) revoked from `anon` and `authenticated`: only
+the server reads it. Chunks are
 150–300 words where the content allows (a place or an event is shorter), and each is embedded
 with its title and section in front. Zoned schools, research notes and anything age-related are
 left out of the index; county-registry places aren't indexed (their pages are noindex). The page
@@ -432,10 +483,30 @@ normalisation. `verify_jwt` is on; it has no database access. The file in
 `supabase/functions/embed/index.ts` is the deployed source: redeploy with
 `supabase functions deploy embed` after a change. It's excluded from `tsc` (it's Deno).
 
-**Tuning:** `FUSION` in `lib/search/query.ts` holds the match count, the weights, RRF k and the
-similarity floor. `search_hybrid` also returns `keyword_rank` and `semantic_rank` for each row,
-so a query can be inspected in the SQL editor:
-`select * from search_hybrid('flood insurance', '<vector>'::extensions.vector, 10, 1, 1, 50, 0.80);`
+**Tuning:** `SCORING` in `lib/search/query.ts` holds the match count, the semantic weight, the
+cosine floor and ceiling, the title boost, the threshold and the candidate count. `search_scored`
+also returns each row's `cosine` and `keyword` score, so a query can be inspected in the SQL
+editor: `select id, score, cosine, keyword from search_scored('flood insurance', '<vector>'::extensions.vector);`
+(pass `min_score => 0` to see what the threshold drops). To re-tune:
+
+1. Add or fix queries in `lib/search/eval/queries.json` from what the index holds
+   (`select id, kind, title, section_title from search_documents`), never from what a method
+   returned. Keep some gibberish and off-topic queries.
+2. `npm run search:eval` (needs `DATABASE_URL` reachable, plus the Supabase URL and anon key)
+   prints hit@1, hit@3, MRR, real queries with no answer and the noise false-positive rate for
+   the tuning and held-out splits. `--verbose` lists each query's top three; `--set
+   minScore=0.18` tries a setting; `--grid` sweeps weight × floor × threshold and lists the best
+   settings with no noise results.
+3. Choose from the tuning split, from a plateau rather than a peak, then read the holdout once.
+   Watch the cosine floor if the model or the content changes: re-measure where gibberish lands
+   (`select max(1 - (embedding <=> '<vector>')) from search_documents` for a few nonsense
+   queries).
+4. Change `SCORING`, and the function's defaults in a new migration, together.
+
+The eval was first run through the Supabase connector with its queries and embeddings in a
+scratch schema, `search_eval` (not used by the site; RLS on, nothing granted to the API roles).
+It can be dropped. `search_hybrid` is no longer called; `0011_search_score_fusion.sql` carries a
+commented `DROP` for it, to run once the new function has been live for a while.
 
 ## Search and answer engines
 

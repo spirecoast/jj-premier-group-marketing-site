@@ -51,7 +51,7 @@ export type SearchResponse = { q: string; source: SearchSource; results: SearchH
 
 /**
  * Highlight markers inside a snippet: private-use characters that never occur
- * in the content, set by ts_headline in search_hybrid() and by the fallback.
+ * in the content, set by ts_headline in search_scored() and by the fallback.
  * The page splits on them and wraps the marked runs in <mark>, so no HTML
  * ever travels in a snippet.
  */

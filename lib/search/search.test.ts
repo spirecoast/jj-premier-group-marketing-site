@@ -12,11 +12,13 @@ import { PAGE_SUMMARIES, SUGGESTED_SEARCHES } from "./copy";
 import { EMBED_DIMS, EmbedError, embedConfig, embedTexts } from "./embed";
 import { highlight, keywordSearch, stem, tokenize } from "./fallback";
 import { planReindex, reindex, type SearchStore, type StoredRow, type WriteRow } from "./indexer";
-import { KEYWORD_ONLY_VECTOR, RateLimiter, TtlCache, cacheKey, clientIp, hybridSql, normalizeQuery, rowsToHits, vectorLiteral } from "./query";
+import { RateLimiter, SCORING, TtlCache, cacheKey, clientIp, emptyAnswer, normalizeQuery, rowsToHits, scoredSql, vectorLiteral } from "./query";
 import { excerpt, snippetParts, tidySnippet } from "./snippet";
 import { assertUniqueIds, eventChunk, guideChunks, hubChunks, pageChunks, placeChunks, postChunks, relocateChunks, venueChunk } from "./sources";
 import { CHUNK_WORDS, EMBED_MAX_CHARS, contentHash, embeddingText, packChunks, portableTextSections, sentences, toChunks, wordCount } from "./text";
 import { HIGHLIGHT, MAX_PER_PAGE, resultsBucket, variedResults, type Chunk } from "./types";
+import { checkEvalSet, firstRelevantRank, isHoldout, matchesExpect, summarize, type EvalSet, type QueryOutcome } from "./eval/metrics";
+import evalSet from "./eval/queries.json";
 
 const S = HIGHLIGHT.start;
 const E = HIGHLIGHT.stop;
@@ -348,25 +350,44 @@ describe("query", () => {
     assert.deepEqual(normalizeQuery(`ab${S}c${E}\u0000d`), { ok: true, q: "ab c d" });
   });
 
-  test("the hybrid SQL is fully parameterised", () => {
+  test("the scored SQL is fully parameterised, with the tuned settings", () => {
     const v = Array.from({ length: EMBED_DIMS }, (_, i) => i / 1000);
     const evil = "flood'); drop table search_documents; --";
-    const { sql: text, params } = new PgDialect().sqlToQuery(hybridSql({ q: evil, embedding: v }));
-    assert.match(text, /from public\.search_hybrid\(\$1, \$2::extensions\.vector\(384\), \$3::int, \$4::float, \$5::float, \$6::int, \$7::float\)/);
-    assert.ok(!text.includes("drop table"));
-    assert.deepEqual(params, [evil, vectorLiteral(v), 10, 1, 1, 50, 0.8, vectorLiteral(v), 0.83]);
-    assert.match(text, /where exists \(select 1 from h where keyword_rank is not null\) or \(select max\(1 - \(d\.embedding operator\(extensions\.<=>\) \$8::extensions\.vector\(384\)\)\) from public\.search_documents d join h on h\.id = d\.id\) >= \$9::float order by score desc/);
+    const { sql: text, params } = new PgDialect().sqlToQuery(scoredSql({ q: evil, embedding: v }));
+    assert.equal(
+      text,
+      "select id, kind, title, section_title, url, snippet, score from public.search_scored($1, $2::extensions.vector(384), $3::int, $4::float, $5::float, $6::float, $7::float, $8::float, $9::int) order by score desc, cosine desc, keyword desc, id",
+    );
+    assert.deepEqual(params, [evil, vectorLiteral(v), 10, 0.8, 0.82, 0.92, 0.15, 0.2, 40]);
+    assert.deepEqual(params.slice(2), [SCORING.matchCount, SCORING.semanticWeight, SCORING.cosFloor, SCORING.cosCeiling, SCORING.titleBoost, SCORING.minScore, SCORING.candidates]);
   });
 
-  test("without an embedding the call is keyword-only: semantic weight 0 and a similarity floor nothing reaches", () => {
-    const { params } = new PgDialect().sqlToQuery(hybridSql({ q: "cdd", embedding: null, matchCount: 99 }));
-    assert.deepEqual(params, ["cdd", vectorLiteral(KEYWORD_ONLY_VECTOR), 30, 1, 0, 50, 2, vectorLiteral(KEYWORD_ONLY_VECTOR), 0.83]);
+  test("the semantic weight leaves room for the keyword: a chunk with every word and no semantic signal lands on the threshold", () => {
+    assert.ok(SCORING.semanticWeight > 0 && SCORING.semanticWeight < 1);
+    assert.ok(Math.abs(1 - SCORING.semanticWeight - SCORING.minScore) < 1e-9);
+    assert.ok(SCORING.cosFloor < SCORING.cosCeiling);
+    // A chunk with no word in common needs cosine >= 0.845 to be shown.
+    const cosNeeded = SCORING.cosFloor + (SCORING.minScore / SCORING.semanticWeight) * (SCORING.cosCeiling - SCORING.cosFloor);
+    assert.ok(Math.abs(cosNeeded - 0.845) < 1e-9);
+  });
+
+  test("without an embedding the call passes null (keyword-only); counts are clamped and bad overrides ignored", () => {
+    const { params } = new PgDialect().sqlToQuery(scoredSql({ q: "cdd", embedding: null, matchCount: 99, minScore: Number.NaN, candidates: 1e6 }));
+    assert.deepEqual(params, ["cdd", null, 50, 0.8, 0.82, 0.92, 0.15, 0.2, 200]);
+    const tuned = new PgDialect().sqlToQuery(scoredSql({ q: "cdd", embedding: null, semanticWeight: 0.7, minScore: 0.3 })).params;
+    assert.deepEqual(tuned.slice(3, 8), [0.7, 0.82, 0.92, 0.15, 0.3]);
+  });
+
+  test("an empty answer is final only when the query was embedded and the index has rows", () => {
+    assert.equal(emptyAnswer({ embedded: true, indexFilled: true }), "none");
+    assert.equal(emptyAnswer({ embedded: true, indexFilled: false }), "fallback");
+    assert.equal(emptyAnswer({ embedded: false, indexFilled: true }), "fallback");
   });
 
   test("vectors must be 384 finite numbers", () => {
     assert.throws(() => vectorLiteral([1, 2, 3]));
     assert.throws(() => vectorLiteral(Array.from({ length: EMBED_DIMS }, () => Number.NaN)));
-    assert.equal(vectorLiteral(KEYWORD_ONLY_VECTOR).split(",").length, EMBED_DIMS);
+    assert.equal(vectorLiteral(Array.from({ length: EMBED_DIMS }, () => 0)).split(",").length, EMBED_DIMS);
   });
 
   test("rows become hits: unknown kinds and off-site urls dropped, later parts of a chunk folded", () => {
@@ -464,6 +485,55 @@ describe("fallback keyword search", () => {
     const h = highlight(long, new Set(tokenize("flood")));
     assert.ok(h.startsWith("…"));
     assert.ok(h.includes(`${S}flood${E}`));
+  });
+});
+
+describe("eval set and metrics", () => {
+  const set = evalSet as EvalSet;
+
+  test("the eval file is well formed: ~40 real queries, a handful of noise, every type present", () => {
+    assert.deepEqual(checkEvalSet(set), []);
+    const real = set.queries.filter((q) => q.type !== "noise");
+    assert.ok(real.length >= 40, `${real.length} real queries`);
+    assert.ok(set.queries.length - real.length >= 6);
+    for (const t of ["keyword", "place", "typo", "paraphrase", "noise"]) assert.ok(set.queries.some((q) => q.type === t), t);
+    assert.deepEqual(checkEvalSet({ about: "", queries: [set.queries[0]!, set.queries[0]!] }), [`duplicate id ${set.queries[0]!.id}`]);
+  });
+
+  test("labels that name a guide section or main page exist in the repo's own content", () => {
+    const ids = new Set(staticChunks().map((c) => c.id.replace(/~\d+$/, "")));
+    const local = set.queries.flatMap((q) => q.expect).filter((p) => /^(guide|page):/.test(p) && !p.includes("*"));
+    assert.ok(local.length > 20);
+    for (const p of local) assert.ok(ids.has(p), p);
+  });
+
+  test("patterns match whole ids, '*' anywhere, and later parts of a chunk count", () => {
+    assert.ok(matchesExpect("guide:x#a~2", ["guide:x#a"]));
+    assert.ok(!matchesExpect("guide:x#ab", ["guide:x#a"]));
+    assert.ok(matchesExpect("event:the-nutcracker-2026-12", ["event:*nutcracker*"]));
+    assert.ok(matchesExpect("page:/lakewood-ranch#faq", ["page:/lakewood-ranch*"]));
+    assert.ok(!matchesExpect("page:/sarasota", ["page:/lakewood-ranch*"]));
+    assert.equal(firstRelevantRank(["a", "b", "c"], ["c"]), 3);
+    assert.equal(firstRelevantRank(["a"], ["z"]), null);
+  });
+
+  test("summaries: hit@k and MRR over real queries, false positives over noise", () => {
+    const q = (id: string, type: "keyword" | "noise") => ({ id, type, q: id, expect: type === "noise" ? [] : ["x"] });
+    const outcomes: QueryOutcome[] = [
+      { query: q("a", "keyword"), holdout: false, ids: ["x"], firstRank: 1 },
+      { query: q("b", "keyword"), holdout: false, ids: ["y", "z", "x"], firstRank: 3 },
+      { query: q("c", "keyword"), holdout: true, ids: [], firstRank: null },
+      { query: q("n1", "noise"), holdout: false, ids: [], firstRank: null },
+      { query: q("n2", "noise"), holdout: true, ids: ["y"], firstRank: null },
+    ];
+    const s = summarize(outcomes);
+    assert.equal(s.queries, 3);
+    assert.equal(s.hitAt1, 1 / 3);
+    assert.equal(s.hitAt3, 2 / 3);
+    assert.equal(s.mrr, (1 + 1 / 3) / 3);
+    assert.equal(s.noAnswer, 1 / 3);
+    assert.equal(s.noiseFalsePositive, 0.5);
+    assert.deepEqual([0, 1, 2, 3, 4, 5].map(isHoldout), [false, false, true, false, false, true]);
   });
 });
 

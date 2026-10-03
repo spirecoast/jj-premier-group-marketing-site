@@ -4,7 +4,7 @@ import { SEARCH_KINDS, variedResults, type SearchHit, type SearchKind } from "./
 
 /**
  * The query side, minus the I/O: validating what was typed, the SQL that
- * calls search_hybrid(), a per-IP rate limit and a short cache. The route
+ * calls search_scored(), a per-IP rate limit and a short cache. The route
  * and the page wire these to the database and the Edge Function in
  * lib/search/search.ts.
  */
@@ -12,14 +12,33 @@ import { SEARCH_KINDS, variedResults, type SearchHit, type SearchKind } from "./
 export const QUERY_LIMITS = { min: 2, max: 200 } as const;
 
 /**
- * The fusion settings. RRF k = 50 and equal weights are the Supabase guide's
- * defaults. On the live index (October 2026), gte-small put gibberish
- * ("xyzzy blorp", "asdf qwerty") at 0.79 to 0.81 against the short event
- * listings and real questions at 0.82 and up. So a neighbour below 0.80 isn't
- * a semantic match, and when nothing matches by keyword at all, the best
- * semantic match must reach 0.83 or the search returns nothing.
+ * How search_scored() (0011_search_score_fusion.sql) puts the two signals on
+ * one scale. Every candidate gets both scores, each on a fixed 0..1 scale:
+ *
+ *   semantic = (cosine - cosFloor) / (cosCeiling - cosFloor), clamped. On the
+ *              live index gte-small puts gibberish at 0.79–0.82 and strong
+ *              matches at 0.90–0.94.
+ *   keyword  = sqrt(IDF-weighted share of the query's words in the chunk).
+ *   score    = semanticWeight * semantic + (1 - semanticWeight) * keyword,
+ *              plus titleBoost when the title is exactly the query.
+ *
+ * Rows under minScore are dropped, so noise returns nothing: with these
+ * numbers a chunk with no word in common needs cosine >= 0.845, and one with
+ * no semantic signal needs every word. Tuned on lib/search/eval/queries.json
+ * with scripts/search-eval.ts; docs/SITE.md has the numbers and how to re-tune.
  */
-export const FUSION = { matchCount: 10, fullTextWeight: 1, semanticWeight: 1, rrfK: 50, minSimilarity: 0.8, semanticOnlyMin: 0.83 } as const;
+export const SCORING = {
+  matchCount: 10,
+  semanticWeight: 0.8,
+  cosFloor: 0.82,
+  cosCeiling: 0.92,
+  titleBoost: 0.15,
+  minScore: 0.2,
+  candidates: 40,
+} as const;
+
+/** Rows asked of the database per search: enough that ten are left after the per-page cap. */
+export const SQL_ROWS = 30;
 
 export type QueryCheck = { ok: true; q: string } | { ok: false; q: string; error: string };
 
@@ -40,44 +59,54 @@ export function vectorLiteral(v: number[]): string {
   return `[${v.join(",")}]`;
 }
 
-/**
- * A unit vector for keyword-only searches (when the query couldn't be
- * embedded): the semantic side is switched off by a similarity floor no
- * vector can reach, so only full-text matches come back.
- */
-export const KEYWORD_ONLY_VECTOR: number[] = Array.from({ length: EMBED_DIMS }, (_, i) => (i === 0 ? 1 : 0));
+export type ScoringSettings = { -readonly [K in keyof typeof SCORING]: number };
 
-export type HybridParams = {
+export type ScoredParams = {
   q: string;
+  /** null when the query couldn't be embedded: the function then scores on keywords alone. */
   embedding: number[] | null;
-  matchCount?: number;
-  fullTextWeight?: number;
-  semanticWeight?: number;
-  rrfK?: number;
-  minSimilarity?: number;
-  semanticOnlyMin?: number;
-};
+} & Partial<ScoringSettings>;
 
-/** The call to search_hybrid(), fully parameterised. A null embedding asks for keyword matches only. */
-export function hybridSql(p: HybridParams): SQL {
-  const keywordOnly = p.embedding === null;
-  const vec = vectorLiteral(p.embedding ?? KEYWORD_ONLY_VECTOR);
-  const matchCount = Math.max(1, Math.min(30, Math.trunc(p.matchCount ?? FUSION.matchCount)));
-  // When no row matched by keyword, keep the results only if the best one is a
-  // strong semantic match (FUSION.semanticOnlyMin); otherwise the query is noise.
-  return sql`with h as (select id, kind, title, section_title, url, snippet, score, keyword_rank from public.search_hybrid(${p.q}, ${vec}::extensions.vector(384), ${matchCount}::int, ${p.fullTextWeight ?? FUSION.fullTextWeight}::float, ${keywordOnly ? 0 : (p.semanticWeight ?? FUSION.semanticWeight)}::float, ${p.rrfK ?? FUSION.rrfK}::int, ${keywordOnly ? 2 : (p.minSimilarity ?? FUSION.minSimilarity)}::float)) select id, kind, title, section_title, url, snippet, score from h where exists (select 1 from h where keyword_rank is not null) or (select max(1 - (d.embedding operator(extensions.<=>) ${vec}::extensions.vector(384))) from public.search_documents d join h on h.id = d.id) >= ${p.semanticOnlyMin ?? FUSION.semanticOnlyMin}::float order by score desc`;
+/**
+ * The call to search_scored(), fully parameterised. A null embedding asks for
+ * keyword matches only: semantic is 0, so only chunks with every word pass.
+ */
+export function scoredSql(p: ScoredParams): SQL {
+  const s: ScoringSettings = { ...SCORING };
+  for (const k of Object.keys(SCORING) as (keyof ScoringSettings)[]) {
+    const v = p[k];
+    if (typeof v === "number" && Number.isFinite(v)) s[k] = v;
+  }
+  const matchCount = Math.max(1, Math.min(50, Math.trunc(s.matchCount)));
+  const candidates = Math.max(1, Math.min(200, Math.trunc(s.candidates)));
+  const vec = p.embedding === null ? null : vectorLiteral(p.embedding);
+  return sql`select id, kind, title, section_title, url, snippet, score from public.search_scored(${p.q}, ${vec}::extensions.vector(384), ${matchCount}::int, ${s.semanticWeight}::float, ${s.cosFloor}::float, ${s.cosCeiling}::float, ${s.titleBoost}::float, ${s.minScore}::float, ${candidates}::int) order by score desc, cosine desc, keyword desc, id`;
 }
 
-export type HybridRow = { id: string; kind: string; title: string; section_title: string | null; url: string; snippet: string | null; score: number | string };
+/** Whether the index has any embedded rows: asked only when a search came back empty. */
+export const indexFilledSql = (): SQL => sql`select exists (select 1 from public.search_documents where embedding is not null) as filled`;
+
+/**
+ * What an empty answer from search_scored() means. With an embedding and a
+ * filled index it's final: nothing reached the threshold, so the query gets
+ * no results (gibberish shouldn't come back as keyword near-misses from the
+ * in-memory fallback). Before the first index, or when the search ran on
+ * keywords alone (every word required), the fallback gets a try.
+ */
+export function emptyAnswer(o: { embedded: boolean; indexFilled: boolean }): "none" | "fallback" {
+  return o.embedded && o.indexFilled ? "none" : "fallback";
+}
+
+export type ScoredRow = { id: string; kind: string; title: string; section_title: string | null; url: string; snippet: string | null; score: number | string };
 
 const isKind = (k: string): k is SearchKind => (SEARCH_KINDS as readonly string[]).includes(k);
 
 /**
- * Rows from search_hybrid() as hits, best first. Unknown kinds and unsafe urls
+ * Rows from search_scored() as hits, best first. Unknown kinds and unsafe urls
  * are dropped, and so are later parts of a chunk already shown ("…~2") and
  * more than three sections of one page (variedResults).
  */
-export function rowsToHits(rows: HybridRow[], tidy: (s: string) => string): SearchHit[] {
+export function rowsToHits(rows: ScoredRow[], tidy: (s: string) => string): SearchHit[] {
   const keep = variedResults();
   return rows
     .filter((r) => isKind(r.kind) && typeof r.url === "string" && r.url.startsWith("/") && !r.url.startsWith("//"))

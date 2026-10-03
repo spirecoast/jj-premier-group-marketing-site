@@ -196,7 +196,7 @@ export const questionnaireAnswers = pgTable(
  * embedding is gte-small (384 dims, unit length) from the `embed` Edge
  * Function; fts is generated (title A, section_title B, body C, english).
  * content_hash decides what gets re-embedded. RLS on, no policies: the server
- * reads and writes through DATABASE_URL. Queried by search_hybrid() (0010).
+ * reads and writes through DATABASE_URL. Queried by search_scored() (0011).
  */
 export const searchDocuments = pgTable(
   "search_documents",
