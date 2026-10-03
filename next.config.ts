@@ -22,28 +22,6 @@ const SANITY_API = SANITY_PROJECT
   ? [`https://${SANITY_PROJECT}.api.sanity.io`, `wss://${SANITY_PROJECT}.api.sanity.io`, `https://${SANITY_PROJECT}.apicdn.sanity.io`, "https://api.sanity.io"]
   : [];
 
-/**
- * Clerk's frontend API host is encoded in the publishable key
- * (base64 of "<host>$" after the pk_test_/pk_live_ prefix). app/layout.tsx
- * wraps every route in ClerkProvider when the key is set, so the host goes
- * into the base policy; without a key the portal is closed (proxy.ts) and
- * only the Clerk routes carry the dev-instance wildcard as a fallback.
- */
-function clerkFrontendApi(): string | null {
-  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
-  const encoded = key.replace(/^pk_(test|live)_/, "");
-  if (encoded && encoded !== key) {
-    try {
-      const host = Buffer.from(encoded, "base64").toString("utf8").replace(/\$$/, "");
-      if (/^[a-z0-9.-]+$/.test(host)) return `https://${host}`;
-    } catch {
-      // fall through
-    }
-  }
-  return null;
-}
-const CLERK_FAPI = clerkFrontendApi();
-
 /** Violations post here (app/api/csp-report/route.ts) and surface as one-line warnings in the logs. */
 const CSP_REPORT_PATH = "/api/csp-report";
 
@@ -56,7 +34,7 @@ type Directives = Record<string, string[]>;
  * The base policy, every route. Report-only for now: Next.js emits inline
  * hydration scripts and next/script inlines the Plausible queue, both of
  * which need 'unsafe-inline' until a per-request nonce is issued from
- * proxy.ts; 'unsafe-eval' is only for the dev server's React refresh.
+ * a proxy.ts; 'unsafe-eval' is only for the dev server's React refresh.
  */
 function basePolicy(): Directives {
   return {
@@ -66,11 +44,11 @@ function basePolicy(): Directives {
     "object-src": ["'none'"],
     // The Studio's Presentation tool frames site pages from /studio, same origin.
     "frame-ancestors": ["'self'"],
-    "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), PLAUSIBLE_HOST, ...(CLERK_FAPI ? [CLERK_FAPI] : []), ...VERCEL_PREVIEW],
+    "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), PLAUSIBLE_HOST, ...VERCEL_PREVIEW],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io"],
     "font-src": ["'self'", "data:"],
-    "connect-src": ["'self'", PLAUSIBLE_HOST, MAP_HOST, ...SANITY_API, ...(CLERK_FAPI ? [CLERK_FAPI] : []), ...VERCEL_PREVIEW],
+    "connect-src": ["'self'", PLAUSIBLE_HOST, MAP_HOST, ...SANITY_API, ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
     // www.google.com: the keyless Google Maps embed on /contact (lib/map-embed.ts).
     "frame-src": ["'self'", "https://www.google.com", ...VERCEL_PREVIEW],
@@ -87,17 +65,6 @@ function studioPolicy(): Directives {
   const p = basePolicy();
   p["connect-src"] = [...p["connect-src"], "https://*.sanity.io", "wss://*.api.sanity.io"];
   p["img-src"] = [...p["img-src"], "https://*.sanity.io"];
-  return p;
-}
-
-/** /portal and /auth: Clerk's frontend API, its avatar CDN and the Turnstile challenge frame. */
-function clerkPolicy(): Directives {
-  const p = basePolicy();
-  const fapi = CLERK_FAPI ?? "https://*.clerk.accounts.dev";
-  p["script-src"] = [...new Set([...p["script-src"], fapi, "https://challenges.cloudflare.com"])];
-  p["connect-src"] = [...new Set([...p["connect-src"], fapi, "https://clerk-telemetry.com"])];
-  p["img-src"] = [...p["img-src"], "https://img.clerk.com"];
-  p["frame-src"] = [...p["frame-src"], "https://challenges.cloudflare.com"];
   return p;
 }
 
@@ -143,8 +110,6 @@ const nextConfig: NextConfig = {
         headers: [...COMMON_HEADERS, { key: "Content-Security-Policy-Report-Only", value: serialize(basePolicy()) }],
       },
       { source: "/studio/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(studioPolicy()) }] },
-      { source: "/portal/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(clerkPolicy()) }] },
-      { source: "/auth/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(clerkPolicy()) }] },
       // The private questionnaire links: the token is in the path, so no referrer, no caching, no indexing.
       {
         source: "/q/:path*",

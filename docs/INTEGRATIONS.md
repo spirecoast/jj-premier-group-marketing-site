@@ -2,26 +2,25 @@
 
 External services this app talks to, what env vars they produce, and where in
 the codebase those vars are consumed. Use this when wiring up the platform in
-Vercel + Clerk + Supabase + Resend + Inngest.
+Vercel + Supabase + Resend (+ Zapier for the CRM, Sanity for content).
 
 - **Repo:** `spirecoast/real-estate`
-- **Active branches:** `main` (production) + `claude/clone-real-estate-repo-D0RgV` (dev)
-- **Stack source of truth:** `ARCHITECTURE.md` §3 + `CLAUDE.md`
-- **Locked stack:** Next.js 16 App Router, TypeScript strict, Tailwind v4,
-  Clerk (auth), Supabase (DB / Storage / Realtime), Drizzle (postgres-js), Zod,
-  Inngest, Resend, Vercel.
+- **CRM:** Coldwell Banker's Home Platform. The site has no agent dashboard,
+  no sign-in, no tasks, no drips and no lead routing; all of that lives in the
+  Home Platform.
+- **Stack:** Next.js 16 App Router, TypeScript strict, Tailwind v4, Supabase
+  (Postgres via Drizzle / postgres-js), Zod, Resend, Sanity, Vercel.
 
-## Services to integrate now (Phase 1 + 2)
+## Services to integrate now
 
 | # | Service | Free tier? | Purpose |
 |---|---|---|---|
-| 1 | **Clerk** | yes (10k MAU) | Auth (email + password, social, MFA) |
-| 2 | **Supabase** | yes | Postgres + Storage + Realtime (NOT auth) |
-| 3 | **Resend** | yes (3K/mo) | Transactional email |
-| 4 | **Inngest** | yes | Background jobs (welcome series + failsafes) |
-| 5 | **Vercel** | yes (hobby) | Hosting + preview deploys |
+| 0 | **Zapier** | paid (multi-step) | Lead webhook → Home Platform "Create a New Lead" |
+| 1 | **Supabase** | yes | Postgres: the lead mirror, consent records, the questionnaire and (soon) search. Not auth, not a CRM |
+| 2 | **Resend** | yes (3K/mo) | Team-only email (new-lead notice, alerts, newsletter hand-off) |
+| 3 | **Vercel** | yes (hobby) | Hosting, preview deploys, cron |
 
-Future-phase services from §3 are listed at the bottom — **don't set up yet.**
+Future-phase services are listed at the bottom — **don't set up yet.**
 
 ---
 
@@ -39,8 +38,8 @@ through a Zapier step if the team wants a templated first reply.
 ### What happens on every form submit (`lib/lead-pipeline.ts`)
 
 1. **Postgres first.** A row in `leads` (the exact payload, consent + timestamp
-   + wording version, source/UTM) plus the `contacts`/`events` rows the portal
-   reads. Migration `0006_leads_and_deliveries.sql`.
+   + wording version, source/UTM) plus the `contacts`/`events` rows (the person
+   and their consent record). Migration `0006_leads_and_deliveries.sql`.
 2. **CRM.** `lib/crm.ts` POSTs the payload to `CRM_WEBHOOK_URL` (8s timeout,
    one retry, any 2xx is success). The result lands in `leads.delivery_status`
    and a `lead_deliveries` row.
@@ -187,49 +186,19 @@ Encore bars record `implied:subscribe` instead.
 
 ---
 
-## 1) Clerk
+## 1) Supabase
 
-### Provision
-- Sign up at https://dashboard.clerk.com → **Create application**
-- Pick auth methods: **Email + Password** (primary) plus optionally Google /
-  Microsoft for social. Disable email-code / magic-link unless you want them
-  as a fallback.
-- **Restrictions → Sign-up mode**: set to **Restricted** (or Invitation-only)
-  so only invited team members can create accounts.
-- **API keys**: copy publishable + secret from the API keys page.
-- **Add team members**: Users → Create user → use the same email you've
-  seeded into the `agents` table. Set a temporary password and share it; user
-  changes it on first sign-in.
+Supabase is the site's database, not its CRM and not its auth. It holds:
 
-### Env vars produced
-| Var | Source |
-|---|---|
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk dashboard → API keys → Publishable key |
-| `CLERK_SECRET_KEY` | Clerk dashboard → API keys → Secret key |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Hardcode `/auth/login` |
-| `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | Hardcode `/auth/no-access` (sign-up is invite-only) |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL` | Hardcode `/portal` |
-| `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | Hardcode `/auth/no-access` |
+- **The lead mirror:** `leads` (one row per form submission, written before
+  any delivery is tried) and `lead_deliveries` (what each sink said).
+- **Consent records:** `contacts` and `events` (who ticked which box, when,
+  under which wording version; unsubscribes from `/unsubscribe`).
+- **The website questionnaire:** `questionnaire_answers` behind the private
+  `/q/<token>` links (`docs/SITE.md`).
+- **Search** (coming): the listings/neighborhood search will live here too.
 
-### Where these are consumed
-- `app/layout.tsx` — `<ClerkProvider>` wraps the entire tree
-- `proxy.ts` — `clerkMiddleware()` protects `/portal/*`
-- `lib/auth/server.ts` — `auth()` and `currentUser()` for `requireAgent()` /
-  `getCurrentAgent()`; agent linking by email match on first portal visit
-- `app/auth/login/[[...rest]]/page.tsx` — Clerk's `<SignIn />` component
-- `app/portal/layout.tsx` — Clerk's `<UserButton />` for sign-out menu
-
-### Linking Clerk users to agent rows
-The first time a Clerk user visits `/portal`, `getCurrentAgent` finds their
-`agents` row by lowercased email match and writes Clerk's user ID to
-`agents.clerk_user_id`. After that, lookups go straight by that ID.
-
-Workflow: admin creates agent rows in the `agents` table, then invites the
-team via Clerk dashboard with the same emails. No additional plumbing needed.
-
----
-
-## 2) Supabase
+Nobody signs in to the site; Supabase Auth is not used.
 
 ### Provision
 - New project at https://supabase.com/dashboard
@@ -247,25 +216,27 @@ team via Clerk dashboard with the same emails. No additional plumbing needed.
 
 ### Where these are consumed
 - `lib/db/index.ts` — Drizzle / postgres-js connection (the only path that
-  actually reads/writes today). Bypasses RLS via the postgres role.
+  reads/writes today). Bypasses RLS via the postgres role.
 - `drizzle.config.ts` — drizzle-kit migrate target
-- `lib/env.ts` — Zod schema validates all of the above
+- `lib/env.ts` — Zod schema for the above (nothing calls it yet)
 
-`lib/supabase/server.ts` and `lib/supabase/browser.ts` are kept for future
-Storage / Realtime work but are not currently used now that Clerk owns auth.
+`lib/supabase/server.ts` and `lib/supabase/browser.ts` are kept for the
+search work; nothing uses them today.
 
 ### Apply schema migrations
-Migrations in `lib/db/migrations/` (apply all, in order; `0006` adds the
-`leads` and `lead_deliveries` tables the forms write to):
-- `0000_init_contacts_events.sql` — `contacts` + `events` tables, RLS enabled (deny-by-default)
-- `0001_agents_sequences_routing.sql` — `agents`, `sequences`,
-  `sequence_enrollments`, `lead_routing_rules` + FKs from `contacts`/`events` →
-  `agents`
-- `0002_auth_policies.sql` — `is_active_agent()` SQL helper + SELECT/UPDATE
-  policies for authenticated agents
+Migrations in `lib/db/migrations/` (apply all, in order):
+- `0000_init_contacts_events.sql` — `contacts` + `events`, RLS enabled (deny-by-default)
+- `0001`–`0005` — the old agent dashboard's tables, policies and auth columns.
+  Historical; `0008` removes all of it.
+- `0006_leads_and_deliveries.sql` — `leads` and `lead_deliveries`, the tables
+  the forms write to
 - `0007_questionnaire.sql` — `questionnaire_answers` for the private questionnaire
-  links (`docs/SITE.md`), RLS enabled. `IF NOT EXISTS`, because the server also
-  creates the table on first use.
+  links, RLS enabled. `IF NOT EXISTS`, because the server also creates the
+  table on first use.
+- `0008_remove_portal.sql` — drops the dashboard tables (agents, tasks, the
+  two drip tables, the routing rules), the agent foreign keys and the contacts
+  columns only the dashboard used. `IF EXISTS` throughout, so it is safe on
+  any database state.
 
 Apply via either:
 ```bash
@@ -273,41 +244,11 @@ npm run db:migrate
 ```
 or paste each `.sql` file into Supabase SQL Editor in order.
 
-### Seed at least one agent
-Run in Supabase SQL Editor — one row per team member who needs portal access:
-```sql
-insert into agents (name, email, license_number, brokerage, active)
-values
-  ('Mom Name', '[email protected]', 'FL-LICENSE-12345', 'Brokerage Name', true),
-  ('Girlfriend Name', '[email protected]', 'FL-LICENSE-67890', 'Brokerage Name', true);
-```
-First magic-link login for each email auto-links `agents.auth_user_id` (see
-`lib/auth/server.ts` → `linkAuthUserToAgent`).
+Every table has RLS enabled and no policies: the `anon` and `authenticated`
+roles can read nothing. The server writes through the postgres role.
 
-### Auth dashboard config
-**Authentication → URL Configuration:**
-- **Site URL:** `https://your-prod-domain.com` (or `http://localhost:3000` in dev)
-- **Redirect URLs (allowlist):**
-  - `http://localhost:3000/auth/callback`
-  - `https://your-prod-domain.com/auth/callback`
-  - `https://*.vercel.app/auth/callback` (preview deploys)
-
-**Authentication → Email Templates → Magic Link:** the default works.
-Optionally customize subject/body. The `{{ .ConfirmationURL }}` token must
-remain.
-
-**Authentication → Providers:**
-- Email: enabled (default)
-- Disable email signup confirmation if you want magic links to skip the
-  "confirm your email" step
-
-**Authentication → SMTP (optional but recommended):** route via Resend so
-deliverability matches your Resend setup. Otherwise Supabase sends from its
-default address (3/hour limit).
-
-### No storage buckets needed for Phase 2
-Phase 3 adds buckets for listing photos / agent headshots. Leave Storage alone
-for now.
+### No storage buckets needed
+Leave Storage alone for now.
 
 ---
 
@@ -342,46 +283,7 @@ deliverability.
 
 ---
 
-## 3) Inngest
-
-### Provision
-- Sign up at https://www.inngest.com
-- Create an app — **app ID must match `real-estate`** (the value in
-  `lib/inngest/client.ts:12`)
-- Generate keys under Manage → Event Keys + Manage → Signing Key
-
-### Env vars produced
-| Var | Source |
-|---|---|
-| `INNGEST_EVENT_KEY` | Inngest dashboard → Manage → Event Keys |
-| `INNGEST_SIGNING_KEY` | Inngest dashboard → Manage → Signing Key |
-
-### Where these are consumed
-The `inngest` SDK reads these from `process.env` automatically — no direct
-references in the code. The handler is at `app/api/inngest/route.ts`.
-
-### Sync functions to Inngest
-After Vercel deploy:
-- Inngest dashboard → your app → Sync new app → enter
-  `https://your-prod-domain.com/api/inngest`
-- Inngest hits `PUT /api/inngest`, discovers the registered functions
-  (the portal failsafes; there is no welcome series)
-- Re-sync after every deploy that adds/changes functions
-
-### Local dev
-```bash
-npx inngest-cli@latest dev
-```
-Auto-discovers `localhost:3000/api/inngest`. UI at `localhost:8288`.
-
-### What runs there
-Only the cron failsafes in `lib/inngest/functions.ts` (new lead untouched for
-24h, qualified lead untouched for 5d, sphere 90d, birthdays, closing
-anniversaries). They create portal tasks; they never email anyone.
-
----
-
-## 4) Vercel
+## 3) Vercel
 
 ### Provision
 - https://vercel.com → Add New → Project → Import Git Repository
@@ -403,8 +305,6 @@ DATABASE_URL                      # Supabase pooler URL
 RESEND_API_KEY                    # from Resend (mark as Secret)
 [email protected]
 [email protected]
-INNGEST_EVENT_KEY                 # from Inngest (mark as Secret)
-INNGEST_SIGNING_KEY               # from Inngest (mark as Secret)
 UNSUBSCRIBE_SECRET                # `openssl rand -base64 48` (mark as Secret)
 NEXT_PUBLIC_SITE_URL              # https://your-prod-domain.com
 CRM_WEBHOOK_URL                   # the Zapier Catch Hook (mark as Secret)
@@ -421,33 +321,26 @@ missing or shorter than 32 chars when `NODE_ENV=production`.
 links, the listing URL in the CRM payload).
 
 ### Custom domain
-Settings → Domains → Add. Vercel auto-provisions SSL. Then loop back to
-**Supabase Auth → URL Configuration** and update Site URL + redirect allowlist
-to the prod domain.
+Settings → Domains → Add. Vercel auto-provisions SSL.
 
 ---
 
 ## Order of operations
 
-1. Provision Supabase → grab 4 env vars → run 3 migrations → seed `agents`
-   row(s)
+1. Provision Supabase → grab 4 env vars → run the migrations (`0000`–`0008`)
 2. Provision Resend → verify domain → grab API key → pick from-address
-3. Provision Inngest → create app `real-estate` → grab 2 keys
+3. Build the Zap (Catch Hook → Home Platform "Create a New Lead") → copy the
+   hook URL into `CRM_WEBHOOK_URL`
 4. Connect repo to Vercel → paste all env vars (Production + Preview) → deploy
-5. Set custom domain on Vercel → update Supabase Auth Site URL and redirect
-   allowlist
-6. Inngest dashboard → sync app to `https://your-domain.com/api/inngest`
-7. Verify end-to-end:
-   - `https://your-domain.com/` renders
-   - `/contact` form submits → rows in `leads` and `contacts`, the Zap runs,
-     one "New lead" email at `TEAM_NOTIFY_EMAIL`, visitor lands on
-     `/thanks/contact`. No email to the visitor.
+5. Set custom domain on Vercel
+6. Verify end-to-end:
+   - `https://your-domain.com/` renders; `/api/health` answers `ok: true`
+   - `/contact` form submits → rows in `leads` and `contacts`, the Zap runs and
+     the lead appears in the Home Platform, one "New lead" email at
+     `TEAM_NOTIFY_EMAIL`, visitor lands on `/thanks/contact`. No email to the
+     visitor.
    - Tide box signup → `leads` row tagged `consent:email`, visitor lands on
      `/thanks/letter`
-   - `/portal` redirects to `/auth/login` → magic link arrives → callback links
-     auth user to agent → land on `/portal` Today view
-   - `/portal/contacts` shows the test submissions
-   - Inngest dashboard shows `welcome-series` runs in flight
 
 ## Files not to touch when integrating
 

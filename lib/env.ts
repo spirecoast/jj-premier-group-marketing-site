@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  // Clerk (auth)
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
-  CLERK_SECRET_KEY: z.string().min(1),
-  // Supabase (DB / Storage / Realtime — Auth handled by Clerk)
+  // Supabase (DB / Storage / Realtime): the lead mirror, consent records and the questionnaire
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),

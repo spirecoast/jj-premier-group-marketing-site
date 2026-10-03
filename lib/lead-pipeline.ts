@@ -191,7 +191,7 @@ async function loadDb() {
 }
 
 /**
- * Write the lead (and the contacts/events rows the portal reads). Returns the
+ * Write the lead (and its contacts/events rows: the consent record). Returns the
  * leads.id, or null when DATABASE_URL is unset or the write failed.
  */
 async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: string | null; outcome: SinkOutcome; db: Db | null }> {
@@ -252,7 +252,7 @@ async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: str
         });
       }
     } catch (err) {
-      // The contacts mirror is for the portal; the leads row below is the record.
+      // The contacts/events rows are secondary; the leads row below is the record.
       console.error("[lead] contacts mirror failed (non-fatal)", err);
     }
 

@@ -26,8 +26,10 @@ jj-premier-brand-system.vercel.app).
 | Neighborhood explorer | `components/explorer/*` (map, panel, card), `components/place-map.tsx`, `lib/neighborhoods/*` (data access, search, URL state, brand map style) |
 | Neighborhood dataset | `neighborhood-data/` (the catalog, its schema, scripts and docs; see its `CLAUDE-CODE-HANDOFF.md`) |
 
-The agent portal (`app/portal`, `app/auth`, Supabase, Drizzle, Inngest, Resend) is untouched and
-still works on the same theme.
+The team's CRM is Coldwell Banker's Home Platform. The site has no agent dashboard, sign-in, tasks,
+drips or lead routing; leads reach the Home Platform through the Zapier webhook (`lib/crm.ts`).
+Supabase (through Drizzle) holds the lead mirror, the consent records, the questionnaire and, soon,
+search; Resend sends only team-facing email.
 
 ## Names, places and what is deliberately not on the page
 
@@ -257,7 +259,7 @@ Tier notes, cost levers and the archive requirement are in `docs/handoff/integra
 Every form (`components/lead-form.tsx`, `components/letter-form.tsx`) posts to
 `actions/submit-lead.ts`, which validates and hands off to `lib/lead-pipeline.ts`:
 
-1. **Postgres first** (`leads` + `lead_deliveries`, plus the portal's `contacts`/`events`), when
+1. **Postgres first** (`leads` + `lead_deliveries`, plus `contacts`/`events` for the consent record), when
    `DATABASE_URL` is set. The lead row exists before anything external is tried.
 2. **CRM** through `lib/crm.ts`. `CRM_PROVIDER=webhook` (the default when `CRM_WEBHOOK_URL` is
    set) POSTs the payload to a Zapier Catch Hook, which runs Compass "Create a New Lead" into the
@@ -335,7 +337,7 @@ team) lives on the site at three private links. Nobody needs an account.
   other token is a 404 that says nothing about what the link was for.
 - **Kept private.** `robots: noindex, nofollow`, `X-Robots-Tag`, `Referrer-Policy: no-referrer`
   and `Cache-Control: no-store` on `/q/:path*` (`next.config.ts`), `Disallow: /q/` in
-  `app/robots.ts`, and not in the sitemap. `proxy.ts` lets `/q` through untouched.
+  `app/robots.ts`, and not in the sitemap. There is no proxy/middleware in front of it.
 - **Code.** The questions are `lib/questionnaire/questions.ts`, copied verbatim from the
   questionnaire artifact; ids are the storage keys, so never rename one. Who sees what and the
   numbering are in `model.ts`, the Markdown and CSV in `compile.ts`, the save rules (Zod, 10,000
@@ -456,9 +458,8 @@ Deliberate keeps from the review passes:
   `Permissions-Policy`, `X-Frame-Options: SAMEORIGIN` (not DENY: the Studio's Presentation tool
   frames site pages from `/studio`) and a `Content-Security-Policy-Report-Only` whose hosts are
   derived from the same env vars the app reads (Plausible host, MapTiler or OpenFreeMap, the
-  Sanity project, Clerk's frontend API decoded from the publishable key). `/studio`, `/portal`
-  and `/auth` get wider variants. It stays report-only until a per-request nonce is issued from
-  `proxy.ts`: Next's inline hydration scripts and the inlined Plausible queue need
+  Sanity project). `/studio` gets a wider variant. It stays report-only until a per-request nonce
+  is issued from a `proxy.ts`: Next's inline hydration scripts and the inlined Plausible queue need
   `'unsafe-inline'`, and the dev server needs `'unsafe-eval'`. Watch the browser console for
   `[Report Only]` violations after adding any third-party script.
 - The privacy policy names the stack as deployed: Plausible (cookieless), Vercel, Supabase,

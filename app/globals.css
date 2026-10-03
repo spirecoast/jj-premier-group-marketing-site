@@ -166,8 +166,8 @@
   }
 }
 
-/* Semantic aliases. Kept so the internal portal, auth and unsubscribe screens
-   share the palette without naming ramps, and so intent reads in markup. */
+/* Semantic aliases. Kept so the unsubscribe screen shares the palette without
+   naming ramps, and so intent reads in markup. */
 @theme inline {
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
@@ -384,14 +384,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Legacy names used by the internal portal screens. */
-@utility text-display {
-  font-family: var(--font-display);
-  font-weight: 200;
-  font-size: clamp(2.25rem, 1.1rem + 3.5vw, 3.75rem);
-  line-height: 1.04;
-  letter-spacing: -0.02em;
-}
+/* Legacy names used by the unsubscribe screen. */
 @utility text-section {
   font-family: var(--font-display);
   font-weight: 200;
@@ -1132,50 +1125,6 @@
   body:has(.explorer) [data-mobile-bar] {
     display: none !important;
   }
-}
-
-/* -----------------------------------------------------------------------------
-   Portal-specific overrides — the CRM lives in a different design language
-   than the marketing site. Sans-serif everywhere, denser scale, tighter
-   spacing, no display-font flourishes.
-   ----------------------------------------------------------------------------- */
-[data-portal] {
-  font-family: var(--font-body);
-}
-
-[data-portal] .portal-h1 {
-  font-family: var(--font-body);
-  font-size: var(--text-2xl);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: var(--leading-tight);
-}
-
-[data-portal] .portal-h2 {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--color-text-primary);
-}
-
-[data-portal] .portal-stat-num {
-  font-family: var(--font-body);
-  font-size: var(--text-3xl);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-[data-portal] .portal-stat-label {
-  font-family: var(--font-body);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 500;
-  color: var(--color-text-muted);
 }
 
 /* ---- Encore Arts Calendar -------------------------------------------------- */

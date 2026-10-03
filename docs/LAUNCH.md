@@ -16,7 +16,7 @@ must supply are written `<like-this>`. Nothing in this file is a real secret.
 | Vercel project | `jj-premier-group-marketing-site` (team `spirecoasts`), Node 24, framework Next.js. Production alias `https://jj-premier-group-marketing-site.vercel.app`. |
 | Repo | `spirecoast/real-estate`, branch `main`. The checkout also has a `marketing` remote (`spirecoast/jj-premier-group-marketing-site`) at the same commit. **Verify** in Vercel → Settings → Git which repository the project builds from before relying on "merge to `main` deploys". |
 | Site URL resolution | `lib/site.ts`: `NEXT_PUBLIC_SITE_URL` if it is a valid absolute URL, else `https://` + `VERCEL_PROJECT_PRODUCTION_URL`, else `https://jjpremiergroup.com`. Canonicals, `og:url`, sitemap `<loc>`, `robots.txt` host and ICS UIDs all use it. |
-| Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/portal /studio /api/ /auth /unsubscribe`, plus the sitemap line. |
+| Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /thanks/ /q/`, plus the sitemap line. |
 | Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
 | CRM | The Coldwell Banker Home Platform, reached through a Zapier Catch Hook. Env: `CRM_PROVIDER=webhook`, `CRM_WEBHOOK_URL`. Follow Up Boss code stays in the repo behind the provider switch and is not used. |
 | Database | Supabase Postgres through Drizzle (`lib/db`). Leads are mirrored into the `contacts` and `events` tables (there is no table called `leads`). |
@@ -63,7 +63,8 @@ What the project has today (names only, read through the Vercel API on 2026-10-0
 `NEXT_PUBLIC_SANITY_API_VERSION`, `SANITY_WRITE_TOKEN`, `SANITY_VIEWER_TOKEN`, `SANITY_REVALIDATE_SECRET`,
 `FUB_API_KEY`, `FUB_SYSTEM`, `FUB_SYSTEM_KEY`, `FUB_LEAD_SOURCE`,
 `LEAD_ALERT_EMAIL`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_ROBOTS_NOINDEX`, `CRON_SECRET`,
-`INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`, all on both Production and Preview. Not present yet:
+`INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` (no longer read by anything; delete them, see
+"Stay unset at launch"), all on both Production and Preview. Not present yet:
 `TEAM_NOTIFY_EMAIL`, `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`, `NEXT_PUBLIC_LISTINGS_URL`, `CRM_PROVIDER`,
 `CRM_WEBHOOK_URL`, `NEXT_PUBLIC_BOOKING_URL`. Many of the existing ones are present with an empty value;
 treat "present" as "has a row", not "is set".
@@ -79,7 +80,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_SITE_URL` | `https://jjpremiergroup.com` | Canonical origin for every absolute URL. With `https://`, no trailing slash, no `www`. |
 | `CRM_PROVIDER` | `webhook` | Selects the Zapier webhook path for leads instead of Follow Up Boss. |
 | `CRM_WEBHOOK_URL` | `<Zapier Catch Hook URL>` | Where every form submission is POSTed (section 3). Mark as Sensitive. |
-| `DATABASE_URL` | `<Supabase transaction-pooler URL, port 6543>` | Mirrors every lead into `contacts` + `events` (section 4). The durable copy. Mark as Sensitive. |
+| `DATABASE_URL` | `<Supabase transaction-pooler URL, port 6543>` | Mirrors every lead into `leads` + `lead_deliveries`, with the consent record in `contacts` + `events` (section 4). The durable copy. Mark as Sensitive. |
 | `TEAM_NOTIFY_EMAIL` | `<team inbox>` | The internal "New lead · <form> · <name>" email, reply-to set to the visitor. Needs the two Resend values below. |
 | `LEAD_ALERT_EMAIL` | `<Josh's address>` (falls back to `TEAM_NOTIFY_EMAIL`) | Receives the "lead not delivered to the CRM" alert. Point it at the person who will fix the Zap, not the agents. |
 | `RESEND_API_KEY` | `<Resend key>` | Sends the two internal emails above. Mark as Sensitive. |
@@ -96,7 +97,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 |---|---|
 | `NEXT_PUBLIC_BOOKING_URL` | `<Cal.com or Calendly link>`. Shows a "book a time" link where the site offers one; empty hides it. **Verify** the exact placement in the merged code. |
 | `UNSUBSCRIBE_SECRET` | `openssl rand -base64 48`. Read only by the public `/unsubscribe` page (`app/unsubscribe/page.tsx`), which signs and checks the links in marketing emails that nothing sends yet. Without it a stray hit renders the "invalid link" state rather than crashing (`verifyUnsubscribe` catches the throw). Set it anyway so the page works the day a send tool uses it. |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | The public site's lead path reads only `DATABASE_URL`; these three are read by `lib/supabase/*` for the agent portal's Storage and Realtime work, which is not part of launch (nothing on `main` calls `lib/env.ts`). Fill them from the same Supabase project for completeness or leave empty. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | The public site's lead path reads only `DATABASE_URL`; these three are read only by `lib/supabase/*`, kept for the coming search work and not part of launch (nothing on `main` calls `lib/env.ts` or `lib/supabase/*`). Fill them from the same Supabase project for completeness or leave empty. |
 | `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION` | Harmless while `NEXT_PUBLIC_SANITY_PROJECT_ID` is empty (`production` and `2026-09-01` in `.env.example`). |
 | `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS` | Leave empty. `true` would put the sample listings on the live site. |
 | `NEXT_PUBLIC_PLAUSIBLE_HOST` | Leave empty (plausible.io). Only for a self-hosted instance. |
@@ -110,10 +111,8 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | Group | Variables | Why |
 |---|---|---|
 | Follow Up Boss | `FUB_API_KEY`, `FUB_SYSTEM`, `FUB_SYSTEM_KEY`, `FUB_LEAD_SOURCE` | The CRM is the Home Platform. With `CRM_PROVIDER=webhook` these are ignored. The pixel is gone from the site; `NEXT_PUBLIC_FUB_PIXEL_ID` can be deleted. |
-| Clerk | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL`, `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`, `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL` | The agent portal is not launching. `app/layout.tsx` wraps the tree in `ClerkProvider` only when the publishable key is set; keep it unset so the public site has no Clerk dependency. `/portal` answers 307 to `/auth/no-access`. |
 | Sanity | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `SANITY_WRITE_TOKEN`, `SANITY_VIEWER_TOKEN`, `SANITY_REVALIDATE_SECRET` | Empty project id = the site renders the seed content in `lib/content/seed`. Bringing Sanity online is its own task in `docs/SITE.md`. |
-| Inngest | `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` | Nothing on the public site sends Inngest events. `lib/inngest/functions.ts` still holds a latent visitor-facing welcome series that would send through Resend; nothing enqueues it and with the keys unset it can never fire, which keeps the "the site never emails visitors" promise true. |
-| Stale | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Exists in the Vercel project; no code reads it and the site uses Plausible. Delete the row. |
+| Stale | `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` | Exist in the Vercel project; no code reads them (the site uses Plausible, and the background-job service is gone with the old agent dashboard). Delete the rows. |
 
 ## 3. Zapier
 
@@ -277,9 +276,9 @@ The three dashboard values for the optional variables in section 2: Settings →
 ### 4.3 Run the migrations
 
 From a checkout of `main` with dependencies installed. `drizzle.config.ts` reads `DATABASE_URL` and
-applies `lib/db/migrations/0000` through `0005` in order (contacts and events, agents and routing,
-auth policies, tasks and scoring, personal context, Clerk auth). Migrations are immutable; a schema
-change is a new file.
+applies `lib/db/migrations/0000` through `0008` in order. `0001`–`0005` built the old agent dashboard
+and `0008_remove_portal` drops all of it again, so the end state is only what the public site uses
+(`docs/INTEGRATIONS.md`, section 1). Migrations are immutable; a schema change is a new file.
 
 ```bash
 cd <checkout of spirecoast/real-estate>
@@ -296,17 +295,18 @@ the pooler.
 
 ### 4.4 Confirm the tables
 
-The lead mirror writes to `contacts` and `events`; there is no `leads` table. In SQL Editor:
+The lead mirror writes to `leads` and `lead_deliveries`, with the person and their consent in
+`contacts` and `events`. In SQL Editor:
 
 ```sql
 select table_name from information_schema.tables
 where table_schema = 'public' order by 1;
--- expect: agents, contacts, events, lead_routing_rules, sequence_enrollments, sequences, tasks, ...
+-- expect: contacts, events, lead_deliveries, leads, questionnaire_answers
 
 select count(*) from contacts;   -- 0 before the first test lead
 ```
 
-Row-level security is on and deny-by-default (`0000`, `0002`); the site writes through the `postgres`
+Row-level security is on and deny-by-default on every table, with no policies; the site writes through the `postgres`
 role in `DATABASE_URL`, which bypasses RLS, so no policy work is needed for the mirror.
 
 ### 4.5 Where to see leads
@@ -328,7 +328,7 @@ order by created_at desc;
 - Subscriber export for the Marketing Center (1.4): `select email, created_at from contacts where
   consent_email and not coalesce(unsubscribed_email, false)` → Download CSV.
 
-`/portal/contacts` shows the same rows but needs Clerk, which stays unset at launch.
+The team works leads in the Home Platform; there is no dashboard on the site.
 
 ## 5. Pre-cutover checks on the preview
 
@@ -513,7 +513,7 @@ build; the neighborhood index and the static pages are generated here).
 D=https://jjpremiergroup.com
 
 curl -sS $D/robots.txt
-# User-Agent: *  Allow: /  Disallow: /portal /studio /api/ /auth /unsubscribe
+# User-Agent: *  Allow: /  Disallow: /studio /api/ /unsubscribe /thanks/ /q/
 # Sitemap: https://jjpremiergroup.com/sitemap.xml   Host: https://jjpremiergroup.com
 
 curl -sS $D/ | grep -o '<meta name="robots"[^>]*>\|<link rel="canonical"[^>]*>\|<meta property="og:url"[^>]*>\|<meta property="og:image"[^>]*>'
@@ -546,8 +546,6 @@ curl -sSI $D/ | grep -i 'strict-transport-security'
 curl -sS $D/ | grep -o 'data-domain="[^"]*"'
 # data-domain="jjpremiergroup.com"
 
-curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' $D/portal
-# 307 https://jjpremiergroup.com/auth/no-access
 ```
 
 Any line that differs: do not continue; fix the variable or the record and redeploy.
