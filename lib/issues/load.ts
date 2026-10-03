@@ -1,6 +1,6 @@
 import "server-only";
 import { getSiteSettings } from "@/lib/content";
-import { getEncoreIndex } from "@/lib/encore/data";
+import { loadEncoreIndex } from "@/lib/encore/data";
 import { getSalesManifest, salesBetween } from "@/lib/sales";
 import { site } from "@/lib/site";
 import { buildEncoreIssue, type EncoreIssue } from "./encore-weekly";
@@ -36,7 +36,7 @@ export function issueToday(): string {
 
 /** The Monday issue for the week on or after `today`. */
 export async function loadEncoreIssue(today = issueToday()): Promise<EncoreIssue> {
-  return buildEncoreIssue({ index: getEncoreIndex(), today, footer: await footerFacts() });
+  return buildEncoreIssue({ index: await loadEncoreIndex(), today, footer: await footerFacts() });
 }
 
 /**

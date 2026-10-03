@@ -12,9 +12,9 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-/** Where the site's visible words live. lib/search is skipped: it's checked through its own copy file. */
+/** Where the site's visible words live. lib/search is skipped: it's checked through its own copy file. lib/encore/collect is the collector's parsing code (patterns, not words anyone reads). */
 export const COPY_ROOTS = ["app", "components", "lib"];
-const SKIP = [/\.test\.tsx?$/, /\.d\.ts$/, /(^|\/)lib\/search\//, /(^|\/)node_modules\//, /\/fixtures?\.ts$/, /(^|\/)app\/api\//, /(^|\/)lib\/voice\.ts$/, /(^|\/)lib\/questionnaire\/questions\.ts$/];
+const SKIP = [/\.test\.tsx?$/, /\.d\.ts$/, /(^|\/)lib\/search\//, /(^|\/)lib\/encore\/collect\//, /(^|\/)node_modules\//, /\/fixtures?\.ts$/, /(^|\/)app\/api\//, /(^|\/)lib\/voice\.ts$/, /(^|\/)lib\/questionnaire\/questions\.ts$/];
 
 export function sourceFiles(root, dirs = COPY_ROOTS) {
   const out = [];
