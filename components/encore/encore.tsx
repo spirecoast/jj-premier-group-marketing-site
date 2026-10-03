@@ -258,7 +258,7 @@ export function Encore({
         ) : null}
       </div>
 
-      <div className="container-site flex flex-col gap-12 pb-section pt-8" ref={bodyRef}>
+      <div className="container-site flex flex-col gap-14 pb-section pt-12 lg:gap-16 lg:pt-16" ref={bodyRef}>
         {mode === "browse" && view === "days" && anchor === today ? (
           <Spotlight index={index} today={today} filter={filter} list={listApi} onDay={go} />
         ) : null}

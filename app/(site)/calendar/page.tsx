@@ -64,7 +64,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       <Encore initial={initial} today={today} initialIndex={slice} masthead />
 
       <section id="subscribe" className="scroll-mt-header bg-linen-200">
-        <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+        <div className="container-site grid items-center gap-8 py-section lg:grid-cols-[1.2fr_1fr] lg:gap-16">
           <div className="flex flex-col gap-3">
             <p className="t-eyebrow text-amber">Every Monday</p>
             <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>

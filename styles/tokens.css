@@ -22,10 +22,11 @@
     var(--font-plex-mono, "IBM Plex Mono"), ui-monospace, "SFMono-Regular", Menlo,
     monospace;
 
-  /* ---- Layout (website mockup: 1440 canvas, 96 gutter, 120 section) ------- */
+  /* ---- Layout (website mockup: 1440 canvas, 96 gutter; sections opened from
+         the mockup's 120 to 136 so the long pages breathe) ---------------- */
   --site-max: 90rem; /* 1440 */
   --gutter: 1.5rem; /* phone 24 */
-  --section-y: 4.5rem; /* phone 72 */
+  --section-y: 5rem; /* phone 80 */
   --measure: 41.25rem; /* 660px prose measure */
   --btn-h: 3.25rem; /* 52px buttons, 48px minimum hit target */
   --input-h: 3rem; /* 48px inputs */
@@ -47,13 +48,13 @@
 @media (min-width: 48rem) {
   :root {
     --gutter: 3rem; /* tablet 48 */
-    --section-y: 6rem; /* tablet 96 */
+    --section-y: 7rem; /* tablet 112 */
   }
 }
 
 @media (min-width: 64rem) {
   :root {
     --gutter: 6rem; /* desktop 96 */
-    --section-y: 7.5rem; /* desktop 120 */
+    --section-y: 8.5rem; /* desktop 136 */
   }
 }

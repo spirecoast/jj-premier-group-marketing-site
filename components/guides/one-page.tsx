@@ -19,9 +19,10 @@ export function OnOnePage({ guide, id }: { guide: Guide; id: string }) {
           <li key={r.label} className="grid gap-x-4 gap-y-1 py-3 md:grid-cols-[32px_1fr_1fr] md:items-baseline">
             <span className="hidden font-mono text-[11px] text-amber md:block">{String(i + 1).padStart(2, "0")}</span>
             <span className="text-[14px] font-medium leading-snug text-ink">{r.label}</span>
-            <span className="flex items-baseline gap-3 font-mono text-[11px] text-graphite-600">
-              <span className="h-px flex-1 bg-rule md:hidden" aria-hidden="true" />
-              <span className="shrink-0">{r.value}</span>
+            <span className="flex min-w-0 items-baseline gap-3 font-mono text-[11px] text-graphite-600">
+              <span className="h-px min-w-6 flex-1 bg-rule md:hidden" aria-hidden="true" />
+              {/* A long value wraps inside its column; it used to refuse to shrink and push the page wider than the phone. */}
+              <span className="min-w-0 break-words md:text-left">{r.value}</span>
             </span>
           </li>
         ))}

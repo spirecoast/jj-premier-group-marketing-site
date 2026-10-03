@@ -348,6 +348,7 @@
   line-height: 1.02;
   letter-spacing: -0.024em;
   font-optical-sizing: auto;
+  text-wrap: balance;
 }
 
 @utility t-display {
@@ -356,6 +357,7 @@
   font-size: clamp(2.25rem, 1.1rem + 3.5vw, 3.75rem); /* 36 → 60 */
   line-height: 1.04;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 @utility t-h1 {
@@ -364,6 +366,7 @@
   font-size: clamp(2rem, 1.2rem + 2.4vw, 3rem); /* 32 → 48 */
   line-height: 1.06;
   letter-spacing: -0.018em;
+  text-wrap: balance;
 }
 
 @utility t-h2 {
@@ -372,19 +375,23 @@
   font-size: clamp(1.625rem, 1.2rem + 1.1vw, 2.125rem); /* 26 → 34 */
   line-height: 1.08;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
+/* h3 and h4 are fluid like the steps above them, so the ladder keeps its
+   proportions from the phone canvas to the desktop one: 92 · 60 · 48 · 34 · 23 · 20
+   at 1440, 44 · 36 · 32 · 26 · 20 · 18 at 390. */
 @utility t-h3 {
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: 1.3125rem; /* 21 */
+  font-size: clamp(1.25rem, 1.15rem + 0.35vw, 1.4375rem); /* 20 → 23 */
   line-height: 1.16;
 }
 
 @utility t-h4 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.1875rem; /* 19 */
+  font-size: clamp(1.125rem, 1.05rem + 0.2vw, 1.25rem); /* 18 → 20 */
   line-height: 1.2;
 }
 

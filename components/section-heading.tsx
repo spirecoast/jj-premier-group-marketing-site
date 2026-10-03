@@ -30,7 +30,7 @@ export function SectionHeading({
   const titleColor = tone === "dark" ? "text-white" : "text-navy";
   return (
     <div className={cn("flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between", className)}>
-      <div className="flex flex-col gap-3.5">
+      <div className="flex flex-col gap-4">
         <p className={cn("t-eyebrow", eyebrowColor)}>
           {number ? `${number} · ` : null}
           {eyebrow}
