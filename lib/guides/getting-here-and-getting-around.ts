@@ -85,7 +85,7 @@ export const GETTING_HERE_GUIDE: Guide = {
     "You won’t find a drive time on these pages. The minutes change with the hour, the month and the bridge, so the guide shows you how to get your own number instead.",
   ],
   questions: ["Which door will you drive to most?", "Is there a drawbridge on the way?", "Have you driven it at the real hour?"],
-  cover: img("library/place-skyway-bridge", "The Sunshine Skyway Bridge over lower Tampa Bay"),
+  cover: img("guides/getting-here-and-getting-around", "A causeway crossing the bay into Sarasota, from the air", "50% 55%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-09-29",
   updatedAt: "2026-10-02",

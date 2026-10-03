@@ -100,7 +100,7 @@ export const FLOOD_GUIDE: Guide = {
     "Maps and rules change. Each drawing names its sources, and the full list is at the end. Before you count on them for one house, check with the county, a surveyor and your insurance agent.",
   ],
   questions: ["What flood zone is the house in?", "How high does the house sit?", "When will the flood policy start?"],
-  cover: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 55%"),
+  cover: img("guides/flood-zones-and-elevation-certificates-on-the-suncoast", "Waterfront homes on seawalls just above the water at dusk", "50% 58%"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-10-01",
   updatedAt: "2026-10-02",

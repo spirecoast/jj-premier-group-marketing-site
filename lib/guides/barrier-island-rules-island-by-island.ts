@@ -75,7 +75,7 @@ export const BARRIER_ISLANDS_GUIDE: Guide = {
     "Rules change, and each city reads them its own way. Each part of this guide tells you where its facts come from. Before you count on a rule for one house, check it with the city or county that runs the island.",
   ],
   questions: ["Which government runs this island?", "What is the zoning district for this lot?", "What does that district allow?"],
-  cover: img("library/gulf-beach-aerial", "A barrier island beach from the air"),
+  cover: img("guides/barrier-island-rules-island-by-island", "A barrier island from the air, Gulf beach on one side and bay docks on the other", "50% 40%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-09-25",
   updatedAt: "2026-10-02",

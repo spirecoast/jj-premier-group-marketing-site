@@ -185,6 +185,15 @@ builder source with its checked date).
   `runsThrough`; the list view shows these in the "On view now" strip via `getOnView()`.
 - Items marked `announced` and the three whose venue is still to be confirmed are left off.
   Sold-out productions show "Sold out" and their offers carry `SoldOut` in the Event JSON-LD.
+- **Guide covers.** Each guide's cover is a free Adobe Stock photo licensed through the Adobe
+  connector on October 3, 2026, 2400px wide so it stays sharp full-bleed, none flagged
+  AI-generated and none with an identifiable person. They're in `public/images/guides/<slug>.jpg`.
+  Adobe Stock IDs: barrier-island 297480009, cdd-fees 713644680, condo-hoa 637443918,
+  flood-zones 289523694, getting-here 576081666, wind-and-flood insurance 199682484, homestead
+  120382429, hurricane-season 194827807, inspections 698842009, selling-a-home-you-dont-live-in
+  1587155923, spring-start-in-october 529733750, gated-community 532484718. Only the
+  getting-here (Sarasota) and barrier-island (Anna Maria) photos are of a named place, and only
+  because Adobe's own titles say so; the alt text names none.
 - **Stock photos, then key art.** An event without the presenter's own image (see "Images"
   below) gets a stand-in photograph for its kind of event: 51 free Adobe Stock photos, three
   each for 17 themes (exhibition, concert, chamber, orchestra, choral, jazz, theater, musical,

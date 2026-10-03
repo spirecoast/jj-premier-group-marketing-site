@@ -60,7 +60,7 @@ export const CONDO_GUIDE: Guide = {
     "The law has changed almost every year since 2022. Each part of this guide says where its facts come from, and the day we checked. Before you count on them for one building, ask the association for its own documents.",
   ],
   questions: ["Has the building had its milestone inspection?", "Is there a current reserve study?", "Does the budget fund what the study calls for?"],
-  cover: img("library/sarasota-bayfront-blue-hour", "Sarasota’s bayfront towers at blue hour"),
+  cover: img("guides/condo-and-hoa-documents-after-the-2022-law", "Royal palms in front of a mid-rise condo building with balconies", "55% 75%"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-09-27",
   updatedAt: "2026-10-02",

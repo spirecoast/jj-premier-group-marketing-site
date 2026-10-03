@@ -84,7 +84,7 @@ export const CDD_GUIDE: Guide = {
     "Districts and bills change from year to year. Each part of this guide says where its facts come from. Before you count on them for one house, pull that parcel’s own bill and ask the district.",
   ],
   questions: ["Which district is the house in?", "What are the two lines on the bill?", "Does the debt line ever end?"],
-  cover: img("library/lwr-fairways-bay-aerial", "Fairways, palms and bay water from the air"),
+  cover: img("guides/cdd-fees-in-lakewood-ranch-village-by-village", "A planned neighborhood curving around a lake, from the air", "50% 50%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-10-01",
   updatedAt: "2026-10-02",
