@@ -4,9 +4,10 @@ import { Search } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, ViewTransition, useEffect, useState } from "react";
 import { SEARCH_COPY } from "@/lib/search/copy";
 import { primaryNav, site } from "@/lib/site";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { CbMark } from "./cb-mark";
 import { TrackedLink } from "./tracked-link";
@@ -28,6 +29,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   const overlay = OVERLAY_ROUTES.some((r) => r.test(pathname));
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -128,10 +130,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                   href={item.href as Route}
                   aria-current={active ? "page" : undefined}
                   aria-label={item.product && item.sub ? `${item.label}, ${item.sub}` : undefined}
-                  className={cn(
-                    "flex h-8 items-center whitespace-nowrap border-b text-linen-200 transition-colors hover:text-white",
-                    active ? "border-sky-300" : "border-transparent",
-                  )}
+                  className="relative flex h-8 items-center whitespace-nowrap text-linen-200 transition-colors hover:text-white"
                 >
                   {item.product ? (
                     <span className="flex items-baseline gap-2">
@@ -154,6 +153,14 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                   ) : (
                     <span className="t-label">{item.label}</span>
                   )}
+                  {active ? (
+                    // The one Sky rule under the current page. It carries a view
+                    // transition name, so on a route change it slides from the old
+                    // item to the new one instead of blinking between them.
+                    <ViewTransition name="nav-underline" default={reducedMotion ? "none" : "vt-underline"}>
+                      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-sky-300" />
+                    </ViewTransition>
+                  ) : null}
                 </Link>
               </Fragment>
             );
