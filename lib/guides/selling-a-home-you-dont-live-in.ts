@@ -84,7 +84,7 @@ export const SELLING_FROM_AWAY_GUIDE: Guide = {
     "Laws and forms change. Each part of this guide says where its facts come from. Before you count on them for your sale, check with the title company and, if you need one, a lawyer.",
   ],
   questions: ["Who has the keys?", "What can you sign from where you are?", "Whose name is on the deed?"],
-  cover: img("library/moment-contract", "A pen on the signature line of a contract"),
+  cover: img("guides/selling-a-home-you-dont-live-in", "Raised beach homes by the dunes on a barrier island, from the air", "50% 55%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-07-22",
   updatedAt: "2026-10-02",

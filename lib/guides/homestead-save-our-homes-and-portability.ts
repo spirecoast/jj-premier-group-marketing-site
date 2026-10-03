@@ -81,7 +81,7 @@ export const HOMESTEAD_GUIDE: Guide = {
     "Tax rules change, and voters may change them again in November 2026. Each part of this guide says where its facts come from. Before you count on a number for one house, check with the county property appraiser.",
   ],
   questions: ["What will my first full-year bill be?", "Did I file for homestead by March 1?", "Can I carry my cap from my old Florida home?"],
-  cover: img("library/kitchen-white-palms", "A white kitchen with palms outside the window", "50% 50%"),
+  cover: img("guides/homestead-save-our-homes-and-portability", "A pale aqua Old Florida bungalow framed by palms", "45% 50%"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-10-01",
   updatedAt: "2026-10-02",

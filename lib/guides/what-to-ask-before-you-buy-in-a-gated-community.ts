@@ -82,7 +82,7 @@ export const GATED_GUIDE: Guide = {
     "Every community has its own documents, and the rules in them change. Each part of this guide says where its facts come from. Before you count on them for one house, read that community’s own documents.",
   ],
   questions: ["Who runs the place, and what does each one charge?", "What do the rules say about how I’d live here?", "What will I owe on the day I close?"],
-  cover: img("library/lakes-aerial-sunset", "Lakefront streets from the air at sunset"),
+  cover: img("guides/what-to-ask-before-you-buy-in-a-gated-community", "Tile-roofed homes with screened pools in a planned community, from the air", "45% 55%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-09-01",
   updatedAt: "2026-10-02",

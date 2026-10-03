@@ -2049,6 +2049,15 @@
   }
   /* The cover ground: deep harbor, a teal glow from the upper right, and a
      fine grid like the Virtus covers. */
+  /* The cover photo sits under a harbor wash: strongest at the bottom left, where the text is. */
+  .guide-cover-photo {
+    opacity: 0.9;
+  }
+  .guide-cover-wash {
+    background:
+      linear-gradient(0deg, rgb(20 37 48 / 0.92) 0%, rgb(20 37 48 / 0.55) 45%, rgb(20 37 48 / 0.2) 100%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.7) 0%, rgb(20 37 48 / 0.15) 70%);
+  }
   .guide-cover-ground {
     background-color: var(--color-harbor-950);
     background-image:

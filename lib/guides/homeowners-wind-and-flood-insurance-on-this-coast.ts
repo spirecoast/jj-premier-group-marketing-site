@@ -92,7 +92,7 @@ export const WIND_AND_FLOOD_GUIDE: Guide = {
     "Insurance rules change often. Each part of this guide says where its facts come from. Before you count on them for one house, get a real quote from an agent.",
   ],
   questions: ["How old is the roof?", "What does the wind report say?", "When will each policy start?"],
-  cover: img("library/place-storm-gulf", "Storm clouds over the water", "50% 50%"),
+  cover: img("guides/homeowners-wind-and-flood-insurance-on-this-coast", "Palms bent by wind under a grey storm sky", "30% 35%"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-09-23",
   updatedAt: "2026-10-02",
