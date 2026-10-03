@@ -95,6 +95,10 @@ const nextConfig: NextConfig = {
     "/tide/**": ["./data/sales/**"],
     // The monthly email engine reads the same county data at request time.
     "/api/issues/tide": ["./data/sales/**"],
+    // Search reads every chunk source: the Atlas dataset and, for Tide, the county data.
+    "/search": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.json"],
+    "/api/search": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.json"],
+    "/api/search/reindex": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.json"],
   },
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.

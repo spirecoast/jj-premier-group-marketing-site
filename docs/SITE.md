@@ -19,7 +19,8 @@ jj-premier-brand-system.vercel.app).
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
 | Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres → CRM → team email → Plausible), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `scripts/test-lead.mjs` |
-| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/sitemap.ts`, `app/robots.ts` |
+| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
+| Site search | `lib/search/*` (chunks, indexer, hybrid query, fallback), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, migration `0010_search.sql`; see "Site search" below |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
 | Encore dataset | `lib/content/encore/encore-calendar.json` (the source), `lib/content/encore.ts` (the converter) |
@@ -28,8 +29,8 @@ jj-premier-brand-system.vercel.app).
 
 The team's CRM is Coldwell Banker's Home Platform. The site has no agent dashboard, sign-in, tasks,
 drips or lead routing; leads reach the Home Platform through the Zapier webhook (`lib/crm.ts`).
-Supabase (through Drizzle) holds the lead mirror, the consent records, the questionnaire and, soon,
-search; Resend sends only team-facing email.
+Supabase (through Drizzle) holds the lead mirror, the consent records, the questionnaire and the
+search index; Resend sends only team-facing email.
 
 ## Names, places and what is deliberately not on the page
 
@@ -71,9 +72,13 @@ search; Resend sends only team-facing email.
   groups on one line: the plain pages as caps labels (Buy, Sell, Joelyn & Jessica), a hairline,
   then the products as the name in the display serif with its descriptor beside it on the
   baseline in small mono caps (Atlas NEIGHBORHOODS, Encore ARTS CALENDAR, Tide NEWSLETTER).
-  Below 1320px (1400px on the home page, where the header is inset 56px each side to follow the
-  hero) the descriptors drop and the names stand alone so the nav never wraps into the Coldwell
-  Banker mark, which stays at 185px. Each product link's `aria-label` is "name,
+  To the right sit the search button (a 44px target that takes 16px of the row) and the Coldwell
+  Banker mark, which stays at 185px. Below 1360px (1440px on the home page, where from 1280px the
+  header is inset 56px each side to follow the hero; between 1024 and 1279 the home inset is
+  16px with a 24px gap so the mark stays inside the frame) the descriptors drop and the names
+  stand alone, so the nav never wraps into the search button or the mark. The tightest fits,
+  measured in Chromium: 11px spare at 1440 on home, 43px at 1360 elsewhere, 27px at 1024 (11px
+  on home). Re-measure at 1440, 1360, 1320, 1024 and 390 after any change to the nav. Each product link's `aria-label` is "name,
   descriptor" and the visible descriptor is `aria-hidden`, so it is read once. The phone menu
   keeps every item at display size with its descriptor on the baseline. "Buy" goes to `/buy`
   until there are live listings to search. The home page carries the three products as section
@@ -218,6 +223,84 @@ All three share the deep ground and the luminous set in `lib/art/palette.ts`. Th
 drifts slowly and its horizon breathes; both stop under `prefers-reduced-motion` and neither moves
 layout. A masthead slot in `lib/content/mastheads.ts` is either a photograph (at least 2000px
 wide, held to it by `lib/content/mastheads.test.ts`) or an art piece.
+
+## Site search
+
+`/search` searches the site's own content: every guide section, every researched Atlas place
+(plus the editorial neighborhood pages), the Tide posts and issues, the Encore events and venues,
+the market hubs, the relocation page's sections and a hand-written summary of each main page.
+Everything runs in Supabase: Postgres full-text search, pgvector, and the `gte-small` embedding
+model (384 dimensions) built into Supabase Edge Functions. No other vendor.
+
+**How a query is answered** (`lib/search/search.ts`):
+
+1. A cached answer for the same words from the last five minutes (per server instance).
+2. The query is embedded by the `embed` Edge Function (`supabase/functions/embed`, called with
+   the anon key, 4s timeout), then `search_hybrid()` runs in Postgres over `DATABASE_URL`: a
+   full-text list (`websearch_to_tsquery`, `english`; plain questions match on any word and
+   rank chunks that match every word first, a query with quotes or a minus sign keeps its strict
+   web-search meaning) and a nearest-neighbour list (HNSW, cosine), each ranked on its own and
+   fused with reciprocal rank fusion (k = 50, equal weights, the pattern in Supabase's hybrid
+   search guide). A neighbour below 0.78 cosine similarity doesn't count (gte-small puts
+   unrelated English at about 0.70–0.77), so nonsense returns nothing rather than ten loose
+   matches. The excerpt is `ts_headline` with the matched words wrapped in U+E000/U+E001,
+   which the page turns into `<mark>`; no HTML ever travels in a result. At most three
+   sections of one page are shown. If the query can't be embedded, the same function runs
+   keyword-only.
+3. If there's no `DATABASE_URL`, the database errors, or the index returns nothing (say,
+   before the first index), the page answers from an in-memory BM25 keyword search over the
+   same chunks (`lib/search/fallback.ts`). The page never breaks.
+
+`GET /api/search?q=` returns the same JSON (`q`, `source`: hybrid or keyword, `results`), 2–200
+characters, 30 a minute per IP per instance (429 past it), `s-maxage=300`. `/search` itself has
+its own limit of 60 a minute per IP; past it the page answers from the in-memory index. Result
+pages (`?q=`) are `noindex, follow`; `/search` alone is in the sitemap. The header's search
+button and ⌘K / Ctrl+K open it with the cursor in the box. The Plausible `Search` goal carries
+only a bucket of the result count.
+
+**The index** (`search_documents`, migration `0010_search.sql`): one row per chunk, id readable
+and stable (`guide:<slug>#<section>`, `place:<slug>`, `post:<slug>`, `tide:<issue>#what`,
+`event:<slug>`, `venue:<slug>`, `page:<path>#<part>`; later parts of a long chunk end `~2`,
+`~3`), the url with the section's anchor, the body, a `content_hash`, the `embedding` and a
+generated `fts` (title A, section B, body C). RLS on with no policies and execute on
+`search_hybrid` revoked from `anon` and `authenticated`: only the server reads it. Chunks are
+150–300 words where the content allows (a place or an event is shorter), and each is embedded
+with its title and section in front. Zoned schools, research notes and anything age-related are
+left out of the index; county-registry places aren't indexed (their pages are noindex). The page
+summaries live in `lib/search/copy.ts` and are checked by `check:copy`; when a main page changes,
+change its summary there.
+
+**Reindexing** (`lib/search/indexer.ts`): load every chunk, compare by id and content hash,
+delete rows whose ids are gone, embed only new or changed chunks (the Edge Function stops at
+its CPU budget and returns `complete: false`; the client sends the rest, four calls at a time,
+with retries), and upsert each group of 48 as it finishes, so a run cut short keeps its work. If
+a content source fails to load, or the run has under half the stored rows, deletes are held
+back (`?force=1` lets the second case through).
+
+- Daily: Vercel Cron calls `GET /api/search/reindex` at 08:23 UTC with `CRON_SECRET`.
+- By hand: `curl -X POST -H "Authorization: Bearer $SEARCH_REINDEX_SECRET" https://<site>/api/search/reindex`.
+  A run stops starting new work a minute before its 300s limit and reports `remaining`; repeat
+  until it's 0. The first full index (about 1,700 chunks) should take one or two calls.
+- From a machine that can reach Postgres: `npm run search:index` (no deadline; reads
+  `.env.local`). `npm run search:index -- --dry-run` lists the chunks without touching anything.
+- After a deploy that changes content, the next daily run picks it up; call the route to do it
+  sooner. Neither the build nor the pages depend on the database.
+
+**Environment:** `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+(already set for the site), plus `SEARCH_REINDEX_SECRET` and/or `CRON_SECRET` for the reindex
+route. `SEARCH_EMBED_URL` overrides the function's address (defaults to
+`<NEXT_PUBLIC_SUPABASE_URL>/functions/v1/embed`).
+
+**The Edge Function** `embed`: `POST {texts: string[]}` (1–64 texts, 2,000 characters each,
+otherwise 400) → `{model, dims, complete, embeddings}`, `gte-small` with mean pooling and
+normalisation. `verify_jwt` is on; it has no database access. The file in
+`supabase/functions/embed/index.ts` is the deployed source: redeploy with
+`supabase functions deploy embed` after a change. It's excluded from `tsc` (it's Deno).
+
+**Tuning:** `FUSION` in `lib/search/query.ts` holds the match count, the weights, RRF k and the
+similarity floor. `search_hybrid` also returns `keyword_rank` and `semantic_rank` for each row,
+so a query can be inspected in the SQL editor:
+`select * from search_hybrid('flood insurance', '<vector>'::extensions.vector, 10, 1, 1, 50, 0.78);`
 
 ## Search and answer engines
 
@@ -399,6 +482,7 @@ Useful switches:
   | `Phone tap` | `tel:` and `sms:` links | `where`: header, footer, action-bar, action-bar-text, contact, contact-text, thanks, thanks-text, from-<channel> |
   | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
   | `Explore` | the tools, the footer's hub links, the `/from/*` buttons | `action`: select, filter, match, calendar-day, visit-plan, relocate-plan, sold-search, home-value, net-proceeds, hub, channel-cta, channel-more |
+  | `Search` | `/search`, once per query shown | `results`: 0, 1-3, 4-9 or 10+. Never the query text (people type names and addresses) |
 
   The full list of props, the funnel each goal answers and the exact Plausible setup are in
   `docs/MEASUREMENT.md`.
@@ -430,7 +514,8 @@ The operator's runbook for the cutover itself (client and brokerage checklist, V
   delivered to the CRM (webhook rejected or unreachable; with `CRM_PROVIDER=fub`, also the
   archived-flow 204 case).
 - `CRON_SECRET` protects `GET /api/cron/archive-events` (Bearer token), scheduled weekly in
-  `vercel.json`.
+  `vercel.json`, and the daily search reindex (`/api/search/reindex`, which also takes
+  `SEARCH_REINDEX_SECRET`).
 
 ## Verification done for this build
 

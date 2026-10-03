@@ -19,7 +19,8 @@
  * figures, filled in from the data, so the no-figures rule doesn't apply.
  * The Tide web issue's templates (lib/tide/copy.ts) get the same rules, and so
  * does the wording around the private questionnaire (lib/questionnaire/copy.ts;
- * the questions themselves are the client's record and aren't checked).
+ * the questions themselves are the client's record and aren't checked), and so do the search
+ * page and its page summaries (lib/search/copy.ts).
  */
 import { checkFairHousing } from "../lib/fair-housing.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
@@ -29,6 +30,7 @@ import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
 import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
+import { searchStrings } from "../lib/search/copy.ts";
 import { tideWebStrings } from "../lib/tide/copy.ts";
 
 const SOURCES = [
@@ -64,7 +66,7 @@ const ISSUE_RULES = [
 
 let flagged = 0;
 let checked = 0;
-const all = [...SOURCES.map((s) => ({ ...s, rules: HUB_RULES })), ...issueStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...tideWebStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...questionnaireStrings().map((s) => ({ ...s, rules: ISSUE_RULES }))];
+const all = [...SOURCES.map((s) => ({ ...s, rules: HUB_RULES })), ...issueStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...tideWebStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...questionnaireStrings().map((s) => ({ ...s, rules: ISSUE_RULES })), ...searchStrings().map((s) => ({ ...s, rules: ISSUE_RULES }))];
 for (const { where, text, rules } of all) {
   checked += 1;
   const result = checkFairHousing(text);

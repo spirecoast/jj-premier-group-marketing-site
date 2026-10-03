@@ -16,6 +16,7 @@
     "sanity:typegen": "sanity schema extract --path=sanity/schema.json && sanity typegen generate",
     "sanity:dev": "sanity dev",
     "nbhd:validate": "node neighborhood-data/scripts/validate.mjs",
+    "search:index": "tsx --conditions=react-server scripts/index-search.ts",
     "nbhd:index": "node neighborhood-data/scripts/build-search-index.mjs",
     "nbhd:refresh-gis": "node neighborhood-data/scripts/refresh-gis.mjs",
     "nbhd:check-builders": "node neighborhood-data/scripts/check-builders.mjs",

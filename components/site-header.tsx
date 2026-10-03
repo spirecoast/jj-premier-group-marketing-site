@@ -1,9 +1,11 @@
 "use client";
 
+import { Search } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Fragment, useEffect, useState } from "react";
+import { SEARCH_COPY } from "@/lib/search/copy";
 import { primaryNav, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { CbMark } from "./cb-mark";
@@ -22,6 +24,7 @@ type Contact = { name: string; phone: string; phoneE164: string; email: string }
  */
 export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   const pathname = usePathname();
+  const router = useRouter();
   const overlay = OVERLAY_ROUTES.some((r) => r.test(pathname));
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -57,12 +60,32 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // ⌘K / Ctrl+K opens search from anywhere; on /search it puts the cursor back in the box.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey || e.key.toLowerCase() !== "k") return;
+      e.preventDefault();
+      const box = document.getElementById("site-search-q");
+      if (box instanceof HTMLInputElement) {
+        box.focus();
+        box.select();
+      } else router.push("/search");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
+
   const solid = !overlay || scrolled || open;
   // On the home page the hero content is inset 56px inside the framed photograph,
-  // and the header follows. That costs 112px, so the product descriptors need
-  // 1400px there before they fit beside the 185px brokerage mark; 1320 elsewhere.
+  // and from xl (1280px) the header follows. That costs 112px, so the product
+  // descriptors need 1440px there before they fit beside the search button and
+  // the 185px brokerage mark; 1360 elsewhere. Between lg and xl the full inset
+  // would push the brokerage mark past the frame, so the home header is inset
+  // 16px there with a 24px gap. Measured free space with descriptors: 11px at
+  // 1440 on home, 43px at 1360 elsewhere; without them, 27px at 1024 (11px on
+  // home).
   const homeInset = pathname === "/";
-  const descriptorVisible = homeInset ? "min-[1400px]:inline" : "min-[1320px]:inline";
+  const descriptorVisible = homeInset ? "min-[1440px]:inline" : "min-[1360px]:inline";
 
   return (
     <header
@@ -78,14 +101,19 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
             : "border-b border-transparent bg-transparent",
       )}
     >
-      <div className={cn("container-site flex h-full items-center justify-between gap-8", homeInset && "lg:px-[calc(var(--gutter)+3.5rem)]")}>
+      <div
+        className={cn(
+          "container-site flex h-full items-center justify-between gap-8",
+          homeInset && "lg:gap-6 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
+        )}
+      >
         <Link href="/" aria-label="JJ Premier Group home" className="shrink-0 transition-opacity hover:opacity-80">
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
         <nav
           aria-label="Primary"
-          className="hidden items-center gap-5 lg:flex xl:gap-6 min-[1320px]:gap-7"
+          className="hidden items-center gap-4 lg:flex xl:gap-6 min-[1360px]:gap-7"
         >
           {primaryNav.map((item, i) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -94,7 +122,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
               <Fragment key={item.href}>
                 {firstProduct ? (
                   // The hairline between the pages and the product family.
-                  <span aria-hidden="true" className="mx-0.5 h-5 w-px shrink-0 self-center bg-linen-200/25 min-[1320px]:mx-1.5" />
+                  <span aria-hidden="true" className="mx-0.5 h-5 w-px shrink-0 self-center bg-linen-200/25 min-[1360px]:mx-1.5" />
                 ) : null}
                 <Link
                   href={item.href as Route}
@@ -133,6 +161,16 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
         </nav>
 
         <div className="flex items-center gap-6">
+          {/* A 44px target that takes 16px of the row: the negative margins tuck it into the gaps. */}
+          <Link
+            href="/search"
+            aria-label={SEARCH_COPY.label}
+            title={`${SEARCH_COPY.shortcut} (⌘K or Ctrl+K)`}
+            aria-current={pathname === "/search" ? "page" : undefined}
+            className="-ml-3 -mr-4 flex h-11 w-11 shrink-0 items-center justify-center text-linen-200 transition-colors hover:text-white"
+          >
+            <Search aria-hidden="true" size={19} strokeWidth={1.5} />
+          </Link>
           <CbMark tone="white" width={185} className="hidden shrink-0 opacity-90 md:block" />
           <button
             type="button"

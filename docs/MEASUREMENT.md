@@ -25,6 +25,7 @@ Grepped from `track(`, `TrackedLink event=` and `sendPlausibleEvent(` on 2026-10
 | `Phone tap` | `tel:` and `sms:` links | `where`: header, footer, action-bar, action-bar-text, contact, contact-text, thanks, thanks-text, from-youtube, from-instagram, from-facebook, from-nextdoor |
 | `Share` | `components/share-button.tsx` | `what`: calendar-view, event, explorer-view, match, my-list, place, place-page, visit-plan |
 | `Explore` | the tools | `action`: select and filter (Atlas map), match (Atlas match), calendar-day (Encore), visit-plan (Encore plan), relocate-plan, sold-search, home-value, net-proceeds, hub (a click to a market hub; `where`: footer, `hub`: the slug; see the note below), channel-cta and channel-more (the `/from/*` buttons; `channel` and `to` the destination path) |
+| `Search` | `components/search/search-goal.tsx` on `/search`, once per query shown | `results`: 0, 1-3, 4-9 or 10+. The query text is never sent: people type names and addresses into search boxes |
 | `Outbound Link: Click` | automatic (outbound-links extension) | `url`. Covers the Google review link on `/reviews`, the footer's social links, ticket links, the listings link |
 | pageviews | automatic | path, entry page, source, UTM. The `/from/*`, `/refer`, `/reviews` and the market hub pages are plain pageviews |
 

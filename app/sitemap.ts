@@ -39,6 +39,8 @@ const STATIC: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/reviews", priority: 0.4, changeFrequency: "yearly" },
   { path: "/privacy", priority: 0.2, changeFrequency: "yearly" },
   { path: "/terms", priority: 0.2, changeFrequency: "yearly" },
+  // The search page itself; result pages (?q=) are noindex and never listed.
+  { path: "/search", priority: 0.3, changeFrequency: "monthly" },
 ];
 
 export const revalidate = 3600;
