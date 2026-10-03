@@ -30,15 +30,41 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   const router = useRouter();
   const overlay = OVERLAY_ROUTES.some((r) => r.test(pathname));
   const [scrolled, setScrolled] = useState(false);
+  // Tucked away while the page scrolls down past the first screen; back the
+  // moment it scrolls up, so the nav is there when someone reaches for it and
+  // out of the way while they read.
+  const [tucked, setTucked] = useState(false);
   const [open, setOpen] = useState(false);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
+    let last = window.scrollY;
+    let ticking = false;
+    const read = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      const delta = y - last;
+      // A small dead band so a trackpad's tremor doesn't flicker it.
+      if (delta > 6 && y > 160) setTucked(true);
+      else if (delta < -6 || y <= 24) setTucked(false);
+      last = y;
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(read);
+      }
+    };
+    read();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // A route change always shows it again.
+  useEffect(() => {
+    setTucked(false);
+  }, [pathname]);
 
   useEffect(() => {
     setOpen(false);
@@ -94,7 +120,8 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-300",
+        "sticky top-0 z-50 h-header transition-[background-color,border-color,transform] duration-300 ease-[var(--ease-brand)]",
+        tucked && !open && "-translate-y-full",
         // No backdrop blur while the menu is open: a backdrop-filter makes the
         // header the containing block for the fixed menu panel, which would
         // then collapse to the header's own height.
@@ -105,6 +132,8 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
             : // header-overlay: CSS keeps it solid unless the page really has a hero under it (data-header-overlay).
               "header-overlay border-b border-transparent bg-transparent",
       )}
+      // Keyboard users tabbing into a tucked header get it back.
+      onFocusCapture={() => setTucked(false)}
     >
       <div
         className={cn(
@@ -133,7 +162,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                   href={item.href as Route}
                   aria-current={active ? "page" : undefined}
                   aria-label={item.product && item.sub ? `${item.label}, ${item.sub}` : undefined}
-                  className="relative flex h-8 items-center whitespace-nowrap text-linen-200 transition-colors hover:text-white"
+                  className="nav-link relative flex h-8 items-center whitespace-nowrap text-linen-200 transition-colors hover:text-white"
                 >
                   {item.product ? (
                     <span className="flex items-baseline gap-2">

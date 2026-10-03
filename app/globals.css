@@ -263,6 +263,33 @@
 }
 
 /* -----------------------------------------------------------------------------
+   Header nav: a hover rule draws in under an item, in Sky at half strength;
+   the current page's rule (the full one, in components/site-header.tsx)
+   carries the view transition between items.
+   ----------------------------------------------------------------------------- */
+@layer components {
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-sky-300);
+    opacity: 0.55;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s var(--ease-brand);
+  }
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+  .nav-link[aria-current="page"]::after {
+    display: none;
+  }
+}
+
+/* -----------------------------------------------------------------------------
    View transitions — movement between pages. React names the elements inside
    each <ViewTransition> boundary for the length of a route change; the classes
    below (its `default` prop) pick the animation. Quick, in the brand easing,
@@ -551,6 +578,10 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+  /* Pressed: the button settles a pixel. Nothing bounces. */
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
   .btn-dash {
     display: inline-block;
     width: 22px;
@@ -558,6 +589,15 @@
     background: currentColor;
     opacity: 0.6;
     flex-shrink: 0;
+    transition:
+      width 0.35s var(--ease-brand),
+      opacity var(--dur-ui) ease;
+  }
+  /* The dash reaches on hover: the one small movement a button makes. */
+  .btn:hover .btn-dash,
+  .btn:focus-visible .btn-dash {
+    width: 32px;
+    opacity: 1;
   }
   .btn-navy {
     background: var(--color-navy);
@@ -628,7 +668,14 @@
     border-color: var(--color-navy);
   }
 
-  /* Cards: image eases 3.5% and a Sky rule draws on hover. Nothing lifts. */
+  /* Cards: image eases 3.5% and a Sky rule draws on hover. Nothing lifts.
+     Pressed, the whole card settles a touch under the finger. */
+  .card {
+    transition: transform var(--dur-ui) ease;
+  }
+  .card:active {
+    transform: scale(0.992);
+  }
   .card .card-img {
     transition: transform var(--dur-img) var(--ease-brand);
   }
@@ -745,6 +792,13 @@
   }
   .chip:hover {
     border-color: var(--color-harbor-900);
+  }
+  .chip:active {
+    background: var(--color-harbor-200);
+  }
+  .chip[aria-pressed="true"]:active,
+  .chip[data-active="true"]:active {
+    background: var(--color-harbor-800);
   }
   .chip[aria-pressed="true"],
   .chip[data-active="true"] {
@@ -1450,6 +1504,9 @@
   .encore-tab:hover {
     background: var(--color-linen-100);
   }
+  .encore-tab:active {
+    background: var(--color-linen-200);
+  }
   .encore-tab[aria-selected="true"] {
     background: var(--color-navy);
     color: var(--color-linen-200);
@@ -1624,6 +1681,11 @@
     border-top-color: var(--cat, var(--color-navy));
     transform: translateY(-2px);
     box-shadow: 0 16px 36px -22px rgba(30, 52, 66, 0.35);
+  }
+  .encore-tile:active,
+  .encore-run:active {
+    transform: translateY(0) scale(0.992);
+    box-shadow: none;
   }
   /* The tile's picture: 3:2 like every other card, so a rail and a grid read as one family. */
   .encore-tile-img {
