@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { Event } from "@/lib/content/types";
 import { keyArtDataUri } from "./key-art";
+import { stockPhoto } from "./stock";
 
 /**
  * The picture for an event's share image and its Monday-issue image. The
@@ -12,7 +13,7 @@ import { keyArtDataUri } from "./key-art";
  */
 export async function eventOgPhoto(e: Pick<Event, "image" | "category" | "slug" | "subcategory">): Promise<string> {
   const art = () => keyArtDataUri({ category: e.category, seed: e.slug, subcategory: e.subcategory, width: 520, height: 630 });
-  const src = e.image?.src;
+  const src = e.image?.src ?? stockPhoto({ category: e.category, subcategory: e.subcategory, seed: e.slug })?.src;
   if (!src) return art();
   try {
     const bytes = /^https?:\/\//.test(src)

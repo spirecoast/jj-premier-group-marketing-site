@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { KeyArt } from "@/components/key-art";
+import { stockPhoto } from "@/lib/encore/stock";
 import type { Event } from "@/lib/content/types";
 
 /**
@@ -13,10 +14,15 @@ import type { Event } from "@/lib/content/types";
 export function EventHero({ event }: { event: Event }) {
   const img = event.image;
   if (!img) {
+    const stock = stockPhoto({ category: event.category, subcategory: event.subcategory, seed: event.slug });
     return (
-      <div className="relative aspect-[21/9] max-h-[420px] overflow-hidden bg-linen-100">
-        <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={21 / 9} />
-      </div>
+      <figure className="flex flex-col gap-2">
+        <div className="relative aspect-[21/9] max-h-[420px] overflow-hidden bg-linen-100">
+          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={21 / 9} sizes="(min-width: 1024px) 1248px, 100vw" priority />
+        </div>
+        {/* A stand-in, said plainly so no one takes it for the production. */}
+        {stock ? <figcaption className="image-credit">Stock photo · Adobe Stock</figcaption> : null}
+      </figure>
     );
   }
   const ratio = img.width / img.height;

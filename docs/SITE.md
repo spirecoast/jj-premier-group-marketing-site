@@ -185,13 +185,18 @@ builder source with its checked date).
   `runsThrough`; the list view shows these in the "On view now" strip via `getOnView()`.
 - Items marked `announced` and the three whose venue is still to be confirmed are left off.
   Sold-out productions show "Sold out" and their offers carry `SoldOut` in the Event JSON-LD.
-- **Key art.** No stock photographs. An event without the presenter's own image (see "Images" below) gets art drawn in
-  code by `lib/encore/key-art.ts`: one motif per category (staff and notes, proscenium and
-  spotlight, hung frames, sound waves, film strip, bunting, balloons, market awnings), varied by
-  a seed from the event slug and by subcategory (jazz, choral, orchestra, circus, ballet, comedy
-  and so on), in the brand palette. `components/key-art.tsx` renders it wherever a card or hero
-  needs a picture, and the event share image uses the same SVG. A venue photo added in Sanity
-  (`image`) overrides it automatically, so no picture on the site needs a license.
+- **Stock photos, then key art.** An event without the presenter's own image (see "Images"
+  below) gets a stand-in photograph for its kind of event: 51 free Adobe Stock photos, three
+  each for 17 themes (exhibition, concert, chamber, orchestra, choral, jazz, theater, musical,
+  ballet, comedy, talk, film, festival, art walk, family, gala, market), licensed through the
+  Adobe connector on October 3, 2026, none flagged AI-generated. They're in
+  `public/images/encore-stock/`, listed with their Adobe Stock IDs and alt text in
+  `lib/content/encore/stock-photos.json`. `lib/encore/stock.ts` maps the subcategory, then the
+  category, to a theme and picks one of its three by the event slug, so neighbouring cards
+  differ. They show no faces, logos, readable signs or recognisable local venues, and the event
+  page captions them "Stock photo · Adobe Stock" so nobody takes one for the production. The
+  share image uses the same photo. Only if no theme fits does `components/key-art.tsx` fall back
+  to the art drawn in code by `lib/encore/key-art.ts` (one motif per category, varied by slug).
 - The ICS feed emits one VEVENT per performance: the next 90 days by default, six months with
   `?all=1` or any filter, plus the current runs.
 
@@ -269,7 +274,9 @@ og:image or JSON-LD image of its page, or the listing's card art), used to promo
 event, credited under it ("Image: <presenter>", linked to the page it came from). The collector
 resizes it to at most 1600px wide as WebP and stores it in the public `encore-images` bucket
 (`encore_images` keeps the source URL, the page, the credit and the size). Logos, icons and
-anything under 400px wide are refused, and key art stays the fallback. To take one down on
+anything under 400px wide are refused (a listing thumbnail that small is retried with the
+image on the event's own page), and the stock photo stays the fallback. Every collect run also
+looks on the event's own page for current events no source has offered an image for. To take one down on
 request: `update encore_images set hidden = true where event_slug = '<slug>';` (the collector
 never touches `hidden`, so it stays down), then call `/api/encore/collect?only=<source id>` or
 wait for the hourly ISR.
