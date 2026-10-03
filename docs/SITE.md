@@ -492,3 +492,17 @@ Also worth knowing:
   `consent:email`) and are mirrored to the database. Nothing emails them from the site.
 - Every statistic on the site carries its source and date in the seed content. When the numbers
   are replaced in Sanity, keep the source field filled.
+
+## Personal data retention
+
+`lib/db/migrations/0009_retention.sql` installs `public.retention_purge()` and a pg_cron job
+(`retention-purge`, 07:17 UTC daily). Home Platform is the CRM, so the site database applies one
+rule to everyone: `lead_deliveries` after 90 days; on `leads`, names, message, address, source and
+payload cleared after 2 years (email, phone and the consent proof stay), rows deleted after 5;
+on `contacts`, names, source and UTM cleared after 2 years without contact, rows deleted after 5
+unless the person unsubscribed or asked not to be called (then email, phone and those flags stay
+for good); `events` payloads cleared after 2 years and rows removed after 5, except unsubscribe
+entries. Five years covers the 4-year window for TCPA claims. IP addresses are never stored.
+Questionnaire answers are deleted by hand once the site copy is final. The privacy page states
+the same periods; change both together. Check runs with
+`select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'retention-purge') order by start_time desc limit 5;`.

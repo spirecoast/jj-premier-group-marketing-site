@@ -60,7 +60,7 @@ export default async function PrivacyPage() {
 
         <h2>How long we keep it</h2>
         <p>
-          Enquiries stay in the site database and in the brokerage’s customer relationship system while we work with you and for as long as Florida brokerage record-keeping rules require afterwards; we currently expect that to be about five years for transaction records, and counsel will confirm the period. You can ask us to delete an enquiry that never became a transaction at any time.
+          The site database clears your name, message and address two years after you last contacted us, and keeps only your email or phone number with the record of what you agreed to, so we can show when you gave or withdrew consent. Five years after your last contact, that record is deleted too. If you unsubscribed or asked us not to call, we keep your email or phone number on a do-not-contact list for as long as we send email or texts, so you aren’t contacted again. Records of how each form was delivered are deleted after 90 days. Enquiries passed to the brokerage’s customer relationship system are kept there under the brokerage’s own policy. You can ask us to delete your information at any time.
         </p>
 
         <h2>Your choices</h2>
