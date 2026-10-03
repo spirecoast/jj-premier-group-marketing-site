@@ -1,0 +1,410 @@
+[
+ {
+  "file": "exhibition-1.jpg",
+  "theme": "exhibition",
+  "adobeStockId": "524021030",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Visitor seen from behind looking at framed photographs on a gallery wall"
+ },
+ {
+  "file": "exhibition-2.jpg",
+  "theme": "exhibition",
+  "adobeStockId": "149571775",
+  "width": 1600,
+  "height": 998,
+  "alt": "Blurred silhouettes of visitors walking through a bright white gallery"
+ },
+ {
+  "file": "exhibition-3.jpg",
+  "theme": "exhibition",
+  "adobeStockId": "343421667",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Wooden easel, stool and paint tubes in a warmly lit artist's studio"
+ },
+ {
+  "file": "concert-1.jpg",
+  "theme": "concert",
+  "adobeStockId": "285346012",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Audience in silhouette facing a band under bright stage lights"
+ },
+ {
+  "file": "concert-2.jpg",
+  "theme": "concert",
+  "adobeStockId": "549964817",
+  "width": 1600,
+  "height": 1066,
+  "alt": "Microphone on a stand in front of blue and amber stage spotlights"
+ },
+ {
+  "file": "concert-3.jpg",
+  "theme": "concert",
+  "adobeStockId": "300807137",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Wooden stage floor glowing under red concert lights"
+ },
+ {
+  "file": "chamber-1.jpg",
+  "theme": "chamber",
+  "adobeStockId": "911672729",
+  "width": 1600,
+  "height": 885,
+  "alt": "Hands of a cellist playing in warm, dramatic light"
+ },
+ {
+  "file": "chamber-2.jpg",
+  "theme": "chamber",
+  "adobeStockId": "246594770",
+  "width": 1600,
+  "height": 1050,
+  "alt": "Antique violin and cello side by side in low golden light"
+ },
+ {
+  "file": "chamber-3.jpg",
+  "theme": "chamber",
+  "adobeStockId": "545286061",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Grand piano keyboard on stage facing rows of red seats"
+ },
+ {
+  "file": "orchestra-1.jpg",
+  "theme": "orchestra",
+  "adobeStockId": "482921121",
+  "width": 1600,
+  "height": 848,
+  "alt": "String players with violin, cello and double bass on a dark stage"
+ },
+ {
+  "file": "orchestra-2.jpg",
+  "theme": "orchestra",
+  "adobeStockId": "372157223",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Conductor's hands raising a baton against a black background"
+ },
+ {
+  "file": "orchestra-3.jpg",
+  "theme": "orchestra",
+  "adobeStockId": "519989919",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Violinist seen from behind playing in an orchestra under warm light"
+ },
+ {
+  "file": "festival-1.jpg",
+  "theme": "festival",
+  "adobeStockId": "277387400",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Glowing string lights against a pink sunset sky"
+ },
+ {
+  "file": "festival-2.jpg",
+  "theme": "festival",
+  "adobeStockId": "365558734",
+  "width": 1600,
+  "height": 1067,
+  "alt": "String of bulb lights over a softly lit outdoor evening scene"
+ },
+ {
+  "file": "festival-3.jpg",
+  "theme": "festival",
+  "adobeStockId": "273606258",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Colorful fireworks bursting over the water at night"
+ },
+ {
+  "file": "comedy-1.jpg",
+  "theme": "comedy",
+  "adobeStockId": "1435508615",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Vintage chrome microphone on a small stage with warm bokeh lights"
+ },
+ {
+  "file": "comedy-2.jpg",
+  "theme": "comedy",
+  "adobeStockId": "476755793",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Microphone on a stand in purple stage light with empty stands behind"
+ },
+ {
+  "file": "comedy-3.jpg",
+  "theme": "comedy",
+  "adobeStockId": "103300887",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Retro microphone against a smoky grey backdrop"
+ },
+ {
+  "file": "theater-1.jpg",
+  "theme": "theater",
+  "adobeStockId": "118798928",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Closed red velvet curtain on a theater stage above dim seats"
+ },
+ {
+  "file": "theater-2.jpg",
+  "theme": "theater",
+  "adobeStockId": "310875158",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Empty red velvet seats beneath an ornate theater balcony"
+ },
+ {
+  "file": "theater-3.jpg",
+  "theme": "theater",
+  "adobeStockId": "262285569",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Red stage curtain with warm light on a wooden stage floor"
+ },
+ {
+  "file": "ballet-1.jpg",
+  "theme": "ballet",
+  "adobeStockId": "702177442",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Dancer's feet en pointe in satin pointe shoes on a wooden floor"
+ },
+ {
+  "file": "ballet-2.jpg",
+  "theme": "ballet",
+  "adobeStockId": "244584062",
+  "width": 1600,
+  "height": 1285,
+  "alt": "Ballet dancers' tulle skirts and pointe shoes reflected on a stage floor"
+ },
+ {
+  "file": "ballet-3.jpg",
+  "theme": "ballet",
+  "adobeStockId": "1059293675",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Pair of satin pointe shoes with ribbons on a dark studio floor"
+ },
+ {
+  "file": "talk-1.jpg",
+  "theme": "talk",
+  "adobeStockId": "1744969748",
+  "width": 1600,
+  "height": 890,
+  "alt": "Book-lined room with a wooden ladder and racks of framed prints"
+ },
+ {
+  "file": "talk-2.jpg",
+  "theme": "talk",
+  "adobeStockId": "370691765",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Stack of hardcover books in front of blurred library shelves"
+ },
+ {
+  "file": "talk-3.jpg",
+  "theme": "talk",
+  "adobeStockId": "457388108",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Microphone on a stand in front of a softly lit hall"
+ },
+ {
+  "file": "film-1.jpg",
+  "theme": "film",
+  "adobeStockId": "252886721",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Vintage film projector casting a beam of light in the dark"
+ },
+ {
+  "file": "film-2.jpg",
+  "theme": "film",
+  "adobeStockId": "449667216",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Outdoor movie screen with string lights, chairs and a vintage projector"
+ },
+ {
+  "file": "film-3.jpg",
+  "theme": "film",
+  "adobeStockId": "206735024",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Empty cinema seats lit by a projector glow"
+ },
+ {
+  "file": "gala-1.jpg",
+  "theme": "gala",
+  "adobeStockId": "467546595",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Floating candles and white orchids on an elegant dinner table"
+ },
+ {
+  "file": "gala-2.jpg",
+  "theme": "gala",
+  "adobeStockId": "187464567",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Two flutes of sparkling champagne on a dark background"
+ },
+ {
+  "file": "gala-3.jpg",
+  "theme": "gala",
+  "adobeStockId": "217871269",
+  "width": 1600,
+  "height": 1065,
+  "alt": "Lit crystal chandelier against a dark ceiling"
+ },
+ {
+  "file": "market-1.jpg",
+  "theme": "market",
+  "adobeStockId": "480974676",
+  "width": 1600,
+  "height": 999,
+  "alt": "Leeks, cabbage, peppers and greens in wooden crates at a produce stand"
+ },
+ {
+  "file": "market-2.jpg",
+  "theme": "market",
+  "adobeStockId": "100124104",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Colorful vegetables piled high at a market stall"
+ },
+ {
+  "file": "market-3.jpg",
+  "theme": "market",
+  "adobeStockId": "304616867",
+  "width": 1600,
+  "height": 934,
+  "alt": "Baskets of peppers, tomatoes and spring onions at an outdoor market"
+ },
+ {
+  "file": "jazz-1.jpg",
+  "theme": "jazz",
+  "adobeStockId": "249428310",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Hands holding a saxophone in front of an upright piano"
+ },
+ {
+  "file": "jazz-2.jpg",
+  "theme": "jazz",
+  "adobeStockId": "101857173",
+  "width": 1600,
+  "height": 1006,
+  "alt": "Gold saxophone in soft light on a black background"
+ },
+ {
+  "file": "jazz-3.jpg",
+  "theme": "jazz",
+  "adobeStockId": "297832082",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Saxophones on stands beside a drum kit on a softly lit stage"
+ },
+ {
+  "file": "family-1.jpg",
+  "theme": "family",
+  "adobeStockId": "513455612",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Line of colorful kites flying in a clear blue sky"
+ },
+ {
+  "file": "family-2.jpg",
+  "theme": "family",
+  "adobeStockId": "175203857",
+  "width": 1600,
+  "height": 1068,
+  "alt": "Picnic basket and blanket on the grass under a tree in warm light"
+ },
+ {
+  "file": "family-3.jpg",
+  "theme": "family",
+  "adobeStockId": "417498199",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Rainbow-striped kite flying over the water at sunset"
+ },
+ {
+  "file": "artwalk-1.jpg",
+  "theme": "artwalk",
+  "adobeStockId": "792452757",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Gloved hand painting a bright blue mural outdoors"
+ },
+ {
+  "file": "artwalk-2.jpg",
+  "theme": "artwalk",
+  "adobeStockId": "336309174",
+  "width": 1600,
+  "height": 1066,
+  "alt": "String of glowing paper lanterns among leaves at night"
+ },
+ {
+  "file": "artwalk-3.jpg",
+  "theme": "artwalk",
+  "adobeStockId": "1185648793",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Hand with a spray can painting a colorful star mural"
+ },
+ {
+  "file": "choral-1.jpg",
+  "theme": "choral",
+  "adobeStockId": "376365580",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Open book of printed sheet music in warm light"
+ },
+ {
+  "file": "choral-2.jpg",
+  "theme": "choral",
+  "adobeStockId": "283625055",
+  "width": 1600,
+  "height": 1200,
+  "alt": "Close-up of polished metal organ pipes"
+ },
+ {
+  "file": "choral-3.jpg",
+  "theme": "choral",
+  "adobeStockId": "159709921",
+  "width": 1600,
+  "height": 1338,
+  "alt": "Ornate wooden pipe organ with silver pipes"
+ },
+ {
+  "file": "musical-1.jpg",
+  "theme": "musical",
+  "adobeStockId": "739319625",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Red and white striped circus tent peaks against a night sky"
+ },
+ {
+  "file": "musical-2.jpg",
+  "theme": "musical",
+  "adobeStockId": "235494553",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Wooden star-shaped marquee lights with glowing bulbs"
+ },
+ {
+  "file": "musical-3.jpg",
+  "theme": "musical",
+  "adobeStockId": "274529376",
+  "width": 1600,
+  "height": 1067,
+  "alt": "Looking up into a striped red, yellow, green and blue tent canopy"
+ }
+]
