@@ -57,7 +57,7 @@ export async function loadTideIssue(today = issueToday(), month?: string): Promi
   const sales = await salesBetween(monthBounds(addMonths(earliest, -24)).from, monthBounds(latest).to);
   const tideManifest = {
     generatedAt: manifest.generatedAt,
-    counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c?.label ?? k, to: c?.to ?? null }])),
+    counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c?.label ?? k, to: c?.to ?? null, from: c?.from ?? null }])),
   };
   const covers = tideMonthFor(sales, today, month);
   const entry = tideEntryFor(covers, today, month);

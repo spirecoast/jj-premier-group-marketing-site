@@ -2,23 +2,29 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { checkFairHousing } from "../fair-housing";
 import { LICENSE, MANIFEST_COMPLETE, SUPERLATIVES, sale } from "../issues/fixtures";
-import { tideStats } from "../issues/tide-monthly";
+import { marketParagraph, tideStats } from "../issues/tide-monthly";
 import type { Sale } from "../sales/types";
-import { chartGeometry } from "./chart";
+import { chartGeometry, sparkGeometry, stackGeometry } from "./chart";
 import { tideWebStrings } from "./copy";
 import {
   baselines,
   buildIssueModel,
   dataMonthFor,
   guidesForMonth,
+  homeMix,
   issueCard,
   issueText,
+  monthCovered,
   monthlySeries,
   monthsEnding,
   niceStep,
+  priceBands,
+  readingMinutes,
+  shares,
   shortMonth,
   yAxis,
 } from "./issue";
+import { tideCover } from "./cover";
 import { TIDE_ISSUES, isIssueMonth } from "./issues";
 
 /**
@@ -201,6 +207,101 @@ describe("the issue's figures", () => {
   });
 });
 
+describe("the new figures", () => {
+  const m = model();
+  it("leave out the same month a year before when the data doesn't reach it", () => {
+    // The fixture starts in August 2025.
+    assert.deepEqual(m.markets.map((x) => x.lastYear), [null, null, null]);
+    assert.equal(m.combined.lastYear, null);
+  });
+  it("compare with the same month a year before when the data reaches it", () => {
+    const extra = [
+      sale({ city: "LAKEWOOD RANCH", zip: "34202", saleDate: "2025-07-10", salePrice: 250_000, livingArea: 1_000 }),
+      sale({ city: "LAKEWOOD RANCH", zip: "34202", saleDate: "2025-07-11", salePrice: 350_000, livingArea: 1_000 }),
+    ];
+    const ly = model({ sales: [...SALES, ...extra] });
+    const lwr = ly.markets[0]!.lastYear!;
+    assert.equal(lwr.month, "2025-07");
+    assert.equal(lwr.count, 2);
+    assert.equal(lwr.medianPrice, 300_000);
+    assert.equal(lwr.medianPpsf, 300);
+    assert.equal(lwr.countPct, (100 * (count(0, 11) - 2)) / 2);
+    assert.equal(lwr.pricePct, (100 * (price(0, 11) - 300_000)) / 300_000);
+    assert.equal(ly.markets[1]!.lastYear!.count, 0);
+    assert.equal(ly.markets[1]!.lastYear!.countPct, null, "no percent against zero");
+    assert.deepEqual(ly.combined.lastYear, { month: "2025-07", count: 2, pct: (100 * (ly.combined.count - 2)) / 2 });
+    // A county file that starts after the month began: not compared.
+    const late = { ...MANIFEST_COMPLETE, counties: { ...MANIFEST_COMPLETE.counties, sarasota: { ...MANIFEST_COMPLETE.counties.sarasota, from: "2025-07-15" } } };
+    assert.equal(monthCovered([...SALES, ...extra], "2025-07", late), false);
+    assert.equal(monthCovered([...SALES, ...extra], "2025-07", MANIFEST_COMPLETE), true);
+  });
+  it("split the month by kind of home, with land out of the medians", () => {
+    const rows = [
+      sale({ propertyUse: "single-family", salePrice: 500_000 }),
+      sale({ propertyUse: "single-family", salePrice: 700_000 }),
+      sale({ propertyUse: "single-family", salePrice: 900_000, qualCode: "03" }),
+      sale({ propertyUse: "condo", salePrice: 300_000 }),
+      sale({ propertyUse: "villa", salePrice: 400_000 }),
+      sale({ propertyUse: "townhome", salePrice: 350_000 }),
+      sale({ propertyUse: "vacant", salePrice: 150_000 }),
+    ];
+    assert.deepEqual(
+      homeMix(rows).map((p) => [p.key, p.label, p.count, p.share, p.medianPrice, p.priceSample]),
+      [
+        ["single-family", "Single-family homes", 3, 43, 600_000, 2],
+        ["attached", "Condos, villas and townhomes", 3, 43, 350_000, 3],
+        ["land", "Lots the county lists as empty", 1, 14, null, 0],
+      ],
+    );
+  });
+  it("put the homes in the median price into four price bands", () => {
+    const rows = [100_000, 399_999, 400_000, 749_999, 750_000, 1_499_999, 1_500_000, 2_000_000].map((p) => sale({ salePrice: p }));
+    rows.push(sale({ propertyUse: "vacant", salePrice: 50_000 }));
+    const b = priceBands(rows);
+    assert.equal(b.sample, 8);
+    assert.deepEqual(
+      b.bands.map((x) => [x.label, x.count, x.share]),
+      [
+        ["Under $400K", 2, 25],
+        ["$400K to $750K", 2, 25],
+        ["$750K to $1.5M", 2, 25],
+        ["$1.5M and up", 2, 25],
+      ],
+    );
+  });
+  it("round shares to whole percents that add up to 100", () => {
+    assert.deepEqual(shares([1, 1, 1]), [34, 33, 33]);
+    assert.deepEqual(shares([0, 0]), [null, null]);
+    for (const xs of [[150, 40, 51], [7, 3, 1, 1], [586, 241, 793]]) assert.equal((shares(xs) as number[]).reduce((a, b) => a + b, 0), 100);
+  });
+  it("add the three markets together against their combined typical month", () => {
+    // Month k has 18 + 3k sales across the three; the typical month is the median of k = 0 to 10.
+    assert.equal(m.combined.count, 51);
+    assert.equal(m.combined.typical, 33);
+    assert.equal(m.combined.diff, 18);
+    assert.equal(m.combined.pct, (100 * 18) / 33);
+    assert.deepEqual(
+      m.combined.parts.map((p) => [p.name, p.count, p.share]),
+      [
+        ["Lakewood Ranch", 15, 30],
+        ["Sarasota", 17, 33],
+        ["Bradenton", 19, 37],
+      ],
+    );
+    assert.equal(m.combinedLine, "home sales across the three markets in July, 55% more than a typical month");
+  });
+  it("rotate the cover photo by issue month and time the read", () => {
+    assert.equal(tideCover("2026-10").src, "/images/tide/tide-1.jpg");
+    assert.equal(tideCover("2026-11").src, "/images/tide/tide-2.jpg");
+    assert.equal(tideCover("2026-12").src, "/images/tide/tide-3.jpg");
+    assert.equal(tideCover("2027-01").src, "/images/tide/tide-1.jpg");
+    assert.equal(m.cover.width, 2400);
+    assert.ok(m.cover.alt.length > 20);
+    // 400 words and the 11 figures: 2 + 3.7, rounded up.
+    assert.equal(readingMinutes(Array.from({ length: 4 }, () => "word ".repeat(100))), 6);
+  });
+});
+
 describe("the charts", () => {
   const { sales, ppsf } = model().charts;
   it("cover the last twelve complete months, one line per market", () => {
@@ -263,6 +364,36 @@ describe("the charts", () => {
   });
 });
 
+describe("the small drawings", () => {
+  it("draw a sparkline from zero, with the typical month inside the box", () => {
+    const g = sparkGeometry(
+      [
+        { month: "2026-05", value: 0 },
+        { month: "2026-06", value: 50 },
+        { month: "2026-07", value: 100 },
+      ],
+      40,
+      { width: 100, height: 50, pad: 5 },
+    );
+    assert.deepEqual(
+      g.points.map((p) => [p.x, p.y]),
+      [
+        [5, 45],
+        [50, 25],
+        [95, 5],
+      ],
+    );
+    assert.equal(g.typicalY, 29);
+  });
+  it("stack shares across the width with hairline gaps and skip the empty ones", () => {
+    const g = stackGeometry([50, 0, 25, 25], 100, 1);
+    assert.deepEqual(g.map((x) => x.share), [50, 25, 25]);
+    assert.equal(g[0]!.x, 0);
+    assert.ok(Math.abs(g[2]!.x + g[2]!.w - 100) < 1e-9, "the last segment ends at the edge");
+    assert.deepEqual(stackGeometry([null, null]), []);
+  });
+});
+
 describe("the axis arithmetic", () => {
   it("picks steps of 1, 2, 2.5 or 5 times a power of ten", () => {
     assert.equal(niceStep(1080, 5), 250);
@@ -288,13 +419,49 @@ describe("the rest of the issue", () => {
       ["cdd", "flood"],
     );
   });
-  it("opens with the plain framing until the story is written, then with the story", () => {
-    assert.equal(model().narrative, null);
-    assert.equal(model().framing, "Here’s how home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, straight from the county’s public record.");
+  it("opens with computed lines until the words are written, then with the words", () => {
+    const bare = model();
+    assert.equal(bare.narrative, null);
+    assert.equal(bare.framing, "Here’s how home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, straight from the county’s public record.");
+    assert.equal(bare.headline, "Home sales in July 2026");
+    assert.equal(bare.dek, "Here’s how Lakewood Ranch, Sarasota and Bradenton did, with every number from the county’s public record.");
+    assert.match(bare.coverLine, /^Figures for July 2026 from the county record · \d+ min read$/);
+    // Each market falls back to the paragraph the email computes.
+    assert.deepEqual(bare.markets[0]!.story, { paragraphs: [marketParagraph(bare.markets[0]!.stats, "2026-07")], written: false });
+
     const told = model({ entry: { issue: "2026-10", opening: ["Picture July."], buyers: ["Buy."], sellers: [" "], watch: ["Watch."] } });
-    assert.deepEqual(told.narrative, { opening: ["Picture July."], buyers: ["Buy."], sellers: [], watch: ["Watch."] });
-    // A story with no opening isn't one yet.
-    assert.equal(model({ entry: { issue: "2026-10", buyers: ["Buy."] } }).narrative, null);
+    assert.deepEqual(told.narrative, {
+      headline: null,
+      dek: null,
+      opening: ["Picture July."],
+      markets: {},
+      marketMoves: {},
+      buying: [],
+      selling: [],
+      buyers: ["Buy."],
+      sellers: [],
+      watch: ["Watch."],
+    });
+    // Any written field shows on its own; nothing written is null.
+    assert.deepEqual(model({ entry: { issue: "2026-10", buyers: ["Buy."] } }).narrative?.buyers, ["Buy."]);
+    assert.equal(model({ entry: { issue: "2026-10", headline: "  ", opening: [""] } }).narrative, null);
+
+    const letter = model({
+      entry: {
+        issue: "2026-10",
+        headline: "A headline.",
+        dek: "A dek.",
+        markets: { sarasota: ["One.", "Two."] },
+        marketMoves: { sarasota: "Do this." },
+        buying: [{ move: "Move.", why: "Why.", link: { href: "/buy", label: "Buy" } }, { move: "  ", why: "Dropped." }],
+      },
+    });
+    assert.equal(letter.headline, "A headline.");
+    assert.equal(letter.dek, "A dek.");
+    assert.deepEqual(letter.markets[1]!.story, { paragraphs: ["One.", "Two."], written: true });
+    assert.equal(letter.markets[0]!.story.written, false);
+    assert.deepEqual(letter.narrative!.buying, [{ move: "Move.", why: "Why.", link: { href: "/buy", label: "Buy" } }]);
+    assert.ok(letter.commentary!.includes("Do this."));
   });
   it("shows a signed note only when it's written; sample previews show both slots", () => {
     assert.deepEqual(model().notes, []);

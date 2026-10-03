@@ -228,6 +228,14 @@ builder source with its checked date).
   1587155923, spring-start-in-october 529733750, gated-community 532484718. Only the
   getting-here (Sarasota) and barrier-island (Anna Maria) photos are of a named place, and only
   because Adobe's own titles say so; the alt text names none.
+- **Tide covers.** Each Tide issue page (`/tide/<issue>`) opens on one of three free Adobe Stock
+  photos licensed through the Adobe connector on October 3, 2026, 2400px wide, none flagged
+  AI-generated and none with an identifiable person, in `public/images/tide/tide-{1,2,3}.jpg`.
+  Adobe Stock IDs: tide-1 (a bayfront marina and towers at dusk, titled "Downtown Sarasota with
+  Boats") 456377261, tide-2 (a Gulf inlet between two jetties, titled as Nokomis) 1082458028,
+  tide-3 (red mangroves on a tidal flat) 1660124415. The issue month picks one
+  (`lib/tide/cover.ts`): January, April, July and October take tide-1, and so on. The alt text
+  names no place.
 - **Stock photos, then key art.** An event without the presenter's own image (see "Images"
   below) gets a stand-in photograph for its kind of event: 51 free Adobe Stock photos, three
   each for 17 themes (exhibition, concert, chamber, orchestra, choral, jazz, theater, musical,
@@ -377,8 +385,9 @@ the pictures are never grainy and never out of date; the raw data stays on the s
   and the newest at the front, each the smoothed distribution of that month's qualified home sale
   prices in the three markets (a Gaussian kernel density over log price, `lib/art/tide.ts`). The
   months are the ones ending with the latest month complete in all three markets, the same month
-  the Tide issue reports on (`lib/art/load.ts`). It is the masthead on `/blog`, `/tide` and every
-  issue page, composed once at 3:1 and once at 4:3, and the card head on the home page.
+  the Tide issue reports on (`lib/art/load.ts`). It is the masthead on `/blog` and `/tide`, composed
+  once at 3:1 and once at 4:3, and the card head on the home page. An issue page opens with a cover
+  photograph instead (below).
 - **Atlas** is every place in the index as a point of light (`lib/art/atlas.ts`): areas the bright
   stars, communities the field, enclaves faint; each market in its own light; threads between the
   areas and from each community to its nearest neighbour.

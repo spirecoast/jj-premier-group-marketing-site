@@ -16,6 +16,6 @@ export default async function Image({ params }: { params: Promise<{ issue: strin
     eyebrow: W.cardEyebrow,
     title: model.title,
     meta: fill(W.ogMeta, { data: model.dataLabel }),
-    photo: "/images/library/gulf-beach-aerial.jpg",
+    photo: model.cover.src,
   });
 }
