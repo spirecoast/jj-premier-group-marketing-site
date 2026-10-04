@@ -3,18 +3,24 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { checkFairHousing } from "@/lib/fair-housing";
+import { TEAM_SEND_COPY } from "@/lib/newsletter/copy";
+import { easternWhen } from "@/lib/newsletter/schedule";
+import type { TeamSendInfo } from "@/lib/newsletter/service";
+import { fill } from "./copy";
 import { C, SANS, column, documentHtml, esc, row, type Issue } from "./render";
 
 /**
- * Hands a finished issue to the team. The site sends no email to visitors or
- * subscribers: the issue goes out later from the agents' Coldwell Banker
- * mailboxes or the Home Platform's Marketing Center (docs/ISSUES.md). Here it
- * is only
+ * Hands a finished issue to the team. Here it is
  *
  *  1. emailed to TEAM_NOTIFY_EMAIL (Resend), the one address this module
  *     ever sends to, with a note on what to check before sending; and
  *  2. POSTed as JSON to ISSUE_WEBHOOK_URL when set (a Zapier Catch Hook),
  *     so a Zap can put it in an Outlook draft or the Marketing Center.
+ *
+ * When the site sends to subscribers itself (lib/newsletter, docs/ISSUES.md)
+ * the route has already put the send on record; the team note then says when
+ * it goes out and carries the "Send it now" and "Hold this issue" links.
+ * Subscribers are never emailed from here.
  *
  * The webhook is skipped when the Fair Housing checker flags the issue or the
  * issue is held (a Tide month that isn't complete); the team gets an alert
@@ -89,6 +95,8 @@ export type HandoffResult = {
   teamEmail: StepResult;
   webhook: StepResult;
   warnings: string[];
+  /** The subscriber send, when the site sends to subscribers: its status and when it goes. */
+  subscriberSend?: { status: string; scheduledFor: string; recipients: number; holdReason: string | null } | null;
 };
 
 const WEBHOOK_TIMEOUT_MS = 8_000;
@@ -134,11 +142,43 @@ function noteHtml(lines: string[], tone: "info" | "alert"): string {
   );
 }
 
+const plural = (n: number) => (n === 1 ? "subscriber" : "subscribers");
+const dateOnly = (d: Date) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" }).format(d);
+
+/** A link styled as a button, for the two subscriber-send links. */
+const actionLink = (href: string, label: string, color: string) =>
+  `<a href="${esc(href)}" style="display:inline-block;margin:4px 10px 4px 0;padding:10px 18px;font-family:${SANS};font-size:14px;font-weight:bold;color:${C.white};background-color:${color};text-decoration:none;border-radius:2px;">${esc(label)}</a>`;
+
+/** What the team email says about the send to subscribers, and the links to hold it or send it now. */
+export function subscriberLines(issue: Pick<Issue, "kind">, info: TeamSendInfo): string[] {
+  const lines: string[] = [];
+  const when = easternWhen(info.scheduledFor);
+  if (info.status === "sent") return [esc(fill(TEAM_SEND_COPY.sent, { when: info.finishedAt ? dateOnly(info.finishedAt) : when }))];
+  if (info.status === "expired") return [esc(TEAM_SEND_COPY.expired)];
+  if (info.status === "sending") lines.push(`<strong>${esc(TEAM_SEND_COPY.sending)}</strong>`);
+  else if (info.status === "held") lines.push(`<strong>${esc(info.heldBySystem && info.holdReason ? fill(TEAM_SEND_COPY.heldBySystem, { reason: info.holdReason }) : TEAM_SEND_COPY.held)}</strong>`);
+  else
+    lines.push(
+      `<strong>${esc(info.recipients ? fill(TEAM_SEND_COPY.scheduled, { count: info.recipients, subscribers: plural(info.recipients), when }) : fill(TEAM_SEND_COPY.scheduledNone, { when }))}</strong>`,
+    );
+  if (issue.kind === "tide") lines.push(esc(TEAM_SEND_COPY.tideBoxes));
+  if (info.fairHousingFlagged) lines.push(esc(TEAM_SEND_COPY.heldFairHousing));
+  // The address line, unless the hold above already says it.
+  if (!info.addressComplete && !(info.heldBySystem && /address/.test(info.holdReason ?? ""))) lines.push(esc(TEAM_SEND_COPY.address));
+  const buttons = [
+    ...(info.fairHousingFlagged ? [] : [actionLink(info.sendUrl, TEAM_SEND_COPY.sendLabel, C.navy)]),
+    ...(info.status === "held" ? [] : [actionLink(info.holdUrl, TEAM_SEND_COPY.holdLabel, C.amber)]),
+  ];
+  if (buttons.length) lines.push(buttons.join(""), `<span style="color:${C.muted};font-size:13px;">${esc(TEAM_SEND_COPY.linksNote)}</span>`);
+  return lines;
+}
+
 /** The note above the issue in the team email: what this is, what to do, and the warnings. */
-function teamNote(issue: Issue, webhook: StepResult): string[] {
+function teamNote(issue: Issue, webhook: StepResult, send?: TeamSendInfo | null): string[] {
   const lines = [
     `<strong>This is the ${issue.kind === "encore" ? "Encore" : "Tide"} issue for ${esc(issue.period.label)}, built by the website. Nothing has been sent to subscribers.</strong>`,
     `Subject line for subscribers: <strong>${esc(issue.subject)}</strong>`,
+    ...(send ? subscriberLines(issue, send) : []),
   ];
   if (issue.needsEdit && issue.placeholder)
     lines.push(
@@ -146,11 +186,10 @@ function teamNote(issue: Issue, webhook: StepResult): string[] {
         ? "Before it goes out, fill in or delete each dashed box. There’s one for the month’s story until it’s written, and one each for a short note from Joelyn and from Jessica, in your own words. The issue says nothing for you that you didn’t write."
         : `Before it goes out, replace the dashed box (“${esc(issue.placeholder)}”).`,
     );
-  lines.push(
-    webhook.status === "sent"
-      ? "It was also sent to the Zap (ISSUE_WEBHOOK_URL), which puts it where you send from."
-      : "To send it: upload or paste the attached .html file (or the .txt for plain text) into the send tool, Outlook or the Marketing Center, which adds the unsubscribe link. The issue is also shown below.",
-  );
+  if (webhook.status === "sent") lines.push("It was also sent to the Zap (ISSUE_WEBHOOK_URL), which puts it where you send from.");
+  // When the site sends to subscribers itself, the hand-sending instructions don't apply.
+  else if (!send)
+    lines.push("To send it: upload or paste the attached .html file (or the .txt for plain text) into the send tool, Outlook or the Marketing Center, which adds the unsubscribe link. The issue is also shown below.");
   for (const w of issue.warnings) lines.push(`Check: ${esc(w)}`);
   return lines;
 }
@@ -168,10 +207,21 @@ function issueFiles(issue: Issue): { filename: string; content: Buffer; contentT
  * Fair Housing check, then the team email, then the webhook. Never throws;
  * every outcome comes back in the result, which the route returns as JSON.
  */
-export async function handOff(issue: Issue, teamSubject: string, opts: { fetchImpl?: typeof fetch } = {}): Promise<HandoffResult> {
+export async function handOff(
+  issue: Issue,
+  teamSubject: string,
+  opts: { fetchImpl?: typeof fetch; subscriberSend?: TeamSendInfo | null } = {},
+): Promise<HandoffResult> {
   const to = process.env.TEAM_NOTIFY_EMAIL;
   const fh = checkFairHousing(`${issue.subject}\n${issue.html}\n${issue.text}`);
-  const base = { kind: issue.kind, period: issue.period, subject: issue.subject, warnings: issue.warnings };
+  const send = opts.subscriberSend ?? null;
+  const base = {
+    kind: issue.kind,
+    period: issue.period,
+    subject: issue.subject,
+    warnings: issue.warnings,
+    ...(send ? { subscriberSend: { status: send.status, scheduledFor: send.scheduledFor.toISOString(), recipients: send.recipients, holdReason: send.holdReason } } : {}),
+  };
 
   const held = !fh.passed ? "the Fair Housing check flagged it" : (issue.hold ?? null);
   if (held) {
@@ -183,6 +233,7 @@ export async function handOff(issue: Issue, teamSubject: string, opts: { fetchIm
           "The flagged words come from the event or sales data, not the templates. Edit before sending, or skip this issue.",
         ]
       : [`<strong>The issue below was not sent to the Zap: ${esc(held)}.</strong>`, ...issue.warnings.map((w) => `Check: ${esc(w)}`)];
+    if (send) lines.push(...subscriberLines(issue, send));
     let teamEmail: StepResult = { status: "skipped", detail: "TEAM_NOTIFY_EMAIL not set" };
     if (to) {
       const res = await sendEmail({
@@ -223,7 +274,7 @@ export async function handOff(issue: Issue, teamSubject: string, opts: { fetchIm
       html: documentHtml({
         title: teamSubject,
         preheader: issue.preheader,
-        body: `${column(noteHtml(teamNote(issue, webhook), "info"))}<div style="height:16px;line-height:16px;font-size:0;">&nbsp;</div>${issue.bodyHtml}`,
+        body: `${column(noteHtml(teamNote(issue, webhook, send), "info"))}<div style="height:16px;line-height:16px;font-size:0;">&nbsp;</div>${issue.bodyHtml}`,
       }),
     });
     teamEmail = res.ok ? (res.id === "dev-noop" ? { status: "skipped", detail: "Resend not configured" } : { status: "sent", detail: res.id }) : { status: "failed", detail: res.error };

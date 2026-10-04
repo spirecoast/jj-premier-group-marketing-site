@@ -24,8 +24,10 @@ export type SendEmailInput = {
    * (internal team notifications and alerts) bypasses the FH check and ships
    * unconditionally. Defaults to 'transactional'.
    *
-   * Nothing here addresses a visitor: the site never emails the people who
-   * fill in its forms. Their replies come from the agents' own mailboxes.
+   * Nothing here addresses a visitor. The only email the site sends the
+   * people who fill in its forms is the newsletter (confirmation, welcome,
+   * issues), and that goes through lib/newsletter, not this module. Their
+   * replies come from the agents' own mailboxes.
    */
   category?: EmailCategory;
   /** Files to attach (the newsletter hand-off attaches the finished issue). */

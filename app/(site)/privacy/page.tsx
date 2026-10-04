@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 });
 
-const UPDATED = "October 1, 2026";
+const UPDATED = "October 4, 2026";
 
 /** Named from the same switch the explorer uses, so the page is true under either configuration. */
 // MapTiler when a key is set, with OpenFreeMap as the fallback (components/map-runtime.ts); OpenFreeMap alone otherwise.
@@ -32,7 +32,7 @@ export default async function PrivacyPage() {
 
         <h2>What we collect</h2>
         <p>
-          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. If you tell us about someone who is moving here, we collect their name, their email or phone, what they’re planning and your note, together with your confirmation that they know you’re passing their details along. We use their details only to get in touch with them about the move. If you send us words about working with us, we keep them with the permission you gave, and nothing appears on the site until we have checked it with you. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, we collect your email address and, where our systems record it, the date and time you gave consent to receive it.
+          <strong>What you give us.</strong> When you send a form on this site we collect what you type: your name, email address, phone number, the address of a home you want valued, a listing you asked about, when you are thinking of moving, and your message. If you tell us about someone who is moving here, we collect their name, their email or phone, what they’re planning and your note, together with your confirmation that they know you’re passing their details along. We use their details only to get in touch with them about the move. If you send us words about working with us, we keep them with the permission you gave, and nothing appears on the site until we have checked it with you. When you subscribe to the Tide newsletter or the Encore Arts Calendar email, or tick the box that says we can email you, we collect your email address, the date and time you asked, and the date and time you confirmed it from the email we send you. We also keep a record of each newsletter we send you and whether it was delivered, so nobody gets an issue twice.
         </p>
         <p>
           <strong>What your browser sends.</strong> Like most websites, our hosting provider, Vercel, records the pages you visit, the time, your IP address, the browser you use and the page that referred you. When you first arrive we store, in your browser for up to 90 days, the page you landed on, the site or social profile that sent you and any campaign tags in the link; they travel with any form you send.
@@ -46,7 +46,7 @@ export default async function PrivacyPage() {
 
         <h2>How we use it</h2>
         <p>
-          To answer the enquiry you sent, to show you homes and prepare valuations you asked for, to keep our records of the work we do for you as Florida law requires, and to improve this website. If you subscribed, your email address is used to send you the Tide newsletter, once a month, and the Encore Arts Calendar email, once a week on Mondays, when those begin. This website does not itself send email to visitors; the only email it sends is a notification to the two of us when a form arrives. We do not sell personal information, and we do not use it for anything unrelated to real estate.
+          To answer the enquiry you sent, to show you homes and prepare valuations you asked for, to keep our records of the work we do for you as Florida law requires, and to improve this website. If you subscribe, or tick the email box on another form, this website sends you one email asking you to confirm your address, and nothing else until you do. Once you confirm, it sends you a short welcome and then what you signed up for: the Tide newsletter in the first days of each month, and the Encore Arts Calendar email on Monday mornings. The email box on our other forms is for Tide. Replies to an enquiry come from our own mailboxes. The website also emails the two of us when a form arrives. We do not sell personal information, and we do not use it for anything unrelated to real estate.
         </p>
 
         <h2>Phone numbers and text messages</h2>
@@ -56,7 +56,7 @@ export default async function PrivacyPage() {
 
         <h2>Who sees it</h2>
         <p>
-          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; the customer relationship system our brokerage provides, where we work on each enquiry, delivered to it through Zapier or a direct connection; Resend, which delivers the notification email to our team when a form arrives; Plausible, for the page counts described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
+          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; the customer relationship system our brokerage provides, where we work on each enquiry, delivered to it through Zapier or a direct connection; Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
         </p>
 
         <h2>How long we keep it</h2>
@@ -66,7 +66,7 @@ export default async function PrivacyPage() {
 
         <h2>Your choices</h2>
         <ul>
-          <li>Every Tide and Encore email carries an unsubscribe link, and it works with one click. You can also email either of us at the addresses below and we will take you off the list.</li>
+          <li>Every Tide and Encore email has unsubscribe links at the bottom: one stops that newsletter, the other stops all email from us. Each opens a page where one click does it. Mail apps that show an Unsubscribe button next to the sender, such as Gmail and Apple Mail, stop that newsletter with one click too. You can also reply ‘stop’ to any of them, or email either of us at the addresses below, and we will take you off the list.</li>
           <li>Reply STOP to any text message to stop receiving them.</li>
           <li>To see, correct or delete the personal information we hold about you, email either of us at the addresses below. We will confirm when it is done.</li>
           <li>Your browser lets you refuse cookies; the site works without them.</li>

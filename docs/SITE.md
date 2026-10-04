@@ -609,8 +609,10 @@ fires there. With JavaScript off the inline success state shows for every form. 
 when nothing kept the lead; in production a deployment with no sink at all logs an error at boot
 (`instrumentation.ts`) and `GET /api/health` reports `ok: false`.
 
-**The site never emails a visitor.** No confirmation, no welcome series. Replies come from the
-agents' own Coldwell Banker mailboxes (a Zapier step if they want a template).
+**The site emails a visitor only about the newsletters.** A Tide or Encore sign-up, or a ticked
+email box, gets one confirmation email (double opt-in); once confirmed, a short welcome and each
+issue (`docs/ISSUES.md`). Replies to an enquiry come from the agents' own Coldwell Banker mailboxes
+(a Zapier step if they want a template).
 
 Consent: every form with an email field shows an unchecked **email** box; forms with a phone also
 show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in

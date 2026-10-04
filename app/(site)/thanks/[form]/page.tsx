@@ -6,6 +6,8 @@ import { ThanksGoal } from "@/components/thanks-goal";
 import { TrackedLink } from "@/components/tracked-link";
 import { getTeam } from "@/lib/content";
 import { LEAD_FORMS, LEAD_GOAL, type LeadForm } from "@/lib/leads";
+import { newsletterConfig } from "@/lib/newsletter/config";
+import { SIGNUP_COPY } from "@/lib/newsletter/copy";
 import { REFER } from "@/lib/refer/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { pageMetadata } from "@/lib/seo";
@@ -122,6 +124,8 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
   const { form } = await params;
   if (!isLeadForm(form)) notFound();
   const copy = COPY[form];
+  // The Tide and Encore pages, when the site sends a confirmation email (read at build: the page is static).
+  const confirming = (form === "letter" || form === "calendar") && newsletterConfig().enabled;
   const team = await getTeam();
   const bookingUrl = process.env.NEXT_PUBLIC_BOOKING_URL;
 
@@ -132,11 +136,12 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
       </Suspense>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">{copy.eyebrow}</p>
+          <p className="t-eyebrow text-amber">{confirming ? SIGNUP_COPY.thanksEyebrow : copy.eyebrow}</p>
           <h1 id="thanks-title" className="t-display max-w-[640px] text-navy">
             {copy.title}
           </h1>
         </div>
+        {confirming ? <p className="t-lead max-w-[560px] text-navy">{form === "letter" ? SIGNUP_COPY.thanksTide : SIGNUP_COPY.thanksEncore}</p> : null}
         <p className="t-lead max-w-[560px] text-body">{copy.body}</p>
         <div className="flex flex-col gap-5 border-t border-hairline pt-6">
           <p className="t-eyebrow text-amber">In the meantime</p>

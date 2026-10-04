@@ -4,8 +4,9 @@
  *
  * Plain strings and no runtime imports (a type only), so scripts/check-copy.mjs can load this file
  * and run the Fair Housing check over every sentence. Places, never people;
- * no figures; nothing promised that the site doesn't do (it never emails a
- * visitor, and it shows no reviews until real ones exist).
+ * no figures; nothing promised that the site doesn't do (it emails a visitor
+ * only the newsletters they confirmed, and it shows no reviews until real
+ * ones exist).
  */
 
 import type { LeadChannel } from "../leads";

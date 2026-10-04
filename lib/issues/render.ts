@@ -1,3 +1,4 @@
+import { SUBSCRIBER_FOOTER_COPY } from "../newsletter/copy";
 import { FOOTER_COPY, TEAM_NAMES, fill } from "./copy";
 
 /**
@@ -75,6 +76,12 @@ export type FooterInput = {
   phoneDisplay?: string;
   /** The product the reader signed up for, in the "why you got this" line. */
   product: string;
+  /**
+   * The subscriber's own unsubscribe links, when the site sends the email
+   * itself (lib/newsletter). Without them the footer says to reply 'stop' or
+   * use the send tool's link, as the team's copy always has.
+   */
+  unsubscribe?: { list: string; all: string };
 };
 
 /** "1 Main St, Lakewood Ranch, FL 34202", leaving out what settings doesn't have. */
@@ -173,10 +180,22 @@ ${rows}
 </table>`;
 }
 
+/** The unsubscribe line: the subscriber's two links when the site sends, else the send tool's. */
+function unsubscribeLine(f: FooterInput): { html: string; text: string } {
+  const label = f.unsubscribe ? SUBSCRIBER_FOOTER_COPY.label : FOOTER_COPY.unsubscribeLabel;
+  const strong = `<strong style="color:${C.ink};">${esc(label)}</strong>`;
+  if (!f.unsubscribe) return { html: `${strong} ${esc(FOOTER_COPY.unsubscribe)}`, text: `${label} ${FOOTER_COPY.unsubscribe}` };
+  const listLabel = fill(SUBSCRIBER_FOOTER_COPY.list, { product: f.product });
+  const html = fill(esc(SUBSCRIBER_FOOTER_COPY.line), { list: link(f.unsubscribe.list, listLabel), all: link(f.unsubscribe.all, SUBSCRIBER_FOOTER_COPY.all) });
+  const text = fill(SUBSCRIBER_FOOTER_COPY.line, { list: `${listLabel} (${f.unsubscribe.list})`, all: `${SUBSCRIBER_FOOTER_COPY.all} (${f.unsubscribe.all})` });
+  return { html: `${strong} ${html}`, text: `${label} ${text}` };
+}
+
 /**
  * The footer every issue carries: who sent it, the postal address, the
- * calendar and its feed, why the reader has it, and how to stop. The real
- * unsubscribe link is the send tool's to add (docs/ISSUES.md).
+ * calendar and its feed, why the reader has it, and how to stop. When the
+ * site sends to a subscriber the stop line carries their own links;
+ * otherwise the link is the send tool's to add (docs/ISSUES.md).
  */
 export function footer(f: FooterInput, kind: IssueKind, campaign: string): { html: string; text: string } {
   const calendar = tagged(absolute(f.siteUrl, "/calendar"), kind, campaign);
@@ -184,26 +203,27 @@ export function footer(f: FooterInput, kind: IssueKind, campaign: string): { htm
   const sentBy = fill(FOOTER_COPY.sentBy, { names: TEAM_NAMES, team: f.teamName, brokerage: f.brokerageName });
   const address = addressLine(f.officeAddress);
   const why = fill(FOOTER_COPY.why, { product: f.product, domain: f.domain });
+  const stop = unsubscribeLine(f);
   const lines = (s: string) => `<p style="margin:0 0 8px 0;font-family:${SANS};font-size:13px;line-height:1.5;color:${C.muted};">${s}</p>`;
+  // The calendar and its feed belong to Encore; Tide and its welcome leave them out.
+  const calendarLine = kind === "encore" ? lines(`${link(calendar, FOOTER_COPY.calendarLabel)} &middot; ${link(ics, FOOTER_COPY.icsLabel)}`) : "";
   const html = `<tr><td style="padding:24px 32px 28px 32px;background-color:${C.linen};border-top:1px solid ${C.rule};">
-${lines(`${link(calendar, FOOTER_COPY.calendarLabel)} &middot; ${link(ics, FOOTER_COPY.icsLabel)}`)}
+${calendarLine}
 ${lines(esc(sentBy))}
 ${address ? lines(esc(address)) : ""}
 ${f.phoneDisplay ? lines(`${esc(FOOTER_COPY.phoneLabel)} ${esc(f.phoneDisplay)}`) : ""}
 ${lines(esc(why))}
-${lines(`<strong style="color:${C.ink};">${esc(FOOTER_COPY.unsubscribeLabel)}</strong> ${esc(FOOTER_COPY.unsubscribe)}`)}
+${lines(stop.html)}
 ${lines(esc(FOOTER_COPY.equalHousing))}
 </td></tr>`;
   const text = [
     "--",
-    `${FOOTER_COPY.calendarLabel}: ${calendar}`,
-    `${FOOTER_COPY.icsLabel}: ${ics}`,
-    "",
+    ...(kind === "encore" ? [`${FOOTER_COPY.calendarLabel}: ${calendar}`, `${FOOTER_COPY.icsLabel}: ${ics}`, ""] : []),
     sentBy,
     address || null,
     f.phoneDisplay ? `${FOOTER_COPY.phoneLabel} ${f.phoneDisplay}` : null,
     why,
-    `${FOOTER_COPY.unsubscribeLabel} ${FOOTER_COPY.unsubscribe}`,
+    stop.text,
     FOOTER_COPY.equalHousing,
   ]
     .filter((l): l is string => l !== null)

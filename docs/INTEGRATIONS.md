@@ -30,9 +30,11 @@ The team's CRM is the Home Platform (Compass's platform at Coldwell Banker
 Realty). It has no API, so leads reach it through Zapier. Follow Up Boss is
 no longer used.
 
-**The rule: the site never emails a visitor.** No confirmation, no welcome
-series, no drip. The only email the site sends goes to the team. Replies to
-the visitor go out from Joelyn's and Jessica's own Coldwell Banker mailboxes,
+**The rule: the site emails a visitor only about the newsletters they asked
+for.** Signing up for Tide or Encore, or ticking the email box, gets one
+confirmation email; once confirmed, a short welcome and then each issue
+(`docs/ISSUES.md`). No drip, no follow-up about the enquiry. Replies to the
+visitor go out from Joelyn's and Jessica's own Coldwell Banker mailboxes,
 through a Zapier step if the team wants a templated first reply.
 
 ### What happens on every form submit (`lib/lead-pipeline.ts`)
