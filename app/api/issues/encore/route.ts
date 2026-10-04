@@ -3,6 +3,7 @@ import { encoreTeamSubject } from "@/lib/issues/encore-weekly";
 import { cronAllowed, handOff, handoffResponse, notFound, previewAllowed, previewResponse } from "@/lib/issues/handoff";
 import { issueToday, loadEncoreIssue } from "@/lib/issues/load";
 import { isDay } from "@/lib/issues/render";
+import { prepareSubscriberSend } from "@/lib/newsletter/service";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 
 /**
@@ -14,9 +15,11 @@ import { loadEncoreSnapshot } from "@/lib/encore/live";
  * GET  or POST with `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends a
  *      GET; a manual re-run can POST, with `?date=` for another week)
  *      Builds the issue, emails it to TEAM_NOTIFY_EMAIL and POSTs it to
- *      ISSUE_WEBHOOK_URL when set. Returns the hand-off status as JSON.
+ *      ISSUE_WEBHOOK_URL when set. When subscriber email is on
+ *      (lib/newsletter), it also schedules the send to subscribers, and the
+ *      team email carries "Send it now" and "Hold this issue". Returns the hand-off status as JSON.
  *
- * Nothing here sends to a subscriber or to any address but the team's.
+ * Nothing here sends to a subscriber: that's app/api/newsletter/send.
  */
 
 export const dynamic = "force-dynamic";
@@ -31,7 +34,9 @@ async function run(request: NextRequest): Promise<Response> {
   // loadEncoreIssue reads the index synchronously; load the database snapshot first.
   await loadEncoreSnapshot();
   const issue = await loadEncoreIssue(day(request));
-  const result = await handOff(issue, encoreTeamSubject(issue));
+  // When the site sends to subscribers: put the send on record (scheduled or held) so the team email can carry its links.
+  const subscriberSend = await prepareSubscriberSend(issue);
+  const result = await handOff(issue, encoreTeamSubject(issue), { subscriberSend });
   console.info(`[issues] encore ${issue.period.from}: team email ${result.teamEmail.status}, webhook ${result.webhook.status}`);
   return handoffResponse(result);
 }

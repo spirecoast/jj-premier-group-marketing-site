@@ -12,6 +12,7 @@ import {
   REVIEW_CONSENT_VERSION,
   type LeadInput,
 } from "@/lib/leads";
+import { requestSubscriptions, type SubscribeOutcome } from "@/lib/newsletter/service";
 import { sendPlausibleEvent } from "@/lib/plausible-server";
 import { site } from "@/lib/site";
 
@@ -26,9 +27,14 @@ import { site } from "@/lib/site";
  *   4. If the CRM failed, send the alert email.
  *   5. Server-side "Lead server" Plausible event, the ad-blocker backstop (the
  *      browser owns the Lead and Subscribe goals).
+ *   6. Newsletter sign-up (lib/newsletter): for the Tide and Encore boxes, or
+ *      the email box ticked on another form, the subscription is recorded and
+ *      one confirmation email goes to the visitor (double opt-in). Off unless
+ *      subscriber email is configured; never affects whether the lead counts.
  *
- * The visitor is shown an error only when nothing kept the lead. The site
- * never emails the visitor; agents reply from their own mailboxes.
+ * The visitor is shown an error only when nothing kept the lead. Apart from
+ * that confirmation (and, once they confirm, the newsletters), the site never
+ * emails the visitor; agents reply from their own mailboxes.
  */
 
 export type LeadContext = {
@@ -54,6 +60,8 @@ export type LeadOutcome = {
     teamEmail: SinkOutcome;
     plausible: SinkOutcome;
   };
+  /** What happened with each newsletter the form asked for (empty when none, or when subscriber email is off). */
+  newsletter: SubscribeOutcome[];
 };
 
 function splitName(first: string, last: string): { firstName: string; lastName: string } {
@@ -194,8 +202,8 @@ async function loadDb() {
  * Write the lead (and its contacts/events rows: the consent record). Returns the
  * leads.id, or null when DATABASE_URL is unset or the write failed.
  */
-async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: string | null; outcome: SinkOutcome; db: Db | null }> {
-  if (!process.env.DATABASE_URL) return { leadId: null, outcome: { status: "skipped", detail: "DATABASE_URL not set" }, db: null };
+async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: string | null; contactId: string | null; outcome: SinkOutcome; db: Db | null }> {
+  if (!process.env.DATABASE_URL) return { leadId: null, contactId: null, outcome: { status: "skipped", detail: "DATABASE_URL not set" }, db: null };
   let handle: Db | null = null;
   try {
     handle = await loadDb();
@@ -281,11 +289,11 @@ async function mirrorToDatabase(lead: CrmLead, now: Date): Promise<{ leadId: str
         submittedAt: now,
       })
       .returning({ id: leads.id });
-    return { leadId: row?.id ?? null, outcome: { status: "ok", detail: row?.id }, db: handle };
+    return { leadId: row?.id ?? null, contactId, outcome: { status: "ok", detail: row?.id }, db: handle };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("[lead] database mirror failed (non-fatal)", message);
-    return { leadId: null, outcome: { status: "failed", detail: message.slice(0, 300) }, db: handle };
+    return { leadId: null, contactId: null, outcome: { status: "failed", detail: message.slice(0, 300) }, db: handle };
   }
 }
 
@@ -390,10 +398,16 @@ export async function processLead(data: LeadInput, ctx: LeadContext): Promise<Le
   const captured = mirror.outcome.status === "ok" || crm.status === "ok" || teamEmail.status === "ok" || !isProd;
   if (!captured) console.error("[lead] NOT CAPTURED by any sink", { form: lead.form, leadId });
 
+  // 6. Newsletter sign-up, once the lead is safe. Needs the contacts row; never throws.
+  const newsletter = mirror.outcome.status === "ok"
+    ? await requestSubscriptions({ contactId: mirror.contactId, email: lead.email, form: lead.form, consentEmail: lead.consent.email, test: lead.test })
+    : [];
+
   return {
     captured,
     leadId,
     lead,
     sinks: { postgres: mirror.outcome, crm, teamEmail, plausible },
+    newsletter,
   };
 }

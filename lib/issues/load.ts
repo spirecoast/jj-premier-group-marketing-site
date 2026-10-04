@@ -17,7 +17,10 @@ import { addMonths, buildTideIssue, monthBounds, previousMonth, tideMonthFor, ty
  * by the routes under app/api/issues and by scripts/issue-preview.mjs.
  */
 
-async function footerFacts(): Promise<Omit<FooterInput, "product">> {
+/** Who the build is for. The subscriber copy carries the subscriber's unsubscribe links (placeholders filled per recipient). */
+export type IssueBuildOptions = { audience?: "team" | "subscriber"; unsubscribe?: FooterInput["unsubscribe"] };
+
+export async function footerFacts(): Promise<Omit<FooterInput, "product">> {
   const settings = await getSiteSettings();
   return {
     siteUrl: site.url,
@@ -35,8 +38,8 @@ export function issueToday(): string {
 }
 
 /** The Monday issue for the week on or after `today`. */
-export async function loadEncoreIssue(today = issueToday()): Promise<EncoreIssue> {
-  return buildEncoreIssue({ index: await loadEncoreIndex(), today, footer: await footerFacts() });
+export async function loadEncoreIssue(today = issueToday(), opts: IssueBuildOptions = {}): Promise<EncoreIssue> {
+  return buildEncoreIssue({ index: await loadEncoreIndex(), today, footer: { ...(await footerFacts()), unsubscribe: opts.unsubscribe } });
 }
 
 /**
@@ -47,7 +50,7 @@ export async function loadEncoreIssue(today = issueToday()): Promise<EncoreIssue
  * twenty-four months before the earlier of the two as well, for the
  * completeness check. Null when no sales data has been ingested.
  */
-export async function loadTideIssue(today = issueToday(), month?: string): Promise<TideIssue | null> {
+export async function loadTideIssue(today = issueToday(), month?: string, opts: IssueBuildOptions = {}): Promise<TideIssue | null> {
   const manifest = await getSalesManifest();
   if (!manifest) return null;
   const prev = previousMonth(today);
@@ -60,7 +63,8 @@ export async function loadTideIssue(today = issueToday(), month?: string): Promi
     counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c?.label ?? k, to: c?.to ?? null, from: c?.from ?? null }])),
   };
   const covers = tideMonthFor(sales, today, month);
-  const entry = tideEntryFor(covers, today, month);
+  // The subscriber send names its month but is this month's issue: it takes this month's words even before `data` is pinned.
+  const entry = tideEntryFor(covers, today, opts.audience === "subscriber" ? undefined : month);
   // The web issue's model for the same month gives the facts to write from: the same figures the page shows.
   const model = buildIssueModel({ entry: { ...entry, data: covers }, sales, manifest: tideManifest, posts: [] });
   return buildTideIssue({
@@ -68,7 +72,8 @@ export async function loadTideIssue(today = issueToday(), month?: string): Promi
     manifest: tideManifest,
     today,
     month,
-    footer: await footerFacts(),
+    footer: { ...(await footerFacts()), unsubscribe: opts.unsubscribe },
+    audience: opts.audience,
     writing: { narrative: narrativeOf(entry), notes: noteSlots(entry.commentary, "draft"), facts: writingFacts(model) },
   });
 }
@@ -83,4 +88,10 @@ export function tideEntryFor(covers: string, today: string, month?: string): Tid
   if (pinned) return pinned;
   const current = !month ? TIDE_ISSUES.find((e) => !e.data && e.issue === today.slice(0, 7)) : undefined;
   return current ?? { issue: today.slice(0, 7) };
+}
+
+/** The newest Tide issue page, for the welcome email: /tide/<issue>. */
+export function latestTidePath(): string {
+  const newest = TIDE_ISSUES[0];
+  return newest ? `/tide/${newest.issue}` : "/tide";
 }

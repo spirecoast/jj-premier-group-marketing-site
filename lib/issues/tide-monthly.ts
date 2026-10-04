@@ -82,6 +82,12 @@ export type TideIssueInput = {
   footer: Omit<FooterInput, "product">;
   /** The story, the notes and the facts. Without it the draft has a dashed box for each. */
   writing?: TideWriting;
+  /**
+   * "team" (the default) is the draft the team gets on the 1st, with a dashed
+   * box for each unwritten part and the facts to write from. "subscriber" is
+   * what the site sends on the 3rd: only what's written, no boxes, no facts.
+   */
+  audience?: "team" | "subscriber";
 };
 
 export type TideStreet = { label: string; count: number };
@@ -336,13 +342,16 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
   // The default is never a partial month; without a complete one, the previous month is built and held.
   const month = input.month ?? latestComplete ?? prev;
   const story = input.writing?.narrative ?? null;
+  const forSubscribers = input.audience === "subscriber";
   // The story proper is the opening; the rest of the narrative (the cover, the markets, the moves) shows whatever is written.
   const told = Boolean(story?.opening.length);
-  const notes: NoteSlot[] = input.writing?.notes ?? [
+  const slots: NoteSlot[] = input.writing?.notes ?? [
     { key: "joelyn", name: "Joelyn Nauman", first: "Joelyn", paragraphs: null },
     { key: "jessica", name: "Jessica Garza", first: "Jessica", paragraphs: null },
   ];
-  const facts = input.writing?.facts ?? [];
+  // A subscriber never sees a box meant for the team: only the notes that are written, and no facts list.
+  const notes = forSubscribers ? slots.filter((n) => n.paragraphs) : slots;
+  const facts = forSubscribers ? [] : (input.writing?.facts ?? []);
   const { from, to } = monthBounds(month);
   const monthName = monthLabel(month);
   const campaign = `tide-${month}`;
@@ -452,7 +461,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
       ? n.paragraphs.map((p) => para(esc(p))).join("") + para(esc(fill(TIDE_COPY.noteSign, { name: n.name })), "font-style:italic;")
       : dashedBox(boxLine(fill(TIDE_COPY.notePlaceholder, { first: n.first }), "margin:0;font-style:italic;"));
   const notesHtml = notes.length ? heading(TIDE_COPY.notesHeading) + notes.map(noteHtml).join("") : "";
-  const placeholders = (told ? 0 : 1) + notes.filter((n) => !n.paragraphs).length;
+  const placeholders = forSubscribers ? 0 : (told ? 0 : 1) + notes.filter((n) => !n.paragraphs).length;
 
   const textAdvice = (headingText: string, moves: TideMove[], legacy: string[]) =>
     moves.length
@@ -467,7 +476,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
     spacer(24),
     ...(told ? [] : facts.length ? [row(factsHtml)] : []),
     row(dekHtml + opening.map((p) => para(esc(p))).join("") + (coverage ? para(esc(coverage)) : "") + (outside ? para(esc(outside)) : "") + (lag ? small(esc(lag)) : "")),
-    ...(told ? [] : [row(storyBoxHtml)]),
+    ...(told || forSubscribers ? [] : [row(storyBoxHtml)]),
     ...(adviceHtml ? [rule(), spacer(16), row(adviceHtml)] : []),
     ...markets.flatMap((m) => [rule(), spacer(16), row(marketHtml(m), "0 32px 16px 32px")]),
     ...(watchHtml ? [rule(), spacer(16), row(watchHtml)] : []),
@@ -492,7 +501,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
       ...(outside ? ["", outside] : []),
       ...(lag ? ["", lag] : []),
       "",
-      ...(told ? [] : [`[${TIDE_COPY.storyPlaceholder}]`, ""]),
+      ...(told || forSubscribers ? [] : [`[${TIDE_COPY.storyPlaceholder}]`, ""]),
       ...(story && hasAdvice
         ? [
             ...textAdvice(TIDE_COPY.buyersHeading, story.buying, story.buyers),

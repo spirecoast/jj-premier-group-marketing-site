@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { cronAllowed, handOff, handoffResponse, notFound, previewAllowed, previewResponse } from "@/lib/issues/handoff";
 import { issueToday, loadTideIssue } from "@/lib/issues/load";
 import { isDay } from "@/lib/issues/render";
+import { prepareSubscriberSend } from "@/lib/newsletter/service";
 import { tideTeamSubject } from "@/lib/issues/tide-monthly";
 
 /**
@@ -14,10 +15,12 @@ import { tideTeamSubject } from "@/lib/issues/tide-monthly";
  * GET  or POST with `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends a
  *      GET on the 1st; a manual re-run can POST with `?month=`)
  *      Builds the issue, emails it to TEAM_NOTIFY_EMAIL and POSTs it to
- *      ISSUE_WEBHOOK_URL when set. A month that isn't complete is held from
+ *      ISSUE_WEBHOOK_URL when set. When subscriber email is on
+ *      (lib/newsletter), it also schedules the send to subscribers, and the
+ *      team email carries "Send it now" and "Hold this issue". A month that isn't complete is held from
  *      the webhook. Returns the hand-off status as JSON.
  *
- * Nothing here sends to a subscriber or to any address but the team's.
+ * Nothing here sends to a subscriber: that's app/api/newsletter/send.
  */
 
 export const dynamic = "force-dynamic";
@@ -35,7 +38,9 @@ const noData = () => Response.json({ ok: false, message: "No county sales data h
 async function run(request: NextRequest): Promise<Response> {
   const issue = await loadTideIssue(...args(request));
   if (!issue) return noData();
-  const result = await handOff(issue, tideTeamSubject(issue));
+  // When the site sends to subscribers: put the send on record (scheduled or held) so the team email can carry its links.
+  const subscriberSend = await prepareSubscriberSend(issue);
+  const result = await handOff(issue, tideTeamSubject(issue), { subscriberSend });
   console.info(`[issues] tide ${issue.month}: team email ${result.teamEmail.status}, webhook ${result.webhook.status}`);
   return handoffResponse(result);
 }

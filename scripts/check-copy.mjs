@@ -15,7 +15,10 @@
  * page with hand-written copy adds its own `<page>Strings()` here.
  *
  * The newsletter templates (lib/issues/copy.ts) get the same checker with
- * rules of their own: no superlatives and no license numbers. They carry
+ * rules of their own: no superlatives and no license numbers. The subscriber
+ * emails and pages (lib/newsletter/copy.ts: the confirmation, the welcome,
+ * the unsubscribe line, the confirm and unsubscribe pages, the team's hold
+ * and send page) get those rules and the places-not-people rules. They carry
  * figures, filled in from the data, so the no-figures rule doesn't apply.
  * The Tide web issue's templates and its "facts to write from" lines
  * (lib/tide/copy.ts) get the same rules, and so does the wording around the
@@ -41,6 +44,7 @@ import { checkFairHousing } from "../lib/fair-housing.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
+import { newsletterStrings } from "../lib/newsletter/copy.ts";
 import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
 import { referStrings } from "../lib/refer/copy.ts";
@@ -104,6 +108,8 @@ const hits = (rules, text) => rules.filter((r) => (r.test ? r.test(text.trim()) 
 const all = [
   ...SOURCES.map((s) => ({ ...s, rules: [...HUB_RULES, ...VOICE] })),
   ...issueStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  // The subscriber emails and their pages: the issue rules and places, never people.
+  ...newsletterStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
   ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),

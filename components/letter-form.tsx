@@ -7,6 +7,7 @@ import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
 import { readChannel, readUtm } from "@/components/utm-tracker";
 import { initialLeadState, type LeadFormState } from "@/lib/leads";
+import { SIGNUP_COPY } from "@/lib/newsletter/copy";
 import { cn } from "@/lib/utils";
 
 /**
@@ -53,7 +54,14 @@ export function LetterForm({
     router.push(state.redirectTo as Route);
   }, [state.ok, state.redirectTo, inline, form, channel, router]);
 
-  const successText = form === "letter" ? "You’re on the list. The next report comes out at the start of the month." : "You’re on the list. Encore comes out every Monday.";
+  // With subscriber email on, the server sent a confirmation: say so, since nothing comes until it's pressed.
+  const successText = state.confirmEmail
+    ? form === "letter"
+      ? SIGNUP_COPY.inlineTide
+      : SIGNUP_COPY.inlineEncore
+    : form === "letter"
+      ? "You’re on the list. The next report comes out at the start of the month."
+      : "You’re on the list. Encore comes out every Monday.";
 
   if (state.ok) {
     return (

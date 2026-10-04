@@ -1,39 +1,110 @@
-# Newsletters: Encore every Monday, Tide on the 1st
+# Newsletters: Encore every Monday, Tide each month
 
 The site promises two emails on its forms: **Encore**, the arts calendar, every Monday (the
-`calendar` form), and **Tide**, one page on the market, once a month (the `letter` form). This
-document covers how each issue is built and handed off.
+`calendar` form), and **Tide**, one letter on the market, once a month (the `letter` form). This
+document covers how each issue is built, how it reaches the team, and how the site sends it to the
+people who subscribed.
 
-**The rule:** the site sends no email to visitors or subscribers. It builds each issue and hands
-it to the team. Subscribers get it from the agents' Coldwell Banker mailboxes or the Home
-Platform's Marketing Center (the choice is open, docs/LAUNCH.md 1.4). The code sends to one
-address only, `TEAM_NOTIFY_EMAIL`.
+**The rule:** the site emails a subscriber only after they confirm (double opt-in), only the list
+they confirmed, and never an address that has unsubscribed from everything. Each issue goes to the
+team first. Tide goes to subscribers two days later, on the 3rd; Encore two hours later, on Monday
+morning. Either waits if someone on the team presses "Hold this issue" in the team email, until
+someone presses "Send it now". Every email to a subscriber carries the brokerage name, the office
+postal address and a one-click unsubscribe. The site sends through Resend from
+`mail.jjpremiergroup.com` (`NEWSLETTER_FROM`); with any of the variables in "Environment variables"
+missing, nothing goes to subscribers, the logs say so in one line, and the team hand-off works
+exactly as before (the agents send it by hand, "Sending by hand" below).
+
+## Who gets what
+
+| Someone… | Gets |
+|---|---|
+| Subscribes in the Tide box (`letter` form) | One email asking to confirm Tide. Nothing else until they press its button. |
+| Subscribes in the Encore box (`calendar` form) | The same, for Encore. |
+| Ticks the email box on any other form ("Yes, you can email me about the market and my search") | The confirmation for Tide, worded for that ("When you wrote to us…, you said we could email you"). |
+| Presses "Yes, send me Tide" on `/subscribe/confirm` | The opt-in time is recorded (`newsletter_subscriptions.confirmed_at`, and a `newsletter_confirmed` event), then a short welcome: Tide's links the newest `/tide/<issue>` page, Encore's links `/calendar`. |
+| Is confirmed | Each issue of that list from then on. |
+| Signs up again while pending | Another confirmation, at most one every ten minutes. Already confirmed: nothing. |
+| Unsubscribes from one list | Nothing more from that list. The other list, if any, carries on. |
+| Unsubscribes from everything, or has `contacts.unsubscribed_email` on any row | Nothing, ever, not even a confirmation. `contacts.unsubscribed_email` is the authoritative "never email this address"; to let the person sign up again, a person clears it (below). |
+
+The confirm link is signed (HMAC-SHA256 with `NEWSLETTER_SECRET`) and good for 7 days. Opening it
+shows a button; only pressing it confirms, because mail scanners open every link in an email and
+would otherwise confirm addresses nobody checked. The state machine is `lib/newsletter/state.ts`.
+Rehearsal leads (`scripts/test-lead.mjs`) never subscribe.
 
 ## The flow
 
 ```
-Vercel Cron ──GET + Bearer CRON_SECRET──▶ /api/issues/encore   (Mondays 10:00 UTC)
-                                          /api/issues/tide     (the 1st, 12:00 UTC)
+                                   the 1st, 12:00 UTC                 Mondays 10:00 UTC
+Vercel Cron ──GET + Bearer CRON_SECRET──▶ /api/issues/tide            /api/issues/encore
    │
    ├─ lib/issues/load.ts          gathers the inputs: the Encore index, the county sales, the settings
    ├─ lib/issues/encore-weekly.ts builds the issue (pure: HTML, text, subject, warnings)
    │  lib/issues/tide-monthly.ts
+   ├─ subscriber send on record   lib/newsletter/service.ts prepareIssueSend: one issue_sends row per
+   │                              issue (kind + period), status "scheduled", or "held" by the system
+   │                              (a Fair Housing flag, a Tide month that isn't complete, no street
+   │                              address in settings). A re-run finds the row and leaves it alone.
    ├─ Fair Housing check          lib/fair-housing.ts over the whole issue; a flag holds the hand-off
    ├─ team email                  Resend → TEAM_NOTIFY_EMAIL, "Encore for Monday <date>: ready to send"
    │                                                        "Tide, <Month YYYY>: ready to send"
-   │                              a note and the warnings, the issue itself, and the issue attached
-   │                              as <kind>-<period>.html and .txt
+   │                              a note and the warnings; when it goes to subscribers and to how many;
+   │                              the "Send it now" and "Hold this issue" buttons; the issue itself; and
+   │                              the issue attached as <kind>-<period>.html and .txt
    └─ webhook (optional)          POST JSON → ISSUE_WEBHOOK_URL (Zapier Catch Hook), 8s timeout, one retry
-                                       │
-                                       ▼
-                     the agents send it: Outlook (via the Zap) or the Marketing Center
+
+                                   the 3rd, 13:00 UTC                 Mondays 12:00 UTC
+Vercel Cron ──GET + Bearer CRON_SECRET──▶ /api/newsletter/send/tide   /api/newsletter/send/encore
+                                          /api/newsletter/send/all    (daily 13:30 UTC: what the cap left over)
+   │
+   ├─ each due issue_sends row that isn't held, oldest first
+   ├─ rebuilds the issue for subscribers  today's code and data, so a Tide story or note written and
+   │                                      deployed by the 3rd goes in; no dashed boxes, no facts list
+   ├─ checks again                        Fair Housing, no box or placeholder left, a postal address;
+   │                                      any failure holds the send and nothing goes
+   ├─ the confirmed subscribers           newsletter_subscriptions, status confirmed, leaving out any
+   │                                      address with contacts.unsubscribed_email
+   ├─ claims each address                 a newsletter_deliveries row per address, unique per issue,
+   │                                      written before the batch goes: a re-run or a second run at
+   │                                      the same time can't send to it again
+   ├─ Resend POST /emails/batch           up to 100 a call, one second apart, each with its own
+   │                                      unsubscribe links and List-Unsubscribe headers, and an
+   │                                      Idempotency-Key per batch
+   └─ the daily cap                       NEWSLETTER_DAILY_CAP (default 100) counts every subscriber email
+                                          sent that UTC day (confirmations and welcomes too); what's over
+                                          waits for the next day's /send/all run
 ```
 
 The cron times are UTC. 10:00 UTC is 6am in Sarasota during daylight time and 5am in winter;
-12:00 UTC on the 1st is 8am or 7am. Vercel Cron sends a `GET`; the routes also accept a `POST`
-with the same header for a manual re-run. Vercel can, rarely, deliver a cron run twice; a second run
-sends a second team email and a second webhook POST, so a Zap that does more than create a draft
-should skip a `kind` + `period.from` it has already seen.
+12:00 UTC on the 1st is 8am or 7am. The sends: Tide on the 3rd at 13:00 UTC is 9am in daylight time
+and 8am in winter; Encore on Monday at 12:00 UTC is 8am or 7am. (On Vercel's Hobby plan a cron can
+fire any time within its hour.) Vercel Cron sends a `GET`; the routes also accept a `POST` with the
+same header for a manual re-run. Vercel can, rarely, deliver a cron run twice; for the hand-off a
+second run sends a second team email and a second webhook POST, so a Zap that does more than create a
+draft should skip a `kind` + `period.from` it has already seen. A second send run sends nobody
+anything twice.
+
+### Hold and send
+
+The team email's two buttons are signed links (`NEWSLETTER_SECRET`, three weeks) to
+`/api/newsletter/issue`. Each opens a page that says what will happen, with one button; nothing
+happens until it's pressed.
+
+- **Hold this issue**: the issue doesn't go out at its time. A hold pressed while an issue is going
+  out stops the batches still to come.
+- **Send it now**: sends at once to every confirmed subscriber, as far as today's cap allows (the rest
+  go the next day), whether the issue was held or not yet due. It still refuses an issue the Fair
+  Housing checker flags, or one with no postal address in settings.
+- A Tide month that isn't complete starts held: it goes only if someone presses "Send it now".
+- An issue is never sent twice. A send that hasn't gone out by its end is dropped: Encore at the end
+  of its week, Tide fourteen days after its date. If the hand-off was run late (by hand after the
+  nominal time), the send is pushed to at least a day later for Tide and an hour later for Encore, so
+  there's always time to hold it.
+- If the Monday preview didn't run, there's no send on record and Encore doesn't go that week. Re-run
+  the preview (`POST /api/issues/encore`) and it's scheduled an hour out.
+- If an issue's month was already sent (Tide on a month the county data hasn't moved past), the team
+  email says so and nothing is sent again.
 
 ## Endpoints
 
@@ -41,7 +112,12 @@ should skip a `kind` + `period.from` it has already seen.
 |---|---|---|
 | `GET /api/issues/encore?secret=<ISSUE_PREVIEW_SECRET>` | anyone with the preview secret | The Monday issue for the week on or after today (America/New_York) as HTML. `&format=text` for the plain-text version, `&date=YYYY-MM-DD` for another week. 404 without the secret, or when the secret is unset. |
 | `GET /api/issues/tide?secret=<ISSUE_PREVIEW_SECRET>` | same | The issue for the latest month complete in all three markets (see "The month" below). `&month=YYYY-MM` for a named month, `&date=` to move "today", `&format=text`. |
-| `GET` or `POST` with `Authorization: Bearer <CRON_SECRET>` | Vercel Cron, or a person re-running a send | Builds the issue and hands it off. Returns JSON: `{ ok, kind, period, subject, fairHousing, held, teamEmail, webhook, warnings }`. 200 when the team email or the webhook took it; 422 when it was held from the webhook (a Fair Housing flag, or a Tide month that isn't complete), with an alert to the team instead; 502 when neither path took it. `POST` without the header is 401. |
+| `GET` or `POST` `/api/issues/{encore,tide}` with `Authorization: Bearer <CRON_SECRET>` | Vercel Cron, or a person re-running a hand-off | Builds the issue, puts the subscriber send on record (when subscriber email is on) and hands it off. Returns JSON: `{ ok, kind, period, subject, fairHousing, held, teamEmail, webhook, warnings, subscriberSend }`. 200 when the team email or the webhook took it; 422 when it was held from the webhook (a Fair Housing flag, or a Tide month that isn't complete), with an alert to the team instead; 502 when neither path took it. `POST` without the header is 401. |
+| `GET` or `POST` `/api/newsletter/send/{tide,encore,all}` with `Authorization: Bearer <CRON_SECRET>` | Vercel Cron, or a person | Sends every due, unheld issue of that kind (`all`: any kind) to its confirmed subscribers under the daily cap. JSON: `{ ok, enabled, runs: [{ kind, period, decision, status, sentThisRun, failedThisRun, unknownThisRun, deferred, error? }] }`. With subscriber email off: `{ ok: true, enabled: false, missing: [...] }` and nothing sent. 401 without the header. |
+| `GET` / `POST` `/api/newsletter/issue?t=<token>` | the team, from the team email | The "Send it now" and "Hold this issue" links. GET shows a page with one button; the POST from it acts. |
+| `GET` / `POST` `/subscribe/confirm?t=<token>` | the subscriber | The confirm link. GET shows a button; pressing it confirms and sends the welcome. |
+| `/unsubscribe?s=<subscription>&sig=<HMAC>&list=tide\|encore\|all` | the subscriber | The footer links. A page with "Stop Tide" (or Encore) and "Stop all email from us"; the POST from a button does it. The older `?id=<contact>&sig=` links still work and stop everything. |
+| `POST /api/newsletter/unsubscribe?s=&sig=&list=` | the subscriber's mail app | One-click unsubscribe (RFC 8058), from the `List-Unsubscribe` header: unsubscribes from that list at once. A GET redirects to `/unsubscribe`. |
 
 The secret is compared in constant time. The preview is `no-store` and `noindex`; `/api/` is
 also disallowed in robots.txt.
@@ -51,8 +127,10 @@ also disallowed in robots.txt.
 open "https://jjpremiergroup.com/api/issues/encore?secret=$ISSUE_PREVIEW_SECRET"
 # Tide for July, plain text
 curl -s "https://jjpremiergroup.com/api/issues/tide?secret=$ISSUE_PREVIEW_SECRET&month=2026-07&format=text"
-# Re-run the Tide hand-off for July (emails the team, posts to the Zap)
+# Re-run the Tide hand-off for July (emails the team, posts to the Zap; the send on record is left as it is)
 curl -s -X POST -H "Authorization: Bearer $CRON_SECRET" "https://jjpremiergroup.com/api/issues/tide?month=2026-07"
+# Carry on any send the daily cap cut short, now rather than at 13:30 UTC
+curl -s -X POST -H "Authorization: Bearer $CRON_SECRET" "https://jjpremiergroup.com/api/newsletter/send/all"
 ```
 
 Locally, without a server and without sending anything:
@@ -175,11 +253,21 @@ the Fair Housing checker.
 
 Links to the calendar and the ICS feed (`/api/calendar.ics`); "Sent by Joelyn Nauman and Jessica
 Garza, JJ Premier Group, Coldwell Banker Realty."; the office postal address from settings; the
-phone; why the reader has it; "To unsubscribe: Reply 'stop' or use the link in the email you
-received."; Equal Housing Opportunity. No license numbers. While `officeAddress.street` and `zip`
-are empty in `lib/content/seed/settings.ts` (docs/LAUNCH.md 1.1) the footer shows only
-"Lakewood Ranch, FL" and every hand-off carries a warning: **CAN-SPAM needs a valid postal
-address in every send.** Fill it in before the first issue goes out.
+phone; why the reader has it; how to stop; Equal Housing Opportunity. No license numbers.
+
+How to stop depends on who sends it. In what the site sends a subscriber: "To unsubscribe: Stop
+Tide or stop all email from us. You can also reply ‘stop’.", the two links signed for that
+subscriber, plus the `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click`
+headers (RFC 8058) that put an Unsubscribe button in Gmail, Apple Mail and Outlook. In the team's
+copy and the webhook payload: "To unsubscribe: Reply 'stop' or use the link in the email you
+received.", for a send tool that adds its own link. The subscriber copy is built with placeholders
+for the two links and each recipient's are put in at send time (`lib/newsletter/emails.ts`
+`personalize`), so the issue is built once per send.
+
+While `officeAddress.street` and `zip` are empty in `lib/content/seed/settings.ts`
+(docs/LAUNCH.md 1.1) the footer shows only "Lakewood Ranch, FL" and every hand-off carries a
+warning: **CAN-SPAM needs a valid postal address in every send.** The site won't send an issue to
+subscribers until it's filled in: the send is held, and the team email says why.
 
 ## The web issue
 
@@ -376,16 +464,29 @@ storytelling." And: "zero AI tells".
 
 ## Environment variables
 
-| Variable | New | What it does |
-|---|---|---|
-| `ISSUE_PREVIEW_SECRET` | yes | The `?secret=` for the browser previews. Unset = no preview (404). `openssl rand -hex 24`. Sensitive. |
-| `ISSUE_WEBHOOK_URL` | yes | A Zapier Catch Hook that receives each issue. Unset = team email only. Sensitive. |
-| `TEAM_NOTIFY_EMAIL` | existing | Where the finished issue goes, the only recipient this code has. Unset = no team email. |
-| `RESEND_API_KEY`, `RESEND_FROM_EMAIL` | existing | Send the team email. Without them the email is skipped (logged), not faked. |
-| `CRON_SECRET` | existing | The Bearer token Vercel Cron sends. Unset = the hand-off can't run. |
+Subscriber email is on only when all five in the first group are set; with any missing, nothing is
+sent to subscribers and one log line names what's missing (`[newsletter] …: subscriber email is off
+(missing …)`). `NEWSLETTER_FROM` is new and the switch: set it last, once the domain is verified in
+Resend (docs/LAUNCH.md 1.4).
+
+| Variable | New | Example | What it does |
+|---|---|---|---|
+| `RESEND_API_KEY` | existing | `re_…` | Resend's key, for the team email and for subscribers. Sensitive. |
+| `NEWSLETTER_FROM` | yes | `JJ Premier Group <letters@mail.jjpremiergroup.com>` | The From of every email to a subscriber, on the domain verified in Resend. Unset = subscriber email off. |
+| `NEWSLETTER_SECRET` | yes | `openssl rand -base64 48` | Signs the confirm links and the team's hold and send links (HMAC-SHA256). 32 characters or more. Changing it voids every link already sent. Sensitive. |
+| `UNSUBSCRIBE_SECRET` | existing | `openssl rand -base64 48` | Signs the unsubscribe links (`lib/unsubscribe.ts`). 32 characters or more. Never change it once emails have gone out: every unsubscribe link in them would stop working. Sensitive. |
+| `DATABASE_URL` | existing | Supabase pooler URL | The subscriptions and the send records. Migration `0013_newsletter.sql` must be applied. |
+| `NEWSLETTER_REPLY_TO` | yes, optional | `joelyn.nauman@cbrealty.com` | Where a subscriber's reply goes, and the `mailto:` in `List-Unsubscribe`. Unset = replies go to the From address, which nobody reads; set it. |
+| `NEWSLETTER_DAILY_CAP` | yes, optional | `100` | Subscriber emails a UTC day, all kinds together. Default 100, Resend's free daily limit. On a paid plan, its daily limit. The team email isn't counted, so on the free plan leave a little room (the team gets a few a week). |
+| `CRON_SECRET` | existing | | The Bearer token Vercel Cron sends. Unset = neither the hand-off nor the sends can run. |
+| `TEAM_NOTIFY_EMAIL` | existing | | Where the finished issue goes, with the hold and send links. Unset = no team email, so no way to hold an issue: set it. |
+| `RESEND_FROM_EMAIL` | existing | | The From of the team email (the Resend SDK in `lib/email`). |
+| `ISSUE_PREVIEW_SECRET` | | `openssl rand -hex 24` | The `?secret=` for the browser previews. Unset = no preview (404). Sensitive. |
+| `ISSUE_WEBHOOK_URL` | | | A Zapier Catch Hook that receives each issue. Unset = team email only. Sensitive. |
 
 `GET /api/health` reports `issues: { previewSecret, webhook, teamEmail, resend, cronSecret }` as
-booleans.
+booleans and `newsletter: { subscriberEmail, missing, replyTo, dailyCap }` (the names of missing
+variables, never values).
 
 ## The webhook payload
 
@@ -406,104 +507,95 @@ booleans.
 
 Encore has `needsEdit: false` and `placeholder: null`. Nothing about a subscriber is in it.
 
-## Handing it to subscribers
+## Subscribers and sends in the database
 
-Pick one per newsletter; both start from the team email or the webhook.
+Three tables (migration `0013_newsletter.sql`), RLS on with no policies; the site uses
+`DATABASE_URL`:
 
-### Option A: the Marketing Center (Home Platform)
-
-The better fit for a list, if the agents have it (docs/LAUNCH.md 1.4 is the open question).
-
-1. Export the subscribers (below) as CSV and import them as a list. Re-export before each send, or
-   at least monthly, so new sign-ups and unsubscribes carry over.
-2. Upload or paste the attached `.html` file into a custom-HTML template, if the Marketing Center
-   takes one (**verify**); otherwise rebuild the two templates once in its editor and paste the
-   text from the `.txt` each time.
-3. For Tide, fill in or delete each dashed box (the story, if it isn't written yet, and the two
-   notes), and delete the "Facts to write from" box.
-4. The Marketing Center adds its own unsubscribe link and keeps its own suppression list. Copy its
-   unsubscribes back to Supabase (below) so the next export leaves them out.
-
-### Option B: Zapier → Outlook (the agent's mailbox)
-
-`cbrealty.com` is Microsoft 365 with DMARC `p=reject` (docs/LAUNCH.md 1.7), so mail must go out
-through the agent's own mailbox via Zapier's Microsoft Outlook app.
-
-1. Zap: **Webhooks by Zapier → Catch Hook** (its URL is `ISSUE_WEBHOOK_URL`) → **Filter**
-   (`kind` is `encore` or `tide`) → **Microsoft Outlook → Create Draft Email** (**verify** the
-   action name in Zapier), To: the agent herself, Subject: `subject`, Body (HTML): `html`.
-2. Tide: never wire an automatic send. Add a filter that stops on `needsEdit` = true, or always
-   stop at the draft; the agent replaces the dashed box first.
-3. Sending to the list from a mailbox means one message per subscriber (never a visible To or Cc
-   list; BCC to many is a deliverability and privacy problem). That needs a loop over the export,
-   respects Exchange Online's sending limits (**verify** the tenant's per-minute and per-day
-   recipient limits), and each message must carry its own unsubscribe link (below). Past a few
-   dozen subscribers, Option A or a dedicated send tool is the safer choice.
-
-## The subscriber export
-
-Every form submission is its own `contacts` row (the mirror doesn't merge), so an address can
-appear more than once. An unsubscribe sets `unsubscribed_email = true` on one row; the queries
-leave out any address with such a row. Supabase → SQL Editor → run → Download CSV.
+- `newsletter_subscriptions`: one row per address per list (`email` lowercased, unique with
+  `list`), `contact_id` (the latest form submission that asked), `status` (`pending`, `confirmed`,
+  `unsubscribed`), `source` (the form), and `requested_at`, `confirmation_sent_at`, `confirmed_at`,
+  `welcome_sent_at`, `unsubscribed_at`, `unsubscribe_method`.
+- `issue_sends`: one row per issue sent to subscribers, unique on `kind` + `period` (Tide's data
+  month `YYYY-MM`, Encore's Monday), with `status` (`scheduled`, `held`, `sending`, `sent`,
+  `expired`), `scheduled_for`, `expires_at`, `held_by` (`team` or `system`) and `hold_reason`,
+  and the counts from the latest run: `recipients`, `sent_count`, `failed_count`, `unknown_count`,
+  `deferred_count`.
+- `newsletter_deliveries`: every email sent to a subscriber (`kind` confirmation, welcome or issue),
+  with Resend's id. For an issue, unique on `issue_send_id` + `email`. `status`: `sent`;
+  `failed` (Resend answered no: tried again on the next run, three attempts at most); `unknown` (no
+  answer, or a 5xx after a retry with the same Idempotency-Key) and `claimed` (a run that stopped
+  between claiming and sending). Neither of the last two is ever sent again automatically, since
+  either may have gone out. Look at Resend's log for that address before releasing one by hand:
+  `update newsletter_deliveries set status = 'failed' where id = '<id>';`.
 
 ```sql
--- Tide subscribers (the letter form). For Encore use 'calendar_form'.
-select lower(c.email) as email, min(c.created_at) as subscribed_at
-from contacts c
-where c.consent_email
-  and c.source_detail = 'letter_form'
-  and c.email is not null
-  and not exists (
-    select 1 from contacts u
-    where lower(u.email) = lower(c.email) and u.unsubscribed_email
-  )
-group by lower(c.email)
-order by subscribed_at;
+-- Who gets Tide (for Encore, 'encore')
+select s.email, s.confirmed_at
+from newsletter_subscriptions s
+where s.list = 'tide' and s.status = 'confirmed'
+  and not exists (select 1 from contacts c where lower(c.email) = s.email and c.unsubscribed_email)
+order by s.confirmed_at;
+
+-- How each send went
+select kind, period, status, scheduled_for, held_by, hold_reason, recipients, sent_count, failed_count, unknown_count, deferred_count, last_error
+from issue_sends order by scheduled_for desc limit 10;
+
+-- Today's count against NEWSLETTER_DAILY_CAP
+select count(*) from newsletter_deliveries
+where status in ('sent', 'claimed', 'unknown') and coalesce(sent_at, created_at) >= date_trunc('day', now() at time zone 'utc');
 ```
 
-Leave out rehearsal leads by joining `events` (`payload->>'test' = 'true'`) if any were sent
-with `scripts/test-lead.mjs`.
+## Unsubscribes
 
-For Option B, each subscriber needs their own link to the site's unsubscribe page
-(`/unsubscribe?id=<contact id>&sig=<HMAC>`, `lib/unsubscribe.ts`). Postgres can sign it with
-pgcrypto using the same `UNSUBSCRIBE_SECRET` the site uses; paste the secret only into the SQL
-Editor, never into a saved query or the Zap:
+- **The links.** Every email to a subscriber has two links in its footer, to `/unsubscribe`: stop
+  this list, or stop everything. The page has a button; the POST from it does it (a GET never does,
+  since mail scanners open every link). The links are HMAC-signed over the subscription id with
+  `UNSUBSCRIBE_SECRET` and never expire.
+- **One click.** The `List-Unsubscribe` header points at `/api/newsletter/unsubscribe`, and
+  `List-Unsubscribe-Post: List-Unsubscribe=One-Click` lets the mail app POST there: that list stops
+  at once. Gmail and Yahoo expect this from anyone sending to many of their users.
+- **Everything** sets `unsubscribed_email = true, consent_email = false` on every `contacts` row for
+  the address, sets each of its subscriptions to `unsubscribed`, and logs an `unsubscribed_email`
+  event. One list logs `unsubscribed_newsletter`. Both are kept by the retention job (0009).
+- **A reply that says stop**, or anything like it, is an unsubscribe from everything. Honor it
+  within 10 business days (CAN-SPAM); in practice the same day:
 
 ```sql
-select lower(c.email) as email,
-       'https://jjpremiergroup.com/unsubscribe?id=' || c.id || '&sig=' ||
-       rtrim(translate(encode(extensions.hmac(c.id::text, '<UNSUBSCRIBE_SECRET>', 'sha256'), 'base64'), '+/', '-_'), '=')
-         as unsubscribe_url
-from (
-  select distinct on (lower(email)) id, email
-  from contacts
-  where consent_email and source_detail = 'letter_form' and email is not null
-  order by lower(email), created_at desc
-) c
-where not exists (select 1 from contacts u where lower(u.email) = lower(c.email) and u.unsubscribed_email);
+update contacts set unsubscribed_email = true, consent_email = false where lower(email) = lower('<address>');
+update newsletter_subscriptions set status = 'unsubscribed', unsubscribed_at = now(), unsubscribe_method = 'manual'
+where email = lower('<address>') and status <> 'unsubscribed';
 ```
 
-**Verify** one link opens the confirm page and the confirm sets the flag before using the list.
-
-## Unsubscribes are the sender's job
-
-The issue's footer says "Reply 'stop' or use the link in the email you received." because the
-link belongs to whichever tool sends:
-
-- The Marketing Center (Option A) adds its link and suppresses on its own. Copy its unsubscribes
-  to Supabase.
-- Outlook (Option B) adds nothing: the per-subscriber `unsubscribe_url` above must go into each
-  message.
-- A reply that says stop, or anything like it, is an unsubscribe. Honor it within 10 business
-  days (CAN-SPAM); in practice the same day:
+- **Letting someone back in.** An address with `unsubscribed_email` gets nothing, not even a
+  confirmation, however many times it signs up. If the person asks in writing to get the
+  newsletters again, clear the flag and have them sign up on the site, which sends a new
+  confirmation:
 
 ```sql
-update contacts set unsubscribed_email = true, consent_email = false
-where lower(email) = lower('<address>');
+update contacts set unsubscribed_email = false where lower(email) = lower('<address>');
 ```
 
-Before the first send: the postal address is in settings, the subject line says what the email
-is, the sender is the agents, and an unsubscribe has been tried end to end.
+The older links signed over a contacts row (`/unsubscribe?id=<contact id>&sig=`) still work and stop
+everything.
+
+## Sending by hand (subscriber email off)
+
+Until the variables above are set, or if the site's sending is ever switched off (unset
+`NEWSLETTER_FROM`), the hand-off works as before and the team sends each issue itself, from the team
+email or the webhook:
+
+- **The Marketing Center** (Home Platform), if the agents have it: export the confirmed subscribers
+  (the first query above) as CSV, import them as a list, and paste the attached `.html` into a
+  custom-HTML template. For Tide, fill in or delete each dashed box and delete the "Facts to write
+  from" box first. The Marketing Center adds its own unsubscribe link; copy its unsubscribes back to
+  Supabase (the SQL above).
+- **Zapier → Outlook** (`cbrealty.com` is Microsoft 365 with DMARC `p=reject`, docs/LAUNCH.md 1.7):
+  Catch Hook (`ISSUE_WEBHOOK_URL`) → Filter → Microsoft Outlook "Create Draft Email". Never wire an
+  automatic send for Tide (stop on `needsEdit` = true). Each message needs its own unsubscribe
+  link; past a few dozen subscribers this is the wrong tool.
+
+Don't do both: with subscriber email on, an issue sent by hand as well reaches people twice.
 
 ## Files
 
@@ -518,6 +610,24 @@ is, the sender is the agents, and an unsubscribe has been tried end to end.
 | `lib/issues/handoff.ts` | Server: auth, Fair Housing, the team email, the webhook. |
 | `lib/issues/*.test.ts`, `lib/issues/fixtures.ts` | Unit tests and their fixtures. |
 | `app/api/issues/{encore,tide}/route.ts` | The preview and the cron hand-off. |
+| `lib/newsletter/config.ts` | The switch: whether the site sends to subscribers, and with what (pure). |
+| `lib/newsletter/lists.ts` | The two lists and which form asks for which (pure). |
+| `lib/newsletter/state.ts` | The subscription state machine (pure). |
+| `lib/newsletter/token.ts` | Signed, expiring links: confirm, hold, send (pure). |
+| `lib/newsletter/schedule.ts` | When each issue goes out, and the hold or send decision (pure). |
+| `lib/newsletter/batch.ts` | Who gets the next batch, the daily cap, the idempotency key (pure). |
+| `lib/newsletter/headers.ts` | The unsubscribe links and the List-Unsubscribe headers (pure). |
+| `lib/newsletter/emails.ts` | The confirmation and welcome emails, and the per-recipient links (pure). |
+| `lib/newsletter/copy.ts` | Every sentence in the subscriber emails and their pages; checked by `npm run check:copy`. |
+| `lib/newsletter/resend.ts` | Resend's REST API through `fetch`: one email or a batch of 100. |
+| `lib/newsletter/service.ts` | Server: subscribing, confirming, unsubscribing, putting a send on record, sending. |
+| `lib/newsletter/*.test.ts` | Unit tests: tokens, the state machine, batching and the cap, idempotency, hold or send, the headers, the emails, the Resend calls. |
+| `app/api/newsletter/send/[kind]/route.ts` | The send crons. |
+| `app/api/newsletter/issue/route.ts` | The team's "Send it now" and "Hold this issue" page. |
+| `app/api/newsletter/unsubscribe/route.ts` | One-click unsubscribe (RFC 8058). |
+| `app/(site)/subscribe/confirm/` | The confirm page. |
+| `app/unsubscribe/` | The unsubscribe page: one list or everything. |
+| `lib/db/migrations/0013_newsletter.sql` | The three tables. |
 | `app/api/issues/encore/image/[slug]/route.ts` | The lead pick's PNG for the Monday issue. |
 | `scripts/issue-preview.mjs` | Local render to files. |
 | `docs/screenshots/issues/` | The two previews at 600px. |

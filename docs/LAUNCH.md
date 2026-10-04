@@ -16,12 +16,12 @@ must supply are written `<like-this>`. Nothing in this file is a real secret.
 | Vercel project | `jj-premier-group-marketing-site` (team `spirecoasts`), Node 24, framework Next.js. Production alias `https://jj-premier-group-marketing-site.vercel.app`. |
 | Repo | `spirecoast/real-estate`, branch `main`. The checkout also has a `marketing` remote (`spirecoast/jj-premier-group-marketing-site`) at the same commit. **Verify** in Vercel → Settings → Git which repository the project builds from before relying on "merge to `main` deploys". |
 | Site URL resolution | `lib/site.ts`: `NEXT_PUBLIC_SITE_URL` if it is a valid absolute URL, else `https://` + `VERCEL_PROJECT_PRODUCTION_URL`, else `https://jjpremiergroup.com`. Canonicals, `og:url`, sitemap `<loc>`, `robots.txt` host and ICS UIDs all use it. |
-| Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /thanks/ /q/`, plus the sitemap line. |
+| Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /subscribe/ /thanks/ /q/`, plus the sitemap line. |
 | Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
 | CRM | The Coldwell Banker Home Platform, reached through a Zapier Catch Hook. Env: `CRM_PROVIDER=webhook`, `CRM_WEBHOOK_URL`. Follow Up Boss code stays in the repo behind the provider switch and is not used. |
 | Database | Supabase Postgres through Drizzle (`lib/db`). Leads are mirrored into the `contacts` and `events` tables (there is no table called `leads`). |
-| Visitor email | The site never emails a visitor. The reply a visitor gets comes from the agent's own Coldwell Banker mailbox through a Zapier step. The team's internal "New lead" copy and the delivery alert go through Resend when it is configured. |
-| Newsletters | Tide is monthly, Encore is weekly on Monday. Sent from the Home Platform's Marketing Center if it has one (section 1), otherwise a send tool is chosen later. The site only collects the address. |
+| Visitor email | The reply a visitor gets comes from the agent's own Coldwell Banker mailbox through a Zapier step. The only email the site itself sends a visitor is the newsletter confirmation (double opt-in) and, once they confirm, the welcome and the newsletters (next row). The team's internal "New lead" copy and the delivery alert go through Resend when it is configured. |
+| Newsletters | Tide is monthly (sent the 3rd), Encore is weekly on Monday. The site sends both itself through Resend, from `letters@mail.jjpremiergroup.com`, to the people who subscribed and confirmed (decision 1.4; `docs/ISSUES.md`). |
 | Brand marks | Coldwell Banker mark 185px in the header (`components/site-header.tsx`), 220px in the footer. No license numbers anywhere on the site: Florida 61J2-10.025 requires the brokerage name adjacent to the contact information, which the footer `<address>` block does. |
 
 Code landing in the same wave that this runbook describes by intent, not by line: the webhook provider
@@ -38,7 +38,7 @@ looks like. Collect the answers in writing (email is fine) before section 6.
 | 1.1 | **Office street address and zip** | `officeAddress.street` and `zip` are empty in `lib/content/seed/settings.ts`, so the footer shows "Lakewood Ranch, FL", the RealEstateAgent JSON-LD has no `streetAddress`, and the privacy page's contact block has no address. The Google Business Profile address must match these character for character. The same address drives the pin on the Google Maps embed on `/contact` (`lib/map-embed.ts`); until it is filled in, the map searches for `NEXT_PUBLIC_MAP_QUERY`, or "Coldwell Banker Realty, Lakewood Ranch, FL" when that is empty. | The brokerage sends the registered office address for the team; it is put in `settings.ts` (street, zip, suite line exactly as the brokerage writes it) and deployed; the footer, `/contact`, `/privacy` and the JSON-LD on `/` all show the same string, and the map on `/contact` pins the office. |
 | 1.2 | **Brokerage sign-off and the compliance contact** | `docs/handoff/COMPLIANCE.md` says nothing ships without the brokerage compliance contact's review. Specific points to put in front of them: the footer (brokerage name directly below the phone and emails, 61J2-10.025(3)(a)); the team name is not set larger than the brokerage name (61J2-10.026); the CB mark at 185px header / 220px footer and the Equal Housing mark; the decision to show **no license numbers** (lawful under 61J2, but Coldwell Banker Realty's own policy must be confirmed by the broker of record); the "draft for legal review" label on `/privacy` and `/terms` (comes off only when counsel signs); the consent wording (`CONSENT_WORDING` for calls/texts and `CONSENT_EMAIL_WORDING` for email, both in `lib/leads.ts`); both agents titled REALTOR® (requires current NAR membership). | A dated email from the compliance contact naming the preview URL and saying the footer, marks, no-license-number decision, privacy and terms are approved; the name and email of the contact recorded here: `<compliance contact>`. |
 | 1.3 | **Home Platform: Zapier connection authorization** | Section 3 depends on the "Compass" app in Zapier accepting a Coldwell Banker Home Platform login. If it only accepts compass.com accounts, the Zap's CRM step must change (for example, to the Lead Flows address in 1.5). Also decide whose account the connection uses: the leads land in that agent's Contacts. | In Zapier → Apps → Connections, a "Compass" connection exists, signed in as `<agent who owns the leads>`, and a test lead created from the Zap editor appears in Home Platform Contacts. |
-| 1.4 | **Home Platform: Marketing Center email** | Tide (monthly) and Encore (weekly Monday) are promised on the forms and the privacy page. If the Marketing Center can send to a list, subscribers are exported from Supabase `contacts` (`consent_email = true`) and imported there; if not, a send tool is chosen before the first promised issue. Either way the sends carry the office postal address, the brokerage name and a working unsubscribe (CAN-SPAM). | The agents confirm in the Home Platform whether Marketing Center exists for them, whether it sends to an imported list, and who will build the two templates. Decision recorded: `<Marketing Center | other tool>`; first send dates: `<Tide>` and `<Encore>`. |
+| 1.4 | **Newsletter sending: decided, the site sends via Resend** | Tide (monthly) and Encore (weekly Monday) are promised on the forms and the privacy page. Decision: the site sends both itself through Resend, from the subdomain `mail.jjpremiergroup.com`, with double opt-in, a hold link for the team and a one-click unsubscribe (`docs/ISSUES.md`). The Marketing Center isn't needed for them. Every send carries the office postal address (1.1), the brokerage name and a working unsubscribe (CAN-SPAM); the site holds every issue until the address is in settings. What's needed: the domain verified in Resend with its records in Cloudflare (steps below), the variables in section 2, and migration `0013_newsletter.sql` applied (section 4.3). | `mail.jjpremiergroup.com` shows "Verified" in Resend → Domains; `GET /api/health` shows `newsletter.subscriberEmail: true`; a test address has signed up, confirmed, got the welcome, got one issue, and unsubscribed with the link and with Gmail's Unsubscribe button. First send dates recorded: `<Tide>` and `<Encore>`. |
 | 1.5 | **Home Platform: lead-intake address** | A backup path if the Zapier action fails or is not authorised: the Home Platform's Lead Flows (CRM settings) may issue an email address that parses incoming leads. If it does, the team's "New lead" email can be forwarded there. | The agents open CRM settings → Lead Flows and report whether a forwarding address exists: `<address or "none">`. |
 | 1.6 | **Home Platform: included website or listing product** | `NEXT_PUBLIC_LISTINGS_URL` is where "See our current listings" points until an MLS feed is licensed; empty hides the link. The Home Platform or Coldwell Banker may give each agent a listings page. There is no evidence of an embeddable IDX widget for external sites; assume none. | The team sends the URL of the page that shows their active listings: `<listing page URL>`. It opens without a login and shows the team's listings. |
 | 1.7 | **Mailbox platform** | Decides which Zapier email app sends the reply in section 3. Checked 2026-10-01: `autodiscover.cbrealty.com` → `autodiscover.outlook.com`, so `cbrealty.com` is Microsoft 365 (Exchange Online) behind a Mimecast gateway, and its DMARC policy is `p=reject`. That means the reply must be sent by the **Microsoft Outlook** app in Zapier signed in as the agent; a generic SMTP step "from" a `cbrealty.com` address would be rejected. | The brokerage confirms that Zapier's Outlook app may be connected to agent mailboxes on their tenant (an admin may need to grant consent), and each agent connects her own mailbox in Zapier. |
@@ -49,6 +49,42 @@ looks like. Collect the answers in writing (email is fine) before section 6.
 | 1.12 | **Social URLs** | `socialLinks` in `lib/site.ts` is deliberately empty (the Sanity site settings can add more once Sanity is live); the footer's icon row and `sameAs` in the RealEstateAgent JSON-LD render nothing until it is filled. Each entry is `{ network, label, url }`, `network` one of google, youtube, instagram, facebook, nextdoor, linkedin, zillow, other. The bio links on those profiles point at `/from/youtube`, `/from/instagram`, `/from/facebook` and `/from/nextdoor` (noindex landing pages that tag the lead `source:<channel>`). | A list of live profile URLs the team actually maintains (YouTube, Instagram, Facebook, Nextdoor, LinkedIn, Zillow): `<urls>`. Each opens to the team's profile, not a login page. They are added to `lib/site.ts` and deployed; the footer shows one icon per profile and `/` carries them in `sameAs`. |
 | 1.13 | **Trust-section facts** | Every factual claim on the site (years licensed, memberships, designations, markets served, the office) must come from the agents in writing; nothing is hand-typed from memory. The home page carries no figures by design. | For every fact the agents want stated, a one-line source (the DBPR record, the NAR card, the designation certificate) is on file; anything without one stays off the site. |
 | 1.14 | **Client quotes** | `TESTIMONIALS` is empty. A quote goes live only through the Sanity `testimonial` document with `permissionOnFile` checked, so until Sanity is online there are none. | Written permission from each client is on file; the quote text, the client's first name and the date are recorded; they are entered when Sanity is live (`docs/SITE.md`, "Content: seed now, Sanity when ready"). |
+
+### 1.4 in detail: sending from mail.jjpremiergroup.com
+
+A subdomain keeps the newsletters' sending reputation apart from anything else that ever sends as
+`jjpremiergroup.com`, and Resend recommends one. Nothing here touches the website's records.
+
+1. **Resend → Domains → Add domain**: `mail.jjpremiergroup.com`, region North Virginia
+   (`us-east-1`). Use the Resend account that holds `RESEND_API_KEY` (the team email's account), on
+   a plan whose daily limit is at least `NEWSLETTER_DAILY_CAP`. The free plan allows 100 a day and
+   3,000 a month: past about 100 subscribers on a list a send spreads over more than one day, and
+   the monthly limit runs out at around 500 Encore subscribers. Move to a paid plan before then and
+   raise `NEWSLETTER_DAILY_CAP` to its daily limit.
+2. Resend shows the records it wants. **Copy them from that screen**; at the time of writing they
+   are, with Cloudflare's names relative to the zone `jjpremiergroup.com`:
+
+   | Type | Name (Cloudflare) | Content | Priority | What it is |
+   |---|---|---|---|---|
+   | TXT | `resend._domainkey.mail` | `p=MIGfMA0GCSqGSIb3…` (the public key Resend shows) | | DKIM: signs each email as `mail.jjpremiergroup.com` |
+   | MX | `send.mail` | `feedback-smtp.us-east-1.amazonses.com` | 10 | The bounce (return-path) domain |
+   | TXT | `send.mail` | `v=spf1 include:amazonses.com ~all` | | SPF for that bounce domain |
+
+   In Cloudflare → `jjpremiergroup.com` → DNS → Records → Add record, one per row. TXT and MX
+   records aren't proxied, so there's no cloud to set; TTL Auto. Paste the DKIM key whole, no
+   quotes or line breaks.
+3. **DMARC**, if the zone has none yet: TXT `_dmarc` = `v=DMARC1; p=none; rua=mailto:<an inbox someone reads>`.
+   It covers `mail.` too. Gmail and Yahoo expect a DMARC record from bulk senders; `p=none` reports
+   without blocking. Tighten it later once the reports are clean.
+4. Back in Resend, **Verify DNS records**. It turns "Verified" within minutes to an hour. Keep
+   open and click tracking **off** for the domain: the issues carry UTM tags for analytics, and the
+   privacy page doesn't describe tracking pixels or rewritten links.
+5. Set `NEWSLETTER_FROM` = `JJ Premier Group <letters@mail.jjpremiergroup.com>` and the other
+   newsletter variables (section 2), redeploy, and run the check in the "Verified when" column. No
+   mailbox is needed at `letters@`: replies go to `NEWSLETTER_REPLY_TO`.
+
+Rollback: unset `NEWSLETTER_FROM` and redeploy. Nothing more goes to subscribers; the team email
+still arrives and the issue can be sent by hand (`docs/ISSUES.md`, "Sending by hand").
 
 ## 2. Vercel production environment variables
 
@@ -89,14 +125,18 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_MAPTILER_KEY` | already set | MapTiler tiles for Atlas. Add the launch domain as an allowed origin (section 5.6). |
 | `NEXT_PUBLIC_LISTINGS_URL` | `<URL from 1.6>` | The "See our current listings" link on `/listings`. Empty hides the link. |
 | `NEXT_PUBLIC_ROBOTS_NOINDEX` | **removed from Production** (or empty); `true` on Preview | The index gate. Section 6.5 flips it. |
-| `CRON_SECRET` | already set | Bearer token for `GET /api/cron/archive-events`, which `vercel.json` runs every Monday 09:00 UTC (a no-op until Sanity is live, but the route must stay protected), and for the two newsletter hand-offs, `/api/issues/encore` (Mondays 10:00 UTC) and `/api/issues/tide` (the 1st, 12:00 UTC), which email the finished issue to `TEAM_NOTIFY_EMAIL` (`docs/ISSUES.md`). |
+| `CRON_SECRET` | already set | Bearer token for `GET /api/cron/archive-events`, which `vercel.json` runs every Monday 09:00 UTC (a no-op until Sanity is live, but the route must stay protected), for the two newsletter hand-offs, `/api/issues/encore` (Mondays 10:00 UTC) and `/api/issues/tide` (the 1st, 12:00 UTC), which email the finished issue to `TEAM_NOTIFY_EMAIL`, and for the sends to subscribers, `/api/newsletter/send/encore` (Mondays 12:00 UTC), `/api/newsletter/send/tide` (the 3rd, 13:00 UTC) and `/api/newsletter/send/all` (daily 13:30 UTC) (`docs/ISSUES.md`). |
+| `NEWSLETTER_FROM` | `JJ Premier Group <letters@mail.jjpremiergroup.com>` | The From of every newsletter email. Set it once `mail.jjpremiergroup.com` is verified in Resend (1.4); it's the switch for sending to subscribers. |
+| `NEWSLETTER_SECRET` | `openssl rand -base64 48` | Signs the confirm links and the team's hold and send links. Mark as Sensitive. |
+| `NEWSLETTER_REPLY_TO` | `<the agent's address that should get replies>` | Where a subscriber's reply ("stop", a question) goes. |
+| `NEWSLETTER_DAILY_CAP` | `100` (Resend free), or the plan's daily limit | Newsletter emails a day; what's over waits for the next day. |
+| `UNSUBSCRIBE_SECRET` | `openssl rand -base64 48` | Signs the unsubscribe link in every newsletter email. Required for sending; never change it once emails have gone out. Mark as Sensitive. |
 
 ### Optional; set if the value exists, otherwise leave empty
 
 | Variable | Notes |
 |---|---|
 | `NEXT_PUBLIC_BOOKING_URL` | `<Cal.com or Calendly link>`. Shows a "book a time" link where the site offers one; empty hides it. **Verify** the exact placement in the merged code. |
-| `UNSUBSCRIBE_SECRET` | `openssl rand -base64 48`. Read only by the public `/unsubscribe` page (`app/unsubscribe/page.tsx`), which signs and checks the links in marketing emails that nothing sends yet. Without it a stray hit renders the "invalid link" state rather than crashing (`verifyUnsubscribe` catches the throw). Set it anyway so the page works the day a send tool uses it. |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | The public site's lead path reads only `DATABASE_URL`; these three are read only by `lib/supabase/*`, kept for the coming search work and not part of launch (nothing on `main` calls `lib/env.ts` or `lib/supabase/*`). Fill them from the same Supabase project for completeness or leave empty. |
 | `NEXT_PUBLIC_SANITY_DATASET`, `NEXT_PUBLIC_SANITY_API_VERSION` | Harmless while `NEXT_PUBLIC_SANITY_PROJECT_ID` is empty (`production` and `2026-09-01` in `.env.example`). |
 | `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS` | Leave empty. `true` would put the sample listings on the live site. |
@@ -469,6 +509,10 @@ already short enough for a quick change; no need to lower it in advance. If any 
 Remove any conflicting `CAA` record, or add one that allows `letsencrypt.org` if the zone restricts
 issuers; Vercel's domain screen reports "CAA" problems explicitly.
 
+The newsletter's records for `mail.jjpremiergroup.com` (DKIM, the `send.mail` MX and SPF, and
+DMARC; 1.4) are separate from these and don't depend on the cutover: add them any time before the
+first send. Rolling the website back (6.12) leaves them alone.
+
 ### 6.4 Wait for the domain to verify and the certificate to issue
 
 Back in Vercel → Domains, both rows turn to "Valid Configuration" within minutes of the records
@@ -513,7 +557,7 @@ build; the neighborhood index and the static pages are generated here).
 D=https://jjpremiergroup.com
 
 curl -sS $D/robots.txt
-# User-Agent: *  Allow: /  Disallow: /studio /api/ /unsubscribe /thanks/ /q/
+# User-Agent: *  Allow: /  Disallow: /studio /api/ /unsubscribe /subscribe/ /thanks/ /q/
 # Sitemap: https://jjpremiergroup.com/sitemap.xml   Host: https://jjpremiergroup.com
 
 curl -sS $D/ | grep -o '<meta name="robots"[^>]*>\|<link rel="canonical"[^>]*>\|<meta property="og:url"[^>]*>\|<meta property="og:image"[^>]*>'
@@ -654,28 +698,37 @@ stopgap the same day, and open an issue to add Cloudflare Turnstile to `componen
 
 ### 7.6 The first Encore and Tide
 
-The site builds both newsletters and emails each finished issue to `TEAM_NOTIFY_EMAIL`; it never
-sends to subscribers (`docs/ISSUES.md` has the whole flow).
+The site builds both newsletters, emails each finished issue to `TEAM_NOTIFY_EMAIL`, and then sends
+it to the confirmed subscribers itself (`docs/ISSUES.md` has the whole flow).
 
-1. Set `ISSUE_PREVIEW_SECRET` (and `ISSUE_WEBHOOK_URL` if the Zap exists) in Production, redeploy,
-   and check `GET /api/health` shows `issues.previewSecret`, `teamEmail`, `resend` and `cronSecret`
-   as `true`.
-2. Open `https://jjpremiergroup.com/api/issues/encore?secret=<ISSUE_PREVIEW_SECRET>` and the same for
-   `/api/issues/tide` with the agents. Read the warnings in the first team email: while the office
-   street address and ZIP are empty (1.1) every issue warns that CAN-SPAM needs them.
-3. The first Monday after cutover, 10:00 UTC: "Encore for Monday <date>: ready to send" arrives in the
-   team inbox. The agents send it from the chosen tool (1.4) to the export in `docs/ISSUES.md`.
-4. The 1st, 12:00 UTC: "Tide, <Month YYYY>: ready to send". The county appraisers post a sale only after
+1. Set `ISSUE_PREVIEW_SECRET` (and `ISSUE_WEBHOOK_URL` if the Zap exists) and the newsletter
+   variables (1.4, section 2) in Production, apply `0013_newsletter.sql`, redeploy, and check
+   `GET /api/health` shows `issues.previewSecret`, `teamEmail`, `resend`, `cronSecret` and
+   `newsletter.subscriberEmail` as `true` (`newsletter.missing` names anything left).
+2. Sign up yourself on the Tide box and the Encore box with a Gmail address. Confirm both, check the
+   welcomes arrive (not in spam), and look at "Show original": SPF, DKIM and DMARC all `PASS`.
+3. Open `https://jjpremiergroup.com/api/issues/encore?secret=<ISSUE_PREVIEW_SECRET>` and the same for
+   `/api/issues/tide` with the agents. **Fill in the office street address and ZIP first (1.1):** the
+   site holds every issue from subscribers until they're in settings, and the team email says so.
+4. The first Monday after cutover, 10:00 UTC: "Encore for Monday <date>: ready to send" arrives in the
+   team inbox, saying how many subscribers get it at 8am, with "Send it now" and "Hold this issue".
+   At 12:00 UTC it goes out unless someone held it. Check your own copy arrived, and press Gmail's
+   Unsubscribe button on it once to see the one-click unsubscribe work (then sign up again).
+5. The 1st, 12:00 UTC: "Tide, <Month YYYY>: ready to send". The county appraisers post a sale only after
    they've qualified it (Manatee runs about two months behind), so Tide covers the latest month that's
-   complete for all three places, never a partial one: on October 1, that's July. The agents replace
-   the dashed "what it means" box with two paragraphs before sending. The county-data refresh PR
-   ("Sales data: refresh county records") now opens every Sunday at 09:00 UTC
+   complete for all three places, never a partial one: on October 1, that's July. The story and the
+   two notes are written in `lib/tide/issues.ts` and deployed before the 3rd, or the issue goes out
+   with the computed lines and without the notes (subscribers never see a dashed box); hold it if
+   it should wait. On the 3rd at 13:00 UTC it goes to subscribers. The county-data refresh PR
+   ("Sales data: refresh county records") opens every Sunday at 09:00 UTC
    (`.github/workflows/sales-refresh.yml`); **merge one in the last week of each month**, or the run on
-   the 1st repeats the prior month (the team email warns when it does). `docs/SALES-DATA.md` says what
-   to check in its diff.
-5. Vercel → Project → Cron Jobs: both jobs listed, last run 200. A 422 means the issue was held from the
-   webhook (a Fair Housing flag, or a month that isn't complete) and the team got an alert; a 502 means
-   neither the team email nor the webhook took it. The JSON says which.
+   the 1st repeats the prior month (the team email warns when it does, and a month already sent isn't
+   sent again). `docs/SALES-DATA.md` says what to check in its diff.
+6. Vercel → Project → Cron Jobs: all five newsletter jobs listed, last run 200. For the hand-offs a 422
+   means the issue was held from the webhook (a Fair Housing flag, or a month that isn't complete) and
+   the team got an alert; a 502 means neither the team email nor the webhook took it. For the sends,
+   the JSON lists each send's `decision` and counts; `deferred` above zero means the daily cap was
+   reached and the rest go at the next daily run.
 
 ## 8. Who does what, in order
 
@@ -683,7 +736,7 @@ sends to subscribers (`docs/ISSUES.md` has the whole flow).
 |---|---|---|---|
 | 1 | Agents | Send the social URLs, the listing page URL, the facts and sources for anything stated on the site, any client quotes with permission | 1.6, 1.9, 1.12, 1.13, 1.14 |
 | 2 | Brokerage | Confirm the office address, the mailbox platform and Zapier/Outlook permission, the no-license-number policy; name the compliance contact; receive the Stellar IDX request | 1.1, 1.2, 1.7, 1.10 |
-| 3 | Agents | In Home Platform: authorise the Compass app in Zapier, check Lead Flows, check Marketing Center; connect each Outlook mailbox in Zapier; finish the reply template | 1.3, 1.4, 1.5, 3.5 |
+| 3 | Agents | In Home Platform: authorise the Compass app in Zapier, check Lead Flows; connect each Outlook mailbox in Zapier; finish the reply template | 1.3, 1.5, 3.5 |
 | 4 | Josh | Create the Supabase project, run migrations, confirm tables | 4 |
 | 5 | Josh | Build the Zap with the agents' account, run the test script, keep the Zap off | 3 |
 | 6 | Josh | Set the Preview variables, run every pre-cutover check, including the seven forms end to end | 2, 5 |
@@ -693,4 +746,5 @@ sends to subscribers (`docs/ISSUES.md` has the whole flow).
 | 10 | Josh | Search Console, Bing, sitemap submissions | 7.1 |
 | 11 | Agents | Google Business Profile website field and NAP; send the GBP URL | 7.2, 1.11 |
 | 12 | Josh | Daily lead check and 404 review for the first week; hand the daily check to the agents at the end of it | 7.3, 7.4, 7.5 |
-| 13 | Agents | First Tide (monthly) and Encore (weekly Monday) sends from the chosen tool, with the subscriber export from Supabase | 1.4, 4.5 |
+| 13 | Josh | Verify `mail.jjpremiergroup.com` in Resend and add its DKIM, SPF (and DMARC) records in Cloudflare; set the newsletter variables; apply `0013_newsletter.sql` | 1.4, 2, 4.3 |
+| 14 | Josh, then the agents | A test sign-up end to end; then the first Encore (Monday) and Tide (the 3rd) go out from the site, with the agents reading the team email and holding an issue if it should wait | 7.6 |

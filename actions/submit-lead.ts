@@ -12,8 +12,9 @@ import { leadSchema, thanksPath, type LeadFormState } from "@/lib/leads";
  * thank-you page. With JavaScript off the inline success state shows instead.
  *
  * Both consent boxes are unchecked by default, stored with their timestamp
- * and wording version, and never required for submission. The site never
- * emails the visitor.
+ * and wording version, and never required for submission. The only email the
+ * site sends the visitor is the newsletter confirmation (double opt-in), when
+ * they subscribed or ticked the email box.
  */
 
 function extractUtm(formData: FormData): Record<string, string> {
@@ -80,5 +81,6 @@ export async function submitLead(
         "We could not send that just now. Call or text us directly and we will pick it up from there.",
     };
   }
-  return { ok: true, form: data.form, redirectTo: thanksPath(data.form, data.market) };
+  const confirmEmail = outcome.newsletter.some((n) => n.confirmationSent);
+  return { ok: true, form: data.form, redirectTo: thanksPath(data.form, data.market), ...(confirmEmail ? { confirmEmail } : {}) };
 }

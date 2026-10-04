@@ -10,6 +10,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   vector,
 } from "drizzle-orm/pg-core";
@@ -223,6 +224,122 @@ export const searchDocuments = pgTable(
   ],
 );
 
+/**
+ * newsletter_subscriptions — one address on one list (0013_newsletter.sql).
+ * `email` is lowercased and unique per list: every form submission is its own
+ * contacts row, so the subscription is keyed on the address, and `contact_id`
+ * points at the latest row that asked. status: 'pending' (confirmation sent),
+ * 'confirmed' (double opt-in done) or 'unsubscribed'. A contacts row with
+ * `unsubscribed_email` for the same address overrides all of it: nothing is
+ * sent to that address (lib/newsletter/state.ts).
+ */
+export const newsletterSubscriptions = pgTable(
+  "newsletter_subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    contactId: uuid("contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    email: text("email").notNull(),
+    list: text("list").notNull(),
+    status: text("status").notNull().default("pending"),
+    /** The form that asked last: 'letter_form', 'calendar_form', 'contact_form', … */
+    source: text("source"),
+    requestedAt: timestamp("requested_at", { withTimezone: true }).defaultNow().notNull(),
+    confirmationSentAt: timestamp("confirmation_sent_at", { withTimezone: true }),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    welcomeSentAt: timestamp("welcome_sent_at", { withTimezone: true }),
+    unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+    /** 'link' (the page), 'one-click' (List-Unsubscribe-Post), 'all' (stop everything), 'manual'. */
+    unsubscribeMethod: text("unsubscribe_method"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("newsletter_subscriptions_email_list_key").on(table.email, table.list),
+    index("newsletter_subscriptions_list_status_idx").on(table.list, table.status),
+    check("newsletter_subscriptions_list_check", sql`${table.list} in ('tide', 'encore')`),
+    check("newsletter_subscriptions_status_check", sql`${table.status} in ('pending', 'confirmed', 'unsubscribed')`),
+  ],
+);
+
+/**
+ * issue_sends — one row per issue the site sends to subscribers: Tide per data
+ * month (period 'YYYY-MM'), Encore per week (period = its Monday). Unique on
+ * (kind, period), so a re-run of the hand-off never makes a second send.
+ * status: 'scheduled' → 'sending' → 'sent'; 'held' by the team's link (or by
+ * the system: a Fair Housing flag, a month that isn't complete, a missing
+ * postal address) until someone presses "Send it now"; 'expired' when its
+ * window passes unsent. The counts are from the latest run.
+ */
+export const issueSends = pgTable(
+  "issue_sends",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: text("kind").notNull(),
+    period: text("period").notNull(),
+    periodLabel: text("period_label").notNull(),
+    periodEnd: text("period_end").notNull(),
+    subject: text("subject").notNull(),
+    status: text("status").notNull().default("scheduled"),
+    scheduledFor: timestamp("scheduled_for", { withTimezone: true }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    heldBy: text("held_by"),
+    holdReason: text("hold_reason"),
+    heldAt: timestamp("held_at", { withTimezone: true }),
+    releasedAt: timestamp("released_at", { withTimezone: true }),
+    recipients: integer("recipients").default(0).notNull(),
+    sentCount: integer("sent_count").default(0).notNull(),
+    failedCount: integer("failed_count").default(0).notNull(),
+    unknownCount: integer("unknown_count").default(0).notNull(),
+    deferredCount: integer("deferred_count").default(0).notNull(),
+    lastError: text("last_error"),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("issue_sends_kind_period_key").on(table.kind, table.period),
+    index("issue_sends_status_idx").on(table.status, table.scheduledFor),
+    check("issue_sends_kind_check", sql`${table.kind} in ('tide', 'encore')`),
+    check("issue_sends_status_check", sql`${table.status} in ('scheduled', 'held', 'sending', 'sent', 'expired')`),
+  ],
+);
+
+/**
+ * newsletter_deliveries — every email sent to a subscriber: the confirmation,
+ * the welcome and each issue, one row per address. For an issue the row is
+ * written ('claimed') before the batch goes to Resend and is unique on
+ * (issue_send_id, email), so two runs can't both send to one address.
+ * status: 'claimed', 'sent', 'failed' (Resend said no; retried up to three
+ * times) or 'unknown' (no clear answer; never retried automatically).
+ * The rows sent today count against NEWSLETTER_DAILY_CAP.
+ */
+export const newsletterDeliveries = pgTable(
+  "newsletter_deliveries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: text("kind").notNull(),
+    list: text("list").notNull(),
+    subscriptionId: uuid("subscription_id").references(() => newsletterSubscriptions.id, { onDelete: "set null" }),
+    issueSendId: uuid("issue_send_id").references(() => issueSends.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    status: text("status").notNull(),
+    attempts: integer("attempts").default(1).notNull(),
+    resendId: text("resend_id"),
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("newsletter_deliveries_issue_email_key").on(table.issueSendId, table.email),
+    index("newsletter_deliveries_created_idx").on(table.createdAt),
+    index("newsletter_deliveries_subscription_idx").on(table.subscriptionId),
+    check("newsletter_deliveries_kind_check", sql`${table.kind} in ('confirmation', 'welcome', 'issue')`),
+    check("newsletter_deliveries_status_check", sql`${table.status} in ('claimed', 'sent', 'failed', 'unknown')`),
+  ],
+);
+
 export type Contact = typeof contacts.$inferSelect;
 export type NewContact = typeof contacts.$inferInsert;
 export type Event = typeof events.$inferSelect;
@@ -233,6 +350,9 @@ export type LeadDelivery = typeof leadDeliveries.$inferSelect;
 export type NewLeadDelivery = typeof leadDeliveries.$inferInsert;
 export type QuestionnaireAnswer = typeof questionnaireAnswers.$inferSelect;
 export type NewQuestionnaireAnswer = typeof questionnaireAnswers.$inferInsert;
+export type NewsletterSubscription = typeof newsletterSubscriptions.$inferSelect;
+export type IssueSend = typeof issueSends.$inferSelect;
+export type NewsletterDelivery = typeof newsletterDeliveries.$inferSelect;
 export type SearchDocument = typeof searchDocuments.$inferSelect;
 export type NewSearchDocument = typeof searchDocuments.$inferInsert;
 

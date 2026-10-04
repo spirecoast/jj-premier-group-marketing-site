@@ -219,6 +219,8 @@ export type LeadFormState = {
   form?: LeadForm;
   /** The thank-you page to go to. With JavaScript off the inline state shows instead. */
   redirectTo?: string;
+  /** True when a newsletter confirmation email went to the visitor (lib/newsletter): the success line says to check their inbox. */
+  confirmEmail?: boolean;
 };
 
 export const initialLeadState: LeadFormState = { ok: false };
