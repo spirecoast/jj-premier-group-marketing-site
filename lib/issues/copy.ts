@@ -48,7 +48,7 @@ export const ENCORE_COPY = {
 export const TIDE_COPY = {
   subject: "Tide · {month}",
   preheader: "How home sales went in {month} in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
-  eyebrow: "Tide · The Coast real estate newsletter",
+  eyebrow: "Tide · The monthly market letter",
   title: "How home sales went in {month}",
   coverage: "The county posts sales a few weeks late, so this issue looks back at {month}. That’s the newest month that’s complete for all three places.",
   intro: "Here’s how home sales went in {month} in Lakewood Ranch, Sarasota and Bradenton. Every number comes from the county’s public record of home sales.",

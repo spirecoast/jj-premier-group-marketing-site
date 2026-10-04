@@ -205,8 +205,10 @@ export function footer(f: FooterInput, kind: IssueKind, campaign: string): { htm
   const why = fill(FOOTER_COPY.why, { product: f.product, domain: f.domain });
   const stop = unsubscribeLine(f);
   const lines = (s: string) => `<p style="margin:0 0 8px 0;font-family:${SANS};font-size:13px;line-height:1.5;color:${C.muted};">${s}</p>`;
+  // The calendar and its feed belong to Encore; Tide and its welcome leave them out.
+  const calendarLine = kind === "encore" ? lines(`${link(calendar, FOOTER_COPY.calendarLabel)} &middot; ${link(ics, FOOTER_COPY.icsLabel)}`) : "";
   const html = `<tr><td style="padding:24px 32px 28px 32px;background-color:${C.linen};border-top:1px solid ${C.rule};">
-${lines(`${link(calendar, FOOTER_COPY.calendarLabel)} &middot; ${link(ics, FOOTER_COPY.icsLabel)}`)}
+${calendarLine}
 ${lines(esc(sentBy))}
 ${address ? lines(esc(address)) : ""}
 ${f.phoneDisplay ? lines(`${esc(FOOTER_COPY.phoneLabel)} ${esc(f.phoneDisplay)}`) : ""}
@@ -216,9 +218,7 @@ ${lines(esc(FOOTER_COPY.equalHousing))}
 </td></tr>`;
   const text = [
     "--",
-    `${FOOTER_COPY.calendarLabel}: ${calendar}`,
-    `${FOOTER_COPY.icsLabel}: ${ics}`,
-    "",
+    ...(kind === "encore" ? [`${FOOTER_COPY.calendarLabel}: ${calendar}`, `${FOOTER_COPY.icsLabel}: ${ics}`, ""] : []),
     sentBy,
     address || null,
     f.phoneDisplay ? `${FOOTER_COPY.phoneLabel} ${f.phoneDisplay}` : null,

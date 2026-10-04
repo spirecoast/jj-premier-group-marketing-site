@@ -79,6 +79,8 @@ export type TideIssueInput = {
    * today (never a partial month: the appraisers publish weeks late).
    */
   month?: string;
+  /** The issue month (YYYY-MM) the site files this under, e.g. October 2026 for July's figures. Names the subject line. */
+  issue?: string;
   footer: Omit<FooterInput, "product">;
   /** The story, the notes and the facts. Without it the draft has a dashed box for each. */
   writing?: TideWriting;
@@ -397,7 +399,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
   }
   if (markets.every((m) => !m.count)) warnings.push(`No qualified home sales in ${monthName} in any of the three markets: the sales data may not cover that month.`);
 
-  const subject = fill(TIDE_COPY.subject, { month: monthName });
+  const subject = fill(TIDE_COPY.subject, { month: input.issue ? monthLabel(input.issue) : monthName });
   const preheader = story?.dek ?? fill(TIDE_COPY.preheader, { month: monthName });
   const title = story?.headline ?? fill(TIDE_COPY.title, { month: monthName });
   const intro = fill(TIDE_COPY.intro, { month: monthName });

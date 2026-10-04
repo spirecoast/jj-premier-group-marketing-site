@@ -74,6 +74,7 @@ export async function loadTideIssue(today = issueToday(), month?: string, opts: 
     month,
     footer: { ...(await footerFacts()), unsubscribe: opts.unsubscribe },
     audience: opts.audience,
+    issue: entry.issue,
     writing: { narrative: narrativeOf(entry), notes: noteSlots(entry.commentary, "draft"), facts: writingFacts(model) },
   });
 }
