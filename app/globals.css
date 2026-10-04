@@ -2406,6 +2406,11 @@ body:not(:has([data-header-overlay])) .header-overlay {
       line-height: 1.7;
     }
   }
+  /* The small cover on Tide's issue cards: dark enough at the top for the
+     masthead and at the foot for the headline, clear in the middle. */
+  .tide-thumb-wash {
+    background: linear-gradient(180deg, rgb(20 37 48 / 0.7) 0%, rgb(20 37 48 / 0.15) 38%, rgb(20 37 48 / 0.25) 55%, rgb(20 37 48 / 0.88) 100%);
+  }
   /* The wash is a touch deeper than the guides': the headline is longer and sits lower. */
   .tide-cover-wash {
     background:

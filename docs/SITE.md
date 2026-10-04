@@ -234,7 +234,7 @@ builder source with its checked date).
   Adobe Stock IDs: tide-1 (a bayfront marina and towers at dusk, titled "Downtown Sarasota with
   Boats") 456377261, tide-2 (a Gulf inlet between two jetties, titled as Nokomis) 1082458028,
   tide-3 (red mangroves on a tidal flat) 1660124415. The issue month picks one
-  (`lib/tide/cover.ts`): January, April, July and October take tide-1, and so on. The alt text
+  (`lib/tide/cover.ts`): January, April, July and October take tide-2, the jetties at golden hour; the months after take tide-3, then tide-1. The alt text
   names no place.
 - **Stock photos, then key art.** An event without the presenter's own image (see "Images"
   below) gets a stand-in photograph for its kind of event: 51 free Adobe Stock photos, three

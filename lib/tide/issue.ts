@@ -595,13 +595,16 @@ export function buildIssueModel(input: IssueInput): IssueModel {
 }
 
 /** The archive card: computed from the model, so the card and the page agree. */
-export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel" | "dataLabel">) {
+export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel" | "dataLabel"> & Partial<Pick<IssueModel, "cover" | "headline" | "dek">>) {
   return {
     href: `/tide/${m.issue}`,
     eyebrow: W.cardEyebrow,
     title: fill(W.title, { issue: m.issueLabel }),
-    excerpt: fill(W.cardExcerpt, { data: m.dataLabel }),
+    issueLabel: m.issueLabel,
+    excerpt: m.dek ?? fill(W.cardExcerpt, { data: m.dataLabel }),
     data: fill(W.cardData, { data: m.dataLabel }),
+    cover: m.cover,
+    headline: m.headline,
   };
 }
 
