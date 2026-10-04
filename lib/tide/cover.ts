@@ -5,7 +5,8 @@ import { IMAGE_DIMS } from "../content/image-dims";
  * The Tide cover photographs: three free Adobe Stock photos (docs/SITE.md has
  * their stock IDs), 2400px wide so they stay sharp full-bleed under the
  * harbor wash. Each issue takes one by its month, so consecutive issues
- * rotate: January, April, July and October take the first.
+ * rotate: March, June, September and December take the first, January,
+ * April, July and October the second (the jetties at golden hour).
  */
 const COVERS: { src: string; alt: string; position: string }[] = [
   {
@@ -28,7 +29,7 @@ const COVERS: { src: string; alt: string; position: string }[] = [
 /** The cover for an issue month (YYYY-MM). */
 export function tideCover(issue: string): ImageRef {
   const month = Number(issue.slice(5, 7)) || 1;
-  const c = COVERS[(month - 1) % COVERS.length]!;
+  const c = COVERS[month % COVERS.length]!;
   const dims = IMAGE_DIMS[c.src];
   if (!dims) throw new Error(`Tide cover missing from lib/content/image-dims.ts: ${c.src}`);
   return { src: c.src, alt: c.alt, width: dims.width, height: dims.height, position: c.position };

@@ -291,10 +291,10 @@ describe("the new figures", () => {
     assert.equal(m.combinedLine, "home sales across the three markets in July, 55% more than a typical month");
   });
   it("rotate the cover photo by issue month and time the read", () => {
-    assert.equal(tideCover("2026-10").src, "/images/tide/tide-1.jpg");
-    assert.equal(tideCover("2026-11").src, "/images/tide/tide-2.jpg");
-    assert.equal(tideCover("2026-12").src, "/images/tide/tide-3.jpg");
-    assert.equal(tideCover("2027-01").src, "/images/tide/tide-1.jpg");
+    assert.equal(tideCover("2026-10").src, "/images/tide/tide-2.jpg");
+    assert.equal(tideCover("2026-11").src, "/images/tide/tide-3.jpg");
+    assert.equal(tideCover("2026-12").src, "/images/tide/tide-1.jpg");
+    assert.equal(tideCover("2027-01").src, "/images/tide/tide-2.jpg");
     assert.equal(m.cover.width, 2400);
     assert.ok(m.cover.alt.length > 20);
     // 400 words and the 11 figures: 2 + 3.7, rounded up.
@@ -484,13 +484,19 @@ describe("the rest of the issue", () => {
     assert.equal(model().source, "County property appraisers, public record, qualified sales, as of September 15, 2026.");
   });
   it("makes the archive card from the model", () => {
-    assert.deepEqual(issueCard(model()), {
+    const m = model();
+    const card = issueCard(m);
+    assert.deepEqual({ ...card, cover: undefined }, {
       href: "/tide/2026-10",
       eyebrow: "Tide · Monthly issue",
       title: "Tide, October 2026",
-      excerpt: "How home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
+      issueLabel: "October 2026",
+      excerpt: m.dek,
       data: "Numbers for July 2026",
+      cover: undefined,
+      headline: m.headline,
     });
+    assert.equal(card.cover?.src, "/images/tide/tide-2.jpg");
   });
   it("flags commentary that fails the Fair Housing check", () => {
     const bad = model({ entry: { issue: "2026-10", commentary: { joelyn: ["It’s perfect for families."] } } });
