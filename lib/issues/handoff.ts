@@ -2,6 +2,7 @@ import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { emailList } from "@/lib/email/recipients";
 import { checkFairHousing } from "@/lib/fair-housing";
 import { TEAM_SEND_COPY } from "@/lib/newsletter/copy";
 import { easternWhen } from "@/lib/newsletter/schedule";
@@ -12,8 +13,9 @@ import { C, SANS, column, documentHtml, esc, row, type Issue } from "./render";
 /**
  * Hands a finished issue to the team. Here it is
  *
- *  1. emailed to TEAM_NOTIFY_EMAIL (Resend), the one address this module
- *     ever sends to, with a note on what to check before sending; and
+ *  1. emailed to TEAM_NOTIFY_EMAIL (Resend; one address or several,
+ *     comma-separated), the only inboxes this module ever sends to, with a
+ *     note on what to check before sending; and
  *  2. POSTed as JSON to ISSUE_WEBHOOK_URL when set (a Zapier Catch Hook),
  *     so a Zap can put it in an Outlook draft or the Marketing Center.
  *
@@ -212,7 +214,7 @@ export async function handOff(
   teamSubject: string,
   opts: { fetchImpl?: typeof fetch; subscriberSend?: TeamSendInfo | null } = {},
 ): Promise<HandoffResult> {
-  const to = process.env.TEAM_NOTIFY_EMAIL;
+  const to = emailList(process.env.TEAM_NOTIFY_EMAIL);
   const fh = checkFairHousing(`${issue.subject}\n${issue.html}\n${issue.text}`);
   const send = opts.subscriberSend ?? null;
   const base = {
@@ -235,7 +237,7 @@ export async function handOff(
       : [`<strong>The issue below was not sent to the Zap: ${esc(held)}.</strong>`, ...issue.warnings.map((w) => `Check: ${esc(w)}`)];
     if (send) lines.push(...subscriberLines(issue, send));
     let teamEmail: StepResult = { status: "skipped", detail: "TEAM_NOTIFY_EMAIL not set" };
-    if (to) {
+    if (to.length) {
       const res = await sendEmail({
         to,
         subject: `${teamSubject.replace(/: ready to send$/, "")}: held, not ready to send`,
@@ -265,7 +267,7 @@ export async function handOff(
   const webhook = await postWebhook(payload, opts.fetchImpl ?? fetch);
 
   let teamEmail: StepResult = { status: "skipped", detail: "TEAM_NOTIFY_EMAIL not set" };
-  if (to) {
+  if (to.length) {
     // The team's address and nothing else: never a subscriber, never an address from the request.
     const res = await sendEmail({
       to,
