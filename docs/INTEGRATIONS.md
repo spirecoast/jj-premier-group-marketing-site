@@ -15,7 +15,8 @@ Vercel + Supabase + Resend (+ Zapier for the CRM, Sanity for content).
 
 | # | Service | Free tier? | Purpose |
 |---|---|---|---|
-| 0 | **Zapier** | paid (multi-step) | Lead webhook → Home Platform "Create a New Lead" |
+| 0 | **Home Platform lead pixel** | included | Compass's script on the site sends each form to Lead Flows (`lib/home-platform.ts`) |
+| 0b | **Zapier** | paid (multi-step) | Lead webhook → Home Platform "Create a New Lead", for the leads the pixel can't send |
 | 1 | **Supabase** | yes | Postgres: the lead mirror, consent records, the questionnaire and (soon) search. Not auth, not a CRM |
 | 2 | **Resend** | yes (3K/mo) | Team-only email (new-lead notice, alerts, newsletter hand-off) |
 | 3 | **Vercel** | yes (hobby) | Hosting, preview deploys, cron |
@@ -24,11 +25,45 @@ Future-phase services are listed at the bottom — **don't set up yet.**
 
 ---
 
-## 0) Lead delivery (forms → Postgres → Zapier → Home Platform)
+## 0) Lead delivery (forms → Home Platform pixel, and Postgres → Zapier → Home Platform)
 
 The team's CRM is the Home Platform (Compass's platform at Coldwell Banker
-Realty). It has no API, so leads reach it through Zapier. Follow Up Boss is
-no longer used.
+Realty). It has no public API. Leads reach it two ways: its own **lead pixel**
+on the site, which is what Lead Flows issues for an agent's website, and
+**Zapier** for the leads the pixel can't send. Follow Up Boss is no longer used.
+
+### Home Platform's lead pixel (`lib/home-platform.ts`)
+
+The tag Lead Flows issued, client id `bsw9jbac2nu2`, is rendered by
+`components/home-platform-pixel.tsx` in the `(site)` layout: production builds
+only (`VERCEL_ENV=production`), so previews and local runs never send test
+visits or leads to the CRM, and never on the questionnaire, the unsubscribe
+page or the Studio. `NEXT_PUBLIC_HOME_PLATFORM_PIXEL_ID` overrides the id;
+`off` turns it off. The CSP lists `https://www.homeplatform.com` when it's on.
+
+What the script does (read from the script itself, `a.min.js`, "lead-pixel" v1;
+Compass's help pages need a login):
+
+- Sets `cxlp_anonymous_id` (first-party cookie and localStorage) and posts each
+  page view to `www.homeplatform.com/cxlp/p`, following client-side navigation.
+- Watches every form. Once a valid email or a 10-digit phone is entered it posts
+  the form's named fields to `/cxlp/i`, before the visitor presses send; on
+  submit it posts them to `/cxlp/t` as `formSubmitted`.
+- Skips hidden, password and number inputs and anything named like a card,
+  password, token, birth date or SSN. Every other named field goes with its
+  value, and a checkbox's value is the same ticked or not. So the consent boxes
+  on our forms have no name once the page is interactive; a hidden input beside
+  each carries `on` or empty (`ConsentBox`, `components/home-platform-fields.tsx`).
+  The CRM never sees an unticked call/text box as `on`.
+- Stays off under Global Privacy Control, sends nothing under Do Not Track or
+  without Web Crypto, and can be blocked like any third-party script.
+- Takes the first email and phone in a form. On the referral form that's the
+  referrer; the person who is moving reaches the CRM only through the webhook.
+
+Each lead records whether the pixel was running on the page:
+`source.homePlatformPixel` (`HomePlatformPixelFlag`, the same conditions the
+script checks). The Zap below skips those, except referrals, so a lead isn't
+created twice.
 
 **The rule: the site emails a visitor only about the newsletters they asked
 for.** Signing up for Tide or Encore, or ticking the email box, gets one
@@ -135,7 +170,9 @@ and when it was recorded, plus the page the form was on. `test: true` (and a
 Trigger: **Webhooks by Zapier → Catch Hook**. Copy its URL into
 `CRM_WEBHOOK_URL`. Then:
 
-1. *(Optional)* **Filter**: continue only if `test` is not `true`.
+1. **Filter**: continue only if `test` is not `true`, and either
+   `source.homePlatformPixel` is not `true` or `form` is `referral`. The pixel
+   already sent the rest to Lead Flows from the browser.
 2. **Compass → Create a New Lead**. Field map:
 
    | Compass field | From the payload |

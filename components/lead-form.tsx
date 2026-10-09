@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { submitLead } from "@/actions/submit-lead";
+import { ConsentBox, HomePlatformPixelFlag } from "@/components/home-platform-fields";
 import { readChannel, readUtm } from "@/components/utm-tracker";
 import {
   CONSENT_EMAIL_WORDING,
@@ -204,6 +205,7 @@ export function LeadForm({
     <form action={action} noValidate className={cn("flex flex-col gap-7", className)}>
       <input type="hidden" name="form" value={form} />
       <input type="hidden" name="pageUrl" value={pageUrl} />
+      <HomePlatformPixelFlag />
       {Object.entries(hidden).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
       {channel && !hidden.source ? <input type="hidden" name="source" value={channel} /> : null}
       {Object.entries(utm).map(([k, v]) => (
@@ -360,7 +362,7 @@ export function LeadForm({
         {has("referralConsent") ? (
           <div className="flex flex-col gap-2">
             <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
-              <input type="checkbox" name="referralConsent" value="on" required className="mt-1 size-4 shrink-0 accent-sky-700" aria-invalid={Boolean(err("referralConsent"))} aria-describedby={err("referralConsent") ? `${uid}-referral-err` : undefined} />
+              <ConsentBox name="referralConsent" required className="mt-1 size-4 shrink-0 accent-sky-700" aria-invalid={Boolean(err("referralConsent"))} aria-describedby={err("referralConsent") ? `${uid}-referral-err` : undefined} />
               <span>{label("referralConsent")}</span>
             </label>
             <FieldError id={`${uid}-referral-err`} messages={err("referralConsent")} />
@@ -369,7 +371,7 @@ export function LeadForm({
         {has("reviewConsent") ? (
           <div className="flex flex-col gap-2">
             <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
-              <input type="checkbox" name="reviewConsent" value="on" required className="mt-1 size-4 shrink-0 accent-sky-700" aria-invalid={Boolean(err("reviewConsent"))} aria-describedby={err("reviewConsent") ? `${uid}-review-err` : undefined} />
+              <ConsentBox name="reviewConsent" required className="mt-1 size-4 shrink-0 accent-sky-700" aria-invalid={Boolean(err("reviewConsent"))} aria-describedby={err("reviewConsent") ? `${uid}-review-err` : undefined} />
               <span>{label("reviewConsent")}</span>
             </label>
             <FieldError id={`${uid}-review-err`} messages={err("reviewConsent")} />
@@ -377,13 +379,13 @@ export function LeadForm({
         ) : null}
         {marketingConsent && has("email") ? (
           <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
-            <input type="checkbox" name="consentEmail" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
+            <ConsentBox name="consentEmail" className="mt-1 size-4 shrink-0 accent-sky-700" />
             <span>{CONSENT_EMAIL_WORDING}</span>
           </label>
         ) : null}
         {marketingConsent && has("phone") ? (
           <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
-            <input type="checkbox" name="consent" value="on" className="mt-1 size-4 shrink-0 accent-sky-700" />
+            <ConsentBox name="consent" className="mt-1 size-4 shrink-0 accent-sky-700" />
             <span>{CONSENT_WORDING}</span>
           </label>
         ) : null}

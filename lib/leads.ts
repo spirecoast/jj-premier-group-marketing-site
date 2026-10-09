@@ -182,6 +182,8 @@ export const leadSchema = z
     consent: checkbox,
     /** Email. */
     consentEmail: checkbox,
+    /** "true" when Home Platform's pixel will have sent this form to the CRM itself (components/home-platform-fields.tsx). */
+    homePlatformPixel: checkbox,
     // Honeypot — hidden from people, filled by bots. Any value means a bot.
     website: z.string().optional(),
   })
