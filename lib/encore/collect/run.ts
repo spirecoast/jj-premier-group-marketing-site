@@ -135,7 +135,8 @@ export async function runCollector(opts: RunOptions): Promise<RunResult> {
   async function one(source: SourceSpec & { state?: SourceState }) {
     const started = Date.now();
     const adapter = ADAPTERS[source.adapter]!;
-    const at = new Date().toISOString();
+    // The run's own clock when it was given one (tests, replays), so "last run" and "due again" agree with it.
+    const at = (opts.now ? now : new Date()).toISOString();
     try {
       const known = knownForSource(source, asDataset(snapshot.events));
       const res = await withDeadline(
