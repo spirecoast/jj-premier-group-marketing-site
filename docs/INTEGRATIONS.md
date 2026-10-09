@@ -65,6 +65,17 @@ Each lead records whether the pixel was running on the page:
 script checks). The Zap below skips those, except referrals, so a lead isn't
 created twice.
 
+**What arrives in Home Platform** (three test enquiries, 2026-10-09). Each
+became a contact in the account that issued the pixel (Jessica Garza's): first
+and last name, email and phone; Source "Pixel"; group Leads; status New with a
+4-day outreach interval; assigned to that account's owner. Its activity shows
+"Submitted form on <page title>" and "Viewed web pages". Nothing else from the
+form is on the contact: not the message, timing, property address, market or
+the boxes they ticked. Those reach the team only in the "New lead" email
+(step 3 below), which also says whether Home Platform should have the contact.
+Home Platform doesn't know who agreed to calls and texts, so an action plan
+that sends texts shouldn't be attached to the Pixel lead flow.
+
 **The rule: the site emails a visitor only about the newsletters they asked
 for.** Signing up for Tide or Encore, or ticking the email box, gets one
 confirmation email; once confirmed, a short welcome and then each issue
@@ -80,8 +91,14 @@ through a Zapier step if the team wants a templated first reply.
 2. **CRM.** `lib/crm.ts` POSTs the payload to `CRM_WEBHOOK_URL` (8s timeout,
    one retry, any 2xx is success). The result lands in `leads.delivery_status`
    and a `lead_deliveries` row.
-3. **Team email.** The full payload to `TEAM_NOTIFY_EMAIL` via Resend, with
-   reply-to set to the visitor. This is the safety net when Zapier is down.
+3. **Team email.** The full payload to `TEAM_NOTIFY_EMAIL` (one address or
+   several, comma-separated) via Resend, with reply-to set to the visitor. It's
+   the only place the team sees the message, timing, address and consent, since
+   Home Platform keeps only the contact details. Its first line says whether
+   Home Platform should already have the contact (`homePlatformNote` in
+   `lib/home-platform.ts`), and the subject ends "· add to Home Platform" when
+   it doesn't: the Pixel didn't run, or it's the person a referral names. It's
+   also the safety net when Zapier is down.
 4. **Alert.** If the CRM step failed (or no CRM is configured in production),
    an ALERT email to `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`)
    saying where the lead was kept.
@@ -99,8 +116,8 @@ through a Zapier step if the team wants a templated first reply.
 |---|---|
 | `CRM_PROVIDER` | `webhook` (default when `CRM_WEBHOOK_URL` is set), `fub`, or `none` |
 | `CRM_WEBHOOK_URL` | The Zapier Catch Hook URL |
-| `TEAM_NOTIFY_EMAIL` | Every lead, full payload (needs `RESEND_API_KEY` + `RESEND_FROM_EMAIL`) |
-| `LEAD_ALERT_EMAIL` | CRM failure alerts; falls back to `TEAM_NOTIFY_EMAIL` |
+| `TEAM_NOTIFY_EMAIL` | Every lead, full payload; one address or several, comma-separated (needs `RESEND_API_KEY` + `RESEND_FROM_EMAIL`) |
+| `LEAD_ALERT_EMAIL` | CRM failure alerts; falls back to `TEAM_NOTIFY_EMAIL`; also takes a comma-separated list |
 | `DATABASE_URL` | The Postgres mirror; run `npm run db:migrate` so `0006` is applied |
 | `NEXT_PUBLIC_BOOKING_URL` | Shows "Book 15 minutes" on the thank-you pages when set |
 | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Also enables the server-side `Lead server` backstop event |
@@ -109,7 +126,8 @@ through a Zapier step if the team wants a templated first reply.
 In production at least one of Postgres, the CRM webhook or the team email must
 be configured. With no CRM at all, set `CRM_PROVIDER=none` explicitly: an unset
 or invalid `CRM_PROVIDER` in production sends the "not configured" alert on
-every lead, an explicit `none` does not. The server logs an error at boot if none is (`instrumentation.ts`),
+every lead, an explicit `none` does not. That's the setting while the Pixel is
+the only path into Home Platform (no Zap yet). The server logs an error at boot if none is (`instrumentation.ts`),
 and `GET /api/health` returns `{ ok, sinks }` — booleans and the provider name
 only, never values.
 
@@ -304,8 +322,8 @@ Leave Storage alone for now.
 | Var | Where to find |
 |---|---|
 | `RESEND_API_KEY` | API Keys → Create API Key (full access) |
-| `RESEND_FROM_EMAIL` | Pick any address on the verified domain (e.g., `[email protected]`) |
-| `TEAM_NOTIFY_EMAIL` | Internal inbox for new-lead notifications (e.g., `[email protected]` — can be a Google Workspace alias) |
+| `RESEND_FROM_EMAIL` | Pick any address on the verified domain (e.g., `website@mail.jjpremiergroup.com`) |
+| `TEAM_NOTIFY_EMAIL` | The inboxes for new-lead notifications: one address or several, comma-separated (e.g., both agents' Coldwell Banker addresses) |
 
 ### Where these are consumed
 - `lib/email/index.ts` — Resend client + from-address resolution

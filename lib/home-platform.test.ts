@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { doNotTrackOn, homePlatformPixelId, pixelWouldCapture } from "./home-platform";
+import type { CrmLead } from "./crm";
+import { doNotTrackOn, homePlatformNote, homePlatformPixelId, pixelWouldCapture } from "./home-platform";
 
 describe("homePlatformPixelId", () => {
   it("loads the team's pixel in production only", () => {
@@ -34,5 +35,41 @@ describe("pixelWouldCapture", () => {
   it("reads Do Not Track the way the pixel does", () => {
     for (const v of [true, 1, "1", "yes", "1 "]) assert.equal(doNotTrackOn(v), true, String(v));
     for (const v of [false, 0, "0", "no", "unspecified", null, undefined]) assert.equal(doNotTrackOn(v), false, String(v));
+  });
+});
+
+describe("homePlatformNote", () => {
+  const lead = { firstName: "Pat", lastName: "Example", referral: null, test: false, source: { homePlatformPixel: true } };
+  const referral = { firstName: "Sam", lastName: "Moving" } as NonNullable<CrmLead["referral"]>;
+  const live = { pixelOnSite: true, crmDelivered: false };
+
+  it("says Home Platform should have the contact when the Pixel caught it, and asks for nothing", () => {
+    const note = homePlatformNote(lead, live);
+    assert.equal(note.addByHand, false);
+    assert.match(note.line, /should already have this contact/);
+    assert.match(note.line, /keeps only the name, email and phone/);
+  });
+  it("asks for the lead by hand when the Pixel didn't run", () => {
+    const note = homePlatformNote({ ...lead, source: { homePlatformPixel: false } }, live);
+    assert.equal(note.addByHand, true);
+    assert.match(note.line, /^Not in Home Platform/);
+  });
+  it("names the person who's moving on a referral, whom the Pixel never sends", () => {
+    const caught = homePlatformNote({ ...lead, referral }, live);
+    assert.equal(caught.addByHand, true);
+    assert.match(caught.line, /should have Pat Example .* but not Sam Moving/);
+    const missed = homePlatformNote({ ...lead, referral, source: { homePlatformPixel: false } }, live);
+    assert.equal(missed.addByHand, true);
+    assert.match(missed.line, /Add Sam Moving, who's moving, and Pat Example, who referred them/);
+  });
+  it("doesn't trust the flag on a deployment without the Pixel", () => {
+    const note = homePlatformNote(lead, { pixelOnSite: false, crmDelivered: false });
+    assert.equal(note.addByHand, true);
+    assert.match(note.line, /isn't on this deployment/);
+  });
+  it("leaves the rest to the webhook when it took the lead, and never asks about a test lead", () => {
+    assert.deepEqual(homePlatformNote({ ...lead, source: { homePlatformPixel: false } }, { pixelOnSite: true, crmDelivered: true }), { line: "", addByHand: false });
+    assert.equal(homePlatformNote(lead, { pixelOnSite: true, crmDelivered: true }).addByHand, false);
+    assert.equal(homePlatformNote({ ...lead, test: true, source: { homePlatformPixel: false } }, live).addByHand, false);
   });
 });

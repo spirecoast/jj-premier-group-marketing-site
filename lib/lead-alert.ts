@@ -1,6 +1,8 @@
 import "server-only";
 import type { CrmFailure, CrmLead } from "@/lib/crm";
 import { escapeHtml, sendEmail } from "@/lib/email";
+import { emailList } from "@/lib/email/recipients";
+import { homePlatformNote, homePlatformPixelId } from "@/lib/home-platform";
 import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION } from "@/lib/leads";
 
 /**
@@ -8,14 +10,17 @@ import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION } from "@/lib/leads"
  * never to the visitor (the site does not email visitors; replies go out from
  * the agents' own Coldwell Banker mailboxes through Zapier):
  *
- *  1. notifyTeamOfLead — every lead, with the full payload, to TEAM_NOTIFY_EMAIL.
- *     This is the safety net when the CRM path is down.
+ *  1. notifyTeamOfLead — every lead, with the full payload, to TEAM_NOTIFY_EMAIL
+ *     (one address or several, comma-separated). Home Platform's pixel gives the
+ *     CRM only the name, email and phone, so this is where the message, timing,
+ *     address and consent are; it says whether Home Platform should already
+ *     have the contact, and the subject ends "add to Home Platform" when not.
  *  2. alertLeadDelivery — an error-level alert when the CRM path failed, to
  *     LEAD_ALERT_EMAIL (falling back to TEAM_NOTIFY_EMAIL).
  */
 
-function alertRecipient(): string | undefined {
-  return process.env.LEAD_ALERT_EMAIL || process.env.TEAM_NOTIFY_EMAIL;
+function alertRecipients(): string[] {
+  return emailList(process.env.LEAD_ALERT_EMAIL || process.env.TEAM_NOTIFY_EMAIL);
 }
 
 /** For subjects and the table: never the email address, which would end up in log lines. */
@@ -78,16 +83,19 @@ export async function notifyTeamOfLead(
   lead: CrmLead,
   context: { leadId?: string | null; crmDelivered: boolean; crmProvider: string },
 ): Promise<{ ok: boolean; id?: string; error?: string; skipped?: boolean }> {
-  const to = process.env.TEAM_NOTIFY_EMAIL;
-  if (!to) return { ok: false, skipped: true, error: "TEAM_NOTIFY_EMAIL not set" };
-  const status = context.crmDelivered
+  const to = emailList(process.env.TEAM_NOTIFY_EMAIL);
+  if (!to.length) return { ok: false, skipped: true, error: "TEAM_NOTIFY_EMAIL not set" };
+  // With no webhook, Home Platform's pixel is the CRM path, and the note says what it has.
+  const crmLine = context.crmDelivered
     ? `Also sent to the CRM (${context.crmProvider}).`
     : context.crmProvider === "none"
-      ? "No CRM is configured on this deployment; this email and the database are the record."
+      ? ""
       : `The CRM (${context.crmProvider}) did NOT accept it; see the alert. Enter it by hand.`;
+  const homePlatform = homePlatformNote(lead, { pixelOnSite: homePlatformPixelId() !== null, crmDelivered: context.crmDelivered });
+  const status = [crmLine, homePlatform.line].filter(Boolean).join(" ");
   const res = await sendEmail({
     to,
-    subject: `${lead.test ? "TEST · " : ""}New lead · ${lead.form} · ${fullName(lead)}`,
+    subject: `${lead.test ? "TEST · " : ""}New lead · ${lead.form} · ${fullName(lead)}${homePlatform.addByHand ? " · add to Home Platform" : ""}`,
     html: `<p style="font-family:Helvetica,Arial,sans-serif;font-size:14px">New website lead. ${escapeHtml(status)}${context.leadId ? ` Database id ${escapeHtml(context.leadId)}.` : ""}</p>${leadHtml(lead)}`,
     replyTo: lead.email,
   });
@@ -111,8 +119,8 @@ export async function alertLeadDelivery(
   context: { provider: string; detail?: string; leadId?: string | null; mirrored: boolean; notified: boolean },
 ): Promise<void> {
   console.error(`[lead-alert] ${reason}`, { form: lead.form, leadId: context.leadId, provider: context.provider, detail: context.detail });
-  const to = alertRecipient();
-  if (!to) return;
+  const to = alertRecipients();
+  if (!to.length) return;
   const kept = [
     context.mirrored ? `saved in the database${context.leadId ? ` (id ${context.leadId})` : ""}` : null,
     context.notified ? "in the team notification email" : null,

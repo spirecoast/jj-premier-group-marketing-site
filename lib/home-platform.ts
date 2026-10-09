@@ -29,6 +29,8 @@
  * into Home Platform can skip the ones the pixel already delivered.
  */
 
+import type { CrmLead } from "@/lib/crm";
+
 export const HOME_PLATFORM_ORIGIN = "https://www.homeplatform.com";
 export const HOME_PLATFORM_PIXEL_SRC = `${HOME_PLATFORM_ORIGIN}/cxlp/a.min.js`;
 /** The id the pixel looks for; it reads `data-client-id` from this element. */
@@ -83,6 +85,44 @@ export function doNotTrackOn(dnt: unknown): boolean {
 export function pixelWouldCapture(s: PixelSignals): boolean {
   if (!s.tag || Boolean(s.gpc) || doNotTrackOn(s.dnt) || !s.webCrypto) return false;
   return new RegExp(`(?:^|;\\s*)${HOME_PLATFORM_PIXEL_COOKIE}=[^;]+`).test(s.cookie);
+}
+
+type NoteLead = Pick<CrmLead, "firstName" | "lastName" | "referral" | "test"> & { source: Pick<CrmLead["source"], "homePlatformPixel"> };
+
+/**
+ * What Home Platform has of a lead, for the team email (lib/lead-alert.ts): a
+ * sentence, and whether someone has to add the lead by hand. A lead from the
+ * pixel arrives as a contact with name, email and phone, source "Pixel", in the
+ * Leads group with status New, assigned to the account's owner, and its
+ * activity shows "Submitted form on <page title>" and the pages they read
+ * (checked with three test enquiries on 2026-10-09). The message, timing,
+ * address and the boxes they ticked aren't kept, so the email carries them.
+ */
+export function homePlatformNote(lead: NoteLead, opts: { pixelOnSite: boolean; crmDelivered: boolean }): { line: string; addByHand: boolean } {
+  const name = (first: string, last: string | null) => [first, last].filter(Boolean).join(" ").trim();
+  const sender = name(lead.firstName, lead.lastName) || "the sender";
+  const moving = lead.referral ? name(lead.referral.firstName, lead.referral.lastName) : null;
+  const caught = opts.pixelOnSite && lead.source.homePlatformPixel;
+  if (lead.test) return { line: "A test lead, so not one for Home Platform.", addByHand: false };
+  if (opts.crmDelivered) {
+    // The webhook path made the contact Home Platform needs; say only what the pixel added.
+    return { line: caught ? `Home Platform should also have ${moving ? sender : "this contact"} from its Pixel lead flow.` : "", addByHand: false };
+  }
+  if (!opts.pixelOnSite) {
+    return { line: "Home Platform's Pixel isn't on this deployment, so Home Platform doesn't have this one. Add it by hand if it's a real enquiry.", addByHand: true };
+  }
+  if (caught && !moving) {
+    return { line: "Home Platform should already have this contact from its Pixel lead flow. It keeps only the name, email and phone, so the rest of the form is below.", addByHand: false };
+  }
+  if (caught && moving) {
+    return { line: `Home Platform should have ${sender} from its Pixel lead flow, but not ${moving}, the person who's moving. Add ${moving} by hand.`, addByHand: true };
+  }
+  return {
+    line: moving
+      ? `Not in Home Platform: the Pixel didn't run in ${sender}'s browser. Add ${moving}, who's moving, and ${sender}, who referred them, by hand.`
+      : "Not in Home Platform: the Pixel didn't run in their browser. Add them by hand.",
+    addByHand: true,
+  };
 }
 
 /** Read the signals in the browser; false on the server. */

@@ -479,7 +479,7 @@ Resend (docs/LAUNCH.md 1.4).
 | `NEWSLETTER_REPLY_TO` | yes, optional | `joelyn.nauman@cbrealty.com` | Where a subscriber's reply goes, and the `mailto:` in `List-Unsubscribe`. Unset = replies go to the From address, which nobody reads; set it. |
 | `NEWSLETTER_DAILY_CAP` | yes, optional | `100` | Subscriber emails a UTC day, all kinds together. Default 100, Resend's free daily limit. On a paid plan, its daily limit. The team email isn't counted, so on the free plan leave a little room (the team gets a few a week). |
 | `CRON_SECRET` | existing | | The Bearer token Vercel Cron sends. Unset = neither the hand-off nor the sends can run. |
-| `TEAM_NOTIFY_EMAIL` | existing | | Where the finished issue goes, with the hold and send links. Unset = no team email, so no way to hold an issue: set it. |
+| `TEAM_NOTIFY_EMAIL` | existing | | Where the finished issue goes, with the hold and send links: one address or several, comma-separated. Unset = no team email, so no way to hold an issue: set it. |
 | `RESEND_FROM_EMAIL` | existing | | The From of the team email (the Resend SDK in `lib/email`). |
 | `ISSUE_PREVIEW_SECRET` | | `openssl rand -hex 24` | The `?secret=` for the browser previews. Unset = no preview (404). Sensitive. |
 | `ISSUE_WEBHOOK_URL` | | | A Zapier Catch Hook that receives each issue. Unset = team email only. Sensitive. |
