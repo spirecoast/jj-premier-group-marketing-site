@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
+import { HomePlatformPixelFlag } from "@/components/home-platform-fields";
 import { readChannel, readUtm } from "@/components/utm-tracker";
 import { initialLeadState, type LeadFormState } from "@/lib/leads";
 import { SIGNUP_COPY } from "@/lib/newsletter/copy";
@@ -77,6 +78,7 @@ export function LetterForm({
   return (
     <form action={action} noValidate className={cn("flex w-full min-w-0 max-w-[520px] flex-col gap-2", className)}>
       <input type="hidden" name="form" value={form} />
+      <HomePlatformPixelFlag />
       {channel ? <input type="hidden" name="source" value={channel} /> : null}
       {Object.entries(utm).map(([k, v]) => (
         <input key={k} type="hidden" name={`utm__${k}`} value={v} />

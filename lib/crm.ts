@@ -62,6 +62,13 @@ export type LeadSource = {
   firstTouchReferrer: string | null;
   /** When the first touch was recorded. */
   firstTouchAt: string | null;
+  /**
+   * True when Home Platform's lead pixel was running on the page, so the form
+   * already reached the CRM from the browser (lib/home-platform.ts). A
+   * server-side path into Home Platform skips these, except referrals: the
+   * pixel sends the referrer, not the person who is moving.
+   */
+  homePlatformPixel: boolean;
 };
 
 export type LeadProperty = {

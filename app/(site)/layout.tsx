@@ -1,6 +1,7 @@
 import { VisualEditing } from "next-sanity/visual-editing";
 import { draftMode } from "next/headers";
 import { Analytics } from "@/components/analytics";
+import { HomePlatformPixel } from "@/components/home-platform-pixel";
 import { JsonLd } from "@/components/json-ld";
 import { MobileActionBar } from "@/components/mobile-action-bar";
 import { PageTransition } from "@/components/page-transition";
@@ -46,6 +47,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <SiteFooter settings={settings} team={team} />
       <MobileActionBar phoneE164={settings.primaryPhoneE164} />
       <Analytics />
+      <HomePlatformPixel />
       <JsonLd data={organizationJsonLd(settings, team)} />
       {isDraft ? (
         <>

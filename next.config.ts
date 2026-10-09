@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
+import { HOME_PLATFORM_ORIGIN, homePlatformPixelId } from "./lib/home-platform";
 
 /*
  * Security headers. Everything below is derived from the same env vars the
@@ -38,6 +39,9 @@ const SUPABASE_HOST = (() => {
   }
 })() || "dnftoqwqzoekgfeoxest.supabase.co";
 
+/** Home Platform's lead pixel (lib/home-platform.ts): its script and the /cxlp/ calls it makes, when this build loads it. */
+const HOME_PLATFORM = homePlatformPixelId() ? [HOME_PLATFORM_ORIGIN] : [];
+
 /** Vercel injects its preview toolbar on preview deployments only. */
 const VERCEL_PREVIEW = process.env.VERCEL_ENV === "preview" ? ["https://vercel.live"] : [];
 
@@ -57,11 +61,11 @@ function basePolicy(): Directives {
     "object-src": ["'none'"],
     // The Studio's Presentation tool frames site pages from /studio, same origin.
     "frame-ancestors": ["'self'"],
-    "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), PLAUSIBLE_HOST, ...VERCEL_PREVIEW],
+    "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), PLAUSIBLE_HOST, ...HOME_PLATFORM, ...VERCEL_PREVIEW],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io", `https://${SUPABASE_HOST}`],
     "font-src": ["'self'", "data:"],
-    "connect-src": ["'self'", PLAUSIBLE_HOST, ...MAP_HOSTS, ...SANITY_API, ...VERCEL_PREVIEW],
+    "connect-src": ["'self'", PLAUSIBLE_HOST, ...MAP_HOSTS, ...SANITY_API, ...HOME_PLATFORM, ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
     // www.google.com: the keyless Google Maps embed on /contact (lib/map-embed.ts).
     "frame-src": ["'self'", "https://www.google.com", ...VERCEL_PREVIEW],

@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 });
 
-const UPDATED = "October 4, 2026";
+const UPDATED = "October 9, 2026";
 
 /** Named from the same switch the explorer uses, so the page is true under either configuration. */
 // MapTiler when a key is set, with OpenFreeMap as the fallback (components/map-runtime.ts); OpenFreeMap alone otherwise.
@@ -38,10 +38,13 @@ export default async function PrivacyPage() {
           <strong>What your browser sends.</strong> Like most websites, our hosting provider, Vercel, records the pages you visit, the time, your IP address, the browser you use and the page that referred you. When you first arrive we store, in your browser for up to 90 days, the page you landed on, the site or social profile that sent you and any campaign tags in the link; they travel with any form you send.
         </p>
         <p>
+          <strong>Our customer relationship system.</strong> We work on every enquiry in Home Platform, the system Compass runs for {settings.brokerageName}. Its script runs on the pages of this site. It gives your browser a random ID, kept in a cookie and in your browser’s storage, and records the pages you read here. Once you’ve entered an email address or phone number in one of our forms, it sends what you’ve typed in that form to Home Platform, even if you don’t press send. It leaves out passwords, payment details and hidden fields. It doesn’t run if your browser sends a Global Privacy Control or Do Not Track signal; your form then comes to us from this site in the usual way.
+        </p>
+        <p>
           <strong>Maps.</strong> The Atlas neighborhood explorer draws its map from tiles served by {MAP_PROVIDER_NAME}. Your browser fetches those tiles directly, so {MAP_PROVIDER_NAME} sees your IP address in the same way any website you visit does. It does not receive your name or anything you type here.
         </p>
         <p>
-          <strong>Analytics.</strong> We use Plausible to count which pages are read. Plausible is designed to work without cookies or stored IP addresses, which is why we do not show a consent banner. Forms are not sent to Plausible; they are sent to us directly by this site.
+          <strong>Analytics.</strong> We use Plausible to count which pages are read. Plausible is designed to work without cookies or stored IP addresses. Forms are not sent to Plausible.
         </p>
 
         <h2>How we use it</h2>
@@ -56,7 +59,7 @@ export default async function PrivacyPage() {
 
         <h2>Who sees it</h2>
         <p>
-          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; the customer relationship system our brokerage provides, where we work on each enquiry, delivered to it through Zapier or a direct connection; Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
+          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; Home Platform, the customer relationship system Compass runs for our brokerage, where we work on each enquiry (it receives your form from its script on this site, or from this site directly); Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
         </p>
 
         <h2>How long we keep it</h2>
@@ -69,6 +72,7 @@ export default async function PrivacyPage() {
           <li>Every Tide and Encore email has unsubscribe links at the bottom: one stops that newsletter, the other stops all email from us. Each opens a page where one click does it. Mail apps that show an Unsubscribe button next to the sender, such as Gmail and Apple Mail, stop that newsletter with one click too. You can also reply ‘stop’ to any of them, or email either of us at the addresses below, and we will take you off the list.</li>
           <li>Reply STOP to any text message to stop receiving them.</li>
           <li>To see, correct or delete the personal information we hold about you, email either of us at the addresses below. We will confirm when it is done.</li>
+          <li>Turn on Global Privacy Control or Do Not Track in your browser and the Home Platform script stays off; your forms still reach us.</li>
           <li>Your browser lets you refuse cookies; the site works without them.</li>
         </ul>
 

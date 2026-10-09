@@ -182,6 +182,7 @@ export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmL
       landingPath: nul(utm.landing_path),
       firstTouchReferrer: nul(utm.referrer),
       firstTouchAt: nul(utm.captured_at),
+      homePlatformPixel: Boolean(data.homePlatformPixel),
     },
     submittedAt: now.toISOString(),
     tags,
