@@ -12,6 +12,8 @@ export type TideCard = {
   issueLabel?: string;
   cover?: ImageRef;
   headline?: string;
+  coverTitle?: string;
+  coverKicker?: string;
 };
 
 /** One past issue on /tide: its cover, then the month and what it covered. */

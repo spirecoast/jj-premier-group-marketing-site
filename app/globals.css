@@ -83,6 +83,15 @@
   --color-body: #3a3d42; /* running text */
   --color-body-muted: #4e5157; /* secondary running text */
   --color-amber: #7a5a1c; /* numbered section eyebrows. The revised mockup's value; 5.9:1 on Paper at 11px, passes AA. */
+  /* The three data products (Figma: "JJ Premier Group · Atlas, Encore, Tide"). */
+  --color-tide: #89d4e3;
+  --color-tide-deep: #142530;
+  --color-atlas: #5fc9a8;
+  --color-atlas-ink: #1f7a64;
+  --color-atlas-deep: #10302f;
+  --color-encore: #e9c46a;
+  --color-encore-ink: #96702a;
+  --color-encore-deep: #2a1a22;
   --color-coral: #e0735a; /* The one saturated accent, added for the guides' figures (wave 3): the highlighted mark, the base flood line. Never for text. */
   --color-nav-muted: #a8c4d4;
   --color-nav-link: #b4cbd8;
@@ -1082,7 +1091,7 @@
 @layer components {
   .explorer {
     position: relative;
-    height: calc(100dvh - var(--header-h));
+    height: calc(100dvh - var(--header-h) - var(--product-bar-h, 0px));
     min-height: 560px;
     overflow: hidden;
     background: #f7f3ec;
@@ -2774,4 +2783,161 @@ body:not(:has([data-header-overlay])) .header-overlay,
     .product-menu[data-open="true"],
     .product-menu-item::before { transition: none; }
   }
+}
+
+/* ---- The data products: Tide's cover wash, the product bar, the masthead motifs. */
+.tide-card-wash {
+  background: linear-gradient(180deg, rgb(13 27 36 / 0.88) 0%, rgb(13 27 36 / 0.18) 42%, rgb(13 27 36 / 0.35) 62%, rgb(13 27 36 / 0.94) 100%);
+}
+html:has([data-product-bar]) {
+  --product-bar-h: 3.25rem;
+}
+@layer components {
+  .product-bar {
+    height: var(--product-bar-h, 3.25rem);
+    color: var(--color-linen-200);
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .product-bar[data-family="tide"] { background: var(--color-tide-deep); --accent: var(--color-tide); }
+  .product-bar[data-family="atlas"] { background: var(--color-atlas-deep); --accent: var(--color-atlas); }
+  .product-bar[data-family="encore"] { background: var(--color-encore-deep); --accent: var(--color-encore); }
+  .product-bar-tabs {
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+  }
+  .product-bar-tabs::-webkit-scrollbar { display: none; }
+  .product-tab {
+    position: relative;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgb(230 221 209 / 0.72);
+    transition: color 0.2s ease;
+  }
+  .product-tab:hover { color: #fff; }
+  .product-tab[aria-current="page"] { color: #fff; }
+  .product-tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s var(--ease-reveal);
+  }
+  .product-tab[aria-current="page"]::after,
+  .product-tab:hover::after { transform: scaleX(1); }
+
+  /* Masthead motifs. */
+  .masthead-tint-atlas { background: linear-gradient(90deg, rgb(16 48 47 / 0.82) 0%, rgb(16 48 47 / 0.4) 55%, rgb(16 48 47 / 0.08) 100%); }
+  .masthead-tint-encore { background: linear-gradient(90deg, rgb(42 26 34 / 0.78) 0%, rgb(42 26 34 / 0.38) 55%, rgb(42 26 34 / 0.12) 100%); }
+  .masthead-tint-tide { background: linear-gradient(90deg, rgb(20 37 48 / 0.72) 0%, rgb(20 37 48 / 0.3) 55%, transparent 100%); }
+  .motif { position: absolute; pointer-events: none; }
+  .motif-atlas { inset: 0; width: 100%; height: 100%; }
+  .motif-tide { left: 0; right: 0; bottom: 3%; width: 100%; height: 11%; }
+  .motif-encore { inset: 7% var(--gutter) 0; }
+  .motif-arch {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid rgb(233 196 106 / 0.85);
+    border-bottom: 0;
+    border-radius: 50% 50% 0 0 / 3.5rem 3.5rem 0 0;
+  }
+  .motif-arch-inner {
+    inset: 0.9rem 0.9rem 0;
+    border-width: 1px;
+    border-color: rgb(233 196 106 / 0.35);
+    border-radius: 50% 50% 0 0 / 3rem 3rem 0 0;
+  }
+  .motif-lights {
+    position: absolute;
+    left: 2.5%;
+    right: 2.5%;
+    bottom: 5%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .motif-lights i {
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: var(--color-encore);
+    opacity: 0.95;
+  }
+  .motif-lights i:nth-child(even) { opacity: 0.45; }
+  @media (prefers-reduced-motion: no-preference) {
+    .motif-atlas path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: motif-draw 2.4s var(--ease-reveal) forwards;
+      animation-delay: calc(var(--i) * 70ms + 200ms);
+    }
+    .motif-arch {
+      clip-path: inset(100% 0 0 0);
+      animation: motif-rise 1.8s var(--ease-reveal) 0.15s forwards;
+    }
+    .motif-lights i {
+      opacity: 0;
+      animation: motif-light 0.6s ease forwards;
+      animation-delay: calc(var(--i) * 45ms + 900ms);
+    }
+    .motif-tide { animation: motif-swell 14s ease-in-out infinite alternate; }
+  }
+  @keyframes motif-draw { to { stroke-dashoffset: 0; } }
+  @keyframes motif-rise { to { clip-path: inset(0 0 0 0); } }
+  @keyframes motif-light { to { opacity: var(--o, 0.95); } }
+  .motif-lights i:nth-child(even) { --o: 0.45; }
+  @keyframes motif-swell { from { transform: translateX(-1.5%); } to { transform: translateX(1.5%); } }
+}
+
+/* ---- Atlas: the explorer's nameplate and its survey frame. */
+@layer components {
+  .atlas-plate {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    background:
+      radial-gradient(120% 140% at 100% 0%, rgb(95 201 168 / 0.16), transparent 60%),
+      var(--color-atlas-deep);
+    overflow: hidden;
+  }
+  .explorer.is-mobile .atlas-plate { display: none; }
+  .atlas-frame {
+    position: absolute;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .atlas-frame-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background:
+      repeating-linear-gradient(90deg, var(--color-atlas-ink) 0 1px, transparent 1px 80px) top / 100% 10px no-repeat,
+      repeating-linear-gradient(90deg, var(--color-atlas-ink) 0 1px, transparent 1px 16px) top / 100% 5px no-repeat;
+    border-top: 2px solid var(--color-atlas-deep);
+  }
+  .atlas-frame-right {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 10px;
+    background:
+      repeating-linear-gradient(180deg, var(--color-atlas-ink) 0 1px, transparent 1px 80px) right / 10px 100% no-repeat,
+      repeating-linear-gradient(180deg, var(--color-atlas-ink) 0 1px, transparent 1px 16px) right / 5px 100% no-repeat;
+    border-right: 2px solid var(--color-atlas-deep);
+  }
+  .explorer.is-mobile .atlas-frame { display: none; }
 }

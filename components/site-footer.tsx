@@ -4,6 +4,7 @@ import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon }
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } from "@/lib/site";
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
+import { FamilyMark } from "./brand/marks";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
@@ -23,11 +24,14 @@ function hubGoalClasses(href: string): string | undefined {
   return `plausible-event-name=Explore plausible-event-action=hub plausible-event-where=footer plausible-event-hub=${href.slice(1)}`;
 }
 
-function Column({ title, links, note }: { title: string; links: readonly { href: string; label: string }[]; note?: string }) {
+function Column({ title, links, note, mark }: { title: string; links: readonly { href: string; label: string }[]; note?: string; mark?: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-4">
       <h2 className="flex flex-col gap-1.5">
-        <span className="font-display text-[19px] font-light leading-none text-navy">{title}</span>
+        <span className="flex items-center gap-2 font-display text-[19px] font-light leading-none text-navy">
+          {title}
+          {mark}
+        </span>
         {note ? <span className="text-[12px] text-linen-700">{note}</span> : null}
       </h2>
       <ul className="flex flex-col gap-2.5 text-[14px]">
@@ -143,7 +147,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
             {/* The three data products, each with everything built on it. */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-rule pt-10 sm:grid-cols-4">
               {productFamilies.map((f) => (
-                <Column key={f.key} title={f.name} note={f.title} links={f.items} />
+                <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<FamilyMark family={f.key} className="mt-0.5" />} />
               ))}
               <Column title="All tools" note="Free, no sign-up" links={[{ href: "/tools", label: "See all eight" }]} />
             </div>

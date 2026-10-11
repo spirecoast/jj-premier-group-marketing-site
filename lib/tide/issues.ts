@@ -12,7 +12,10 @@
  * from the figures the page computes (docs/ISSUES.md, "Writing the narrative").
  * Every field is optional: the page and the email show what's written and
  * fall back to computed figures and fixed lines for the rest.
- * - `headline`: one sentence, the month's story, set big on the cover;
+ * - `coverTitle`: the cover line, two to six words set as large as the cover
+ *   allows, the way a magazine sells an issue; plain and true, never a pun;
+ * - `coverKicker`: one sentence under the cover line, with the figure behind it;
+ * - `headline`: one sentence, the month's story, set big on the issue page;
  * - `dek`: one or two sentences under it;
  * - `opening`: the story, three to five paragraphs of two to five sentences,
  *   told as something a person can picture;
@@ -53,6 +56,8 @@ export type TideCommentary = { joelyn?: string[]; jessica?: string[] };
 export type TideIssueEntry = {
   issue: string;
   data?: string;
+  coverTitle?: string;
+  coverKicker?: string;
   headline?: string;
   dek?: string;
   opening?: string[];
@@ -78,6 +83,8 @@ export const TIDE_ISSUES: readonly TideIssueEntry[] = [
   {
     issue: "2026-10",
     data: "2026-07",
+    coverTitle: "One coast, three markets",
+    coverKicker: "A square foot cost 7% more in Sarasota than a year ago, about the same in Lakewood Ranch and 2% less in Bradenton.",
     headline: "July was busier than usual, and a square foot still cost about what it usually does.",
     dek: "Across Lakewood Ranch, Sarasota and Bradenton, 1,646 homes sold, 9% more than a typical month and 16% more than July 2025. Medians rose because of which homes sold, not because the same home cost more.",
     opening: [
@@ -157,7 +164,7 @@ export function getIssueEntry(issue: string): TideIssueEntry | undefined {
 export const isIssueMonth = (s: string) => /^\d{4}-(0[1-9]|1[0-2])$/.test(s);
 
 /** The narrative fields, in the order they appear. */
-export const NARRATIVE_FIELDS = ["headline", "dek", "opening", "markets", "marketMoves", "buying", "selling", "buyers", "sellers", "watch"] as const;
+export const NARRATIVE_FIELDS = ["coverTitle", "coverKicker", "headline", "dek", "opening", "markets", "marketMoves", "buying", "selling", "buyers", "sellers", "watch"] as const;
 export type NarrativeField = (typeof NARRATIVE_FIELDS)[number];
 
 /**
@@ -170,6 +177,8 @@ export function narrativeTexts(e: Partial<Pick<TideIssueEntry, NarrativeField>>)
   const add = (field: string, text: string | undefined) => {
     if (text && text.trim()) out.push({ field, text });
   };
+  add("coverTitle", e.coverTitle);
+  add("coverKicker", e.coverKicker);
   add("headline", e.headline);
   add("dek", e.dek);
   (e.opening ?? []).forEach((t, i) => add(`opening[${i}]`, t));

@@ -174,6 +174,9 @@ export type IssueModel = {
   narrative: Narrative | null;
   /** The plain line the page opens with while there's no narrative. */
   framing: string;
+  /** The cover line and the sentence under it, when written; the cover falls back to the headline. */
+  coverTitle: string | null;
+  coverKicker: string | null;
   /** The cover's headline and dek: the written ones, or computed lines until they're written. */
   headline: string;
   dek: string;
@@ -565,6 +568,8 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     combined,
     cover: tideCover(entry.issue),
     minutes,
+    coverTitle: entry.coverTitle?.trim() || null,
+    coverKicker: entry.coverKicker?.trim() || null,
     headline,
     dek,
     coverLine: fill(W.coverLine, { data: dataLabel, minutes: String(minutes) }),
@@ -595,7 +600,7 @@ export function buildIssueModel(input: IssueInput): IssueModel {
 }
 
 /** The archive card: computed from the model, so the card and the page agree. */
-export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel" | "dataLabel"> & Partial<Pick<IssueModel, "cover" | "headline" | "dek">>) {
+export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel" | "dataLabel"> & Partial<Pick<IssueModel, "cover" | "headline" | "dek" | "coverTitle" | "coverKicker">>) {
   return {
     href: `/tide/${m.issue}`,
     eyebrow: W.cardEyebrow,
@@ -605,6 +610,8 @@ export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel" | "dataLabe
     data: fill(W.cardData, { data: m.dataLabel }),
     cover: m.cover,
     headline: m.headline,
+    ...(m.coverTitle ? { coverTitle: m.coverTitle } : {}),
+    ...(m.coverKicker ? { coverKicker: m.coverKicker } : {}),
   };
 }
 

@@ -1,90 +1,70 @@
+import { TideWordmark } from "@/components/brand/marks";
 import { Photo } from "@/components/photo";
 import { img } from "@/lib/content/seed/helpers";
 import type { ImageRef } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 
+export { TideWordmark };
+
 const FALLBACK = img("library/gulf-beach-aerial", "The Gulf shore from above");
-
-/** Sky 300, the brand's water colour. */
-const SKY = "#89d4e3";
-
-/** One swell across the 300-wide box, crest to crest every 150. */
-const WAVE = "M0 80 C 25 72, 50 72, 75 80 S 125 88, 150 80 S 200 72, 225 80 S 275 88, 300 80";
-
-/**
- * The Tide lockup: the word in the display serif, stretched to the width it's
- * given, with a waterline through it. Below the line the letters turn to the
- * sky colour, and two fainter swells run under them.
- */
-export function TideWordmark({ id, className }: { id: string; className?: string }) {
-  const text = (fill: string) => (
-    <text
-      x="150"
-      y="104"
-      textAnchor="middle"
-      fontSize="132"
-      textLength="292"
-      lengthAdjust="spacingAndGlyphs"
-      fill={fill}
-      style={{ fontFamily: "var(--font-display)", fontWeight: 300, letterSpacing: "-0.01em" }}
-    >
-      Tide
-    </text>
-  );
-  return (
-    <svg viewBox="0 0 300 124" className={className} role="img" aria-label="Tide">
-      <defs>
-        <clipPath id={`${id}-water`}>
-          <path d={`${WAVE} L300 124 L0 124 Z`} />
-        </clipPath>
-      </defs>
-      {text("currentColor")}
-      <g clipPath={`url(#${id}-water)`}>{text(SKY)}</g>
-      <path d={WAVE} fill="none" stroke={SKY} strokeWidth="1.4" />
-      <path d={WAVE} transform="translate(0 13)" fill="none" stroke={SKY} strokeOpacity="0.45" strokeWidth="1" />
-      <path d={WAVE} transform="translate(0 24)" fill="none" stroke={SKY} strokeOpacity="0.22" strokeWidth="1" />
-    </svg>
-  );
-}
 
 export type TideCoverCard = {
   issue?: string;
   issueLabel?: string;
   headline?: string;
+  /** The cover line and the sentence under it (lib/tide/issues.ts); without them the headline goes on the cover. */
+  coverTitle?: string;
+  coverKicker?: string;
   cover?: ImageRef;
 };
 
 /**
- * An issue's cover, built from the issue itself so every month gets one: the
- * photograph under a navy wash, the team and the month on the top line, the
- * Tide lockup, the headline at the foot, and the brokerage and the three
- * places on the bottom line, the team's name never larger than the
- * brokerage's (FAC 61J2-10.026). Type is sized to the cover's width, so the
- * same cover works as a thumbnail and as the feature.
+ * An issue's cover, as designed in Figma (page "03 Tide cover"): the
+ * photograph under a navy wash; the team and the month on the top line; the
+ * Tide wordmark with "Monthly Market Report" under it; and at the foot the
+ * cover line as large as it'll go, the sentence that backs it, and the three
+ * places. Type is sized to the cover's width, so the same cover works as a
+ * thumbnail and as the feature; the kicker shows once the cover is wide
+ * enough to read it.
  */
 export function TideCover({ card, priority, sizes, className }: { card: TideCoverCard; priority?: boolean; sizes: string; className?: string }) {
+  const line = card.coverTitle ?? card.headline;
+  const big = Boolean(card.coverTitle);
   return (
-    <div className={cn("@container relative aspect-[4/5] overflow-hidden bg-navy text-white", className)}>
+    <div className={cn("@container relative aspect-[4/5] overflow-hidden bg-harbor-950 text-white", className)}>
       <Photo image={card.cover ?? FALLBACK} priority={priority} sizes={sizes} className="card-img" />
-      <div className="absolute inset-0 bg-linear-to-b from-harbor-950/90 via-harbor-950/20 to-harbor-950/90" aria-hidden="true" />
-      <div className="relative flex h-full flex-col justify-between p-[6.5cqw]">
-        <div className="flex flex-col gap-[2.5cqw]">
-          <div className="flex items-baseline justify-between gap-4 font-mono text-[2.5cqw] uppercase tracking-[0.18em] text-linen-100">
+      <div className="tide-card-wash absolute inset-0" aria-hidden="true" />
+      <div className="relative flex h-full flex-col justify-between px-[7cqw] pb-[6cqw] pt-[6.2cqw]">
+        <div className="flex flex-col">
+          <div className="flex items-baseline justify-between gap-4 font-sans text-[max(8.5px,1.9cqw)] font-medium uppercase tracking-[0.22em] text-linen-100">
             <span>JJ Premier Group</span>
             {card.issueLabel ? <span>{card.issueLabel}</span> : null}
           </div>
-          <span className="block h-px bg-white/35" aria-hidden="true" />
-          <TideWordmark id={`tw-${card.issue ?? "x"}`} className="-mt-[1cqw] w-full text-white" />
+          <span className="mt-[3cqw] block h-px bg-white/35" aria-hidden="true" />
+          <TideWordmark id={`tw-${card.issue ?? "x"}`} className="mt-[0.5cqw] w-full text-white" decorative />
+          <p className="-mt-[0.5cqw] font-display text-[4.4cqw] font-light italic leading-none text-linen-200">Monthly Market Report</p>
         </div>
-        <div className="flex flex-col gap-[3cqw]">
-          {card.headline ? (
-            <p className="max-w-[24ch] text-balance font-display text-[7.4cqw] font-light leading-[1.08] text-white text-shadow-photo">{card.headline}</p>
+        <div className="flex flex-col">
+          {line ? (
+            <>
+              <span className="mb-[3.4cqw] block h-[max(2px,0.38cqw)] w-[8cqw] bg-tide" aria-hidden="true" />
+              <p
+                className={cn(
+                  "text-balance font-display font-light text-white text-shadow-photo",
+                  big ? "text-[12.6cqw] leading-[0.96] tracking-[-0.02em]" : "max-w-[24ch] text-[7.4cqw] leading-[1.06]",
+                )}
+              >
+                {line}
+              </p>
+            </>
           ) : null}
-          <span className="block h-px bg-white/35" aria-hidden="true" />
-          <div className="flex items-baseline justify-between gap-4 font-mono text-[2.5cqw] uppercase tracking-[0.18em] text-linen-100">
-            <span className="whitespace-nowrap">Coldwell Banker Realty</span>
-            <span className="hidden text-right @[22rem]:inline">Monthly market report</span>
-          </div>
+          {card.coverKicker ? (
+            <p className="mt-[2.8cqw] hidden max-w-[78cqw] font-sans text-[2.7cqw] leading-[1.42] text-linen-100/95 @[26rem]:block">{card.coverKicker}</p>
+          ) : null}
+          <span className="mt-[4cqw] block h-px bg-white/35" aria-hidden="true" />
+          <p className="mt-[2.6cqw] font-sans text-[max(8px,1.75cqw)] font-medium uppercase tracking-[0.2em] text-linen-100/90">
+            Lakewood Ranch · Sarasota · Bradenton
+          </p>
         </div>
       </div>
     </div>

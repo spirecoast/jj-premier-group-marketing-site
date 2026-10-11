@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { ViewTransition, useEffect, useId, useRef } from "react";
+import { FamilyMark } from "@/components/brand/marks";
 import type { ProductFamily } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +90,10 @@ export function ProductMenu({ family, pathname, open, onOpen, onClose, solid, re
 
       <div id={id} className="product-menu" data-open={open ? "true" : undefined} hidden={!open && reducedMotion}>
         <div className="product-menu-panel">
-          <p className="px-5 pb-2 pt-4 text-[12px] tracking-[0.02em] text-linen-200/70">{family.title}</p>
+          <p className="flex items-center justify-between gap-3 px-5 pb-2 pt-4 text-[12px] tracking-[0.02em] text-linen-200/70">
+            {family.title}
+            <FamilyMark family={family.key} />
+          </p>
           <ul className="flex flex-col pb-2">
             {family.items.map((i) => {
               const here = pathname === i.href;
