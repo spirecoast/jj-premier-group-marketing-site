@@ -142,6 +142,7 @@ export const footerNav = {
     { href: "/relocate", label: "Atlas Move" },
     { href: "/sell/sold", label: "Tide Street" },
     { href: "/sell/net-proceeds", label: "Tide Sale Calculator" },
+    { href: "/tools", label: "All tools" },
   ],
   guides: [
     { href: "/guides/flood-zones-and-elevation-certificates-on-the-suncoast", label: "Flood zones" },
