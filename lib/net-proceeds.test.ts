@@ -188,13 +188,13 @@ describe("the sheet", () => {
     const by = Object.fromEntries(s.lines.map((l) => [l.key, l.amount]));
     assert.equal(by.docStamps, 4550);
     assert.equal(by.ownerPolicy, 3325);
-    assert.equal(by.taxProration, 3620); // 181 of 365 days
+    assert.equal(by.taxProration, 3475.2); // 181 of 365 days of $7,300 less the 4% discount
     assert.equal(by.estoppel, 299);
     assert.equal(by.duesCredit, 604.93); // 184 of 365 days
     assert.equal(s.payoffs, 300_000);
-    assert.equal(s.costs, 44_294);
+    assert.equal(s.costs, 44_149.2);
     assert.equal(s.credits, 604.93);
-    assert.equal(s.net, 306_310.93);
+    assert.equal(s.net, 306_455.73);
     assert.match(s.lines.find((l) => l.key === "taxProration")?.basis ?? "", /prorated 181 of 365 days/);
   });
   test("the estoppel line flags a fee above the cap", () => {
@@ -206,7 +206,7 @@ describe("the sheet", () => {
     const text = summaryText(s);
     assert.match(text, /Sarasota County · closing 2026-07-01/);
     assert.match(text, /- Documentary stamps on the deed  \$4,550/);
-    assert.match(text, /= Estimated net  \$341,830/);
+    assert.match(text, /= Estimated net  \$341,974\.80/); // the tax credit is on $7,300 less the 4% discount
     assert.match(text, /not a closing statement/);
     assert.match(text, new RegExp(CHECKED));
   });
@@ -247,5 +247,27 @@ describe("Fair Housing", () => {
       const r = checkFairHousing(s);
       assert.equal(r.passed, true, `flagged: ${s} ${JSON.stringify(r)}`);
     }
+  });
+});
+
+describe("the four lines added in the October 2026 audit", () => {
+  test("a bill already paid comes back for closing day through December 31", () => {
+    const s = computeSheet({ price: 500_000, county: "sarasota", closingDate: "2026-12-01", annualTax: 7300, taxPaid: true });
+    const line = s.lines.find((l) => l.key === "taxProration")!;
+    assert.equal(line.kind, "credit");
+    // $7,300 less 4% is $7,008; December 1 to 31 is 31 of 365 days.
+    assert.equal(line.amount, 595.2);
+  });
+  test("a November or December closing with the bill unpaid says how to flip it", () => {
+    const s = computeSheet({ price: 500_000, county: "sarasota", closingDate: "2026-11-20", annualTax: 7300 });
+    assert.ok(s.notes.some((n) => /already paid/.test(n)));
+  });
+  test("a foreign seller has 15% withheld for the IRS", () => {
+    const s = computeSheet({ price: 800_000, county: "manatee", foreignSeller: true });
+    assert.equal(s.lines.find((l) => l.key === "firpta")?.amount, 120_000);
+  });
+  test("other costs appear on the sheet", () => {
+    const s = computeSheet({ price: 400_000, county: "manatee", otherCosts: 650 });
+    assert.equal(s.lines.find((l) => l.key === "other")?.amount, 650);
   });
 });
