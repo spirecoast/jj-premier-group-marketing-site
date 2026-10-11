@@ -140,7 +140,7 @@ export const footerNav = {
     { href: "/calendar/plan", label: "Plan a visit" },
     { href: "/tide", label: "Tide market report" },
     { href: "/relocate", label: "Atlas Move" },
-    { href: "/sell/sold", label: "What sold on your street" },
+    { href: "/sell/sold", label: "Tide Street" },
     { href: "/sell/net-proceeds", label: "Net proceeds" },
   ],
   guides: [

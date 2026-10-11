@@ -5,7 +5,7 @@ import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { track } from "@/lib/analytics";
 import { SOLD_COPY as C } from "./copy";
-import { SalesTable, saleFlagged, titleCase, usd, type SaleRow as Row, type SalesSummary as Summary } from "./sales-table";
+import { SalesTable, fmtDate, saleFlagged, titleCase, usd, type SaleRow as Row, type SalesSummary as Summary } from "./sales-table";
 
 type Api =
   | {
@@ -132,7 +132,12 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
               {state.status === "loading" ? C.form.searching : C.form.submit}
               <span className="btn-dash" aria-hidden="true" />
             </button>
-            <p className="t-small text-graphite-500 sm:col-span-3">{C.form.hint}</p>
+            <p className="t-small text-graphite-500 sm:col-span-3">
+              {C.form.hint}{" "}
+              <a href="/sell/home-value" className="text-sky-700 underline underline-offset-4 hover:text-navy">
+                {C.homeValueLink}
+              </a>
+            </p>
           </form>
         ) : (
           <div className="flex flex-col gap-3 border border-hairline bg-white p-6 sm:p-8">
@@ -176,17 +181,24 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                     {data.match === "fuzzy" ? C.results.fuzzyMatch : C.results.partialMatch} {data.streets.map(titleCase).join(", ")}
                   </p>
                 ) : null}
-                <p className="t-lead max-w-measure text-navy">
-                  <span className="t-record">{C.summary.line(data.summary.count, months, data.streets.map(titleCase))}</span>
-                  {C.summary.split(data.summary.homes, data.summary.lots)}
-                  {data.summary.medianPricePerSqft ? C.summary.perSqft(usd.format(data.summary.medianPricePerSqft), data.summary.sqftSampleSize) : C.summary.noPerSqft}
-                </p>
+                <h2 className="t-h1 text-navy">{C.summary.heading(data.streets.map(titleCase))}</h2>
+                <dl className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-4">
+                  <Stat label={C.summary.sales} value={String(data.summary.count)} note={C.summary.salesNote(data.summary.homes, data.summary.lots, months)} />
+                  <Stat label={C.summary.medianPrice} value={data.summary.medianPrice ? usd.format(data.summary.medianPrice) : "—"} />
+                  <Stat
+                    label={C.summary.perSqft}
+                    value={data.summary.medianPricePerSqft ? usd.format(data.summary.medianPricePerSqft) : "—"}
+                    note={data.summary.medianPricePerSqft ? C.summary.perSqftNote(data.summary.sqftSampleSize) : C.summary.perSqftNone}
+                  />
+                  <Stat label={C.summary.range} value={data.summary.from && data.summary.to ? `${fmtDate(data.summary.from)} – ${fmtDate(data.summary.to)}` : "—"} small />
+                </dl>
               </div>
 
               <SalesTable rows={data.rows} />
 
               <div className="flex flex-col gap-2">
                 {data.truncated ? <p className="t-small text-graphite-500">{C.results.truncated(data.rows.length, data.total, Boolean(data.query.zip))}</p> : null}
+                {data.rows.some((r) => r.propertyUse === "vacant") ? <p className="t-small max-w-measure text-graphite-500">{C.results.newBuildNote}</p> : null}
                 {data.rows.some(saleFlagged) ? <p className="t-small max-w-measure text-graphite-500">† {C.results.rollChanged}</p> : null}
                 <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
                 <p className="t-small max-w-measure text-graphite-500">{C.results.note}</p>
@@ -217,5 +229,15 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
         </div>
       </section>
     </>
+  );
+}
+
+function Stat({ label, value, note, small }: { label: string; value: string; note?: string; small?: boolean }) {
+  return (
+    <div className="flex flex-col gap-1.5 bg-white p-5 sm:p-6">
+      <dt className="t-small text-graphite-500">{label}</dt>
+      <dd className={small ? "font-display text-[1.375rem] font-light leading-tight text-navy" : "font-display text-[2.25rem] font-light leading-none text-navy tabular-nums"}>{value}</dd>
+      {note ? <dd className="t-small text-graphite-500">{note}</dd> : null}
+    </div>
   );
 }
