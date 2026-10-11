@@ -111,7 +111,7 @@ export type NavItem = {
  * there are live listings to search.
  */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/buy", label: "Buy", sub: "Homes for sale", secondary: { href: "/relocate", label: "Moving here from somewhere else?" } },
+  { href: "/buy", label: "Buy", sub: "Homes for sale", secondary: { href: "/relocate", label: "Plan your move with Atlas Move" } },
   { href: "/sell", label: "Sell", sub: "Your home" },
   { href: "/about", label: "Joelyn & Jessica", sub: "Meet the team" },
   { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods", product: true },
@@ -139,7 +139,7 @@ export const footerNav = {
     { href: "/calendar", label: "Encore arts calendar" },
     { href: "/calendar/plan", label: "Plan a visit" },
     { href: "/tide", label: "Tide market report" },
-    { href: "/relocate", label: "Relocation planner" },
+    { href: "/relocate", label: "Atlas Move" },
     { href: "/sell/sold", label: "What sold on your street" },
     { href: "/sell/net-proceeds", label: "Net proceeds" },
   ],

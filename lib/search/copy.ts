@@ -87,10 +87,9 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   },
   {
     url: "/relocate",
-    title: "Moving to the Suncoast",
+    title: "Atlas Move, the moving planner",
     summary: [
-      "The relocation planner: six questions, no email, and you get a dated plan with the Florida contract deadlines, the week insurance has to be bound, the homestead cycle your move-in falls in, and the days the state gives a new resident. Every rule comes with its source.",
-      "For buyers coming from a few states away: video walk-throughs, a written update after every step, and closing without flying down when the title company and lender accept online notarization.",
+      "Atlas Move plans a move to Lakewood Ranch, Sarasota or Bradenton: answer five questions and get every date and deadline on one page, from the Florida contract dates and when insurance has to be in place to homestead and the state's deadlines for a new resident. Add it to your calendar, print it or share the link.",
     ],
   },
   {

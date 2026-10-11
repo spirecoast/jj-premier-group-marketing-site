@@ -104,7 +104,8 @@ export const FACTS = {
     visitBeforeEffectiveDays: { min: 14, max: 42 },
     preapprovalBeforeVisitDays: 14,
     listHomeBeforeTargetDays: { min: 60, max: 90 },
-    closingOffsetMax: 7,
+    /** Days from closing to moving in. Two months covers a closing well ahead of the move. */
+    closingOffsetMax: 60,
   },
   hurricane: { startMonth: 6, startDay: 1, endMonth: 11, endDay: 30, source: "nhc-season" as const },
   nfip: { waitDays: 30, mapRevisionWaitDays: 1, mapRevisionMonths: 13, source: "fema-nfip-wait" as const, secondary: "cfo-flood-faq" as const },

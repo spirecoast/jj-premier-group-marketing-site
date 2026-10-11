@@ -7,7 +7,7 @@ import { ASK, PLAN } from "@/lib/relocate/copy";
 import { usePlanner } from "./planner-context";
 
 /**
- * 08 · The ask. The only place on the page that asks for an email. The
+ * The ask. The only place on the page that asks for an email. The
  * message arrives pre-filled with the answers and the key dates, and the
  * market travels as a hidden field only when the county maps to one cleanly
  * (Sarasota; Manatee is Bradenton or Lakewood Ranch, so it stays blank).
@@ -20,7 +20,7 @@ export function Ask({ team }: { team: { slug: string; name: string; phone: strin
   // refreshes when asked, the way the Encore visit plan does it.
   const [sentMessage, setSentMessage] = useState(message);
   return (
-    <section id="contact" className="container-site grid scroll-mt-header gap-10 border-t border-hairline py-section print:hidden lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+    <section id="contact" className="container-site grid scroll-mt-header gap-10 py-section print:hidden lg:grid-cols-[1fr_1.4fr] lg:gap-20">
       <div className="flex flex-col gap-6">
         <SectionHeading title={ASK.title} />
         <p className="t-body max-w-[440px] text-body">{ASK.body}</p>

@@ -157,7 +157,7 @@ describe("financed vs cash", () => {
   });
 
   it("the cash chain is in order: effective, inspection, bind-by, closing, for every closing offset", () => {
-    for (let off = 0; off <= 7; off++) {
+    for (const off of [0, 1, 3, 7, 14, 30, 60]) {
       const p = buildPlan({ ...SAMPLE, financing: "cash", closingOffset: off }, TODAY);
       const ms = p.milestones;
       const effective = dateOf(ms, "effective")!;
@@ -324,7 +324,7 @@ describe("answers in the URL", () => {
     assert.equal(back.moveInDate, d.moveInDate);
     assert.equal(back.path, d.path);
     assert.equal(back.fromState, "other");
-    assert.equal(back.closingOffset, 7);
+    assert.equal(back.closingOffset, 60);
     assert.equal(back.county, "both");
   });
   it("defaults to the first of a month about four months out", () => {

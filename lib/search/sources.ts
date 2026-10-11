@@ -258,16 +258,10 @@ export function hubChunks(h: HubCopy): Chunk[] {
 }
 
 /** The relocation page's three written sections. */
-export function relocateChunks(input: {
-  different: { title: string; cards: { title: string; body: string }[] };
-  fromAway: { title: string; items: { title: string; body: string }[] };
-  faqs: { q: string; answer: string }[];
-  faqTitle: string;
-}): Chunk[] {
-  const title = "Moving to the Suncoast";
+export function relocateChunks(input: { lead: string; faqs: { q: string; answer: string }[]; faqTitle: string }): Chunk[] {
+  const title = "Atlas Move";
   return [
-    ...toChunks({ id: "page:/relocate#different", kind: "page", title, sectionTitle: input.different.title, url: "/relocate#different-title" }, input.different.cards.map((c) => `${sentence(c.title)} ${c.body}`)),
-    ...toChunks({ id: "page:/relocate#away", kind: "page", title, sectionTitle: input.fromAway.title, url: "/relocate#away-title" }, input.fromAway.items.map((c) => `${sentence(c.title)} ${c.body}`)),
+    ...toChunks({ id: "page:/relocate#plan", kind: "page", title, sectionTitle: "Plan your move", url: "/relocate#questions" }, [input.lead]),
     ...toChunks({ id: "page:/relocate#faq", kind: "page", title, sectionTitle: input.faqTitle, url: "/relocate#faq-title" }, input.faqs.map((f) => `${f.q} ${f.answer}`)),
   ];
 }

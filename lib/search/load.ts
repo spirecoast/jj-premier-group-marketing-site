@@ -4,7 +4,7 @@ import { GUIDES } from "@/lib/guides";
 import { isRebuiltGuide } from "@/lib/guides/slugs";
 import { HUBS } from "@/lib/hubs/copy";
 import { getAllRecords } from "@/lib/neighborhoods/data";
-import { DIFFERENT, FAQS, FAQ_SECTION, FROM_AWAY } from "@/lib/relocate/copy";
+import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
 import { loadIssueModel } from "@/lib/tide/load";
 import { PAGE_SUMMARIES } from "./copy";
@@ -53,7 +53,7 @@ export async function loadAllChunks(): Promise<{ chunks: Chunk[]; errors: string
     safe("pages", () => [
       ...pageChunks(PAGE_SUMMARIES),
       ...Object.values(HUBS).flatMap(hubChunks),
-      ...relocateChunks({ different: DIFFERENT, fromAway: FROM_AWAY, faqs: FAQS, faqTitle: FAQ_SECTION.title }),
+      ...relocateChunks({ lead: HERO.lead, faqs: FAQS, faqTitle: FAQ_SECTION.title }),
     ]),
   ]);
 

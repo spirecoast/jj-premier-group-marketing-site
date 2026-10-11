@@ -7,7 +7,7 @@ import { checkFairHousing } from "../fair-housing";
 import { GUIDES } from "../guides";
 import { HUBS } from "../hubs/copy";
 import type { NeighborhoodRecord } from "../neighborhoods/types";
-import { DIFFERENT, FAQS, FAQ_SECTION, FROM_AWAY } from "../relocate/copy";
+import { FAQS, FAQ_SECTION, HERO } from "../relocate/copy";
 import { PAGE_SUMMARIES, SUGGESTED_SEARCHES } from "./copy";
 import { EMBED_DIMS, EmbedError, embedConfig, embedTexts } from "./embed";
 import { highlight, keywordSearch, stem, tokenize } from "./fallback";
@@ -29,7 +29,7 @@ function staticChunks(): Chunk[] {
   return [
     ...pageChunks(PAGE_SUMMARIES),
     ...Object.values(HUBS).flatMap(hubChunks),
-    ...relocateChunks({ different: DIFFERENT, fromAway: FROM_AWAY, faqs: FAQS, faqTitle: FAQ_SECTION.title }),
+    ...relocateChunks({ lead: HERO.lead, faqs: FAQS, faqTitle: FAQ_SECTION.title }),
     ...GUIDES.flatMap(guideChunks),
     ...NEIGHBORHOODS.flatMap((n) => placeChunks({ slug: n.slug, editorial: n })),
     ...POSTS.filter((p) => p.slug === "ask-us-about-the-water-table").flatMap(postChunks),
