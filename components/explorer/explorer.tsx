@@ -195,6 +195,9 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
 
   return (
     <div className={`explorer ${desktop ? "is-desktop" : "is-mobile"}`} data-sheet={desktop ? undefined : sheet}>
+      {/* Atlas's survey frame: ticks along the top and right of the map, as on a printed sheet. */}
+      <span className="atlas-frame atlas-frame-top" aria-hidden="true" />
+      <span className="atlas-frame atlas-frame-right" aria-hidden="true" />
       <ExplorerMap
         entries={mapEntries}
         selected={place}

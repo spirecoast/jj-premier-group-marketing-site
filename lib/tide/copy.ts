@@ -140,7 +140,7 @@ export const TIDE_WEB_COPY = {
 
   everyIssue: "Every issue of Tide",
   indexEyebrow: "Tide · Every issue",
-  indexTitle: "Monthly market report",
+  indexTitle: "Monthly Market Report",
   indexLead: "What sold in Lakewood Ranch, Sarasota and Bradenton each month, and what it means if you’re buying or selling.",
   indexArchive: "The guides and the archive",
   indexDescription: "Tide, the monthly real estate market report for Lakewood Ranch, Sarasota and Bradenton. Every issue, with every number from the county property appraisers’ records.",

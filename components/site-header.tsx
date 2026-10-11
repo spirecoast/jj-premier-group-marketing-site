@@ -102,6 +102,8 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   // inset would push the brokerage mark past the frame, so the home header is
   // inset 16px there.
   const homeInset = pathname === "/";
+  // One underline at a time: a page that belongs to a product (Tide Street under /sell) underlines its family, not the plain page.
+  const inFamily = productFamilies.some((f) => f.items.some((i) => pathname === i.href || pathname.startsWith(`${i.href}/`)));
 
   return (
     <header
@@ -141,7 +143,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
 
         <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-7">
           {primaryNav.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const active = !inFamily && (pathname === item.href || pathname.startsWith(`${item.href}/`));
             return (
               <Link
                 key={item.href}

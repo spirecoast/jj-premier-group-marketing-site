@@ -5,7 +5,7 @@ import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TideIssueCard } from "@/components/tide/issue-card";
-import { TideCover } from "@/components/tide/tide-cover";
+import { TideCover, TideWordmark } from "@/components/tide/tide-cover";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { loadIssueCards } from "@/lib/tide/load";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
@@ -31,7 +31,17 @@ export default async function TideIndexPage() {
           { name: "Tide", path: "/tide" },
         ])}
       />
-      <Masthead route="/tide" title={W.indexTitle} titleId="tide-title">
+      <Masthead
+        route="/tide"
+        titleId="tide-title"
+        title={
+          <>
+            <span className="sr-only">Tide Market Report</span>
+            <TideWordmark id="tide-masthead" decorative className="w-[min(420px,64vw)] text-white" />
+          </>
+        }
+      >
+        <p className="rise d3 -mt-2 font-display text-[clamp(1.25rem,1rem+0.9vw,1.75rem)] font-light italic text-linen-200">{W.indexTitle}</p>
         <p className="rise d3 t-lead max-w-[560px] text-linen-100 text-shadow-soft">{W.indexLead}</p>
       </Masthead>
 
@@ -41,7 +51,6 @@ export default async function TideIndexPage() {
             <TideCover card={latest} priority sizes="(min-width: 1024px) 540px, 100vw" className="shadow-[0_40px_80px_-40px_rgb(20_37_48/0.6)]" />
           </Link>
           <div className="sr flex flex-col gap-7 [--sr-i:1]">
-            <p className="t-record text-graphite-500">{latest.title}</p>
             <h2 id="latest-title" className="t-display text-balance text-navy">
               {latest.headline ?? latest.title}
             </h2>
