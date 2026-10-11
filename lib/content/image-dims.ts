@@ -27,6 +27,7 @@ export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   "/images/library/modern-home-pool-dusk.jpg": { width: 2000, height: 1333 },
   "/images/library/kitchen-navy-island.jpg": { width: 2000, height: 1121 },
   "/images/library/kitchen-white-palms.jpg": { width: 2000, height: 1125 },
+  "/images/library/interior-living-kitchen-palm.jpg": { width: 2400, height: 1600 },
   "/images/library/lakes-aerial-sunset.jpg": { width: 3200, height: 1800 },
   // Free Adobe Stock photos licensed through the Adobe connector on October 2, 2026 (stock IDs in docs/SITE.md).
   "/images/library/listing-exterior-canal-golden.jpg": { width: 2560, height: 1707 },
