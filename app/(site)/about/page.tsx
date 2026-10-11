@@ -20,7 +20,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 const FRAMES = {
-  duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
+  duo: img("photos/duo-whitenavy-square", "Joelyn Nauman and Jessica Garza", "50% 50%"),
   coast: img("library/place-sea-oats-dusk", "Dunes and sea oats at sunrise on a Florida beach", "50% 60%"),
 };
 

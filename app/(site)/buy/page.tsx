@@ -20,7 +20,6 @@ export const metadata: Metadata = pageMetadata({
 /* Real photographs (Adobe Stock, none generated; IDs in docs/SITE.md). */
 const FRAMES = {
   hero: img("library/aerial-tile-roofs-pool-cages", "Tile roofs and screened pools on a street of houses, from above", "50% 55%"),
-  living: img("library/interior-living-kitchen-palm", "An open living room and kitchen, a white sofa and a palm by the glass", "50% 55%"),
 };
 
 /** Eight steps, in the order they happen, and a photograph after each of the first seven. */
@@ -227,7 +226,7 @@ export default async function BuyPage() {
 
       <GuideNext title="Where to start" links={NEXT} />
 
-      <WorkWith image={FRAMES.living} phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
+      <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
 
       {/* The questions people are embarrassed to ask. */}
       <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">

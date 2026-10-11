@@ -6,7 +6,7 @@ export const TEAM: TeamMember[] = [
     _id: "team-joelyn-nauman",
     name: "Joelyn Nauman",
     slug: "joelyn-nauman",
-    headshot: img("photos/joelyn-white-vert", "Joelyn Nauman", "50% 20%"),
+    headshot: img("photos/joelyn-blue-threeqtr", "Joelyn Nauman", "50% 50%"),
     title: "REALTOR®",
     // Florida DBPR number outstanding. Nothing carrying her name goes to press
     // until it is confirmed (Compliance §02). Editable in siteSettings.
@@ -21,7 +21,7 @@ export const TEAM: TeamMember[] = [
     _id: "team-jessica-garza",
     name: "Jessica Garza",
     slug: "jessica-garza",
-    headshot: img("photos/jessica-white-vert", "Jessica Garza", "50% 18%"),
+    headshot: img("photos/jessica-navy-threeqtr", "Jessica Garza", "50% 50%"),
     title: "REALTOR®",
     licenseNumber: "SL3658907",
     bio: p("Jessica is the daughter in this mother and daughter team with Coldwell Banker Realty. She helps people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton."),
