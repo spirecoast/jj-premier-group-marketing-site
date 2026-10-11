@@ -1,13 +1,13 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { Briefcase, Camera, Globe, House, Mailbox, MapPin, MessagesSquare, SquarePlay, type LucideIcon } from "lucide-react";
+import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon } from "lucide-react";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { allSocialLinks, footerNav, site, type SocialNetwork } from "@/lib/site";
-import { img } from "@/lib/content/seed/helpers";
-import { Photo } from "./photo";
+import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
+import { RealtorMark } from "./realtor-mark";
 import { Wordmark } from "./wordmark";
 
 /** The three market hubs: a click on one counts as Explore {action: "hub"}. */
@@ -40,22 +40,31 @@ function Column({ title, links }: { title: string; links: readonly { href: strin
   );
 }
 
-/**
- * lucide-react has no brand marks (they were dropped from the set), so each
- * network gets a plain glyph and its name as the accessible label.
- */
-const SOCIAL_ICON: Record<SocialNetwork, LucideIcon> = {
+/** Facebook and Instagram in their own glyphs (lib/brand-marks), one colour. */
+function BrandGlyph({ d, className }: { d: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d={d} />
+    </svg>
+  );
+}
+
+/** lucide-react has no brand marks, so the other networks get a plain glyph and their name as the accessible label. */
+const SOCIAL_ICON: Record<Exclude<SocialNetwork, "facebook" | "instagram">, LucideIcon> = {
   google: MapPin,
   youtube: SquarePlay,
-  instagram: Camera,
-  facebook: MessagesSquare,
   nextdoor: Mailbox,
   linkedin: Briefcase,
   zillow: House,
   other: Globe,
 };
 
-const PIER = img("library/venice-pier-sunrise", "A fishing pier reaching into the Gulf at sunrise", "62% 55%");
+function SocialIcon({ network }: { network: SocialNetwork }) {
+  if (network === "facebook") return <BrandGlyph d={FACEBOOK_PATH} className="size-[18px]" />;
+  if (network === "instagram") return <BrandGlyph d={INSTAGRAM_PATH} className="size-[18px]" />;
+  const Icon = SOCIAL_ICON[network];
+  return <Icon className="size-[18px]" strokeWidth={1.5} aria-hidden="true" />;
+}
 
 /**
  * Compliance is furniture. The MLS attribution, the Equal Housing mark, both
@@ -72,12 +81,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
 
   return (
     <footer className="bg-linen-200 pb-20 text-navy md:pb-12">
-      {/* The pier at sunrise closes every page: the photograph fades into the footer's ground. */}
-      <div className="relative h-[300px] overflow-hidden bg-navy sm:h-[380px] lg:h-[460px]" aria-hidden="true">
-        <Photo image={PIER} sizes="100vw" />
-        <div className="absolute inset-0 bg-linear-to-b from-harbor-950/25 via-transparent via-45% to-linen-200" />
-      </div>
-      <div className="container-site flex flex-col gap-16 pt-16">
+      <div className="container-site flex flex-col gap-16 pt-16 lg:pt-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1fr]">
           <div className="flex flex-col items-start gap-6">
             <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
@@ -112,7 +116,6 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
             {social.length ? (
               <ul className="mt-1 flex flex-wrap gap-2" aria-label="The team elsewhere">
                 {social.map((s) => {
-                  const Icon = SOCIAL_ICON[s.network];
                   return (
                     <li key={s.url}>
                       <a
@@ -123,7 +126,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
                         title={s.label}
                         className="flex size-11 items-center justify-center border border-rule text-navy transition-colors hover:border-navy hover:text-harbor-700"
                       >
-                        <Icon className="size-[18px]" strokeWidth={1.5} aria-hidden="true" />
+                        <SocialIcon network={s.network} />
                       </a>
                     </li>
                   );
@@ -137,8 +140,13 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
           <p className="max-w-[760px] font-mono text-[9px] uppercase leading-[1.8] tracking-[0.06em] text-linen-700">
             {settings.footerDisclosure}
           </p>
-          <div className="flex items-center gap-8 text-navy">
-            <EqualHousingMark />
+          {/* REALTOR® and Equal Housing in navy, square and the same size, each with NAR's clear space around it; then the brokerage. */}
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-6 text-navy">
+            <div className="flex items-center gap-6">
+              <RealtorMark size={48} />
+              <EqualHousingMark size={48} />
+            </div>
+            <span className="hidden h-10 w-px bg-rule sm:block" aria-hidden="true" />
             <CbMark tone="cbblue" width={220} />
           </div>
         </div>
