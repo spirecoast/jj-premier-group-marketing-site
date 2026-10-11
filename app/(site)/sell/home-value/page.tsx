@@ -40,7 +40,7 @@ export default async function HomeValuePage() {
         ])}
       />
       {/* The question on the masthead, and what this page does with it underneath. */}
-      <Masthead route="/sell/home-value" eyebrow={C.eyebrow} title={C.title} titleId="home-value-title" titleClassName="max-w-[760px]" />
+      <Masthead route="/sell/home-value" title={C.title} titleId="home-value-title" titleClassName="max-w-[760px]" />
       <section className="container-site flex flex-col gap-7 py-section" aria-label="What this page does">
         <p className="t-lead max-w-[600px] text-body">{C.lead}</p>
         <p className="t-body max-w-measure text-body">{C.body(months)}</p>
@@ -60,7 +60,7 @@ export default async function HomeValuePage() {
         <section className="border-t border-hairline">
           <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
             <div className="flex flex-col gap-6">
-              <SectionHeading eyebrow={C.cant.eyebrow} title={C.cant.title} />
+              <SectionHeading title={C.cant.title} />
               <p className="t-body max-w-[440px] text-body">{C.cant.intro}</p>
             </div>
             <div className="flex flex-col gap-8">

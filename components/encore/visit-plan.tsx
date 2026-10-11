@@ -83,7 +83,7 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
     <div className="encore">
       {/* 02 · The dates and the places */}
       <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="plan-inputs-title">
-        <SectionHeading number="02" eyebrow="The dates and the places" title={<span id="plan-inputs-title">Tell us when you&rsquo;re here and where you want to look.</span>} />
+        <SectionHeading title={<span id="plan-inputs-title">Tell us when you&rsquo;re here and where you want to look.</span>} />
         <form onSubmit={build} className="plan-form" aria-describedby="plan-form-note">
           <div className="grid gap-6 sm:grid-cols-2 lg:max-w-[560px]">
             <div className="field">
@@ -166,8 +166,6 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
       {/* 03 · Day by day */}
       <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="plan-days-title">
         <SectionHeading
-          number="03"
-          eyebrow="Day by day"
           title={
             <span id="plan-days-title">
               {nights === 1 ? "One day" : `${nights} days`} from {shortDay(applied.from)}
@@ -195,7 +193,7 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
 
       {/* 04 · Take it with you */}
       <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="plan-export-title">
-        <SectionHeading number="04" eyebrow="Take it with you" title={<span id="plan-export-title">Put it in your calendar, or send it on.</span>} />
+        <SectionHeading title={<span id="plan-export-title">Put it in your calendar, or send it on.</span>} />
         <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
           <a href={planIcsHref(applied, plan)} className="btn btn-navy" onClick={() => track("Calendar feed", { kind: "plan" })}>
             Add this plan to my calendar
@@ -212,7 +210,7 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
       <section id="ask" className="scroll-mt-header border-t border-hairline bg-linen-200">
         <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
           <div className="flex flex-col gap-6">
-            <SectionHeading number="05" eyebrow="Before you arrive" title="Tell us the dates and we’ll have the showings lined up before you arrive." />
+            <SectionHeading title="Tell us the dates and we’ll have the showings lined up before you arrive." />
             <p className="t-body max-w-[440px] text-body">
               The dates and places below are the ones in your plan. Add what you&rsquo;re looking for and whether there&rsquo;s a house to sell first, and one of us will call or write back.
             </p>

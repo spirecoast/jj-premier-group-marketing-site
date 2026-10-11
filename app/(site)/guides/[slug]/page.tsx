@@ -120,7 +120,7 @@ export default async function GuidePage({ params }: { params: Params }) {
               </ol>
             </div>
             <div className="flex flex-col gap-3 border border-hairline bg-white p-5">
-              <p className="t-eyebrow text-amber">As you go, keep coming back to three questions</p>
+              <p className="t-h4 text-navy">As you go, keep coming back to three questions</p>
               <ol className="flex flex-col gap-3">
                 {guide.questions.map((q, i) => (
                   <li key={q} className="grid grid-cols-[40px_1fr] items-baseline gap-3">

@@ -24,7 +24,6 @@ export default function GuidesIndex() {
         <SectionHeading
           as="h1"
           size="display"
-          eyebrow="Guides"
           title={<span id="guides-index-title">Guides to the questions people ask before they buy or sell.</span>}
           titleClassName="max-w-[860px]"
           aside={
@@ -46,7 +45,7 @@ export default function GuidesIndex() {
         </ul>
       </section>
 
-      <CtaBand image={BAND} eyebrow={`${site.reportName}, by email`} title="Get one page from us each month." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
+      <CtaBand image={BAND} title="Get one page from us each month." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

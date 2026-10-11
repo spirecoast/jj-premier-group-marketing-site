@@ -173,10 +173,6 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
         <section className="container-site flex flex-col gap-6 pt-10 md:pt-14" aria-labelledby="nb-title">
           <Crumbs ancestors={ancestors} market={market} />
           <div className="flex flex-col gap-4">
-            <p className="t-eyebrow text-amber">
-              {record?.type ? TYPE_LABEL[record.type] : LEVEL_LABEL[record!.level]}
-              {record?.jurisdiction ? ` · ${record.jurisdiction}` : ""}
-            </p>
             <h1 id="nb-title" className="t-display max-w-[900px] text-navy">
               {name}
             </h1>
@@ -187,7 +183,6 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
 
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1.4fr_1fr] lg:gap-20">
         <div className="flex flex-col gap-6">
-          <p className="t-eyebrow text-amber">The place</p>
           {n ? <RichText value={n.overview} /> : null}
           {record?.description && (!n || record.research === "full") ? <p className="t-lead max-w-measure text-body">{record.description}</p> : null}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -214,7 +209,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
 
       {factRows.length || record?.amenities.length ? (
         <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="particulars-title">
-          <h2 id="particulars-title" className="t-eyebrow text-amber">
+          <h2 id="particulars-title" className="t-h3 text-navy">
             The particulars
           </h2>
           <dl className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-3">
@@ -234,7 +229,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
         <section className="container-site grid gap-8 pb-section lg:grid-cols-2 lg:gap-12" aria-label="Schools and evacuation zone">
           {record.zonedSchools ? (
             <div className="flex flex-col gap-4 border border-hairline bg-white p-7">
-              <h2 className="t-eyebrow text-amber">Zoned schools</h2>
+              <h2 className="t-h3 text-navy">Zoned schools</h2>
               <dl className="flex flex-col gap-3">
                 {(
                   [
@@ -255,7 +250,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           ) : null}
           {record.evacuationZone ? (
             <div className="flex flex-col gap-4 border border-hairline bg-white p-7">
-              <h2 className="t-eyebrow text-amber">Storm evacuation</h2>
+              <h2 className="t-h3 text-navy">Storm evacuation</h2>
               <p className="t-h2 text-navy">{record.evacuationZone === "none" ? "Outside every evacuation zone" : `Evacuation zone ${record.evacuationZone}`}</p>
               <p className="t-small text-body-muted">
                 {record.county === "Manatee" ? "Manatee County evacuation level" : "Sarasota County evacuation zone"} at the address point we checked. Zones follow property lines, so
@@ -270,7 +265,6 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       {children.length ? (
         <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="inside-title">
           <SectionHeading
-            eyebrow="Inside"
             title={<span id="inside-title">{children.length === 1 ? "One place" : `${children.length} places`} inside {name}.</span>}
             aside={<RuleLink href={explorerHref({ place: slug }) as Route}>Explore them on the map</RuleLink>}
           />
@@ -299,7 +293,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
 
       {n?.highlights.length ? (
         <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="highlights-title">
-          <h2 id="highlights-title" className="t-eyebrow text-amber">
+          <h2 id="highlights-title" className="t-h3 text-navy">
             What we tell people first
           </h2>
           <dl className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-4">
@@ -315,7 +309,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
 
       {active.length ? (
         <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="nb-listings-title">
-          <SectionHeading eyebrow="On the market" title={<span id="nb-listings-title">In {name} right now.</span>} aside={<RuleLink href={`/listings?market=${market}`}>Find your home in {marketName(market)}</RuleLink>} />
+          <SectionHeading title={<span id="nb-listings-title">In {name} right now.</span>} aside={<RuleLink href={`/listings?market=${market}`}>Find your home in {marketName(market)}</RuleLink>} />
           <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {active.map((l) => (
               <li key={l.slug} className="flex">
@@ -329,7 +323,6 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       {faqs.length ? (
         <section className="container-site grid gap-10 pb-section lg:grid-cols-[1fr_1.6fr] lg:gap-20" aria-labelledby="nb-faq-title">
           <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-amber">Questions people ask</p>
             <h2 id="nb-faq-title" className="t-h1 text-navy">
               Before you drive out to {name}.
             </h2>
@@ -369,7 +362,6 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       <section className="bg-linen-100">
         <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nb-events-title">
           <SectionHeading
-            eyebrow="Encore Arts Calendar"
             title={<span id="nb-events-title">What is on in {marketName(market)} this month.</span>}
             aside={<RuleLink href={`/calendar?market=${market}`}>The full calendar</RuleLink>}
           />
@@ -395,7 +387,6 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
 
       <CtaBand
         image={n?.hero ?? marketInfo!.image}
-        eyebrow={`${name} · ${marketName(market)}`}
         title="Tell us the timing."
         body="When do you need to be in, and is there a house to sell first? Those two answers change everything else."
         minHeight="min-h-[440px]"

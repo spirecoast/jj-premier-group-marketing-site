@@ -25,7 +25,7 @@ export default async function TideIndexPage() {
           { name: "Tide", path: "/tide" },
         ])}
       />
-      <Masthead route="/tide" eyebrow={W.indexEyebrow} title={W.indexTitle} titleId="tide-title" />
+      <Masthead route="/tide" title={W.indexTitle} titleId="tide-title" />
       <section className="container-site flex flex-col gap-12 py-section" aria-label="Every issue">
         <div className="flex max-w-[820px] flex-col gap-4">
           <p className="t-lead text-body">{W.indexLead}</p>

@@ -25,7 +25,7 @@ export function ChannelLanding({ copy, phone }: { copy: ChannelCopy; phone: { e1
     <>
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-20" aria-labelledby="from-title">
         <div className="flex flex-col gap-8">
-          <SectionHeading as="h1" size="display" eyebrow={copy.eyebrow} title={<span id="from-title">{copy.heading}</span>} />
+          <SectionHeading as="h1" size="display" title={<span id="from-title">{copy.heading}</span>} />
           <p className="t-lead max-w-measure text-body">{copy.line}</p>
           <div className="flex flex-col gap-4">
             <TrackedLink
@@ -53,7 +53,7 @@ export function ChannelLanding({ copy, phone }: { copy: ChannelCopy; phone: { e1
 
       <section className="bg-linen-200" aria-labelledby="from-more-title">
         <div className="container-site flex flex-col gap-10 py-section">
-          <SectionHeading eyebrow={MORE.eyebrow} title={<span id="from-more-title">{MORE.heading}</span>} />
+          <SectionHeading title={<span id="from-more-title">{MORE.heading}</span>} />
           <ul className="grid gap-10 md:grid-cols-3 md:gap-8">
             {cards.map((c) => (
               <li key={c.key} className="relative flex flex-col gap-4 border-t border-rule pt-7">

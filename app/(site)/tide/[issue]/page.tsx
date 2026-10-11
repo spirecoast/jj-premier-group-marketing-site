@@ -138,7 +138,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         <section className="container-site py-section" aria-labelledby="what-title">
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-16">
             <div className="flex flex-col gap-3 lg:col-span-3 lg:pt-2">
-              <p className="t-eyebrow text-amber">{`${storyNo} · ${model.dataLabel}`}</p>
               <h2 id="what-title" className="t-h2 scroll-mt-24 text-navy">
                 {told ? W.storyEyebrow : W.aboutEyebrow}
               </h2>
@@ -160,7 +159,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         <section className="guide-cover-ground tide-figure text-white" aria-labelledby="figure-title">
           <div className="container-site grid gap-12 py-section lg:grid-cols-12 lg:items-end lg:gap-16">
             <div className="flex flex-col gap-5 lg:col-span-7">
-              <p className="t-eyebrow text-mist">{`${figureNo} · ${fill(W.combinedEyebrow, { data: model.dataLabel })}`}</p>
               <h2 id="figure-title" className="mt-4 flex flex-col gap-5">
                 <span className="-ml-[0.04em] font-display text-[clamp(6rem,3rem+13vw,14rem)] leading-[0.86] font-extralight tracking-[-0.04em] text-white tabular-nums">{num(c.count)}</span>
                 <span className="max-w-[28ch] font-display text-[clamp(1.375rem,1.05rem+1.1vw,2rem)] leading-[1.22] font-light text-linen-100">{model.combinedLine}</span>
@@ -205,7 +203,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         {movesNo ? (
           <section className="bg-linen-100" aria-labelledby="moves-title">
             <div className="container-site flex flex-col gap-12 py-section">
-              <SectionHeading number={movesNo} eyebrow={fill(W.movesEyebrow, { data: model.dataLabel })} title={<span id="moves-title">{W.movesHeading}</span>} className="scroll-mt-24" />
+              <SectionHeading title={<span id="moves-title">{W.movesHeading}</span>} className="scroll-mt-24" />
               <div className="grid gap-14 lg:grid-cols-2 lg:gap-16">
                 <Moves id="buyers" heading={W.buyersHeading} moves={buying} legacy={story?.buyers ?? []} />
                 <Moves id="sellers" heading={W.sellersHeading} moves={selling} legacy={story?.sellers ?? []} />
@@ -218,8 +216,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         {/* 6. The two charts */}
         <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="charts-title">
           <SectionHeading
-            number={chartsNo}
-            eyebrow={fill(W.chartsEyebrow, { from: monthLabel(model.charts.sales.months[0]!), to: model.dataLabel })}
             title={<span id="charts-title" className="scroll-mt-24">{W.chartsHeading}</span>}
           />
           <div className="grid gap-5 lg:grid-cols-2">
@@ -233,7 +229,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           <section className="border-t border-hairline" aria-labelledby="watch-title">
             <div className="container-site grid gap-8 py-section lg:grid-cols-12 lg:gap-16">
               <div className="flex flex-col gap-3 lg:col-span-4">
-                <p className="t-eyebrow text-amber">{`${no()} · ${model.issueLabel}`}</p>
                 <h2 id="watch-title" className="t-h1 text-navy">
                   {W.watchHeading}
                 </h2>
@@ -260,8 +255,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           <section className="bg-parchment" aria-labelledby="encore-title">
             <div className="container-site flex flex-col gap-10 py-section">
               <SectionHeading
-                number={no()}
-                eyebrow={fill(W.encoreEyebrow, { issue: model.issueLabel })}
                 title={<span id="encore-title">{W.encoreHeading}</span>}
                 aside={
                   <Link href="/calendar" className="link-rule">
@@ -284,8 +277,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         {/* 10. Read next: the guides published that month */}
         <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="guides-title">
           <SectionHeading
-            number={no()}
-            eyebrow={model.issueLabel}
             title={<span id="guides-title">{W.guidesHeading}</span>}
             aside={
               <Link href="/guides" className="link-rule">
@@ -314,7 +305,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         <section className="border-t border-rule bg-linen-100" aria-labelledby="ask-title">
           <div className="container-site grid gap-8 py-14 md:grid-cols-2 md:items-center md:gap-12 lg:py-16">
             <div className="flex flex-col gap-3">
-              <p className="t-eyebrow text-amber">Tide</p>
               <h2 id="ask-title" className="t-h1 text-navy">
                 {W.askHeading}
               </h2>

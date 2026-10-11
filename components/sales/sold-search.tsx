@@ -136,7 +136,6 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
           </form>
         ) : (
           <div className="flex flex-col gap-3 border border-hairline bg-white p-6 sm:p-8">
-            <p className="t-eyebrow text-amber">{C.results.eyebrow}</p>
             <p className="t-h3 text-navy">{C.results.notLoaded}</p>
             <p className="t-body max-w-measure text-body">{C.results.notLoadedHelp}</p>
           </div>
@@ -172,7 +171,6 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
           {data && data.rows.length > 0 ? (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-3.5 border-t border-hairline pt-6">
-                <p className="t-eyebrow text-amber">{C.results.eyebrow}</p>
                 {data.match !== "exact" ? (
                   <p className="t-small text-graphite-500">
                     {data.match === "fuzzy" ? C.results.fuzzyMatch : C.results.partialMatch} {data.streets.map(titleCase).join(", ")}
@@ -202,7 +200,7 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
       <section id="ask" className="border-t border-hairline bg-parchment">
         <div className="container-site grid scroll-mt-header gap-10 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
           <div className="flex flex-col gap-6">
-            <SectionHeading eyebrow={C.ask.eyebrow} title={C.ask.title} />
+            <SectionHeading title={C.ask.title} />
             <p className="t-body max-w-[440px] text-body">{C.ask.body}</p>
           </div>
           <div className="border border-hairline bg-white p-6 sm:p-8">

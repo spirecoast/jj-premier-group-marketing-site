@@ -24,7 +24,7 @@ export default function ReferPage() {
     <>
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:gap-20" aria-labelledby="refer-title">
         <div className="flex flex-col gap-8">
-          <SectionHeading as="h1" size="display" eyebrow={REFER.eyebrow} title={<span id="refer-title">{REFER.heading}</span>} />
+          <SectionHeading as="h1" size="display" title={<span id="refer-title">{REFER.heading}</span>} />
           <p className="t-lead max-w-measure text-navy">{REFER.lead}</p>
           <p className="t-body max-w-measure text-body">{REFER.body}</p>
         </div>

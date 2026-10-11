@@ -70,9 +70,6 @@ export default async function VenuePage({ params }: { params: Params }) {
         ) : null}
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
-          <p className="t-eyebrow text-mist text-shadow-photo">
-            {placeLine}
-          </p>
           <h1 id="venue-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
             {venue.name}
           </h1>
@@ -82,7 +79,6 @@ export default async function VenuePage({ params }: { params: Params }) {
 
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1.4fr_1fr] lg:gap-20">
         <div className="flex flex-col gap-6">
-          <p className="t-eyebrow text-amber">About the venue</p>
           {venue.about?.length ? (
             <RichText value={venue.about} />
           ) : (
@@ -128,7 +124,6 @@ export default async function VenuePage({ params }: { params: Params }) {
 
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="venue-events-title">
         <SectionHeading
-          eyebrow="Coming up"
           title={<span id="venue-events-title">What is on at {venue.name}.</span>}
           aside={<Link href={`/calendar?market=${venue.market}` as Route} className="link-rule">The {marketName(venue.market)} calendar</Link>}
         />
@@ -154,7 +149,7 @@ export default async function VenuePage({ params }: { params: Params }) {
       {neighborhoods.length ? (
         <section className="bg-linen-100">
           <div className="container-site flex flex-col gap-6 py-16" aria-labelledby="venue-nb-title">
-            <h2 id="venue-nb-title" className="t-eyebrow text-amber">
+            <h2 id="venue-nb-title" className="t-h3 text-navy">
               Living near here
             </h2>
             <ul className="flex flex-wrap gap-x-8 gap-y-3">

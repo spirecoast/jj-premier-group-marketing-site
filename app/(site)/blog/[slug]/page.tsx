@@ -80,7 +80,6 @@ export default async function PostPage({ params }: { params: Params }) {
           <Photo image={post.cover} priority sizes="(min-width: 1024px) 1248px, 100vw" />
         </div>
         <header className="flex max-w-[900px] flex-col gap-4">
-          <p className="t-eyebrow text-amber">{[post.edition, ...post.categories].filter(Boolean).join(" · ")}</p>
           <h1 className="t-display text-navy">{post.title}</h1>
           <p className="t-record text-graphite-600">
             {formatDateLong(noon(post.publishedAt))}
@@ -91,7 +90,7 @@ export default async function PostPage({ params }: { params: Params }) {
 
       {more.length ? (
         <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="more-title">
-          <h2 id="more-title" className="t-eyebrow text-amber">
+          <h2 id="more-title" className="t-h3 text-navy">
             More to read
           </h2>
           <ul className="grid gap-5 md:grid-cols-2">
@@ -113,7 +112,7 @@ export default async function PostPage({ params }: { params: Params }) {
         </section>
       ) : null}
 
-      <CtaBand image={RIVER} eyebrow="Tide, by email" title="Once a month you get one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
+      <CtaBand image={RIVER} title="Once a month you get one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

@@ -45,7 +45,6 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         <SectionHeading
           as="h1"
           size="display"
-          eyebrow="Contact"
           title={<span id="contact-title">Tell us the timing.</span>}
         />
         <p className="t-body max-w-measure text-body">
@@ -58,7 +57,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
 
       <aside className="flex flex-col gap-10 lg:pt-24">
         <div className="flex flex-col gap-6">
-          <p className="t-eyebrow text-amber">Direct</p>
+          <p className="t-h4 text-navy">Direct</p>
           <ul className="flex flex-col gap-6">
             {team.map((m) => (
               <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">
@@ -80,7 +79,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </ul>
         </div>
         <div className="flex flex-col gap-3 border-t border-hairline pt-5">
-          <p className="t-eyebrow text-amber">Office</p>
+          <p className="t-h4 text-navy">Office</p>
           <address className="t-body not-italic text-body">
             {settings.brokerageName}
             <br />

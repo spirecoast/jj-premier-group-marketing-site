@@ -122,7 +122,7 @@ export default async function EventPage({ params }: { params: Params }) {
 
       {others.length ? (
         <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="at-venue-title">
-          <SectionHeading eyebrow="Also on" title={<span id="at-venue-title">Coming up at {event.venue.name}.</span>} aside={<Link href={`/venues/${event.venue.slug}`} className="link-rule">The venue</Link>} />
+          <SectionHeading title={<span id="at-venue-title">Coming up at {event.venue.name}.</span>} aside={<Link href={`/venues/${event.venue.slug}`} className="link-rule">The venue</Link>} />
           <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {others.map((e) => (
               <li key={e.slug} className="flex">
@@ -137,7 +137,6 @@ export default async function EventPage({ params }: { params: Params }) {
         <section className="bg-linen-100">
           <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nearby-title">
             <SectionHeading
-              eyebrow="Nearby"
               title={<span id="nearby-title">Homes in {marketName(event.venue.market)}, in case the evening goes well.</span>}
               aside={<Link href={`/listings?market=${event.venue.market}` as Route} className="link-rule">All {marketName(event.venue.market)} listings</Link>}
             />

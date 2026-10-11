@@ -34,7 +34,7 @@ export default function ReviewsPage() {
   return (
     <section className="container-site flex flex-col gap-14 py-section" aria-labelledby="reviews-title">
       <div className="flex flex-col gap-8">
-        <SectionHeading as="h1" size="display" eyebrow={REVIEWS.eyebrow} title={<span id="reviews-title">{REVIEWS.heading}</span>} />
+        <SectionHeading as="h1" size="display" title={<span id="reviews-title">{REVIEWS.heading}</span>} />
         <p className="t-lead max-w-measure text-body">{REVIEWS.lead}</p>
       </div>
 
