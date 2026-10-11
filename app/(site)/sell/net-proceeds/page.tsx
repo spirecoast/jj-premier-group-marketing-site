@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import { RuleLink } from "@/components/buttons";
 import { Masthead } from "@/components/masthead";
 import { NetProceedsCalculator } from "@/components/net-proceeds/calculator";
-import { SectionHeading } from "@/components/section-heading";
 import { CFO_TITLE_URL, CHECKED, CONDO_STATUTE_URL, MANATEE_RECORDING_URL, NOVEMBER_DISCOUNT_PCT, SOURCES, TAX_DISCOUNT_URL } from "@/lib/net-proceeds";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Seller net proceeds",
+  title: "Tide Sale Calculator: what you'd keep after selling",
   description:
-    "What you'd walk away with: the sale price less the payoff, doc stamps at the state rate, the title policy at Florida's promulgated rate, and the tax proration to the day before closing. Every line says where its number comes from. Sarasota and Manatee counties.",
+    "See what you'd keep after selling a home in Sarasota or Manatee County: the price less the payoff, commission, Florida's deed stamp tax, the title policy at the state's rate, and the tax and dues prorations. Every line says where its number comes from.",
   path: "/sell/net-proceeds",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -33,38 +31,25 @@ const ISNT = [
   },
 ];
 
-const ORDER = ["docStamps", "titleRates", "titleCustom", "estoppel", "estoppelStatute", "recording", "prorations"] as const;
+const ORDER = ["docStamps", "titleRates", "titleCustom", "estoppel", "estoppelStatute", "recording", "prorations", "firpta"] as const;
 
 export default function NetProceedsPage() {
   return (
     <>
-      {/* Hero: the question on the masthead, and what the sheet does with it underneath. */}
-      <Masthead route="/sell/net-proceeds" title={<>What you&rsquo;d walk away with.</>} titleId="net-proceeds-title" titleClassName="max-w-[640px]" className="print:hidden" />
-      <section className="container-site flex flex-col gap-7 py-section" aria-label="What the sheet does">
-        <p className="t-lead max-w-[600px] text-body">
-          Put in the price and what&rsquo;s owed, and the sheet fills in the rest: doc stamps at the state rate, the title
-          policy at Florida&rsquo;s promulgated rate, the tax proration to the day before closing. Every line says where its
-          number comes from, and the ones that vary by title company are yours to edit.
+      <Masthead route="/sell/net-proceeds" title={<>What you&rsquo;d keep after selling</>} titleId="net-proceeds-title" titleClassName="max-w-[680px]" className="print:hidden">
+        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
+          Enter the price and what you owe. Every cost is worked out from Florida&rsquo;s own rates, line by line.
         </p>
-        <p className="t-mono-sm max-w-[520px] text-graphite-500">
-          Sarasota and Manatee counties · sources checked {CHECKED} · an estimate, not a closing statement
-        </p>
-      </section>
+      </Masthead>
 
-      {/* The sheet. */}
-      <section className="container-site flex flex-col gap-10 pb-section">
-        <SectionHeading
-          title="Start with the price and take away each line. What’s left is yours."
-          aside={<RuleLink href="/sell">How selling with us goes</RuleLink>}
-          className="print:hidden"
-        />
+      <section className="container-site flex flex-col gap-10 py-section">
         <NetProceedsCalculator />
       </section>
 
       {/* What this isn't. */}
       <section className="bg-parchment print:hidden">
         <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
-          <SectionHeading title="Four things to know before you lean on it." />
+          <h2 className="t-h1 text-navy">Good to know</h2>
           <dl className="grid gap-8 sm:grid-cols-2">
             {ISNT.map((i) => (
               <div key={i.title} className="flex flex-col gap-2 border-t border-hairline pt-4">
@@ -78,10 +63,7 @@ export default function NetProceedsPage() {
 
       {/* Sources. */}
       <section className="container-site flex flex-col gap-10 py-section print:hidden">
-        <SectionHeading
-          title="Here's every rate on the sheet and the page it came from."
-          aside={<RuleLink href="/valuation">Start with the address</RuleLink>}
-        />
+        <h2 className="t-h1 text-navy">Where each number comes from</h2>
         <ol className="grid gap-x-12 gap-y-8 lg:grid-cols-2">
           {ORDER.map((key) => {
             const s = SOURCES[key];

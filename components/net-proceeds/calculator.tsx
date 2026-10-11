@@ -41,6 +41,9 @@ type Form = {
   recordingTouched: boolean;
   repairs: string;
   staging: string;
+  other: string;
+  taxPaid: boolean;
+  foreignSeller: boolean;
 };
 
 const EMPTY: Form = {
@@ -62,6 +65,9 @@ const EMPTY: Form = {
   recordingTouched: false,
   repairs: "",
   staging: "",
+  other: "",
+  taxPaid: false,
+  foreignSeller: false,
 };
 
 /** "650,000" or "$650000.50" to a number; undefined when blank or not a number. */
@@ -121,9 +127,24 @@ function Money({ id, value, onChange, placeholder = "0", described }: { id: stri
 
 function Legend({ number, children }: { number: string; children: React.ReactNode }) {
   return (
-    <legend className="t-eyebrow mb-5 text-amber">
-      {number} · {children}
+    <legend className="mb-5 flex items-center gap-3">
+      <span className="grid h-8 w-8 place-items-center rounded-full bg-sky-100 font-display text-[16px] text-sky-800" aria-hidden="true">
+        {Number(number)}
+      </span>
+      <span className="font-display text-[1.5rem] font-light leading-none text-navy">{children}</span>
     </legend>
+  );
+}
+
+function Check({ checked, onChange, children, hint }: { checked: boolean; onChange: (v: boolean) => void; children: React.ReactNode; hint?: string }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1.5 size-4 shrink-0 accent-sky-700" />
+      <span className="flex flex-col gap-0.5">
+        <span className="t-body text-body">{children}</span>
+        {hint ? <span className="t-small text-graphite-500">{hint}</span> : null}
+      </span>
+    </label>
   );
 }
 
@@ -162,6 +183,8 @@ export function NetProceedsCalculator() {
         listingCommissionPct: toNum(f.listingPct),
         buyerBrokerPct: toNum(f.buyerPct),
         annualTax: toNum(f.annualTax),
+        taxPaid: f.taxPaid,
+        foreignSeller: f.foreignSeller,
         hasAssociation: f.hasAssociation,
         duesAmount: toNum(f.dues),
         duesPeriod: f.duesPeriod,
@@ -170,6 +193,7 @@ export function NetProceedsCalculator() {
         recordingFee: toNum(recordingValue),
         repairsConcessions: toNum(f.repairs),
         stagingPhotos: toNum(f.staging),
+        otherCosts: toNum(f.other),
       }),
     [f, price, mortgage, second, recordingValue],
   );
@@ -238,6 +262,9 @@ export function NetProceedsCalculator() {
               <Money id={id("second")} value={f.second} onChange={(v) => set("second", v)} described />
             </Field>
           </div>
+          <Check checked={f.foreignSeller} onChange={(v) => set("foreignSeller", v)} hint="The buyer then has to withhold part of the price for the IRS (FIRPTA). It's credited against your U.S. tax.">
+            I&rsquo;m not a U.S. citizen or resident for tax purposes
+          </Check>
         </fieldset>
 
         <fieldset className="flex flex-col gap-6">
@@ -258,13 +285,15 @@ export function NetProceedsCalculator() {
 
         <fieldset className="flex flex-col gap-6">
           <Legend number="04">Taxes and dues</Legend>
-          <Field id={id("tax")} label="This year's property tax bill" hint={`Enter the bill at the ${NOVEMBER_DISCOUNT_PCT}% November discount; use last year's if this year's isn't out yet. Taxes are paid in arrears, so you credit the buyer for January 1 through the day before closing. Include CDD assessments; they're on the same bill.`}>
+          <Field id={id("tax")} label="This year's property tax bill" hint={`The bill as printed, CDD included; last year's if this year's isn't out. The sheet takes off the ${NOVEMBER_DISCOUNT_PCT}% early-payment discount, as the Florida contract does.`}>
             <Money id={id("tax")} value={f.annualTax} onChange={(v) => set("annualTax", v)} described />
           </Field>
-          <label className="flex cursor-pointer items-start gap-3 t-body text-body">
-            <input type="checkbox" checked={f.hasAssociation} onChange={(e) => set("hasAssociation", e.target.checked)} className="mt-1.5 size-4 shrink-0 accent-sky-700" />
-            <span>The home is in an HOA or condominium association</span>
-          </label>
+          <Check checked={f.taxPaid} onChange={(v) => set("taxPaid", v)} hint="Bills go out in November. If you've paid this year's, the buyer pays you back for the rest of the year.">
+            This year&rsquo;s bill is already paid
+          </Check>
+          <Check checked={f.hasAssociation} onChange={(v) => set("hasAssociation", v)}>
+            The home is in an HOA or condominium association
+          </Check>
           {f.hasAssociation ? (
             <div className="grid gap-6 border-l border-hairline pl-5 sm:grid-cols-2">
               <Field id={id("dues")} label="Dues, per period" hint="Dues are billed ahead. If the current period is paid, the unused days come back to you at closing.">
@@ -320,6 +349,9 @@ export function NetProceedsCalculator() {
             <Field id={id("staging")} label="Staging and photographs" hint="Usually paid before the listing goes live, so it's your money either way.">
               <Money id={id("staging")} value={f.staging} onChange={(v) => set("staging", v)} described />
             </Field>
+            <Field id={id("other")} label="Other costs" hint="A home warranty for the buyer, special assessments due, association transfer fees." className="sm:col-span-2">
+              <Money id={id("other")} value={f.other} onChange={(v) => set("other", v)} described />
+            </Field>
           </div>
         </fieldset>
       </form>
@@ -327,16 +359,19 @@ export function NetProceedsCalculator() {
       {/* The sheet */}
       <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
         <section id="net-sheet" aria-label="Estimated net proceeds" className="border border-hairline bg-white p-6 sm:p-8">
-          <div className="flex flex-col gap-2 border-b border-hairline pb-5">
-            <p className="t-eyebrow text-amber">Estimated net proceeds</p>
-            <p className="t-mono-sm text-graphite-500">
+          <div className="flex flex-col gap-3 border-b border-hairline pb-6">
+            <p className="t-small text-graphite-500">What you&rsquo;d keep</p>
+            <p className="font-display text-[clamp(2.75rem,5vw,4rem)] font-light leading-none text-navy tabular-nums" aria-live="polite">
+              {hasSheet ? formatUsd(sheet.net) : "—"}
+            </p>
+            <p className="t-small text-graphite-500">
               {COUNTY_LABEL[sheet.county]}
               {sheet.closing ? ` · closing ${formatYmd(sheet.closing)}` : " · closing date not set"}
             </p>
           </div>
 
           {!hasSheet ? (
-            <p className="t-body py-8 text-body">Enter a sale price and the sheet fills in from there. Every line says where its number comes from.</p>
+            <p className="t-body py-8 text-body">Enter a sale price to start. Every line says where its number comes from.</p>
           ) : (
             <>
               <dl className="flex flex-col">
@@ -347,7 +382,7 @@ export function NetProceedsCalculator() {
               </dl>
               <div className="mt-6 flex flex-col gap-1 border-t-2 border-navy pt-5" aria-live="polite">
                 <div className="flex items-baseline justify-between gap-4">
-                  <p className="t-eyebrow text-navy">Estimated net</p>
+                  <p className="t-h4 text-navy">Estimated net</p>
                   <p className="t-record text-navy tabular-nums">{formatUsd(sheet.net)}</p>
                 </div>
                 <p className="t-mono-sm text-graphite-500">
@@ -355,7 +390,7 @@ export function NetProceedsCalculator() {
                   {sheet.credits ? ` + credits ${formatUsd(sheet.credits)}` : ""}
                 </p>
                 {sheet.notes.map((n) => (
-                  <p key={n} className="t-small text-amber">
+                  <p key={n} className="t-small border-l-2 border-warning bg-[#fbf4e6] px-3 py-2 text-body">
                     {n}
                   </p>
                 ))}
@@ -369,24 +404,22 @@ export function NetProceedsCalculator() {
 
         {hasSheet ? (
           <div className="flex flex-col gap-5 print:hidden">
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
-              <button type="button" onClick={copy} className="link-rule" aria-live="polite">
-                {copied ? "Copied" : "Copy a summary"}
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={openSend} className="btn btn-navy" aria-expanded={sendOpen} aria-controls={id("send")}>
+                Send it to us
               </button>
-              <button type="button" onClick={() => window.print()} className="link-rule">
+              <button type="button" onClick={() => window.print()} className="btn btn-outline">
                 Print
               </button>
-              <button type="button" onClick={openSend} className="link-rule" aria-expanded={sendOpen} aria-controls={id("send")}>
-                Send me this sheet
+              <button type="button" onClick={copy} className="btn btn-outline min-w-[150px]">
+                <span aria-live="polite">{copied ? "Copied" : "Copy the numbers"}</span>
               </button>
             </div>
             {sendOpen ? (
               <div id={id("send")} className="flex flex-col gap-4 border border-hairline bg-white p-6 sm:p-8">
                 <div className="flex flex-col gap-2">
-                  <p className="t-eyebrow text-amber">Send me this sheet</p>
-                  <p className="t-body text-body">
-                    The sheet goes in the message as it stands. We&rsquo;ll read it against the comps and tell you which lines we&rsquo;d change.
-                  </p>
+                  <h3 className="t-h3 text-navy">Send it to us</h3>
+                  <p className="t-body text-body">We&rsquo;ll check it against recent sales and tell you which lines we&rsquo;d change.</p>
                   {sentSummary !== summary ? (
                     <button type="button" onClick={() => setSentSummary(summary)} className="link-rule self-start">
                       Use the current numbers
@@ -397,7 +430,7 @@ export function NetProceedsCalculator() {
                   key={sentSummary}
                   form="sell"
                   fields={["name", "email", "phone", "message"]}
-                  submitLabel="Send me this sheet"
+                  submitLabel="Send it to us"
                   defaultMessage={sentSummary}
                   hidden={{ pageTitle: "Net proceeds sheet" }}
                 />

@@ -26,7 +26,8 @@ export type SourceKey =
   | "estoppel"
   | "estoppelStatute"
   | "recording"
-  | "prorations";
+  | "prorations"
+  | "firpta";
 
 export type Source = {
   title: string;
@@ -79,7 +80,16 @@ export const SOURCES: Record<SourceKey, Source> = {
     url: "https://www.floridarealtors.org/sites/default/files/2024-08/FloridaRealtors-FloridaBar-6xx[2].pdf",
     figure: "Real estate taxes, CDD assessments and association fees are prorated as of the day prior to the closing date, on the current year's tax at the maximum allowable discount (prior year's if the bill isn't out); estimates are readjusted when the bill arrives. 9(a): the seller pays doc stamps on the deed and the association estoppel fee.",
   },
+  firpta: {
+    title: "FIRPTA Withholding",
+    publisher: "Internal Revenue Service",
+    url: "https://www.irs.gov/individuals/international-taxpayers/firpta-withholding",
+    figure: "When the seller is a foreign person, the buyer withholds 15% of the amount realized; 10% when the price is $1,000,000 or less and the buyer will live in the home; none at $300,000 or less with the buyer living there. A withholding certificate can reduce it.",
+  },
 };
+
+/** IRS: the general FIRPTA rate on the amount realized. */
+export const FIRPTA_RATE_PCT = 15;
 
 export const MANATEE_RECORDING_URL = "https://www.manateeclerk.com/departments/recording/recording-fees/";
 export const CFO_TITLE_URL = "https://www.myfloridacfo.com/division/consumers/understanding-insurance/title-insurance-overview";
@@ -255,6 +265,10 @@ export type NetProceedsInput = {
   buyerBrokerPct?: number;
   /** Current year's tax bill, CDD included. */
   annualTax?: number;
+  /** This year's bill is already paid (a November or December closing): the buyer credits the seller instead. */
+  taxPaid?: boolean;
+  /** The seller is a foreign person for U.S. tax purposes (FIRPTA). */
+  foreignSeller?: boolean;
   hasAssociation?: boolean;
   duesAmount?: number;
   duesPeriod?: DuesPeriod;
@@ -263,6 +277,8 @@ export type NetProceedsInput = {
   recordingFee?: number;
   repairsConcessions?: number;
   stagingPhotos?: number;
+  /** A home warranty for the buyer, special assessments due, association transfer fees. */
+  otherCosts?: number;
 };
 
 export type LineKind = "payoff" | "cost" | "credit";
@@ -361,11 +377,17 @@ export function computeSheet(input: NetProceedsInput): Sheet {
     }
   }
 
-  // Property tax
+  // Property tax: prorated on the bill less the maximum early-payment discount (Standard K).
   const tax = num(input.annualTax);
-  if (tax > 0 && closing) {
-    const p = prorateTaxes(tax, closing);
-    lines.push({ key: "taxProration", label: "Property tax credit to the buyer", amount: p.amount, basis: `prorated ${p.sellerDays} of ${p.periodDays} days, January 1 through the day before closing · Standard K`, kind: "cost", source: "prorations" });
+  const taxBase = cents((tax * (100 - NOVEMBER_DISCOUNT_PCT)) / 100);
+  if (tax > 0 && closing && input.taxPaid) {
+    const p = prorateTaxes(taxBase, closing);
+    const back = cents(taxBase - p.amount);
+    lines.push({ key: "taxProration", label: "Property tax, prepaid days back to you", amount: back, basis: `you've paid this year's bill: ${p.periodDays - p.sellerDays} of ${p.periodDays} days, closing day through December 31, on the bill less the ${NOVEMBER_DISCOUNT_PCT}% discount · Standard K`, kind: "credit", source: "prorations" });
+  } else if (tax > 0 && closing) {
+    const p = prorateTaxes(taxBase, closing);
+    lines.push({ key: "taxProration", label: "Property tax credit to the buyer", amount: p.amount, basis: `prorated ${p.sellerDays} of ${p.periodDays} days, January 1 through the day before closing, on the bill less the ${NOVEMBER_DISCOUNT_PCT}% discount · Standard K`, kind: "cost", source: "prorations" });
+    if (closing.m >= 11) notes.push("Closing in November or December: if you've already paid this year's tax bill, tick that box and the buyer credits you for the rest of the year instead.");
   } else if (tax > 0) {
     notes.push("Add a closing date to prorate the property tax.");
   } else {
@@ -377,6 +399,12 @@ export function computeSheet(input: NetProceedsInput): Sheet {
   if (repairs > 0) lines.push({ key: "repairs", label: "Repairs or concessions", amount: cents(repairs), basis: "your figure", kind: "cost" });
   const staging = num(input.stagingPhotos);
   if (staging > 0) lines.push({ key: "staging", label: "Staging and photographs", amount: cents(staging), basis: "your figure; often paid before closing rather than on the statement", kind: "cost" });
+  const other = num(input.otherCosts);
+  if (other > 0) lines.push({ key: "other", label: "Other costs", amount: cents(other), basis: "your figure: a home warranty, special assessments due, association transfer fees", kind: "cost" });
+  // FIRPTA: withheld from the seller's cash at closing and sent to the IRS, credited against the seller's U.S. tax.
+  if (input.foreignSeller && price > 0) {
+    lines.push({ key: "firpta", label: "FIRPTA withholding for the IRS", amount: cents((price * FIRPTA_RATE_PCT) / 100), basis: `${FIRPTA_RATE_PCT}% of the price, credited against your U.S. tax; 10% or none when the price is $1,000,000 or less and the buyer will live in the home`, kind: "payoff", source: "firpta" });
+  }
 
   const sum = (kind: LineKind) => cents(lines.filter((l) => l.kind === kind).reduce((s, l) => s + l.amount, 0));
   const payoffs = sum("payoff");
