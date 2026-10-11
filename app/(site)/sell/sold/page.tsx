@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { RuleLink } from "@/components/buttons";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
 import { SOLD_COPY as C } from "@/components/sales/copy";
@@ -10,8 +9,8 @@ import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 export async function generateMetadata(): Promise<Metadata> {
   const months = (await getSalesManifest())?.windowMonths ?? 24;
   return pageMetadata({
-    title: "What sold on your street",
-    description: `Every qualified sale the Manatee and Sarasota County Property Appraisers recorded on your street in the last ${months} months: address, date, price and living area, from the public record, not an estimate.`,
+    title: "Tide Street: what sold on your street",
+    description: `Every home sale the Manatee and Sarasota County Property Appraisers recorded on your street in the last ${months} months: address, date, price and living area, from the public record, not an estimate.`,
     path: "/sell/sold",
     fileImage: true, // opengraph-image.tsx beside this page
   });
@@ -36,12 +35,10 @@ export default async function SoldPage() {
           { name: "What sold on your street", path: "/sell/sold" },
         ])}
       />
-      <Masthead route="/sell/sold" title={C.title} titleId="sold-title" titleClassName="max-w-[720px]" />
-      <section className="container-site flex flex-col gap-7 py-section" aria-label="What the record shows">
-        <p className="t-lead max-w-[560px] text-body">{C.lead}</p>
-        <p className="t-body max-w-measure text-body">{C.body(months)}</p>
-        <RuleLink href="/sell/home-value">With an address, start with the public record for the house itself</RuleLink>
-      </section>
+      <Masthead route="/sell/sold" title={C.title} titleId="sold-title" titleClassName="max-w-[720px]">
+        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">{C.lead(months)}</p>
+      </Masthead>
+      <div className="pt-section" />
       <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} />
     </>
   );

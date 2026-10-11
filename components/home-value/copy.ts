@@ -33,13 +33,13 @@ export const HOME_VALUE_COPY = {
     empty: (months: number) => `No qualified sales on that street in the county's record for the last ${months} months.`,
     emptyHelp:
       "The record only counts arm's-length sales, so transfers for nominal consideration, foreclosures and new-build closings the roll hasn't caught up with won't appear. That's not nothing: it means the number for your house will lean on the streets around it, which is what the walk-through is for.",
-    /** "{n} qualified sales in the last {months} months on {streets}: {homes} homes, {lots} vacant on the roll; median ${x} per square foot." */
+    /** "{n} sales in the last {months} months on {streets}: {homes} resales, {lots} new builds or lots; median ${x} per square foot." */
     line: (n: number, months: number, streets: string[]) => `${n} qualified ${n === 1 ? "sale" : "sales"} in the last ${months} months on ${streets.join(" and ")}`,
-    split: (homes: number, lots: number) => (lots ? `: ${homes} ${homes === 1 ? "home" : "homes"}, ${lots} vacant on the roll` : ""),
+    split: (homes: number, lots: number) => (lots ? `: ${homes} ${homes === 1 ? "resale" : "resales"}, ${lots} new ${lots === 1 ? "build" : "builds"} or lots` : ""),
     perSqft: (x: string, sample: number) => `; median ${x} per square foot across the ${sample} ${sample === 1 ? "home" : "homes"} with a recorded living area.`,
     noPerSqft: ". Too few homes with a recorded living area for a median per square foot.",
     rollChanged:
-      "The county's roll lags the closing: these rows are vacant on the roll or were updated after the sale, so the area and year are today's, not the day it sold, and they stay out of the median.",
+      "The county updated this record after the sale, or hasn’t added a new house yet, so size and year built may be blank or describe the house as it is now. These sales are left out of the price per square foot.",
     note: "Not MLS data. The county's roll runs a few weeks behind the closing table, and a sale the appraiser didn't qualify as arm's-length isn't shown.",
   },
   parcel: {
@@ -48,9 +48,9 @@ export const HOME_VALUE_COPY = {
     /** The last qualified sale on the parcel; the computed price follows on the page. */
     lastSale: (date: string) => `Last qualified sale on the record, ${date}:`,
     facts: {
-      livingArea: "Living area on the roll",
-      yearBuilt: "Year built on the roll",
-      type: "Use on the roll",
+      livingArea: "Living area",
+      yearBuilt: "Year built",
+      type: "Type",
       instrument: "Instrument",
       earlier: "Earlier qualified sales in the window",
     },
@@ -61,7 +61,7 @@ export const HOME_VALUE_COPY = {
     noneHelp:
       "That's the common case: most houses on a street haven't changed hands in two years. It means the street's sales above, and the ones on the streets around it, are what the number will rest on.",
     noNumber: "Type a house number and we'll look up the address itself, not only the street.",
-    units: (count: number) => `That number has ${count} units on the roll. The newest sale among them is below; add the unit (#) to the address to see one.`,
+    units: (count: number) => `That address has ${count} units. The newest sale among them is below; add the unit number to see one.`,
     dagger: "The roll's building facts changed after this sale, so the area and year are today's, not the day it sold.",
   },
   cant: {
@@ -103,7 +103,7 @@ export const HOME_VALUE_COPY = {
     messageIntro: (address: string) => `Public record for ${address}:`,
     messageNoParcel: "No qualified sale at this address in the window.",
     messageParcel: (date: string, price: string, area: string | null, year: number | null) =>
-      `Last qualified sale at this address: ${date}, ${price}${area ? `, ${area} sq ft on the roll` : ""}${year ? `, built ${year}` : ""}.`,
+      `Last qualified sale at this address: ${date}, ${price}${area ? `, ${area} sq ft` : ""}${year ? `, built ${year}` : ""}.`,
     disclaimer:
       "This is a comparative market analysis from a licensed REALTOR®, not an appraisal. If you sell, your buyer's lender orders the appraisal; pricing to the comps is how it comes in at contract.",
   },

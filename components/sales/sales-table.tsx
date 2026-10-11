@@ -56,10 +56,16 @@ export function titleCase(s: string) {
 
 /** The roll has not caught up with this row: vacant on the roll, a 03/04 code, or built after the sale year. */
 export function saleFlagged(r: SaleRow) {
-  return r.rollChanged || r.propertyUse === "vacant";
+  return r.rollChanged;
 }
 
+/**
+ * A parcel the county still lists as land sold either as a lot or as a new
+ * home the record hasn't caught up with. A builder's special warranty deed,
+ * or a price no lot here sells for, says new build.
+ */
 export function typeLabel(r: SaleRow) {
+  if (r.propertyUse === "vacant") return r.instrument === "SW" || r.salePrice >= 150_000 ? C.results.newBuild : C.results.lot;
   return C.results.typeLabel[r.propertyUse] ?? C.results.typeLabel.other;
 }
 
