@@ -14,6 +14,8 @@ export type Door = {
 };
 
 export const DOORS: Door[] = [
-  { href: "/buy", title: "Buyer", image: img("library/living-oceanfront-white", "A living room of white sofas under a chandelier, with a glass wall open to the sea", "60% 55%") },
-  { href: "/sell", title: "Seller", image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 60%") },
+  // Until Jessica's buyer photograph (Slack, Oct 8) is in, the tile keeps the photograph it had before.
+  { href: "/buy", title: "Buyer", image: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%") },
+  // A licensed, non-generative stand-in for Jessica's seller pick, which was a watermarked Adobe Stock preview.
+  { href: "/sell", title: "Seller", image: img("library/living-oceanfront-white", "A living room of white sofas under a chandelier, with a glass wall open to the sea", "60% 55%") },
 ];
