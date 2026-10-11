@@ -7,7 +7,8 @@ import { LetterBand } from "@/components/home/letter-band";
 import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
 import { Questions } from "@/components/home/questions";
-import { getTeam, getUpcomingEvents } from "@/lib/content";
+import { WorkWith } from "@/components/home/work-with";
+import { getSiteSettings, getTeam, getUpcomingEvents } from "@/lib/content";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
@@ -32,13 +33,15 @@ const FRAMES = {
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
   kitchen: img("library/kitchen-white-palms", "A white kitchen with the palms outside the window"),
   island: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
+  living: img("library/interior-living-kitchen-palm", "An open living room and kitchen, a white sofa and a palm by the glass", "50% 55%"),
 };
 
 export default async function HomePage() {
   // The Encore pieces below (the season ring, tonight's count) read the snapshot loaded here.
-  const [team, events] = await Promise.all([
+  const [team, events, settings] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
+    getSiteSettings(),
     loadEncoreSnapshot(),
   ]);
 
@@ -53,6 +56,7 @@ export default async function HomePage() {
       <Doors />
       <Places />
       <FindHome image={FRAMES.kitchen} />
+      <WorkWith image={FRAMES.living} phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} />
       <CalendarPreview events={events} />
       <LetterBand image={FRAMES.island} />
       <Questions />
