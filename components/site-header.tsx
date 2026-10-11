@@ -20,35 +20,25 @@ const OVERLAY_ROUTES = [/^\/$/, /^\/neighborhoods\/[^/]+$/, /^\/venues\/[^/]+$/,
 type Contact = { name: string; phone: string; phoneE164: string; email: string };
 
 /**
- * The header is navy furniture. Over a photographic hero it starts
- * transparent and turns solid once the page scrolls (only if the page marks
- * its hero with data-header-overlay: a place page without a photo has none);
- * everywhere else it is
- * solid from the first pixel. Collapses to a full-navy menu below `lg`.
+ * The header stays at the top of every page, however far it scrolls. Over a
+ * photographic hero it starts transparent and turns to frosted glass once the
+ * page scrolls (only if the page marks its hero with data-header-overlay);
+ * everywhere else it is glass from the first pixel (.header-glass in
+ * globals.css). The wordmark always returns to the very top of the home page.
+ * Collapses to a full-navy menu below `lg`.
  */
 export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const overlay = OVERLAY_ROUTES.some((r) => r.test(pathname));
   const [scrolled, setScrolled] = useState(false);
-  // Tucked away while the page scrolls down past the first screen; back the
-  // moment it scrolls up, so the nav is there when someone reaches for it and
-  // out of the way while they read.
-  const [tucked, setTucked] = useState(false);
   const [open, setOpen] = useState(false);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    let last = window.scrollY;
     let ticking = false;
     const read = () => {
-      const y = window.scrollY;
-      setScrolled(y > 24);
-      const delta = y - last;
-      // A small dead band so a trackpad's tremor doesn't flicker it.
-      if (delta > 6 && y > 160) setTucked(true);
-      else if (delta < -6 || y <= 24) setTucked(false);
-      last = y;
+      setScrolled(window.scrollY > 24);
       ticking = false;
     };
     const onScroll = () => {
@@ -61,11 +51,6 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // A route change always shows it again.
-  useEffect(() => {
-    setTucked(false);
-  }, [pathname]);
 
   useEffect(() => {
     setOpen(false);
@@ -121,20 +106,17 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 h-header transition-[background-color,border-color,transform] duration-300 ease-[var(--ease-brand)]",
-        tucked && !open && "-translate-y-full",
+        "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-300 ease-[var(--ease-brand)]",
         // No backdrop blur while the menu is open: a backdrop-filter makes the
         // header the containing block for the fixed menu panel, which would
         // then collapse to the header's own height.
         open
           ? "border-b border-sky-300/15 bg-navy"
           : solid
-            ? "border-b border-sky-300/15 bg-navy/90 backdrop-blur-xl"
+            ? "header-glass border-b border-sky-300/15"
             : // header-overlay: CSS keeps it solid unless the page really has a hero under it (data-header-overlay).
               "header-overlay border-b border-transparent bg-transparent",
       )}
-      // Keyboard users tabbing into a tucked header get it back.
-      onFocusCapture={() => setTucked(false)}
     >
       <div
         className={cn(
@@ -142,7 +124,18 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           homeInset && "lg:gap-6 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
         )}
       >
-        <Link href="/" aria-label="JJ Premier Group home" className="shrink-0 transition-opacity hover:opacity-80">
+        <Link
+          href="/"
+          aria-label="JJ Premier Group home"
+          className="shrink-0 transition-opacity hover:opacity-80"
+          onClick={(e) => {
+            // Already home: back to the very top, the hero whole, no anchor left in the address.
+            if (pathname !== "/" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            window.history.replaceState(window.history.state, "", "/");
+            window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+          }}
+        >
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
