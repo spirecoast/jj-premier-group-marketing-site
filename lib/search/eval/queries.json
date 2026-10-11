@@ -3,7 +3,7 @@
   "queries": [
     { "id": "kw-flood-insurance", "type": "keyword", "q": "flood insurance", "expect": ["guide:flood-zones-and-elevation-certificates-on-the-suncoast#what-sets-the-price", "guide:flood-zones-and-elevation-certificates-on-the-suncoast#when-the-policy-starts", "guide:homeowners-wind-and-flood-insurance-on-this-coast", "guide:homeowners-wind-and-flood-insurance-on-this-coast#the-flood-policy", "guide:homeowners-wind-and-flood-insurance-on-this-coast#two-policies"] },
     { "id": "kw-cdd", "type": "keyword", "q": "cdd fees lakewood ranch", "expect": ["guide:cdd-fees-in-lakewood-ranch-village-by-village*"] },
-    { "id": "kw-homestead", "type": "keyword", "q": "homestead exemption", "expect": ["guide:homestead-save-our-homes-and-portability", "guide:homestead-save-our-homes-and-portability#what-homestead-is", "page:/relocate#different"] },
+    { "id": "kw-homestead", "type": "keyword", "q": "homestead exemption", "expect": ["guide:homestead-save-our-homes-and-portability", "guide:homestead-save-our-homes-and-portability#what-homestead-is", "page:/relocate#faq"] },
     { "id": "kw-four-point", "type": "keyword", "q": "four point inspection", "expect": ["guide:inspections-on-the-suncoast-what-a-good-one-covers#the-four-point"] },
     { "id": "kw-wind-mit", "type": "keyword", "q": "wind mitigation report", "expect": ["guide:inspections-on-the-suncoast-what-a-good-one-covers#the-wind-mitigation-report", "guide:homeowners-wind-and-flood-insurance-on-this-coast#the-wind-report"] },
     { "id": "kw-milestone", "type": "keyword", "q": "condo milestone inspection", "expect": ["guide:condo-and-hoa-documents-after-the-2022-law#the-milestone-inspection"] },

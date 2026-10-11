@@ -185,7 +185,7 @@ export function defaultAnswers(today: string): Answers {
     work: "na",
     county: "both",
     financing: "financed",
-    closingOffset: 3,
+    closingOffset: 7,
   };
 }
 
@@ -709,7 +709,7 @@ export function buildSummary(a: Answers, milestones: Milestone[], homestead: Hom
 
 export const PHASE_LABEL: Record<Phase, { eyebrow: string; title: string }> = {
   before: { eyebrow: "Before", title: "Before the contract" },
-  contract: { eyebrow: "Under contract", title: "The contract dates" },
-  closing: { eyebrow: "Closing", title: "The last week" },
-  after: { eyebrow: "After", title: "Becoming a Floridian" },
+  contract: { eyebrow: "Under contract", title: "Under contract" },
+  closing: { eyebrow: "Closing", title: "Closing" },
+  after: { eyebrow: "After", title: "After you move" },
 };
