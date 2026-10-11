@@ -95,10 +95,10 @@ export const MORE = {
     label: "Try Atlas Match",
   },
   encore: {
-    name: "Encore · Plan a visit",
-    line: "If you’re coming down to look at homes, give Encore your dates and get each day planned: showings from ten to four, then the evening’s theater, music and openings.",
+    name: "Encore Planner",
+    line: "Pick your dates and get each day planned: the evening’s theater, music and openings, and ten to four kept free if you’re coming to look at homes.",
     href: "/calendar/plan",
-    label: "Plan a visit",
+    label: "Plan your days",
   },
   tide: {
     name: "Tide · Once a month",

@@ -10,10 +10,10 @@ import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 /**
- * GET /api/calendar/plan.ics?from=&to=&market=&cat=&evenings=&pick=slug:start…
+ * GET /api/calendar/plan.ics?from=&to=&market=&cat=&evenings=&who=&pick=slug:start…
  *
- * A visit plan as a calendar file: one "Showings with us" block from ten to
- * four on every day of the stay, then the evenings' picks. The picks come
+ * An Encore Planner plan as a calendar file: for a visit, one "Showings with
+ * us" block from ten to four on every day; then the day's picks. The picks come
  * from the page as `pick=slug:startMs` so the file matches what was on
  * screen; without them the plan is rebuilt here from the same index.
  */
@@ -33,13 +33,13 @@ export async function GET(request: NextRequest) {
     })
     .filter((p) => /^[a-z0-9-]{1,120}$/.test(p.slug) && Number.isFinite(p.start))
     .filter((p, i, all) => all.findIndex((q) => q.slug === p.slug && q.start === p.start) === i)
-    .slice(0, 80);
+    .slice(0, 130);
   if (!wanted.length) {
     const plan = buildPlan(await loadEncoreIndex(), state, today, now.getTime());
     wanted = plan.days.flatMap((d) => [...(d.matinee ? [d.matinee] : []), ...d.picks]).map((o) => ({ slug: o.e.s, start: o.start }));
   }
 
-  const showings = stayDays(state).flatMap((d) => {
+  const showings = (state.local ? [] : stayDays(state)).flatMap((d) => {
     const start = zonedInstant(d.day, SHOWINGS.from);
     const end = zonedInstant(d.day, SHOWINGS.to);
     return [
@@ -70,9 +70,9 @@ export async function GET(request: NextRequest) {
   );
 
   const body = vcalendar({
-    name: `Encore visit plan · ${site.name}`,
-    description: `Showings by day and Encore by night, ${daysInRange(state.from, state.to).length} days from ${longDay(state.from)}.`,
+    name: `Encore Planner · ${site.name}`,
+    description: `${state.local ? "Encore picks" : "Showings by day and Encore by night"}, ${daysInRange(state.from, state.to).length} days from ${longDay(state.from)}.`,
     events: [...showings, ...events.flat()],
   });
-  return icsResponse(body, `encore-visit-plan-${state.from}.ics`, "private, max-age=0, no-store");
+  return icsResponse(body, `encore-planner-${state.from}.ics`, "private, max-age=0, no-store");
 }

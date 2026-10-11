@@ -23,7 +23,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * GET /api/calendar.ics?category=music&market=sarasota&venue=van-wezel
  *                                             → a subscription feed of just that filter
  *
- * A visit plan (showing blocks plus the evenings' picks) is /api/calendar/plan.ics.
+ * An Encore Planner plan (showing blocks on a visit, then each day's picks) is /api/calendar/plan.ics.
  */
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;

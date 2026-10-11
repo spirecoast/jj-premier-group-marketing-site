@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { VisitPlan } from "@/components/encore/visit-plan";
-import { SectionHeading } from "@/components/section-heading";
+import { Masthead } from "@/components/masthead";
 import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { parsePlanState } from "@/lib/encore/plan";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Plan a visit · Encore",
+  title: "Encore Planner: what's on in Sarasota, Lakewood Ranch and Bradenton, day by day",
   description:
-    "Plan the days you’re here to look at homes in Lakewood Ranch, Sarasota or Bradenton. Give Encore your dates and the places you want to see, and get a day-by-day plan: showings from ten to four, then the evening's theater, music and openings.",
+    "Pick your dates and Encore Planner lays out each day: up to three shows, concerts or openings every evening, from different venues. Coming to look at homes? It keeps ten to four free for showings. Add it to your calendar or share the link.",
   path: "/calendar/plan",
 });
 
@@ -19,7 +19,7 @@ export const revalidate = 3600;
 type SearchParams = Record<string, string | string[] | undefined>;
 
 /**
- * The visit planner. The server builds the first plan from a slice of the
+ * Encore Planner. The server builds the first plan from a slice of the
  * index covering the stay, so a shared link is complete without JavaScript;
  * the client takes over with the full season for new dates.
  */
@@ -31,31 +31,24 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      {/* 01 · Hero on Paper: the eyebrow, the headline, the promise. */}
-      <section className="container-site flex flex-col gap-7 pb-12 pt-10 md:pt-14 lg:pb-16">
-        <SectionHeading
-          as="h1"
-          size="display"
-          title={
-            <>
-              Showings fill the day.
-              <br className="hidden sm:block" /> Encore fills the evening.
-            </>
-          }
-          aside={
-            <Link href="/calendar" className="link-rule">
-              The whole calendar
+      <Masthead
+        route="/calendar/plan"
+        title="What’s on, day by day"
+        titleId="plan-title"
+        crumbs={
+          <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-2 text-linen-200 text-shadow-soft">
+            <Link href="/calendar" className="underline-offset-4 hover:text-white hover:underline">
+              Encore
             </Link>
-          }
-        />
-        <p className="t-lead max-w-[600px] text-body">
-          Tell us when you&rsquo;re arriving and where you want to look. You&rsquo;ll get a day for each date: the hours from ten to four held for showings, then up to three performances that evening from
-          Encore, spread across venues and categories so no two nights look alike.
+            <span aria-hidden="true">›</span>
+            <span>Planner</span>
+          </nav>
+        }
+      >
+        <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">
+          Pick your dates and get the shows, concerts and openings for each day. Coming to look at homes? It keeps ten to four free.
         </p>
-        <p className="t-body max-w-measure text-body">
-          Weekends get a matinee option too. Save anything into your Encore list, put the whole plan in your calendar, or send the link to whoever is coming with you.
-        </p>
-      </section>
+      </Masthead>
 
       <VisitPlan initial={state} today={today} initialIndex={slice} trimmed={trimmed} />
     </>

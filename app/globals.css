@@ -1971,16 +1971,11 @@
     top: var(--header-h);
     z-index: 5;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.75rem 1rem 0.625rem;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-navy);
-    background: var(--color-linen-100);
+    padding: 0.875rem 1.25rem;
+    background: var(--color-linen-50);
     border-bottom: 1px solid var(--color-hairline);
   }
   .plan-block {
@@ -1994,17 +1989,28 @@
     border-bottom: 0;
   }
   .plan-block.is-showings {
-    background: var(--color-paper);
-    border-left: 3px solid var(--color-amber);
+    background: var(--color-sky-50);
+    box-shadow: inset 3px 0 0 var(--color-sky-500);
+  }
+  .plan-block.is-afternoon {
+    box-shadow: inset 3px 0 0 var(--color-linen-400);
+  }
+  .plan-block.is-evening {
+    box-shadow: inset 3px 0 0 var(--color-navy);
   }
   .plan-slot {
     flex: none;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-amber);
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-sky-700);
     font-variant-numeric: tabular-nums;
+  }
+  .plan-block.is-evening .plan-slot {
+    color: var(--color-navy);
+  }
+  .plan-block.is-afternoon .plan-slot {
+    color: var(--color-linen-700);
   }
   .plan-title {
     font-family: var(--font-display);
@@ -2630,5 +2636,56 @@ body:not(:has([data-header-overlay])) .header-overlay,
     border-left: 1.6px solid currentColor;
     border-bottom: 1.6px solid currentColor;
     transform: rotate(-45deg);
+  }
+}
+
+/* ---- Encore Planner: the days at a glance, and the pill choices on its form. */
+@layer components {
+  .plan-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(4.25rem, 1fr);
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+  .plan-strip-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+    transition: border-color 0.2s ease, transform 0.3s var(--ease-reveal);
+  }
+  .plan-strip-day.is-weekend {
+    background: var(--color-sky-50);
+  }
+  .plan-strip-day:hover,
+  .plan-strip-day:focus-visible {
+    border-color: var(--color-navy);
+    transform: translateY(-2px);
+  }
+  .plan-pills .chip {
+    border-radius: 9999px;
+    border: 1px solid var(--color-hairline);
+    background: #fff;
+    color: var(--color-navy);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    padding: 0 1.125rem;
+  }
+  .plan-pills .chip:hover {
+    border-color: var(--color-navy);
+  }
+  .plan-pills .chip[aria-pressed="true"] {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+    color: var(--color-linen-100);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plan-strip-day { transition: none; }
   }
 }

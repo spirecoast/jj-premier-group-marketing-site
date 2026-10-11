@@ -124,7 +124,7 @@ export function Encore({
           )}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <Link href="/calendar/plan" className="link-rule">
-              Plan a visit
+              Encore Planner
             </Link>
             <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" />
             <a
