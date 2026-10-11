@@ -49,32 +49,34 @@ export default async function AboutPage() {
         <JsonLd key={m.slug} data={{ "@context": "https://schema.org", ...personJsonLd(m, settings) }} />
       ))}
 
-      <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="about-title">
-        <SectionHeading
-          as="h1"
-          size="display"
-          eyebrow="Meet Joelyn & Jessica"
-          title={
-            <span id="about-title">
-              A mother and daughter,
-              <br />
-              in your corner
-              <br />
-              for the whole move.
-            </span>
-          }
-        />
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-20">
-          <div className="flex flex-col gap-6">
-            <p className="t-lead max-w-measure text-body">
-              We&rsquo;re Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we&rsquo;d want it done for our own family.
-            </p>
-            <p className="t-body max-w-measure text-body">
-              Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
-            </p>
+      {/* The duo photograph beside the title, its top on the title's cap line and its height about the text column's. */}
+      <section className="container-site py-section" aria-labelledby="about-title">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:items-start lg:gap-20">
+          <div className="flex flex-col gap-10">
+            <SectionHeading
+              as="h1"
+              size="display"
+              title={
+                <span id="about-title">
+                  A mother and daughter,
+                  <br />
+                  in your corner
+                  <br />
+                  for the whole move.
+                </span>
+              }
+            />
+            <div className="flex flex-col gap-6">
+              <p className="t-lead max-w-measure text-body">
+                We&rsquo;re Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we&rsquo;d want it done for our own family.
+              </p>
+              <p className="t-body max-w-measure text-body">
+                Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
+              </p>
+            </div>
           </div>
-          <div className="relative aspect-[4/5] overflow-hidden bg-linen-100">
-            <Photo image={FRAMES.duo} priority sizes="(min-width: 1024px) 520px, 100vw" />
+          <div className="relative aspect-square w-full overflow-hidden bg-linen-100 sm:max-w-[440px] lg:justify-self-end">
+            <Photo image={FRAMES.duo} priority sizes="(min-width: 640px) 440px, 100vw" />
           </div>
         </div>
       </section>
