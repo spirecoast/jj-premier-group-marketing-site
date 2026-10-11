@@ -14,10 +14,10 @@ import { MARKETS } from "@/lib/content/markets";
 export function Places() {
   return (
     <section className="container-site flex flex-col gap-12 py-section" aria-labelledby="places-title">
-      <SectionHeading size="display" title={<span id="places-title">Areas of expertise</span>} />
+      <SectionHeading size="display" className="sr" title={<span id="places-title">Areas of expertise</span>} />
       <ul className="grid gap-5 md:grid-cols-3 lg:items-start">
         {MARKETS.map((m, i) => (
-          <li key={m.slug} className="flex">
+          <li key={m.slug} className="sr flex" style={{ ["--sr-i" as string]: i }}>
             <SharedLink
               href={`/${m.slug}`}
               shared={`place-${m.slug}`}
@@ -29,7 +29,6 @@ export function Places() {
               <div className="scrim" aria-hidden="true" />
               {m.credit ? <span className="image-credit-on bottom-auto top-0">{m.credit}</span> : null}
               <div className="relative flex flex-col gap-3 p-7 lg:p-8">
-                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-mist">{m.county}</p>
                 <h3 className="font-display text-[clamp(2rem,3.2vw,2.75rem)] font-light leading-[1.02] text-white text-shadow-photo">
                   {m.name}
                 </h3>

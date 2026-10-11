@@ -32,12 +32,12 @@ export function WorkWith({
         <Photo image={DUO} sizes="100vw" />
       </div>
       <div className="container-site relative flex pt-12 pb-16 lg:min-h-[640px] lg:items-center lg:justify-end lg:py-24 xl:min-h-[720px]">
-        <div className="flex max-w-[520px] flex-col items-start gap-6 lg:w-[42%]">
-          <p className="t-eyebrow text-navy">Your home. Your future. Our commitment.</p>
-          <span className="block h-px w-[96px] bg-navy/40" aria-hidden="true" />
+        <div className="sr flex max-w-[520px] flex-col items-start gap-6 lg:w-[42%]">
           <h2 id="work-with-title" className="t-display text-balance text-navy">
             Work with Joelyn and Jessica
           </h2>
+          <p className="font-display text-[clamp(1.25rem,1.6vw,1.5rem)] font-light italic text-navy/85">Your home. Your future. Our commitment.</p>
+          <span className="block h-px w-[96px] bg-navy/40" aria-hidden="true" />
           <p className="t-body max-w-[460px] text-navy">
             Get assistance in determining current property value, crafting a competitive offer, writing and negotiating a
             contract, and much more. Contact us today.

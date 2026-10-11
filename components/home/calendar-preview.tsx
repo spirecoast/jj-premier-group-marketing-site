@@ -23,6 +23,7 @@ export function CalendarPreview({ events }: { events: Event[] }) {
       <div className="container-site flex flex-col gap-12 py-section">
         <SectionHeading
           size="display"
+          className="sr"
           title={<span id="encore-title">What’s on this week in theater, music and art, close to home.</span>}
           titleClassName="max-w-[820px]"
           aside={
@@ -31,10 +32,10 @@ export function CalendarPreview({ events }: { events: Event[] }) {
             </Link>
           }
         />
-        <div className="relative aspect-[16/7] max-h-[440px] w-full overflow-hidden bg-navy">
+        <div className="sr-img relative aspect-[16/7] max-h-[440px] w-full overflow-hidden bg-navy">
           <Photo image={HOUSE} sizes="(min-width: 1280px) 1200px, 100vw" />
         </div>
-        <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+        <div className="sr grid gap-5 lg:grid-cols-[1.4fr_1fr]">
           <EventCard variant="feature" event={feature} />
           <div className="flex flex-col gap-5 lg:justify-between">
             {rows.slice(0, 3).map((e) => (

@@ -2478,3 +2478,124 @@ body:not(:has([data-header-overlay])) .header-overlay,
     display: none !important;
   }
 }
+
+/* ---- Scroll reveals --------------------------------------------------------
+   Scroll-driven, no script. `.sr` rises and fades in as it enters the view;
+   `--sr-i` staggers items in a row (0, 1, 2…). `.sr-img` lets a large
+   photograph settle from a slight zoom as it crosses the view (not on cards,
+   whose hover zoom would fight it). Browsers without view timelines, and
+   anyone who asks for less motion, see everything in place. */
+@keyframes sr-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 36px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sr-settle {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .sr {
+      animation: sr-up linear both;
+      animation-timeline: view();
+      animation-range: entry calc(4% + var(--sr-i, 0) * 9%) entry calc(70% + var(--sr-i, 0) * 9%);
+    }
+    .sr-img img {
+      animation: sr-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 55%;
+    }
+  }
+}
+
+/* ---- FAQ ------------------------------------------------------------------
+   The answer opens and closes on its height where the browser can animate to
+   auto; elsewhere it snaps, as details always has. */
+@layer components {
+  .faq {
+    interpolate-size: allow-keywords;
+  }
+  .faq details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 0.5s var(--ease-reveal),
+      content-visibility 0.5s allow-discrete;
+  }
+  .faq details[open]::details-content {
+    block-size: auto;
+  }
+  .faq summary .faq-q {
+    transition: color 0.25s ease, transform 0.35s var(--ease-reveal);
+  }
+  .faq summary:hover .faq-q,
+  .faq summary:focus-visible .faq-q {
+    color: var(--color-harbor-700);
+    transform: translateX(4px);
+  }
+  .faq .faq-icon {
+    transition: transform 0.45s var(--ease-reveal);
+  }
+  .faq details[open] .faq-icon {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .faq details::details-content { transition: none; }
+    .faq summary .faq-q,
+    .faq .faq-icon { transition: none; }
+    .faq summary:hover .faq-q { transform: none; }
+  }
+}
+
+/* ---- Home · Buyer and Seller ------------------------------------------------
+   A navy tint over the photograph that lifts on hover, the word rising a
+   little and a sky rule drawing under it. */
+@layer components {
+  .door-tile .door-tint {
+    background: rgb(20 37 48 / 0.32);
+    transition: background-color 0.6s var(--ease-reveal);
+  }
+  .door-tile:hover .door-tint,
+  .door-tile:focus-visible .door-tint {
+    background: rgb(20 37 48 / 0.08);
+  }
+  .door-tile .place-img {
+    transition: transform 1.2s var(--ease-reveal);
+  }
+  .door-tile:hover .place-img,
+  .door-tile:focus-visible .place-img {
+    transform: scale(1.04);
+  }
+  .door-tile .door-word {
+    transition: transform 0.6s var(--ease-reveal);
+  }
+  .door-tile:hover .door-word,
+  .door-tile:focus-visible .door-word {
+    transform: translateY(-6px);
+  }
+  .door-tile .door-rule {
+    transform: scaleX(0.25);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease-reveal);
+  }
+  .door-tile:hover .door-rule,
+  .door-tile:focus-visible .door-rule {
+    transform: scaleX(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .door-tile .door-tint,
+    .door-tile .door-word,
+    .door-tile .door-rule,
+    .door-tile .place-img { transition: none; }
+  }
+}
