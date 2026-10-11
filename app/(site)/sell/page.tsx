@@ -11,7 +11,7 @@ import { faqJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "The seller's guide",
   description:
-    "Selling in Lakewood Ranch, Sarasota or Bradenton in eight steps, from the walk-through to the closing table. We price to what the street has sold for, and you see the four sales behind the number.",
+    "Selling a home in Lakewood Ranch, Sarasota or Bradenton in eight steps: why you're selling, the price, getting the house ready, marketing, the offers, the contract, getting ready to close and closing.",
   path: "/sell",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -21,55 +21,55 @@ const FRAMES = {
   hero: img("library/hero-mediterranean-pool-twilight", "A house with arched loggias at twilight, its windows and pool lit", "50% 60%"),
 };
 
-/** Eight steps, in the order they happen, and a photograph after each of the first seven. */
+/** Eight steps, in the order they happen, each with a photograph. */
 const STEPS: GuideStep[] = [
   {
-    title: "Tell us the timing",
+    title: "Know why you're selling",
     body:
-      "When do you want to be gone, and is there a house to buy after this one? The timing sets the plan. If you're buying too, we run both files from one desk so the two closing dates line up on purpose.",
+      "Start with what the sale needs to do for you: a certain amount to take away, a closing date that lines up with your next home, or the shortest time on the market. Tell us early, because it shapes the price, the timing and which offers we push for. If you're buying here too, we run both sides so the two closings line up.",
     image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 50%"),
   },
   {
-    title: "We walk the house",
+    title: "Set the price",
     body:
-      "Both of us come to the house and walk it the way a buyer will: the roof, the water, which end of the street. You'll get a short list of what we'd change before the photographs.",
-    image: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%"),
-  },
-  {
-    title: "The number, in writing",
-    body:
-      "We pull four closed sales from the last six months, inside half a mile, adjusted for the water, the flood zone, the year of the roof and which end of the street. You get the number and the four addresses behind it. If ours is lower than someone else's, ask them for their four.",
+      "A fair price brings the most buyers in the first weeks. Too high and the house sits; too low and you leave money on the table. We pull recent closed sales near you and adjust for what matters here: the water, the flood zone, the age of the roof and the HOA. You'll get the number in writing, with the sales behind it.",
     image: img("library/lakefront-houses-palms", "Houses with balconies along a lake, under palms", "50% 55%"),
   },
   {
-    title: "Prepare the house",
+    title: "Get the house ready",
     body:
-      "Interior paint, updated light fixtures and a repainted front door are the cheapest changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we'll say so before you spend a dollar. Good photographers book up early, so we'll plan the date together.",
+      "Clear the counters, pack away the photos and extra furniture, fix the small things buyers notice and deep clean everything. Fresh interior paint and updated light fixtures cost little and show well. A new kitchen rarely pays for itself before you sell. We'll walk the house with you first and tell you what's worth doing.",
     image: img("library/kitchen-white-palms", "A white kitchen with palms outside the window", "50% 50%"),
   },
   {
-    title: "The photographs and the first weekend",
+    title: "Market it",
     body:
-      "Photos are taken in the afternoon light, the listing goes live on a Thursday, and showings start Friday. Buyers who close here arrive in February and are mostly gone by May, so the strongest listings go live in late January or February. Nothing goes live until the house is ready.",
+      "Your home goes on the MLS and the big home-search sites with professional photographs, and we share it with agents who have buyers looking in your area. The first three weeks bring the most showings, so nothing goes live until the house is ready. Showings here pick up from February into spring, so the strongest listings go live in late January or February.",
     image: img("library/listing-twilight-exterior-pool", "A pool and a house lit at dusk", "50% 55%"),
   },
   {
-    title: "The Monday report",
+    title: "Review the offers",
     body:
-      "You'll hear how many came through, what they said, and whether the number is right. It comes in writing, every week the house is on the market.",
-    image: img("library/listing-kitchen-4pm-island", "The kitchen island", "50% 50%"),
+      "First we check that each buyer can close: a pre-approval letter or proof of funds. Then every offer is laid out side by side: price, financing, deposit, inspection period and closing date. If an offer comes in low, you can counter, pay some of the buyer's closing costs, make a repair, adjust the timing or include the furniture.",
+    image: img("library/listing-kitchen-4pm-island", "A kitchen island in afternoon light", "50% 50%"),
   },
   {
-    title: "Weigh the offers",
+    title: "Accept an offer",
     body:
-      "Every offer is laid out the same way: price, financing, deposit, inspection period, and whether the buyer has a house to sell. The highest isn't always the one to take, and we'll tell you which one is and why.",
-    image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
+      "We go through the terms line by line before you sign: the deposit, the financing, the inspection period and any other contingencies, the closing date, and who pays which costs. Florida sellers must tell buyers about known problems that affect the value and aren't easy to see, and about past flood claims. Once you both sign, the buyer's deposit goes to escrow and the deadlines start.",
+    image: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%"),
   },
   {
-    title: "Contract to closing",
+    title: "Get ready to close",
     body:
-      "The buyer has an inspection period, usually seven to fifteen days, then the appraisal, then the lender's clear to close. Financed deals close in thirty to forty-five days and cash in about fourteen. Expect a request for a credit after the inspection, and expect us to tell you what's normal for this coast.",
+      "While the buyer works through the inspection, the appraisal and the survey, we handle what comes back, usually a request for a credit or a repair, and tell you what's normal for this coast. Financed sales close in thirty to forty-five days and cash in about fourteen. Confirm the date with the title company and book the movers.",
     image: img("library/backyard-pool-sunset", "A backyard pool and lawn at sunset, the house beyond", "50% 55%"),
+  },
+  {
+    title: "Close",
+    body:
+      "At closing, ownership passes to the buyer and the proceeds come to you, less the mortgage payoff, the commission and the closing costs. You'll sign with the title company, in person or remotely, and we'll settle anything left open. Leave the keys, garage openers and appliance manuals, and cancel or transfer the utilities.",
+    image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
   },
 ];
 

@@ -11,7 +11,7 @@ import { faqJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "The buyer's guide",
   description:
-    "Buying in Lakewood Ranch, Sarasota or Bradenton in eight steps, from the first call to the keys: timing, pre-approval, the places, the showings, the offer, the inspection, escrow and closing.",
+    "Buying a home in Lakewood Ranch, Sarasota or Bradenton in ten steps: your wish list, your budget, prequalifying, choosing an agent, the search, financing, the offer, the inspection, the appraisal and closing.",
   path: "/buy",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -21,54 +21,66 @@ const FRAMES = {
   hero: img("library/hero-waterfront-palms-dock", "A white house with a red tile roof behind royal palms, with a dock on the water", "50% 55%"),
 };
 
-/** Eight steps, in the order they happen, and a photograph after each of the first seven. */
+/** Ten steps, in the order they happen, each with a photograph. */
 const STEPS: GuideStep[] = [
   {
-    title: "Tell us the timing",
+    title: "Make your wish list",
     body:
-      "When do you need to be in, and is there a house to sell first? Those two answers set the budget, the streets and which Saturday we start. If you're moving here from somewhere else, the relocation planner puts the move in order.",
-    image: img("library/place-skyway-bridge", "The Sunshine Skyway Bridge over Tampa Bay", "50% 55%"),
+      "Start with where and what: the towns you'd consider, the kind of house, and the things you won't give up. Then split the list into must-haves and nice-to-haves. Here the street matters as much as the house, because the HOA, the CDD and the flood zone come with the address. Atlas Match narrows every neighborhood to the ones that fit your list.",
+    image: img("library/lakefront-houses-palms", "Houses with balconies along a lake, under palms", "50% 55%"),
   },
   {
-    title: "Get pre-approved",
+    title: "Work out your budget",
     body:
-      "Before we look at anything, get a pre-approval letter from a local lender. It's the first thing a seller here reads, and it tells you the monthly payment as well as the price. We'll introduce you to lenders in Manatee and Sarasota counties.",
+      "Start from the monthly payment you're comfortable with, not the top price a lender will approve. On this coast the mortgage is only part of it: add property taxes, homeowners and flood insurance, HOA dues, any CDD assessment, and trash and water. We'll get real insurance quotes on the streets you like before you fall for a house.",
+    image: img("library/listing-kitchen-4pm-island", "A kitchen island in afternoon light", "50% 50%"),
+  },
+  {
+    title: "Get prequalified",
+    body:
+      "A prequalification is a lender's quick read of your income, debts and credit. It shows roughly what you could borrow, which isn't always what you'd want to pay each month. Talk to two or three lenders to compare rates and fees. A letter from a lender who works here tells a listing agent your offer is real.",
     image: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
   },
   {
-    title: "Pick the places",
+    title: "Choose your agent",
     body:
-      "Lakewood Ranch, Sarasota and Bradenton sell differently, street by street. If you haven't picked a neighborhood yet, answer ten questions and Atlas narrows the map to the places that fit. Then we'll tell you the flood zone, the HOA and what each street has been selling for.",
-    image: img("library/golf-course-lakes-aerial", "Fairways and lakes between houses, from above", "50% 50%"),
+      "Since August 2024 you sign a written agreement with a buyer's agent before you tour homes together. It says what the agent will do for you and how they're paid, so read it before you sign. In Florida, agents work as transaction brokers unless you agree otherwise in writing. Choose someone who knows the streets as well as the contract.",
+    image: img("library/interior-living-kitchen-palm", "An open living room and kitchen with a palm outside", "50% 50%"),
   },
   {
-    title: "See the homes worth seeing",
+    title: "Find the right home",
     body:
-      "You'll get every listing that fits, and we'll tell you which ones we'd actually go and see with you. You'll know the age of the roof before you get in the car. If you're buying from away, we walk the house on video, slowly, and open the closets.",
+      "We'll set up showings that fit your list and your budget, and the search sharpens with every house you see. Drive the street at rush hour and again after dark, and check the flood map, the roof's age and the HOA rules before you fall for the kitchen. Buying from out of town? We'll walk each house with you on a live video call and open the closets.",
     image: img("library/palm-lined-street", "A street lined with royal palms", "50% 50%"),
   },
   {
-    title: "Write the offer",
+    title: "Finalize your financing",
     body:
-      "Price is one of five things a seller weighs, next to financing, deposit, the inspection period and the closing date they need. We'll call the listing agent before we write anything, then write to what the last sales on that street closed for, not the asking price.",
+      "Once you've found the house, go back to your lender for full approval. They'll verify your income, assets and credit, and you can lock your rate once you're under contract. Ask which loan fits: conventional, FHA or VA, and whether you qualify for one of Florida Housing's first-time buyer programs. Don't open new credit or change jobs until you've closed.",
+    image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 50%"),
+  },
+  {
+    title: "Make an offer",
+    body:
+      "We'll price the offer from what similar homes nearby have closed for, not the asking price. A seller weighs more than the price: the financing, the deposit, the inspection period and the closing date. Expect a counteroffer or two. Once both sides sign, the contract is in effect and your deposit goes to escrow, usually within three days.",
     image: img("library/moment-contract", "A pen on the signature line of a contract", "50% 55%"),
   },
   {
-    title: "Have the house inspected",
+    title: "Have the home inspected",
     body:
-      "Inside the inspection period, fifteen days on the Florida AS IS contract unless we write in something shorter, a licensed inspector and a termite inspector go through the house. On anything built before about 2006 we also order the four-point and wind mitigation reports your insurer will ask for. Then we sort what they find into cosmetic, ask the seller, and walk away.",
+      "On the standard Florida AS IS contract you have fifteen days to inspect unless we agree on something shorter. A licensed inspector and a termite inspector go through the house, and on older homes we order the four-point and wind mitigation reports your insurer will ask for. If something serious turns up, you can renegotiate, or cancel inside that window and get your deposit back.",
     image: img("library/screened-pool-lanai", "A pool under a screened cage, with pavers and palms", "50% 55%"),
   },
   {
-    title: "Escrow, appraisal and insurance",
+    title: "Get the appraisal",
     body:
-      "A title company holds your deposit until closing. Your lender orders the appraisal, and if it comes in low, we go back to the sales and to the listing agent. If the house is in flood zone AE or VE and you have a mortgage, your lender will require flood insurance, so we pull the flood map before you see the house.",
-    image: img("library/listing-living-room-terrazzo", "A sunlit living room", "50% 50%"),
+      "Your lender sends an independent appraiser to confirm the home is worth what you're paying. If it comes in low, the lender will only lend against the lower value. You can ask the seller to come down, cover the difference yourself, or ask the lender to reconsider using sales we provide. If your contract has an appraisal contingency, you can also walk away.",
+    image: img("library/listing-living-room-terrazzo", "A sunlit living room with terrazzo floors", "50% 50%"),
   },
   {
     title: "Close and get the keys",
     body:
-      "Contract to closing takes thirty to forty-five days with a mortgage and about fourteen with cash. Plan on roughly two to five percent of the price in closing costs on top of the down payment, and you'll see the estimate before you sign anything. We'll be at the walk-through, and we'll hand you the keys.",
+      "The title company and your lender prepare the papers, and your Closing Disclosure shows the final numbers at least three business days before you sign. Plan on two to five percent of the price in closing costs on top of the down payment. Before you wire money, call the title company at a number you already know to confirm the instructions. We'll do the final walk-through with you and hand over the keys.",
     image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
   },
 ];
@@ -76,7 +88,7 @@ const STEPS: GuideStep[] = [
 const NEXT: GuideLink[] = [
   { href: "/listings", title: "Find your home", image: img("library/kitchen-white-palms", "", "50% 50%") },
   { href: "/relocate", title: "Plan the move", image: img("library/lakes-aerial-sunset", "", "50% 55%") },
-  { href: "/neighborhoods/match", title: "Pick a neighborhood", image: img("library/lakefront-houses-palms", "", "50% 55%") },
+  { href: "/neighborhoods/match", title: "Pick a neighborhood", image: img("library/golf-course-lakes-aerial", "", "50% 50%") },
 ];
 
 /** Asked on the first call. Florida contracts and county custom decide most of it. */

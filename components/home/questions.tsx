@@ -71,7 +71,7 @@ export const HOME_FAQS: Faq[] = [
           days with cash.
         </p>
         <p className="mt-3">
-          <Link href="/buy" className="link-rule">See the eight steps</Link>
+          <Link href="/buy" className="link-rule">See the ten steps</Link>
         </p>
       </>
     ),
