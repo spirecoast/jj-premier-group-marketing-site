@@ -1,22 +1,28 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
+import { ButtonLink } from "@/components/buttons";
 import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TideIssueCard } from "@/components/tide/issue-card";
+import { TideCover } from "@/components/tide/tide-cover";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { loadIssueCards } from "@/lib/tide/load";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Tide, every issue",
+  title: "Tide, the monthly market report",
   description: W.indexDescription,
   path: "/tide",
 });
 
-/** /tide: every issue in lib/tide/issues.ts the data can build, newest first. */
+/**
+ * /tide, Tide's home: the newest issue as a full cover beside its headline and
+ * the sign-up, then every earlier issue as a cover. Issues only; the guides
+ * have their own page.
+ */
 export default async function TideIndexPage() {
-  const cards = await loadIssueCards();
+  const [latest, ...earlier] = await loadIssueCards();
   return (
     <>
       <JsonLd
@@ -25,29 +31,51 @@ export default async function TideIndexPage() {
           { name: "Tide", path: "/tide" },
         ])}
       />
-      <Masthead route="/tide" title={W.indexTitle} titleId="tide-title" />
-      <section className="container-site flex flex-col gap-12 py-section" aria-label="Every issue">
-        <div className="flex max-w-[820px] flex-col gap-4">
-          <p className="t-lead text-body">{W.indexLead}</p>
-          <Link href={"/blog" as Route} className="t-small self-start py-2 text-sky-700 underline underline-offset-4 hover:text-navy">
-            {W.indexArchive}
+      <Masthead route="/tide" title={W.indexTitle} titleId="tide-title">
+        <p className="rise d3 t-lead max-w-[560px] text-linen-100 text-shadow-soft">{W.indexLead}</p>
+      </Masthead>
+
+      {latest ? (
+        <section className="container-site grid items-center gap-12 py-section lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:gap-20" aria-labelledby="latest-title">
+          <Link href={latest.href as Route} className="card group sr block w-full max-w-[540px]" aria-label={`${latest.title}: ${latest.headline ?? ""}`}>
+            <TideCover card={latest} priority sizes="(min-width: 1024px) 540px, 100vw" className="shadow-[0_40px_80px_-40px_rgb(20_37_48/0.6)]" />
           </Link>
-        </div>
-        <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c) => (
-            <li key={c.issue} className="flex">
-              <TideIssueCard card={c} />
-            </li>
-          ))}
-        </ul>
-        <div className="grid gap-8 border border-hairline bg-white p-6 md:grid-cols-[1fr_1fr] md:items-center md:p-10">
-          <div className="flex flex-col gap-3">
-            <h2 className="t-h1 text-navy">{W.askHeading}</h2>
-            <p className="t-body max-w-measure text-body">{W.askBody}</p>
+          <div className="sr flex flex-col gap-7 [--sr-i:1]">
+            <p className="t-record text-graphite-500">{latest.title}</p>
+            <h2 id="latest-title" className="t-display text-balance text-navy">
+              {latest.headline ?? latest.title}
+            </h2>
+            <p className="t-lead max-w-[560px] text-body">{latest.excerpt}</p>
+            <div>
+              <ButtonLink href={latest.href} dash>
+                Read the {latest.issueLabel} issue
+              </ButtonLink>
+            </div>
+            <div className="flex flex-col gap-4 border-t border-hairline pt-8">
+              <h3 className="t-h3 text-navy">{W.askHeading}</h3>
+              <p className="t-body max-w-measure text-body">{W.askBody}</p>
+              <LetterForm />
+            </div>
           </div>
-          <LetterForm />
-        </div>
-      </section>
+        </section>
+      ) : null}
+
+      {earlier.length ? (
+        <section className="bg-parchment" aria-labelledby="past-title">
+          <div className="container-site flex flex-col gap-10 py-section">
+            <h2 id="past-title" className="t-h1 text-navy">
+              Past issues
+            </h2>
+            <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {earlier.map((c, i) => (
+                <li key={c.issue} className="sr flex" style={{ ["--sr-i" as string]: i % 3 }}>
+                  <TideIssueCard card={c} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

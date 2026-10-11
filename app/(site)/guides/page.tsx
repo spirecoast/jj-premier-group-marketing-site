@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { CtaBand } from "@/components/cta-band";
 import { GuideCard } from "@/components/guides/guide-card";
 import { LetterForm } from "@/components/letter-form";
@@ -24,28 +23,24 @@ export default function GuidesIndex() {
         <SectionHeading
           as="h1"
           size="display"
-          title={<span id="guides-index-title">Guides to the questions people ask before they buy or sell.</span>}
-          titleClassName="max-w-[860px]"
+          title={<span id="guides-index-title">Guides for buying and selling here</span>}
+          titleClassName="max-w-[760px]"
           aside={
             <p className="t-body max-w-[380px] text-body">
-              Each guide explains one topic in plain words, with pictures and a worksheet at the end. Every fact comes with its source. Our monthly letter is on{" "}
-              <Link href="/blog" className="underline decoration-harbor-300 underline-offset-2 hover:text-navy">
-                {site.reportName}
-              </Link>
-              .
+              Flood zones, insurance, homestead, hurricane season and more, in plain words, with every source. Free, no sign-up.
             </p>
           }
         />
         <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {GUIDES.map((g, i) => (
             <li key={g.slug} className="flex">
-              <GuideCard guide={g} priority={i === 0} />
+              <GuideCard guide={g} number={i + 1} priority={i === 0} />
             </li>
           ))}
         </ul>
       </section>
 
-      <CtaBand image={BAND} title="Get one page from us each month." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]">
+      <CtaBand image={BAND} title="Get the monthly market report by email." body="Once a month. Stop any time. We never share the list." minHeight="min-h-[480px]">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

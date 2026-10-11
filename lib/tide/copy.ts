@@ -140,10 +140,10 @@ export const TIDE_WEB_COPY = {
 
   everyIssue: "Every issue of Tide",
   indexEyebrow: "Tide · Every issue",
-  indexTitle: "How home sales went, once a month.",
-  indexLead: "Each issue looks back at the newest month the county has complete for Lakewood Ranch, Sarasota and Bradenton, and says what it means if you’re buying or selling. The guides are in the archive.",
+  indexTitle: "Monthly market report",
+  indexLead: "What sold in Lakewood Ranch, Sarasota and Bradenton each month, and what it means if you’re buying or selling.",
   indexArchive: "The guides and the archive",
-  indexDescription: "Every issue of Tide, the monthly letter on home sales in Lakewood Ranch, Sarasota and Bradenton, with every number from the county property appraisers’ records.",
+  indexDescription: "Tide, the monthly real estate market report for Lakewood Ranch, Sarasota and Bradenton. Every issue, with every number from the county property appraisers’ records.",
 } as const;
 
 /**

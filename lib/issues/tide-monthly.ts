@@ -474,7 +474,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
 
   const foot = footer({ ...input.footer, product: "Tide" }, "tide", campaign);
   const rows = [
-    header({ eyebrow: TIDE_COPY.eyebrow, wordmark: "Tide", title, homeHref: url("/blog") }),
+    header({ eyebrow: TIDE_COPY.eyebrow, wordmark: "Tide", title, homeHref: url("/tide") }),
     spacer(24),
     ...(told ? [] : facts.length ? [row(factsHtml)] : []),
     row(dekHtml + opening.map((p) => para(esc(p))).join("") + (coverage ? para(esc(coverage)) : "") + (outside ? para(esc(outside)) : "") + (lag ? small(esc(lag)) : "")),
