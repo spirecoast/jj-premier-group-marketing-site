@@ -7,7 +7,7 @@ import type { EvacuationZone, HomeType, WaterAccess } from "./types";
 import { explorerHref } from "./url";
 
 /**
- * Atlas match: up to ten questions about the place and the home, each read
+ * Atlas Match: up to ten questions about the place and the home, each read
  * against one field of the index. There is no score and no ranking. A place
  * is in or out, question by question, and a field we do not hold for it is
  * "not known", which the reader can keep in or leave out per question.
@@ -95,15 +95,15 @@ export const QUESTIONS: readonly Question[] = [
     id: "market",
     field: "market",
     title: "Where are you looking?",
-    help: "Pick one or more of the three. Skip it and we'll look across all of them.",
+    help: "Pick one or more.",
     any: "Anywhere on the coast",
     noun: "market",
   },
   {
     id: "county",
     field: "county",
-    title: "Does the county matter to you?",
-    help: "Lakewood Ranch sits on the line. Property tax rates, and who customarily pays for the owner's title policy, differ between Manatee and Sarasota counties. We'll say which is which when we get to a contract.",
+    title: "Which county?",
+    help: "Lakewood Ranch is in both. Tax rates differ, and so does who usually pays for title insurance.",
     any: "Either county",
     noun: "county",
   },
@@ -111,39 +111,39 @@ export const QUESTIONS: readonly Question[] = [
     id: "homes",
     field: "homeTypes",
     title: "What kind of home?",
-    help: "Pick everything you'd consider. We hold home types only for places whose builder or association lists them.",
+    help: "Pick everything you’d consider.",
     any: "Any kind",
     noun: "home type",
   },
   {
     id: "build",
     field: "status · activeBuilders",
-    title: "New construction or resale?",
-    help: "New homes selling now means at least one builder lists homes or homesites there today, per the builder's own site. Resale only is a place with no builder selling.",
+    title: "New or resale?",
+    help: "New means a builder is selling homes there now.",
     any: "Either",
     noun: "new construction or resale",
   },
   {
     id: "gated",
     field: "gated",
-    title: "Gated?",
-    help: "We mark a place gated only when its association or builder says so.",
+    title: "Do you want a gate?",
+    help: "We mark a community gated only when its association or builder says so.",
     any: "Either",
     noun: "gating",
   },
   {
     id: "hoa",
     field: "hoa",
-    title: "An association?",
-    help: "An HOA or condominium association means dues, rules and usually shared amenities. We list one only when we've found its own site or legal name, so we can confirm one is there but never that one isn't.",
+    title: "Want an HOA community?",
+    help: "An HOA or condo association means monthly dues, rules and usually shared amenities like a pool or clubhouse.",
     any: "Either",
     noun: "association",
   },
   {
     id: "cdd",
     field: "cdd",
-    title: "A community development district?",
-    help: "A CDD is a special district that financed the roads, drainage or amenities and appears as a line on the property tax bill. We show one only when the district's own site or the county ties it to the place, so we can confirm one is there but never that one isn't.",
+    title: "Want a CDD community?",
+    help: "A CDD is a district that paid for the roads, drainage or amenities. It shows up as an extra line on the property tax bill. Newer communities usually have one. We only know where one exists, so this can find CDD communities but can’t rule them out.",
     any: "Either",
     noun: "CDD",
   },
@@ -151,23 +151,23 @@ export const QUESTIONS: readonly Question[] = [
     id: "water",
     field: "waterAccess",
     title: "On the water?",
-    help: "Pick any that fit. Water access is on record for a few dozen places so far, so leaving the box below ticked keeps the rest in.",
+    help: "Pick any that fit.",
     any: "Doesn't matter",
     noun: "water access",
   },
   {
     id: "evac",
     field: "evacuationZone",
-    title: "Storm evacuation zone",
-    help: "County evacuation zones (Manatee calls them levels) run from A, nearest the water, to E. They decide when you'd be asked to leave ahead of a storm. We checked one address point per place; confirm a specific address with the county.",
+    title: "How far from the storm surge?",
+    help: "Evacuation zones run from A, nearest the water, to E. They decide when you’d be asked to leave before a storm.",
     any: "Any zone",
     noun: "evacuation zone",
   },
   {
     id: "near",
     field: "lat · lng",
-    title: "Close to somewhere in particular?",
-    help: "Pick an Atlas area, or tap the map to drop a point, then say how far is close enough. Distances are straight-line from the point we hold for each place.",
+    title: "Close to somewhere?",
+    help: "Pick an area or tap the map, then choose how far is close enough.",
     any: "No particular place",
     noun: "distance",
   },
@@ -250,11 +250,11 @@ export function readFact(e: IndexEntry, a: Answers, id: QuestionId, anchor: { la
       if (e.g === null) return { id, label: "Gated", state: "unknown" };
       return { id, label: "Gated", state: e.g === a.gated ? "match" : "no", value: e.g ? "Yes" : "No" };
     case "hoa":
-      if (e.ho === null) return { id, label: "Association", state: "unknown" };
-      return { id, label: "Association", state: "match", value: "On record" };
+      if (e.ho === null) return { id, label: "HOA", state: "unknown" };
+      return { id, label: "HOA", state: "match", value: "Yes" };
     case "cdd":
       if (e.cd === null) return { id, label: "CDD", state: "unknown" };
-      return { id, label: "CDD", state: "match", value: "On record" };
+      return { id, label: "CDD", state: "match", value: "Yes" };
     case "water":
       if (e.w === null) return { id, label: "Water", state: "unknown" };
       return { id, label: "Water", state: e.w !== "none" && a.water.includes(e.w) ? "match" : "no", value: WATER_LABEL[e.w] };

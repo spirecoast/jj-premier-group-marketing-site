@@ -124,9 +124,9 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   },
   {
     url: "/neighborhoods/match",
-    title: "Atlas match",
+    title: "Atlas Match: find the neighborhoods that fit",
     summary: [
-      "Ten questions about the place and the home, and none about you: market and county, home type, gated or not, association, CDD, water, evacuation zone and distance. Atlas narrows its places to the ones whose facts fit. There's no ranking and no score.",
+      "Answer up to ten quick questions about the home and the place you want: the area and county, the kind of home, new or resale, a gate, an HOA or a CDD, the water, the evacuation zone and how close to somewhere. Atlas Match narrows every neighborhood in Lakewood Ranch, Sarasota and Bradenton to the ones that fit.",
     ],
   },
   {

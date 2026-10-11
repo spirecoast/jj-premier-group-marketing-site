@@ -8,7 +8,7 @@ import { MatchQuestion } from "./match-question";
 import { MatchResults } from "./match-results";
 
 /**
- * Atlas match: the questionnaire and its list, one state (answers, step)
+ * Atlas Match: the questionnaire and its list, one state (answers, step)
  * that the URL reflects so a result can be shared. The index arrives once
  * from /api/neighborhoods/index, the same 90KB the explorer uses, and every
  * count after that is in memory.
@@ -62,17 +62,9 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
 
   return (
     <div ref={root} className="scroll-mt-header flex flex-col gap-8" aria-busy={!entries && !loadError}>
-      {question ? (
-        <div className="flex flex-col gap-2" aria-hidden="true">
-          <div className="h-px w-full bg-hairline">
-            <div className="h-px bg-navy transition-[width] duration-300" style={{ width: `${(step! / total) * 100}%` }} />
-          </div>
-        </div>
-      ) : null}
-
       {loadError ? (
-        <div className="flex flex-col gap-3 border border-hairline bg-white p-6">
-          <p className="t-h3 text-navy">The catalog did not load.</p>
+        <div className="mx-auto flex w-full max-w-[960px] flex-col gap-3 border border-hairline bg-white p-6">
+          <p className="t-h3 text-navy">The neighborhoods didn’t load.</p>
           <p className="t-small text-body-muted">Check the connection and try again. Your answers are kept in the address bar.</p>
           <button type="button" className="link-rule self-start" onClick={() => setLoadAttempt((n) => n + 1)}>
             Try again
@@ -106,7 +98,7 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
           }}
         />
       ) : (
-        <div className="flex flex-col gap-3" aria-hidden="true">
+        <div className="mx-auto flex w-full max-w-[960px] flex-col gap-3 border border-hairline bg-white p-6 sm:p-10" aria-hidden="true">
           <span className="block h-5 w-1/3 animate-pulse bg-linen-100" />
           <span className="block h-9 w-2/3 animate-pulse bg-linen-100" />
           <span className="block h-4 w-1/2 animate-pulse bg-linen-100" />

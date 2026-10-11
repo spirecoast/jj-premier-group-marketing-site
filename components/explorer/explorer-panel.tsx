@@ -97,7 +97,7 @@ export function ExplorerPanel(p: Props) {
             <p className="t-small text-body">
               Not sure where to start?{" "}
               <Link href="/neighborhoods/match" className="text-harbor-700 underline underline-offset-4 hover:text-navy">
-                Answer ten questions
+                Try Atlas Match
               </Link>
             </p>
           </div>
