@@ -32,6 +32,9 @@ export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   "/images/library/aerial-tile-roofs-pool-cages.jpg": { width: 2400, height: 1599 },
   "/images/library/screened-pool-lanai.jpg": { width: 2356, height: 1571 },
   "/images/library/coastal-house-teal.jpg": { width: 2400, height: 1600 },
+  // Sent by the team: Jessica's Buyer tile pick, and the Bradenton Riverwalk from Wikimedia Commons (docs/SITE.md).
+  "/images/library/buyer-lakefront-house.jpg": { width: 2000, height: 2000 },
+  "/images/library/bradenton-riverwalk-palms.jpg": { width: 1500, height: 1125 },
   "/images/library/lakes-aerial-sunset.jpg": { width: 3200, height: 1800 },
   // Free Adobe Stock photos licensed through the Adobe connector on October 2, 2026 (stock IDs in docs/SITE.md).
   "/images/library/listing-exterior-canal-golden.jpg": { width: 2560, height: 1707 },
@@ -86,6 +89,10 @@ export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   "/images/library/tampa-skyway-sunrise.jpg": { width: 1200, height: 896 },
   "/images/library/texture-quartz-sand.jpg": { width: 1200, height: 896 },
   "/images/photos/duo-square.jpg": { width: 2006, height: 2200 },
+  "/images/photos/duo-whitenavy-square.jpg": { width: 2400, height: 2400 },
+  "/images/photos/duo-whitenavy-wide.jpg": { width: 2560, height: 1429 },
+  "/images/photos/jessica-navy-threeqtr.jpg": { width: 1600, height: 2000 },
+  "/images/photos/joelyn-blue-threeqtr.jpg": { width: 1600, height: 2000 },
   "/images/photos/duo-cameo.jpg": { width: 900, height: 900 },
   "/images/photos/duo-ultrawide.jpg": { width: 2200, height: 1176 },
   "/images/photos/jessica-dark-horz.jpg": { width: 2200, height: 1476 },

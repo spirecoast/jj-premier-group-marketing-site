@@ -33,7 +33,6 @@ const FRAMES = {
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
   kitchen: img("library/kitchen-white-palms", "A white kitchen with the palms outside the window"),
   island: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
-  living: img("library/interior-living-kitchen-palm", "An open living room and kitchen, a white sofa and a palm by the glass", "50% 55%"),
 };
 
 export default async function HomePage() {
@@ -56,7 +55,7 @@ export default async function HomePage() {
       <Doors />
       <Places />
       <FindHome image={FRAMES.kitchen} />
-      <WorkWith image={FRAMES.living} phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} />
+      <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} />
       <CalendarPreview events={events} />
       <LetterBand image={FRAMES.island} />
       <Questions />
