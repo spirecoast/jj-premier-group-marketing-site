@@ -46,7 +46,7 @@ export function getGuideSlugs(): string[] {
 /** The site's tools, as a guide names them. */
 export const TOOLS: Record<Tool, { href: string; name: string }> = {
   atlas: { href: "/neighborhoods", name: "Atlas" },
-  "atlas-match": { href: "/neighborhoods/match", name: "Atlas match" },
+  "atlas-match": { href: "/neighborhoods/match", name: "Atlas Match" },
   relocate: { href: "/relocate", name: "The relocation planner" },
   sold: { href: "/sell/sold", name: "Sold search" },
   "home-value": { href: "/sell/home-value", name: "Home value" },

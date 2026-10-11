@@ -51,11 +51,18 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
   const toggle = <T,>(xs: T[], x: T) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
 
   return (
-    <div className="flex flex-col gap-8" aria-labelledby={`${uid}-title`}>
-      <div className="flex flex-col gap-3.5">
-        <p className="t-eyebrow text-amber">
-          Question {number} of {total} · reads <span className="normal-case tracking-normal">{q.field}</span>
-        </p>
+    <div className="match-q mx-auto flex w-full max-w-[960px] flex-col gap-8 border border-hairline bg-white p-5 shadow-[0_24px_60px_-40px_rgba(16,37,66,0.4)] sm:p-10"  aria-labelledby={`${uid}-title`}>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <span className="t-small shrink-0 text-graphite-500 tabular-nums">
+            {number} of {total}
+          </span>
+          <span className="flex flex-1 gap-1" aria-hidden="true">
+            {Array.from({ length: total }, (_, i) => (
+              <span key={i} className={cn("h-1 flex-1 rounded-full transition-colors duration-300", i < number ? "bg-navy" : "bg-hairline")} />
+            ))}
+          </span>
+        </div>
         <h2 id={`${uid}-title`} className="t-h1 max-w-[720px] text-navy">
           {q.title}
         </h2>
@@ -92,8 +99,8 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
           />
         ) : null}
         {q.id === "gated" ? <YesNo yes="Gated" no="Not gated" value={answers.gated} onChange={(v) => set({ gated: v })} /> : null}
-        {q.id === "hoa" ? <Choices items={[["1", "With an association"]]} selected={answers.hoa ? ["1"] : []} onToggle={() => set({ hoa: answers.hoa ? null : true })} /> : null}
-        {q.id === "cdd" ? <Choices items={[["1", "With a CDD"]]} selected={answers.cdd ? ["1"] : []} onToggle={() => set({ cdd: answers.cdd ? null : true })} /> : null}
+        {q.id === "hoa" ? <Choices items={[["1", "Yes, with an HOA"]]} selected={answers.hoa ? ["1"] : []} onToggle={() => set({ hoa: answers.hoa ? null : true })} /> : null}
+        {q.id === "cdd" ? <Choices items={[["1", "Yes, with a CDD"]]} selected={answers.cdd ? ["1"] : []} onToggle={() => set({ cdd: answers.cdd ? null : true })} /> : null}
         {q.id === "water" ? (
           <Choices multi items={WATER_TYPES.map((w) => [w, WATER_LABEL[w]] as const)} selected={answers.water} onToggle={(v) => set({ water: toggle(answers.water, v) })} />
         ) : null}
@@ -108,7 +115,7 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
 
         <button
           type="button"
-          className={cn("chip self-start", !isAnswered && "!bg-navy !text-linen-200")}
+          className="chip self-start"
           aria-pressed={!isAnswered}
           onClick={() => {
             clearAnswer(q.id, answers, onAnswers);
@@ -118,20 +125,25 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
         </button>
       </div>
 
-      <label className="flex max-w-measure cursor-pointer items-start gap-3 t-small text-body">
-        <input type="checkbox" checked={!strict} onChange={(e) => setStrict(e.target.checked)} className="mt-1 size-4 shrink-0 accent-[var(--color-navy)]" />
-        <span>Include places where this isn’t known yet. Untick it to keep only places where we hold the fact.</span>
-      </label>
+      {isAnswered ? (
+        <label className="flex max-w-measure cursor-pointer items-start gap-3 t-small text-body">
+          <input type="checkbox" checked={!strict} onChange={(e) => setStrict(e.target.checked)} className="mt-1 size-4 shrink-0 accent-[var(--color-navy)]" />
+          <span>Keep places we don’t have this detail for</span>
+        </label>
+      ) : null}
 
       <div className="flex flex-col gap-4 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="t-mono-sm text-graphite-500" aria-live="polite">
+        <p className="flex items-baseline gap-3" aria-live="polite">
           {count ? (
             <>
-              <span className="text-navy">{count.total.toLocaleString()}</span> {count.total === 1 ? "place matches" : "places match"} so far
-              {count.total && count.confirmed !== count.total ? ` · ${count.confirmed.toLocaleString()} confirmed on every answer` : ""}
+              <span className="font-display text-[2.5rem] font-light leading-none text-navy tabular-nums">{count.total.toLocaleString()}</span>
+              <span className="t-body text-body">
+                {count.total === 1 ? "place fits" : "places fit"}
+                {count.total && count.confirmed !== count.total ? <span className="t-small block text-graphite-500">{count.confirmed.toLocaleString()} confirmed on every answer</span> : null}
+              </span>
             </>
           ) : (
-            "Loading the catalog"
+            <span className="t-small text-graphite-500">Loading the neighborhoods…</span>
           )}
         </p>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -145,8 +157,8 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
               Skip
             </button>
           ) : null}
-          <button type="button" className="btn btn-navy !min-h-11 !px-5 !text-[12px]" onClick={onNext}>
-            {number === total ? "See the places" : "Next"}
+          <button type="button" className="btn btn-navy" onClick={onNext}>
+            {number === total ? "See my matches" : "Next"}
             <span className="btn-dash" aria-hidden="true" />
           </button>
         </div>

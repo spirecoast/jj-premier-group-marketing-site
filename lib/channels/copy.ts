@@ -89,10 +89,10 @@ export const MORE = {
   eyebrow: "While you’re here",
   heading: "Three more ways in.",
   atlas: {
-    name: "Atlas match",
-    line: "Atlas asks ten questions about the place and none about you. It narrows every neighborhood on the map to the ones whose facts fit: county, gating, association, CDD, water and evacuation zone.",
+    name: "Atlas Match",
+    line: "Tell it what you want in a home and a neighborhood: the area, a gate or not, an HOA, the water, how far from the storm surge. It narrows every neighborhood on the map to the ones that fit.",
     href: "/neighborhoods/match",
-    label: "Try Atlas match",
+    label: "Try Atlas Match",
   },
   encore: {
     name: "Encore · Plan a visit",

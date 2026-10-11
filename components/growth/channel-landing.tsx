@@ -7,7 +7,7 @@ import { img } from "@/lib/content/seed/helpers";
 
 /**
  * One page for every /from/<channel> link: a line in the team's voice, one
- * primary action, then Atlas match, the Encore visit planner and the Tide bar.
+ * primary action, then Atlas Match, the Encore visit planner and the Tide bar.
  * Every click here is an `Explore` goal with the channel attached, and the
  * Tide bar sends `source=<channel>` so the lead is tagged `source:<channel>`.
  * The visit's channel is also remembered by components/utm-tracker.tsx, so a

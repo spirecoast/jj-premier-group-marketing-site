@@ -2599,3 +2599,36 @@ body:not(:has([data-header-overlay])) .header-overlay,
     .door-tile .place-img { transition: none; }
   }
 }
+
+/* ---- Atlas Match: choices as pills, a tick when chosen. Scoped, so Encore's chips keep their look. */
+@layer components {
+  .match-q .chip {
+    min-height: 2.75rem;
+    padding: 0 1.125rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-hairline);
+    background: var(--color-white);
+    color: var(--color-navy);
+    font-size: 0.9375rem;
+    font-weight: 400;
+  }
+  .match-q .chip:hover {
+    border-color: var(--color-navy);
+  }
+  .match-q .chip[aria-pressed="true"],
+  .match-q .chip[data-active="true"] {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+    color: var(--color-linen-100);
+  }
+  .match-q .chip[aria-pressed="true"]::before,
+  .match-q .chip[data-active="true"]::before {
+    content: "";
+    width: 0.65rem;
+    height: 0.35rem;
+    margin-top: -0.2rem;
+    border-left: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    transform: rotate(-45deg);
+  }
+}

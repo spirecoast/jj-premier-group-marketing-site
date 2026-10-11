@@ -9,9 +9,9 @@ export default async function Image() {
   const entries = await getIndexEntries();
   const points = entries.filter((e) => e.x !== null && e.y !== null).map((e): [number, number, number] => [e.x!, e.y!, e.r ? 0.5 : 0.25]);
   return constellationOgImage({
-    eyebrow: "Atlas match",
-    title: "We ask ten questions about the place and none about you.",
-    meta: `${QUESTIONS.length} questions · ${entries.length.toLocaleString()} places · no ranking, no score`,
+    eyebrow: "Atlas Match",
+    title: "Find the neighborhoods that fit.",
+    meta: `${QUESTIONS.length} quick questions · ${entries.length.toLocaleString()} neighborhoods · Lakewood Ranch, Sarasota, Bradenton`,
     points,
   });
 }

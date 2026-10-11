@@ -1,18 +1,19 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
+import { FaqAccordion } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
 import { AtlasMatch } from "@/components/match/atlas-match";
 import { DATASET_VERSION, getIndexEntries } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
-import { QUESTIONS, parseMatch } from "@/lib/neighborhoods/match";
+import { parseMatch } from "@/lib/neighborhoods/match";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const count = (await getIndexEntries()).length;
   return pageMetadata({
-    title: "Atlas match · Ten questions about the place and none about you",
-    description: `Answer up to ten questions about the place and the home, from market and county to home type, gating, association, CDD, water, evacuation zone and distance, and Atlas narrows its ${count.toLocaleString()} places to the ones whose facts fit. There is no ranking and no score.`,
+    title: "Atlas Match: find the neighborhoods that fit",
+    description: `Tell Atlas Match what you want: the area, the kind of home, a gate or not, an HOA or not, the water, how far from the storm surge and how close to work. It narrows ${count.toLocaleString()} neighborhoods in Lakewood Ranch, Sarasota and Bradenton to the ones that fit.`,
     path: "/neighborhoods/match",
     fileImage: true, // opengraph-image.tsx beside this page
   });
@@ -21,15 +22,20 @@ export async function generateMetadata(): Promise<Metadata> {
 type SearchParams = Record<string, string | string[] | undefined>;
 
 /**
- * Atlas match. The questions are about the place and the home, each read
- * against one sourced field; the answer is an unranked list. The
- * questionnaire itself is client-side so the count moves as answers change.
+ * Atlas Match. Each question checks one sourced fact about a neighborhood and
+ * the answer is an unranked list. The questions run client-side so the count
+ * moves as answers change.
  */
 export default async function MatchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const initial = parseMatch(params);
   const count = (await getIndexEntries()).length;
   const asOf = monthYear(DATASET_VERSION) ?? DATASET_VERSION;
+  const how = [
+    `Each answer checks one fact about each neighborhood: its county, its homes, whether it’s gated, whether it has an HOA or a CDD, its water and its evacuation zone. Those facts come from the county, the district, the association or the builder. The catalog was last updated ${asOf}.`,
+    "When we don’t have a fact for a place, it shows as “not known yet”, and you decide whether those places stay in. The list isn’t ranked, so a place near the bottom fits as well as one at the top.",
+    "The questions are about homes and places only. Nothing here asks about, or describes, who lives anywhere.",
+  ].join("\n\n");
 
   return (
     <>
@@ -43,8 +49,9 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <Masthead
         route="/neighborhoods/match"
-        title="We ask ten questions about the place and none about you."
+        title="Find the neighborhoods that fit"
         titleId="match-title"
+        titleClassName="max-w-[760px]"
         crumbs={
           <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-2 text-linen-200 text-shadow-soft">
             <Link href="/neighborhoods" className="underline-offset-4 hover:text-white hover:underline">
@@ -54,46 +61,36 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
             <span>Match</span>
           </nav>
         }
-      />
-
-      <section className="container-site flex flex-col gap-7 pt-10 pb-10 md:pt-14" aria-label="What the questions do">
-        <p className="t-lead max-w-[600px] text-body">
-          Answer what matters and skip the rest. Every answer narrows the {count.toLocaleString()} places in Atlas by one fact we hold from a county,
-          district, association or builder source.
+      >
+        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
+          Answer up to ten quick questions about the home and the place you want. Atlas Match narrows {count.toLocaleString()} neighborhoods to the
+          ones that fit.
         </p>
-        <p className="t-body max-w-measure text-body">
-          We don’t rank the result and we don’t score it. You get the list of places that fit, the facts that made them fit, and an honest “not
-          known yet” where we don’t hold the fact. Each question reads one field of the record, named under its number, so you can see exactly what’s
-          being asked of the data.
-        </p>
-      </section>
+      </Masthead>
 
-      <section className="container-site pb-section" aria-label="The questions">
-        <div className="border border-hairline bg-paper p-5 sm:p-8 lg:p-10">
+      <section className="bg-parchment py-8 sm:py-section" aria-label="The questions">
+        <div className="container-site">
           <AtlasMatch initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
         </div>
       </section>
 
-      <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="match-how-title">
-        <div className="flex flex-col gap-3.5">
-          <h2 id="match-how-title" className="t-h1 max-w-[760px] text-navy">
-            Each question reads one field, and nothing is guessed.
-          </h2>
-        </div>
-        <ol className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-5">
-          {QUESTIONS.map((q, i) => (
-            <li key={q.id} className="flex flex-col gap-2 bg-white p-5">
-              <span className="t-mono-sm text-graphite-500">
-                {String(i + 1).padStart(2, "0")} · {q.field}
-              </span>
-              <span className="t-h4 text-navy">{q.title}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="t-small max-w-measure text-body-muted">
-          Catalog as of {asOf}. A field we don’t hold is “not known”, never inferred, and you choose per question whether those places stay in. The
-          questions are about places and homes only: nothing here asks about, or describes, who lives anywhere.
-        </p>
+      <section className="container-site flex flex-col gap-6 py-section">
+        <FaqAccordion
+          className="max-w-measure"
+          items={[
+            {
+              q: "How Atlas Match works",
+              answer: how,
+              a: (
+                <div className="flex flex-col gap-3">
+                  {how.split("\n\n").map((para) => (
+                    <p key={para.slice(0, 24)}>{para}</p>
+                  ))}
+                </div>
+              ),
+            },
+          ]}
+        />
         <Link href={"/neighborhoods" as Route} className="link-rule self-start">
           Back to the map
         </Link>
