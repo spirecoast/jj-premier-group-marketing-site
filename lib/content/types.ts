@@ -35,8 +35,6 @@ export type Market = {
   /** Short place descriptor used in eyebrows, e.g. "Manatee County". */
   county: string;
   image: ImageRef;
-  /** Who took the photograph and under what licence, when the licence asks for a credit. */
-  credit?: string;
   blurb: string;
 };
 

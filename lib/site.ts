@@ -97,29 +97,132 @@ export const products: readonly Product[] = [
 export type NavItem = {
   href: string;
   label: string;
-  /** What it is, in a few words: the descriptor beside a product name, the second line in the phone menu. */
-  sub?: string;
-  /** A named product (Atlas, Encore, Tide): the desktop nav sets it in the display serif with its descriptor on the baseline. */
-  product?: boolean;
-  /** One quieter line under the item in the phone menu only; the desktop line stays six items wide. */
+  /** One quieter line under the item in the phone menu only. */
   secondary?: { href: string; label: string };
 };
 
 /**
- * Primary navigation. The plain pages first (Buy, Sell, the team), then a
- * hairline, then the three products as a group. "Buy" goes to /buy until
- * there are live listings to search.
+ * Primary navigation: the plain pages, then a hairline, then the three
+ * product families, each a menu (productFamilies below). "Buy" goes to /buy
+ * until there are live listings to search.
  */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/buy", label: "Buy", sub: "Homes for sale", secondary: { href: "/relocate", label: "Plan your move with Atlas Move" } },
-  { href: "/sell", label: "Sell", sub: "Your home" },
-  { href: "/about", label: "Joelyn & Jessica", sub: "Meet the team" },
-  { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods", product: true },
-  { href: "/calendar", label: "Encore", sub: "Arts calendar", product: true },
-  { href: "/tide", label: "Tide", sub: "Market report", product: true },
+  { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Plan your move with Atlas Move" } },
+  { href: "/sell", label: "Sell" },
+  { href: "/guides", label: "Guides" },
+  { href: "/about", label: "Joelyn & Jessica" },
 ] as const;
 
-/** The footer's five groups, then the legal links. */
+export type ProductLink = {
+  id: string;
+  href: string;
+  /** The product's full name, family first: "Atlas Match". */
+  label: string;
+  /** A few words for the menu. */
+  short: string;
+  /** One sentence on what it does for the person using it. */
+  line: string;
+};
+
+export type ProductFamily = {
+  key: "atlas" | "encore" | "tide";
+  name: string;
+  /** What the family is for, in three words. */
+  title: string;
+  line: string;
+  items: readonly ProductLink[];
+};
+
+/**
+ * The three data products and what each one powers. Atlas is the
+ * neighborhood data, Encore the arts and culture listings, Tide the county
+ * sales record; every tool built on one of them sits in its family here, so
+ * the header menus, the footer and /tools stay in step.
+ */
+export const productFamilies: readonly ProductFamily[] = [
+  {
+    key: "atlas",
+    name: "Atlas",
+    title: "Find where to live",
+    line: "Every neighborhood in Lakewood Ranch, Sarasota and Bradenton, and a plan for the move.",
+    items: [
+      {
+        id: "atlas",
+        href: "/neighborhoods",
+        label: "Atlas Neighborhoods",
+        short: "Every neighborhood on one map",
+        line: "Every neighborhood on one map. Open one to see its HOA, CDD, water and evacuation zone.",
+      },
+      {
+        id: "atlas-match",
+        href: "/neighborhoods/match",
+        label: "Atlas Match",
+        short: "Find the neighborhoods that fit",
+        line: "Answer up to ten quick questions and see the neighborhoods that fit.",
+      },
+      {
+        id: "atlas-move",
+        href: "/relocate",
+        label: "Atlas Move",
+        short: "Every date and deadline for your move",
+        line: "Every date and deadline for your move on one page, from the contract to homestead.",
+      },
+    ],
+  },
+  {
+    key: "encore",
+    name: "Encore",
+    title: "Find what’s on",
+    line: "Theater, music, galleries and talks across the three cities, and a plan for the days you choose.",
+    items: [
+      {
+        id: "encore",
+        href: "/calendar",
+        label: "Encore Arts Calendar",
+        short: "Shows, concerts, galleries and talks",
+        line: "Shows, concerts, gallery openings and talks in one calendar.",
+      },
+      {
+        id: "encore-planner",
+        href: "/calendar/plan",
+        label: "Encore Planner",
+        short: "What’s on, day by day",
+        line: "Pick your dates and get the shows, concerts and openings for each day.",
+      },
+    ],
+  },
+  {
+    key: "tide",
+    name: "Tide",
+    title: "Know the market",
+    line: "What homes sold for, street by street, and what you’d keep if you sold yours.",
+    items: [
+      {
+        id: "tide",
+        href: "/tide",
+        label: "Tide Market Report",
+        short: "What sold each month, and what it means",
+        line: "The monthly market report: what sold, for how much, and what it means if you’re buying or selling.",
+      },
+      {
+        id: "tide-street",
+        href: "/sell/sold",
+        label: "Tide Street",
+        short: "What sold on your street",
+        line: "Type your street and see every home sale on it, from the county’s public record.",
+      },
+      {
+        id: "tide-sale-calculator",
+        href: "/sell/net-proceeds",
+        label: "Tide Sale Calculator",
+        short: "What you’d keep after selling",
+        line: "See what you’d keep after selling, once the commission, title, doc stamps and mortgage are paid.",
+      },
+    ],
+  },
+] as const;
+
+/** The footer's groups, then the legal links. The product families come from productFamilies. */
 export const footerNav = {
   places: [
     { href: "/lakewood-ranch", label: "Lakewood Ranch" },
@@ -131,18 +234,6 @@ export const footerNav = {
     { href: "/sell", label: "Seller’s guide" },
     { href: "/valuation", label: "What’s my home worth" },
     { href: "/listings", label: "Homes for sale" },
-  ],
-  // The products, each under its own name.
-  tools: [
-    { href: "/neighborhoods", label: "Atlas neighborhoods" },
-    { href: "/neighborhoods/match", label: "Atlas Match" },
-    { href: "/calendar", label: "Encore arts calendar" },
-    { href: "/calendar/plan", label: "Encore Planner" },
-    { href: "/tide", label: "Tide market report" },
-    { href: "/relocate", label: "Atlas Move" },
-    { href: "/sell/sold", label: "Tide Street" },
-    { href: "/sell/net-proceeds", label: "Tide Sale Calculator" },
-    { href: "/tools", label: "All tools" },
   ],
   guides: [
     { href: "/guides/flood-zones-and-elevation-certificates-on-the-suncoast", label: "Flood zones" },

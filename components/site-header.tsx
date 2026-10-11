@@ -4,18 +4,19 @@ import { Search } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Fragment, ViewTransition, useEffect, useState } from "react";
+import { ViewTransition, useCallback, useEffect, useState } from "react";
 import { SEARCH_COPY } from "@/lib/search/copy";
-import { primaryNav, site } from "@/lib/site";
+import { primaryNav, productFamilies, site } from "@/lib/site";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { CbMark } from "./cb-mark";
 import { LinkPending } from "./link-pending";
+import { ProductMenu } from "./product-menu";
 import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
 
 /** Routes whose first screen is a photograph the header sits over. */
-const OVERLAY_ROUTES = [/^\/$/, /^\/neighborhoods\/[^/]+$/, /^\/venues\/[^/]+$/, /^\/tide\/\d{4}-\d{2}$/];
+const OVERLAY_ROUTES = [/^\/$/, /^\/(buy|sell)$/, /^\/neighborhoods\/[^/]+$/, /^\/venues\/[^/]+$/, /^\/tide\/\d{4}-\d{2}$/];
 
 type Contact = { name: string; phone: string; phoneE164: string; email: string };
 
@@ -33,6 +34,9 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   const overlay = OVERLAY_ROUTES.some((r) => r.test(pathname));
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  // Which product menu is open on the desktop, if any; one at a time.
+  const [menu, setMenu] = useState<string | null>(null);
+  const closeMenu = useCallback(() => setMenu(null), []);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -54,6 +58,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
 
   useEffect(() => {
     setOpen(false);
+    setMenu(null);
   }, [pathname]);
 
   useEffect(() => {
@@ -92,16 +97,11 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
   }, [router]);
 
   const solid = !overlay || scrolled || open;
-  // On the home page the hero content is inset 56px inside the framed photograph,
-  // and from xl (1280px) the header follows. That costs 112px, so the product
-  // descriptors need 1440px there before they fit beside the search button and
-  // the 185px brokerage mark; 1360 elsewhere. Between lg and xl the full inset
-  // would push the brokerage mark past the frame, so the home header is inset
-  // 16px there with a 24px gap. Measured free space with descriptors: 11px at
-  // 1440 on home, 43px at 1360 elsewhere; without them, 27px at 1024 (11px on
-  // home).
+  // On the home page the hero content is inset 56px inside the framed
+  // photograph, and from xl the header follows; between lg and xl the full
+  // inset would push the brokerage mark past the frame, so the home header is
+  // inset 16px there.
   const homeInset = pathname === "/";
-  const descriptorVisible = homeInset ? "min-[1440px]:inline" : "min-[1360px]:inline";
 
   return (
     <header
@@ -139,59 +139,43 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
-        <nav
-          aria-label="Primary"
-          className="hidden items-center gap-4 lg:flex xl:gap-6 min-[1360px]:gap-7"
-        >
-          {primaryNav.map((item, i) => {
+        <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-7">
+          {primaryNav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            const firstProduct = item.product && !primaryNav[i - 1]?.product;
             return (
-              <Fragment key={item.href}>
-                {firstProduct ? (
-                  // The hairline between the pages and the product family.
-                  <span aria-hidden="true" className="mx-0.5 h-5 w-px shrink-0 self-center bg-linen-200/25 min-[1360px]:mx-1.5" />
+              <Link
+                key={item.href}
+                href={item.href as Route}
+                aria-current={active ? "page" : undefined}
+                className="nav-link relative flex h-8 items-center whitespace-nowrap text-linen-200 transition-colors hover:text-white"
+              >
+                <span className="t-label">{item.label}</span>
+                <LinkPending />
+                {active ? (
+                  // The one Sky rule under the current page. It carries a view
+                  // transition name, so on a route change it slides from the old
+                  // item to the new one instead of blinking between them.
+                  <ViewTransition name="nav-underline" default={reducedMotion ? "none" : "vt-underline"}>
+                    <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-sky-300" />
+                  </ViewTransition>
                 ) : null}
-                <Link
-                  href={item.href as Route}
-                  aria-current={active ? "page" : undefined}
-                  aria-label={item.product && item.sub ? `${item.label}, ${item.sub}` : undefined}
-                  className="nav-link relative flex h-8 items-center whitespace-nowrap text-linen-200 transition-colors hover:text-white"
-                >
-                  {item.product ? (
-                    <span className="flex items-baseline gap-2">
-                      <span className="font-display text-[19px] font-light leading-none tracking-[-0.01em]">{item.label}</span>
-                      {item.sub ? (
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            "hidden font-mono text-[9px] uppercase leading-none tracking-[0.14em]",
-                            // Over the hero photograph the descriptor goes full linen with a
-                            // faint shadow so it reads across the bright cloud band.
-                            solid ? "text-linen-200/85" : "text-linen-200 [text-shadow:0_1px_2px_rgb(0_0_0/0.35)]",
-                            descriptorVisible,
-                          )}
-                        >
-                          {item.sub}
-                        </span>
-                      ) : null}
-                    </span>
-                  ) : (
-                    <span className="t-label">{item.label}</span>
-                  )}
-                  <LinkPending />
-                  {active ? (
-                    // The one Sky rule under the current page. It carries a view
-                    // transition name, so on a route change it slides from the old
-                    // item to the new one instead of blinking between them.
-                    <ViewTransition name="nav-underline" default={reducedMotion ? "none" : "vt-underline"}>
-                      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-sky-300" />
-                    </ViewTransition>
-                  ) : null}
-                </Link>
-              </Fragment>
+              </Link>
             );
           })}
+          {/* The hairline between the pages and the product families. */}
+          <span aria-hidden="true" className="h-5 w-px shrink-0 self-center bg-linen-200/25" />
+          {productFamilies.map((f) => (
+            <ProductMenu
+              key={f.key}
+              family={f}
+              pathname={pathname}
+              open={menu === f.key}
+              onOpen={() => setMenu(f.key)}
+              onClose={closeMenu}
+              solid={solid}
+              reducedMotion={reducedMotion}
+            />
+          ))}
         </nav>
 
         <div className="flex items-center gap-6">
@@ -228,37 +212,56 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
         className="fixed inset-x-0 bottom-0 top-header z-40 overflow-y-auto bg-navy lg:hidden"
       >
         <div className="container-site flex min-h-full flex-col justify-between gap-12 py-10">
-          <nav aria-label="Primary, mobile" className="flex flex-col">
-            {primaryNav.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <div key={item.href} className="flex flex-col border-b border-linen-200/15">
-                  <Link
-                    href={item.href as Route}
-                    aria-current={active ? "page" : undefined}
-                    className="flex items-baseline gap-4 py-4 text-linen-200 transition-colors hover:text-white"
-                  >
-                    <span className="t-display">{item.label}</span>
-                    {item.sub ? (
-                      <>
-                        <span className="sr-only">, </span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-linen-200/60">{item.sub}</span>
-                      </>
-                    ) : null}
-                  </Link>
-                  {item.secondary ? (
-                    // The one quieter line under an item: the planner under Buy.
+          <div className="flex flex-col gap-10">
+            <nav aria-label="Primary, mobile" className="flex flex-col">
+              {primaryNav.map((item) => {
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <div key={item.href} className="flex flex-col border-b border-linen-200/15">
                     <Link
-                      href={item.secondary.href as Route}
-                      className="t-small -mt-1 self-start pb-4 text-linen-200/80 transition-colors hover:text-white"
+                      href={item.href as Route}
+                      aria-current={active ? "page" : undefined}
+                      className="py-4 text-linen-200 transition-colors hover:text-white"
                     >
-                      {item.secondary.label}
+                      <span className="t-display">{item.label}</span>
                     </Link>
-                  ) : null}
+                    {item.secondary ? (
+                      // The one quieter line under an item: the planner under Buy.
+                      <Link
+                        href={item.secondary.href as Route}
+                        className="t-small -mt-1 self-start pb-4 text-linen-200/80 transition-colors hover:text-white"
+                      >
+                        {item.secondary.label}
+                      </Link>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </nav>
+            <nav aria-label="Products, mobile" className="grid gap-8 sm:grid-cols-3">
+              {productFamilies.map((f) => (
+                <div key={f.key} className="flex flex-col gap-3">
+                  <p className="flex items-baseline gap-3">
+                    <span className="font-display text-[28px] font-light leading-none text-white">{f.name}</span>
+                    <span className="text-[12px] text-linen-200/60">{f.title}</span>
+                  </p>
+                  <ul className="flex flex-col border-l border-sky-300/30 pl-4">
+                    {f.items.map((i) => (
+                      <li key={i.href}>
+                        <Link
+                          href={i.href as Route}
+                          aria-current={pathname === i.href ? "page" : undefined}
+                          className="block py-2 text-[16px] text-linen-200 transition-colors hover:text-white aria-[current=page]:text-sky-300"
+                        >
+                          {i.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              );
-            })}
-          </nav>
+              ))}
+            </nav>
+          </div>
           <div className="flex flex-col gap-8">
             <div className="grid gap-6 sm:grid-cols-2">
               {contacts.map((c) => (

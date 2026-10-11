@@ -27,7 +27,6 @@ export function Places() {
                 <Photo image={m.image} sizes="(min-width: 768px) 33vw, 100vw" className="place-img" />
               </SharedFrame>
               <div className="scrim" aria-hidden="true" />
-              {m.credit ? <span className="image-credit-on bottom-auto top-0">{m.credit}</span> : null}
               <div className="relative flex flex-col gap-3 p-7 lg:p-8">
                 <h3 className="font-display text-[clamp(2rem,3.2vw,2.75rem)] font-light leading-[1.02] text-white text-shadow-photo">
                   {m.name}

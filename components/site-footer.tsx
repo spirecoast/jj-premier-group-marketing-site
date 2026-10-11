@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon } from "lucide-react";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
-import { allSocialLinks, footerNav, site, type SocialNetwork } from "@/lib/site";
+import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } from "@/lib/site";
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
@@ -23,10 +23,13 @@ function hubGoalClasses(href: string): string | undefined {
   return `plausible-event-name=Explore plausible-event-action=hub plausible-event-where=footer plausible-event-hub=${href.slice(1)}`;
 }
 
-function Column({ title, links }: { title: string; links: readonly { href: string; label: string }[] }) {
+function Column({ title, links, note }: { title: string; links: readonly { href: string; label: string }[]; note?: string }) {
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="font-display text-[19px] font-light leading-none text-navy">{title}</h2>
+      <h2 className="flex flex-col gap-1.5">
+        <span className="font-display text-[19px] font-light leading-none text-navy">{title}</span>
+        {note ? <span className="text-[12px] text-linen-700">{note}</span> : null}
+      </h2>
       <ul className="flex flex-col gap-2.5 text-[14px]">
         {links.map((l) => (
           <li key={l.href}>
@@ -86,8 +89,8 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
   return (
     <footer className="bg-linen-200 pb-20 text-navy md:pb-12">
       <div className="container-site flex flex-col gap-16 pt-16 lg:pt-20">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(5,minmax(0,1fr))] lg:gap-10">
-          <div className="flex flex-col items-start gap-6 sm:col-span-2 lg:col-span-1">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.6fr)] lg:gap-16">
+          <div className="flex flex-col items-start gap-6">
             <div className="flex flex-col gap-3">
               <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
               <p className="font-display text-[22px] font-light leading-tight text-navy">{settings.brokerageName}</p>
@@ -129,11 +132,22 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               </ul>
             ) : null}
           </div>
-          <Column title="Places" links={footerNav.places} />
-          <Column title="Buy & sell" links={footerNav.buySell} />
-          <Column title="Tools" links={footerNav.tools} />
-          <Column title="Guides" links={footerNav.guides} />
-          <Column title="The team" links={footerNav.team} />
+          <div className="flex flex-col gap-12">
+            {/* The site: where, what to do, what to read, who. */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
+              <Column title="Places" links={footerNav.places} />
+              <Column title="Buy & sell" links={footerNav.buySell} />
+              <Column title="Guides" links={footerNav.guides} />
+              <Column title="The team" links={footerNav.team} />
+            </div>
+            {/* The three data products, each with everything built on it. */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-rule pt-10 sm:grid-cols-4">
+              {productFamilies.map((f) => (
+                <Column key={f.key} title={f.name} note={f.title} links={f.items} />
+              ))}
+              <Column title="All tools" note="Free, no sign-up" links={[{ href: "/tools", label: "See all eight" }]} />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-8 border-t border-rule pt-8 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
