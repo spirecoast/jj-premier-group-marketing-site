@@ -25,8 +25,8 @@ function hubGoalClasses(href: string): string | undefined {
 
 function Column({ title, links }: { title: string; links: readonly { href: string; label: string }[] }) {
   return (
-    <div className="flex flex-col gap-3.5">
-      <p className="t-eyebrow text-linen-700">{title}</p>
+    <div className="flex flex-col gap-4">
+      <h2 className="font-display text-[19px] font-light leading-none text-navy">{title}</h2>
       <ul className="flex flex-col gap-2.5 text-[14px]">
         {links.map((l) => (
           <li key={l.href}>
@@ -67,9 +67,13 @@ function SocialIcon({ network }: { network: SocialNetwork }) {
 }
 
 /**
- * Compliance is furniture. The MLS attribution, the Equal Housing mark, both
- * licenses, the office address and the brokerage mark sit in the footer of
- * every page as part of the design, not a legal line appended later.
+ * Compliance is furniture. Florida's advertising rules want the brokerage's
+ * licensed name on every page, next to the contact details, and never smaller
+ * than the team's name (FAC 61J2-10.025 and 61J2-10.026), so "Coldwell Banker
+ * Realty" sits under the wordmark in the same serif, above the phone and the
+ * two addresses. The disclosure below is set to be read, not hidden: who we
+ * are and through whom we work, Florida's default brokerage relationship,
+ * where the figures come from, and the marks.
  */
 export function SiteFooter({ settings, team }: { settings: SiteSettings; team: TeamMember[] }) {
   const year = new Date().getFullYear();
@@ -82,18 +86,13 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
   return (
     <footer className="bg-linen-200 pb-20 text-navy md:pb-12">
       <div className="container-site flex flex-col gap-16 pt-16 lg:pt-20">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1fr]">
-          <div className="flex flex-col items-start gap-6">
-            <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
-            <p className="t-quote text-navy">{site.tagline}</p>
-          </div>
-          <Column title="Places" links={footerNav.places} />
-          <Column title="Tools" links={footerNav.tools} />
-          <Column title="The team" links={footerNav.team} />
-          <div className="flex flex-col gap-3.5">
-            <p className="t-eyebrow text-linen-700">Direct</p>
-            <ul className="flex flex-col gap-2.5 text-[14px]">
-              {/* The team line, as the revised mockup shows; each agent's direct line stays on the contact page. */}
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(5,minmax(0,1fr))] lg:gap-10">
+          <div className="flex flex-col items-start gap-6 sm:col-span-2 lg:col-span-1">
+            <div className="flex flex-col gap-3">
+              <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
+              <p className="font-display text-[22px] font-light leading-tight text-navy">{settings.brokerageName}</p>
+            </div>
+            <ul className="flex flex-col gap-1.5 text-[14px]">
               <li>
                 <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "footer" }} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
                   {settings.primaryPhoneDisplay}
@@ -108,13 +107,9 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
                 </li>
               ))}
             </ul>
-            <address className="t-small mt-2 not-italic text-linen-700">
-              {settings.brokerageName}
-              <br />
-              {office}
-            </address>
+            <address className="t-small not-italic text-linen-700">{office}</address>
             {social.length ? (
-              <ul className="mt-1 flex flex-wrap gap-2" aria-label="The team elsewhere">
+              <ul className="flex flex-wrap gap-2" aria-label="The team elsewhere">
                 {social.map((s) => {
                   return (
                     <li key={s.url}>
@@ -134,26 +129,55 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               </ul>
             ) : null}
           </div>
+          <Column title="Places" links={footerNav.places} />
+          <Column title="Buy & sell" links={footerNav.buySell} />
+          <Column title="Tools" links={footerNav.tools} />
+          <Column title="Guides" links={footerNav.guides} />
+          <Column title="The team" links={footerNav.team} />
         </div>
 
-        <div className="flex flex-col gap-6 border-t border-rule pt-7 lg:flex-row lg:items-center lg:justify-between">
-          <p className="max-w-[760px] font-mono text-[9px] uppercase leading-[1.8] tracking-[0.06em] text-linen-700">
-            {settings.footerDisclosure}
-          </p>
+        <div className="flex flex-col gap-8 border-t border-rule pt-8 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          <div className="flex max-w-[860px] flex-col gap-3 text-[12px] leading-[1.7] text-linen-700">
+            <p>
+              {site.name} is a real estate team: Joelyn Nauman and Jessica Garza, licensed Florida real estate agents with{" "}
+              {settings.brokerageName}, {office}. Real estate services are provided through {settings.brokerageName}.
+            </p>
+            <p>
+              In Florida, real estate licensees are presumed to work as transaction brokers unless a single-agent or
+              no-brokerage relationship is agreed in writing (Florida Statutes §475.278). If your home is listed with
+              another brokerage, this is not a solicitation of that listing.
+            </p>
+            <p>
+              Sales figures come from the Manatee and Sarasota County Property Appraisers&rsquo; public records, not the
+              MLS. Information is deemed reliable but not guaranteed and is for consumers&rsquo; personal, non-commercial
+              use. Figures from the tools on this site are estimates for planning, not quotes or appraisals.
+            </p>
+            <p>
+              Coldwell Banker&reg; and the Coldwell Banker logos are trademarks of Coldwell Banker Real Estate LLC. The
+              Coldwell Banker&reg; System is comprised of company owned offices which are owned by a subsidiary of
+              Anywhere Advisors LLC and franchised offices which are independently owned and operated. The Coldwell
+              Banker System fully supports the principles of the Fair Housing Act and the Equal Opportunity Act.
+            </p>
+            <p>
+              REALTOR&reg; is a federally registered collective membership mark which identifies a real estate
+              professional who is a member of the National Association of REALTORS&reg; and subscribes to its strict
+              Code of Ethics. Equal Housing Opportunity.
+            </p>
+          </div>
           {/* REALTOR® and Equal Housing in navy, square and the same size, each with NAR's clear space around it; then the brokerage. */}
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-6 text-navy">
+          <div className="flex shrink-0 flex-wrap items-center gap-x-8 gap-y-6 text-navy">
             <div className="flex items-center gap-6">
               <RealtorMark size={48} />
               <EqualHousingMark size={48} />
             </div>
             <span className="hidden h-10 w-px bg-rule sm:block" aria-hidden="true" />
-            <CbMark tone="cbblue" width={220} />
+            <CbMark tone="cbblue" width={200} />
           </div>
         </div>
 
         <div className="flex flex-col gap-2 pb-4 text-[12px] text-linen-700 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {year} {site.name} · {settings.brokerageName}. All rights reserved.
+            © {year} {site.name} · {settings.brokerageName}
           </p>
           <ul className="flex gap-5">
             {footerNav.legal.map((l) => (

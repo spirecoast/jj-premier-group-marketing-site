@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 });
 
-const UPDATED = "October 9, 2026";
+const UPDATED = "October 11, 2026";
 
 /** Named from the same switch the explorer uses, so the page is true under either configuration. */
 // MapTiler when a key is set, with OpenFreeMap as the fallback (components/map-runtime.ts); OpenFreeMap alone otherwise.
@@ -22,7 +22,7 @@ export default async function PrivacyPage() {
     <section className="container-site flex flex-col gap-10 py-section">
       <header className="flex max-w-measure flex-col gap-4">
         <h1 className="t-display text-navy">Privacy policy</h1>
-        <p className="t-record text-graphite-600">Last updated {UPDATED} · draft for legal review</p>
+        <p className="t-record text-graphite-600">Last updated {UPDATED}</p>
       </header>
       <div className="prose-jj">
         <p>
@@ -53,7 +53,7 @@ export default async function PrivacyPage() {
 
         <h2>Phone numbers and text messages</h2>
         <p>
-          Phone numbers collected through this website are used only to respond to your enquiry and, where you have consented, to send you calls or text messages. We do not share or sell phone numbers for marketing purposes. Text-message consent is a separate, unchecked box on our forms; it is never required to submit a form or to work with us. Message and data rates may apply. Reply STOP at any time to opt out, and HELP for help. We record the date and time of your consent with your enquiry.
+          Phone numbers collected through this website are used only to respond to your enquiry and, where you have consented, to send you calls or text messages. We do not share or sell phone numbers for marketing purposes. No mobile information will be shared with third parties or affiliates for marketing or promotional purposes, and text-message opt-in data and consent will not be shared with any third parties. Text-message consent is a separate, unchecked box on our forms; it is never required to submit a form or to work with us. Message and data rates may apply. Reply STOP at any time to opt out, and HELP for help. We record the date and time of your consent with your enquiry.
         </p>
 
         <h2>Who sees it</h2>
