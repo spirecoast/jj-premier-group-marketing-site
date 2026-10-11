@@ -53,7 +53,9 @@ search index; Resend sends only team-facing email.
   photos licensed through the Adobe connector on October 2, 2026 (plus `interior-living-kitchen-palm`,
   338902584, a real photograph, not generative, licensed October 11 for the home page's Work with
   Joelyn and Jessica band, and `living-oceanfront-white`, 1233189479, also not generative, licensed
-  October 11 for the home page's Buyer tile), kept under their old file
+  October 11 for the home page's Buyer tile; and three more licensed October 11 for the buyer's and
+  seller's guides, none generative: `aerial-tile-roofs-pool-cages` (532484718), `screened-pool-lanai`
+  (239082656) and `coastal-house-teal` (365569414, Marco Island)), kept under their old file
   names with the alt text rewritten to describe the new photo: `place-skyway-bridge` (432458105),
   `sarasota-bayfront-blue-hour` (577886062), `place-sea-oats-wind` (1438764162, Anna Maria
   Island), `place-barrier-island` (402902579, Siesta Key Beach), `place-storm-gulf` (194827807),

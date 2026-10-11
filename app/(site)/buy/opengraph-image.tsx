@@ -6,7 +6,7 @@ export const contentType = OG_CONTENT_TYPE;
 export default function Image() {
   return brandOgImage({
     eyebrow: "Buying on the Suncoast",
-    title: "Two questions before we look at anything.",
+    title: "The buyer's guide, in eight steps.",
     meta: "When do you need to be in, and is there a house to sell first?",
     photo: "/images/library/kitchen-navy-island.jpg",
   });
