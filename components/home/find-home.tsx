@@ -4,26 +4,21 @@ import type { ImageRef } from "@/lib/content/types";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 
-/** Find your home. Start with a budget; we narrow the options. The heading runs the width of the section so it holds three lines at 1440. */
+/** Find your home: a place and a price, straight into the listings. */
 export function FindHome({ image }: { image: ImageRef }) {
   return (
     <section className="bg-parchment" aria-labelledby="find-title">
       <div className="container-site flex flex-col gap-10 py-section lg:gap-12">
         <SectionHeading
           size="display"
-          title={
-            <span id="find-title">
-              Start with a budget.
-              <br className="hidden sm:block" />{" "}We&rsquo;ll help you narrow the options and find the right fit.
-            </span>
-          }
-          titleClassName="max-w-[900px]"
+          className="sr"
+          title={<span id="find-title">Find your home</span>}
         />
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start lg:gap-20">
-          <div className="flex flex-col gap-7">
-            <p className="t-body max-w-[480px] text-body">
-              Start with the place and the budget. We&rsquo;ll send you the homes that fit, and we&rsquo;ll tell you which
-              ones we&rsquo;d actually go and see with you.
+          <div className="sr flex flex-col gap-7">
+            <p className="t-lead max-w-[480px] text-body">
+              Pick a place and a price. You&rsquo;ll see every home for sale that fits, and we&rsquo;ll tell you which
+              ones are worth a visit.
             </p>
             <form action="/listings" method="get" className="grid gap-5 border border-hairline bg-white p-6 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] sm:items-end">
               <div className="field min-w-0">
@@ -59,7 +54,7 @@ export function FindHome({ image }: { image: ImageRef }) {
             </form>
           </div>
 
-          <div className="relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-auto lg:h-[400px]">
+          <div className="sr-img relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-auto lg:h-[440px]">
             <Photo image={image} sizes="(min-width: 1024px) 600px, 100vw" />
           </div>
         </div>

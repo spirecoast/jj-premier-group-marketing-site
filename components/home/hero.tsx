@@ -54,9 +54,6 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
 
         {/* Headline block */}
         <div className="relative flex flex-col gap-5 px-6 pb-10 pt-7 text-navy sm:gap-6 sm:px-10 sm:pb-12 sm:pt-8 lg:absolute lg:bottom-16 lg:left-14 lg:w-[760px] lg:p-0 lg:text-white">
-          <p className="rise d1 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-harbor-700 lg:text-mist lg:text-shadow-photo">
-            {site.region}
-          </p>
           <h1 id="hero-title" className="t-hero lg:text-shadow-photo">
             <span className="hero-line l1">
               <span>Your next home</span>
