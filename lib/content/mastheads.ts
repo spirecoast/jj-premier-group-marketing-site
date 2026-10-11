@@ -58,7 +58,12 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
     alt: "Rows of red velvet seats in an opera house, empty before the show",
   },
   "/blog": TIDE,
-  "/tide": TIDE,
+  "/tide": {
+    kind: "photo",
+    photo: "library/venice-pier-sunrise",
+    position: "62% 55%",
+    alt: "A fishing pier reaching into the Gulf at sunrise",
+  },
   "/tide/[issue]": TIDE,
   "/neighborhoods/match": {
     kind: "photo",

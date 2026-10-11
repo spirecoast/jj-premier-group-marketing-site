@@ -175,10 +175,10 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     ],
   },
   {
-    url: "/blog",
-    title: "Tide, the Coast real estate newsletter",
+    url: "/tide",
+    title: "Tide, the monthly market report",
     summary: [
-      "Once a month, Tide gives you one page on what happened in Lakewood Ranch, Sarasota and Bradenton and what it means for you, computed from the county record. Subscribe by email, or read every issue here.",
+      "Tide is the monthly real estate market report for Lakewood Ranch, Sarasota and Bradenton: what sold, for how much, and what it means if you're buying or selling, from the county record. Read every issue, or get it by email.",
     ],
   },
   {

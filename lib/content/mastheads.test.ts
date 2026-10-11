@@ -26,11 +26,10 @@ describe("the masthead slots", () => {
     assert.equal(image.position, slot.position);
     assert.ok(image.width >= MIN_WIDTH);
   });
-  test("Tide's three routes share one art slot", () => {
-    const blog = mastheadSlot("/blog");
-    assert.equal(blog.kind, "art");
-    assert.equal(mastheadSlot("/tide"), blog);
-    assert.equal(mastheadSlot("/tide/[issue]"), blog);
+  test("Tide's home opens with the pier photograph; an issue keeps the drawn prices", () => {
+    assert.equal(mastheadSlot("/tide").kind, "photo");
+    assert.equal(mastheadSlot("/tide/[issue]").kind, "art");
+    assert.equal(mastheadSlot("/blog"), mastheadSlot("/tide/[issue]"));
   });
   test("no two sibling sell pages open with the same photograph", () => {
     const sell = (["/sell/sold", "/sell/home-value", "/sell/net-proceeds"] as const).map((r) => MASTHEADS[r]).filter((s) => s.kind === "photo");

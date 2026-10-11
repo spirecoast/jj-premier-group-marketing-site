@@ -43,7 +43,7 @@
     { "id": "para-hoa-rent", "type": "paraphrase", "q": "can the association stop me from renting my place out", "expect": ["guide:what-to-ask-before-you-buy-in-a-gated-community#the-rules", "guide:barrier-island-rules-island-by-island#the-shortest-stay"] },
     { "id": "para-weekend", "type": "paraphrase", "q": "things to do this weekend", "expect": ["page:/calendar", "page:/calendar/plan"] },
     { "id": "para-agents", "type": "paraphrase", "q": "who are the agents", "expect": ["page:/about", "page:/"] },
-    { "id": "para-market", "type": "paraphrase", "q": "how many homes sold last month", "expect": ["tide:2026-10*", "page:/blog", "page:/sell/sold"] },
+    { "id": "para-market", "type": "paraphrase", "q": "how many homes sold last month", "expect": ["tide:2026-10*", "page:/tide", "page:/sell/sold"] },
     { "id": "noise-xyzzy", "type": "noise", "q": "xyzzy blorp", "expect": [] },
     { "id": "noise-asdf", "type": "noise", "q": "asdf qwerty", "expect": [] },
     { "id": "noise-pizza", "type": "noise", "q": "best pizza dough recipe", "expect": [] },

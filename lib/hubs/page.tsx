@@ -328,7 +328,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
           <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="guides-title">
             <SectionHeading
               title={<span id="guides-title">What to read before you drive out to {m.name}.</span>}
-              aside={<RuleLink href="/blog">Every guide and letter</RuleLink>}
+              aside={<RuleLink href="/guides">Every guide</RuleLink>}
             />
             <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {guides.map((p) => (

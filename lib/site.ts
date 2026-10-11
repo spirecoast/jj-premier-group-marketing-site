@@ -88,7 +88,7 @@ export const products: readonly Product[] = [
     name: "Tide",
     tag: "Newsletter",
     long: "Tide · The Coast real estate newsletter",
-    href: "/blog",
+    href: "/tide",
     line: "How home sales went in the three markets, once a month, and what it means if you’re buying or selling.",
     accent: "var(--color-sky-700)",
   },
@@ -116,7 +116,7 @@ export const primaryNav: readonly NavItem[] = [
   { href: "/about", label: "Joelyn & Jessica", sub: "Meet the team" },
   { href: "/neighborhoods", label: "Atlas", sub: "Neighborhoods", product: true },
   { href: "/calendar", label: "Encore", sub: "Arts calendar", product: true },
-  { href: "/blog", label: "Tide", sub: "Newsletter", product: true },
+  { href: "/tide", label: "Tide", sub: "Market report", product: true },
 ] as const;
 
 /** The footer's five groups, then the legal links. */
