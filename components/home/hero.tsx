@@ -4,7 +4,7 @@ import type { ImageRef, TeamMember } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
 /**
- * 01 · The hero. The photograph is the layout: type sits in the calm third of
+ * The hero. The photograph is the layout: type sits in the calm third of
  * the frame. Rise, draw and fade are each used once here and nowhere else on
  * the page. One motion on the photograph, the slow drift; the veil and the
  * glow came off at the design director's note. Below `lg` the photograph
@@ -66,15 +66,6 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
             </span>
           </h1>
           <span className="draw block h-px w-[120px] bg-navy lg:bg-sky-300" aria-hidden="true" />
-          {/* The approved line, from the tablet up. */}
-          <p className="rise d3 hidden max-w-[520px] text-[17px] font-medium leading-[1.6] text-body sm:block lg:text-white lg:text-shadow-soft">
-            Tell us where you are in the move, and we&rsquo;ll walk you through every step from here, at your
-            pace and in plain language.
-          </p>
-          {/* Phones: one orientation line, so the buttons stay inside the first screen. */}
-          <p className="rise d3 max-w-[340px] text-[16px] font-medium leading-[1.5] text-body sm:hidden">
-            Tell us when you want to buy or sell in Lakewood Ranch, Sarasota or Bradenton. We take it from there.
-          </p>
           <div className="rise d4 flex flex-wrap gap-3.5">
             <Link
               href="/listings"

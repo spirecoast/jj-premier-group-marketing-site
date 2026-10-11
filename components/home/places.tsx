@@ -6,7 +6,7 @@ import { SharedLink } from "@/components/shared-link";
 import { MARKETS } from "@/lib/content/markets";
 
 /**
- * 06 · Three places. One tall photograph per place, the name set large, and
+ * Areas of expertise. One tall photograph per place, the name set large, and
  * the paragraph that says what living there’s like. Each card opens the
  * place's own page; the map is one link further in. Figures arrive with the
  * data feed; until then the photograph and the words carry it.
@@ -14,13 +14,7 @@ import { MARKETS } from "@/lib/content/markets";
 export function Places() {
   return (
     <section className="container-site flex flex-col gap-12 py-section" aria-labelledby="places-title">
-      <SectionHeading
-        number="06"
-        eyebrow="Three places we know by heart"
-        size="display"
-        title={<span id="places-title">Lakewood Ranch, Sarasota and Bradenton. Pick the one that feels like you.</span>}
-        titleClassName="max-w-[860px]"
-      />
+      <SectionHeading size="display" title={<span id="places-title">Areas of expertise</span>} />
       <ul className="grid gap-5 md:grid-cols-3 lg:items-start">
         {MARKETS.map((m, i) => (
           <li key={m.slug} className="flex">

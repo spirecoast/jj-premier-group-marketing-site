@@ -5,7 +5,7 @@ import type { ImageRef } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
 /**
- * 02 · Meet Joelyn and Jessica, directly under the hero. The portrait, the paragraph the team wrote
+ * Meet Joelyn and Jessica, directly under the hero. The portrait, the paragraph the team wrote
  * about what they do, and two buttons. No figures and no proof slot: what
  * the team does for a client is section 04.
  */
@@ -19,8 +19,6 @@ export function Meet({ duo }: { duo: ImageRef }) {
 
         <div className="flex flex-col gap-8">
           <SectionHeading
-            number="02"
-            eyebrow="Meet Joelyn & Jessica"
             size="display"
             title={<span id="meet-title">Two agents. One team. Fully focused on you.</span>}
           />

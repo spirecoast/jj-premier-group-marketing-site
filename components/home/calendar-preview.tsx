@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
 const HOUSE = img("library/culture-opera-house-red-seats", "A theater auditorium before the house lights go down", "50% 60%");
 
 /**
- * 09 · Encore Arts Calendar. Theater, music and art, carried with the same
+ * Encore Arts Calendar. Theater, music and art, carried with the same
  * weight as the homes. The Monday sign-up lives inside the section, with the
  * full calendar one link away.
  */
@@ -22,8 +22,6 @@ export function CalendarPreview({ events }: { events: Event[] }) {
     <section className="bg-parchment" aria-labelledby="encore-title">
       <div className="container-site flex flex-col gap-12 py-section">
         <SectionHeading
-          number="09"
-          eyebrow={site.calendarName}
           size="display"
           title={<span id="encore-title">What’s on this week in theater, music and art, close to home.</span>}
           titleClassName="max-w-[820px]"
