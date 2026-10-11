@@ -137,7 +137,7 @@ export const footerNav = {
     { href: "/neighborhoods", label: "Atlas neighborhoods" },
     { href: "/neighborhoods/match", label: "Atlas Match" },
     { href: "/calendar", label: "Encore arts calendar" },
-    { href: "/calendar/plan", label: "Plan a visit" },
+    { href: "/calendar/plan", label: "Encore Planner" },
     { href: "/tide", label: "Tide market report" },
     { href: "/relocate", label: "Atlas Move" },
     { href: "/sell/sold", label: "Tide Street" },

@@ -51,7 +51,7 @@ export type Milestone = {
   /** Absent when the date is a planning rule of ours rather than a cited fact. */
   source?: Source;
   flags: MilestoneFlag[];
-  /** A place on the site to go next (Atlas match, the Encore visit planner). */
+  /** A place on the site to go next (Atlas Match, Encore Planner). */
   link?: { label: string; href: string };
 };
 
@@ -341,7 +341,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
           body: `We walk the shortlist on video before you fly, so the trip is for the few worth standing in. Plan on writing the offer while you're here or the week after.${commuteLine}`,
           basis: `${P.visitBeforeEffectiveDays.min / 7} to ${P.visitBeforeEffectiveDays.max / 7} weeks before the contract's effective date, our planning rule, so an accepted offer falls on the dates below.`,
           flags: [],
-          link: { label: "Plan the visit with Encore", href: "/calendar/plan" },
+          link: { label: "Plan the visit with Encore Planner", href: "/calendar/plan" },
         }
       : {
           id: "visit",
@@ -350,7 +350,7 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
           body: `We walk the places on video first and plan one trip around the ones worth seeing. Renting first means the contract dates below don't apply yet; when you're ready to buy, switch the answer and they appear.${commuteLine}`,
           basis: "No fixed date on a rental. Ask us and we'll pick the week together.",
           flags: ["askUs"],
-          link: { label: "Plan the visit with Encore", href: "/calendar/plan" },
+          link: { label: "Plan the visit with Encore Planner", href: "/calendar/plan" },
         },
   );
 

@@ -17,7 +17,7 @@ export function Ask({ team }: { team: { slug: string; name: string; phone: strin
   const market = plan.answers.county === "sarasota" ? "sarasota" : undefined;
   const message = mode === "plan" ? `${plan.summary}\n${shareUrl}` : "";
   // The form keeps whatever has been typed across rebuilds; the message only
-  // refreshes when asked, the way the Encore visit plan does it.
+  // refreshes when asked, the way Encore Planner does it.
   const [sentMessage, setSentMessage] = useState(message);
   return (
     <section id="contact" className="container-site grid scroll-mt-header gap-10 py-section print:hidden lg:grid-cols-[1fr_1.4fr] lg:gap-20">

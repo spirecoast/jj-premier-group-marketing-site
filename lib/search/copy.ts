@@ -139,9 +139,9 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   },
   {
     url: "/calendar/plan",
-    title: "Plan a visit",
+    title: "Encore Planner: what's on, day by day",
     summary: [
-      "Coming to look at homes? Give Encore your dates and the places you want to see, and get a day-by-day plan: showings from ten to four, then the evening's theater, music and openings. Add the whole plan to your calendar.",
+      "Pick any dates, up to a month, and Encore Planner lays out each day: up to three shows, concerts or openings every evening from different venues, plus an afternoon pick. Coming to look at homes? It keeps ten to four free for showings. Add the plan to your calendar or share the link.",
     ],
   },
   {

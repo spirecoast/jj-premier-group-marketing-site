@@ -6,15 +6,16 @@ import type { EncoreIndex } from "./index-format";
 import { addDays, daysInRange, occurrences, weekday, weekendOf, type Occ } from "./select";
 
 /**
- * The visit planner. Someone coming to look at homes gives us their dates
- * and the places they want to see; the daytime is left for showings and
- * the evenings are filled from Encore. Pure functions over the client
- * index, so the server paints the first plan and the browser rebuilds it
- * on every change without a round trip.
+ * Encore Planner. Anyone gives it a run of dates and the places they'd go,
+ * and gets each day filled from Encore. Someone coming to look at homes
+ * keeps ten to four for showings and gets an afternoon pick on weekends;
+ * someone who lives here gets an afternoon pick on any day. Pure functions
+ * over the client index, so the server paints the first plan and the
+ * browser rebuilds it on every change without a round trip.
  */
 
-/** A stay runs up to two weeks. */
-export const MAX_DAYS = 14;
+/** A plan runs up to a month. */
+export const MAX_DAYS = 31;
 /** Evening picks start at five. */
 export const EVENING_FROM = "17:00";
 /** A weekend matinee is anything from late morning up to the evening cut. */
@@ -31,9 +32,25 @@ export type PlanState = {
   markets: MarketSlug[];
   /** Empty means no preference. */
   categories: EventCategory[];
-  /** Skip the weekend matinee option. */
+  /** Skip the afternoon pick. */
   eveningsOnly: boolean;
+  /** Lives here: no showing block, and an afternoon pick on weekdays too. */
+  local: boolean;
 };
+
+/** The quick date ranges on the form. */
+export type Preset = "weekend" | "week" | "fortnight" | "month";
+export const PRESETS: { id: Preset; label: string }[] = [
+  { id: "weekend", label: "This weekend" },
+  { id: "week", label: "Next 7 days" },
+  { id: "fortnight", label: "Next 2 weeks" },
+  { id: "month", label: "Next 30 days" },
+];
+export function presetDates(p: Preset, today: string): [string, string] {
+  if (p === "weekend") return weekendOf(today);
+  const n = p === "week" ? 7 : p === "fortnight" ? 14 : 30;
+  return [today, addDays(today, n - 1)];
+}
 
 export type PlanDay = {
   day: string;
@@ -42,7 +59,7 @@ export type PlanDay = {
   markets: MarketSlug[];
   /** Up to three performances from five o'clock, in time order. */
   picks: Occ[];
-  /** On a weekend, one afternoon option. */
+  /** One afternoon option: on a weekend, or any day for someone who lives here. */
   matinee?: Occ;
 };
 
@@ -57,7 +74,7 @@ const one = (p: Params, k: string): string | undefined => {
 /** A real calendar date: the shape, and it survives the round trip (2026-10-99 does not). */
 const isDay = (s: string | undefined): s is string => Boolean(s && /^\d{4}-\d{2}-\d{2}$/.test(s) && addDays(s, 0) === s);
 
-/** Dates that make a stay: not in the past, in order, and at most two weeks. */
+/** Dates that make a plan: not in the past, in order, and at most a month. */
 export function normalizeDates(from: string, to: string, today: string): { from: string; to: string; trimmed: boolean } {
   let f = from < today ? today : from;
   let t = to < f ? f : to;
@@ -83,7 +100,8 @@ export function parsePlanState(p: Params, today: string): { state: PlanState; tr
   const markets = [...new Set((one(p, "market") ?? "").split(",").filter(isMarketSlug))];
   const categories = [...new Set((one(p, "cat") ?? "").split(",").filter(isEventCategory))];
   const eveningsOnly = one(p, "evenings") === "1";
-  return { state: { from: dates.from, to: dates.to, markets, categories, eveningsOnly }, trimmed: dates.trimmed };
+  const local = one(p, "who") === "local";
+  return { state: { from: dates.from, to: dates.to, markets, categories, eveningsOnly, local }, trimmed: dates.trimmed };
 }
 
 export function planSearch(s: PlanState): string {
@@ -93,6 +111,7 @@ export function planSearch(s: PlanState): string {
   if (s.markets.length) sp.set("market", s.markets.join(","));
   if (s.categories.length) sp.set("cat", s.categories.join(","));
   if (s.eveningsOnly) sp.set("evenings", "1");
+  if (s.local) sp.set("who", "local");
   return `?${sp.toString()}`;
 }
 
@@ -106,7 +125,7 @@ export function planIcsHref(s: PlanState, plan: Plan): string {
   return `/api/calendar/plan.ics${planSearch(s)}${picks.length ? `&${picks.join("&")}` : ""}`;
 }
 
-/** The days of the stay with their market or two, rotating through the chosen ones. */
+/** The days of the plan with their market or two, rotating through the chosen ones. */
 export function stayDays(s: PlanState): Pick<PlanDay, "day" | "weekend" | "markets">[] {
   const days = daysInRange(s.from, s.to).slice(0, MAX_DAYS);
   const rotation: MarketSlug[] = s.markets.length ? s.markets : MARKETS.map((m) => m.slug);
@@ -128,7 +147,8 @@ export function stayDays(s: PlanState): Pick<PlanDay, "day" | "weekend" | "marke
  * and pushes away from categories and venues already in the plan, harder
  * within the same evening, and a little away from a start time already
  * taken that evening. A production is never picked twice in a stay.
- * On a weekend, one matinee is chosen the same way unless evenings only.
+ * One afternoon pick is chosen the same way, on weekends for a visit and on
+ * any day for someone who lives here, unless evenings only.
  */
 export function buildPlan(index: EncoreIndex, s: PlanState, today: string, nowMs = 0): Plan {
   const prefs = new Set(s.categories);
@@ -176,7 +196,7 @@ export function buildPlan(index: EncoreIndex, s: PlanState, today: string, nowMs
       all.filter((o) => o.time >= EVENING_FROM),
       PICKS_PER_EVENING,
     );
-    const matinee = weekend && !s.eveningsOnly ? take(all.filter((o) => o.time >= MATINEE_FROM && o.time < EVENING_FROM), 1)[0] : undefined;
+    const matinee = (weekend || s.local) && !s.eveningsOnly ? take(all.filter((o) => o.time >= MATINEE_FROM && o.time < EVENING_FROM), 1)[0] : undefined;
     return { day, weekend, markets, picks, matinee };
   });
   return { days: out };
