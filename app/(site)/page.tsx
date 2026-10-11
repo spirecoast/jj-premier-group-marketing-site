@@ -7,13 +7,8 @@ import { LetterBand } from "@/components/home/letter-band";
 import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
 import { Questions } from "@/components/home/questions";
-import { Three, type ThreeFacts } from "@/components/home/three";
-import { WhatWeDo } from "@/components/home/what-we-do";
-import { getPosts, getTeam, getUpcomingEvents } from "@/lib/content";
-import { getEncoreIndex, localDay } from "@/lib/encore/data";
+import { getTeam, getUpcomingEvents } from "@/lib/content";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
-import { addDays, occurrences, shortDay, weekday } from "@/lib/encore/select";
-import { getAllRecords, getIndexEntries } from "@/lib/neighborhoods/data";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
@@ -41,74 +36,26 @@ const FRAMES = {
 
 export default async function HomePage() {
   // The Encore pieces below (the season ring, tonight's count) read the snapshot loaded here.
-  const [team, events, posts, records, entries] = await Promise.all([
+  const [team, events] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
-    getPosts(),
-    getAllRecords(),
-    getIndexEntries(),
     loadEncoreSnapshot(),
   ]);
-  const facts = threeFacts({ posts, records, entries });
 
-  /* The order, numbered the way the eyebrows read:
-     01 hero · 02 Meet Joelyn & Jessica · 03 Buy or sell · 04 What we do for you ·
-     05 the three products · 06 Three places · 07 Find your home ·
-     08 The questions people ask first · 09 Encore, with the Monday sign-up ·
-     10 Tide. Two grounds only, paper and parchment, alternating from 02 on
-     paper: parchment carries 03, 05, 07 and 09. */
+  /* The order: hero · Meet Joelyn & Jessica · Buyer or seller · Areas of
+     expertise · Find your home · Work with Joelyn & Jessica · Encore · Tide ·
+     the questions people ask first. No eyebrows: each section's title or
+     photograph says what it is. */
   return (
     <>
       <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
       <Meet duo={FRAMES.duo} />
       <Doors />
-      <WhatWeDo />
-      <Three facts={facts} />
       <Places />
       <FindHome image={FRAMES.kitchen} />
-      <Questions />
       <CalendarPreview events={events} />
       <LetterBand image={FRAMES.island} />
+      <Questions />
     </>
   );
-}
-
-/** The live numbers on the home band, from the same data the products run on. */
-function threeFacts({
-  posts,
-  records,
-  entries,
-}: {
-  posts: Awaited<ReturnType<typeof getPosts>>;
-  records: Awaited<ReturnType<typeof getAllRecords>>;
-  entries: Awaited<ReturnType<typeof getIndexEntries>>;
-}): ThreeFacts {
-  const index = getEncoreIndex();
-  const today = localDay(Date.now());
-  const now = Date.now();
-  const tonight = occurrences(index, today, today, {}, now);
-  const wd = weekday(today);
-  const fri = wd === 0 ? addDays(today, -2) : wd === 6 ? addDays(today, -1) : addDays(today, 5 - wd);
-  const sun = addDays(fri, 2);
-  const weekend = occurrences(index, fri < today ? today : fri, sun, {}, now);
-  const month = Number(today.slice(5, 7));
-  const nextReportMonth = (month % 12) + 1;
-  const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return {
-    atlas: {
-      places: records.length,
-      areas: records.filter((r) => r.level === "area").length,
-      points: entries.filter((e, i) => e.x !== null && e.y !== null && i % 3 === 0).map((e): [number, number] => [e.x!, e.y!]),
-    },
-    encore: {
-      tonight: tonight.length,
-      weekend: weekend.length,
-      weekendLabel: wd >= 5 || wd === 0 ? "this weekend" : `${shortDay(fri)}–${sun.slice(8).replace(/^0/, "")}`,
-      titles: [...new Set((tonight.length ? tonight : weekend).map((o) => o.e.t))].slice(0, 3),
-    },
-    tide: {
-      nextMonth: MONTHS[nextReportMonth - 1]!,
-      guides: posts.filter((p) => !p.categories.includes("Market report")).slice(0, 2).map((p) => ({ title: p.title, slug: p.slug })),
-    },
-  };
 }

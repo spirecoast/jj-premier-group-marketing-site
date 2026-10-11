@@ -4,14 +4,12 @@ import type { ImageRef } from "@/lib/content/types";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 
-/** 07 · Find your home. Start with a budget; we narrow the options. The heading runs the width of the section so it holds three lines at 1440. */
+/** Find your home. Start with a budget; we narrow the options. The heading runs the width of the section so it holds three lines at 1440. */
 export function FindHome({ image }: { image: ImageRef }) {
   return (
     <section className="bg-parchment" aria-labelledby="find-title">
       <div className="container-site flex flex-col gap-10 py-section lg:gap-12">
         <SectionHeading
-          number="07"
-          eyebrow="Find your home"
           size="display"
           title={
             <span id="find-title">

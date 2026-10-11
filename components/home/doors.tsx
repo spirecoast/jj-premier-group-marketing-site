@@ -1,19 +1,42 @@
-import { DoorsPhoto } from "./variants/doors-photo";
-import { DoorsPlain } from "./variants/doors-plain";
+import Link from "next/link";
+import { Photo } from "@/components/photo";
+import { DOORS } from "./doors-copy";
 
 export { DOORS, type Door } from "./doors-copy";
 
 /**
- * 03 · Buy or sell. Two doors, one line each on what happens first, and a
- * quiet second link under each. The copy lives in ./doors-copy; the layout
- * is one of the treatments in ./variants, chosen here. "photo" is the one
- * that shipped; change the default to switch the home page.
+ * Buyer or seller. Two photographs side by side from 768, the word set large
+ * on each, nothing else. The section heading is for screen readers only; the
+ * two words say it. On hover the photograph eases in and the word lifts, the
+ * same card grammar as the place cards.
  */
-export type DoorsVariant = "plain" | "photo";
-
-const VARIANTS = { plain: DoorsPlain, photo: DoorsPhoto } as const;
-
-export function Doors({ variant = "photo" }: { variant?: DoorsVariant }) {
-  const Variant = VARIANTS[variant];
-  return <Variant />;
+export function Doors() {
+  return (
+    <section className="bg-parchment" aria-labelledby="doors-title">
+      <div className="container-site py-section">
+        <h2 id="doors-title" className="sr-only">
+          Buyer or seller
+        </h2>
+        <ul className="grid gap-5 md:grid-cols-2">
+          {DOORS.map((d) => (
+            <li key={d.href}>
+              <Link
+                href={d.href}
+                className="door card group relative flex aspect-[4/3] w-full items-end overflow-hidden bg-navy text-white md:aspect-[5/4] xl:aspect-[4/3]"
+              >
+                <Photo image={{ ...d.image, alt: "" }} sizes="(min-width: 768px) 50vw, 100vw" className="card-img" />
+                <div className="scrim" aria-hidden="true" />
+                <h3 className="relative flex w-full items-end justify-between gap-6 p-7 font-display text-[clamp(2.75rem,5vw,4.5rem)] font-light leading-none text-white text-shadow-photo lg:p-10">
+                  {d.title}
+                  <span aria-hidden="true" className="mb-2 text-[22px] transition-transform duration-300 group-hover:translate-x-1 lg:text-[26px]">
+                    →
+                  </span>
+                </h3>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
 }
