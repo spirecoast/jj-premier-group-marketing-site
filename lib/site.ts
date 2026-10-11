@@ -119,35 +119,44 @@ export const primaryNav: readonly NavItem[] = [
   { href: "/blog", label: "Tide", sub: "Newsletter", product: true },
 ] as const;
 
-/** Secondary links used in the footer columns. */
+/** The footer's five groups, then the legal links. */
 export const footerNav = {
-  // Each place goes to its own page; the map is one link in from there.
   places: [
     { href: "/lakewood-ranch", label: "Lakewood Ranch" },
     { href: "/sarasota", label: "Sarasota" },
     { href: "/bradenton", label: "Bradenton" },
-    { href: "/buy", label: "Buy" },
   ],
-  // The tools, in the order a move happens.
+  buySell: [
+    { href: "/buy", label: "Buyer’s guide" },
+    { href: "/sell", label: "Seller’s guide" },
+    { href: "/valuation", label: "What’s my home worth" },
+    { href: "/listings", label: "Homes for sale" },
+  ],
+  // The products, each under its own name.
   tools: [
+    { href: "/neighborhoods", label: "Atlas neighborhoods" },
+    { href: "/neighborhoods/match", label: "Atlas Match" },
+    { href: "/calendar", label: "Encore arts calendar" },
+    { href: "/calendar/plan", label: "Plan a visit" },
+    { href: "/tide", label: "Tide market report" },
     { href: "/relocate", label: "Relocation planner" },
     { href: "/sell/sold", label: "What sold on your street" },
     { href: "/sell/net-proceeds", label: "Net proceeds" },
-    { href: "/neighborhoods/match", label: "Atlas match" },
-    { href: "/calendar/plan", label: "Plan a visit" },
+  ],
+  guides: [
+    { href: "/guides/flood-zones-and-elevation-certificates-on-the-suncoast", label: "Flood zones" },
+    { href: "/guides/homeowners-wind-and-flood-insurance-on-this-coast", label: "Home insurance" },
+    { href: "/guides/homestead-save-our-homes-and-portability", label: "Homestead" },
+    { href: "/guides/hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", label: "Hurricane season" },
+    { href: "/guides/cdd-fees-in-lakewood-ranch-village-by-village", label: "CDD fees" },
+    { href: "/guides", label: "All guides" },
   ],
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
     { href: "/about#jessica-garza", label: "Jessica Garza" },
-    { href: "/neighborhoods", label: "Atlas · Neighborhoods" },
-    { href: "/calendar", label: "Encore · Arts calendar" },
-    { href: "/blog", label: "Tide · Newsletter" },
-    { href: "/buy", label: "Buying" },
-    { href: "/sell", label: "Selling" },
-    { href: "/valuation", label: "What is my home worth" },
     { href: "/contact", label: "Contact" },
     { href: "/refer", label: "Refer someone" },
-    { href: "/reviews", label: "Tell us how it went" },
+    { href: "/reviews", label: "Leave a review" },
   ],
   legal: [
     { href: "/privacy", label: "Privacy" },

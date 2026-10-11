@@ -9,7 +9,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/terms",
 });
 
-const UPDATED = "September 5, 2026";
+const UPDATED = "October 11, 2026";
 
 export default async function TermsPage() {
   const settings = await getSiteSettings();
@@ -17,7 +17,7 @@ export default async function TermsPage() {
     <section className="container-site flex flex-col gap-10 py-section">
       <header className="flex max-w-measure flex-col gap-4">
         <h1 className="t-display text-navy">Terms of use</h1>
-        <p className="t-record text-graphite-600">Last updated {UPDATED} · draft for legal review</p>
+        <p className="t-record text-graphite-600">Last updated {UPDATED}</p>
       </header>
       <div className="prose-jj">
         <p>
@@ -32,6 +32,30 @@ export default async function TermsPage() {
         <h2>Listing information</h2>
         <p>
           Listing information, where shown, is provided by the listing brokerage and is deemed reliable but not guaranteed. Square footage, lot size, taxes, flood-zone designations and similar figures come from public records and third parties; verify anything that matters to you independently before relying on it. Listings change quickly and a home shown as available may already be under contract or sold. Where a listing belongs to another brokerage, that brokerage is identified on the page.
+        </p>
+
+        <h2>Sales records and market figures</h2>
+        <p>
+          Sold prices, sale dates, market figures and the monthly Tide report come from the Manatee and Sarasota County
+          Property Appraisers&rsquo; public sales records, not the MLS. Public records can lag behind a sale and can
+          contain errors, and a parcel the county still lists as vacant may already have a new home on it. They are
+          deemed reliable but not guaranteed.
+        </p>
+
+        <h2>Tools and estimates</h2>
+        <p>
+          The net proceeds estimate, the relocation planner, Atlas Match and the other tools on this site give
+          estimates and suggestions for planning. Closing costs, taxes, insurance, dates and fees depend on your
+          contract, your lender, the title company and the county, and the real figures come from them. A tool&rsquo;s
+          result is not a quote, an appraisal or a commitment by us or {settings.brokerageName}.
+        </p>
+
+        <h2>Brokerage relationship</h2>
+        <p>
+          In Florida, real estate licensees are presumed to work as transaction brokers unless a single-agent or
+          no-brokerage relationship is agreed in writing (Florida Statutes §475.278). Using this website or contacting
+          us does not create a brokerage relationship. If your home is listed with another brokerage, nothing on this
+          site is a solicitation of that listing.
         </p>
 
         <h2>Not advice</h2>
@@ -57,6 +81,20 @@ export default async function TermsPage() {
         <h2>Limits of liability</h2>
         <p>
           The site is provided as is. To the fullest extent Florida law allows, {site.name} and {settings.brokerageName} are not liable for losses arising from your use of the site or reliance on its content, including inaccurate listing data, third-party links, or interruptions in service.
+        </p>
+
+        <h2>Trademarks</h2>
+        <p>
+          Coldwell Banker&reg; and the Coldwell Banker logos are trademarks of Coldwell Banker Real Estate LLC. REALTOR&reg;
+          is a federally registered collective membership mark of the National Association of REALTORS&reg;. Atlas,
+          Encore and Tide are the names of this site&rsquo;s own tools. The Equal Housing Opportunity logo is used as the
+          U.S. Department of Housing and Urban Development provides it.
+        </p>
+
+        <h2>Accessibility</h2>
+        <p>
+          We want every page and tool on this site to work with a keyboard, a screen reader and magnification. If
+          something doesn&rsquo;t, email either of us and we&rsquo;ll fix it or get you the information another way.
         </p>
 
         <h2>Links</h2>
