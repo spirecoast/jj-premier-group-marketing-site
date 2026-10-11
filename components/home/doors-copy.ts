@@ -14,6 +14,6 @@ export type Door = {
 };
 
 export const DOORS: Door[] = [
-  { href: "/buy", title: "Buyer", image: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%") },
+  { href: "/buy", title: "Buyer", image: img("library/living-oceanfront-white", "A living room of white sofas under a chandelier, with a glass wall open to the sea", "60% 55%") },
   { href: "/sell", title: "Seller", image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 60%") },
 ];
