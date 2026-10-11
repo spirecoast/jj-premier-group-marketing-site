@@ -60,7 +60,7 @@ function Callout({ block }: { block: CalloutBlock }) {
         <span className="font-display text-[28px] font-light leading-none text-navy" aria-hidden="true">
           →
         </span>
-        <span className="t-eyebrow text-amber">{block.eyebrow}</span>
+        <span className="t-h4 text-navy">{block.eyebrow}</span>
       </div>
       <div className="flex flex-col gap-4">
         <p className="text-[16px] leading-relaxed text-body">{block.body}</p>

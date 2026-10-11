@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { existsSync, statSync } from "node:fs";
+import path from "node:path";
 import { describe, test } from "node:test";
 import { checkFairHousing } from "../fair-housing";
-import { GUIDES, REBUILT_GUIDE_SLUGS, guideFigures, guideProse, guideReadingMinutes, guideSources, guideStrings, guideWordCount } from "./index";
+import { GUIDES, REBUILT_GUIDE_SLUGS, guideFigures, guidePdfHref, guideProse, guideReadingMinutes, guideSources, guideStrings, guideWordCount } from "./index";
 import { readability, sentences, words } from "./readability";
 
 /** The template's reading limits (docs/GUIDES.md): a third- to fifth-grade level, and no sentence a reader has to read twice. */
@@ -113,4 +115,14 @@ describe("rebuilt guides", () => {
       });
     });
   }
+});
+
+describe("the guide PDFs", () => {
+  test("every guide has its PDF in public/guides/pdf (npm run guides:pdf makes them)", () => {
+    for (const g of GUIDES) {
+      const file = path.join(process.cwd(), "public", guidePdfHref(g.slug));
+      assert.ok(existsSync(file), `${g.slug}: no PDF at ${file}`);
+      assert.ok(statSync(file).size > 100_000, `${g.slug}: the PDF looks empty`);
+    }
+  });
 });

@@ -43,14 +43,25 @@ export function getGuideSlugs(): string[] {
   return GUIDES.map((g) => g.slug);
 }
 
+/** A guide's number in the series, as its card and its PDF show it: the order of GUIDES, from 1. */
+export function guideNumber(slug: string): number | undefined {
+  const i = GUIDES.findIndex((g) => g.slug === slug);
+  return i === -1 ? undefined : i + 1;
+}
+
+/** Where a guide's PDF is served (public/guides/pdf, made by scripts/guides-pdf.mjs). */
+export function guidePdfHref(slug: string): string {
+  return `/guides/pdf/${slug}.pdf`;
+}
+
 /** The site's tools, as a guide names them. */
 export const TOOLS: Record<Tool, { href: string; name: string }> = {
-  atlas: { href: "/neighborhoods", name: "Atlas" },
+  atlas: { href: "/neighborhoods", name: "Atlas Neighborhoods" },
   "atlas-match": { href: "/neighborhoods/match", name: "Atlas Match" },
-  relocate: { href: "/relocate", name: "The relocation planner" },
-  sold: { href: "/sell/sold", name: "Sold search" },
+  relocate: { href: "/relocate", name: "Atlas Move" },
+  sold: { href: "/sell/sold", name: "Tide Street" },
   "home-value": { href: "/sell/home-value", name: "Home value" },
-  "net-proceeds": { href: "/sell/net-proceeds", name: "Net proceeds" },
+  "net-proceeds": { href: "/sell/net-proceeds", name: "Tide Sale Calculator" },
   contact: { href: "/contact", name: "Contact" },
 };
 

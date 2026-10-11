@@ -242,6 +242,13 @@ builder source with its checked date).
   1587155923, spring-start-in-october 529733750, gated-community 532484718. Only the
   getting-here (Sarasota) and barrier-island (Anna Maria) photos are of a named place, and only
   because Adobe's own titles say so; the alt text names none.
+- **Guide PDFs.** Every guide has a print edition at `public/guides/pdf/<slug>.pdf`, served by
+  the "Download the PDF" buttons on the guide. Each is `/print/guides/<slug>` (the print layout in
+  `app/(print)`, no site chrome, noindex) printed on US Letter by Chromium: a full-bleed cover and
+  back page, the guide's name as the running head, the team, the brokerage and the page number at
+  the foot. Change a guide, then run the site (`npm run dev`) and `BASE=http://localhost:3000 npm run
+  guides:pdf` (or name slugs to print only those), and commit the PDFs. A unit test fails if a guide
+  has no PDF.
 - **Tide covers.** Each Tide issue page (`/tide/<issue>`) opens on one of three free Adobe Stock
   photos licensed through the Adobe connector on October 3, 2026, 2400px wide, none flagged
   AI-generated and none with an identifiable person, in `public/images/tide/tide-{1,2,3}.jpg`.
