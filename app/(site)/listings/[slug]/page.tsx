@@ -337,7 +337,6 @@ export default async function ListingPage({ params }: { params: Params }) {
           {listing.friendNote ? (
             <section aria-labelledby="friend-title" className="flex flex-col gap-5 border border-hairline border-l-2 border-l-navy bg-white p-7 md:p-9">
               <div className="flex flex-col gap-3">
-                <p className="t-eyebrow text-amber">Off the record</p>
                 <h2 id="friend-title" className="t-h2 text-navy">
                   What we’d tell a friend.
                 </h2>
@@ -386,7 +385,6 @@ export default async function ListingPage({ params }: { params: Params }) {
           ) : null}
           <div id="inquire" className="flex scroll-mt-24 flex-col gap-7 border border-hairline bg-white p-7 md:p-8">
             <div className="flex flex-col gap-3">
-              <p className="t-eyebrow text-amber">{inquiry.eyebrow}</p>
               <h2 className="t-h2 text-navy">{inquiry.title}</h2>
               <p className="t-body text-body">{inquiry.body}</p>
             </div>
@@ -414,7 +412,6 @@ export default async function ListingPage({ params }: { params: Params }) {
       {similar.length ? (
         <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="similar-title">
           <SectionHeading
-            eyebrow="Nearby"
             title={<span id="similar-title">See these the same afternoon.</span>}
             aside={<RuleLink href={`/listings?market=${listing.market}`}>All {marketName(listing.market)} listings</RuleLink>}
           />

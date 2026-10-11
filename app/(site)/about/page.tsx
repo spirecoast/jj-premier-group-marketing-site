@@ -90,7 +90,7 @@ export default async function AboutPage() {
 
       <section className="bg-parchment">
         <div className="container-site flex flex-col gap-12 py-section">
-          <SectionHeading eyebrow="How we work" title="What working with us is like." />
+          <SectionHeading title="What working with us is like." />
           <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-3">
             {VALUES.map((v, i) => (
               <li key={v.title} className="flex flex-col gap-4 bg-white p-7">
@@ -107,12 +107,12 @@ export default async function AboutPage() {
 
       {testimonials.length ? (
         <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-          <SectionHeading eyebrow="In their words" title="What clients say after the closing." />
+          <SectionHeading title="What clients say after the closing." />
           <TestimonialSlider testimonials={testimonials} />
         </section>
       ) : null}
 
-      <CtaBand image={FRAMES.coast} eyebrow={site.tagline} title="Tell us the timing." body="When do you need to be in, and is there a house to sell first? Those two answers change everything else." minHeight="min-h-[440px]">
+      <CtaBand image={FRAMES.coast} title="Tell us the timing." body="When do you need to be in, and is there a house to sell first? Those two answers change everything else." minHeight="min-h-[440px]">
         <ButtonLink href="/contact" variant="linen" dash>
           Start the conversation
         </ButtonLink>

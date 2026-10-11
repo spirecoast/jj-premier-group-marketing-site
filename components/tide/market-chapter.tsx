@@ -54,7 +54,6 @@ export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: st
     <section id={m.market} className="tide-chapter scroll-mt-24 border-t border-rule" aria-labelledby={`${m.market}-title`}>
       <div className="container-site flex flex-col gap-10 py-section lg:gap-14">
         <header className="flex flex-col gap-4">
-          <p className="t-eyebrow text-amber">{fill(W.chapterEyebrow, { n, data: dataLabel })}</p>
           <h2 id={`${m.market}-title`} className="t-hero text-navy">
             {m.name}
           </h2>

@@ -22,7 +22,7 @@ export function Ask({ team }: { team: { slug: string; name: string; phone: strin
   return (
     <section id="contact" className="container-site grid scroll-mt-header gap-10 border-t border-hairline py-section print:hidden lg:grid-cols-[1fr_1.4fr] lg:gap-20">
       <div className="flex flex-col gap-6">
-        <SectionHeading eyebrow={ASK.eyebrow} title={ASK.title} />
+        <SectionHeading title={ASK.title} />
         <p className="t-body max-w-[440px] text-body">{ASK.body}</p>
         {message && sentMessage !== message ? (
           <button type="button" onClick={() => setSentMessage(message)} className="link-rule self-start">

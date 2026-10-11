@@ -34,8 +34,6 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
       {/* 01 · Hero on Paper: the eyebrow, the headline, the promise. */}
       <section className="container-site flex flex-col gap-7 pb-12 pt-10 md:pt-14 lg:pb-16">
         <SectionHeading
-          number="01"
-          eyebrow="Encore · Plan a visit"
           as="h1"
           size="display"
           title={

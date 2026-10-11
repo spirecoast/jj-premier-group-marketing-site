@@ -151,7 +151,6 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             <span aria-hidden="true">/</span>
             <span>{m.name}</span>
           </nav>
-          <p className="t-eyebrow text-mist text-shadow-photo">01 · {m.county}, Florida</p>
           <h1 id="hub-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
             {m.name}
           </h1>
@@ -174,8 +173,6 @@ export async function HubPage({ market }: { market: MarketSlug }) {
       {/* 02 · The places */}
       <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="places-title">
         <SectionHeading
-          number="02"
-          eyebrow={`The places · ${site.atlasName}`}
           size="display"
           title={
             <span id="places-title">
@@ -235,8 +232,6 @@ export async function HubPage({ market }: { market: MarketSlug }) {
         <div className="container-site grid gap-12 py-section lg:grid-cols-[1.4fr_1fr] lg:gap-20" aria-labelledby="week-title">
           <div className="flex flex-col gap-8">
             <SectionHeading
-              number="03"
-              eyebrow={`What’s on · ${site.calendarName}`}
               title={
                 <span id="week-title">
                   The next seven days in {m.name}.
@@ -267,7 +262,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             </p>
           </div>
           <div className="flex flex-col gap-4 self-start border border-hairline bg-white p-7">
-            <h3 className="t-eyebrow text-amber">
+            <h3 className="t-h3 text-navy">
               The venues · {venues.length}
             </h3>
             {venues.length ? (
@@ -293,14 +288,12 @@ export async function HubPage({ market }: { market: MarketSlug }) {
       {/* 04 · Buying here, selling here */}
       <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="buysell-title">
         <SectionHeading
-          number="04"
-          eyebrow="How it works here"
           size="display"
           title={<span id="buysell-title">Here’s how buying and selling work here.</span>}
         />
         <div className="grid gap-px border border-hairline bg-hairline lg:grid-cols-2">
           <div className="flex flex-col gap-5 bg-white p-7 lg:p-9">
-            <h3 className="t-eyebrow text-amber">Buying here</h3>
+            <h3 className="t-h3 text-navy">Buying here</h3>
             {copy.buying.map((para) => (
               <p key={para.slice(0, 40)} className="t-body max-w-measure text-body">
                 {para}
@@ -312,7 +305,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             </div>
           </div>
           <div className="flex flex-col gap-5 bg-white p-7 lg:p-9">
-            <h3 className="t-eyebrow text-amber">Selling here</h3>
+            <h3 className="t-h3 text-navy">Selling here</h3>
             {copy.selling.map((para) => (
               <p key={para.slice(0, 40)} className="t-body max-w-measure text-body">
                 {para}
@@ -334,8 +327,6 @@ export async function HubPage({ market }: { market: MarketSlug }) {
         <section className="bg-linen-100">
           <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="guides-title">
             <SectionHeading
-              number="05"
-              eyebrow={`Guides · ${site.reportLong}`}
               title={<span id="guides-title">What to read before you drive out to {m.name}.</span>}
               aside={<RuleLink href="/blog">Every guide and letter</RuleLink>}
             />
@@ -353,7 +344,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
       {/* 06 · Questions people ask first */}
       <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20" aria-labelledby="hub-faq-title">
         <div className="flex flex-col gap-5 lg:sticky lg:top-header lg:self-start">
-          <SectionHeading number="06" eyebrow="Questions people ask first" title={<span id="hub-faq-title">Before you drive out to {m.name}.</span>} />
+          <SectionHeading title={<span id="hub-faq-title">Before you drive out to {m.name}.</span>} />
           <p className="t-body max-w-[420px] text-body">The short answers. If yours isn&rsquo;t here, ask us; we&rsquo;d rather answer it on the phone than have you guess.</p>
         </div>
         <FaqAccordion items={faqs} />
@@ -382,7 +373,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
       {/* 07 · The ask */}
       <section id="timing" className="container-site grid scroll-mt-header gap-10 border-t border-hairline py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20" aria-labelledby="timing-title">
         <div className="flex flex-col gap-6">
-          <SectionHeading number="07" eyebrow="Tell us the timing" title={<span id="timing-title">Two questions, and we take it from there.</span>} />
+          <SectionHeading title={<span id="timing-title">Two questions, and we take it from there.</span>} />
           <p className="t-body max-w-[440px] text-body">
             When do you need to be in {m.name}, and is there a house to sell first? Put whatever you know in the box. One of us will call or write back, and we&rsquo;ll start with those two questions.
           </p>

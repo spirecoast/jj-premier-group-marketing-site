@@ -16,7 +16,6 @@ export default async function TermsPage() {
   return (
     <section className="container-site flex flex-col gap-10 py-section">
       <header className="flex max-w-measure flex-col gap-4">
-        <p className="t-eyebrow text-amber">Terms</p>
         <h1 className="t-display text-navy">Terms of use</h1>
         <p className="t-record text-graphite-600">Last updated {UPDATED} · draft for legal review</p>
       </header>

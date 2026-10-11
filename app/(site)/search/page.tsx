@@ -65,7 +65,7 @@ function EmptyState() {
   return (
     <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
       <div className="flex flex-col gap-4">
-        <h2 className="t-eyebrow text-amber">{C.suggestionsHeading}</h2>
+        <h2 className="t-h3 text-navy">{C.suggestionsHeading}</h2>
         <p className="t-body text-body">{C.emptyLead}</p>
         <ul className="flex flex-wrap gap-2">
           {SUGGESTED_SEARCHES.map((s) => (
@@ -78,7 +78,7 @@ function EmptyState() {
         </ul>
       </div>
       <div className="flex flex-col gap-4">
-        <h2 className="t-eyebrow text-amber">{C.guidesHeading}</h2>
+        <h2 className="t-h3 text-navy">{C.guidesHeading}</h2>
         <ul className="flex flex-col">
           {GUIDES.map((g) => (
             <li key={g.slug} className="border-t border-hairline">
@@ -112,7 +112,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="search-title">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">{C.eyebrow}</p>
           <h1 id="search-title" className="t-h1 text-navy">
             {C.heading}
           </h1>

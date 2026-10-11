@@ -43,7 +43,6 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <Masthead
         route="/neighborhoods/match"
-        eyebrow="01 · Atlas match"
         title="We ask ten questions about the place and none about you."
         titleId="match-title"
         crumbs={
@@ -77,7 +76,6 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="match-how-title">
         <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">02 · How it reads the catalog</p>
           <h2 id="match-how-title" className="t-h1 max-w-[760px] text-navy">
             Each question reads one field, and nothing is guessed.
           </h2>

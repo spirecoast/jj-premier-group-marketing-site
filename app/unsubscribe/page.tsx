@@ -32,7 +32,6 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
   return (
     <section className="px-6 lg:px-12 py-24">
       <div className="max-w-lg mx-auto">
-        <p className="text-eyebrow text-muted-foreground mb-3">{COPY.eyebrow}</p>
         <h1 className="text-section mb-8">{COPY.title}</h1>
 
         {!valid ? (

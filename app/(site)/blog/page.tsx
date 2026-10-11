@@ -55,7 +55,6 @@ export default async function ReportPage() {
     <>
       <Masthead
         route="/blog"
-        eyebrow={site.reportLong}
         title={<span id="report-title">One page a month on what the three markets did.</span>}
         titleId="report-title"
       />
@@ -86,7 +85,6 @@ export default async function ReportPage() {
         ) : latest ? null : (
           <div className="grid gap-8 border border-hairline bg-white p-8 md:grid-cols-[1fr_1fr] md:items-center md:p-10">
             <div className="flex flex-col gap-3">
-              <p className="t-eyebrow text-amber">The next report</p>
               <h2 className="t-h1 text-navy">It comes out at the start of the month.</h2>
               <p className="t-body max-w-measure text-body">
                 It&rsquo;s one page on Lakewood Ranch, Sarasota and Bradenton: what moved, what it means for you, and what we&rsquo;d do about it. Leave your email and it&rsquo;ll come to you.
@@ -100,7 +98,7 @@ export default async function ReportPage() {
       {guides.length ? (
         <section className="bg-linen-100" aria-labelledby="guides-title">
           <div className="container-site flex flex-col gap-10 py-section">
-            <SectionHeading eyebrow="Guides" title={<span id="guides-title">The things people ask us before they buy or sell.</span>} titleClassName="max-w-[760px]" />
+            <SectionHeading title={<span id="guides-title">The things people ask us before they buy or sell.</span>} titleClassName="max-w-[760px]" />
             <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {guides.map((p) => (
                 <li key={p.slug} className="flex">
@@ -112,7 +110,7 @@ export default async function ReportPage() {
         </section>
       ) : null}
 
-      <CtaBand image={BAND} eyebrow={`${site.reportName}, by email`} title="Once a month you get one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]" className="scroll-mt-header">
+      <CtaBand image={BAND} title="Once a month you get one page, written for you." body="Unsubscribe any time. We never share the list." minHeight="min-h-[480px]" className="scroll-mt-header">
         <LetterForm tone="dark" />
       </CtaBand>
     </>

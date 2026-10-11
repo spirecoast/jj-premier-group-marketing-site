@@ -30,7 +30,6 @@ type ListProps = { has: (slug: string) => boolean; toggle: (slug: string) => voi
 export function Empty({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-3 border border-hairline bg-white p-8 md:p-10">
-      <p className="t-eyebrow text-amber">Nothing here</p>
       <h3 className="t-h2 text-navy">{title}</h3>
       <p className="t-body max-w-measure text-body">{body}</p>
       {action}

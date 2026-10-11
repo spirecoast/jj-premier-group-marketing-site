@@ -91,7 +91,6 @@ export function ExplorerPanel(p: Props) {
       <div className="explorer-head">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
-            <p className="t-eyebrow text-amber">Atlas · The neighborhood explorer</p>
             <h1 className="font-display text-[clamp(1.375rem,2.2vw,1.75rem)] font-light leading-[1.1] text-navy">
               Every place in Lakewood Ranch, Sarasota and Bradenton.
             </h1>

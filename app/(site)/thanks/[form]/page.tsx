@@ -136,7 +136,6 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
       </Suspense>
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">{confirming ? SIGNUP_COPY.thanksEyebrow : copy.eyebrow}</p>
           <h1 id="thanks-title" className="t-display max-w-[640px] text-navy">
             {copy.title}
           </h1>
@@ -144,7 +143,6 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
         {confirming ? <p className="t-lead max-w-[560px] text-navy">{form === "letter" ? SIGNUP_COPY.thanksTide : SIGNUP_COPY.thanksEncore}</p> : null}
         <p className="t-lead max-w-[560px] text-body">{copy.body}</p>
         <div className="flex flex-col gap-5 border-t border-hairline pt-6">
-          <p className="t-eyebrow text-amber">In the meantime</p>
           <p className="t-body max-w-[520px] text-body">{copy.line}</p>
           <div className="flex flex-wrap items-center gap-6">
             <ButtonLink href={copy.href} dash>
@@ -157,7 +155,6 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
 
       <aside className="flex flex-col gap-10 lg:pt-24">
         <div className="flex flex-col gap-6">
-          <p className="t-eyebrow text-amber">Rather talk now?</p>
           <p className="t-body max-w-[380px] text-body">Call or text either of us directly. We’re usually in a house, so a text gets the quickest answer.</p>
           <ul className="flex flex-col gap-6">
             {team.map((m) => (
@@ -175,7 +172,6 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
         </div>
         {bookingUrl ? (
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">
-            <p className="t-eyebrow text-amber">Or pick a time</p>
             <p className="t-body max-w-[380px] text-body">It’s fifteen minutes on the phone, at a time that suits you.</p>
             <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="link-rule self-start">
               Book 15 minutes ↗

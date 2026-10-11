@@ -53,7 +53,6 @@ export default async function ValuationPage() {
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-20">
         <div className="flex flex-col gap-7 lg:sticky lg:top-header lg:self-start">
           <div className="flex flex-col gap-3.5">
-            <p className="t-eyebrow text-amber">What is my home worth</p>
             <h1 className="t-display max-w-[600px] text-navy">You get a real number from two people who have stood in the house.</h1>
           </div>
           <p className="t-lead max-w-[520px] text-body">
@@ -91,7 +90,6 @@ export default async function ValuationPage() {
       {/* Three steps. */}
       <section className="container-site flex flex-col gap-10 pb-section">
         <SectionHeading
-          eyebrow="How it goes"
           title="It takes three steps and one phone call."
           aside={<RuleLink href="/sell">How selling with us goes</RuleLink>}
         />
@@ -106,7 +104,7 @@ export default async function ValuationPage() {
               <Photo image={FRAMES.duo} sizes="(min-width: 1024px) 460px, 100vw" />
             </div>
             <div className="flex flex-col gap-8">
-              <SectionHeading eyebrow="After the walk-through" title="What one seller said about the number." />
+              <SectionHeading title="What one seller said about the number." />
               <TestimonialSlider testimonials={[seller]} />
               <p className="t-body max-w-[520px] text-body">
                 The number is the easy part. The page that comes with it, what we’d change and what we’d leave

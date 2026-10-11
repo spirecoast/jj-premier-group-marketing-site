@@ -107,7 +107,7 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
       />
 
       {/* 01 · Hero: the masthead carries the eyebrow and the heading. The planner is right underneath; nothing is gated. */}
-      <Masthead route="/relocate" eyebrow={HERO.eyebrow} title={HERO.title} titleId="relocate-title" titleClassName="max-w-[760px]" className="print:hidden" />
+      <Masthead route="/relocate" title={HERO.title} titleId="relocate-title" titleClassName="max-w-[760px]" className="print:hidden" />
       <section className="container-site grid gap-8 py-section print:hidden lg:grid-cols-[1.15fr_1fr] lg:items-end lg:gap-20" aria-label="What the planner does">
         <p className="t-lead max-w-[600px] text-body">{HERO.lead}</p>
         <p className="t-body max-w-measure text-body lg:pb-2">{HERO.body}</p>
@@ -122,7 +122,7 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
       {/* 05 · What's different here. */}
       <section className="bg-parchment print:hidden" aria-labelledby="different-title">
         <div className="container-site flex flex-col gap-10 py-section">
-          <SectionHeading eyebrow={DIFFERENT.eyebrow} title={<span id="different-title">{DIFFERENT.title}</span>} />
+          <SectionHeading title={<span id="different-title">{DIFFERENT.title}</span>} />
           <ul className="grid gap-8 md:grid-cols-3 md:gap-10">
             {DIFFERENT.cards.map((c) => (
               <li key={c.title} className="flex flex-col gap-3 border-t border-rule pt-6">
@@ -148,7 +148,7 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
       {/* 06 · How we work with you from away. */}
       <section className="container-site grid gap-10 py-section print:hidden lg:grid-cols-[1fr_1.4fr] lg:gap-20" aria-labelledby="away-title">
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <SectionHeading eyebrow={FROM_AWAY.eyebrow} title={<span id="away-title">{FROM_AWAY.title}</span>} />
+          <SectionHeading title={<span id="away-title">{FROM_AWAY.title}</span>} />
           <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
             <Photo image={FRAMES.away} sizes="(min-width: 1024px) 420px, 100vw" />
           </div>
@@ -182,7 +182,7 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
       {/* 07 · Questions people ask first. */}
       <section className="container-site grid gap-10 pb-section print:hidden lg:grid-cols-[1fr_1.6fr] lg:gap-20" aria-labelledby="faq-title">
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <SectionHeading eyebrow={FAQ_SECTION.eyebrow} title={<span id="faq-title">{FAQ_SECTION.title}</span>} />
+          <SectionHeading title={<span id="faq-title">{FAQ_SECTION.title}</span>} />
         </div>
         <FaqAccordion items={FAQ_ITEMS} />
       </section>

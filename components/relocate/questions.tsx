@@ -76,7 +76,6 @@ export function Questions() {
   return (
     <section id="questions" className="container-site flex scroll-mt-header flex-col gap-10 pb-section print:hidden" aria-labelledby="questions-title">
       <SectionHeading
-        eyebrow={Q.eyebrow}
         title={<span id="questions-title">{Q.title}</span>}
         aside={
           mode === "questions" ? (

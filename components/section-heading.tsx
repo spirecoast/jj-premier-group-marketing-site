@@ -2,10 +2,6 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  /** "02" — the running number from the home page composition. Optional elsewhere. */
-  number?: string;
-  /** A small label over the title. The home page carries none. */
-  eyebrow?: string;
   title: ReactNode;
   /** Right-hand slot: a link, a short note. */
   aside?: ReactNode;
@@ -17,8 +13,6 @@ type Props = {
 };
 
 export function SectionHeading({
-  number,
-  eyebrow,
   title,
   aside,
   tone = "light",
@@ -27,17 +21,10 @@ export function SectionHeading({
   className,
   titleClassName,
 }: Props) {
-  const eyebrowColor = tone === "dark" ? "text-mist" : "text-amber";
   const titleColor = tone === "dark" ? "text-white" : "text-navy";
   return (
     <div className={cn("flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between", className)}>
       <div className="flex flex-col gap-4">
-        {eyebrow ? (
-          <p className={cn("t-eyebrow", eyebrowColor)}>
-            {number ? `${number} · ` : null}
-            {eyebrow}
-          </p>
-        ) : null}
         <Tag className={cn(size === "display" ? "t-display" : "t-h1", titleColor, titleClassName)}>{title}</Tag>
       </div>
       {aside ? <div className="shrink-0 lg:max-w-[40%] lg:pb-1">{aside}</div> : null}

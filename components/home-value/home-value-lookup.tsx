@@ -206,7 +206,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
             <>
               {/* 01 · The street. */}
               <div className="flex flex-col gap-6 border-t border-hairline pt-8">
-                <SectionHeading eyebrow={C.street.eyebrow} title={C.street.title(months)} />
+                <SectionHeading title={C.street.title(months)} />
                 {data.rows.length === 0 ? (
                   <div className="flex flex-col gap-3">
                     <p className="t-lead max-w-measure text-navy">{C.street.empty(months)}</p>
@@ -238,7 +238,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
 
               {/* 02 · The parcel. */}
               <div className="flex flex-col gap-6 border-t border-hairline pt-8">
-                <SectionHeading eyebrow={C.parcel.eyebrow} title={C.parcel.title} />
+                <SectionHeading title={C.parcel.title} />
                 {!data.parcel ? (
                   <p className="t-body max-w-measure text-body">{C.parcel.noNumber}</p>
                 ) : last ? (
@@ -298,7 +298,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
       <section id="ask" className="border-t border-hairline bg-parchment">
         <div className="container-site grid scroll-mt-header gap-10 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
           <div className="flex flex-col gap-6">
-            <SectionHeading eyebrow={C.ask.eyebrow} title={C.ask.title} />
+            <SectionHeading title={C.ask.title} />
             <p className="t-body max-w-[440px] text-body">{C.ask.body}</p>
           </div>
           <div className="flex flex-col gap-4">

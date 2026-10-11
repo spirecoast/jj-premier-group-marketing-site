@@ -171,7 +171,6 @@ export function LeadForm({
     const s = SUCCESS[state.form ?? form];
     return (
       <div className={cn("flex flex-col gap-3 border border-hairline bg-white p-8", tone === "dark" && "border-linen-200/30 bg-transparent", className)}>
-        <p className="t-eyebrow text-amber">Received</p>
         <h3 ref={successRef} tabIndex={-1} className={cn("t-h2 outline-none", tone === "dark" ? "text-white" : "text-navy")}>
           {s.title}
         </h3>

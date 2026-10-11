@@ -39,7 +39,7 @@ export default function NetProceedsPage() {
   return (
     <>
       {/* Hero: the question on the masthead, and what the sheet does with it underneath. */}
-      <Masthead route="/sell/net-proceeds" eyebrow="Selling · Net proceeds" title={<>What you&rsquo;d walk away with.</>} titleId="net-proceeds-title" titleClassName="max-w-[640px]" className="print:hidden" />
+      <Masthead route="/sell/net-proceeds" title={<>What you&rsquo;d walk away with.</>} titleId="net-proceeds-title" titleClassName="max-w-[640px]" className="print:hidden" />
       <section className="container-site flex flex-col gap-7 py-section" aria-label="What the sheet does">
         <p className="t-lead max-w-[600px] text-body">
           Put in the price and what&rsquo;s owed, and the sheet fills in the rest: doc stamps at the state rate, the title
@@ -54,8 +54,6 @@ export default function NetProceedsPage() {
       {/* The sheet. */}
       <section className="container-site flex flex-col gap-10 pb-section">
         <SectionHeading
-          number="01"
-          eyebrow="The sheet"
           title="Start with the price and take away each line. What’s left is yours."
           aside={<RuleLink href="/sell">How selling with us goes</RuleLink>}
           className="print:hidden"
@@ -66,7 +64,7 @@ export default function NetProceedsPage() {
       {/* What this isn't. */}
       <section className="bg-parchment print:hidden">
         <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
-          <SectionHeading number="02" eyebrow="What this isn't" title="Four things to know before you lean on it." />
+          <SectionHeading title="Four things to know before you lean on it." />
           <dl className="grid gap-8 sm:grid-cols-2">
             {ISNT.map((i) => (
               <div key={i.title} className="flex flex-col gap-2 border-t border-hairline pt-4">
@@ -81,8 +79,6 @@ export default function NetProceedsPage() {
       {/* Sources. */}
       <section className="container-site flex flex-col gap-10 py-section print:hidden">
         <SectionHeading
-          number="03"
-          eyebrow="Where the figures come from"
           title="Here's every rate on the sheet and the page it came from."
           aside={<RuleLink href="/valuation">Start with the address</RuleLink>}
         />

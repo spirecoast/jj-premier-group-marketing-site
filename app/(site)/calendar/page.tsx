@@ -56,7 +56,6 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       {/* The masthead carries the eyebrow and the heading; the calendar keeps its links and toolbar. */}
       <Masthead
         route="/calendar"
-        eyebrow="Encore Arts Calendar"
         title={<span id="encore-title">What&rsquo;s on stage, in the hall and on the walls, close to home.</span>}
         titleId="encore-title"
         titleClassName="max-w-[860px]"
@@ -66,7 +65,6 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       <section id="subscribe" className="scroll-mt-header bg-linen-200">
         <div className="container-site grid items-center gap-8 py-section lg:grid-cols-[1.2fr_1fr] lg:gap-16">
           <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-amber">Every Monday</p>
             <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>
             <p className="t-body max-w-measure text-body">The week&rsquo;s shows, concerts and openings come in one email every Monday.</p>
           </div>
@@ -86,7 +84,6 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       {venues.length ? (
         <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="venues-title">
           <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-amber">The venues</p>
             <h2 id="venues-title" className="t-h1 text-navy">
               {venues.length} places the calendar draws from.
             </h2>

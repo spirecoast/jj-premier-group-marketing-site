@@ -156,7 +156,6 @@ export function PlanView() {
   return (
     <section id="plan" className="container-site flex scroll-mt-header flex-col gap-10 pb-section" aria-labelledby="plan-title">
       <SectionHeading
-        eyebrow={C.eyebrow}
         title={<span id="plan-title">{generic ? C.genericTitle : C.title}</span>}
         aside={<p className="t-body max-w-[380px] text-body-muted print:hidden">{C.intro}</p>}
       />

@@ -28,7 +28,6 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 
           <section className="flex flex-col gap-8">
             <div className="flex max-w-[720px] flex-col gap-4">
-              <p className="t-eyebrow text-amber">Something went wrong</p>
               <h1 className="t-display text-navy">The whole page gave out. That one is on us.</h1>
               <p className="t-body max-w-measure text-body">
                 Try again in a moment, or call us; we’re usually in a house but we pick up.

@@ -49,7 +49,6 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
 
       <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="areas-title">
         <div className="flex flex-col gap-3">
-          <p className="t-eyebrow text-amber">The areas</p>
           <h2 id="areas-title" className="t-h1 max-w-[760px] text-navy">
             {areas.length} areas, {counts.total.toLocaleString()} places, every one from a county or district source.
           </h2>
@@ -90,7 +89,6 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
       <section className="bg-parchment">
         <div className="container-site grid items-center gap-8 py-16 lg:grid-cols-[1.4fr_1fr]">
           <div className="flex flex-col gap-3">
-            <p className="t-eyebrow text-amber">Not on the map</p>
             <h2 className="t-h1 text-navy">Ask us about the street.</h2>
             <p className="t-body max-w-measure text-body">
               We cover more streets than we have pages for. Tell us the one you’re looking at and we’ll tell you what we know about the water table.

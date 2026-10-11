@@ -52,7 +52,6 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
         <Photo image={FRAMES.pool} priority sizes="100vw" />
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
-          <p className="t-eyebrow text-mist text-shadow-photo">Find your home</p>
           <h1 id="find-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
             Tell us what you&rsquo;re looking for. We&rsquo;ll do the looking.
           </h1>
@@ -66,7 +65,6 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:gap-20" aria-label="Your search">
         <div className="flex flex-col gap-8">
           <SectionHeading
-            eyebrow="How this works"
             title="Two questions, and then we send the homes worth seeing."
             titleClassName="max-w-[520px]"
           />
@@ -93,7 +91,6 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
           </div>
         </div>
         <div className="border border-hairline bg-white p-8 md:p-10">
-          <p className="t-eyebrow mb-6 text-amber">Start here</p>
           <LeadForm
             form="buy"
             fields={["name", "email", "phone", "message"]}

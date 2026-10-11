@@ -13,7 +13,6 @@ export function GuideSources({ guide }: { guide: Guide }) {
   return (
     <section className="guide-sources flex flex-col gap-8" aria-labelledby="guide-sources-title">
       <div className="flex flex-col gap-2">
-        <p className="t-eyebrow text-amber">Where this comes from</p>
         <h2 id="guide-sources-title" className="t-h2 text-navy">
           Sources and further reading
         </h2>

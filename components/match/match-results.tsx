@@ -58,7 +58,6 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">The places</p>
           <h2 className="t-h1 max-w-[760px] text-navy" aria-live="polite">
             {matches.length === 0 ? "Nothing fits every answer yet." : `${matches.length.toLocaleString()} ${matches.length === 1 ? "place matches" : "places match"} what you told us.`}
           </h2>
@@ -150,7 +149,6 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
 
       <section className="grid gap-10 border-t border-hairline pt-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20" aria-labelledby="match-ask-title">
         <div className="flex flex-col gap-3.5">
-          <p className="t-eyebrow text-amber">The next step</p>
           <h2 id="match-ask-title" className="t-h1 text-navy">
             Want us to walk you through three of these?
           </h2>

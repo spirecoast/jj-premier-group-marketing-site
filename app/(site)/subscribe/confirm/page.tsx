@@ -60,7 +60,6 @@ export default async function ConfirmPage({ searchParams }: { searchParams: Prom
   return (
     <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="confirm-title">
       <div className="flex flex-col gap-3.5">
-        <p className="t-eyebrow text-amber">{COPY.eyebrow}</p>
         <h1 id="confirm-title" className="t-display max-w-[640px] text-navy">
           {COPY.title}
         </h1>

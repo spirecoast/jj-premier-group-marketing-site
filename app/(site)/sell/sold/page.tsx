@@ -36,7 +36,7 @@ export default async function SoldPage() {
           { name: "What sold on your street", path: "/sell/sold" },
         ])}
       />
-      <Masthead route="/sell/sold" eyebrow={C.eyebrow} title={C.title} titleId="sold-title" titleClassName="max-w-[720px]" />
+      <Masthead route="/sell/sold" title={C.title} titleId="sold-title" titleClassName="max-w-[720px]" />
       <section className="container-site flex flex-col gap-7 py-section" aria-label="What the record shows">
         <p className="t-lead max-w-[560px] text-body">{C.lead}</p>
         <p className="t-body max-w-measure text-body">{C.body(months)}</p>
