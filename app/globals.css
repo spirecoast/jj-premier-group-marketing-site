@@ -2689,3 +2689,89 @@ body:not(:has([data-header-overlay])) .header-overlay,
     .plan-strip-day { transition: none; }
   }
 }
+
+/* ---- Buyer's and seller's guides: the title card as frosted glass over the photograph. */
+@layer components {
+  .guide-glass {
+    background: rgb(16 37 52 / 0.32);
+    border: 1px solid rgb(255 255 255 / 0.28);
+    box-shadow:
+      0 30px 60px -30px rgb(10 24 34 / 0.6),
+      inset 0 1px 0 rgb(255 255 255 / 0.18);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .guide-glass { background: rgb(16 37 52 / 0.78); }
+  }
+}
+
+/* ---- Header product menus: a frosted navy panel under the family's name. */
+@layer components {
+  .product-menu {
+    position: absolute;
+    top: calc(100% + 0.9rem);
+    left: -1.25rem;
+    z-index: 60;
+    width: 21rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.22s ease, transform 0.32s var(--ease-reveal), visibility 0s linear 0.32s;
+  }
+  .product-menu[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.22s ease, transform 0.32s var(--ease-reveal), visibility 0s;
+  }
+  /* A bridge over the gap, so the pointer can travel from the name to the panel. */
+  .product-menu::before {
+    content: "";
+    position: absolute;
+    inset: -0.9rem 0 auto 0;
+    height: 0.9rem;
+  }
+  .product-menu-panel {
+    overflow: hidden;
+    background: rgb(14 32 45 / 0.86);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 30px 60px -24px rgb(6 16 24 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    backdrop-filter: blur(20px) saturate(1.3);
+  }
+  .product-menu-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.7rem 1.25rem;
+    transition: background-color 0.2s ease;
+  }
+  .product-menu-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.85rem;
+    bottom: 0.85rem;
+    width: 2px;
+    background: var(--color-sky-300);
+    transform: scaleY(0);
+    transition: transform 0.3s var(--ease-reveal);
+  }
+  .product-menu-item:hover,
+  .product-menu-item:focus-visible,
+  .product-menu-item[aria-current="page"] {
+    background: rgb(255 255 255 / 0.05);
+  }
+  .product-menu-item:hover::before,
+  .product-menu-item:focus-visible::before,
+  .product-menu-item[aria-current="page"]::before {
+    transform: scaleY(1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .product-menu,
+    .product-menu[data-open="true"],
+    .product-menu-item::before { transition: none; }
+  }
+}

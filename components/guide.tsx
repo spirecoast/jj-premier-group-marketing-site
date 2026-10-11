@@ -23,28 +23,29 @@ const STEPS_ID = "steps";
 export function GuideHero({ title, image }: { title: string; image: ImageRef }) {
   return (
     <section data-header-overlay className="relative -mt-header" aria-labelledby="guide-title">
-      <div className="relative h-[72svh] min-h-[460px] max-h-[820px] overflow-hidden bg-navy">
+      <div className="relative h-[80svh] min-h-[520px] max-h-[880px] overflow-hidden bg-navy">
         <Photo image={image} priority sizes="100vw" />
-        {/* Shade only the top, under the header; the photograph is the point. */}
+        {/* Shade the top under the header and the foot under the card; the photograph is the point. */}
         <div className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-harbor-950/50 to-transparent" aria-hidden="true" />
-      </div>
-      <div className="container-site relative -mt-24 flex justify-center sm:-mt-32">
-        <div className="relative flex w-full max-w-[620px] flex-col items-center gap-7 bg-navy px-8 pb-10 pt-12 text-center text-white shadow-[0_30px_60px_-30px_rgb(20_37_48/0.55)] sm:px-14 sm:pt-14">
-          {/* A hairline frame inside the card. */}
-          <span className="pointer-events-none absolute inset-3 border border-sky-300/25" aria-hidden="true" />
-          <h1 id="guide-title" className="t-display relative font-light text-white">
-            {title}
-          </h1>
-          <span className="relative block h-px w-16 bg-sky-300" aria-hidden="true" />
-          <a
-            href={`#${STEPS_ID}`}
-            className="relative grid h-14 w-14 place-items-center rounded-full bg-white text-navy transition-transform duration-300 hover:translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
-          >
-            <span className="sr-only">To step 1</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </a>
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-harbor-950/45 to-transparent" aria-hidden="true" />
+        <div className="container-site absolute inset-x-0 bottom-10 flex justify-center sm:bottom-14">
+          {/* Frosted glass over the photograph, a little smaller than the old solid card. */}
+          <div className="guide-glass rise d2 relative flex w-full max-w-[560px] flex-col items-center gap-6 px-7 pb-9 pt-10 text-center text-white sm:px-12 sm:pt-12">
+            <span className="pointer-events-none absolute inset-2.5 border border-white/25" aria-hidden="true" />
+            <h1 id="guide-title" className="relative font-display text-[clamp(2.05rem,1rem+3.2vw,3.45rem)] font-extralight leading-[1.04] tracking-[-0.02em] text-balance text-white">
+              {title}
+            </h1>
+            <span className="relative block h-px w-14 bg-sky-300" aria-hidden="true" />
+            <a
+              href={`#${STEPS_ID}`}
+              className="relative grid h-12 w-12 place-items-center rounded-full bg-white/90 text-navy transition-[transform,background-color] duration-300 hover:translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+            >
+              <span className="sr-only">To step 1</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </section>

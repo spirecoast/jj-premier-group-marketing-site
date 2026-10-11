@@ -211,7 +211,7 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   {
     url: "/terms",
     title: "Terms",
-    summary: ["The terms that apply to your use of this website, including listing data, the Encore arts calendar, and the limits of what a website can promise."],
+    summary: ["The terms that apply to your use of this website, including listing data, the Encore Arts Calendar, and the limits of what a website can promise."],
   },
 ];
 
