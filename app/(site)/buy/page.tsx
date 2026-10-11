@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ButtonLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from "@/components/guide";
 import { WorkWith } from "@/components/home/work-with";
@@ -19,7 +18,7 @@ export const metadata: Metadata = pageMetadata({
 
 /* Real photographs (Adobe Stock, none generated; IDs in docs/SITE.md). */
 const FRAMES = {
-  hero: img("library/aerial-tile-roofs-pool-cages", "Tile roofs and screened pools on a street of houses, from above", "50% 55%"),
+  hero: img("library/hero-waterfront-palms-dock", "A white house with a red tile roof behind royal palms, with a dock on the water", "50% 55%"),
 };
 
 /** Eight steps, in the order they happen, and a photograph after each of the first seven. */
@@ -70,6 +69,7 @@ const STEPS: GuideStep[] = [
     title: "Close and get the keys",
     body:
       "Contract to closing takes thirty to forty-five days with a mortgage and about fourteen with cash. Plan on roughly two to five percent of the price in closing costs on top of the down payment, and you'll see the estimate before you sign anything. We'll be at the walk-through, and we'll hand you the keys.",
+    image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
   },
 ];
 
@@ -206,21 +206,7 @@ export default async function BuyPage() {
   return (
     <>
       <JsonLd data={faqJsonLd(FAQS)} />
-      <GuideHero
-        title="The buyer's guide"
-        lead="Eight steps from the first call to the keys, in the order they happen. Nothing here assumes you've done this before."
-        image={FRAMES.hero}
-        actions={
-          <>
-            <ButtonLink href="#contact" dash>
-              Tell us the timing
-            </ButtonLink>
-            <ButtonLink href="/listings" variant="outline" dash>
-              Find your home
-            </ButtonLink>
-          </>
-        }
-      />
+      <GuideHero title="Buyer’s guide" image={FRAMES.hero} />
 
       <GuideSteps steps={STEPS} label="Buying, step by step" />
 

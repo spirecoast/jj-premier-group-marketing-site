@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ButtonLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from "@/components/guide";
 import { WorkWith } from "@/components/home/work-with";
@@ -19,7 +18,7 @@ export const metadata: Metadata = pageMetadata({
 
 /* Real photographs (Adobe Stock, none generated; IDs in docs/SITE.md). */
 const FRAMES = {
-  hero: img("library/coastal-house-teal", "A teal house with white trim and a metal roof, palms in the front yard", "50% 60%"),
+  hero: img("library/hero-mediterranean-pool-twilight", "A house with arched loggias at twilight, its windows and pool lit", "50% 60%"),
 };
 
 /** Eight steps, in the order they happen, and a photograph after each of the first seven. */
@@ -70,6 +69,7 @@ const STEPS: GuideStep[] = [
     title: "Contract to closing",
     body:
       "The buyer has an inspection period, usually seven to fifteen days, then the appraisal, then the lender's clear to close. Financed deals close in thirty to forty-five days and cash in about fourteen. Expect a request for a credit after the inspection, and expect us to tell you what's normal for this coast.",
+    image: img("library/backyard-pool-sunset", "A backyard pool and lawn at sunset, the house beyond", "50% 55%"),
   },
 ];
 
@@ -199,21 +199,7 @@ export default async function SellPage() {
   return (
     <>
       <JsonLd data={faqJsonLd(FAQS)} />
-      <GuideHero
-        title="The seller's guide"
-        lead="Eight steps from the walk-through to the closing table, in the order they happen. We price to what the street has sold for, not the list, and you'll see the sales behind the number."
-        image={FRAMES.hero}
-        actions={
-          <>
-            <ButtonLink href="#valuation" dash>
-              Start with the address
-            </ButtonLink>
-            <ButtonLink href="/contact" variant="outline" dash>
-              Talk it through first
-            </ButtonLink>
-          </>
-        }
-      />
+      <GuideHero title="Seller’s guide" image={FRAMES.hero} />
 
       <GuideSteps steps={STEPS} label="Selling, step by step" />
 

@@ -53,9 +53,10 @@ search index; Resend sends only team-facing email.
   photos licensed through the Adobe connector on October 2, 2026 (plus `interior-living-kitchen-palm`,
   338902584, a real photograph, not generative, licensed October 11 for the home page's Work with
   Joelyn and Jessica band, and `living-oceanfront-white`, 1233189479, also not generative, licensed
-  October 11 for the home page's Seller tile; and three more licensed October 11 for the buyer's and
-  seller's guides, none generative: `aerial-tile-roofs-pool-cages` (532484718), `screened-pool-lanai`
-  (239082656) and `coastal-house-teal` (365569414, Marco Island)), kept under their old file
+  October 11 for the home page's Seller tile; and more licensed October 11 for the buyer's and
+  seller's guides, none generative: `screened-pool-lanai` (239082656), the two page heroes
+  `hero-waterfront-palms-dock` (212982756, Fort Lauderdale) and `hero-mediterranean-pool-twilight`
+  (129999183), and `backyard-pool-sunset` (470929863)), kept under their old file
   names with the alt text rewritten to describe the new photo: `place-skyway-bridge` (432458105),
   `sarasota-bayfront-blue-hour` (577886062), `place-sea-oats-wind` (1438764162, Anna Maria
   Island), `place-barrier-island` (402902579, Siesta Key Beach), `place-storm-gulf` (194827807),
@@ -73,7 +74,7 @@ search index; Resend sends only team-facing email.
   (https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk.jpg), CC BY-SA 4.0, resized only and
   credited on the home page's Bradenton card; and `buyer-lakefront-house`, Jessica's pick for the
   Buyer tile, which looks generated (no watermark, no metadata) and whose source and licence aren't
-  known. The portraits `duo-whitenavy-square`, `duo-whitenavy-wide`, `jessica-navy-threeqtr` and
+  known. The portraits `duo-whitenavy-square`, `duo-whitenavy-wide`, `duo-whitenavy-cameo`, `jessica-navy-threeqtr` and
   `joelyn-blue-threeqtr` are crops of the team's own session (Dropbox, `jj-premier-group-portraits/06-social`),
   cut from the full-size files and only scaled down.
   A photo of a named place is used only where that place is named. The rest of
