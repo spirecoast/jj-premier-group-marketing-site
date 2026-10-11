@@ -17,6 +17,7 @@ import type { ImageRef } from "./types";
 export type MastheadRoute =
   | "/calendar"
   | "/calendar/plan"
+  | "/tools"
   | "/blog"
   | "/tide"
   | "/tide/[issue]"
@@ -63,6 +64,12 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
     photo: "library/sarasota-bayfront-blue-hour",
     position: "50% 55%",
     alt: "The Sarasota bayfront lit up at dusk",
+  },
+  "/tools": {
+    kind: "photo",
+    photo: "library/place-barrier-island",
+    position: "50% 60%",
+    alt: "Sunset on Siesta Key Beach, past the posts of an old pier",
   },
   "/blog": TIDE,
   "/tide": {

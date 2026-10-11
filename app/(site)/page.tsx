@@ -7,6 +7,7 @@ import { LetterBand } from "@/components/home/letter-band";
 import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
 import { Questions } from "@/components/home/questions";
+import { ToolsStrip } from "@/components/home/tools-strip";
 import { WorkWith } from "@/components/home/work-with";
 import { getSiteSettings, getTeam, getUpcomingEvents } from "@/lib/content";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
@@ -45,7 +46,7 @@ export default async function HomePage() {
   ]);
 
   /* The order: hero · Meet Joelyn & Jessica · Buyer or seller · Areas of
-     expertise · Find your home · Work with Joelyn & Jessica · Encore · Tide ·
+     expertise · Free tools · Find your home · Work with Joelyn & Jessica · Encore · Tide ·
      the questions people ask first. No eyebrows: each section's title or
      photograph says what it is. */
   return (
@@ -54,6 +55,7 @@ export default async function HomePage() {
       <Meet duo={FRAMES.duo} />
       <Doors />
       <Places />
+      <ToolsStrip />
       <FindHome image={FRAMES.kitchen} />
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} />
       <CalendarPreview events={events} />

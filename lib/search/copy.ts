@@ -115,6 +115,13 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     ],
   },
   {
+    url: "/tools",
+    title: "Free tools",
+    summary: [
+      "Eight free tools for Lakewood Ranch, Sarasota and Bradenton, with no sign-up. Atlas, Atlas Match and Atlas Move help you find a neighborhood and plan the move. Encore and Encore Planner show what's on. Tide, Tide Street and Tide Sale Calculator show what homes sold for and what you'd keep after selling.",
+    ],
+  },
+  {
     url: "/neighborhoods",
     title: "Atlas, the neighborhood explorer",
     summary: [
