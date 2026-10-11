@@ -8,7 +8,6 @@ export function OnOnePage({ guide, id }: { guide: Guide; id: string }) {
   return (
     <section id={id} className="flex scroll-mt-header flex-col gap-5 border border-rule bg-parchment p-5 md:p-8" aria-labelledby={`${id}-title`}>
       <div className="flex flex-col gap-1.5">
-        <p className="t-eyebrow text-amber">Worksheet · On one page</p>
         <h2 id={`${id}-title`} className="t-h2 text-navy">
           {onOnePage.title}
         </h2>
@@ -37,7 +36,6 @@ export function GuideNext({ guide }: { guide: Guide }) {
   return (
     <section className="grid gap-6 bg-navy px-6 py-10 text-white md:grid-cols-[1fr_1.4fr] md:gap-12 md:px-10 md:py-12" aria-labelledby="guide-next-title">
       <div className="flex flex-col gap-3">
-        <p className="t-eyebrow text-mist">{guide.next.eyebrow}</p>
         <h2 id="guide-next-title" className="t-h1 text-white">
           {guide.next.title}
         </h2>

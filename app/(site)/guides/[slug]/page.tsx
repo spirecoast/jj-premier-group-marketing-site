@@ -10,7 +10,8 @@ import { GuideSectionHeader } from "@/components/guides/section-header";
 import { GuideSources } from "@/components/guides/sources";
 import { getSiteSettings, getTeamMember } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
-import { getGuide, getGuideSlugs, guideReadingMinutes, guideWordCount } from "@/lib/guides";
+import { TrackedLink } from "@/components/tracked-link";
+import { getGuide, getGuideSlugs, guidePdfHref, guideReadingMinutes, guideWordCount } from "@/lib/guides";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -94,7 +95,6 @@ export default async function GuidePage({ params }: { params: Params }) {
                 {guide.title}
               </span>
             </nav>
-            <span className="block h-px w-10 bg-amber" aria-hidden="true" />
             <h2 className="t-h3 text-navy">How to use this guide</h2>
             <div className="flex flex-col gap-4">
               {guide.howToUse.map((t, i) => (
@@ -107,7 +107,7 @@ export default async function GuidePage({ params }: { params: Params }) {
           <div className="flex flex-col gap-8">
             {/* On phones the folded contents beside the sections stands in for this list. */}
             <div className="hidden flex-col gap-3 lg:flex">
-              <p className="t-eyebrow text-amber">Inside this guide</p>
+              <h2 className="t-h3 text-navy">Inside this guide</h2>
               <ol className="grid gap-x-6 sm:grid-cols-2 lg:grid-cols-1">
                 {contents.map((c) => (
                   <li key={c.id} className="border-b border-hairline">
@@ -151,6 +151,24 @@ export default async function GuidePage({ params }: { params: Params }) {
             ))}
             <OnOnePage guide={guide} id={ONE_PAGE_ID} />
             <GuideNext guide={guide} />
+            <section className="print-hide flex flex-col gap-5 border-y border-hairline py-10 sm:flex-row sm:items-center sm:justify-between" aria-labelledby="guide-pdf-title">
+              <div className="flex flex-col gap-2">
+                <h2 id="guide-pdf-title" className="t-h2 text-navy">
+                  Take this guide with you
+                </h2>
+                <p className="t-body max-w-[520px] text-body">The whole guide as a PDF, set for print: every section, the worksheet and the sources.</p>
+              </div>
+              <TrackedLink
+                href={guidePdfHref(guide.slug)}
+                download={`JJ Premier Group - ${guide.title}.pdf`}
+                event="Download"
+                props={{ what: "guide-pdf", guide: guide.slug }}
+                className="btn btn-navy shrink-0"
+              >
+                Download the PDF
+                <span className="btn-dash" aria-hidden="true" />
+              </TrackedLink>
+            </section>
             <GuideSources guide={guide} />
             <p className="t-mono-sm max-w-measure text-graphite-500">
               This guide is general information about places and rules, written for {site.region}. It is not legal, insurance or tax advice, and nothing in it is a figure for any particular house.
