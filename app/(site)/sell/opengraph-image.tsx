@@ -6,7 +6,7 @@ export const contentType = OG_CONTENT_TYPE;
 export default function Image() {
   return brandOgImage({
     eyebrow: "Selling on the Suncoast",
-    title: "The sold price, not the list.",
+    title: "The seller's guide, in eight steps.",
     meta: "A number, the sales behind it, and a plan for the first weekend.",
     photo: "/images/library/modern-home-pool-dusk.jpg",
   });

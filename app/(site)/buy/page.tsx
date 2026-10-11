@@ -1,67 +1,83 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ButtonLink, RuleLink } from "@/components/buttons";
+import { ButtonLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
+import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from "@/components/guide";
+import { WorkWith } from "@/components/home/work-with";
 import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
-import { ListingCard } from "@/components/listing-card";
-import { Photo } from "@/components/photo";
-import { SectionHeading } from "@/components/section-heading";
-import { Steps, type Step } from "@/components/steps";
-import { getActiveListingCount, getFeaturedListings, getTeam } from "@/lib/content";
+import { getSiteSettings, getTeam } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { faqJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Buying on the Suncoast",
+  title: "The buyer's guide",
   description:
-    "Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Escrow, inspections, flood insurance and closing costs are explained the way a friend would.",
+    "Buying in Lakewood Ranch, Sarasota or Bradenton in eight steps, from the first call to the keys: timing, pre-approval, the places, the showings, the offer, the inspection, escrow and closing.",
   path: "/buy",
   fileImage: true, // opengraph-image.tsx beside this page
 });
 
-/* Editorial photography for the page. Listings come from the content layer. */
+/* Real photographs (Adobe Stock, none generated; IDs in docs/SITE.md). */
 const FRAMES = {
-  hero: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
-  keys: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
-  /* The two doors before the steps: the drive in over the bay, and a street of homes on the water. Decorative; the link is named by its words. */
-  doors: {
-    relocate: img("library/place-skyway-bridge", "", "50% 55%"),
-    match: img("library/lakes-aerial-sunset", "", "50% 55%"),
-  },
-  /* Let into the steps: the house seen at four in the afternoon, and the contract on the island. */
-  tiles: {
-    2: img("library/listing-kitchen-4pm-island", "", "50% 50%"),
-    3: img("library/moment-contract", "", "50% 55%"),
-  },
+  hero: img("library/aerial-tile-roofs-pool-cages", "Tile roofs and screened pools on a street of houses, from above", "50% 55%"),
+  living: img("library/interior-living-kitchen-palm", "An open living room and kitchen, a white sofa and a palm by the glass", "50% 55%"),
 };
 
-/** Four steps, and the day each one happens. Linen-led: every term defined. */
-const STEPS: Step[] = [
+/** Eight steps, in the order they happen, and a photograph after each of the first seven. */
+const STEPS: GuideStep[] = [
   {
-    when: "Day one · one call",
-    title: "Two questions",
+    title: "Tell us the timing",
     body:
-      "When do you need to be in, and is there a house to sell first? Those two answers set the budget, the streets and which Saturday we start. Then we'll get you a pre-approval letter from a local lender, because that's the first thing a seller here reads.",
+      "When do you need to be in, and is there a house to sell first? Those two answers set the budget, the streets and which Saturday we start. If you're moving here from somewhere else, the relocation planner puts the move in order.",
+    image: img("library/place-skyway-bridge", "The Sunshine Skyway Bridge over Tampa Bay", "50% 55%"),
   },
   {
-    when: "Week one · the list",
-    title: "The homes worth seeing",
+    title: "Get pre-approved",
     body:
-      "You'll get every listing that fits, and we'll tell you which ones we'd actually go and see with you. You'll know the flood zone, the HOA, the age of the roof and what the street's been selling for before you get in the car.",
+      "Before we look at anything, get a pre-approval letter from a local lender. It's the first thing a seller here reads, and it tells you the monthly payment as well as the price. We'll introduce you to lenders in Manatee and Sarasota counties.",
+    image: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
   },
   {
-    when: "When the house is right",
-    title: "The offer",
+    title: "Pick the places",
     body:
-      "Price is one piece of it. Financing, deposit, inspection period and the closing date the seller needs all matter too. We'll talk to the listing agent before we write anything, and we'll write to what the street has sold for, not the asking price.",
+      "Lakewood Ranch, Sarasota and Bradenton sell differently, street by street. If you haven't picked a neighborhood yet, answer ten questions and Atlas narrows the map to the places that fit. Then we'll tell you the flood zone, the HOA and what each street has been selling for.",
+    image: img("library/golf-course-lakes-aerial", "Fairways and lakes between houses, from above", "50% 50%"),
   },
   {
-    when: "Contract to keys",
-    title: "Escrow to the walk-through",
+    title: "See the homes worth seeing",
     body:
-      "A title company holds your deposit until closing. Inspection comes first, then the appraisal, then insurance, then the closing date we picked together on day one. We'll be at the walk-through, and we'll hand you the keys.",
+      "You'll get every listing that fits, and we'll tell you which ones we'd actually go and see with you. You'll know the age of the roof before you get in the car. If you're buying from away, we walk the house on video, slowly, and open the closets.",
+    image: img("library/palm-lined-street", "A street lined with royal palms", "50% 50%"),
   },
+  {
+    title: "Write the offer",
+    body:
+      "Price is one of five things a seller weighs, next to financing, deposit, the inspection period and the closing date they need. We'll call the listing agent before we write anything, then write to what the last sales on that street closed for, not the asking price.",
+    image: img("library/moment-contract", "A pen on the signature line of a contract", "50% 55%"),
+  },
+  {
+    title: "Have the house inspected",
+    body:
+      "Inside the inspection period, fifteen days on the Florida AS IS contract unless we write in something shorter, a licensed inspector and a termite inspector go through the house. On anything built before about 2006 we also order the four-point and wind mitigation reports your insurer will ask for. Then we sort what they find into cosmetic, ask the seller, and walk away.",
+    image: img("library/screened-pool-lanai", "A pool under a screened cage, with pavers and palms", "50% 55%"),
+  },
+  {
+    title: "Escrow, appraisal and insurance",
+    body:
+      "A title company holds your deposit until closing. Your lender orders the appraisal, and if it comes in low, we go back to the sales and to the listing agent. If the house is in flood zone AE or VE and you have a mortgage, your lender will require flood insurance, so we pull the flood map before you see the house.",
+    image: img("library/listing-living-room-terrazzo", "A sunlit living room", "50% 50%"),
+  },
+  {
+    title: "Close and get the keys",
+    body:
+      "Contract to closing takes thirty to forty-five days with a mortgage and about fourteen with cash. Plan on roughly two to five percent of the price in closing costs on top of the down payment, and you'll see the estimate before you sign anything. We'll be at the walk-through, and we'll hand you the keys.",
+  },
+];
+
+const NEXT: GuideLink[] = [
+  { href: "/listings", title: "Find your home", image: img("library/kitchen-white-palms", "", "50% 50%") },
+  { href: "/relocate", title: "Plan the move", image: img("library/lakes-aerial-sunset", "", "50% 55%") },
+  { href: "/neighborhoods/match", title: "Pick a neighborhood", image: img("library/lakefront-houses-palms", "", "50% 55%") },
 ];
 
 /** Asked on the first call. Florida contracts and county custom decide most of it. */
@@ -186,108 +202,41 @@ const FAQS: Faq[] = [
 ];
 
 export default async function BuyPage() {
-  const [featured, count, team] = await Promise.all([getFeaturedListings(3), getActiveListingCount(), getTeam()]);
+  const [team, settings] = await Promise.all([getTeam(), getSiteSettings()]);
 
   return (
     <>
       <JsonLd data={faqJsonLd(FAQS)} />
-      {/* Hero on Paper: the eyebrow, the headline, and a kitchen at four. */}
-      <section className="container-site grid items-center gap-12 py-section lg:grid-cols-[1.15fr_1fr] lg:gap-20">
-        <div className="flex flex-col gap-7">
-          <div className="flex flex-col gap-3.5">
-            <p className="t-eyebrow text-amber">Buying</p>
-            <h1 className="t-display max-w-[640px] text-navy">
-              Two questions before
-              <br className="hidden sm:block" /> we look at anything.
-            </h1>
-          </div>
-          <p className="t-lead max-w-[560px] text-body">
-            When do you need to be in, and is there a house to sell first? Those two answers change everything else:
-            the price band, the streets, and which Saturday we start.
-          </p>
-          <p className="t-body max-w-measure text-body">
-            Nothing on this page assumes you have done this before. We say what escrow is, what it costs, and what
-            happens on Tuesday. If this is your fourth house, go straight to the listings. Your first one is the one we
-            explain twice.
-          </p>
-          <div className="flex flex-wrap gap-3.5">
+      <GuideHero
+        title="The buyer's guide"
+        lead="Eight steps from the first call to the keys, in the order they happen. Nothing here assumes you've done this before."
+        image={FRAMES.hero}
+        actions={
+          <>
             <ButtonLink href="#contact" dash>
               Tell us the timing
             </ButtonLink>
             <ButtonLink href="/listings" variant="outline" dash>
               Find your home
             </ButtonLink>
-          </div>
-        </div>
-        <div className="relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-[4/5]">
-          <Photo image={FRAMES.hero} priority sizes="(min-width: 1024px) 560px, 100vw" />
-        </div>
-      </section>
+          </>
+        }
+      />
 
-      {/* Two ways in before the steps: the planner for people arriving from somewhere else, the ten questions for anyone not sure where to look yet. */}
-      <section className="container-site pb-section" aria-label="Before the steps">
-        <ul className="grid gap-5 md:grid-cols-2">
-          {(
-            [
-              { href: "/relocate", image: FRAMES.doors.relocate, body: "If you’re moving here from somewhere else, the planner takes your timing and puts the move in order.", cta: "Plan the move" },
-              { href: "/neighborhoods/match", image: FRAMES.doors.match, body: "If you haven’t picked a neighborhood yet, answer ten questions and Atlas narrows the map to the places that fit.", cta: "Answer ten questions" },
-            ] as const
-          ).map((d) => (
-            <li key={d.href} className="flex">
-              {/* A door: the photograph on the left leaf, the line and the way in on the right. The whole card is the link. */}
-              <Link href={d.href} className="door card group grid w-full border border-hairline bg-white transition-colors hover:border-navy focus-visible:border-navy sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-                <div className="relative aspect-[16/10] overflow-hidden bg-navy sm:aspect-auto sm:min-h-[200px]">
-                  <Photo image={d.image} sizes="(min-width: 1024px) 280px, (min-width: 640px) 40vw, 100vw" className="card-img" />
-                </div>
-                <div className="flex flex-col gap-5 p-6 sm:p-7">
-                  <p className="t-body max-w-[44ch] text-body">{d.body}</p>
-                  <span className="card-line mt-auto w-full" aria-hidden="true" />
-                  <span className="t-label inline-flex items-center gap-2 text-harbor-700">
-                    {d.cta} <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <GuideSteps steps={STEPS} label="Buying, step by step" />
 
-      {/* Four steps, and the day each one happens. */}
-      <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="buy-steps-title">
-        <SectionHeading
-          eyebrow="How it goes"
-          title={<span id="buy-steps-title">There are four steps, from the first call to the keys.</span>}
-        />
-        <Steps items={STEPS} tiles={FRAMES.tiles} />
-      </section>
+      <GuideNext title="Where to start" links={NEXT} />
 
-      {/* Three we’d go and see this week. */}
-      {featured.length ? (
-        <section className="container-site flex flex-col gap-10 pb-section">
-          <SectionHeading
-            eyebrow="On the market"
-            title="Three we’d go and see this week."
-            aside={<RuleLink href="/listings">All {count} listings</RuleLink>}
-          />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((l) => (
-              <ListingCard key={l.slug} listing={l} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <WorkWith image={FRAMES.living} phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
 
       {/* The questions people are embarrassed to ask. */}
-      <section className="container-site grid gap-10 pb-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
+      <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <SectionHeading eyebrow="Asked on the first call" title="The questions nobody is born knowing." />
+          <h2 className="t-h1 text-navy">The questions nobody is born knowing.</h2>
           <p className="t-body max-w-[420px] text-body">
-            Florida contracts and county custom decide most of this, and we’ll say which is which. If your question
-            is not here, it goes in the box at the bottom of the page.
+            Florida contracts and county custom decide most of this, and we&rsquo;ll say which is which. If your question
+            isn&rsquo;t here, it goes in the box at the bottom of the page.
           </p>
-          <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
-            <Photo image={FRAMES.keys} sizes="(min-width: 1024px) 420px, 100vw" />
-          </div>
         </div>
         <FaqAccordion items={FAQS} />
       </section>
@@ -298,7 +247,7 @@ export default async function BuyPage() {
         className="container-site grid scroll-mt-header gap-10 border-t border-hairline py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20"
       >
         <div className="flex flex-col gap-6">
-          <SectionHeading eyebrow="Tell us the timing" title="Two questions, and we take it from there." />
+          <h2 className="t-h1 text-navy">Two questions, and we take it from there.</h2>
           <p className="t-body max-w-[440px] text-body">
             When do you need to be in, and is there a house to sell first? Put whatever you know in the box. One of us
             will call or write back, and we&rsquo;ll start with those two questions.

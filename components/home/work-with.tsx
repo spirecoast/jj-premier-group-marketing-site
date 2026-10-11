@@ -9,7 +9,18 @@ import type { ImageRef } from "@/lib/content/types";
  * ways in: the contact page, or the phone. The photograph is a stand-in until
  * the blue-and-white portrait of the two of them is cropped for it.
  */
-export function WorkWith({ image, phoneDisplay, phoneE164 }: { image: ImageRef; phoneDisplay: string; phoneE164: string }) {
+export function WorkWith({
+  image,
+  phoneDisplay,
+  phoneE164,
+  where = "home-work-with",
+}: {
+  image: ImageRef;
+  phoneDisplay: string;
+  phoneE164: string;
+  /** Where the phone tap came from, for the analytics event. */
+  where?: string;
+}) {
   return (
     <section className="relative min-h-[600px] overflow-hidden bg-navy lg:min-h-[680px]" aria-labelledby="work-with-title">
       <Photo image={image} sizes="100vw" />
@@ -39,7 +50,7 @@ export function WorkWith({ image, phoneDisplay, phoneE164 }: { image: ImageRef; 
         <TrackedLink
           href={`tel:${phoneE164}`}
           event="Phone tap"
-          props={{ where: "home-work-with" }}
+          props={{ where }}
           className="t-label inline-flex items-center gap-2 py-2 text-white text-shadow-soft transition-colors hover:text-sky-300"
         >
           <span className="sr-only">or </span>Call us at {phoneDisplay}

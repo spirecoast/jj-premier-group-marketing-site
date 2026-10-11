@@ -61,19 +61,19 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   },
   {
     url: "/buy",
-    title: "Buying on the Suncoast",
+    title: "The buyer's guide",
     summary: [
-      "Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Then a pre-approval letter from a local lender.",
-      "Four steps from the first call to the keys: the two questions, the list of homes worth seeing (with the flood zone, the HOA, the age of the roof and what the street has sold for), the offer, and escrow through the walk-through.",
+      "Buying in Lakewood Ranch, Sarasota or Bradenton in eight steps, from the first call to the keys: tell us the timing, get pre-approved, pick the places, see the homes worth seeing, write the offer, have the house inspected, escrow, appraisal and insurance, then close and get the keys.",
+      "Two questions come first: when do you need to be in, and is there a house to sell first? Then a pre-approval letter from a local lender.",
       "Questions answered on the page: what escrow is and where the deposit goes, what gets inspected and what happens if something's wrong, whether you need flood insurance, what closing costs come to and who pays what, how long it takes and which months are busiest, and how to write an offer that wins without overpaying.",
     ],
   },
   {
     url: "/sell",
-    title: "Selling on the Suncoast",
+    title: "The seller's guide",
     summary: [
-      "We price to the sold price, not the list. You get a number with the four comparable sales behind it, eight weeks of preparation that return their cost, and a first-weekend report on the Monday.",
-      "Four steps: we come to the house, paint, light and the front door come first, the first weekend, and the offers laid out side by side.",
+      "Selling in Lakewood Ranch, Sarasota or Bradenton in eight steps, from the walk-through to the closing table: tell us the timing, we walk the house, the number in writing, prepare the house, the photographs and the first weekend, the Monday report, weigh the offers, and contract to closing.",
+      "We price to what the street has sold for, not the list. You get the number with the four comparable sales behind it.",
       "Questions answered on the page: how we arrive at the number, what to do to the house before it goes on the market, what it costs to sell (doc stamps on the deed, the owner's title policy, commission), when to list, what happens after you accept an offer, and whether you need to sell before you buy.",
     ],
   },

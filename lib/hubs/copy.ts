@@ -87,7 +87,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     ],
     guides: ["cdd-fees-in-lakewood-ranch-village-by-village", "homestead-save-our-homes-and-portability", "what-to-ask-before-you-buy-in-a-gated-community", "getting-here-and-getting-around"],
     sources: [
-      { label: "Buying on the Suncoast · closing costs and timing", href: "/buy", supports: "title custom by county, the county line, flood zones, hurricane season" },
+      { label: "The buyer's guide · closing costs and timing", href: "/buy", supports: "title custom by county, the county line, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
       { label: "Waterside · which county and why it matters", href: "/neighborhoods/waterside", supports: "the Sarasota County side, property tax rate and permitting" },
       { label: "The Lake Club and Country Club East", href: "/neighborhoods/the-lake-club", supports: "golf membership optional and separate from the HOA" },
@@ -146,7 +146,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     ],
     guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "homeowners-wind-and-flood-insurance-on-this-coast", "barrier-island-rules-island-by-island"],
     sources: [
-      { label: "Buying on the Suncoast · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
+      { label: "The buyer's guide · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
       { label: "Siesta Key", href: "/neighborhoods/siesta-key", supports: "zones AE and VE, elevated construction, the elevation certificate" },
       { label: "West of the Trail", href: "/neighborhoods/west-of-the-trail", supports: "zone X away from the bayfront, no HOA in most sections, the 1920s plats" },
@@ -208,7 +208,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
     ],
     guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "barrier-island-rules-island-by-island", "condo-and-hoa-documents-after-the-2022-law"],
     sources: [
-      { label: "Buying on the Suncoast · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
+      { label: "The buyer's guide · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
       { label: "West Bradenton", href: "/neighborhoods/west-bradenton", supports: "canal streets in zone X, zones block to block, the elevation certificate" },
       { label: "Downtown Bradenton", href: "/neighborhoods/downtown-bradenton", supports: "AE along the river, X south of 6th Avenue, a building’s insurance and reserves" },

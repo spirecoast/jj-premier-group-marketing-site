@@ -1,63 +1,83 @@
 import type { Metadata } from "next";
-import { ButtonLink, RuleLink } from "@/components/buttons";
+import { ButtonLink } from "@/components/buttons";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
+import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from "@/components/guide";
+import { WorkWith } from "@/components/home/work-with";
 import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
-import { ListingCard } from "@/components/listing-card";
-import { Photo } from "@/components/photo";
-import { SectionHeading } from "@/components/section-heading";
-import { Steps, type Step } from "@/components/steps";
-import { TestimonialSlider } from "@/components/testimonial-slider";
-import { getRecentSolds, getTestimonials } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { faqJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Selling on the Suncoast",
+  title: "The seller's guide",
   description:
-    "We price to the sold price, not the list. You get a number with the four comparable sales behind it, eight weeks of preparation that return their cost, and a first-weekend report on the Monday.",
+    "Selling in Lakewood Ranch, Sarasota or Bradenton in eight steps, from the walk-through to the closing table. We price to what the street has sold for, and you see the four sales behind the number.",
   path: "/sell",
   fileImage: true, // opengraph-image.tsx beside this page
 });
 
-/* Editorial photography for the page. Solds come from the content layer. */
+/* Real photographs (Adobe Stock, none generated; IDs in docs/SITE.md). */
 const FRAMES = {
-  hero: img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%"),
-  contract: img("library/moment-contract", "A pen on the signature line of a contract", "50% 45%"),
-  island: img("library/listing-living-room-terrazzo", "A sunlit living room", "50% 50%"),
-  /* Let into the steps: the house seen from above on day one, and the exterior in the evening light the photographs are taken in. */
-  tiles: {
-    1: img("library/listing-exterior-canal-golden", "", "50% 50%"),
-    3: img("library/listing-twilight-exterior-pool", "", "50% 55%"),
-  },
+  hero: img("library/coastal-house-teal", "A teal house with white trim and a metal roof, palms in the front yard", "50% 60%"),
+  living: img("library/living-oceanfront-white", "A living room of white sofas under a chandelier, with a glass wall open to the sea", "60% 55%"),
 };
 
-/** Four steps. Harbor-led: shorter sentences, the number first. */
-const STEPS: Step[] = [
+/** Eight steps, in the order they happen, and a photograph after each of the first seven. */
+const STEPS: GuideStep[] = [
   {
-    when: "Day one · the walk-through",
-    title: "We come to the house",
+    title: "Tell us the timing",
     body:
-      "Both of us, and we walk it the way a buyer will. You'll get the number that day or the next, with the comparable sales behind it, and a short list of what we'd change before the photos.",
+      "When do you want to be gone, and is there a house to buy after this one? The timing sets the plan. If you're buying too, we run both files from one desk so the two closing dates line up on purpose.",
+    image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 50%"),
   },
   {
-    when: "The weeks before · preparation",
-    title: "Paint, light and the front door come first",
+    title: "We walk the house",
     body:
-      "Those are the changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we'll say so before you spend a dollar. Good photographers book up early, so we'll plan the date together.",
+      "Both of us come to the house and walk it the way a buyer will: the roof, the water, which end of the street. You'll get a short list of what we'd change before the photographs.",
+    image: img("library/moment-crossing-room", "Morning sun through white curtains", "50% 50%"),
   },
   {
-    when: "Going live",
-    title: "The first weekend",
+    title: "The number, in writing",
     body:
-      "Photos are taken in the afternoon light, the listing goes live on a Thursday, and showings start Friday. On Monday you'll hear how many came through, what they said, and whether the number is right.",
+      "We pull four closed sales from the last six months, inside half a mile, adjusted for the water, the flood zone, the year of the roof and which end of the street. You get the number and the four addresses behind it. If ours is lower than someone else's, ask them for their four.",
+    image: img("library/lakefront-houses-palms", "Houses with balconies along a lake, under palms", "50% 55%"),
   },
   {
-    when: "Contract to close",
-    title: "The offers",
+    title: "Prepare the house",
     body:
-      "Every offer is laid out side by side: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn't always the best, and we'll tell you which one is. Then come inspection, appraisal and closing.",
+      "Interior paint, updated light fixtures and a repainted front door are the cheapest changes buyers notice first. A new kitchen rarely pays for itself before you sell, and we'll say so before you spend a dollar. Good photographers book up early, so we'll plan the date together.",
+    image: img("library/kitchen-white-palms", "A white kitchen with palms outside the window", "50% 50%"),
   },
+  {
+    title: "The photographs and the first weekend",
+    body:
+      "Photos are taken in the afternoon light, the listing goes live on a Thursday, and showings start Friday. Buyers who close here arrive in February and are mostly gone by May, so the strongest listings go live in late January or February. Nothing goes live until the house is ready.",
+    image: img("library/listing-twilight-exterior-pool", "A pool and a house lit at dusk", "50% 55%"),
+  },
+  {
+    title: "The Monday report",
+    body:
+      "You'll hear how many came through, what they said, and whether the number is right. It comes in writing, every week the house is on the market.",
+    image: img("library/listing-kitchen-4pm-island", "The kitchen island", "50% 50%"),
+  },
+  {
+    title: "Weigh the offers",
+    body:
+      "Every offer is laid out the same way: price, financing, deposit, inspection period, and whether the buyer has a house to sell. The highest isn't always the one to take, and we'll tell you which one is and why.",
+    image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
+  },
+  {
+    title: "Contract to closing",
+    body:
+      "The buyer has an inspection period, usually seven to fifteen days, then the appraisal, then the lender's clear to close. Financed deals close in thirty to forty-five days and cash in about fourteen. Expect a request for a credit after the inspection, and expect us to tell you what's normal for this coast.",
+  },
+];
+
+const NEXT: GuideLink[] = [
+  { href: "/sell/home-value", title: "The record for your address", image: img("library/modern-home-pool-dusk", "", "50% 45%") },
+  { href: "/sell/sold", title: "What sold on your street", image: img("library/palm-lined-street", "", "50% 50%") },
+  { href: "/sell/net-proceeds", title: "What you'd keep at closing", image: img("library/listing-living-room-terrazzo", "", "50% 50%") },
 ];
 
 /** Asked at the kitchen island. The contract decides most of it. */
@@ -175,79 +195,44 @@ const FAQS: Faq[] = [
 ];
 
 export default async function SellPage() {
-  const [solds, testimonials] = await Promise.all([getRecentSolds(3), getTestimonials()]);
-  const sellersFirst = [
-    ...testimonials.filter((t) => /seller/i.test(t.attribution)),
-    ...testimonials.filter((t) => !/seller/i.test(t.attribution)),
-  ];
-  const best = [...solds].sort((a, b) => (b.percentOfList ?? 0) - (a.percentOfList ?? 0))[0];
+  const settings = await getSiteSettings();
 
   return (
     <>
       <JsonLd data={faqJsonLd(FAQS)} />
-      {/* Hero on Paper: the eyebrow, the headline, and a twilight exterior. */}
-      <section className="container-site grid items-center gap-12 py-section lg:grid-cols-[1.15fr_1fr] lg:gap-20">
-        <div className="flex flex-col gap-7">
-          <div className="flex flex-col gap-3.5">
-            <p className="t-eyebrow text-amber">Selling</p>
-            <h1 className="t-display max-w-[640px] text-navy">We price to the sold price, not the list.</h1>
-          </div>
-          <p className="t-lead max-w-[560px] text-body">
-            Here is what we’d do: a number with the four comparable sales behind it, eight weeks of preparation
-            that buyers can see in the photographs, and a report on the Monday after the first weekend.
-          </p>
-          <p className="t-body max-w-measure text-body">
-            Some agents will quote a number they know is too high to win the signature, then spend six weeks talking
-            you down. If our number is lower than someone else’s, ask them for the four comparable sales that support
-            theirs.
-          </p>
-          <div className="flex flex-wrap gap-3.5">
+      <GuideHero
+        title="The seller's guide"
+        lead="Eight steps from the walk-through to the closing table, in the order they happen. We price to what the street has sold for, not the list, and you'll see the sales behind the number."
+        image={FRAMES.hero}
+        actions={
+          <>
             <ButtonLink href="#valuation" dash>
               Start with the address
             </ButtonLink>
             <ButtonLink href="/contact" variant="outline" dash>
               Talk it through first
             </ButtonLink>
-          </div>
-        </div>
-        <div className="relative aspect-[4/3] overflow-hidden bg-linen-100 lg:aspect-[4/5]">
-          <Photo image={FRAMES.hero} priority sizes="(min-width: 1024px) 560px, 100vw" />
-        </div>
-      </section>
+          </>
+        }
+      />
 
-      {/* Four steps. */}
-      <section className="container-site flex flex-col gap-10 pb-section">
-        <SectionHeading
-          eyebrow="How it goes"
-          title="There are four steps, from the walk-through to the closing table."
-        />
-        <Steps items={STEPS} tiles={FRAMES.tiles} />
-      </section>
+      <GuideSteps steps={STEPS} label="Selling, step by step" />
 
-      {/* What the street actually did. */}
-      {solds.length ? (
-        <section className="container-site flex flex-col gap-10 pb-section">
-          <SectionHeading
-            eyebrow="Recently sold"
-            title="What the street actually did."
-            aside={<RuleLink href="/listings?status=sold">All solds</RuleLink>}
-          />
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {solds.map((l) => (
-              <ListingCard key={l.slug} listing={l} />
-            ))}
-          </div>
-          <div className="flex flex-col gap-3 border-t border-hairline pt-5 md:flex-row md:items-baseline md:justify-between">
-            {best?.percentOfList ? (
-              <p className="t-body max-w-measure text-body">
-                <span className="t-record text-navy">{best.percentOfList}% of list</span> on{" "}
-                {best.address.street}, {best.daysOnMarket ?? "—"} days. Priced to the comps, that street cleared asking.
-              </p>
-            ) : null}
-            <p className="t-mono-sm text-graphite-500">Sold prices · Stellar MLS closed sides · 2026</p>
-          </div>
-        </section>
-      ) : null}
+      <GuideNext title="The public record first" links={NEXT} />
+
+      <WorkWith image={FRAMES.living} phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="sell-work-with" />
+
+      {/* The questions asked at the kitchen island. */}
+      <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
+        <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
+          <h2 className="t-h1 text-navy">They ask about the number, the cost and the calendar.</h2>
+          <p className="t-body max-w-[420px] text-body">
+            One or two sentences each, because you have probably done this before. Florida contracts and county custom
+            decide most of it, and we&rsquo;ll say which is which.
+          </p>
+        </div>
+        <FaqAccordion items={FAQS} />
+      </section>
 
       {/* Start with the address. */}
       <section
@@ -255,7 +240,7 @@ export default async function SellPage() {
         className="container-site grid scroll-mt-header gap-10 border-t border-hairline py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20"
       >
         <div className="flex flex-col gap-6">
-          <SectionHeading eyebrow="What is my home worth" title="Start with the address." />
+          <h2 className="t-h1 text-navy">Start with the address.</h2>
           <p className="t-body max-w-[440px] text-body">
             Street address and timing are enough. Joelyn or Jessica pulls the four comparable sales, drives the
             street, and calls you with the number and the reason for it. No listing agreement attached; the number is
@@ -264,24 +249,6 @@ export default async function SellPage() {
           <p className="t-mono-sm max-w-[400px] text-graphite-500">
             A comp-based answer from Joelyn or Jessica soon after · no algorithm guess
           </p>
-          {/* The public record, before the call: what the street sold for, and what you'd keep. */}
-          <div className="flex flex-col gap-3 border-t border-hairline pt-5">
-            <p className="t-eyebrow text-amber">The public record first</p>
-            <ul className="flex flex-wrap gap-x-8 gap-y-3">
-              <li>
-                <RuleLink href="/sell/sold">What sold on your street</RuleLink>
-              </li>
-              <li>
-                <RuleLink href="/sell/home-value">The record for your address</RuleLink>
-              </li>
-              <li>
-                <RuleLink href="/sell/net-proceeds">What you’d keep at closing</RuleLink>
-              </li>
-            </ul>
-          </div>
-          <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
-            <Photo image={FRAMES.contract} sizes="(min-width: 1024px) 420px, 100vw" />
-          </div>
         </div>
         <div className="border border-hairline bg-white p-6 sm:p-8">
           <LeadForm
@@ -291,31 +258,6 @@ export default async function SellPage() {
             placeholderMessage="Tell us the year of the roof, anything you already know needs doing, and whether there’s a house to buy next."
           />
         </div>
-      </section>
-
-      {/* Sellers, in their words. */}
-      {sellersFirst.length ? (
-        <section className="bg-parchment">
-          <div className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
-            <SectionHeading eyebrow="Sellers in their words" title="What they say after the closing." />
-            <TestimonialSlider testimonials={sellersFirst} />
-          </div>
-        </section>
-      ) : null}
-
-      {/* The questions asked at the kitchen island. */}
-      <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
-        <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <SectionHeading eyebrow="Asked at the kitchen island" title="They ask about the number, the cost and the calendar." />
-          <p className="t-body max-w-[420px] text-body">
-            One or two sentences each, because you have probably done this before. Florida contracts and county custom
-            decide most of it, and we’ll say which is which.
-          </p>
-          <div className="relative hidden aspect-[4/3] overflow-hidden bg-linen-100 lg:block">
-            <Photo image={FRAMES.island} sizes="(min-width: 1024px) 420px, 100vw" />
-          </div>
-        </div>
-        <FaqAccordion items={FAQS} />
       </section>
     </>
   );
