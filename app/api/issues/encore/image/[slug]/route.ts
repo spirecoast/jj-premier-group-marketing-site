@@ -25,7 +25,7 @@ export const revalidate = 86400;
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const e = /^[a-z0-9-]{1,160}$/.test(slug) ? await getEvent(slug) : undefined;
-  if (!e) return Response.redirect(absoluteUrl("/og-image.png"), 307);
+  if (!e) return Response.redirect(absoluteUrl("/og-image.jpg"), 307);
   return brandOgImage({
     eyebrow: `Encore Arts Calendar · ${marketName(e.venue.market)}`,
     title: e.title,

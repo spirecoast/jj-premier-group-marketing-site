@@ -10,7 +10,7 @@ import { getPost, getPostSlugs, getPosts, getSiteSettings, getTeamMember } from 
 import { formatDateLong } from "@/lib/content/format";
 import { img } from "@/lib/content/seed/helpers";
 import { guideHref, isRebuiltGuide } from "@/lib/guides/slugs";
-import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 type Params = Promise<{ slug: string }>;
@@ -54,21 +54,21 @@ export default async function PostPage({ params }: { params: Params }) {
           image: absoluteUrl(post.cover.src),
           datePublished: post.publishedAt,
           author: author ? personJsonLd(author, settings) : { "@type": "Organization", name: site.name },
-          publisher: { "@type": "Organization", name: site.name, url: site.url },
+          publisher: publisherRef(),
           mainEntityOfPage: absoluteUrl(`/blog/${post.slug}`),
         }}
       />
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "Tide", path: "/blog" },
+          { name: "Tide", path: "/tide" },
           { name: post.title, path: `/blog/${post.slug}` },
         ])}
       />
 
       <article className="container-site flex flex-col gap-10 py-10 md:py-14">
         <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-3 gap-y-1 text-graphite-500">
-          <Link href="/blog" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
+          <Link href="/tide" className="-my-2 inline-block py-2 transition-colors hover:text-navy">
             Tide
           </Link>
           <span aria-hidden="true">/</span>

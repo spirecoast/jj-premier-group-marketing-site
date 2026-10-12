@@ -28,6 +28,19 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
   const all = await getAllRecords();
   const areas = all.filter((r) => r.level === "area").sort((a, b) => a.name.localeCompare(b.name));
   const counts = { total: all.length, points: all.filter((r) => r.lat !== null).length };
+  // The places an area doesn't lead to (no parent area above them): listed A to Z below the areas,
+  // so every page in the sitemap has a link in from a page a crawler can read.
+  const reached = new Set(areas.map((a) => a.slug));
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const r of all) {
+      if (r.parentSlug && reached.has(r.parentSlug) && !reached.has(r.slug)) {
+        reached.add(r.slug);
+        grew = true;
+      }
+    }
+  }
+  const others = all.filter((r) => r.research === "full" && !reached.has(r.slug)).sort((a, b) => a.name.localeCompare(b.name));
   const asOf = monthYear(DATASET_VERSION) ?? DATASET_VERSION;
 
   return (
@@ -81,6 +94,36 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
             );
           })}
         </div>
+        {others.length ? (
+          <div className="flex flex-col gap-4 border-t border-hairline pt-8">
+            <h3 className="t-h3 text-navy">More places, A to Z</h3>
+            <div className="grid gap-x-10 gap-y-2 md:grid-cols-3">
+              {MARKETS.map((m) => {
+                const mine = others.filter((o) => o.market === m.slug);
+                if (!mine.length) return null;
+                return (
+                  <details key={m.slug} className="group border-b border-hairline py-2">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-1 [&::-webkit-details-marker]:hidden">
+                      <span className="t-body text-navy">{m.name}</span>
+                      <span className="t-mono-sm text-graphite-500">
+                        {mine.length} <span className="inline-block transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                      </span>
+                    </summary>
+                    <ul className="columns-1 gap-x-6 pt-3 sm:columns-2 md:columns-1 lg:columns-2">
+                      {mine.map((o) => (
+                        <li key={o.slug} className="break-inside-avoid">
+                          <Link href={`/neighborhoods/${o.slug}`} className="t-small -my-1 inline-block py-1 text-body transition-colors hover:text-navy">
+                            {o.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
         <p className="t-mono-sm text-graphite-500">
           Catalog as of {asOf}. Facts carry their sources on each page. Nothing here is a rating, a price, or a description of who lives where.
         </p>

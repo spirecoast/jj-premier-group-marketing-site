@@ -8,7 +8,7 @@ export function absoluteUrl(path: string): string {
 }
 
 const DEFAULT_OG_IMAGE = {
-  url: "/og-image.png",
+  url: "/og-image.jpg",
   width: 1200,
   height: 630,
   alt: `${site.name} · ${site.tagline}`,
@@ -22,6 +22,20 @@ const DEFAULT_OG_IMAGE = {
  * opengraph-image.tsx pass `fileImage: true` so the `images` key is left
  * out and the file-based image is used.
  */
+const SUFFIX = ` · ${site.name}`;
+/** Search results show about 60 characters of a title. A long title drops the team's name rather than be cut off. */
+const TITLE_MAX = 60;
+/** And about 155 of a description: a longer one ends at its last whole sentence, or word, that fits. */
+const DESCRIPTION_MAX = 158;
+
+export function clampDescription(text: string, max = DESCRIPTION_MAX): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const sentence = cut.lastIndexOf(". ");
+  if (sentence > max * 0.55) return cut.slice(0, sentence + 1);
+  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:·–-]+$/, "")}…`;
+}
+
 export function pageMetadata({
   title,
   description,
@@ -43,13 +57,15 @@ export function pageMetadata({
   absoluteTitle?: boolean;
 }): Metadata {
   const url = absoluteUrl(path);
+  const tooLong = !absoluteTitle && title.length + SUFFIX.length > TITLE_MAX;
+  description = clampDescription(description);
   const images = image
     ? [{ url: image.src, alt: image.alt, width: image.width, height: image.height }]
     : fileImage
       ? undefined
       : [DEFAULT_OG_IMAGE];
   return {
-    title: absoluteTitle ? { absolute: title } : title,
+    title: absoluteTitle || tooLong ? { absolute: title } : title,
     description,
     alternates: { canonical: url },
     // Only set when a page opts out; an explicit `undefined` would override the
@@ -61,6 +77,7 @@ export function pageMetadata({
       title,
       description,
       siteName: site.name,
+      locale: site.locale,
       ...(images ? { images } : {}),
     },
     twitter: { card: "summary_large_image", title, description },
@@ -75,6 +92,24 @@ function postalAddress(a: { street: string; city: string; state: string; zip: st
     addressRegion: a.state,
     postalCode: a.zip || undefined,
     addressCountry: "US",
+  };
+}
+
+/** An article's publisher: the team's RealEstateAgent node, by reference, with its logo. */
+export function publisherRef() {
+  return { "@type": "Organization", "@id": `${site.url}/#organization`, name: site.name, url: site.url, logo: absoluteUrl("/brand/logo/jj-seal-navy.svg") };
+}
+
+/** The site itself, so search engines show its name; the publisher is the team. */
+export function websiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${site.url}/#website`,
+    name: site.name,
+    url: site.url,
+    inLanguage: "en-US",
+    publisher: { "@id": `${site.url}/#organization` },
   };
 }
 

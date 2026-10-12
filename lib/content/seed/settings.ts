@@ -17,7 +17,7 @@ export const SITE_SETTINGS: SiteSettings = {
   ],
   socialLinks: [],
   defaultOgImage: {
-    src: "/og-image.png",
+    src: "/og-image.jpg",
     alt: "JJ Premier Group · Every move, expertly guided.",
     width: 1200,
     height: 630,

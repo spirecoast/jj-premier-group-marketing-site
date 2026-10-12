@@ -10,7 +10,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { UtmTracker } from "@/components/utm-tracker";
 import { getSiteSettings, getTeam } from "@/lib/content";
-import { organizationJsonLd } from "@/lib/seo";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 
 /**
  * Gives every page under the site, and the server actions the forms post to,
@@ -50,7 +50,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <MobileActionBar phoneE164={settings.primaryPhoneE164} />
       <Analytics />
       <HomePlatformPixel />
-      <JsonLd data={organizationJsonLd(settings, team)} />
+      <JsonLd data={[organizationJsonLd(settings, team), websiteJsonLd()]} />
       {isDraft ? (
         <>
           <VisualEditing />

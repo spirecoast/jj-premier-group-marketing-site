@@ -40,9 +40,9 @@ const SEASON = "Hurricane season runs June 1 to November 30. When a storm is nam
 export const HUBS: Record<MarketSlug, HubCopy> = {
   "lakewood-ranch": {
     slug: "lakewood-ranch",
-    title: "Lakewood Ranch · The villages, the arts, and how buying works here",
+    title: "Lakewood Ranch real estate and villages",
     description:
-      "The first page to read before you buy or sell in Lakewood Ranch: every village on the Atlas, the week on the Encore calendar, which side of the county line you’re on, CDDs, flood zones and the questions people ask first.",
+      "Before you buy or sell in Lakewood Ranch: every village on the Atlas, the week’s arts, which county you’re in, CDDs, flood zones and what people ask first.",
     orientation: [
       "The villages are built around lakes and preserves on both sides of the Manatee–Sarasota county line, and Main Street and Waterside Place give the evenings somewhere to go.",
       "Which side of the line you’re on changes the property tax rate and who customarily pays for the owner’s title policy, so it’s the first thing we check on any address here.",
@@ -100,9 +100,9 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
 
   sarasota: {
     slug: "sarasota",
-    title: "Sarasota · The keys, the bayfront, the arts, and how buying works here",
+    title: "Sarasota real estate, keys and bayfront",
     description:
-      "The first page to read before you buy or sell in Sarasota: the keys and the bayfront on the Atlas, the week on the Encore calendar, who pays for title in Sarasota County, flood and evacuation zones, condominium inspections, and the questions people ask first.",
+      "Before you buy or sell in Sarasota: the keys and the bayfront on the Atlas, the week’s arts, who pays for title, flood zones and condo inspections.",
     orientation: [
       "Sarasota is the bayfront, the keys and the streets west of the Trail, and the opera house, the orchestra and the gallery district are a few minutes from any of them.",
       "Siesta Key, Lido Key, Bird Key, St. Armands and Longboat Key make the island side; Palmer Ranch, The Meadows and Gulf Gate are the inland side, in unincorporated Sarasota County.",
@@ -161,9 +161,9 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
 
   bradenton: {
     slug: "bradenton",
-    title: "Bradenton · The river, the island, the arts, and how buying works here",
+    title: "Bradenton real estate, river and island",
     description:
-      "The first page to read before you buy or sell in Bradenton: the river, the canal streets and Anna Maria Island on the Atlas, the week on the Encore calendar, who pays for title in Manatee County, flood and evacuation levels, and the questions people ask first.",
+      "Before you buy or sell in Bradenton: the river, the canal streets and Anna Maria Island on the Atlas, the week’s arts, who pays for title and flood levels.",
     orientation: [
       "Bradenton is the Manatee River, the Riverwalk, the canal streets west of 75th reaching Palma Sola Bay, and a downtown with the county’s theater and an arts village of its own.",
       "Anna Maria Island, seven miles long with three cities and a height limit that keeps it low, sits at the end of the Manatee Avenue and Cortez Road bridges.",

@@ -137,6 +137,8 @@ const nextConfig: NextConfig = {
         headers: [...COMMON_HEADERS, { key: "Content-Security-Policy-Report-Only", value: serialize(basePolicy()) }],
       },
       { source: "/studio/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(studioPolicy()) }] },
+      // The guide PDFs repeat the guide pages; the pages are the ones to index.
+      { source: "/guides/pdf/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
       // The private questionnaire links: the token is in the path, so no referrer, no caching, no indexing.
       {
         source: "/q/:path*",
@@ -161,8 +163,25 @@ const nextConfig: NextConfig = {
       { source: "/blog", destination: "/tide", permanent: true },
       // Guides rebuilt as long-form pages (lib/guides) moved from Tide to /guides; the old links follow.
       ...REBUILT_GUIDE_SLUGS.map((slug) => ({ source: `/blog/${slug}`, destination: `/guides/${slug}`, permanent: true })),
+      // Once NEXT_PUBLIC_SITE_URL names the real domain, the vercel.app address sends every path there, so
+      // search engines see one site. Until then it's empty and nothing redirects.
+      ...canonicalHostRedirect(),
     ];
   },
 };
+
+function canonicalHostRedirect() {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL;
+  const alias = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (!raw || !alias) return [];
+  let canonical: URL;
+  try {
+    canonical = new URL(raw);
+  } catch {
+    return [];
+  }
+  if (canonical.host === alias || canonical.host.endsWith(".vercel.app")) return [];
+  return [{ source: "/:path*", has: [{ type: "host" as const, value: alias }], destination: `${canonical.origin}/:path*`, permanent: true }];
+}
 
 export default nextConfig;

@@ -23,7 +23,7 @@ import { encorePicks } from "@/lib/tide/encore";
 import { num } from "@/lib/tide/issue";
 import { TIDE_ISSUES, isIssueMonth } from "@/lib/tide/issues";
 import { loadIssueModel } from "@/lib/tide/load";
-import { absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, pageMetadata, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 /**
@@ -117,7 +117,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           image: absoluteUrl(model.cover.src),
           datePublished: `${model.issue}-01`,
           author: { "@type": "Organization", name: site.name },
-          publisher: { "@type": "Organization", name: site.name, url: site.url },
+          publisher: publisherRef(),
           mainEntityOfPage: absoluteUrl(path),
           isPartOf: { "@type": "Periodical", name: "Tide", url: absoluteUrl("/tide") },
         }}
