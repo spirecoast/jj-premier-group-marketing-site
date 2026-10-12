@@ -103,7 +103,11 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
           <div className="flex flex-col items-start">
             <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
             <p className="t-quote mt-4 max-w-[300px] text-navy">{site.tagline}</p>
-            <p className="mt-8 font-display text-[22px] font-light leading-tight text-navy">{settings.brokerageName}</p>
+            {/* The brokerage in Coldwell Banker's own dress: the CB logo in CB Blue, at the JJ wordmark's measure, with "Realty" set under the words. */}
+            <p className="mt-9 flex flex-col gap-2">
+              <CbMark tone="cbblue" width={220} />
+              <span className="ml-[32px] font-sans text-[11px] font-semibold uppercase leading-none tracking-[0.46em] text-cb-blue">Realty</span>
+            </p>
             <ul className="mt-8 flex flex-col gap-1.5 text-[14px]">
               <li>
                 <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "footer" }} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
@@ -191,14 +195,10 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               Code of Ethics. Equal Housing Opportunity.
             </p>
           </div>
-          {/* REALTOR® and Equal Housing in navy, square and the same size, each with NAR's clear space around it; then the brokerage. */}
-          <div className="flex shrink-0 flex-wrap items-center gap-x-8 gap-y-6 text-navy">
-            <div className="flex items-center gap-6">
-              <RealtorMark size={48} />
-              <EqualHousingMark size={48} />
-            </div>
-            <span className="hidden h-10 w-px bg-rule sm:block" aria-hidden="true" />
-            <CbMark tone="cbblue" width={200} />
+          {/* REALTOR® and Equal Housing in navy, square and the same size, each with NAR's clear space around it. The brokerage's logo leads the brand column above. */}
+          <div className="flex shrink-0 items-center gap-6 text-navy">
+            <RealtorMark size={48} />
+            <EqualHousingMark size={48} />
           </div>
         </div>
 

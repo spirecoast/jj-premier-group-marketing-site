@@ -9,7 +9,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/terms",
 });
 
-const UPDATED = "October 11, 2026";
+const UPDATED = "October 12, 2026";
 
 export default async function TermsPage() {
   const settings = await getSiteSettings();
@@ -89,6 +89,19 @@ export default async function TermsPage() {
           is a federally registered collective membership mark of the National Association of REALTORS&reg;. Atlas,
           Encore and Tide are the names of this site&rsquo;s own tools. The Equal Housing Opportunity logo is used as the
           U.S. Department of Housing and Urban Development provides it.
+        </p>
+
+        <h2>Photo credits</h2>
+        <p>
+          The photograph of the Bradenton Riverwalk is by Sanibel sun, from{" "}
+          <a href="https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk.jpg" target="_blank" rel="noopener noreferrer">
+            Wikimedia Commons
+          </a>
+          , under the{" "}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">
+            Creative Commons Attribution-ShareAlike 4.0
+          </a>{" "}
+          license. We resized it and changed nothing else. That photograph stays under its license, so you may reuse it on the license&rsquo;s terms.
         </p>
 
         <h2>Accessibility</h2>
