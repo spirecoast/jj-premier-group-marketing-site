@@ -2880,9 +2880,10 @@ html:has([data-product-bar]) {
   .motif-arch {
     position: absolute;
     inset: 0;
-    border: 1.5px solid rgb(233 196 106 / 0.85);
+    border: 2px solid rgb(233 196 106 / 0.9);
     border-bottom: 0;
     border-radius: 50% 50% 0 0 / 3.5rem 3.5rem 0 0;
+    filter: drop-shadow(0 0 6px rgb(233 196 106 / 0.45));
   }
   .motif-arch-inner {
     inset: 0.9rem 0.9rem 0;
@@ -2900,13 +2901,25 @@ html:has([data-product-bar]) {
   }
   .motif-lights i {
     display: block;
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 9999px;
-    background: var(--color-encore);
+    background: #fbe6b0;
+    box-shadow: 0 0 6px 1px rgb(233 196 106 / 0.75), 0 0 16px 4px rgb(233 196 106 / 0.28);
     opacity: 0.95;
   }
-  .motif-lights i:nth-child(even) { opacity: 0.45; }
+  .motif-lights i:nth-child(even) { opacity: 0.5; }
+  /* The side runs sit just inside the arch's legs, from its shoulder down. */
+  .motif-lights-side {
+    top: 18%;
+    bottom: 12%;
+    left: auto;
+    right: auto;
+    flex-direction: column;
+  }
+  .motif-lights-side.is-left { left: 0.45rem; }
+  .motif-lights-side.is-right { right: 0.45rem; }
+  @media (max-width: 767px) { .motif-lights-side { display: none; } }
   @media (prefers-reduced-motion: no-preference) {
     .motif-atlas path {
       stroke-dasharray: 1;
@@ -2920,9 +2933,12 @@ html:has([data-product-bar]) {
     }
     .motif-lights i {
       opacity: 0;
-      animation: motif-light 0.6s ease forwards;
-      animation-delay: calc(var(--i) * 45ms + 900ms);
+      animation:
+        motif-light 0.6s ease forwards,
+        motif-twinkle 3.6s ease-in-out infinite;
+      animation-delay: calc(var(--i) * 45ms + 900ms), calc(var(--i) * 45ms + 2.4s);
     }
+    .motif-lights i:nth-child(even) { animation-delay: calc(var(--i) * 45ms + 900ms), calc(var(--i) * 45ms + 4.2s); }
     .motif-spot { opacity: 0; animation: motif-light 2.4s ease 0.6s forwards; }
     .motif-tide span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
     .motif-tide span:nth-child(2) { animation-delay: 0.15s; }
@@ -2931,6 +2947,7 @@ html:has([data-product-bar]) {
   @keyframes motif-draw { to { stroke-dashoffset: 0; } }
   @keyframes motif-rise { to { clip-path: inset(0 0 0 0); } }
   @keyframes motif-light { to { opacity: var(--o, 0.95); } }
+  @keyframes motif-twinkle { 0%, 100% { opacity: var(--o, 0.95); } 50% { opacity: calc(var(--o, 0.95) * 0.45); } }
   .motif-lights i:nth-child(even) { --o: 0.45; }
   @keyframes motif-line { to { transform: scaleX(1); } }
 }
