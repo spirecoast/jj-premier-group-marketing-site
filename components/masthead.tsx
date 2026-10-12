@@ -52,7 +52,7 @@ export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, childr
         ) : null}
       </div>
       <div className="absolute inset-0 flex flex-col justify-end">
-        <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && slot.family === "tide" ? "pb-16 sm:pb-20 lg:pb-28" : "pb-10 sm:pb-12 lg:pb-16")}>
+        <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
           {title ? (
             <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", titleClassName)}>

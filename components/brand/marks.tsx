@@ -109,6 +109,7 @@ export function FamilyMotif({ family }: { family: FamilyKey }) {
   if (family === "encore")
     return (
       <div className="motif motif-encore" aria-hidden="true">
+        <span className="motif-spot" />
         <span className="motif-arch" />
         <span className="motif-arch motif-arch-inner" />
         <span className="motif-lights">
@@ -118,19 +119,12 @@ export function FamilyMotif({ family }: { family: FamilyKey }) {
         </span>
       </div>
     );
+  // Tide: three straight hairlines along the foot, the brightest on top.
   return (
-    <svg className="motif motif-tide" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
-      {[0, 22, 42].map((dy, i) => (
-        <path
-          key={dy}
-          d={`M0 ${30 + dy} C 90 ${22 + dy}, 180 ${22 + dy}, 270 ${30 + dy} S 450 ${38 + dy}, 540 ${30 + dy} S 720 ${22 + dy}, 810 ${30 + dy} S 990 ${38 + dy}, 1080 ${30 + dy} S 1260 ${22 + dy}, 1350 ${30 + dy} S 1440 ${34 + dy}, 1440 ${30 + dy}`}
-          fill="none"
-          stroke="var(--color-tide)"
-          strokeOpacity={[1, 0.45, 0.2][i]}
-          strokeWidth={i ? 1.1 : 1.6}
-          vectorEffect="non-scaling-stroke"
-        />
-      ))}
-    </svg>
+    <div className="motif motif-tide" aria-hidden="true">
+      <span />
+      <span />
+      <span />
+    </div>
   );
 }

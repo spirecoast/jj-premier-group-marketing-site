@@ -84,7 +84,7 @@ export const TIDE_ISSUES: readonly TideIssueEntry[] = [
     issue: "2026-10",
     data: "2026-07",
     coverTitle: "One coast, three markets",
-    coverKicker: "A square foot cost 7% more in Sarasota than a year ago, about the same in Lakewood Ranch and 2% less in Bradenton.",
+    coverKicker: "Selling in Sarasota: a square foot sold for 7% more than a year ago. Buying: in Bradenton it sold for 2% less, and in Lakewood Ranch it held steady.",
     headline: "July was busier than usual, and a square foot still cost about what it usually does.",
     dek: "Across Lakewood Ranch, Sarasota and Bradenton, 1,646 homes sold, 9% more than a typical month and 16% more than July 2025. Medians rose because of which homes sold, not because the same home cost more.",
     opening: [

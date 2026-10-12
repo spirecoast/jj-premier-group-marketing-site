@@ -21,7 +21,7 @@ export type TideCoverCard = {
 /**
  * An issue's cover, as designed in Figma (page "03 Tide cover"): the
  * photograph under a navy wash; the team and the month on the top line; the
- * Tide wordmark with "Monthly Market Report" under it; and at the foot the
+ * Tide wordmark with "Market Report" under it; and at the foot the
  * cover line as large as it'll go, the sentence that backs it, and the three
  * places. Type is sized to the cover's width, so the same cover works as a
  * thumbnail and as the feature; the kicker shows once the cover is wide
@@ -42,7 +42,7 @@ export function TideCover({ card, priority, sizes, className }: { card: TideCove
           </div>
           <span className="mt-[3cqw] block h-px bg-white/35" aria-hidden="true" />
           <TideWordmark id={`tw-${card.issue ?? "x"}`} className="mt-[0.5cqw] w-full text-white" decorative />
-          <p className="-mt-[0.5cqw] font-display text-[4.4cqw] font-light italic leading-none text-linen-200">Monthly Market Report</p>
+          <p className="-mt-[0.5cqw] font-display text-[4.4cqw] font-light italic leading-none text-linen-200">Market Report</p>
         </div>
         <div className="flex flex-col">
           {line ? (

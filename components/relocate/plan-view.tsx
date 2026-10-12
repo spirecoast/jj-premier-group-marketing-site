@@ -208,6 +208,7 @@ export function PlanView() {
               {generic ? C.genericTitle : C.title}
             </h2>
             <p className="t-body max-w-[560px] text-body print:hidden">{C.intro}</p>
+            <p className="t-small max-w-[560px] border-l-2 border-atlas pl-3 text-graphite-600">{C.estimate}</p>
             <AnswerChips />
             <button
               type="button"

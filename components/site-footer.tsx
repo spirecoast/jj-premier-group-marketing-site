@@ -11,6 +11,12 @@ import { EqualHousingMark } from "./equal-housing";
 import { RealtorMark } from "./realtor-mark";
 import { Wordmark } from "./wordmark";
 
+/** The profiles the footer always shows, linked once their addresses are in lib/site.ts or the CMS. */
+const PROFILES: { network: SocialNetwork; label: string }[] = [
+  { network: "facebook", label: "Facebook" },
+  { network: "instagram", label: "Instagram" },
+];
+
 /** The three market hubs: a click on one counts as Explore {action: "hub"}. */
 const HUB_PATHS = new Set(["/lakewood-ranch", "/sarasota", "/bradenton"]);
 
@@ -67,8 +73,8 @@ const SOCIAL_ICON: Record<Exclude<SocialNetwork, "facebook" | "instagram">, Luci
 };
 
 function SocialIcon({ network }: { network: SocialNetwork }) {
-  if (network === "facebook") return <BrandGlyph d={FACEBOOK_PATH} className="size-[18px]" />;
-  if (network === "instagram") return <BrandGlyph d={INSTAGRAM_PATH} className="size-[18px]" />;
+  if (network === "facebook") return <BrandGlyph d={FACEBOOK_PATH} className="size-[19px]" />;
+  if (network === "instagram") return <BrandGlyph d={INSTAGRAM_PATH} className="size-[19px]" />;
   const Icon = SOCIAL_ICON[network];
   return <Icon className="size-[18px]" strokeWidth={1.5} aria-hidden="true" />;
 }
@@ -94,12 +100,11 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
     <footer className="bg-linen-200 pb-20 text-navy md:pb-12">
       <div className="container-site flex flex-col gap-16 pt-16 lg:pt-20">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.6fr)] lg:gap-16">
-          <div className="flex flex-col items-start gap-6">
-            <div className="flex flex-col gap-3">
-              <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
-              <p className="font-display text-[22px] font-light leading-tight text-navy">{settings.brokerageName}</p>
-            </div>
-            <ul className="flex flex-col gap-1.5 text-[14px]">
+          <div className="flex flex-col items-start">
+            <Wordmark variant="waterline" tone="dark" ground="bg-linen-200" />
+            <p className="t-quote mt-4 max-w-[300px] text-navy">{site.tagline}</p>
+            <p className="mt-8 font-display text-[22px] font-light leading-tight text-navy">{settings.brokerageName}</p>
+            <ul className="mt-8 flex flex-col gap-1.5 text-[14px]">
               <li>
                 <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "footer" }} className="-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700">
                   {settings.primaryPhoneDisplay}
@@ -114,27 +119,31 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
                 </li>
               ))}
             </ul>
-            <address className="t-small not-italic text-linen-700">{office}</address>
-            {social.length ? (
-              <ul className="flex flex-wrap gap-2" aria-label="The team elsewhere">
-                {social.map((s) => {
-                  return (
-                    <li key={s.url}>
-                      <a
-                        href={s.url}
-                        rel="me noopener noreferrer"
-                        target="_blank"
-                        aria-label={`${s.label} (opens in a new tab)`}
-                        title={s.label}
-                        className="flex size-11 items-center justify-center border border-rule text-navy transition-colors hover:border-navy hover:text-harbor-700"
-                      >
-                        <SocialIcon network={s.network} />
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : null}
+            <address className="t-small mt-4 not-italic text-linen-700">{office}</address>
+            <ul className="mt-6 flex flex-wrap gap-2.5" aria-label="The team elsewhere">
+              {social.map((s) => (
+                <li key={s.url}>
+                  <a
+                    href={s.url}
+                    rel="me noopener noreferrer"
+                    target="_blank"
+                    aria-label={`${s.label} (opens in a new tab)`}
+                    title={s.label}
+                    className="social-mark"
+                  >
+                    <SocialIcon network={s.network} />
+                  </a>
+                </li>
+              ))}
+              {/* Facebook and Instagram show before their addresses are in; they become links once they are. */}
+              {PROFILES.filter((p) => !social.some((s) => s.network === p.network)).map((p) => (
+                <li key={p.network}>
+                  <span role="img" aria-label={p.label} title={p.label} className="social-mark">
+                    <SocialIcon network={p.network} />
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="flex flex-col gap-12">
             {/* The site: where, what to do, what to read, who. */}

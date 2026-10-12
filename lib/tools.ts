@@ -41,9 +41,6 @@ export const TOOLS: Tool[] = productFamilies.flatMap((f) =>
   }),
 );
 
-/** The four on the home page: one decision each, from choosing a place to selling. */
-export const FEATURED = ["atlas-match", "atlas-move", "encore-planner", "tide-sale-calculator"] as const;
-
 export function tool(id: string): Tool {
   const t = TOOLS.find((x) => x.id === id);
   if (!t) throw new Error(`No tool ${id}`);

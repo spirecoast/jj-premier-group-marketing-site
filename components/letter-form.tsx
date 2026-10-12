@@ -89,7 +89,13 @@ export function LetterForm({
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
-      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-0 sm:bg-paper/95 sm:p-1.5 sm:pl-5">
+      {/* On a photograph the row is a paper bar; on a light page it gets a white field with a hairline round it, so it reads as a box. */}
+      <div
+        className={cn(
+          "flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-0 sm:p-1.5 sm:pl-5",
+          tone === "dark" ? "sm:bg-paper/95" : "sm:border sm:border-rule sm:bg-white sm:focus-within:border-navy",
+        )}
+      >
         <label htmlFor={`letter-email-${form}`} className="sr-only">
           Email address
         </label>
@@ -100,7 +106,10 @@ export function LetterForm({
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="w-full min-w-0 bg-paper/95 px-5 py-3 text-[15px] text-ink placeholder:text-graphite-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-sky-700 sm:w-0 sm:flex-1 sm:bg-transparent sm:px-0 sm:py-2"
+          className={cn(
+            "w-full min-w-0 px-5 py-3 text-[15px] text-ink placeholder:text-graphite-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-sky-700 sm:w-0 sm:flex-1 sm:bg-transparent sm:px-0 sm:py-2 sm:focus-visible:outline-0",
+            tone === "dark" ? "bg-paper/95" : "border border-rule bg-white sm:border-0",
+          )}
           aria-invalid={Boolean(state.errors?.email)}
           aria-describedby={state.errors?.email?.[0] || state.formError ? `letter-error-${form}` : undefined}
         />

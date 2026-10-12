@@ -6,8 +6,8 @@
 import { COUNTIES, FACTS, type SourceId } from "./sources";
 
 export const HERO = {
-  title: "Plan your move",
-  lead: "Answer five questions and get every date and deadline for your move to Lakewood Ranch, Sarasota or Bradenton on one page.",
+  title: "Your move, planned to the day",
+  lead: "Tell us when you want to be in. You’ll get every date and deadline, from the offer to your first homestead year, on one page.",
 };
 
 export const QUESTIONS = {
@@ -52,6 +52,7 @@ export const PLAN = {
   title: "Your move plan",
   genericTitle: "A sample move plan",
   intro: "Dates follow the standard Florida contract and the state’s own deadlines. Open any step to see why.",
+  estimate: "These dates are an estimate. Your contract, your lender or your county can move them, so we’ll check each one with you.",
   keyDates: "Key dates",
   basisLabel: "Why this date",
   sourceLabel: "Source",
