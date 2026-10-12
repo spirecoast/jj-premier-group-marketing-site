@@ -59,7 +59,10 @@ const PRINT_CSS = `
   #plan [data-print="row"] > div:last-child { padding-bottom: 8pt; }
   #plan [data-print="phase"] { gap: 6pt; }
   #plan [data-print="phase"] > div:first-child { break-after: avoid; }
-  #plan [data-print="keys"] { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  #plan [data-print="keys"] { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 6pt; }
+  #plan .key-dates { background: none !important; padding: 0 !important; }
+  #plan .key-dates * { color: #102542 !important; background: none !important; box-shadow: none !important; backdrop-filter: none !important; }
+  #plan .key-dates [data-print="key"] { border: 1px solid #d9d4c8 !important; }
   #plan a { color: inherit; text-decoration: none; }
 }
 `;

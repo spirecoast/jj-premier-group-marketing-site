@@ -3194,3 +3194,17 @@ html:has([data-product-bar]) {
   border: 1px dashed var(--color-rule);
   background: rgb(255 255 255 / 0.35);
 }
+
+/* ---- Atlas Move: each question slides in as the last one leaves. */
+@layer components {
+  .move-q-step {
+    animation: move-q-in 0.45s var(--ease-reveal) both;
+  }
+  @keyframes move-q-in {
+    from { opacity: 0; transform: translateX(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .move-q-step { animation: none; }
+  }
+}
