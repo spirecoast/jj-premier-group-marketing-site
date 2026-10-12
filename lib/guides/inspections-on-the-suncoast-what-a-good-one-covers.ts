@@ -222,6 +222,7 @@ export const INSPECTIONS_GUIDE: Guide = {
     /* ---- 04 ---------------------------------------------------------------- */
     {
       id: "the-roof",
+      photo: { image: img("library/gutter-tile-roof", "A gutter full of leaves under a clay tile roof") },
       title: "The roof",
       lead: "Roof age is one of the first things an insurer asks about. Florida law draws a line at 15 years.",
       blocks: [

@@ -94,6 +94,7 @@ export const CDD_GUIDE: Guide = {
     /* ---- 01 ---------------------------------------------------------------- */
     {
       id: "what-a-cdd-is",
+      photo: { image: img("library/lwr-main-street-dawn", "A tree-lined main street of shops at dawn") },
       title: "What a CDD is",
       lead: "A CDD is a small unit of local government. It paid for the roads and lakes in your village, and it collects for them on your tax bill.",
       blocks: [

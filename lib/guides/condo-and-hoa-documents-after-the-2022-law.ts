@@ -129,6 +129,7 @@ export const CONDO_GUIDE: Guide = {
     /* ---- 02 ---------------------------------------------------------------- */
     {
       id: "the-milestone-inspection",
+      photo: { image: img("library/condo-towers-beach", "Condominium towers along a beach, from above") },
       title: "The milestone inspection",
       lead: "A milestone inspection is a structural check of the building. The first one is due when the building turns 30, then every 10 years.",
       blocks: [

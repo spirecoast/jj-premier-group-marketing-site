@@ -157,6 +157,7 @@ export const SELLING_FROM_AWAY_GUIDE: Guide = {
     /* ---- 02 ---------------------------------------------------------------- */
     {
       id: "the-keys-and-the-empty-house",
+      photo: { image: img("library/listing-living-room-terrazzo", "A bright, empty living room with a white sofa") },
       title: "The keys and the empty house",
       lead: "Someone has to hold the keys, watch the house and keep the air running. Here’s what we do, and the two calls you should make.",
       blocks: [

@@ -180,6 +180,7 @@ export const GETTING_HERE_GUIDE: Guide = {
     /* ---- 03 ---------------------------------------------------------------- */
     {
       id: "the-skyway",
+      photo: { image: img("library/tampa-skyway-sunrise", "The Sunshine Skyway Bridge reflected in still water at sunrise") },
       title: "The Skyway",
       lead: "The Sunshine Skyway carries I-275 across the mouth of Tampa Bay. There’s a toll, and no one takes cash.",
       blocks: [

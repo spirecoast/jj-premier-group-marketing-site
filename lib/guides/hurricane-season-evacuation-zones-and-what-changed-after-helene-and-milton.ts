@@ -95,6 +95,7 @@ export const HURRICANE_GUIDE: Guide = {
     /* ---- 01 ---------------------------------------------------------------- */
     {
       id: "the-season",
+      photo: { image: img("library/storm-shutters-closed", "Steel storm shutters closed over a house’s windows") },
       title: "When hurricane season is",
       lead: "The Atlantic hurricane season runs from June 1 to November 30. The busiest part is late summer and early fall.",
       blocks: [
@@ -237,6 +238,7 @@ export const HURRICANE_GUIDE: Guide = {
     /* ---- 04 ---------------------------------------------------------------- */
     {
       id: "what-the-two-storms-did",
+      photo: { image: img("library/storm-aftermath-aerial", "Homes torn open and debris strewn along a road after a hurricane, from the air"), caption: "Homes in Florida after Hurricane Ian, 2022." },
       title: "What Helene and Milton did",
       lead: "Two storms hit this coast two weeks apart in the fall of 2024. One brought water. The other brought wind, and water too.",
       blocks: [
