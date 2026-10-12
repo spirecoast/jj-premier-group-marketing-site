@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CtaBand } from "@/components/cta-band";
 import { GuideCard } from "@/components/guides/guide-card";
 import { LetterForm } from "@/components/letter-form";
+import { getTeam } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { GUIDES } from "@/lib/guides";
 import { pageMetadata } from "@/lib/seo";
@@ -15,7 +16,9 @@ export const metadata: Metadata = pageMetadata({
 
 const BAND = img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%");
 
-export default function GuidesIndex() {
+export default async function GuidesIndex() {
+  const team = await getTeam();
+  const bySlug = new Map(team.map((m) => [m.slug, { name: m.name, headshot: m.headshot }]));
   return (
     <>
       <section className="container-site flex flex-col gap-12 py-section" aria-labelledby="guides-index-title">
@@ -28,7 +31,7 @@ export default function GuidesIndex() {
         <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {GUIDES.map((g, i) => (
             <li key={g.slug} className="flex">
-              <GuideCard guide={g} number={i + 1} priority={i === 0} />
+              <GuideCard guide={g} author={bySlug.get(g.author.slug)} priority={i === 0} />
             </li>
           ))}
         </ul>
