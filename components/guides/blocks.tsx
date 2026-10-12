@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Photo } from "@/components/photo";
+import type { ImageRef } from "@/lib/content/types";
 import type { Block, CalloutBlock, DefinitionBlock, Inline, Source, TableBlock } from "@/lib/guides/types";
 import { TOOLS } from "@/lib/guides";
 import { Figure } from "./figure";
@@ -164,5 +166,17 @@ export function Blocks({ blocks, firstFigure }: { blocks: Block[]; firstFigure: 
         }
       })}
     </div>
+  );
+}
+
+/** A section's photograph: wide, under the section's header, with an optional line under it. */
+export function GuidePhoto({ photo }: { photo: { image: ImageRef; caption?: string } }) {
+  return (
+    <figure className="guide-photo flex flex-col gap-3 print:break-inside-avoid">
+      <div className="relative aspect-[16/9] overflow-hidden bg-navy shadow-[0_30px_60px_-40px_rgb(20_37_48/0.55)]">
+        <Photo image={photo.image} sizes="(min-width: 1024px) 860px, 100vw" />
+      </div>
+      {photo.caption ? <figcaption className="t-small text-graphite-500">{photo.caption}</figcaption> : null}
+    </figure>
   );
 }

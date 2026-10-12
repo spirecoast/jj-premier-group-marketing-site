@@ -152,6 +152,7 @@ export const WIND_AND_FLOOD_GUIDE: Guide = {
     /* ---- 02 ---------------------------------------------------------------- */
     {
       id: "the-roof",
+      photo: { image: img("library/roof-missing-shingles", "A shingle roof with patches torn away by wind") },
       title: "The roof comes first",
       lead: "The age of the roof is the first thing an insurer asks about. Florida law draws a line at 15 years.",
       blocks: [
@@ -236,6 +237,7 @@ export const WIND_AND_FLOOD_GUIDE: Guide = {
     /* ---- 04 ---------------------------------------------------------------- */
     {
       id: "the-hurricane-deductible",
+      photo: { image: img("library/roofs-blue-tarps-aerial", "Blue tarps over the roofs of a lakeside neighborhood after a storm, from the air") },
       title: "The hurricane deductible",
       lead: "Your policy has a second, bigger deductible. It’s just for hurricane damage, and it’s a percent of what the house is insured for.",
       blocks: [

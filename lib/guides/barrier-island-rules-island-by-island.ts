@@ -182,6 +182,7 @@ export const BARRIER_ISLANDS_GUIDE: Guide = {
     /* ---- 03 ---------------------------------------------------------------- */
     {
       id: "anna-maria-island",
+      photo: { image: img("library/place-sea-oats-wind", "The dune path to the beach through sea oats") },
       title: "Anna Maria Island: three cities",
       lead: "One island, three city halls. The rental rules and the height limits change at the city line.",
       blocks: [
