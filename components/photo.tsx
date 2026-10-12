@@ -47,7 +47,8 @@ export function Photo(props: FillProps | FixedProps) {
         width={image.width}
         height={image.height}
         sizes={sizes}
-        priority={priority}
+        preload={priority}
+        fetchPriority={priority ? "high" : undefined}
         quality={quality}
         placeholder={placeholder}
         blurDataURL={image.blurDataURL}
@@ -66,7 +67,8 @@ export function Photo(props: FillProps | FixedProps) {
           alt={image.alt}
           fill
           sizes={sizes}
-          priority={priority}
+          preload={priority}
+        fetchPriority={priority ? "high" : undefined}
           quality={quality}
           placeholder={placeholder}
           blurDataURL={image.blurDataURL}
@@ -81,7 +83,8 @@ export function Photo(props: FillProps | FixedProps) {
       alt={image.alt}
       fill
       sizes={sizes}
-      priority={priority}
+      preload={priority}
+        fetchPriority={priority ? "high" : undefined}
       quality={quality}
       placeholder={placeholder}
       blurDataURL={image.blurDataURL}

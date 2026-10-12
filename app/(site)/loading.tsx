@@ -42,7 +42,8 @@ export default function SiteLoading() {
         aria-busy="true"
         className="site-loading-bar fixed inset-x-0 top-0 z-50 h-[3px] overflow-hidden bg-navy/10"
       />
-      <div className="min-h-[60vh]" aria-hidden="true" />
+      {/* At least a screen tall, so the footer never shows above the fold and then jumps away when the page streams in. */}
+      <div className="min-h-[100svh]" aria-hidden="true" />
     </>
   );
 }

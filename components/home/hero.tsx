@@ -14,7 +14,8 @@ import { site } from "@/lib/site";
  */
 export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef; team: TeamMember[] }) {
   const names = team.map((m) => m.name).join(" & ");
-  const meetLabel = team.length ? `Meet ${team.map((m) => m.name).join(" and ")}` : "Meet the team";
+  // The visible names come first, so a voice user can say what they see.
+  const meetLabel = team.length ? `${names}, meet the team` : "Meet the team";
 
   return (
     <section data-header-overlay className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">

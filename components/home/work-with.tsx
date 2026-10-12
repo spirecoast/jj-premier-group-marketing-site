@@ -36,7 +36,7 @@ export function WorkWith({
           <h2 id="work-with-title" className="t-display text-balance text-navy">
             Work with Joelyn and Jessica
           </h2>
-          <p className="font-display text-[clamp(1.25rem,1.6vw,1.5rem)] font-light italic text-navy/85">Your home. Your future. Our commitment.</p>
+          <p className="font-display text-[clamp(1.25rem,1.6vw,1.5rem)] font-light italic text-navy">Your home. Your future. Our commitment.</p>
           <span className="block h-px w-[96px] bg-navy/40" aria-hidden="true" />
           <p className="t-body max-w-[460px] text-navy">
             Get assistance in determining current property value, crafting a competitive offer, writing and negotiating a
@@ -46,7 +46,7 @@ export function WorkWith({
             <ButtonLink href="/contact" dash>
               Contact us now
             </ButtonLink>
-            <span className="text-[13px] text-navy/70">or</span>
+            <span className="text-[13px] text-navy">or</span>
             <TrackedLink
               href={`tel:${phoneE164}`}
               event="Phone tap"
