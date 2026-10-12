@@ -81,7 +81,7 @@ export default async function GuidePage({ params }: { params: Params }) {
       />
 
       <article id="guide-article">
-        <GuideCover guide={guide} minutes={minutes} updated={updated} />
+        <GuideCover guide={guide} minutes={minutes} updated={updated} author={author ? { name: author.name, headshot: author.headshot } : undefined} />
 
         {/* How to use · Inside this guide · the three questions */}
         <div className="container-site grid grid-cols-1 gap-12 py-14 md:py-20 lg:grid-cols-[1.2fr_1fr] lg:gap-24 print:grid-cols-1 print:gap-6 print:py-6">

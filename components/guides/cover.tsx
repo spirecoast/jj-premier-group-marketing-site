@@ -1,4 +1,6 @@
+import { Byline } from "@/components/byline";
 import { Photo } from "@/components/photo";
+import type { ImageRef } from "@/lib/content/types";
 import { TrackedLink } from "@/components/tracked-link";
 import { guidePdfHref } from "@/lib/guides";
 import type { Guide } from "@/lib/guides/types";
@@ -10,7 +12,7 @@ import type { Guide } from "@/lib/guides/types";
  * 2400px wide, so they stay sharp at full width (docs/SITE.md has their
  * provenance). The same photo feeds the guide's card and share image.
  */
-export function GuideCover({ guide, minutes, updated }: { guide: Guide; minutes: number; updated: string }) {
+export function GuideCover({ guide, minutes, updated, author }: { guide: Guide; minutes: number; updated: string; author?: { name: string; headshot: ImageRef } }) {
   const sections = guide.sections.length;
   return (
     <header data-header-overlay className="guide-cover guide-cover-ground relative -mt-header overflow-hidden text-white">
@@ -31,9 +33,13 @@ export function GuideCover({ guide, minutes, updated }: { guide: Guide; minutes:
             Download the PDF
             <span className="btn-dash" aria-hidden="true" />
           </TrackedLink>
-          <p className="text-[14px] text-linen-200">
-            By {guide.author.name} · Updated {updated} · {sections} sections · {minutes} min read
-          </p>
+          {author ? (
+            <Byline people={[author]} extras={["JJ Premier Group", `Updated ${updated}`, `${minutes} min read`]} tone="dark" />
+          ) : (
+            <p className="text-[14px] text-linen-200">
+              By {guide.author.name} · Updated {updated} · {sections} sections · {minutes} min read
+            </p>
+          )}
         </div>
       </div>
     </header>

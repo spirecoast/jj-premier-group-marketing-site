@@ -1,7 +1,9 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { TideWordmark } from "@/components/brand/marks";
+import { Byline } from "@/components/byline";
 import { Photo } from "@/components/photo";
+import type { TeamMember } from "@/lib/content/types";
 import type { IssueModel } from "@/lib/tide/issue";
 
 /**
@@ -11,7 +13,7 @@ import type { IssueModel } from "@/lib/tide/issue";
  * the swell running along the foot.
  * Along the foot, from lg up, the issue's contents as anchor links.
  */
-export function TideCover({ model, contents }: { model: IssueModel; contents: { href: string; label: string; n: string }[] }) {
+export function TideCover({ model, contents, team }: { model: IssueModel; contents: { href: string; label: string; n: string }[]; team: Pick<TeamMember, "name" | "headshot">[] }) {
   return (
     <header data-header-overlay className="tide-cover guide-cover-ground relative -mt-header overflow-hidden text-white">
       <Photo image={model.cover} priority sizes="100vw" className="guide-cover-photo" />
@@ -23,24 +25,24 @@ export function TideCover({ model, contents }: { model: IssueModel; contents: { 
               <TideWordmark id="tide-issue-plate" decorative className="w-full" />
             </Link>
             <span className="mb-[0.55rem] flex flex-col gap-0.5 border-l border-white/30 pl-5">
-              <span className="font-display text-[1.0625rem] font-light italic leading-none text-linen-200">Market Report</span>
-              <span className="text-[13px] font-medium uppercase tracking-[0.2em] text-linen-100">{model.issueLabel}</span>
+              <span className="font-display text-[1.0625rem] font-light italic leading-none text-linen-200">Market Report · {model.issueLabel}</span>
+              <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-linen-100">JJ Premier Group</span>
             </span>
           </div>
           <h1 className="rise d2 font-display text-[clamp(2.5rem,1.2rem+4.2vw,5.25rem)] leading-[1.02] font-extralight tracking-[-0.022em] text-balance text-white text-shadow-photo">
-            {model.headline}
+            {model.coverTitle ?? model.headline}
           </h1>
-          <p className="rise d3 max-w-[640px] text-[1.1875rem] leading-[1.6] text-linen-100 text-shadow-soft sm:text-[1.3125rem]">{model.dek}</p>
-          <p className="t-record text-linen-200">{model.coverLine}</p>
+          <p className="rise d3 max-w-[640px] text-[1.1875rem] leading-[1.6] text-linen-100 text-shadow-soft sm:text-[1.3125rem]">{model.coverKicker ?? model.dek}</p>
+          <Byline people={team} extras={["JJ Premier Group", `${model.minutes} min read`]} tone="dark" className="rise d3 mt-2" />
         </div>
         {contents.length ? (
-          <nav aria-label="In this issue" className="mt-12 hidden border-t border-sky-300/25 pt-5 lg:block print:hidden">
-            <ol className="flex flex-wrap gap-x-8 gap-y-2">
+          <nav aria-label="In this issue" className="tide-contents mt-12 hidden lg:block print:hidden">
+            <ol className="grid" style={{ gridTemplateColumns: `repeat(${contents.length}, minmax(0, 1fr))` }}>
               {contents.map((c) => (
-                <li key={c.href}>
-                  <Link href={c.href as Route} className="t-mono-sm -my-2 inline-flex gap-2 py-2 text-linen-200 transition-colors hover:text-white">
-                    <span className="text-sky-300">{c.n}</span>
-                    {c.label}
+                <li key={c.href} className="flex">
+                  <Link href={c.href as Route} className="tide-contents-item">
+                    <span className="font-display text-[1.75rem] font-extralight leading-none text-tide">{c.n}</span>
+                    <span className="text-[14px] leading-snug text-linen-100">{c.label}</span>
                   </Link>
                 </li>
               ))}

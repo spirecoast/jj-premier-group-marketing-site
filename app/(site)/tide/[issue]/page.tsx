@@ -11,7 +11,7 @@ import { IssueChart } from "@/components/tide/issue-chart";
 import { MarketChapter } from "@/components/tide/market-chapter";
 import { Moves } from "@/components/tide/moves";
 import { TeamNotes } from "@/components/tide/team-notes";
-import { getEvent } from "@/lib/content";
+import { getEvent, getTeam } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import type { Event } from "@/lib/content/types";
 import { loadEncoreIndex } from "@/lib/encore/data";
@@ -78,7 +78,7 @@ async function outThisMonth(issue: string): Promise<{ event: Event; at: { starts
 
 export default async function TideIssuePage({ params }: { params: Params }) {
   const { issue } = await params;
-  const model = isIssueMonth(issue) ? await loadIssueModel(issue) : null;
+  const [model, team] = await Promise.all([isIssueMonth(issue) ? loadIssueModel(issue) : Promise.resolve(null), getTeam()]);
   if (!model) notFound();
   const path = `/tide/${model.issue}`;
   const story = model.narrative;
@@ -132,7 +132,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
 
       <article id="tide-issue" className="flex flex-col">
         {/* 1. The cover */}
-        <TideCover model={model} contents={contents} />
+        <TideCover model={model} contents={contents} team={team.map((m) => ({ name: m.name, headshot: m.headshot }))} />
 
         {/* 2. The story. id="what-title": the anchor site search links the story to (lib/search/sources.ts). */}
         <section className="container-site py-section" aria-labelledby="what-title">
@@ -143,6 +143,12 @@ export default async function TideIssuePage({ params }: { params: Params }) {
               </h2>
             </div>
             <div className="flex flex-col gap-8 lg:col-span-8">
+              {told && story!.headline ? (
+                <div className="flex max-w-[66ch] flex-col gap-4 border-b border-hairline pb-8">
+                  <p className="font-display text-[clamp(1.5rem,1.1rem+1.2vw,2.125rem)] font-light leading-[1.2] text-navy">{story!.headline}</p>
+                  {story!.dek ? <p className="t-lead text-body">{story!.dek}</p> : null}
+                </div>
+              ) : null}
               <div className="tide-prose tide-story flex max-w-[66ch] flex-col gap-6" data-tide-opening="">
                 {(told ? story!.opening : [model.note, model.intro]).map((p, i) => (
                   <p key={p.slice(0, 40)} className={i === 0 ? "guide-drop" : undefined}>
