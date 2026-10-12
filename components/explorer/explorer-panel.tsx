@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ProductLockup } from "@/components/brand/emblem";
 import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { ShareButton } from "@/components/share-button";
 import { MARKETS, marketName } from "@/lib/content/markets";
@@ -90,8 +91,7 @@ export function ExplorerPanel(p: Props) {
 
       {/* Atlas's strip: the product's name and the team's, on its own green. */}
       <div className="atlas-plate">
-        <span className="whitespace-nowrap font-display text-[19px] font-extralight leading-none text-white">Atlas Neighborhoods</span>
-        <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.16em] text-atlas">JJ Premier Group</span>
+        <ProductLockup family="atlas" familyName="Atlas" name="Atlas Neighborhoods" tone="dark" size="sm" />
       </div>
       <div className="explorer-head">
         <div className="flex items-start justify-between gap-4">

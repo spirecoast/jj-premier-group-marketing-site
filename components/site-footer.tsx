@@ -4,7 +4,7 @@ import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon }
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } from "@/lib/site";
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
-import { FamilyMark } from "./brand/marks";
+import { Emblem } from "./brand/emblem";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
@@ -156,7 +156,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
             {/* The three data products, each with everything built on it. */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-rule pt-10 sm:grid-cols-4">
               {productFamilies.map((f) => (
-                <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<FamilyMark family={f.key} className="mt-0.5" />} />
+                <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<Emblem family={f.key} ink className="size-[18px]" />} />
               ))}
               <Column title="All tools" note="Free, no sign-up" links={[{ href: "/tools", label: "See all eight" }]} />
             </div>

@@ -31,6 +31,8 @@ export type PhotoSlot = {
   kind: "photo";
   /** The data product the page belongs to: its wash and motif go over the photograph. */
   family?: "atlas" | "encore" | "tide";
+  /** The product's id in productFamilies (lib/site.ts): its lockup goes above the title. */
+  product?: string;
   /** Image name under public/images, e.g. "library/venice-pier-sunrise". */
   photo: string;
   /** CSS object-position for the crop, e.g. "50% 45%". */
@@ -58,6 +60,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/calendar": {
     kind: "photo",
     family: "encore",
+    product: "encore",
     photo: "library/culture-opera-house-red-seats",
     position: "50% 58%",
     alt: "Rows of red velvet seats in an opera house, empty before the show",
@@ -65,6 +68,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/calendar/plan": {
     kind: "photo",
     family: "encore",
+    product: "encore-planner",
     photo: "library/sarasota-bayfront-blue-hour",
     position: "50% 55%",
     alt: "The Sarasota bayfront lit up at dusk",
@@ -87,6 +91,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/neighborhoods/match": {
     kind: "photo",
     family: "atlas",
+    product: "atlas-match",
     photo: "library/lwr-fairways-bay-aerial",
     position: "50% 55%",
     alt: "Fairways, lakes and rooftops from the air",
@@ -94,6 +99,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/relocate": {
     kind: "photo",
     family: "atlas",
+    product: "atlas-move",
     photo: "library/lakes-aerial-sunset",
     position: "50% 50%",
     alt: "Lakefront streets from the air at sunset",
@@ -101,6 +107,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/sell/sold": {
     kind: "photo",
     family: "tide",
+    product: "tide-street",
     photo: "library/listing-twilight-exterior-pool",
     position: "50% 60%",
     alt: "A one-story house behind its pool, under a blue sky",
@@ -114,6 +121,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/sell/net-proceeds": {
     kind: "photo",
     family: "tide",
+    product: "tide-sale-calculator",
     photo: "library/kitchen-navy-island",
     position: "40% 55%",
     alt: "A navy kitchen island with woven stools under pendant lights",

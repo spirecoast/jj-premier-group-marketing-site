@@ -41,7 +41,10 @@ export default async function TideIndexPage() {
           </>
         }
       >
-        <p className="rise d3 -mt-2 font-display text-[clamp(1.25rem,1rem+0.9vw,1.75rem)] font-light italic text-linen-200">{W.indexTitle}</p>
+        <p className="rise d3 -mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <span className="font-display text-[clamp(1.25rem,1rem+0.9vw,1.75rem)] font-light italic text-linen-200">{W.indexTitle}</span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-linen-100/80">JJ Premier Group</span>
+        </p>
         <p className="rise d3 t-lead max-w-[560px] text-linen-100 text-shadow-soft">{W.indexLead}</p>
       </Masthead>
 

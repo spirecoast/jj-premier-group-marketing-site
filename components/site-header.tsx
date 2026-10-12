@@ -9,6 +9,7 @@ import { SEARCH_COPY } from "@/lib/search/copy";
 import { primaryNav, productFamilies, site } from "@/lib/site";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
+import { Emblem } from "./brand/emblem";
 import { CbMark } from "./cb-mark";
 import { LinkPending } from "./link-pending";
 import { ProductMenu } from "./product-menu";
@@ -243,8 +244,9 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
             <nav aria-label="Products, mobile" className="grid gap-8 sm:grid-cols-3">
               {productFamilies.map((f) => (
                 <div key={f.key} className="flex flex-col gap-3">
-                  <p className="flex items-baseline gap-3">
-                    <span className="font-display text-[28px] font-light leading-none text-white">{f.name}</span>
+                  <p className="flex items-center gap-3">
+                    <Emblem family={f.key} className="size-7" />
+                    <span className={`font-display text-[28px] font-light leading-none text-white ${f.key === "encore" ? "italic" : ""}`}>{f.name}</span>
                     <span className="text-[12px] text-linen-200/60">{f.title}</span>
                   </p>
                   <ul className="flex flex-col border-l border-sky-300/30 pl-4">

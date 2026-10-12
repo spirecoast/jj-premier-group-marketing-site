@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { TideMasthead } from "@/components/art/tide-art";
+import { ProductLockup } from "@/components/brand/emblem";
 import { FamilyMotif } from "@/components/brand/marks";
+import { productFamilies } from "@/lib/site";
 import { Photo } from "@/components/photo";
 import { mastheadPhoto, mastheadSlot, type MastheadRoute } from "@/lib/content/mastheads";
 import { cn } from "@/lib/utils";
@@ -34,6 +36,14 @@ type Props = {
  */
 export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className }: Props) {
   const slot = mastheadSlot(route);
+  const lockup = (() => {
+    if (slot.kind !== "photo" || !slot.product) return null;
+    for (const family of productFamilies) {
+      const item = family.items.find((i) => i.id === slot.product);
+      if (item) return { family, item };
+    }
+    return null;
+  })();
   return (
     <section className={cn("relative overflow-hidden bg-navy", className)} aria-labelledby={titleId}>
       <div className="relative aspect-[4/3] sm:aspect-[2/1] lg:aspect-[3/1] lg:max-h-[600px]">
@@ -54,6 +64,9 @@ export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, childr
       <div className="absolute inset-0 flex flex-col justify-end">
         <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
+          {lockup ? (
+            <ProductLockup family={lockup.family.key} familyName={lockup.family.name} name={lockup.item.label} tone="dark" size="hero" className="rise d1 mb-1" />
+          ) : null}
           {title ? (
             <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", titleClassName)}>
               {title}

@@ -186,7 +186,7 @@ export const productFamilies: readonly ProductFamily[] = [
         id: "encore-planner",
         href: "/calendar/plan",
         label: "Encore Planner",
-        short: "What’s on, day by day",
+        short: "Plan your nights out",
         line: "Pick your dates and get the shows, concerts and openings for each day.",
       },
     ],
