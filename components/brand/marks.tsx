@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 /**
  * The three data products' marks, drawn in code from the Figma file
  * ("JJ Premier Group · Atlas, Encore, Tide"). Each family has a ground, an
- * accent and a motif: Tide the waterline, Atlas the survey line and the
- * contours, Encore the proscenium and its footlights. The accents are CSS
+ * accent, and Tide and Encore a motif: Tide the waterline, Encore the
+ * proscenium and its footlights. The accents are CSS
  * tokens (--color-tide, --color-atlas, --color-encore in globals.css).
  */
 export type FamilyKey = ProductFamily["key"];
@@ -52,32 +52,10 @@ export function TideWordmark({ id, className, decorative }: { id: string; classN
 
 /* ---- Masthead motifs: one per family, laid over the photograph. ------- */
 
-/** Atlas's contours: closed, gently irregular rings round a point to the right, as on a survey map. Computed once, so server and client agree. */
-const CONTOURS = (() => {
-  const cx = 1080, cy = 250, out: { d: string; o: number; w: number }[] = [];
-  for (let k = 0; k < 11; k++) {
-    const r0 = 40 + k * 30;
-    let d = "";
-    for (let i = 0; i <= 96; i++) {
-      const t = (i / 96) * Math.PI * 2;
-      const r = r0 * (1 + 0.13 * Math.sin(3 * t + k * 0.35) + 0.07 * Math.sin(5 * t + 1.3 - k * 0.2));
-      d += `${i ? "L" : "M"}${(cx + r * Math.cos(t) * 1.25).toFixed(1)} ${(cy + r * Math.sin(t)).toFixed(1)}`;
-    }
-    out.push({ d: `${d}Z`, o: Math.max(0.16, 0.55 - k * 0.035), w: k % 4 === 0 ? 1.4 : 0.9 });
-  }
-  return out;
-})();
-
 /** The motif for a family's masthead. Purely decorative; it draws in once on load (not for reduced motion). */
 export function FamilyMotif({ family }: { family: FamilyKey }) {
-  if (family === "atlas")
-    return (
-      <svg className="motif motif-atlas" viewBox="0 0 1440 540" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
-        {CONTOURS.map((c, i) => (
-          <path key={i} d={c.d} fill="none" stroke="var(--color-atlas)" strokeOpacity={c.o} strokeWidth={c.w} pathLength={1} style={{ ["--i" as string]: i }} />
-        ))}
-      </svg>
-    );
+  // Atlas carries no motif: the photograph of the place and the family tint do the work.
+  if (family === "atlas") return null;
   if (family === "encore")
     return (
       <div className="motif motif-encore" aria-hidden="true">

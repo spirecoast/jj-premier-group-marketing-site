@@ -1,58 +1,106 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Emblem } from "@/components/brand/emblem";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
-import { ToolCard } from "@/components/tools/tool-card";
+import { Photo } from "@/components/photo";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
-import { FAMILIES, FAMILY_ORDER, TOOLS } from "@/lib/tools";
+import { FAMILIES, FAMILY_ORDER, IMAGES, TOOLS } from "@/lib/tools";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Free tools for Lakewood Ranch, Sarasota and Bradenton",
+  title: "Atlas, Encore and Tide: tools for Lakewood Ranch, Sarasota and Bradenton",
   description:
-    "Find the neighborhoods that fit, plan your move, see what's on any day, look up what sold on your street and work out what you'd keep after selling. Free, with no sign-up.",
+    "Atlas finds the neighborhoods that fit and plans your move. Encore shows what's on at every stage, hall and gallery. Tide shows what homes sold for and what you'd keep after selling. Free, with no sign-up.",
   path: "/tools",
 });
 
-/** Every tool, by family: Atlas for where to live, Encore for what's on, Tide for the market. */
+/**
+ * Atlas, Encore and Tide, featured. Under the masthead the three sit on
+ * glass across its foot; then each family has a band of its own photograph
+ * in its colour, with a glass panel that names it and lists its tools.
+ */
 export default function ToolsPage() {
   return (
     <>
       <JsonLd
         data={breadcrumbJsonLd([
           { name: "Home", path: "/" },
-          { name: "Tools", path: "/tools" },
+          { name: "Atlas, Encore and Tide", path: "/tools" },
         ])}
       />
-      <Masthead route="/tools" title="Free tools" titleId="tools-title">
-        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
-          Find the neighborhoods that fit, plan the move, see what’s on and know what homes are selling for. No sign-up.
-        </p>
+      <Masthead route="/tools" title="Atlas, Encore and Tide" titleId="tools-title">
+        <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">Where to live, what’s on, and what homes are selling for. Free, with no sign-up.</p>
       </Masthead>
 
-      {FAMILY_ORDER.map((f, i) => {
-        const family = FAMILIES[f];
-        const tools = TOOLS.filter((t) => t.family === f);
-        return (
-          <section key={f} id={f} className={cn("scroll-mt-header", i % 2 === 1 && "bg-parchment")} aria-labelledby={`tools-${f}-title`}>
-            <div className="container-site flex flex-col gap-12 py-section">
-              <div className="sr grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
-                <h2 id={`tools-${f}-title`} className="flex flex-col gap-2 text-navy">
-                  <span className="font-display text-[clamp(3rem,6vw,5rem)] font-light leading-none">{family.name}</span>
-                  <span className="t-h2">{family.title}</span>
-                </h2>
-                <p className="t-body max-w-[520px] text-body">{family.line}</p>
+      {/* The three, on glass across the masthead's foot. */}
+      <nav aria-label="The three" className="container-site relative z-10 -mt-8 sm:-mt-11 lg:-mt-12">
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {FAMILY_ORDER.map((f) => {
+            const family = FAMILIES[f];
+            return (
+              <li key={f}>
+                <a href={`#${f}`} className="tools-chip group flex h-full items-center gap-4 p-5 text-white transition-transform duration-300 hover:-translate-y-0.5" data-family={f}>
+                  <Emblem family={f} className="size-11" />
+                  <span className="flex min-w-0 flex-col gap-1">
+                    <span className={cn("font-display text-[26px] font-light leading-none", f === "encore" && "italic")}>{family.name}</span>
+                    <span className="t-small text-white/75">{family.title}</span>
+                  </span>
+                  <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" className="ml-auto shrink-0 text-white/60 transition-transform duration-300 group-hover:translate-y-0.5">
+                    <path d="M7 2v10M3 8l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.4" />
+                  </svg>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      <div className="flex flex-col gap-6 pt-16 pb-section sm:gap-8 lg:pt-24">
+        {FAMILY_ORDER.map((f, i) => {
+          const family = FAMILIES[f];
+          const tools = TOOLS.filter((t) => t.family === f);
+          const right = i % 2 === 1;
+          return (
+            <section key={f} id={f} className="scroll-mt-header" aria-labelledby={`tools-${f}-title`}>
+              <div className="relative grid grid-cols-1 overflow-hidden bg-navy">
+                <div className="relative col-start-1 row-start-1 min-h-[280px] lg:min-h-[640px]">
+                  <Photo image={IMAGES[f]!} sizes="100vw" />
+                  <div className={cn(`masthead-tint-${f} absolute inset-0`, right && "-scale-x-100")} aria-hidden="true" />
+                </div>
+                <div className="container-site relative col-start-1 row-start-1 flex items-end py-6 sm:py-12 lg:items-center lg:py-16">
+                  <div className={cn("tools-panel w-full max-w-[600px] p-6 text-white sm:p-10", right && "lg:ml-auto")} data-family={f}>
+                    <span className="pointer-events-none absolute inset-2.5 border border-white/20" aria-hidden="true" />
+                    <div className="relative flex flex-col gap-6">
+                      <div className="flex items-center gap-5">
+                        <Emblem family={f} className="size-14 sm:size-16" />
+                        <h2 id={`tools-${f}-title`} className="flex flex-col gap-2">
+                          <span className={cn("font-display text-[clamp(2.75rem,5vw,4rem)] font-light leading-none", f === "encore" && "italic")}>{family.name}</span>
+                          <span className="t-h3 text-white/85">{family.title}</span>
+                        </h2>
+                      </div>
+                      <p className="t-body max-w-[460px] text-white/80">{family.line}</p>
+                      <ul className="flex flex-col border-t border-white/15">
+                        {tools.map((t) => (
+                          <li key={t.id} className="border-b border-white/15">
+                            <Link href={t.href} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-1 py-4 transition-colors hover:bg-white/[0.04]">
+                              <span className="font-display text-[22px] font-light leading-tight text-white">{t.name}</span>
+                              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="row-span-2 shrink-0 transition-transform duration-300 group-hover:translate-x-1" style={{ color: `var(--color-${f})` }}>
+                                <path d="M3 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                              </svg>
+                              <span className="t-small max-w-[44ch] text-white/70">{t.line}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <ul className={cn("grid gap-x-6 gap-y-12 sm:grid-cols-2", tools.length === 3 ? "lg:grid-cols-3" : "lg:max-w-[66%]")}>
-                {tools.map((t, j) => (
-                  <li key={t.id} className="sr flex" style={{ ["--sr-i" as string]: j }}>
-                    <ToolCard tool={t} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        );
-      })}
+            </section>
+          );
+        })}
+      </div>
     </>
   );
 }

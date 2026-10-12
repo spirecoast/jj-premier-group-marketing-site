@@ -19,7 +19,7 @@ export type Tool = {
   image: ImageRef;
 };
 
-const IMAGES: Record<string, ImageRef> = {
+export const IMAGES: Record<string, ImageRef> = {
   atlas: img("library/golf-course-lakes-aerial", "Fairways and lakes between houses, from above", "50% 50%"),
   "atlas-match": img("library/lwr-fairways-bay-aerial", "Fairways, lakes and rooftops from the air", "50% 55%"),
   "atlas-move": img("library/lakes-aerial-sunset", "Lakefront streets from the air at sunset", "50% 50%"),

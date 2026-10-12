@@ -158,7 +158,7 @@ export const productFamilies: readonly ProductFamily[] = [
         href: "/neighborhoods/match",
         label: "Atlas Match",
         short: "Find the neighborhoods that fit",
-        line: "Answer up to ten quick questions and see the neighborhoods that fit.",
+        line: "Tell us what matters and see the neighborhoods that fit.",
       },
       {
         id: "atlas-move",
