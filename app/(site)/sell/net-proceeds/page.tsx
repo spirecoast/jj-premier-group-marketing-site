@@ -36,7 +36,7 @@ const ORDER = ["docStamps", "titleRates", "titleCustom", "estoppel", "estoppelSt
 export default function NetProceedsPage() {
   return (
     <>
-      <Masthead route="/sell/net-proceeds" title={<>What you&rsquo;d keep after selling</>} titleId="net-proceeds-title" titleClassName="max-w-[680px]" className="print:hidden">
+      <Masthead route="/sell/net-proceeds" titleId="net-proceeds-title" className="print:hidden">
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
           A quick estimate of what you&rsquo;d walk away with. Enter the price and what you owe.
         </p>

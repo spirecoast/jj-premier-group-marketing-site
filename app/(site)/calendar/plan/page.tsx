@@ -32,12 +32,9 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
     <>
       <Masthead
         route="/calendar/plan"
-        title="Plan your nights out"
         titleId="plan-title"
       >
-        <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">
-          Pick your dates. We’ll line up the shows, concerts and openings for each one, and keep ten to four free if you’re here to see homes.
-        </p>
+        <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">Plan your nights out, if you live here or you’re visiting.</p>
       </Masthead>
 
       <VisitPlan initial={state} today={today} initialIndex={slice} trimmed={trimmed} />

@@ -6,7 +6,7 @@
  */
 export const SOLD_COPY = {
   title: "What sold on your street",
-  lead: (months: number) => `Every home sale on your street in the last ${months} months.`,
+  lead: (months: number) => `What sold on your street in the last ${months} months.`,
   homeValueLink: "See the record for one address",
   form: {
     street: "Your street",

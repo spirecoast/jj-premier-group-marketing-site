@@ -35,7 +35,7 @@ export default async function SoldPage() {
           { name: "What sold on your street", path: "/sell/sold" },
         ])}
       />
-      <Masthead route="/sell/sold" title={C.title} titleId="sold-title" titleClassName="max-w-[720px]">
+      <Masthead route="/sell/sold" titleId="sold-title">
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">{C.lead(months)}</p>
       </Masthead>
       <div className="pt-section" />

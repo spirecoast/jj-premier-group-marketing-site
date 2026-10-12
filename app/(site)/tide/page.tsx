@@ -6,7 +6,6 @@ import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TideIssueCard } from "@/components/tide/issue-card";
-import { ProductLockup } from "@/components/brand/emblem";
 import { TideCover, TideWordmark } from "@/components/tide/tide-cover";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { getTeam } from "@/lib/content";
@@ -37,11 +36,7 @@ export default async function TideIndexPage() {
       <Masthead
         route="/tide"
         titleId="tide-title"
-        title={<span className="sr-only">Tide Market Report: home sales in Lakewood Ranch, Sarasota and Bradenton</span>}
-        titleClassName="sr-only"
       >
-        {/* The lockup is the heading you see; the h1 above says it in words, so the page's text doesn't read the drawing's letters. */}
-        <ProductLockup family="tide" product="Tide Market Report" size="xl" decorative className="rise d1 -mt-4" />
         <p className="rise d3 t-lead max-w-[560px] text-linen-100 text-shadow-soft">{W.indexLead}</p>
       </Masthead>
 

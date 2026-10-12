@@ -49,13 +49,9 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <Masthead
         route="/neighborhoods/match"
-        title="Find your neighborhood"
         titleId="match-title"
-        titleClassName="max-w-[760px]"
       >
-        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
-          Tell us what matters to you, from a gate to the water. We’ll narrow {count.toLocaleString()} neighborhoods to the ones that have it.
-        </p>
+        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">Find your neighborhood. We’ll narrow it down for you.</p>
       </Masthead>
 
       <section className="bg-parchment py-8 sm:py-section" aria-label="The questions">

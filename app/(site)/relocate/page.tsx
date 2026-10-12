@@ -88,7 +88,7 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
         ]}
       />
 
-      <Masthead route="/relocate" title={HERO.title} titleId="relocate-title" titleClassName="max-w-[760px]" className="print:hidden">
+      <Masthead route="/relocate" titleId="relocate-title" className="print:hidden">
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">{HERO.lead}</p>
       </Masthead>
 

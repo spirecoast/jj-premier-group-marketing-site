@@ -226,21 +226,21 @@ export function ProductLockup({
       </svg>
       {byline && sz.by && rest ? (
         /*
-          "By JJ Premier Group", centred under the words only: the row starts
-          where the family's name starts, never under the emblem, and ends
-          with the product's name. The tracking after the last letter is
-          taken back, so the two rules and their gaps are exactly equal.
+          Three lines, all centred on the words (never on the emblem): the
+          name above, "by" under it, then JJ PREMIER GROUP between two rules
+          that reach exactly to the words' outer edges. The tracking after
+          the last letter is taken back, so the rules and gaps are equal.
         */
         <span className="block w-0 min-w-full" aria-hidden="true">
-          <span className={cn("flex items-center gap-[0.9em]", sz.by, tone === "dark" ? "text-white/80" : "text-navy/80")} style={{ paddingLeft: `${((x0 / width) * 100).toFixed(3)}%` }}>
-            <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
-            <span className="flex shrink-0 items-baseline whitespace-nowrap leading-none">
-              <span className="mr-[0.5em] font-display text-[1.35em] font-light italic">by</span>
-              <span className="font-wordmark font-semibold uppercase" style={{ letterSpacing: track, marginRight: `-${track}` }}>
+          <span className={cn("flex flex-col items-center gap-[0.35em]", sz.by, tone === "dark" ? "text-white/80" : "text-navy/80")} style={{ paddingLeft: `${((x0 / width) * 100).toFixed(3)}%` }}>
+            <span className="font-display text-[1.45em] font-light italic leading-none">by</span>
+            <span className="flex w-full items-center gap-[0.9em]">
+              <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
+              <span className="shrink-0 whitespace-nowrap font-wordmark font-semibold uppercase leading-none" style={{ letterSpacing: track, marginRight: `-${track}` }}>
                 JJ Premier Group
               </span>
+              <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
             </span>
-            <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
           </span>
         </span>
       ) : null}
