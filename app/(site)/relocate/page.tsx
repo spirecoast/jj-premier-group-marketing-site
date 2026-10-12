@@ -3,10 +3,12 @@ import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
 import { Ask } from "@/components/relocate/ask";
+import { MoveHelp } from "@/components/relocate/move-help";
 import { PlanView } from "@/components/relocate/plan-view";
 import { PlannerProvider } from "@/components/relocate/planner-context";
 import { Questions } from "@/components/relocate/questions";
 import { getTeam } from "@/lib/content";
+import { placesEnabled } from "@/lib/places/google";
 import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { SOURCES } from "@/lib/relocate/sources";
 import { hasAnswers, parseAnswers, type QueryParams } from "@/lib/relocate/url";
@@ -95,6 +97,7 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
       <Questions />
 
       <PlanView />
+      <MoveHelp enabled={placesEnabled()} />
 
       <Ask team={team.map((m) => ({ slug: m.slug, name: m.name, phone: m.phone, phoneE164: m.phoneE164 }))} />
 
