@@ -9,7 +9,7 @@ export const SOLD_COPY = {
   lead: (months: number) => `Every home sale on your street in the last ${months} months.`,
   homeValueLink: "See the record for one address",
   form: {
-    street: "Street",
+    street: "Your street",
     streetPlaceholder: "Lilac Sky Dr",
     zip: "ZIP or city",
     zipPlaceholder: "34211",

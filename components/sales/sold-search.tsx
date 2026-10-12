@@ -104,40 +104,42 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
       {/* The search. */}
       <section className="container-site flex flex-col gap-8 pb-section">
         {loaded ? (
-          <form onSubmit={onSubmit} className="grid gap-6 border border-hairline bg-white p-6 sm:grid-cols-[1.6fr_1fr_auto] sm:items-end sm:p-8" role="search" aria-label={C.title}>
-            <div className="field">
-              <label htmlFor={`${uid}-street`} className="field-label">
-                {C.form.street}
+          <form onSubmit={onSubmit} className="street-search" role="search" aria-label={C.title}>
+            <div className="relative grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_auto] lg:items-stretch">
+              {/* The street as a street-name sign: a plate with a white keyline, the name set large on it. */}
+              <label htmlFor={`${uid}-street`} className="street-sign">
+                <span className="street-sign-label">{C.form.street}</span>
+                <input
+                  id={`${uid}-street`}
+                  name="street"
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  placeholder={C.form.streetPlaceholder}
+                  autoComplete="address-line1"
+                  maxLength={80}
+                  required
+                  minLength={2}
+                  className="street-sign-input"
+                />
               </label>
-              <input
-                id={`${uid}-street`}
-                name="street"
-                value={street}
-                onChange={(e) => setStreet(e.target.value)}
-                placeholder={C.form.streetPlaceholder}
-                autoComplete="address-line1"
-                maxLength={80}
-                required
-                minLength={2}
-                className="field-input"
-              />
-            </div>
-            <div className="field">
-              <label htmlFor={`${uid}-zip`} className="field-label">
-                {C.form.zip} <span className="normal-case tracking-normal opacity-70">(optional)</span>
+              <label htmlFor={`${uid}-zip`} className="street-sign street-sign-sm">
+                <span className="street-sign-label">
+                  {C.form.zip} <span className="opacity-70">(optional)</span>
+                </span>
+                <input id={`${uid}-zip`} name="zip" value={zip} onChange={(e) => setZip(e.target.value)} placeholder={C.form.zipPlaceholder} autoComplete="postal-code" maxLength={40} className="street-sign-input" />
               </label>
-              <input id={`${uid}-zip`} name="zip" value={zip} onChange={(e) => setZip(e.target.value)} placeholder={C.form.zipPlaceholder} autoComplete="postal-code" maxLength={40} className="field-input" />
+              <button type="submit" disabled={state.status === "loading"} className="btn btn-linen min-h-14 self-stretch lg:min-w-[200px]">
+                {state.status === "loading" ? C.form.searching : C.form.submit}
+                <span className="btn-dash" aria-hidden="true" />
+              </button>
             </div>
-            <button type="submit" disabled={state.status === "loading"} className="btn btn-navy">
-              {state.status === "loading" ? C.form.searching : C.form.submit}
-              <span className="btn-dash" aria-hidden="true" />
-            </button>
-            <p className="t-small text-graphite-500 sm:col-span-3">
+            <p className="relative t-small text-linen-200/80">
               {C.form.hint}{" "}
-              <a href="/sell/home-value" className="text-sky-700 underline underline-offset-4 hover:text-navy">
+              <a href="/sell/home-value" className="text-tide underline underline-offset-4 hover:text-white">
                 {C.homeValueLink}
               </a>
             </p>
+            <span className="street-search-road" aria-hidden="true" />
           </form>
         ) : (
           <div className="flex flex-col gap-3 border border-hairline bg-white p-6 sm:p-8">
@@ -181,7 +183,9 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                     {data.match === "fuzzy" ? C.results.fuzzyMatch : C.results.partialMatch} {data.streets.map(titleCase).join(", ")}
                   </p>
                 ) : null}
-                <h2 className="t-h1 text-navy">{C.summary.heading(data.streets.map(titleCase))}</h2>
+                <h2 className="street-sign street-sign-title self-start">
+                  <span className="street-sign-input">{C.summary.heading(data.streets.map(titleCase))}</span>
+                </h2>
                 <dl className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-4">
                   <Stat label={C.summary.sales} value={String(data.summary.count)} note={C.summary.salesNote(data.summary.homes, data.summary.lots, months)} />
                   <Stat label={C.summary.medianPrice} value={data.summary.medianPrice ? usd.format(data.summary.medianPrice) : "—"} />
