@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getLeadSinks, hasLeadSink } from "@/lib/lead-sinks";
 import { newsletterConfig } from "@/lib/newsletter/config";
+import { placesEnabled } from "@/lib/places/google";
 
 /**
  * GET /api/health — which lead sinks this deployment has configured, what
@@ -35,6 +36,8 @@ export async function GET() {
         replyTo: Boolean(newsletter.replyTo),
         dailyCap: newsletter.dailyCap,
       },
+      // Google Places: the Planner's Nearby lists and Atlas Move's help with the move.
+      places: placesEnabled(),
       now: new Date().toISOString(),
     },
     { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } },

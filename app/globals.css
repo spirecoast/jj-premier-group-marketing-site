@@ -1875,6 +1875,11 @@
     background: var(--color-amber);
     border-color: var(--color-amber);
   }
+  .encore-save.is-open {
+    color: #fff;
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+  }
 
   /* Agenda */
   .encore-dayhead {
@@ -3431,5 +3436,19 @@ html:has([data-product-bar]) {
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .guide-tile-glass { background: rgb(16 37 52 / 0.82); }
+  }
+}
+
+/* Google Maps text attribution, for Places lists shown without a map:
+   Roboto if the browser has it, else the body sans; regular weight, 12 to
+   16px, Gray #5E5E5E on a light background. Google's rules, not ours. */
+@layer components {
+  .google-maps-attribution {
+    font-family: Roboto, var(--font-body), sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    font-style: normal;
+    letter-spacing: normal;
+    color: #5e5e5e;
   }
 }

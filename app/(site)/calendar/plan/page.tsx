@@ -3,6 +3,7 @@ import { VisitPlan } from "@/components/encore/visit-plan";
 import { Masthead } from "@/components/masthead";
 import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { parsePlanState } from "@/lib/encore/plan";
+import { nearbyVenues } from "@/lib/places/google";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -37,7 +38,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
         <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">Plan your nights out, if you live here or you’re visiting.</p>
       </Masthead>
 
-      <VisitPlan initial={state} today={today} initialIndex={slice} trimmed={trimmed} />
+      <VisitPlan initial={state} today={today} initialIndex={slice} trimmed={trimmed} nearby={nearbyVenues()} />
     </>
   );
 }

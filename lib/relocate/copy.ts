@@ -86,6 +86,28 @@ export const PLAN = {
   useDates: "Use the dates in this plan",
 };
 
+/**
+ * Help with the move: Google-rated businesses in the plan's county
+ * (components/relocate/move-help.tsx). Shown only when GOOGLE_MAPS_API_KEY
+ * is set. The two mover checks were opened 2026-10-12: Chapter 507, Florida
+ * Statutes, requires intrastate movers to register with FDACS, and FMCSA
+ * requires interstate movers to hold a USDOT number and be registered.
+ */
+export const HELP = {
+  title: "Help with the move",
+  intro: (where: string) => `Movers, painters, handyman services and house cleaners in ${where}, ranked by their Google reviews.`,
+  both: "Sarasota and Manatee counties",
+  tabs: { movers: "Movers", painters: "Painters", handyman: "Handyman", cleaners: "House cleaning" } as const,
+  empty: "Google has nothing rated well enough to list here.",
+  movers: {
+    interstate: "A mover coming from another state needs a USDOT number.",
+    interstateLink: { label: "Check it with FMCSA", url: "https://www.fmcsa.dot.gov/protect-your-move/search-mover" },
+    intrastate: "A mover working within Florida has to be registered with the state.",
+    intrastateLink: { label: "Look them up with FDACS", url: "https://consumercompliance.fdacs.gov/Business-Search/" },
+  },
+  note: "Nobody pays to be on this list, and it isn’t an endorsement.",
+};
+
 export const EXPORTS = {
   label: "Save or share this plan",
   calendar: "Add to calendar",

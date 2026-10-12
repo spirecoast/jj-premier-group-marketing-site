@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { Button, ButtonLink } from "@/components/buttons";
 import { LeadForm } from "@/components/lead-form";
 import { ShareButton } from "@/components/share-button";
@@ -14,6 +14,7 @@ import { MAX_DAYS, PRESETS, SHOWINGS, buildPlan, marketList, normalizeDates, pla
 import { addDays, clock, longDay, weekdayShort, type Occ } from "@/lib/encore/select";
 import { encoreHref } from "@/lib/encore/url";
 import { cn } from "@/lib/utils";
+import { NightOut } from "./night-out";
 import { SaveButton } from "./tile";
 import { useMyList } from "./use-my-list";
 
@@ -27,9 +28,22 @@ const QUESTION_COUNT = 4;
  * state is what the URL, the overview, the day cards, the calendar file and
  * the ask at the end all reflect. The first paint uses the slice the server
  * sent for the applied dates; the full index arrives once so new dates
- * build instantly.
+ * build instantly. `nearby` lists the venues Google Places can search
+ * around; without it (no API key) the picks have no Nearby button.
  */
-export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimmed }: { initial: PlanState; today: string; initialIndex: EncoreIndex; trimmed: boolean }) {
+export function VisitPlan({
+  initial,
+  today,
+  initialIndex,
+  trimmed: initialTrimmed,
+  nearby,
+}: {
+  initial: PlanState;
+  today: string;
+  initialIndex: EncoreIndex;
+  trimmed: boolean;
+  nearby?: string[];
+}) {
   const [index, setIndex] = useState<EncoreIndex>(initialIndex);
   const [full, setFull] = useState(false);
   const [draft, setDraft] = useState<PlanState>(initial);
@@ -39,6 +53,9 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
   const [nowMs, setNowMs] = useState(0);
   const [copied, setCopied] = useState(false);
   const my = useMyList();
+  const nearbyVenues = useMemo(() => new Set(nearby ?? []), [nearby]);
+  // One pick's Nearby panel open at a time.
+  const [openNear, setOpenNear] = useState<string | null>(null);
   // The form asks one question at a time.
   const [q, setQ] = useState(0);
   const qTitle = useRef<HTMLHeadingElement>(null);
@@ -346,7 +363,16 @@ export function VisitPlan({ initial, today, initialIndex, trimmed: initialTrimme
 
         <div className="plan-days">
           {plan.days.map((d, i) => (
-            <DayCard key={d.day} d={d} n={i + 1} today={today} local={applied.local} has={my.has} toggle={my.toggle} />
+            <DayCard
+              key={d.day}
+              d={d}
+              n={i + 1}
+              today={today}
+              local={applied.local}
+              has={my.has}
+              toggle={my.toggle}
+              near={{ venues: nearbyVenues, open: openNear, setOpen: setOpenNear }}
+            />
           ))}
         </div>
         {!full ? (
@@ -460,10 +486,40 @@ function WhoCard({ on, onClick, title, body, icon }: { on: boolean; onClick: () 
 }
 
 type ListApi = { has: (slug: string) => boolean; toggle: (slug: string) => void };
+type NearApi = { venues: Set<string>; open: string | null; setOpen: (k: string | null) => void };
+
+const occKey = (o: Occ) => `${o.e.s}-${o.start}`;
 
 /** One day: the date, the showing block on a visit, then the afternoon and the evening. */
-function DayCard({ d, n, today, local, has, toggle }: { d: PlanDay; n: number; today: string; local: boolean } & ListApi) {
+function DayCard({ d, n, today, local, has, toggle, near }: { d: PlanDay; n: number; today: string; local: boolean; near: NearApi } & ListApi) {
   const everything = encoreHref({ date: d.day });
+  /** A pick, and under it the places near its venue when that's open. */
+  const row = (o: Occ) => {
+    const k = occKey(o);
+    const open = near.open === k;
+    return (
+      <Fragment key={k}>
+        <PickRow
+          o={o}
+          saved={has(o.e.s)}
+          onSave={() => toggle(o.e.s)}
+          nearby={
+            near.venues.has(o.e.v)
+              ? {
+                  open,
+                  controls: `near-${k}`,
+                  onToggle: () => {
+                    if (!open) track("Explore", { action: "night-out" });
+                    near.setOpen(open ? null : k);
+                  },
+                }
+              : undefined
+          }
+        />
+        {open ? <NightOut o={o} id={`near-${k}`} /> : null}
+      </Fragment>
+    );
+  };
   return (
     <article id={`day-${d.day}`} className="plan-day scroll-mt-header" aria-labelledby={`plan-${d.day}`}>
       <h3 id={`plan-${d.day}`} className="plan-dayhead">
@@ -495,9 +551,7 @@ function DayCard({ d, n, today, local, has, toggle }: { d: PlanDay; n: number; t
       {d.matinee ? (
         <div className="plan-block is-afternoon">
           <p className="plan-slot">Afternoon</p>
-          <ul className="flex min-w-0 flex-1 flex-col">
-            <PickRow o={d.matinee} saved={has(d.matinee.e.s)} onSave={() => toggle(d.matinee!.e.s)} />
-          </ul>
+          <ul className="flex min-w-0 flex-1 flex-col">{row(d.matinee)}</ul>
         </div>
       ) : null}
 
@@ -505,11 +559,7 @@ function DayCard({ d, n, today, local, has, toggle }: { d: PlanDay; n: number; t
         <p className="plan-slot">Evening</p>
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           {d.picks.length ? (
-            <ul className="flex flex-col">
-              {d.picks.map((o) => (
-                <PickRow key={`${o.e.s}-${o.start}`} o={o} saved={has(o.e.s)} onSave={() => toggle(o.e.s)} />
-              ))}
-            </ul>
+            <ul className="flex flex-col">{d.picks.map(row)}</ul>
           ) : (
             <p className="t-body text-body">Nothing timed after five yet. Venues add dates through the season.</p>
           )}
@@ -522,8 +572,8 @@ function DayCard({ d, n, today, local, has, toggle }: { d: PlanDay; n: number; t
   );
 }
 
-/** A pick: the time, the title (a link to the event page), venue, market and category, and Save. */
-function PickRow({ o, saved, onSave }: { o: Occ; saved: boolean; onSave: () => void }) {
+/** A pick: the time, the title (a link to the event page), venue, market and category, Nearby and Save. */
+function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave: () => void; nearby?: { open: boolean; controls: string; onToggle: () => void } }) {
   const e = o.e;
   return (
     <li className="encore-agenda-row" style={{ "--cat": CATEGORY[e.c].color } as CSSProperties}>
@@ -537,6 +587,22 @@ function PickRow({ o, saved, onSave }: { o: Occ; saved: boolean; onSave: () => v
         </span>
         <span className="t-small hidden shrink-0 text-graphite-500 sm:block">{e.pr ?? ""}</span>
       </Link>
+      {nearby ? (
+        <button
+          type="button"
+          onClick={nearby.onToggle}
+          aria-expanded={nearby.open}
+          aria-controls={nearby.open ? nearby.controls : undefined}
+          aria-label={`Dinner, drinks and hotels near ${e.vn}`}
+          className={cn("encore-save encore-agenda-save", nearby.open && "is-open")}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
+            <circle cx="12" cy="10" r="2.3" />
+          </svg>
+          <span className="encore-save-label">Nearby</span>
+        </button>
+      ) : null}
       <SaveButton saved={saved} onToggle={onSave} title={e.t} className="encore-agenda-save" />
     </li>
   );
