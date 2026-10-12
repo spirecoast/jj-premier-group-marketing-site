@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Blocks } from "@/components/guides/blocks";
+import { Blocks, GuidePhoto } from "@/components/guides/blocks";
 import { Wordmark } from "@/components/wordmark";
 import { getSiteSettings, getTeam } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
@@ -110,6 +110,7 @@ export default async function GuidePrint({ params }: { params: Params }) {
             <h2 className="pdf-section-title">{s.title}</h2>
             <p className="pdf-section-lead">{s.lead}</p>
           </header>
+          {s.photo ? <GuidePhoto photo={s.photo} /> : null}
           <Blocks blocks={s.blocks} firstFigure={firstFigure[i]!} />
         </section>
       ))}

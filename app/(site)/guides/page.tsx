@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { CtaBand } from "@/components/cta-band";
 import { GuideCard } from "@/components/guides/guide-card";
 import { LetterForm } from "@/components/letter-form";
-import { SectionHeading } from "@/components/section-heading";
 import { img } from "@/lib/content/seed/helpers";
 import { GUIDES } from "@/lib/guides";
 import { pageMetadata } from "@/lib/seo";
@@ -10,7 +9,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Guides",
-  description: "Plain-language guides to buying and selling a home in Lakewood Ranch, Sarasota and Bradenton. Each one explains a topic simply, with pictures and a worksheet. They’re free, with no sign-up.",
+  description: "Guides for life on the Gulf Coast: the things that work differently here, from storm season to the tax bill, each explained simply for Lakewood Ranch, Sarasota and Bradenton. Free, with no sign-up.",
   path: "/guides",
 });
 
@@ -20,17 +19,12 @@ export default function GuidesIndex() {
   return (
     <>
       <section className="container-site flex flex-col gap-12 py-section" aria-labelledby="guides-index-title">
-        <SectionHeading
-          as="h1"
-          size="display"
-          title={<span id="guides-index-title">Guides for buying and selling here</span>}
-          titleClassName="max-w-[760px]"
-          aside={
-            <p className="t-body max-w-[380px] text-body">
-              Flood zones, insurance, homestead, hurricane season and more, in plain words, with every source. Free, no sign-up.
-            </p>
-          }
-        />
+        <div className="flex max-w-[820px] flex-col gap-5">
+          <h1 id="guides-index-title" className="t-display text-balance text-navy">
+            Guides for life on the Gulf Coast
+          </h1>
+          <p className="t-lead max-w-[600px] text-body">It’s a beautiful place to live. A few things work differently here, and each guide walks you through one of them.</p>
+        </div>
         <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {GUIDES.map((g, i) => (
             <li key={g.slug} className="flex">

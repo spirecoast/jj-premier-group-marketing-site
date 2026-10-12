@@ -144,6 +144,7 @@ export const HOMESTEAD_GUIDE: Guide = {
     /* ---- 02 ---------------------------------------------------------------- */
     {
       id: "what-homestead-is",
+      photo: { image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring") },
       title: "What homestead is",
       lead: "Homestead is a tax break for the home you live in. It takes value off the top before your tax is figured.",
       blocks: [

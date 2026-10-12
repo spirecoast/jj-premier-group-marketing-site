@@ -445,6 +445,7 @@ export const READY_TO_SELL_GUIDE: Guide = {
     /* ---- 07 ---------------------------------------------------------------- */
     {
       id: "staging-photos-and-listing-day",
+      photo: { image: img("library/listing-kitchen-4pm-island", "A kitchen with an island and pendant lights, ready for photographs") },
       title: "Staging, photos and listing day",
       lead: "The last two weeks are about how the house looks in pictures. The photos are the first showing.",
       blocks: [

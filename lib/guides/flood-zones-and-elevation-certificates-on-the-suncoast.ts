@@ -110,6 +110,7 @@ export const FLOOD_GUIDE: Guide = {
     /* ---- 01 ---------------------------------------------------------------- */
     {
       id: "what-a-flood-zone-is",
+      photo: { image: img("library/flood-street-sidewalk", "Floodwater over a sidewalk and a road after heavy rain") },
       title: "What a flood zone is",
       lead: "A flood zone is a label on a flood map. It tells you how likely the land is to flood.",
       blocks: [

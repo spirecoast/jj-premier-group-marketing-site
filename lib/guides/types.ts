@@ -264,6 +264,8 @@ export type Section = {
   title: string;
   /** The one-line "why it matters", set under the section header. */
   lead: string;
+  /** A photograph after the header, for what the section is about (a storm, a roof, a gate). */
+  photo?: { image: ImageRef; caption?: string };
   blocks: Block[];
   sources: Source[];
 };

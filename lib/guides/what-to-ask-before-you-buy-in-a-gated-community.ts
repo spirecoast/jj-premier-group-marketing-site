@@ -92,6 +92,7 @@ export const GATED_GUIDE: Guide = {
     /* ---- 01 ---------------------------------------------------------------- */
     {
       id: "who-runs-a-gated-community",
+      photo: { image: img("library/community-gate", "A closed gate across the entrance road to a neighborhood, under trees") },
       title: "Who runs a gated community",
       lead: "Behind the gate, there’s usually an association, and often a district too. Each one charges you. Here’s what each one does.",
       blocks: [
