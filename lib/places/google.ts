@@ -1,4 +1,5 @@
 import "server-only";
+import { PlacesCapError, takeCall } from "./budget";
 import { rank, type Period, type Place, type RawPlace } from "./rank";
 import venueGeo from "./venue-geo.json";
 
@@ -9,13 +10,15 @@ import venueGeo from "./venue-geo.json";
  *
  * Asking for rating, review count, price, website, phone and hours puts
  * every call on the Enterprise SKU of Nearby Search or Text Search: 1,000
- * free calls a month on each, then about $35 per 1,000. docs/LAUNCH.md says
- * how to cap them below the free tier.
+ * free calls a month on each, then about $35 per 1,000. Every call is
+ * counted first and refused past the cap in ./budget.ts, which keeps both
+ * inside the free tier.
  *
- * With no GOOGLE_MAPS_API_KEY both lists are hidden and the routes 404.
+ * Without GOOGLE_MAPS_API_KEY, or without DATABASE_URL to keep the count,
+ * both lists are hidden and the routes 404.
  */
 
-export const placesEnabled = (): boolean => Boolean(process.env.GOOGLE_MAPS_API_KEY);
+export const placesEnabled = (): boolean => Boolean(process.env.GOOGLE_MAPS_API_KEY && process.env.DATABASE_URL);
 
 const BASE = "https://places.googleapis.com/v1/places";
 const FIELDS = [
@@ -89,6 +92,8 @@ type GooglePlace = {
 async function call(path: "searchNearby" | "searchText", body: object): Promise<RawPlace[]> {
   const key = process.env.GOOGLE_MAPS_API_KEY;
   if (!key) throw new Error("GOOGLE_MAPS_API_KEY is not set");
+  const take = await takeCall(path === "searchNearby" ? "nearby" : "text");
+  if (!take.ok) throw new PlacesCapError(take.reason);
   const res = await fetch(`${BASE}:${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": FIELDS },
