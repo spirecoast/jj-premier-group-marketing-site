@@ -167,7 +167,7 @@ export const NEIGHBORHOODS: Neighborhood[] = [
     faqs: [
       { q: "What kind of housing is downtown?", answer: "Condominiums on the river, 1920s bungalows in the Village of the Arts, and new townhouse infill between them. Each has a different set of documents to read before you buy, and we read them with you." },
       { q: "What's the flood situation by the river?", answer: "Zone AE along the Manatee River, zone X south of 6th Avenue. For a river condominium, the building's insurance and reserves matter as much as the zone, and we ask for both." },
-      { q: "Is there anything to do downtown at night?", answer: "The Riverwalk, the Manatee Performing Arts Center and the Village of the Arts are all within a few blocks. Our Encore calendar lists what's on there." },
+      { q: "Is there anything to do downtown at night?", answer: "The Riverwalk, the Manatee Performing Arts Center and the Village of the Arts are all within a few blocks. Our Encore calendar lists the shows and openings there." },
     ],
   },
   {

@@ -143,7 +143,7 @@ export const SECTIONS: Section[] = [
       { id: "promise.sell-offers", type: "promise", tag: "For a seller · At offers", q: "Offers side by side, then a recommendation", body: "Every offer laid out the same way: price, financing, deposit, inspection period, whether the buyer has a house to sell. The highest isn’t always the one to take, and we’ll tell you which one is and why." },
       { id: "promise.both-reachable", type: "promise", tag: "Both get", q: "Two agents on every file, one always reachable", body: "Both of us, on every file. One of us is always reachable, and both of us know where your deal stands on any given day." },
       { id: "promise.both-straight", type: "promise", tag: "Both get", q: "Straight answers, including the expensive parts", body: "The seawall, the roof, the flood zone, the kitchen that won’t pay for itself. If we’d wait, we’ll say so." },
-      { id: "promise.both-tools", type: "promise", tag: "Both get", q: "Three free tools: Atlas, Encore and Tide", body: "Atlas, the map of every place in Lakewood Ranch, Sarasota and Bradenton. Encore, what’s on tonight and this weekend. Tide, one page a month on what the three markets did. Yours whether or not you ever call us." }
+      { id: "promise.both-tools", type: "promise", tag: "Both get", q: "Three free tools: Atlas, Encore and Tide", body: "Atlas, the map of every place in Lakewood Ranch, Sarasota and Bradenton. Encore, the theater, music and art tonight and this weekend. Tide, one page a month on what the three markets did. Yours whether or not you ever call us." }
     ]
   },
   {
@@ -231,7 +231,7 @@ export const SECTIONS: Section[] = [
   },
   {
     id: "issues", nav: "Tide and Encore", title: "Tide and Encore",
-    intro: "Tide is the one-page monthly note on what the three markets did. Encore is the weekly Monday list of what’s on. Both go out with your names on them.",
+    intro: "Tide is the one-page monthly note on what the three markets did. Encore is the weekly Monday list of shows, concerts and openings. Both go out with your names on them.",
     qs: [
       { id: "issues.tide-1", type: "short", q: "What topic do you want covered in the first Tide?" },
       { id: "issues.tide-2", type: "short", q: "What topic do you want covered in the second Tide?" },

@@ -118,7 +118,7 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     url: "/tools",
     title: "Atlas, Encore and Tide",
     summary: [
-      "Eight free tools for Lakewood Ranch, Sarasota and Bradenton, with no sign-up. Atlas, Atlas Match and Atlas Move help you find a neighborhood and plan the move. Encore and Encore Planner show what's on. Tide, Tide Street and Tide Sale Calculator show what homes sold for and what you'd keep after selling.",
+      "Eight free tools for Lakewood Ranch, Sarasota and Bradenton, with no sign-up. Atlas, Atlas Match and Atlas Move help you find a neighborhood and plan the move. Encore and Encore Planner show the theater, music and art. Tide, Tide Street and Tide Sale Calculator show what homes sold for and what you'd keep after selling.",
     ],
   },
   {
@@ -146,7 +146,7 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   },
   {
     url: "/calendar/plan",
-    title: "Encore Planner: what's on, day by day",
+    title: "Encore Planner: your nights out, day by day",
     summary: [
       "Pick any dates, up to a month, and Encore Planner lays out each day: up to three shows, concerts or openings every evening from different venues, plus an afternoon pick. Coming to look at homes? It keeps ten to four free for showings. Add the plan to your calendar or share the link.",
     ],

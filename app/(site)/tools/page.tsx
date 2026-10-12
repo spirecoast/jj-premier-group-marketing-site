@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = pageMetadata({
   title: "Atlas, Encore and Tide: tools for Lakewood Ranch, Sarasota and Bradenton",
   description:
-    "Atlas finds the neighborhoods that fit and plans your move. Encore shows what's on at every stage, hall and gallery. Tide shows what homes sold for and what you'd keep after selling. Free, with no sign-up.",
+    "Atlas finds the neighborhoods that fit and plans your move. Encore shows the theater, music and art at every stage, hall and gallery. Tide shows what homes sold for and what you'd keep after selling. Free, with no sign-up.",
   path: "/tools",
 });
 
@@ -30,7 +30,7 @@ export default function ToolsPage() {
         ])}
       />
       <Masthead route="/tools" title="Atlas, Encore and Tide" titleId="tools-title">
-        <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">Where to live, what’s on, and what homes are selling for. Free, with no sign-up.</p>
+        <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">Find the neighborhood that fits, the theater, music and art around it, and what homes there are selling for. Free, with no sign-up.</p>
       </Masthead>
 
       {/* The three, on glass across the masthead's foot. */}
