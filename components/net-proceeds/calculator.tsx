@@ -368,6 +368,9 @@ export function NetProceedsCalculator() {
               {COUNTY_LABEL[sheet.county]}
               {sheet.closing ? ` · closing ${formatYmd(sheet.closing)}` : " · closing date not set"}
             </p>
+            <p className="t-small border-l-2 border-tide pl-3 text-graphite-600">
+              This is an estimate, built from Florida&rsquo;s standard rates and fees. Your title company&rsquo;s closing statement has the final numbers.
+            </p>
           </div>
 
           {!hasSheet ? (

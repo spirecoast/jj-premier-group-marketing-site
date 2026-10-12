@@ -56,10 +56,14 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       {/* The masthead carries the eyebrow and the heading; the calendar keeps its links and toolbar. */}
       <Masthead
         route="/calendar"
-        title={<span id="encore-title">What&rsquo;s on stage, in the hall and on the walls, close to home.</span>}
+        title={<span id="encore-title">See it live</span>}
         titleId="encore-title"
         titleClassName="max-w-[860px]"
-      />
+      >
+        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
+          The plays, concerts, gallery openings and talks in Lakewood Ranch, Sarasota and Bradenton, in one calendar.
+        </p>
+      </Masthead>
       <Encore initial={initial} today={today} initialIndex={slice} masthead />
 
       <section id="subscribe" className="scroll-mt-header bg-linen-200">

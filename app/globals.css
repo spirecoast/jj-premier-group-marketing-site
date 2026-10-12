@@ -2841,8 +2841,24 @@ html:has([data-product-bar]) {
   .masthead-tint-tide { background: linear-gradient(90deg, rgb(20 37 48 / 0.72) 0%, rgb(20 37 48 / 0.3) 55%, transparent 100%); }
   .motif { position: absolute; pointer-events: none; }
   .motif-atlas { inset: 0; width: 100%; height: 100%; }
-  .motif-tide { left: 0; right: 0; bottom: 3%; width: 100%; height: 11%; }
-  .motif-encore { inset: 7% var(--gutter) 0; }
+  .motif-tide { left: 0; right: 0; bottom: 1.75rem; display: flex; flex-direction: column; gap: 6px; }
+  .motif-tide span { display: block; height: 1px; background: var(--color-tide); }
+  .motif-tide span:nth-child(2) { opacity: 0.45; }
+  .motif-tide span:nth-child(3) { opacity: 0.2; }
+  /* The arch stands outside the text column, so a line never touches a word. */
+  .motif-encore { inset: 6% max(0.5rem, calc(var(--gutter) - 2rem)) 0; }
+  /* On a phone the words fill the photograph, so the arch stays out of their way; the lights and the spot stay. */
+  @media (max-width: 767px) { .motif-arch { display: none; } }
+  .motif-spot {
+    position: absolute;
+    left: 50%;
+    top: -10%;
+    width: 120%;
+    height: 120%;
+    transform: translateX(-50%);
+    background: radial-gradient(42% 55% at 50% 0%, rgb(233 196 106 / 0.28), rgb(233 196 106 / 0.08) 55%, transparent 75%);
+    mix-blend-mode: screen;
+  }
   .motif-arch {
     position: absolute;
     inset: 0;
@@ -2889,13 +2905,16 @@ html:has([data-product-bar]) {
       animation: motif-light 0.6s ease forwards;
       animation-delay: calc(var(--i) * 45ms + 900ms);
     }
-    .motif-tide { animation: motif-swell 14s ease-in-out infinite alternate; }
+    .motif-spot { opacity: 0; animation: motif-light 2.4s ease 0.6s forwards; }
+    .motif-tide span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
+    .motif-tide span:nth-child(2) { animation-delay: 0.15s; }
+    .motif-tide span:nth-child(3) { animation-delay: 0.3s; }
   }
   @keyframes motif-draw { to { stroke-dashoffset: 0; } }
   @keyframes motif-rise { to { clip-path: inset(0 0 0 0); } }
   @keyframes motif-light { to { opacity: var(--o, 0.95); } }
   .motif-lights i:nth-child(even) { --o: 0.45; }
-  @keyframes motif-swell { from { transform: translateX(-1.5%); } to { transform: translateX(1.5%); } }
+  @keyframes motif-line { to { transform: scaleX(1); } }
 }
 
 /* ---- Atlas: the explorer's nameplate and its survey frame. */
@@ -3126,3 +3145,23 @@ html:has([data-product-bar]) {
 .pdf-back-name { font-family: var(--font-display); font-size: 14pt; color: #fff; }
 .pdf-back-web { margin-top: 8pt; font-family: var(--font-jost), sans-serif; font-size: 8.5pt; letter-spacing: 0.06em; color: #89d4e3; }
 .pdf-back-fine { color: rgb(230 221 209 / 0.75); max-width: 6.2in; }
+
+/* Footer: the social marks, in the navy line of the REALTOR and Equal Housing marks. */
+@layer components {
+  .social-mark {
+    display: flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid var(--color-navy);
+    color: var(--color-navy);
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  a.social-mark:hover,
+  a.social-mark:focus-visible {
+    background: var(--color-navy);
+    color: var(--color-linen-100);
+  }
+}

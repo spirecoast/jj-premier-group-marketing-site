@@ -88,15 +88,15 @@ export function ExplorerPanel(p: Props) {
         </button>
       ) : null}
 
-      {/* Atlas's strip: the three places on its own green, and the coordinates of Lakewood Ranch. */}
+      {/* Atlas's strip: the product's name and the team's, on its own green. */}
       <div className="atlas-plate">
-        <span className="whitespace-nowrap text-[10.5px] font-medium uppercase tracking-[0.12em] text-linen-100">Lakewood Ranch · Sarasota · Bradenton</span>
-        <span className="whitespace-nowrap text-[10.5px] font-medium uppercase tracking-[0.12em] text-atlas">27°24′ N 82°24′ W</span>
+        <span className="whitespace-nowrap font-display text-[19px] font-extralight leading-none text-white">Atlas Neighborhoods</span>
+        <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.16em] text-atlas">JJ Premier Group</span>
       </div>
       <div className="explorer-head">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
-            <h1 className="font-display text-[clamp(1.375rem,2.2vw,1.75rem)] font-light leading-[1.1] text-navy">
+            <h1 className="font-display text-[clamp(1.2rem,1.8vw,1.45rem)] font-light leading-[1.15] text-navy">
               Every neighborhood in Lakewood Ranch, Sarasota and Bradenton.
             </h1>
             <p className="t-small text-body">

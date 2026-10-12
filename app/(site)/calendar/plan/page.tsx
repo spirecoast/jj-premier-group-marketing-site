@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { VisitPlan } from "@/components/encore/visit-plan";
 import { Masthead } from "@/components/masthead";
 import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
@@ -33,20 +32,11 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
     <>
       <Masthead
         route="/calendar/plan"
-        title="What’s on, day by day"
+        title="Plan your nights out"
         titleId="plan-title"
-        crumbs={
-          <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-2 text-linen-200 text-shadow-soft">
-            <Link href="/calendar" className="underline-offset-4 hover:text-white hover:underline">
-              Encore
-            </Link>
-            <span aria-hidden="true">›</span>
-            <span>Planner</span>
-          </nav>
-        }
       >
         <p className="rise d3 t-lead max-w-[620px] text-linen-100 text-shadow-soft">
-          Pick your dates and get the shows, concerts and openings for each day. Coming to look at homes? It keeps ten to four free.
+          Pick your dates. We’ll line up the shows, concerts and openings for each one, and keep ten to four free if you’re here to see homes.
         </p>
       </Masthead>
 

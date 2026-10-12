@@ -49,22 +49,12 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <Masthead
         route="/neighborhoods/match"
-        title="Find the neighborhoods that fit"
+        title="Find your neighborhood"
         titleId="match-title"
         titleClassName="max-w-[760px]"
-        crumbs={
-          <nav aria-label="Breadcrumb" className="t-mono-sm flex flex-wrap items-center gap-x-2 text-linen-200 text-shadow-soft">
-            <Link href="/neighborhoods" className="underline-offset-4 hover:text-white hover:underline">
-              Atlas
-            </Link>
-            <span aria-hidden="true">›</span>
-            <span>Match</span>
-          </nav>
-        }
       >
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
-          Answer up to ten quick questions about the home and the place you want. Atlas Match narrows {count.toLocaleString()} neighborhoods to the
-          ones that fit.
+          Tell us what matters to you, from a gate to the water. We’ll narrow {count.toLocaleString()} neighborhoods to the ones that have it.
         </p>
       </Masthead>
 

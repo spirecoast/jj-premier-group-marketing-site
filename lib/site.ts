@@ -109,8 +109,8 @@ export type NavItem = {
 export const primaryNav: readonly NavItem[] = [
   { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Plan your move with Atlas Move" } },
   { href: "/sell", label: "Sell" },
-  { href: "/guides", label: "Guides" },
   { href: "/about", label: "Joelyn & Jessica" },
+  { href: "/guides", label: "Guides" },
 ] as const;
 
 export type ProductLink = {
@@ -172,7 +172,7 @@ export const productFamilies: readonly ProductFamily[] = [
   {
     key: "encore",
     name: "Encore",
-    title: "Find what’s on",
+    title: "Theater, music and art",
     line: "Theater, music, galleries and talks across the three cities, and a plan for the days you choose.",
     items: [
       {

@@ -38,7 +38,7 @@ export default function NetProceedsPage() {
     <>
       <Masthead route="/sell/net-proceeds" title={<>What you&rsquo;d keep after selling</>} titleId="net-proceeds-title" titleClassName="max-w-[680px]" className="print:hidden">
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">
-          Enter the price and what you owe. Every cost is worked out from Florida&rsquo;s own rates, line by line.
+          A quick estimate of what you&rsquo;d walk away with. Enter the price and what you owe.
         </p>
       </Masthead>
 
