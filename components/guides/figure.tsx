@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SourceLine } from "./blocks";
 import type { FigureBlock } from "@/lib/guides/types";
 import { TOOLS } from "@/lib/guides";
 import { BarFigureView } from "./figures/bar";
@@ -92,17 +93,7 @@ export function Figure({ block, number }: { block: FigureBlock; number: number }
       </div>
       {block.note ? <p className="t-small border-t border-hairline pt-3 text-body-muted">{block.note}</p> : null}
       <div className="flex flex-col gap-3 border-t border-hairline pt-3 md:flex-row md:items-end md:justify-between md:gap-6">
-        <p className="font-mono text-[11px] leading-relaxed text-graphite-600">
-          <span className="font-medium text-ink">Source: </span>
-          {block.source.href ? (
-            <a href={block.source.href} target="_blank" rel="noopener noreferrer" className="underline decoration-harbor-300 underline-offset-2 hover:text-navy">
-              {block.source.label}
-            </a>
-          ) : (
-            block.source.label
-          )}
-          {block.source.note ? ` ${block.source.note}.` : ""}
-        </p>
+        <SourceLine source={block.source} />
         {tool && block.tool ? (
           <Link href={tool.href as "/"} className="link-rule shrink-0 print-hide">
             {block.tool.cta} <span aria-hidden="true">→</span>

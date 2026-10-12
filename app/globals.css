@@ -2256,8 +2256,41 @@
 @layer components {
   .guide-text {
     font-size: 1.0625rem;
-    line-height: 1.7;
-    color: var(--color-body);
+    line-height: 1.72;
+    color: var(--color-ink);
+  }
+  @media (min-width: 768px) {
+    .guide-text { font-size: 1.125rem; }
+  }
+  /* Sources: small, quiet, one line's worth; the link shows itself on hover. */
+  .guide-source {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--color-graphite-500);
+  }
+  .guide-source-label {
+    margin-right: 0.5em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-graphite-600);
+  }
+  .guide-source a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgb(0 0 0 / 0.15);
+    text-underline-offset: 3px;
+  }
+  .guide-source a:hover {
+    color: var(--color-navy);
+    text-decoration-color: currentColor;
+  }
+  /* A defined term: a card in the sky tint with the accent down its edge. */
+  .guide-definition {
+    background: var(--color-sky-50);
+    border-left: 3px solid var(--color-sky-600);
   }
   .guide-text a {
     color: var(--color-harbor-700);

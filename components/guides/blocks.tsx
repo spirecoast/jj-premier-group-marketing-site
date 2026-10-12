@@ -25,29 +25,30 @@ export function InlineText({ segs }: { segs: Inline[] }) {
   );
 }
 
-/** "Source: …" under a factual block. Mono, small, with the link. */
+/** "Source: …" under a factual block: small and quiet, so it's there when wanted and out of the way when not. */
 export function SourceLine({ source, className = "" }: { source: Source; className?: string }) {
   return (
-    <p className={`font-mono text-[11px] leading-relaxed text-graphite-600 ${className}`}>
-      <span className="font-medium text-ink">Source: </span>
+    <p className={`guide-source ${className}`}>
+      <span className="guide-source-label">Source</span>
       {source.href ? (
-        <a href={source.href} target="_blank" rel="noopener noreferrer" className="underline decoration-harbor-300 underline-offset-2 hover:text-navy">
+        <a href={source.href} target="_blank" rel="noopener noreferrer">
           {source.label}
         </a>
       ) : (
-        source.label
+        <span>{source.label}</span>
       )}
-      {source.note ? ` (${source.note})` : ""}
+      {source.note ? <span> ({source.note})</span> : null}
     </p>
   );
 }
 
+/** A term the guide defines, set apart as a card: the term large, then what it means. */
 function Definition({ block }: { block: DefinitionBlock }) {
   return (
-    <dl className="guide-definition grid gap-2 border-l-2 border-sky-700 py-1 pl-5 md:grid-cols-[180px_1fr] md:gap-6">
-      <dt className="t-label text-navy">{block.term}</dt>
-      <dd className="flex flex-col gap-2">
-        <p className="text-[15px] leading-relaxed text-body">{block.definition}</p>
+    <dl className="guide-definition flex max-w-measure flex-col gap-3 p-5 md:p-6">
+      <dt className="font-display text-[1.5rem] font-light leading-tight text-navy">{block.term}</dt>
+      <dd className="flex flex-col gap-3">
+        <p className="text-[1.0625rem] leading-relaxed text-ink">{block.definition}</p>
         {block.source ? <SourceLine source={block.source} /> : null}
       </dd>
     </dl>
