@@ -87,16 +87,26 @@ export function ProductLockup({
   className?: string;
 }) {
   const rest = name.startsWith(familyName) ? name.slice(familyName.length) : ` ${name}`;
-  const s = { sm: { em: "size-7", name: "text-[17px]", by: "text-[7.5px]", gap: "gap-2.5" }, md: { em: "size-10", name: "text-[22px]", by: "text-[8.5px]", gap: "gap-3" }, lg: { em: "size-14", name: "text-[30px]", by: "text-[10px]", gap: "gap-4" }, hero: { em: "size-10 lg:size-[52px]", name: "text-[22px] lg:text-[28px]", by: "text-[8.5px] lg:text-[10px]", gap: "gap-3 lg:gap-4" } }[size];
+  const s = {
+    sm: { em: "size-7", name: "text-[17px]", by: "text-[7.5px]", gap: "gap-2.5", rows: "gap-1" },
+    md: { em: "size-10", name: "text-[22px]", by: "text-[8.5px]", gap: "gap-3", rows: "gap-1.5" },
+    lg: { em: "size-14", name: "text-[30px]", by: "text-[10px]", gap: "gap-4", rows: "gap-2" },
+    hero: { em: "size-11 lg:size-[54px]", name: "text-[24px] lg:text-[30px]", by: "text-[8.5px] lg:text-[10px]", gap: "gap-3 lg:gap-4", rows: "gap-1.5 lg:gap-2" },
+  }[size];
+  const by = tone === "dark" ? "text-white/75" : "text-graphite-500";
   return (
     <span className={cn("inline-flex items-center", s.gap, className)}>
-      <Emblem family={family} ink={tone === "light"} className={s.em} />
-      <span className="flex flex-col gap-1">
-        <span className={cn("font-display font-light leading-none tracking-[-0.01em]", s.name, tone === "dark" ? "text-white" : "text-navy")}>
+      <Emblem family={family} ink={tone === "light"} className={cn("shrink-0", s.em)} />
+      {/* The name sets the width; the JJ Premier Group line runs to the name's right edge with a hairline, so both lines end together. */}
+      <span className={cn("inline-flex flex-col", s.rows)}>
+        <span className={cn("whitespace-nowrap font-display font-light leading-none tracking-[-0.01em]", s.name, tone === "dark" ? "text-white" : "text-navy")}>
           <span className={family === "encore" ? "italic" : undefined}>{familyName}</span>
           {rest}
         </span>
-        <span className={cn("font-sans font-medium uppercase leading-none tracking-[0.22em]", s.by, tone === "dark" ? "text-white/70" : "text-graphite-500")}>JJ Premier Group</span>
+        <span className={cn("flex w-0 min-w-full items-center gap-2", by)}>
+          <span className={cn("whitespace-nowrap font-sans font-medium uppercase leading-none tracking-[0.22em]", s.by)}>JJ Premier Group</span>
+          <span className="h-px min-w-3 flex-1 bg-current opacity-50" aria-hidden="true" />
+        </span>
       </span>
     </span>
   );
