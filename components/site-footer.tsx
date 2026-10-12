@@ -162,7 +162,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               {productFamilies.map((f) => (
                 <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<Emblem family={f.key} ink className="size-[18px]" />} />
               ))}
-              <Column title="All tools" note="Free, no sign-up" links={[{ href: "/tools", label: "See all eight" }]} />
+              <Column title="All tools" note="Atlas, Encore and Tide" links={[{ href: "/tools", label: "See all eight" }]} />
             </div>
           </div>
         </div>

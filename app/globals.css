@@ -2890,7 +2890,6 @@ html:has([data-product-bar]) {
   .masthead-tint-encore { background: linear-gradient(90deg, rgb(42 26 34 / 0.78) 0%, rgb(42 26 34 / 0.38) 55%, rgb(42 26 34 / 0.12) 100%); }
   .masthead-tint-tide { background: linear-gradient(90deg, rgb(20 37 48 / 0.72) 0%, rgb(20 37 48 / 0.3) 55%, transparent 100%); }
   .motif { position: absolute; pointer-events: none; }
-  .motif-atlas { inset: 0; width: 100%; height: 100%; }
   .motif-tide { left: 0; right: 0; bottom: 1.75rem; display: flex; flex-direction: column; gap: 6px; }
   .motif-tide span { display: block; height: 1px; background: var(--color-tide); }
   .motif-tide span:nth-child(2) { opacity: 0.45; }
@@ -2953,12 +2952,6 @@ html:has([data-product-bar]) {
   .motif-lights-side.is-right { right: 0.45rem; }
   @media (max-width: 767px) { .motif-lights-side { display: none; } }
   @media (prefers-reduced-motion: no-preference) {
-    .motif-atlas path {
-      stroke-dasharray: 1;
-      stroke-dashoffset: 1;
-      animation: motif-draw 2.4s var(--ease-reveal) forwards;
-      animation-delay: calc(var(--i) * 70ms + 200ms);
-    }
     .motif-arch {
       clip-path: inset(100% 0 0 0);
       animation: motif-rise 1.8s var(--ease-reveal) 0.15s forwards;
@@ -2976,7 +2969,6 @@ html:has([data-product-bar]) {
     .motif-tide span:nth-child(2) { animation-delay: 0.15s; }
     .motif-tide span:nth-child(3) { animation-delay: 0.3s; }
   }
-  @keyframes motif-draw { to { stroke-dashoffset: 0; } }
   @keyframes motif-rise { to { clip-path: inset(0 0 0 0); } }
   @keyframes motif-light { to { opacity: var(--o, 0.95); } }
   @keyframes motif-twinkle { 0%, 100% { opacity: var(--o, 0.95); } 50% { opacity: calc(var(--o, 0.95) * 0.45); } }
@@ -3284,5 +3276,29 @@ html:has([data-product-bar]) {
   .atlas-panel .link-rule:hover {
     color: var(--color-white);
     border-color: var(--color-atlas);
+  }
+}
+
+/* ---- Atlas, Encore and Tide on /tools: glass in each family's own deep colour. */
+@layer components {
+  .tools-chip,
+  .tools-panel {
+    position: relative;
+    --deep: 20 37 48;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    box-shadow: 0 30px 60px -32px rgb(10 24 34 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.16);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    backdrop-filter: blur(18px) saturate(1.35);
+  }
+  .tools-chip[data-family="atlas"],
+  .tools-panel[data-family="atlas"] { --deep: 16 48 47; }
+  .tools-chip[data-family="encore"],
+  .tools-panel[data-family="encore"] { --deep: 42 26 34; }
+  /* The chips straddle the masthead's foot, so the glass deepens where it leaves the photograph. */
+  .tools-chip { background: linear-gradient(180deg, rgb(var(--deep) / 0.5) 0%, rgb(var(--deep) / 0.58) 42%, rgb(var(--deep) / 0.9) 56%, rgb(var(--deep) / 0.94) 100%); }
+  .tools-panel { background: linear-gradient(160deg, rgb(var(--deep) / 0.5) 0%, rgb(var(--deep) / 0.72) 100%); }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .tools-chip,
+    .tools-panel { background: rgb(var(--deep) / 0.9); }
   }
 }
