@@ -4,7 +4,7 @@ import { ProductLockup } from "@/components/brand/emblem";
 import { Byline } from "@/components/byline";
 import { getTeam } from "@/lib/content";
 import { FamilyMotif } from "@/components/brand/marks";
-import { productFamilies } from "@/lib/site";
+import { productFamilies, site } from "@/lib/site";
 import { Photo } from "@/components/photo";
 import { mastheadPhoto, mastheadSlot, type MastheadRoute } from "@/lib/content/mastheads";
 import { cn } from "@/lib/utils";
@@ -76,9 +76,15 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
         <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
           {lockup ? (
-            <ProductLockup family={lockup.family.key} product={lockup.item.label} size="hero" className="rise d1 mb-3 lg:mb-5" />
+            <>
+              {/* On a product's page the lockup is the title you see; the h1 says it in words, and one line of description follows. */}
+              <Tag id={titleId} className="sr-only">
+                {lockup.item.label}, by {site.name}
+              </Tag>
+              <ProductLockup family={lockup.family.key} product={lockup.item.label} size="hero" decorative className="rise d1 mb-2 lg:mb-3" />
+            </>
           ) : null}
-          {title ? (
+          {title && !lockup ? (
             <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", titleClassName)}>
               {title}
             </Tag>

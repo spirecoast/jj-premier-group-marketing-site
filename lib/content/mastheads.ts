@@ -83,6 +83,7 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
   "/tide": {
     kind: "photo",
     family: "tide",
+    product: "tide",
     photo: "library/venice-pier-sunrise",
     position: "62% 55%",
     alt: "A fishing pier reaching into the Gulf at sunrise",

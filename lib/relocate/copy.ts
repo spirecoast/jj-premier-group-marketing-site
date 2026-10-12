@@ -7,7 +7,7 @@ import { COUNTIES, FACTS, type SourceId } from "./sources";
 
 export const HERO = {
   title: "Your move, planned to the day",
-  lead: "Tell us when you want to be in. You’ll get every date and deadline, from the offer to your first homestead year, on one page.",
+  lead: "Moving can be challenging. Let us help you plan it.",
 };
 
 export const QUESTIONS = {

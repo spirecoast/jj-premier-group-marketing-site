@@ -138,12 +138,25 @@ function split(family: Family, w: number): string {
 
 type LockupSize = "bar" | "sm" | "md" | "hero" | "xl";
 /** The drawing's height, and the byline's size and tracking (em) at each breakpoint. */
-const SIZES: Record<LockupSize, { wrap: string; svg: string; by: string; track: number; lines: number }> = {
-  bar: { wrap: "", svg: "h-[26px] sm:h-[28px]", by: "", track: 0, lines: 2.4 },
-  sm: { wrap: "", svg: "h-[30px]", by: "text-[7px]", track: 0.24, lines: 2 },
-  md: { wrap: "", svg: "h-[40px] sm:h-[48px]", by: "text-[8px] sm:text-[9px]", track: 0.28, lines: 1.5 },
-  hero: { wrap: "", svg: "h-[34px] sm:h-[42px] lg:h-[54px]", by: "text-[7px] sm:text-[8.5px] lg:text-[10.5px]", track: 0.3, lines: 1.2 },
-  xl: { wrap: "w-full sm:w-auto", svg: "w-full sm:w-auto sm:h-[64px] lg:h-[92px]", by: "text-[8px] sm:text-[10px] lg:text-[13px]", track: 0.34, lines: 1 },
+/**
+ * Per size: the drawing's height; the byline's size, tracking (em) and its
+ * spacing, set as --by-top (from the drawing's foot) and --by-gap (between
+ * "by" and JJ). The spacing was measured on the letters at each breakpoint so
+ * the name's foot to the "b" and the "y" to JJ's capitals are the same distance.
+ */
+const SIZES: Record<LockupSize, { wrap: string; svg: string; by: string; space: string; track: number; lines: number }> = {
+  bar: { wrap: "", svg: "h-[26px] sm:h-[28px]", by: "", space: "", track: 0, lines: 2.4 },
+  sm: { wrap: "", svg: "h-[30px]", by: "text-[7px]", space: "[--by-top:1.2em] [--by-gap:0.83em]", track: 0.24, lines: 2 },
+  md: { wrap: "", svg: "h-[40px] sm:h-[48px]", by: "text-[8px] sm:text-[9px]", space: "[--by-top:0.2em] [--by-gap:0.8em]", track: 0.28, lines: 1.5 },
+  hero: {
+    wrap: "",
+    svg: "h-[34px] sm:h-[42px] lg:h-[54px]",
+    by: "text-[7px] sm:text-[8.5px] lg:text-[10.5px]",
+    space: "[--by-top:-0.1em] [--by-gap:0.58em] sm:[--by-top:-0.12em] sm:[--by-gap:0.77em] lg:[--by-top:-0.18em] lg:[--by-gap:0.83em]",
+    track: 0.3,
+    lines: 1.2,
+  },
+  xl: { wrap: "w-full sm:w-auto", svg: "w-full sm:w-auto sm:h-[64px] lg:h-[92px]", by: "text-[8px] sm:text-[10px] lg:text-[13px]", space: "[--by-top:-0.18em] [--by-gap:0.83em]", track: 0.34, lines: 1 },
 };
 
 /**
@@ -193,7 +206,7 @@ export function ProductLockup({
   const track = `${sz.track}em`;
 
   return (
-    <span className={cn("inline-flex max-w-full flex-col gap-[0.6em] self-start", sz.wrap, tone === "dark" ? "text-white" : "text-navy", className)}>
+    <span className={cn("inline-flex max-w-full flex-col self-start", sz.wrap, tone === "dark" ? "text-white" : "text-navy", className)}>
       <svg viewBox={`0 0 ${width} ${H}`} className={cn("block max-w-full", sz.svg)} {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": `${label}, by JJ Premier Group` })}>
         <defs>
           <mask id={`${id}-m`}>
@@ -226,21 +239,24 @@ export function ProductLockup({
       </svg>
       {byline && sz.by && rest ? (
         /*
-          "By JJ Premier Group", centred under the words only: the row starts
-          where the family's name starts, never under the emblem, and ends
-          with the product's name. The tracking after the last letter is
-          taken back, so the two rules and their gaps are exactly equal.
+          Three lines, all centred on the words (never on the emblem): the
+          name above, "by" under it, then JJ PREMIER GROUP between two rules
+          that reach exactly to the words' outer edges. The tracking after
+          the last letter is taken back, so the rules and gaps are equal.
         */
         <span className="block w-0 min-w-full" aria-hidden="true">
-          <span className={cn("flex items-center gap-[0.9em]", sz.by, tone === "dark" ? "text-white/80" : "text-navy/80")} style={{ paddingLeft: `${((x0 / width) * 100).toFixed(3)}%` }}>
-            <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
-            <span className="flex shrink-0 items-baseline whitespace-nowrap leading-none">
-              <span className="mr-[0.5em] font-display text-[1.35em] font-light italic">by</span>
-              <span className="font-wordmark font-semibold uppercase" style={{ letterSpacing: track, marginRight: `-${track}` }}>
+          <span
+            className={cn("flex flex-col items-center", sz.by, sz.space, tone === "dark" ? "text-white/80" : "text-navy/80")}
+            style={{ paddingLeft: `${((x0 / width) * 100).toFixed(3)}%`, marginTop: "var(--by-top)", gap: "var(--by-gap)" }}
+          >
+            <span className="font-display text-[1.45em] font-light italic leading-none">by</span>
+            <span className="flex w-full items-center gap-[0.9em]">
+              <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
+              <span className="shrink-0 whitespace-nowrap font-wordmark font-semibold uppercase leading-none" style={{ letterSpacing: track, marginRight: `-${track}` }}>
                 JJ Premier Group
               </span>
+              <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
             </span>
-            <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
           </span>
         </span>
       ) : null}
