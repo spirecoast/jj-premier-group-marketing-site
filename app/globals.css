@@ -3407,6 +3407,8 @@ html:has([data-product-bar]) {
   }
   @media (prefers-reduced-motion: reduce) {
     .street-sign { transition: none; }
+  }
+}
 
 /* ---- Guide tiles: the title on frosted glass across the photograph's foot. */
 @layer components {
