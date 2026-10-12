@@ -91,50 +91,141 @@ export function Emblem({ family, ink, className, title }: { family: Family; ink?
   );
 }
 
+/* ---- The lockup: one drawing, then JJ Premier Group under it. ---------- */
+
+/** Drawn at the display face's 132-unit size: baseline at 104, caps from about 14. */
+const H = 136;
+const BASE = 104;
+const SIZE = 132;
+/** The emblem stands as tall as the capitals and a little more, centred on them. */
+const EMBLEM = 100;
+const EMBLEM_Y = 9;
+const GAP = 30;
+const WORD_GAP = 34;
+
+/** Each family's name, a little wide, the way Tide has always been set. Widths are the display face's, measured. */
+const WORD: Record<Family, { text: string; w: number }> = {
+  tide: { text: "Tide", w: 292 },
+  atlas: { text: "Atlas", w: 318 },
+  encore: { text: "Encore", w: 449 },
+};
+/** The products' names at their natural width in the display face. */
+const PRODUCT_W: Record<string, number> = {
+  "Market Report": 836,
+  Street: 332,
+  "Sale Calculator": 850,
+  Neighborhoods: 881,
+  Match: 373,
+  Move: 331,
+  "Arts Calendar": 790,
+  Planner: 440,
+};
+
 /**
- * A product's lockup: the emblem, the product's name (the family's name first,
- * Encore's in italic), and JJ Premier Group under it. `tone` is the ground:
- * dark for a photograph or a family colour, light for the page.
+ * Each family's line through its name, echoing its emblem: Tide's water, a
+ * fold across Atlas like the map's, a ticket's perforation through Encore.
+ * Below the line the letters take the family's colour.
+ */
+function signature(family: Family, w: number): string {
+  if (family === "tide") {
+    let d = "";
+    for (let x = 0; x <= w; x += 3) d += `${x ? "L" : "M"}${x} ${(80 - 6 * Math.sin((x / 150) * Math.PI * 2)).toFixed(2)}`;
+    return d;
+  }
+  if (family === "atlas") return `M0 84 L${(w / 3).toFixed(1)} 72 L${((2 * w) / 3).toFixed(1)} 84 L${w} 72`;
+  return `M0 80 L${w} 80`;
+}
+
+type LockupSize = "bar" | "sm" | "md" | "hero" | "xl";
+const SIZES: Record<LockupSize, { wrap: string; svg: string; by: string; lines: number }> = {
+  bar: { wrap: "", svg: "h-[26px] sm:h-[28px]", by: "", lines: 2.4 },
+  sm: { wrap: "", svg: "h-[30px]", by: "text-[7.5px] tracking-[0.36em]", lines: 2 },
+  md: { wrap: "", svg: "h-[40px] sm:h-[48px]", by: "text-[9px] tracking-[0.4em]", lines: 1.5 },
+  hero: { wrap: "", svg: "h-[30px] sm:h-[42px] lg:h-[54px]", by: "text-[8px] sm:text-[9.5px] lg:text-[11px] tracking-[0.42em]", lines: 1.2 },
+  xl: { wrap: "w-full sm:w-auto", svg: "w-full sm:w-auto sm:h-[64px] lg:h-[92px]", by: "text-[9px] sm:text-[11px] lg:text-[13px] tracking-[0.46em]", lines: 1 },
+};
+
+/**
+ * A product's lockup, the same on every page: the emblem, the family's name
+ * with its line and colour, and the product's name, drawn as one piece; then
+ * JJ Premier Group in the team's own lettering, centred under it between two
+ * rules. Without `product` it's the family alone. `tone` is the ground: dark
+ * for a photograph or a family colour, light for the page.
  */
 export function ProductLockup({
   family,
-  name,
-  familyName,
+  product,
   tone = "dark",
-  size = "md",
+  size = "hero",
+  byline = true,
+  decorative,
   className,
 }: {
   family: Family;
-  /** The full product name, e.g. "Tide Sale Calculator". */
-  name: string;
-  /** The family's name, set first ("Encore" in italic). */
-  familyName: string;
+  /** The product's full name, e.g. "Tide Street". */
+  product?: string;
   tone?: "dark" | "light";
-  size?: "sm" | "md" | "lg" | "hero";
+  size?: LockupSize;
+  /** JJ Premier Group under the drawing. */
+  byline?: boolean;
+  /** The words are already on the page (an h1 says them). */
+  decorative?: boolean;
   className?: string;
 }) {
-  const rest = name.startsWith(familyName) ? name.slice(familyName.length) : ` ${name}`;
-  const s = {
-    sm: { em: "size-7", name: "text-[17px]", by: "text-[7.5px]", gap: "gap-2.5", rows: "gap-1" },
-    md: { em: "size-10", name: "text-[22px]", by: "text-[8.5px]", gap: "gap-3", rows: "gap-1.5" },
-    lg: { em: "size-14", name: "text-[30px]", by: "text-[10px]", gap: "gap-4", rows: "gap-2" },
-    hero: { em: "size-11 lg:size-[54px]", name: "text-[24px] lg:text-[30px]", by: "text-[8.5px] lg:text-[10px]", gap: "gap-3 lg:gap-4", rows: "gap-1.5 lg:gap-2" },
-  }[size];
-  const by = tone === "dark" ? "text-white/75" : "text-graphite-500";
+  const id = useId().replace(/:/g, "");
+  const word = WORD[family];
+  const rest = product ? (product.startsWith(word.text) ? product.slice(word.text.length).trim() : product) : "";
+  const pw = rest ? (PRODUCT_W[rest] ?? rest.length * 64) : 0;
+  const x0 = EMBLEM + GAP;
+  const x1 = x0 + word.w + WORD_GAP;
+  const width = rest ? x1 + pw : x0 + word.w;
+  const accent = `var(--color-${family}${tone === "light" ? "-ink" : ""})`;
+  const line = signature(family, word.w);
+  const sz = SIZES[size];
+  const g = GEOMETRY[family];
+  const label = [word.text, rest].filter(Boolean).join(" ");
+  const text = (fill: string) => (
+    <text x="0" y={BASE} fontSize={SIZE} textLength={word.w} lengthAdjust="spacingAndGlyphs" fill={fill} style={{ fontFamily: "var(--font-display)", fontWeight: 300 }}>
+      {word.text}
+    </text>
+  );
+  const dash = family === "encore" ? "10 8" : undefined;
+
   return (
-    <span className={cn("inline-flex items-center", s.gap, className)}>
-      <Emblem family={family} ink={tone === "light"} className={cn("shrink-0", s.em)} />
-      {/* The name sets the width; the JJ Premier Group line runs to the name's right edge with a hairline, so both lines end together. */}
-      <span className={cn("inline-flex flex-col", s.rows)}>
-        <span className={cn("whitespace-nowrap font-display font-light leading-none tracking-[-0.01em]", s.name, tone === "dark" ? "text-white" : "text-navy")}>
-          <span className={family === "encore" ? "italic" : undefined}>{familyName}</span>
-          {rest}
+    <span className={cn("inline-flex max-w-full flex-col gap-[0.55em] self-start", sz.wrap, tone === "dark" ? "text-white" : "text-navy", className)}>
+      <svg viewBox={`0 0 ${width} ${H}`} className={cn("block max-w-full", sz.svg)} {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": `${label}, JJ Premier Group` })}>
+        <defs>
+          <mask id={`${id}-m`}>
+            <rect width="64" height="64" fill="#fff" />
+            {g.cut}
+          </mask>
+          <clipPath id={`${id}-c`}>
+            <path d={`${line} L${word.w} ${H} L0 ${H} Z`} />
+          </clipPath>
+        </defs>
+        <g transform={`translate(0 ${EMBLEM_Y}) scale(${EMBLEM / 64})`}>
+          <g fill={accent} mask={`url(#${id}-m)`}>{g.shape}</g>
+        </g>
+        <g transform={`translate(${x0} 0)`}>
+          {text("currentColor")}
+          <g clipPath={`url(#${id}-c)`}>{text(accent)}</g>
+          <path d={line} fill="none" stroke={accent} strokeWidth={1.4 * sz.lines} strokeDasharray={dash} strokeLinejoin="round" />
+          <path d={line} transform="translate(0 13)" fill="none" stroke={accent} strokeOpacity="0.45" strokeWidth={1 * sz.lines} strokeDasharray={dash} strokeLinejoin="round" />
+          <path d={line} transform="translate(0 24)" fill="none" stroke={accent} strokeOpacity="0.22" strokeWidth={1 * sz.lines} strokeDasharray={dash} strokeLinejoin="round" />
+        </g>
+        {rest ? (
+          <text x={x1} y={BASE} fontSize={SIZE} textLength={pw} lengthAdjust="spacing" fill="currentColor" fillOpacity={0.86} style={{ fontFamily: "var(--font-display)", fontWeight: 300 }}>
+            {rest}
+          </text>
+        ) : null}
+      </svg>
+      {byline && sz.by ? (
+        <span className={cn("flex w-0 min-w-full items-center gap-[1.2em]", tone === "dark" ? "text-white/80" : "text-navy/80")} aria-hidden="true">
+          <span className="h-px min-w-2 flex-1 bg-current opacity-45" />
+          <span className={cn("whitespace-nowrap font-wordmark font-semibold uppercase leading-none indent-[0.42em]", sz.by)}>JJ Premier Group</span>
+          <span className="h-px min-w-2 flex-1 bg-current opacity-45" />
         </span>
-        <span className={cn("flex w-0 min-w-full items-center gap-2", by)}>
-          <span className={cn("whitespace-nowrap font-sans font-medium uppercase leading-none tracking-[0.22em]", s.by)}>JJ Premier Group</span>
-          <span className="h-px min-w-3 flex-1 bg-current opacity-50" aria-hidden="true" />
-        </span>
-      </span>
+      ) : null}
     </span>
   );
 }

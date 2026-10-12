@@ -91,7 +91,7 @@ export function ExplorerPanel(p: Props) {
 
       {/* Atlas's strip: the product's name and the team's, on its own green. */}
       <div className="atlas-plate">
-        <ProductLockup family="atlas" familyName="Atlas" name="Atlas Neighborhoods" tone="dark" size="sm" />
+        <ProductLockup family="atlas" product="Atlas Neighborhoods" size="sm" />
       </div>
       <div className="explorer-head">
         <div className="flex items-start justify-between gap-4">
