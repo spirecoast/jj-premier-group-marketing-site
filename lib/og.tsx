@@ -7,7 +7,7 @@ import { ImageResponse } from "next/og";
  * Open Graph images drawn in the brand: a photograph on the left, navy on
  * the right, mono eyebrow, display headline, record line. Used by the
  * opengraph-image routes for listings, events, venues, neighborhoods and
- * letters. Static pages use /og-image.png.
+ * letters. Static pages use /og-image.jpg.
  */
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";

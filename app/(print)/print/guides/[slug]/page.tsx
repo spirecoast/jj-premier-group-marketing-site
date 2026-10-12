@@ -66,15 +66,9 @@ export default async function GuidePrint({ params }: { params: Params }) {
         </div>
       </section>
 
-      {/* How to use · inside · the three questions */}
+      {/* The contents: a printed guide still needs a page that says what's inside. */}
       <section className="pdf-page pdf-intro">
-        <h2 className="pdf-h2">How to use this guide</h2>
-        {guide.howToUse.map((t, i) => (
-          <p key={i} className="guide-text">
-            {t}
-          </p>
-        ))}
-        <h2 className="pdf-h2 pdf-gap">Inside this guide</h2>
+        <h2 className="pdf-h2">Inside this guide</h2>
         <ol className="pdf-contents">
           {guide.sections.map((s, i) => (
             <li key={s.id}>
@@ -87,17 +81,6 @@ export default async function GuidePrint({ params }: { params: Params }) {
             {guide.onOnePage.title}
           </li>
         </ol>
-        <div className="pdf-questions">
-          <p className="pdf-questions-title">As you read, keep coming back to three questions</p>
-          <ol>
-            {guide.questions.map((q, i) => (
-              <li key={q}>
-                <span aria-hidden="true">{i + 1}</span>
-                {q}
-              </li>
-            ))}
-          </ol>
-        </div>
       </section>
 
       {/* The sections, each from a new page */}
@@ -110,7 +93,7 @@ export default async function GuidePrint({ params }: { params: Params }) {
             <h2 className="pdf-section-title">{s.title}</h2>
             <p className="pdf-section-lead">{s.lead}</p>
           </header>
-          {s.photo ? <GuidePhoto photo={s.photo} /> : null}
+          {s.photo ? <GuidePhoto photo={s.photo} print /> : null}
           <Blocks blocks={s.blocks} firstFigure={firstFigure[i]!} />
         </section>
       ))}

@@ -69,7 +69,7 @@ const market = (v: unknown): MarketSlug =>
 const image = (v: unknown, alt: string): ImageRef | undefined =>
   toImageRef(v as SanityImageSource, alt);
 const requireImage = (v: unknown, alt: string): ImageRef =>
-  image(v, alt) ?? { src: "/og-image.png", alt, width: 1200, height: 630 };
+  image(v, alt) ?? { src: "/og-image.jpg", alt, width: 1200, height: 630 };
 
 function mapListing(r: Raw): Listing {
   const title = str(r.title);

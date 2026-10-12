@@ -170,12 +170,17 @@ export function Blocks({ blocks, firstFigure }: { blocks: Block[]; firstFigure: 
   );
 }
 
-/** A section's photograph: wide, under the section's header, with an optional line under it. */
-export function GuidePhoto({ photo }: { photo: { image: ImageRef; caption?: string } }) {
+/** A section's photograph: wide, under the section's header, with an optional line under it. `print` sets a 1400px JPEG copy (public/guides/print-photos), which a PDF embeds as it is, where an optimised WebP would be stored uncompressed. */
+export function GuidePhoto({ photo, print }: { photo: { image: ImageRef; caption?: string }; print?: boolean }) {
   return (
     <figure className="guide-photo flex flex-col gap-3 print:break-inside-avoid">
       <div className="relative aspect-[16/9] overflow-hidden bg-navy shadow-[0_30px_60px_-40px_rgb(20_37_48/0.55)]">
-        <Photo image={photo.image} sizes="(min-width: 1024px) 860px, 100vw" />
+        {print ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo.image.src.replace("/images/library/", "/guides/print-photos/")} alt={photo.image.alt} className="absolute inset-0 h-full w-full object-cover" style={photo.image.position ? { objectPosition: photo.image.position } : undefined} />
+        ) : (
+          <Photo image={photo.image} sizes="(min-width: 1024px) 860px, 100vw" />
+        )}
       </div>
       {photo.caption ? <figcaption className="t-small text-graphite-500">{photo.caption}</figcaption> : null}
     </figure>

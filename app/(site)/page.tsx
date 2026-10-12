@@ -18,7 +18,7 @@ import { site } from "@/lib/site";
 export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata({
-  title: `${site.name} · ${site.brokerage} · Lakewood Ranch, Sarasota, Bradenton`,
+  title: `${site.name} · Realtors in Lakewood Ranch and Sarasota`,
   description: site.description,
   path: "/",
   absoluteTitle: true,

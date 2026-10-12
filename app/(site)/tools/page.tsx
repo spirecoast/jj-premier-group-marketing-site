@@ -9,9 +9,9 @@ import { FAMILIES, FAMILY_ORDER, IMAGES, TOOLS } from "@/lib/tools";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Atlas, Encore and Tide: tools for Lakewood Ranch, Sarasota and Bradenton",
+  title: "Atlas, Encore and Tide: free local tools",
   description:
-    "Atlas finds the neighborhoods that fit and plans your move. Encore shows the theater, music and art at every stage, hall and gallery. Tide shows what homes sold for and what you'd keep after selling. Free, with no sign-up.",
+    "Atlas finds the neighborhoods that fit and plans your move. Encore lists the theater, music and art. Tide shows what homes sold for. Free, with no sign-up.",
   path: "/tools",
 });
 

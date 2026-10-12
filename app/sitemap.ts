@@ -7,7 +7,7 @@ import {
   getVenueSlugs,
 } from "@/lib/content";
 import { MARKETS } from "@/lib/content/markets";
-import { getGuideSlugs } from "@/lib/guides";
+import { GUIDES } from "@/lib/guides";
 import { isRebuiltGuide } from "@/lib/guides/slugs";
 import { getIndexableSlugs } from "@/lib/neighborhoods/data";
 import { absoluteUrl } from "@/lib/seo";
@@ -56,10 +56,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   // Every researched place plus the editorial ones; county-registry names are noindex and stay out.
   const neighborhoods = [...new Set([...editorial, ...catalog])];
-  const now = new Date();
-  const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]) => ({
+  // A date only where the page has a real one (a guide's last update, an issue's month); a build
+  // time on every URL would tell search engines nothing, and they learn to ignore it.
+  const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"], lastModified?: string) => ({
     url: absoluteUrl(path),
-    lastModified: now,
+    ...(lastModified ? { lastModified } : {}),
     changeFrequency,
     priority,
   });
@@ -70,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...venues.map((s) => entry(`/venues/${s}`, 0.5, "monthly" as const)),
     ...neighborhoods.map((s) => entry(`/neighborhoods/${s}`, 0.7, "weekly" as const)),
     ...posts.filter((s) => !isRebuiltGuide(s)).map((s) => entry(`/blog/${s}`, 0.5, "monthly" as const)),
-    ...getGuideSlugs().map((s) => entry(`/guides/${s}`, 0.7, "monthly" as const)),
-    ...TIDE_ISSUES.map((e) => entry(`/tide/${e.issue}`, 0.6, "monthly" as const)),
+    ...GUIDES.map((g) => entry(`/guides/${g.slug}`, 0.7, "monthly" as const, g.updatedAt)),
+    ...TIDE_ISSUES.map((e) => entry(`/tide/${e.issue}`, 0.6, "monthly" as const, `${e.issue}-01`)),
   ];
 }

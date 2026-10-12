@@ -11,12 +11,15 @@ import { getSiteSettings, getTeamMember } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import { TrackedLink } from "@/components/tracked-link";
 import { getGuide, getGuideSlugs, guidePdfHref, guideReadingMinutes, guideWordCount } from "@/lib/guides";
-import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 type Params = Promise<{ slug: string }>;
 const noon = (d: string) => `${d}T12:00:00`;
 const ONE_PAGE_ID = "on-one-page";
+
+/** The guides are a fixed list: any other slug is a real 404, not a page that says so. */
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return getGuideSlugs().map((slug) => ({ slug }));
@@ -66,7 +69,7 @@ export default async function GuidePage({ params }: { params: Params }) {
           dateModified: guide.updatedAt,
           wordCount: guideWordCount(guide),
           author: author ? personJsonLd(author, settings) : { "@type": "Organization", name: site.name },
-          publisher: { "@type": "Organization", name: site.name, url: site.url },
+          publisher: publisherRef(),
           mainEntityOfPage: absoluteUrl(`/guides/${guide.slug}`),
           isAccessibleForFree: true,
         }}

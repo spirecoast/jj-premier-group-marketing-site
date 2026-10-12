@@ -5,9 +5,9 @@ import { CFO_TITLE_URL, CHECKED, CONDO_STATUTE_URL, MANATEE_RECORDING_URL, NOVEM
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Tide Sale Calculator: what you'd keep after selling",
+  title: "Tide Sale Calculator: what you'd keep",
   description:
-    "See what you'd keep after selling a home in Sarasota or Manatee County: the price less the payoff, commission, Florida's deed stamp tax, the title policy at the state's rate, and the tax and dues prorations. Every line says where its number comes from.",
+    "An estimate of what you'd keep after selling in Sarasota or Manatee County: the price less the payoff, commission, deed stamps, title policy and prorations.",
   path: "/sell/net-proceeds",
   fileImage: true, // opengraph-image.tsx beside this page
 });

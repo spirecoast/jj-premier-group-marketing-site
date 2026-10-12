@@ -6,9 +6,9 @@ import { parsePlanState } from "@/lib/encore/plan";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Encore Planner: theater, music and art in Sarasota, Lakewood Ranch and Bradenton, day by day",
+  title: "Encore Planner: your nights out, day by day",
   description:
-    "Pick your dates and Encore Planner lays out each day: up to three shows, concerts or openings every evening, from different venues. Coming to look at homes? It keeps ten to four free for showings. Add it to your calendar or share the link.",
+    "Pick your dates and Encore Planner lays out each evening’s shows, concerts and openings in Sarasota, Lakewood Ranch and Bradenton, with ten to four free for showings.",
   path: "/calendar/plan",
 });
 

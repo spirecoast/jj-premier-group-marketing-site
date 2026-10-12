@@ -170,7 +170,7 @@ the Fair Housing checker.
   art, the title and the date). Email clients don't render SVG, and the share image's own URL
   carries a build hash, so the issue uses this stable, public route instead. It is static
   (rendered on the first open of each slug, then cached for a day), and an unknown slug redirects
-  to the site's share image, `/og-image.png`.
+  to the site's share image, `/og-image.jpg`.
 - **On view:** up to six exhibitions open during the week, closing soonest first, with a link to
   the rest.
 - **Warnings** (in the team email, never in the issue): fewer than 8 picks, a market with no

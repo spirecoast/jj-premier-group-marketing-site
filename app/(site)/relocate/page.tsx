@@ -13,9 +13,9 @@ import { hasAnswers, parseAnswers, type QueryParams } from "@/lib/relocate/url";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Atlas Move: plan your move to Lakewood Ranch, Sarasota or Bradenton",
+  title: "Atlas Move: your Florida move, to the day",
   description:
-    "Answer five questions and get every date and deadline for your move on one page: the Florida contract dates, when insurance has to be in place, homestead, and the state's deadlines for a new resident. Add it to your calendar, print it or share it.",
+    "Answer five questions and get every date and deadline for your move on one page: the contract dates, insurance, homestead and Florida's new-resident rules.",
   path: "/relocate",
   fileImage: true, // opengraph-image.tsx beside this page
 });
