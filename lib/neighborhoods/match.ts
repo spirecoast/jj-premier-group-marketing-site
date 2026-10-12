@@ -307,9 +307,14 @@ export function matchAll(entries: IndexEntry[], a: Answers, by: Map<string, Inde
   return out;
 }
 
-export function sortMatches(ms: Match[], order: "name" | "distance"): Match[] {
+/** How many of a match's facts are not known. */
+export const unknownCount = (m: Match): number => m.facts.filter((f) => f.state === "unknown").length;
+
+/** "fit": confirmed on every answer first, then fewest unknowns, then A to Z. */
+export function sortMatches(ms: Match[], order: "fit" | "name" | "distance"): Match[] {
   const byName = (x: Match, y: Match) => x.entry.n.localeCompare(y.entry.n);
   if (order === "name") return [...ms].sort(byName);
+  if (order === "fit") return [...ms].sort((x, y) => unknownCount(x) - unknownCount(y) || byName(x, y));
   return [...ms].sort((x, y) => {
     if (x.miles === null && y.miles === null) return byName(x, y);
     if (x.miles === null) return 1;
