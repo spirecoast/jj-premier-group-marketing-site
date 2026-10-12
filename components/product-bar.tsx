@@ -3,7 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FamilyMark } from "@/components/brand/marks";
+import { Emblem } from "@/components/brand/emblem";
 import { productFamilies, type ProductFamily } from "@/lib/site";
 
 /** The pages each family's bar shows on. Pages whose first screen sits under the header (a place, a venue, an issue) keep the header alone. */
@@ -36,8 +36,8 @@ export function ProductBar() {
     <nav data-product-bar data-family={family.key} aria-label={`${family.name} products`} className="product-bar">
       <div className="container-site flex h-full items-center gap-5 sm:gap-7">
         <Link href={family.items[0]!.href as Route} className="flex shrink-0 items-center gap-2.5 text-white transition-opacity hover:opacity-85">
-          <span className="font-display text-[24px] font-extralight leading-none tracking-[-0.01em] sm:text-[27px]">{family.name}</span>
-          <FamilyMark family={family.key} className="mt-1" />
+          <Emblem family={family.key} className="size-7" />
+          <span className={`font-display text-[23px] font-light leading-none tracking-[-0.01em] sm:text-[25px] ${family.key === "encore" ? "italic" : ""}`}>{family.name}</span>
         </Link>
         <span aria-hidden="true" className="hidden h-5 w-px shrink-0 bg-white/20 sm:block" />
         <ul className="product-bar-tabs flex h-full min-w-0 flex-1 items-stretch gap-5 overflow-x-auto sm:gap-8">

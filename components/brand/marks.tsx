@@ -50,34 +50,6 @@ export function TideWordmark({ id, className, decorative }: { id: string; classN
   );
 }
 
-/** The small mark that sits after a family's name: two swells, a survey line with a pin, or an arch with footlights. */
-export function FamilyMark({ family, className }: { family: FamilyKey; className?: string }) {
-  const c = cn("shrink-0", className);
-  if (family === "tide")
-    return (
-      <svg width="30" height="12" viewBox="0 0 30 12" aria-hidden="true" className={c} style={{ color: "var(--color-tide)" }}>
-        <path d="M0 4 C 3.75 2, 7.5 2, 11.25 4 S 18.75 6, 22.5 4 S 30 2, 30 4" fill="none" stroke="currentColor" strokeWidth="1.3" />
-        <path d="M0 9 C 3.75 7, 7.5 7, 11.25 9 S 18.75 11, 22.5 9 S 30 7, 30 9" fill="none" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1.1" />
-      </svg>
-    );
-  if (family === "atlas")
-    return (
-      <svg width="38" height="12" viewBox="0 0 38 12" aria-hidden="true" className={c} style={{ color: "var(--color-atlas)" }}>
-        <path d="M0 5 L30 5 M0 5 L0 9 M7.5 5 L7.5 7.5 M15 5 L15 9 M22.5 5 L22.5 7.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-        <circle cx="33.5" cy="5" r="3.3" fill="none" stroke="currentColor" strokeWidth="1.2" />
-        <circle cx="33.5" cy="5" r="1.1" fill="currentColor" />
-      </svg>
-    );
-  return (
-    <svg width="26" height="18" viewBox="0 0 26 18" aria-hidden="true" className={c} style={{ color: "var(--color-encore)" }}>
-      <path d="M1.5 17 L1.5 8 C1.5 3 6.5 1.5 13 1.5 C19.5 1.5 24.5 3 24.5 8 L24.5 17" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <circle cx="7.5" cy="13.5" r="1.3" fill="currentColor" />
-      <circle cx="13" cy="13.5" r="1.3" fill="currentColor" fillOpacity="0.55" />
-      <circle cx="18.5" cy="13.5" r="1.3" fill="currentColor" />
-    </svg>
-  );
-}
-
 /* ---- Masthead motifs: one per family, laid over the photograph. ------- */
 
 /** Atlas's contours: closed, gently irregular rings round a point to the right, as on a survey map. Computed once, so server and client agree. */
