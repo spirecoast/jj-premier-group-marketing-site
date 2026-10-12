@@ -1,12 +1,14 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/buttons";
+import { Byline } from "@/components/byline";
 import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TideIssueCard } from "@/components/tide/issue-card";
 import { TideCover, TideWordmark } from "@/components/tide/tide-cover";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
+import { getTeam } from "@/lib/content";
 import { loadIssueCards } from "@/lib/tide/load";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
@@ -22,7 +24,7 @@ export const metadata: Metadata = pageMetadata({
  * have their own page.
  */
 export default async function TideIndexPage() {
-  const [latest, ...earlier] = await loadIssueCards();
+  const [[latest, ...earlier], team] = await Promise.all([loadIssueCards(), getTeam()]);
   return (
     <>
       <JsonLd
@@ -55,9 +57,10 @@ export default async function TideIndexPage() {
           </Link>
           <div className="sr flex flex-col gap-7 [--sr-i:1]">
             <h2 id="latest-title" className="t-display text-balance text-navy">
-              {latest.headline ?? latest.title}
+              {latest.coverTitle ?? latest.headline ?? latest.title}
             </h2>
-            <p className="t-lead max-w-[560px] text-body">{latest.excerpt}</p>
+            <p className="t-lead max-w-[560px] text-body">{latest.coverKicker ?? latest.excerpt}</p>
+            <Byline people={team.map((m) => ({ name: m.name, headshot: m.headshot }))} extras={["JJ Premier Group", latest.issueLabel ?? ""].filter(Boolean)} />
             <div>
               <ButtonLink href={latest.href} dash>
                 Read the {latest.issueLabel} issue
@@ -72,22 +75,32 @@ export default async function TideIndexPage() {
         </section>
       ) : null}
 
-      {earlier.length ? (
-        <section className="bg-parchment" aria-labelledby="past-title">
-          <div className="container-site flex flex-col gap-10 py-section">
+      {/* Past issues: the archive, with a place kept for the issues still to come into it. */}
+      <section className="bg-parchment" aria-labelledby="past-title">
+        <div className="container-site flex flex-col gap-10 py-section">
+          <div className="flex flex-col gap-3">
             <h2 id="past-title" className="t-h1 text-navy">
               Past issues
             </h2>
-            <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-              {earlier.map((c, i) => (
-                <li key={c.issue} className="sr flex" style={{ ["--sr-i" as string]: i % 3 }}>
-                  <TideIssueCard card={c} />
-                </li>
-              ))}
-            </ul>
+            <p className="t-body max-w-measure text-body">Every issue stays here once the next one is out, newest first.</p>
           </div>
-        </section>
-      ) : null}
+          <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {earlier.map((c, i) => (
+              <li key={c.issue} className="sr flex" style={{ ["--sr-i" as string]: i % 3 }}>
+                <TideIssueCard card={c} />
+              </li>
+            ))}
+            {Array.from({ length: Math.max(0, 3 - earlier.length) }, (_, i) => (
+              <li key={`slot-${i}`} className="flex" aria-hidden="true">
+                <div className="tide-slot flex aspect-[4/5] w-full flex-col items-center justify-center gap-4">
+                  <TideWordmark id={`tide-slot-${i}`} decorative className="w-1/2 text-navy opacity-25" />
+                  <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-navy/40">Market Report</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </>
   );
 }

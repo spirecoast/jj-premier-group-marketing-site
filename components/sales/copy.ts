@@ -39,7 +39,9 @@ export const SOLD_COPY = {
     lot: "Lot",
     /** Shown when any row is a new build or a lot: the county still lists the parcel as land. */
     newBuildNote:
-      "New build: the home sold, but the county hasn’t added the house to its record yet, so size and year built are blank. New builds and lots are left out of the price per square foot.",
+      "New build: the home sold, but the county records a new house on the next January 1 roll, so its size and year built aren’t on the record yet. New builds and lots are left out of the price per square foot.",
+    /** What a cell says when the record has no size for the row. */
+    missing: { newBuild: "Not recorded yet", lot: "Land only", other: "Not recorded" },
     /** Rows the county updated after the sale. */
     rollChanged:
       "The county updated this record after the sale, so size and year built may describe the house as it is now. These sales are left out of the price per square foot.",

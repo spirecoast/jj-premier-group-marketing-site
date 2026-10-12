@@ -69,6 +69,12 @@ export function typeLabel(r: SaleRow) {
   return C.results.typeLabel[r.propertyUse] ?? C.results.typeLabel.other;
 }
 
+/** The words for a size the record doesn't have: a new house not yet on the roll, a lot, or a record without it. */
+function missingSize(r: SaleRow) {
+  if (r.propertyUse === "vacant") return typeLabel(r) === C.results.newBuild ? C.results.missing.newBuild : C.results.missing.lot;
+  return C.results.missing.other;
+}
+
 type Props = {
   rows: SaleRow[];
   /** The footnote behind the dagger; the sold page's by default. */
@@ -94,7 +100,7 @@ export function SalesTable({ rows, rollChangedNote = C.results.rollChanged }: Pr
               </span>
               <span className="t-small text-body">
                 {[
-                  r.livingArea ? `${int.format(r.livingArea)} sq ft` : null,
+                  r.livingArea ? `${int.format(r.livingArea)} sq ft` : `size ${missingSize(r).toLowerCase()}`,
                   r.pricePerSqft ? `${usd.format(r.pricePerSqft)}/sq ft` : null,
                   r.yearBuilt ? `built ${r.yearBuilt}` : null,
                   typeLabel(r),
@@ -135,8 +141,8 @@ export function SalesTable({ rows, rollChangedNote = C.results.rollChanged }: Pr
                   <Td align="right" className="t-record text-navy">
                     {usd.format(r.salePrice)}
                   </Td>
-                  <Td align="right">{r.livingArea ? int.format(r.livingArea) : "—"}</Td>
-                  <Td align="right">{r.pricePerSqft ? usd.format(r.pricePerSqft) : "—"}</Td>
+                  <Td align="right">{r.livingArea ? int.format(r.livingArea) : <span className="t-small italic text-graphite-500">{missingSize(r)}</span>}</Td>
+                  <Td align="right">{r.pricePerSqft ? usd.format(r.pricePerSqft) : <span className="t-small text-graphite-400">—</span>}</Td>
                   <Td align="right">{r.yearBuilt ?? "—"}</Td>
                   <Td>{typeLabel(r)}</Td>
                 </tr>

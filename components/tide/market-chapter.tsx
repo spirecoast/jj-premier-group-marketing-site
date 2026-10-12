@@ -5,6 +5,8 @@ import { monthLabel } from "@/lib/issues/render";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { num, usd, type IssueMarket } from "@/lib/tide/issue";
+import { Photo } from "@/components/photo";
+import { MARKETS } from "@/lib/content/markets";
 import { HomeMix } from "./home-mix";
 import { PriceBands } from "./price-bands";
 import { Sparkline } from "./sparkline";
@@ -49,14 +51,20 @@ export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: st
     ly && lyMonth ? (v === null || v === undefined ? fill(W.vsLastYearNone, { month: lyMonth }) : fill(W.vsLastYear, { month: lyMonth, value: f(v) })) : null;
   const money = (v: number | null) => (v === null ? "–" : usd(v));
   const atlas = explorerHref({ filters: { market: m.market } });
+  const photo = MARKETS.find((x) => x.slug === m.market)?.image;
 
   return (
     <section id={m.market} className="tide-chapter scroll-mt-24 border-t border-rule" aria-labelledby={`${m.market}-title`}>
       <div className="container-site flex flex-col gap-10 py-section lg:gap-14">
-        <header className="flex flex-col gap-4">
+        <header className="flex flex-col gap-6">
           <h2 id={`${m.market}-title`} className="t-hero text-navy">
             {m.name}
           </h2>
+          {photo ? (
+            <div className="relative aspect-[16/7] overflow-hidden bg-navy lg:aspect-[21/7]">
+              <Photo image={photo} sizes="(min-width: 1440px) 1248px, 100vw" />
+            </div>
+          ) : null}
         </header>
 
         <dl className="grid grid-cols-2 gap-x-6 gap-y-7 lg:grid-cols-4 lg:gap-x-8">
