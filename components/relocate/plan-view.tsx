@@ -15,11 +15,11 @@ import { usePlanner } from "./planner-context";
 const PHASES: Phase[] = ["before", "contract", "closing", "after"];
 
 /** Each phase keeps one colour through the key dates and the timeline. */
-const TONE: Record<Phase, { dot: string; line: string; text: string; soft: string }> = {
-  before: { dot: "bg-sky-600", line: "bg-sky-300", text: "text-sky-700", soft: "bg-sky-50" },
-  contract: { dot: "bg-navy", line: "bg-harbor-300", text: "text-navy", soft: "bg-harbor-50" },
-  closing: { dot: "bg-coral", line: "bg-coral/40", text: "text-[#b4523c]", soft: "bg-[#fbefe9]" },
-  after: { dot: "bg-success", line: "bg-success/35", text: "text-success", soft: "bg-[#eef5f1]" },
+const TONE: Record<Phase, { dot: string; line: string; text: string }> = {
+  before: { dot: "bg-sky-600", line: "bg-sky-300", text: "text-sky-700" },
+  contract: { dot: "bg-navy", line: "bg-harbor-300", text: "text-navy" },
+  closing: { dot: "bg-coral", line: "bg-coral/40", text: "text-[#b4523c]" },
+  after: { dot: "bg-success", line: "bg-success/35", text: "text-success" },
 };
 
 /** The dates a person plans the rest around, in the order they happen. */
@@ -35,28 +35,69 @@ function Flag({ flag }: { flag: Milestone["flags"][number] }) {
   return <span className={cn("rounded-full border px-2.5 py-0.5 text-[12px]", tone)}>{C.flags[flag]}</span>;
 }
 
+const DAY = 86_400_000;
+const daysBetween = (from: string, to: string) => Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / DAY);
+
 function dayParts(iso: string) {
   const d = new Date(`${iso}T12:00:00`);
   return {
     day: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    rest: d.toLocaleDateString("en-US", { weekday: "long", year: "numeric" }),
+    weekday: d.toLocaleDateString("en-US", { weekday: "long" }),
+    year: d.getFullYear(),
   };
 }
 
-function KeyDates({ items }: { items: Milestone[] }) {
+/** Each phase's dot on the dark key-dates panel. */
+const KEY_DOT: Record<Phase, string> = { before: "bg-sky-300", contract: "bg-linen-100", closing: "bg-coral", after: "bg-atlas" };
+
+/**
+ * The five dates the rest hangs on, on the Atlas green: a track across the
+ * top with the days between each, and a card per date counting down from
+ * today. Move-in day, the one the whole plan is for, is filled.
+ */
+function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
   if (!items.length) return null;
   return (
-    <div className="flex flex-col gap-4">
-      <h3 className="t-h3 text-navy">{C.keyDates}</h3>
-      <ol data-print="keys" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {items.map((m) => {
+    <div className="key-dates relative overflow-hidden bg-atlas-deep px-5 py-8 text-linen-100 sm:p-10">
+      <h3 className="t-h3 relative text-white">{C.keyDates}</h3>
+      <ol data-print="keys" className="relative mt-6 grid gap-3 lg:mt-8 lg:grid-cols-5 lg:gap-4">
+        {items.map((m, i) => {
           const p = dayParts(m.date!);
+          const away = daysBetween(today, m.date!);
+          const gap = i ? daysBetween(items[i - 1]!.date!, m.date!) : null;
+          const goal = m.id === "move-in";
           return (
-            <li key={m.id} data-print="key" className={cn("relative flex flex-col gap-2 overflow-hidden border border-hairline bg-white p-5", TONE[m.phase].soft)}>
-              <span className={cn("absolute inset-x-0 top-0 h-1", TONE[m.phase].dot)} aria-hidden="true" />
-              <span className="font-display text-[2rem] font-light leading-none text-navy">{p.day}</span>
-              <span className="t-small text-graphite-500">{p.rest}</span>
-              <span className="t-body font-medium text-navy">{m.title}</span>
+            <li key={m.id} data-print="key-item" className="flex flex-col gap-3">
+              <div className="hidden items-center gap-3 lg:flex" aria-hidden="true">
+                <span className={cn("size-3 shrink-0 rounded-full ring-4 ring-white/10", KEY_DOT[m.phase])} />
+                <span className="h-px flex-1 bg-white/20" />
+              </div>
+              <div
+                data-print="key"
+                className={cn(
+                  "grid flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-4 border p-5 transition-transform duration-300 hover:-translate-y-0.5 lg:flex lg:flex-col lg:gap-1",
+                  goal ? "border-atlas bg-atlas text-atlas-deep shadow-[0_24px_48px_-24px_rgba(95,201,168,0.6)]" : "border-white/12 bg-white/[0.06] backdrop-blur-sm",
+                )}
+              >
+                <div className="flex flex-col gap-1">
+                  <span className={cn("t-small flex items-center gap-2", goal ? "text-atlas-deep/70" : "text-white/55")}>
+                    <span className={cn("size-2 shrink-0 rounded-full lg:hidden", KEY_DOT[m.phase])} aria-hidden="true" />
+                    {gap !== null && gap > 0 ? C.gapDays(gap) : "\u00a0"}
+                  </span>
+                  <span className={cn("font-display text-[2.125rem] font-light leading-none lg:text-[2.5rem]", goal ? "text-atlas-deep" : "text-white")}>{p.day}</span>
+                  <span className={cn("t-small", goal ? "text-atlas-deep/80" : "text-white/65")}>
+                    {p.weekday}, {p.year}
+                  </span>
+                </div>
+                <div className="flex flex-col justify-end gap-2 lg:mt-3 lg:flex-1 lg:justify-between">
+                  <span className={cn("text-[16px] font-medium leading-snug", goal ? "text-atlas-deep" : "text-white")}>{C.keyTitles[m.id] ?? m.title}</span>
+                  {away >= 0 ? (
+                    <span className={cn("self-start rounded-full px-2.5 py-0.5 pt-1 text-[12px] tabular-nums print:hidden", goal ? "bg-atlas-deep text-atlas" : "bg-white/10 text-white/80")}>
+                      {C.inDays(away)}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
             </li>
           );
         })}
@@ -67,12 +108,20 @@ function KeyDates({ items }: { items: Milestone[] }) {
 
 function CalloutCard({ c }: { c: Callout }) {
   return (
-    <li data-print="callout" className="flex flex-col gap-2 border-l-[3px] border-warning bg-[#fbf4e6] p-5">
-      <h4 className="t-h4 text-navy">{c.title}</h4>
-      <p className="t-body text-body">{c.body}</p>
-      <a href={c.source.url} target="_blank" rel="noopener noreferrer" className="t-small self-start text-graphite-600 underline underline-offset-4 hover:text-navy print:hidden">
-        {C.sourceLabel}: {c.source.label}
-      </a>
+    <li data-print="callout" className="flex gap-4 border border-hairline bg-white p-6 shadow-[0_18px_44px_-36px_rgba(16,37,66,0.5)]">
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-warning-fill text-warning print:hidden" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="8" cy="4" r="1.2" fill="currentColor" />
+          <path d="M8 7v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      </span>
+      <div className="flex min-w-0 flex-col gap-2">
+        <h4 className="t-h4 text-navy">{c.title}</h4>
+        <p className="t-body text-body">{c.body}</p>
+        <a href={c.source.url} target="_blank" rel="noopener noreferrer" className="t-small self-start text-graphite-600 underline underline-offset-4 hover:text-navy print:hidden">
+          {C.sourceLabel}: {c.source.label}
+        </a>
+      </div>
     </li>
   );
 }
@@ -150,37 +199,44 @@ function Exports() {
   }
 
   return (
-    <div role="group" aria-label={EXPORTS.label} className="flex shrink-0 flex-wrap gap-2 print:hidden lg:flex-nowrap">
-      <a href={icsPath(answers)} download="move-plan.ics" className="btn btn-navy" onClick={() => track("Calendar feed", { kind: "relocate" })}>
+    <div role="group" aria-label={EXPORTS.label} className="grid shrink-0 grid-cols-2 gap-2 print:hidden sm:flex sm:flex-wrap lg:flex-nowrap">
+      <a href={icsPath(answers)} download="move-plan.ics" className="btn btn-navy col-span-2" onClick={() => track("Calendar feed", { kind: "relocate" })}>
         {EXPORTS.calendar}
       </a>
       <button type="button" className="btn btn-outline" onClick={() => window.print()}>
         {EXPORTS.print}
       </button>
-      <button type="button" className="btn btn-outline min-w-[132px]" onClick={copy}>
+      <button type="button" className="btn btn-outline sm:min-w-[132px]" onClick={copy}>
         <span aria-live="polite">{copied ? EXPORTS.copied : EXPORTS.copy}</span>
       </button>
     </div>
   );
 }
 
-/** The answers, as a line of chips under the plan's title. */
+/** The answers, as chips under the plan's title. Each one reopens its question. */
 function AnswerChips() {
-  const { answers, plan } = usePlanner();
-  const buying = answers.path !== "renting-first";
-  const chips = [
-    `Move in ${formatDate(answers.moveInDate)}`,
-    Q.path.options[answers.path],
-    buying ? Q.financing.options[answers.financing] : null,
-    answers.homeToSell === "no" ? "No home to sell" : answers.homeToSell === "listed" ? "Home already listed" : "Home to sell",
-    answers.fromState === "other" ? "From outside the US" : `From ${STATES[answers.fromState as keyof typeof STATES] ?? answers.fromState}`,
-    plan.counties.map((c) => c.name).join(" or "),
-  ].filter(Boolean) as string[];
+  const { answers, plan, editAt } = usePlanner();
+  const chips: [number, string][] = [
+    [0, `Move in ${formatDate(answers.moveInDate)}`],
+    [1, answers.path === "buying" ? `${Q.path.options.buying}, ${Q.financing.options[answers.financing].toLowerCase()}` : Q.path.options[answers.path]],
+    [2, answers.homeToSell === "no" ? "No home to sell" : answers.homeToSell === "listed" ? "Home already listed" : "Home to sell"],
+    [3, answers.fromState === "other" ? "From outside the US" : `From ${STATES[answers.fromState as keyof typeof STATES] ?? answers.fromState}`],
+    [4, plan.counties.map((c) => c.name).join(" or ")],
+  ];
   return (
     <ul className="flex flex-wrap gap-2" aria-label="Your answers">
-      {chips.map((c) => (
-        <li key={c} className="rounded-full border border-hairline bg-white px-3 py-1 text-[13px] text-graphite-700">
-          {c}
+      {chips.map(([i, c]) => (
+        <li key={i}>
+          <button
+            type="button"
+            onClick={() => editAt(i)}
+            className="group inline-flex items-center gap-2 rounded-full border border-hairline bg-white px-3 py-1 text-[13px] text-graphite-700 transition-colors hover:border-navy hover:text-navy print:border-0 print:p-0"
+          >
+            {c}
+            <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" className="text-graphite-400 transition-colors group-hover:text-navy print:hidden">
+              <path d="M8.5 1.5 10.5 3.5 4 10H2V8Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+            </svg>
+          </button>
         </li>
       ))}
     </ul>
@@ -194,7 +250,7 @@ function AnswerChips() {
  * who pays what close it, and the sources fold at the foot.
  */
 export function PlanView() {
-  const { plan, mode, generic, answers, shareUrl, setMode } = usePlanner();
+  const { plan, mode, generic, answers, shareUrl, editAt, today } = usePlanner();
   if (mode !== "plan") return null;
   const grouped = PHASES.map((p) => ({ phase: p, items: plan.milestones.filter((m) => m.phase === p) })).filter((g) => g.items.length);
   const keyDates = KEY_IDS.map((id) => plan.milestones.find((m) => m.id === id)).filter((m): m is Milestone => Boolean(m?.date));
@@ -210,14 +266,7 @@ export function PlanView() {
             <p className="t-body max-w-[560px] text-body print:hidden">{C.intro}</p>
             <p className="t-small max-w-[560px] border-l-2 border-atlas pl-3 text-graphite-600">{C.estimate}</p>
             <AnswerChips />
-            <button
-              type="button"
-              className="link-rule self-start print:hidden"
-              onClick={() => {
-                setMode("questions");
-                requestAnimationFrame(() => document.getElementById("questions")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-              }}
-            >
+            <button type="button" className="link-rule self-start print:hidden" onClick={() => editAt(0)}>
               {Q.editAnswers}
             </button>
           </div>
@@ -226,7 +275,7 @@ export function PlanView() {
 
         <p className="hidden text-[9pt] text-graphite-600 print:block">{shareUrl}</p>
 
-        <KeyDates items={keyDates} />
+        <KeyDates items={keyDates} today={today} />
 
         {plan.callouts.length ? (
           <ul className="grid gap-3 md:grid-cols-2">

@@ -20,6 +20,14 @@ type Ctx = {
   shareUrl: string;
   /** "I'll just read": show the generic plan without touching the answers. */
   readGeneric: () => void;
+  /** The question on screen, zero-based. */
+  step: number;
+  setStep: (n: number) => void;
+  /** The furthest question reached; past the last once a plan has shown. */
+  reached: number;
+  setReached: (n: number) => void;
+  /** Reopen the questions at one of them. */
+  editAt: (n: number) => void;
 };
 
 const PlannerContext = createContext<Ctx | null>(null);
@@ -36,6 +44,8 @@ export function PlannerProvider({ today, initialAnswers, initialHasAnswers, chil
   const [answers, setAnswersState] = useState<Answers>(initialAnswers);
   const [mode, setMode] = useState<Mode>(initialHasAnswers ? "plan" : "questions");
   const [generic, setGeneric] = useState(false);
+  const [step, setStep] = useState(0);
+  const [reached, setReached] = useState(initialHasAnswers ? Number.POSITIVE_INFINITY : 0);
   const [origin, setOrigin] = useState("");
   const query = useMemo(() => answersToQuery(answers), [answers]);
   const plan = useMemo(() => buildPlan(answers, today), [answers, today]);
@@ -92,9 +102,15 @@ export function PlannerProvider({ today, initialAnswers, initialHasAnswers, chil
     setMode("plan");
   }, []);
 
+  const editAt = useCallback((n: number) => {
+    setStep(n);
+    setMode("questions");
+    requestAnimationFrame(() => document.getElementById("questions")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }, []);
+
   const value = useMemo<Ctx>(
-    () => ({ today, answers, setAnswers, mode, setMode, generic, plan, shareUrl: `${origin}/relocate?${query}`, readGeneric }),
-    [today, answers, setAnswers, mode, generic, plan, origin, query, readGeneric],
+    () => ({ today, answers, setAnswers, mode, setMode, generic, plan, shareUrl: `${origin}/relocate?${query}`, readGeneric, step, setStep, reached, setReached, editAt }),
+    [today, answers, setAnswers, mode, generic, plan, origin, query, readGeneric, step, reached, editAt],
   );
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
