@@ -122,34 +122,35 @@ const PRODUCT_W: Record<string, number> = {
 };
 
 /**
- * Each family's line through its name, echoing its emblem: Tide's water, a
- * fold across Atlas like the map's, a ticket's perforation through Encore.
- * Below the line the letters take the family's colour.
+ * Where each family's name turns to its colour. Tide's turns at a waterline,
+ * with two fainter swells under it. Atlas and Encore turn along a straight
+ * line through the lower part of the letters, with no line drawn.
  */
-function signature(family: Family, w: number): string {
-  if (family === "tide") {
-    let d = "";
-    for (let x = 0; x <= w; x += 3) d += `${x ? "L" : "M"}${x} ${(80 - 6 * Math.sin((x / 150) * Math.PI * 2)).toFixed(2)}`;
-    return d;
-  }
-  if (family === "atlas") return `M0 84 L${(w / 3).toFixed(1)} 72 L${((2 * w) / 3).toFixed(1)} 84 L${w} 72`;
-  return `M0 80 L${w} 80`;
+const SPLIT = 74;
+function waterline(w: number): string {
+  let d = "";
+  for (let x = 0; x <= w; x += 3) d += `${x ? "L" : "M"}${x} ${(80 - 6 * Math.sin((x / 150) * Math.PI * 2)).toFixed(2)}`;
+  return d;
+}
+function split(family: Family, w: number): string {
+  return family === "tide" ? waterline(w) : `M0 ${SPLIT} L${w} ${SPLIT}`;
 }
 
 type LockupSize = "bar" | "sm" | "md" | "hero" | "xl";
-const SIZES: Record<LockupSize, { wrap: string; svg: string; by: string; lines: number }> = {
-  bar: { wrap: "", svg: "h-[26px] sm:h-[28px]", by: "", lines: 2.4 },
-  sm: { wrap: "", svg: "h-[30px]", by: "text-[7.5px] tracking-[0.36em]", lines: 2 },
-  md: { wrap: "", svg: "h-[40px] sm:h-[48px]", by: "text-[9px] tracking-[0.4em]", lines: 1.5 },
-  hero: { wrap: "", svg: "h-[30px] sm:h-[42px] lg:h-[54px]", by: "text-[8px] sm:text-[9.5px] lg:text-[11px] tracking-[0.42em]", lines: 1.2 },
-  xl: { wrap: "w-full sm:w-auto", svg: "w-full sm:w-auto sm:h-[64px] lg:h-[92px]", by: "text-[9px] sm:text-[11px] lg:text-[13px] tracking-[0.46em]", lines: 1 },
+/** The drawing's height, and the byline's size and tracking (em) at each breakpoint. */
+const SIZES: Record<LockupSize, { wrap: string; svg: string; by: string; track: number; lines: number }> = {
+  bar: { wrap: "", svg: "h-[26px] sm:h-[28px]", by: "", track: 0, lines: 2.4 },
+  sm: { wrap: "", svg: "h-[30px]", by: "text-[7px]", track: 0.24, lines: 2 },
+  md: { wrap: "", svg: "h-[40px] sm:h-[48px]", by: "text-[8px] sm:text-[9px]", track: 0.28, lines: 1.5 },
+  hero: { wrap: "", svg: "h-[34px] sm:h-[42px] lg:h-[54px]", by: "text-[7px] sm:text-[8.5px] lg:text-[10.5px]", track: 0.3, lines: 1.2 },
+  xl: { wrap: "w-full sm:w-auto", svg: "w-full sm:w-auto sm:h-[64px] lg:h-[92px]", by: "text-[8px] sm:text-[10px] lg:text-[13px]", track: 0.34, lines: 1 },
 };
 
 /**
  * A product's lockup, the same on every page: the emblem, the family's name
- * with its line and colour, and the product's name, drawn as one piece; then
- * JJ Premier Group in the team's own lettering, centred under it between two
- * rules. Without `product` it's the family alone. `tone` is the ground: dark
+ * in its colour, and the product's name, drawn as one piece; then "by JJ
+ * Premier Group" in the team's own lettering, centred under the words between
+ * two equal rules. Without `product` it's the family alone. `tone` is the ground: dark
  * for a photograph or a family colour, light for the page.
  */
 export function ProductLockup({
@@ -166,7 +167,7 @@ export function ProductLockup({
   product?: string;
   tone?: "dark" | "light";
   size?: LockupSize;
-  /** JJ Premier Group under the drawing. */
+  /** "by JJ Premier Group" under the words. Only with a product: a family's name alone is too short to carry it. */
   byline?: boolean;
   /** The words are already on the page (an h1 says them). */
   decorative?: boolean;
@@ -180,7 +181,7 @@ export function ProductLockup({
   const x1 = x0 + word.w + WORD_GAP;
   const width = rest ? x1 + pw : x0 + word.w;
   const accent = `var(--color-${family}${tone === "light" ? "-ink" : ""})`;
-  const line = signature(family, word.w);
+  const line = split(family, word.w);
   const sz = SIZES[size];
   const g = GEOMETRY[family];
   const label = [word.text, rest].filter(Boolean).join(" ");
@@ -189,11 +190,11 @@ export function ProductLockup({
       {word.text}
     </text>
   );
-  const dash = family === "encore" ? "10 8" : undefined;
+  const track = `${sz.track}em`;
 
   return (
-    <span className={cn("inline-flex max-w-full flex-col gap-[0.55em] self-start", sz.wrap, tone === "dark" ? "text-white" : "text-navy", className)}>
-      <svg viewBox={`0 0 ${width} ${H}`} className={cn("block max-w-full", sz.svg)} {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": `${label}, JJ Premier Group` })}>
+    <span className={cn("inline-flex max-w-full flex-col gap-[0.6em] self-start", sz.wrap, tone === "dark" ? "text-white" : "text-navy", className)}>
+      <svg viewBox={`0 0 ${width} ${H}`} className={cn("block max-w-full", sz.svg)} {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": `${label}, by JJ Premier Group` })}>
         <defs>
           <mask id={`${id}-m`}>
             <rect width="64" height="64" fill="#fff" />
@@ -209,9 +210,13 @@ export function ProductLockup({
         <g transform={`translate(${x0} 0)`}>
           {text("currentColor")}
           <g clipPath={`url(#${id}-c)`}>{text(accent)}</g>
-          <path d={line} fill="none" stroke={accent} strokeWidth={1.4 * sz.lines} strokeDasharray={dash} strokeLinejoin="round" />
-          <path d={line} transform="translate(0 13)" fill="none" stroke={accent} strokeOpacity="0.45" strokeWidth={1 * sz.lines} strokeDasharray={dash} strokeLinejoin="round" />
-          <path d={line} transform="translate(0 24)" fill="none" stroke={accent} strokeOpacity="0.22" strokeWidth={1 * sz.lines} strokeDasharray={dash} strokeLinejoin="round" />
+          {family === "tide" ? (
+            <>
+              <path d={line} fill="none" stroke={accent} strokeWidth={1.4 * sz.lines} />
+              <path d={line} transform="translate(0 13)" fill="none" stroke={accent} strokeOpacity="0.45" strokeWidth={1 * sz.lines} />
+              <path d={line} transform="translate(0 24)" fill="none" stroke={accent} strokeOpacity="0.22" strokeWidth={1 * sz.lines} />
+            </>
+          ) : null}
         </g>
         {rest ? (
           <text x={x1} y={BASE} fontSize={SIZE} textLength={pw} lengthAdjust="spacing" fill="currentColor" fillOpacity={0.86} style={{ fontFamily: "var(--font-display)", fontWeight: 300 }}>
@@ -219,11 +224,24 @@ export function ProductLockup({
           </text>
         ) : null}
       </svg>
-      {byline && sz.by ? (
-        <span className={cn("flex w-0 min-w-full items-center gap-[1.2em]", tone === "dark" ? "text-white/80" : "text-navy/80")} aria-hidden="true">
-          <span className="h-px min-w-2 flex-1 bg-current opacity-45" />
-          <span className={cn("whitespace-nowrap font-wordmark font-semibold uppercase leading-none indent-[0.42em]", sz.by)}>JJ Premier Group</span>
-          <span className="h-px min-w-2 flex-1 bg-current opacity-45" />
+      {byline && sz.by && rest ? (
+        /*
+          "By JJ Premier Group", centred under the words only: the row starts
+          where the family's name starts, never under the emblem, and ends
+          with the product's name. The tracking after the last letter is
+          taken back, so the two rules and their gaps are exactly equal.
+        */
+        <span className="block w-0 min-w-full" aria-hidden="true">
+          <span className={cn("flex items-center gap-[0.9em]", sz.by, tone === "dark" ? "text-white/80" : "text-navy/80")} style={{ paddingLeft: `${((x0 / width) * 100).toFixed(3)}%` }}>
+            <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
+            <span className="flex shrink-0 items-baseline whitespace-nowrap leading-none">
+              <span className="mr-[0.5em] font-display text-[1.35em] font-light italic">by</span>
+              <span className="font-wordmark font-semibold uppercase" style={{ letterSpacing: track, marginRight: `-${track}` }}>
+                JJ Premier Group
+              </span>
+            </span>
+            <span className="h-px min-w-0 flex-1 bg-current opacity-45" />
+          </span>
         </span>
       ) : null}
     </span>

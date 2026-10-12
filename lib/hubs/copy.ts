@@ -40,7 +40,7 @@ const SEASON = "Hurricane season runs June 1 to November 30. When a storm is nam
 export const HUBS: Record<MarketSlug, HubCopy> = {
   "lakewood-ranch": {
     slug: "lakewood-ranch",
-    title: "Lakewood Ranch · The villages, what’s on, and how buying works here",
+    title: "Lakewood Ranch · The villages, the arts, and how buying works here",
     description:
       "The first page to read before you buy or sell in Lakewood Ranch: every village on the Atlas, the week on the Encore calendar, which side of the county line you’re on, CDDs, flood zones and the questions people ask first.",
     orientation: [
@@ -100,7 +100,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
 
   sarasota: {
     slug: "sarasota",
-    title: "Sarasota · The keys, the bayfront, what’s on, and how buying works here",
+    title: "Sarasota · The keys, the bayfront, the arts, and how buying works here",
     description:
       "The first page to read before you buy or sell in Sarasota: the keys and the bayfront on the Atlas, the week on the Encore calendar, who pays for title in Sarasota County, flood and evacuation zones, condominium inspections, and the questions people ask first.",
     orientation: [
@@ -161,7 +161,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
 
   bradenton: {
     slug: "bradenton",
-    title: "Bradenton · The river, the island, what’s on, and how buying works here",
+    title: "Bradenton · The river, the island, the arts, and how buying works here",
     description:
       "The first page to read before you buy or sell in Bradenton: the river, the canal streets and Anna Maria Island on the Atlas, the week on the Encore calendar, who pays for title in Manatee County, flood and evacuation levels, and the questions people ask first.",
     orientation: [

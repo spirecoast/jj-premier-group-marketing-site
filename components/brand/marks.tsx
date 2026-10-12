@@ -1,5 +1,6 @@
 import type { ProductFamily } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { EncoreMarquee } from "./marquee";
 
 /**
  * The three data products' marks, drawn in code from the Figma file
@@ -60,21 +61,7 @@ export function FamilyMotif({ family }: { family: FamilyKey }) {
     return (
       <div className="motif motif-encore" aria-hidden="true">
         <span className="motif-spot" />
-        <span className="motif-arch" />
-        <span className="motif-arch motif-arch-inner" />
-        <span className="motif-lights">
-          {Array.from({ length: 25 }, (_, i) => (
-            <i key={i} style={{ ["--i" as string]: i }} />
-          ))}
-        </span>
-        {/* Marquee bulbs up each side of the arch. */}
-        {(["left", "right"] as const).map((side) => (
-          <span key={side} className={`motif-lights motif-lights-side is-${side}`}>
-            {Array.from({ length: 7 }, (_, i) => (
-              <i key={i} style={{ ["--i" as string]: 6 - i }} />
-            ))}
-          </span>
-        ))}
+        <EncoreMarquee />
       </div>
     );
   // Tide: three straight hairlines along the foot, the brightest on top.

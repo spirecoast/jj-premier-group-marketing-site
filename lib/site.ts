@@ -80,7 +80,7 @@ export const products: readonly Product[] = [
     tag: "Arts calendar",
     long: "Encore · The arts calendar",
     href: "/calendar",
-    line: "What’s on tonight, this weekend and all season, at every stage, hall and gallery near you.",
+    line: "The shows, concerts and openings tonight, this weekend and all season, at every stage, hall and gallery near you.",
     accent: "var(--color-amber)",
   },
   {

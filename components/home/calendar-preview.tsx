@@ -24,7 +24,7 @@ export function CalendarPreview({ events }: { events: Event[] }) {
         <SectionHeading
           size="display"
           className="sr"
-          title={<span id="encore-title">What’s on this week in theater, music and art, close to home.</span>}
+          title={<span id="encore-title">This week in theater, music and art, close to home.</span>}
           titleClassName="max-w-[820px]"
           aside={
             <Link href="/calendar" className="link-rule">
@@ -44,7 +44,7 @@ export function CalendarPreview({ events }: { events: Event[] }) {
             <div id="encore-subscribe" className="flex flex-col gap-4 bg-navy p-6 text-white">
               <p className="font-display text-[22px] font-light italic leading-[1.2]">Get {site.calendarShort} every Monday.</p>
               <p className="t-small text-mist">
-                What’s on this week in Lakewood Ranch, Sarasota and Bradenton, in one email. No listings in it.
+                This week’s shows, concerts and openings in Lakewood Ranch, Sarasota and Bradenton, in one email. No listings in it.
               </p>
               <LetterForm form="calendar" label={`Send me ${site.calendarShort}`} tone="dark" />
             </div>

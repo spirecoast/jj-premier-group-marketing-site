@@ -2916,10 +2916,8 @@ html:has([data-product-bar]) {
   .motif-tide span { display: block; height: 1px; background: var(--color-tide); }
   .motif-tide span:nth-child(2) { opacity: 0.45; }
   .motif-tide span:nth-child(3) { opacity: 0.2; }
-  /* The arch stands outside the text column, so a line never touches a word. */
-  .motif-encore { inset: 6% max(0.5rem, calc(var(--gutter) - 2rem)) 0; }
-  /* On a phone the words fill the photograph, so the arch stays out of their way; the lights and the spot stay. */
-  @media (max-width: 767px) { .motif-arch { display: none; } }
+  /* The marquee stands outside the text column, so a line never touches a word. */
+  .motif-encore { inset: 1.25rem max(0.5rem, calc(var(--gutter) - 2.25rem)); }
   .motif-spot {
     position: absolute;
     left: 50%;
@@ -2930,71 +2928,50 @@ html:has([data-product-bar]) {
     background: radial-gradient(42% 55% at 50% 0%, rgb(233 196 106 / 0.28), rgb(233 196 106 / 0.08) 55%, transparent 75%);
     mix-blend-mode: screen;
   }
-  .motif-arch {
+  /* Encore's marquee: two gold lines all the way round, the bulbs between them. On a phone the words fill the photograph, so it stays off; the spot stays. */
+  .encore-marquee { position: absolute; inset: 0; }
+  @media (max-width: 767px) { .encore-marquee { display: none; } }
+  .encore-marquee-frame { position: absolute; inset: 0; overflow: visible; }
+  .encore-marquee-line {
+    fill: none;
+    stroke: rgb(233 196 106 / 0.9);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 5px rgb(233 196 106 / 0.45));
+  }
+  .encore-marquee-line-inner { stroke: rgb(233 196 106 / 0.5); stroke-width: 1.25; }
+  .encore-marquee-bulb {
     position: absolute;
-    inset: 0;
-    border: 2px solid rgb(233 196 106 / 0.9);
-    border-bottom: 0;
-    border-radius: 50% 50% 0 0 / 3.5rem 3.5rem 0 0;
-    filter: drop-shadow(0 0 6px rgb(233 196 106 / 0.45));
-  }
-  .motif-arch-inner {
-    inset: 0.9rem 0.9rem 0;
-    border-width: 1px;
-    border-color: rgb(233 196 106 / 0.35);
-    border-radius: 50% 50% 0 0 / 3rem 3rem 0 0;
-  }
-  .motif-lights {
-    position: absolute;
-    left: 2.5%;
-    right: 2.5%;
-    bottom: 5%;
-    display: flex;
-    justify-content: space-between;
-  }
-  .motif-lights i {
-    display: block;
     width: 6px;
     height: 6px;
+    margin: -3px 0 0 -3px;
     border-radius: 9999px;
     background: #fbe6b0;
     box-shadow: 0 0 6px 1px rgb(233 196 106 / 0.75), 0 0 16px 4px rgb(233 196 106 / 0.28);
     opacity: 0.95;
   }
-  .motif-lights i:nth-child(even) { opacity: 0.5; }
-  /* The side runs sit just inside the arch's legs, from its shoulder down. */
-  .motif-lights-side {
-    top: 18%;
-    bottom: 12%;
-    left: auto;
-    right: auto;
-    flex-direction: column;
-  }
-  .motif-lights-side.is-left { left: 0.45rem; }
-  .motif-lights-side.is-right { right: 0.45rem; }
-  @media (max-width: 767px) { .motif-lights-side { display: none; } }
+  .encore-marquee-bulb:nth-of-type(even) { --o: 0.5; opacity: 0.5; }
   @media (prefers-reduced-motion: no-preference) {
-    .motif-arch {
-      clip-path: inset(100% 0 0 0);
-      animation: motif-rise 1.8s var(--ease-reveal) 0.15s forwards;
+    .encore-marquee-line {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: encore-marquee-draw 2s var(--ease-reveal) 0.15s forwards;
     }
-    .motif-lights i {
+    .encore-marquee-bulb {
       opacity: 0;
       animation:
-        motif-light 0.6s ease forwards,
+        motif-light 0.5s ease forwards,
         motif-twinkle 3.6s ease-in-out infinite;
-      animation-delay: calc(var(--i) * 45ms + 900ms), calc(var(--i) * 45ms + 2.4s);
+      animation-delay: calc(var(--i) * 22ms + 700ms), calc(var(--i) * 22ms + 2.4s);
     }
-    .motif-lights i:nth-child(even) { animation-delay: calc(var(--i) * 45ms + 900ms), calc(var(--i) * 45ms + 4.2s); }
+    .encore-marquee-bulb:nth-of-type(even) { animation-delay: calc(var(--i) * 22ms + 700ms), calc(var(--i) * 22ms + 4.2s); }
     .motif-spot { opacity: 0; animation: motif-light 2.4s ease 0.6s forwards; }
     .motif-tide span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
     .motif-tide span:nth-child(2) { animation-delay: 0.15s; }
     .motif-tide span:nth-child(3) { animation-delay: 0.3s; }
   }
-  @keyframes motif-rise { to { clip-path: inset(0 0 0 0); } }
+  @keyframes encore-marquee-draw { to { stroke-dashoffset: 0; } }
   @keyframes motif-light { to { opacity: var(--o, 0.95); } }
   @keyframes motif-twinkle { 0%, 100% { opacity: var(--o, 0.95); } 50% { opacity: calc(var(--o, 0.95) * 0.45); } }
-  .motif-lights i:nth-child(even) { --o: 0.45; }
   @keyframes motif-line { to { transform: scaleX(1); } }
 }
 

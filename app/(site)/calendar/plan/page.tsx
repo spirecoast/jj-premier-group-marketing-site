@@ -6,7 +6,7 @@ import { parsePlanState } from "@/lib/encore/plan";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Encore Planner: what's on in Sarasota, Lakewood Ranch and Bradenton, day by day",
+  title: "Encore Planner: theater, music and art in Sarasota, Lakewood Ranch and Bradenton, day by day",
   description:
     "Pick your dates and Encore Planner lays out each day: up to three shows, concerts or openings every evening, from different venues. Coming to look at homes? It keeps ten to four free for showings. Add it to your calendar or share the link.",
   path: "/calendar/plan",
