@@ -89,6 +89,14 @@ export function FamilyMotif({ family }: { family: FamilyKey }) {
             <i key={i} style={{ ["--i" as string]: i }} />
           ))}
         </span>
+        {/* Marquee bulbs up each side of the arch. */}
+        {(["left", "right"] as const).map((side) => (
+          <span key={side} className={`motif-lights motif-lights-side is-${side}`}>
+            {Array.from({ length: 7 }, (_, i) => (
+              <i key={i} style={{ ["--i" as string]: 6 - i }} />
+            ))}
+          </span>
+        ))}
       </div>
     );
   // Tide: three straight hairlines along the foot, the brightest on top.
