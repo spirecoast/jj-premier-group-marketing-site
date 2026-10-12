@@ -38,8 +38,8 @@ type Props = {
  */
 export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className }: Props) {
   const slot = mastheadSlot(route);
-  // A product page carries the team's photographs, small, as its maker's mark.
-  const team = slot.kind === "photo" && slot.family ? await getTeam() : [];
+  // A product page, and the page of all of them, carries the team's photographs, small, as its maker's mark.
+  const team = slot.kind === "photo" && (slot.family || route === "/tools") ? await getTeam() : [];
   const lockup = (() => {
     if (slot.kind !== "photo" || !slot.product) return null;
     for (const family of productFamilies) {
@@ -71,7 +71,8 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
           </>
         ) : null}
       </div>
-      <div className="relative col-start-1 row-start-1 flex flex-col justify-end pt-10">
+      {/* Encore's words start below its marquee's top. */}
+      <div className={cn("relative col-start-1 row-start-1 flex flex-col justify-end pt-10", slot.kind === "photo" && slot.family === "encore" && "md:pt-28")}>
         <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
           {lockup ? (

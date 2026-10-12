@@ -10,7 +10,7 @@ export function hubOgImage(market: MarketSlug) {
   return brandOgImage({
     eyebrow: `${m.county} · Florida`,
     title: m.name,
-    meta: "The places, what’s on, and how buying works here",
+    meta: "The places, the arts, and how buying works here",
     photo: m.image.src,
   });
 }

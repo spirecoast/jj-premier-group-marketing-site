@@ -84,7 +84,7 @@ export const BOTH_PROMISES: { title: string; body: string }[] = [
   },
   {
     title: "Three free tools, built for this coast",
-    body: `${products[0]!.name} is the map of every place in Lakewood Ranch, Sarasota and Bradenton. ${products[1]!.name} is what’s on tonight and this weekend. ${products[2]!.name} is one page a month on what the three markets did. They’re yours whether or not you ever call us.`,
+    body: `${products[0]!.name} is the map of every place in Lakewood Ranch, Sarasota and Bradenton. ${products[1]!.name} is the theater, music and art tonight and this weekend. ${products[2]!.name} is one page a month on what the three markets did. They’re yours whether or not you ever call us.`,
   },
 ];
 

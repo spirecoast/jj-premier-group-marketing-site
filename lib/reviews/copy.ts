@@ -37,7 +37,7 @@ export const REVIEWS = {
   thanks: {
     title: "Thank you.",
     body: "Your words are with Joelyn and Jessica. Nothing goes on the site until one of us has checked the wording with you, and you can change your mind any time by telling either of us.",
-    line: "In the meantime, Encore has what’s on tonight, this weekend and all season, at every stage, hall and gallery near you.",
+    line: "In the meantime, Encore has the shows, concerts and openings tonight, this weekend and all season, at every stage, hall and gallery near you.",
   },
 } as const;
 
