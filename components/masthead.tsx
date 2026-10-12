@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { TideMasthead } from "@/components/art/tide-art";
 import { ProductLockup } from "@/components/brand/emblem";
+import { Byline } from "@/components/byline";
+import { getTeam } from "@/lib/content";
 import { FamilyMotif } from "@/components/brand/marks";
 import { productFamilies } from "@/lib/site";
 import { Photo } from "@/components/photo";
@@ -34,8 +36,10 @@ type Props = {
  * motion only, the slow drift the home hero uses (the art drifts the same
  * way), and none at all for anyone who asked for reduced motion.
  */
-export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className }: Props) {
+export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className }: Props) {
   const slot = mastheadSlot(route);
+  // A product page carries the team's photographs, small, as its maker's mark.
+  const team = slot.kind === "photo" && slot.family ? await getTeam() : [];
   const lockup = (() => {
     if (slot.kind !== "photo" || !slot.product) return null;
     for (const family of productFamilies) {
@@ -71,7 +75,7 @@ export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, childr
         <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
           {lockup ? (
-            <ProductLockup family={lockup.family.key} familyName={lockup.family.name} name={lockup.item.label} tone="dark" size="hero" className="rise d1 mb-3 lg:mb-4" />
+            <ProductLockup family={lockup.family.key} product={lockup.item.label} size="hero" className="rise d1 mb-3 lg:mb-5" />
           ) : null}
           {title ? (
             <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", titleClassName)}>
@@ -79,6 +83,9 @@ export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, childr
             </Tag>
           ) : null}
           {children}
+          {team.length ? (
+            <Byline people={team.map((m) => ({ name: m.name, headshot: m.headshot }))} tone="dark" size="sm" className="rise d4 mt-2" />
+          ) : null}
         </div>
       </div>
     </section>
