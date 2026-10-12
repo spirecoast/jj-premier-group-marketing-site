@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Emblem } from "@/components/brand/emblem";
+import { ProductLockup } from "@/components/brand/emblem";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
 import { Photo } from "@/components/photo";
@@ -41,10 +41,12 @@ export default function ToolsPage() {
             return (
               <li key={f}>
                 <a href={`#${f}`} className="tools-chip group flex h-full items-center gap-4 p-5 text-white transition-transform duration-300 hover:-translate-y-0.5" data-family={f}>
-                  <Emblem family={f} className="size-11" />
-                  <span className="flex min-w-0 flex-col gap-1">
-                    <span className={cn("font-display text-[26px] font-light leading-none", f === "encore" && "italic")}>{family.name}</span>
-                    <span className="t-small text-white/75">{family.title}</span>
+                  <span className="flex min-w-0 flex-col gap-2.5">
+                    <ProductLockup family={f} size="bar" byline={false} decorative />
+                    <span className="t-small text-white/75">
+                      <span className="sr-only">{family.name}: </span>
+                      {family.title}
+                    </span>
                   </span>
                   <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" className="ml-auto shrink-0 text-white/60 transition-transform duration-300 group-hover:translate-y-0.5">
                     <path d="M7 2v10M3 8l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.4" />
@@ -72,13 +74,11 @@ export default function ToolsPage() {
                   <div className={cn("tools-panel w-full max-w-[600px] p-6 text-white sm:p-10", right && "lg:ml-auto")} data-family={f}>
                     <span className="pointer-events-none absolute inset-2.5 border border-white/20" aria-hidden="true" />
                     <div className="relative flex flex-col gap-6">
-                      <div className="flex items-center gap-5">
-                        <Emblem family={f} className="size-14 sm:size-16" />
-                        <h2 id={`tools-${f}-title`} className="flex flex-col gap-2">
-                          <span className={cn("font-display text-[clamp(2.75rem,5vw,4rem)] font-light leading-none", f === "encore" && "italic")}>{family.name}</span>
-                          <span className="t-h3 text-white/85">{family.title}</span>
-                        </h2>
-                      </div>
+                      <h2 id={`tools-${f}-title`} className="flex flex-col gap-4">
+                        <span className="sr-only">{family.name}: </span>
+                        <ProductLockup family={f} size="md" decorative />
+                        <span className="t-h3 text-white/85">{family.title}</span>
+                      </h2>
                       <p className="t-body max-w-[460px] text-white/80">{family.line}</p>
                       <ul className="flex flex-col border-t border-white/15">
                         {tools.map((t) => (

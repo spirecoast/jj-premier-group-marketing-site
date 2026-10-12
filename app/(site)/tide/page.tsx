@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TideIssueCard } from "@/components/tide/issue-card";
+import { ProductLockup } from "@/components/brand/emblem";
 import { TideCover, TideWordmark } from "@/components/tide/tide-cover";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { getTeam } from "@/lib/content";
@@ -38,15 +39,11 @@ export default async function TideIndexPage() {
         titleId="tide-title"
         title={
           <>
-            <span className="sr-only">Tide Market Report</span>
-            <TideWordmark id="tide-masthead" decorative className="w-[min(420px,64vw)] text-white" />
+            <span className="sr-only">Tide Market Report, JJ Premier Group</span>
+            <ProductLockup family="tide" product="Tide Market Report" size="xl" decorative />
           </>
         }
       >
-        <p className="rise d3 -mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <span className="font-display text-[clamp(1.25rem,1rem+0.9vw,1.75rem)] font-light italic text-linen-200">{W.indexTitle}</span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-linen-100/80">JJ Premier Group</span>
-        </p>
         <p className="rise d3 t-lead max-w-[560px] text-linen-100 text-shadow-soft">{W.indexLead}</p>
       </Masthead>
 
