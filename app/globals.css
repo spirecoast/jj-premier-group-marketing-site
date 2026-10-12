@@ -2288,8 +2288,35 @@
   }
   .guide-cover-wash {
     background:
-      linear-gradient(0deg, rgb(20 37 48 / 0.92) 0%, rgb(20 37 48 / 0.55) 45%, rgb(20 37 48 / 0.2) 100%),
-      linear-gradient(90deg, rgb(20 37 48 / 0.7) 0%, rgb(20 37 48 / 0.15) 70%);
+      linear-gradient(0deg, rgb(20 37 48 / 0.55) 0%, rgb(20 37 48 / 0.2) 45%, rgb(20 37 48 / 0.3) 100%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.3) 0%, transparent 70%);
+  }
+  /* The glass under the cover's words: frosted at the left, fading into the photograph at the right. */
+  .guide-cover-glass {
+    background: linear-gradient(100deg, rgb(16 37 52 / 0.62) 0%, rgb(16 37 52 / 0.45) 50%, rgb(16 37 52 / 0.18) 100%);
+    border: 1px solid rgb(255 255 255 / 0.22);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 30px 60px -36px rgb(10 24 34 / 0.6);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    backdrop-filter: blur(18px) saturate(1.35);
+  }
+  .guide-cover-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0.625rem;
+    border: 1px solid rgb(255 255 255 / 0.2);
+  }
+  /* On a phone the pane's padding is too narrow for the inner hairline. */
+  @media (max-width: 639px) {
+    .guide-cover-glass::after { display: none; }
+  }
+  @media (min-width: 1024px) {
+    .guide-cover-glass {
+      -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 58%, transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0%, #000 58%, transparent 100%);
+    }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .guide-cover-glass { background: linear-gradient(100deg, rgb(16 37 52 / 0.85), rgb(16 37 52 / 0.5)); }
   }
   .guide-cover-ground {
     background-color: var(--color-harbor-950);
@@ -2728,8 +2755,13 @@ body:not(:has([data-header-overlay])) .header-overlay,
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
     backdrop-filter: blur(18px) saturate(1.4);
   }
+  /* Half on the photograph, half on the page: the glass deepens toward its foot so the words hold on the light half. */
+  .guide-glass-straddle {
+    background: linear-gradient(180deg, rgb(16 37 52 / 0.3) 0%, rgb(16 37 52 / 0.4) 40%, rgb(16 37 52 / 0.86) 53%, rgb(16 37 52 / 0.9) 100%);
+  }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .guide-glass { background: rgb(16 37 52 / 0.78); }
+    .guide-glass-straddle { background: rgb(16 37 52 / 0.9); }
   }
 }
 

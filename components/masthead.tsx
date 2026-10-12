@@ -45,8 +45,14 @@ export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, childr
     return null;
   })();
   return (
-    <section className={cn("relative overflow-hidden bg-navy", className)} aria-labelledby={titleId}>
-      <div className="relative aspect-[4/3] sm:aspect-[2/1] lg:aspect-[3/1] lg:max-h-[600px]">
+    <section className={cn("relative grid grid-cols-1 overflow-hidden bg-navy", className)} aria-labelledby={titleId}>
+      {/*
+        The spacer, the band and the words share one grid cell. The spacer
+        holds the band's proportion; the band stretches to the cell, so it
+        grows with the words when they need more room (a long title on a phone).
+      */}
+      <div className="col-start-1 row-start-1 aspect-[4/3] sm:aspect-[2/1] lg:aspect-[3/1] lg:max-h-[600px]" aria-hidden="true" />
+      <div className="relative col-start-1 row-start-1">
         {slot.kind === "art" ? (
           <TideMasthead alt={slot.alt} />
         ) : (
@@ -61,11 +67,11 @@ export function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, childr
           </>
         ) : null}
       </div>
-      <div className="absolute inset-0 flex flex-col justify-end">
+      <div className="relative col-start-1 row-start-1 flex flex-col justify-end pt-10">
         <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
           {lockup ? (
-            <ProductLockup family={lockup.family.key} familyName={lockup.family.name} name={lockup.item.label} tone="dark" size="hero" className="rise d1 mb-1" />
+            <ProductLockup family={lockup.family.key} familyName={lockup.family.name} name={lockup.item.label} tone="dark" size="hero" className="rise d1 mb-3 lg:mb-4" />
           ) : null}
           {title ? (
             <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", titleClassName)}>
