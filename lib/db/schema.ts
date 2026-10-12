@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   customType,
+  date,
   index,
   integer,
   jsonb,
@@ -358,3 +359,18 @@ export type NewSearchDocument = typeof searchDocuments.$inferInsert;
 
 /* Encore (0012_encore.sql) lives in its own file. */
 export * from "./encore-schema";
+
+/**
+ * places_usage — calls made to Google Places, per Pacific-time day and billing
+ * SKU ('nearby' | 'text'). lib/places/budget.ts counts each call before it's
+ * made and refuses it past the daily and monthly caps (migration 0014).
+ */
+export const placesUsage = pgTable(
+  "places_usage",
+  {
+    day: date("day").notNull(),
+    sku: text("sku").notNull(),
+    calls: integer("calls").default(0).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.day, table.sku] })],
+);

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { inCounty, isCountyKey, isProKind, placesEnabled } from "@/lib/places/google";
-import { placesJson, placesLimiter } from "@/lib/places/route-helpers";
+import { placesFailure, placesJson, placesLimiter } from "@/lib/places/route-helpers";
 import { clientIp } from "@/lib/search/query";
 
 export const dynamic = "force-dynamic";
@@ -10,8 +10,9 @@ export const runtime = "nodejs";
  * GET /api/places/pros?county=sarasota&kind=movers → { places: Place[] }
  *
  * The best-rated movers, painters, handymen or house cleaners in Sarasota
- * County, Manatee County or both, live from Google. 404 when
- * GOOGLE_MAPS_API_KEY isn't set.
+ * County, Manatee County or both, live from Google. 404 when Places is off
+ * (no key, or no database for the cap); 429 once today's or this month's cap
+ * is used (lib/places/budget.ts).
  */
 export async function GET(request: NextRequest) {
   if (!placesEnabled()) return placesJson({ error: "Not available" }, 404);
@@ -26,7 +27,6 @@ export async function GET(request: NextRequest) {
   try {
     return placesJson({ places: await inCounty(county, kind) });
   } catch (err) {
-    console.error("[places/pros]", err instanceof Error ? err.message : err);
-    return placesJson({ error: "Google didn’t answer. Try again in a moment." }, 502);
+    return placesFailure(err, "places/pros");
   }
 }
