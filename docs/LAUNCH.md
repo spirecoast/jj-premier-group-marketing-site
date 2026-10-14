@@ -147,6 +147,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `ISSUE_PREVIEW_SECRET` | `openssl rand -hex 24`. The `?secret=` for the newsletter previews at `/api/issues/encore` and `/api/issues/tide`; unset, both answer 404. Mark as Sensitive. (`docs/ISSUES.md`) |
 | `ISSUE_WEBHOOK_URL` | A Zapier Catch Hook that receives each finished issue (Encore on Mondays, Tide on the 1st) for an Outlook draft or the Marketing Center. Unset, the issue goes only to `TEAM_NOTIFY_EMAIL`. Mark as Sensitive. (`docs/ISSUES.md`) |
 | `GOOGLE_MAPS_API_KEY` | Server only; mark as Sensitive. Turns on the Planner's Nearby lists (dinner, drinks and hotels by a show's venue) and Atlas Move's "Help with the move" (movers, painters, handyman services, house cleaners). Needs `DATABASE_URL` too; without either, both are hidden and `/api/places/*` answers 404, and `/api/health` shows `places`. Create it in Google Cloud: a project with billing, **Places API (New)** enabled, a key restricted to that one API. Every call asks for rating, price, website, phone and hours, so each is billed at the Enterprise SKU of Nearby Search or Text Search: 1,000 free a month on each, then about $35 per 1,000 ([pricing](https://developers.google.com/maps/billing-and-pricing/pricing)). Google Cloud has no per-day quota for these, so the site caps itself: `lib/places/budget.ts` counts every call in `places_usage` (migration 0014, also created on first use) and refuses it past 30 a day or 900 a month per SKU, Pacific time, as Google bills. If the count can't be read, no call is made. Google's terms forbid storing anything but place IDs, so nothing is cached; each list opened is one call. Redeploy after setting it (6.6): the Planner page reads it when it builds. |
+| `NEXT_PUBLIC_SENTRY_DSN` | The DSN from Sentry (Project settings → Client Keys). Turns on error reports from the server, the edge and the browser (`lib/sentry`): errors only, no tracing or replay, and every report goes through `lib/sentry/scrub.ts`, which drops form data, cookies, IP addresses, query strings, console logs and the `/q/` token. Empty loads nothing and ships no Sentry code to visitors; `/api/health` shows `sentry`. Production only, like Plausible. In Sentry → Project settings → Security & Privacy, turn on **Prevent Storing of IP Addresses** too: the privacy page says reports carry no IP address. Inlined at build time, so redeploy after setting it (6.6). |
 
 ### Stay unset at launch
 
@@ -544,8 +545,9 @@ Settings → Environment Variables, Production only:
 2. `NEXT_PUBLIC_ROBOTS_NOINDEX`: **edit the row** so Production is unchecked (or set the Production value
    to empty). Keep `true` on Preview.
 3. `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` = `jjpremiergroup.com`.
-4. `CRM_PROVIDER` = `webhook`, `CRM_WEBHOOK_URL` = the live Zap's hook (the Zap is on).
-5. Everything else in section 2 "Required" is already set from the preview work; re-read the list once.
+4. `NEXT_PUBLIC_SENTRY_DSN` = the DSN from Sentry, if it isn't set already.
+5. `CRM_PROVIDER` = `webhook`, `CRM_WEBHOOK_URL` = the live Zap's hook (the Zap is on).
+6. Everything else in section 2 "Required" is already set from the preview work; re-read the list once.
 
 ### 6.6 Redeploy
 
@@ -591,6 +593,11 @@ curl -sSI $D/ | grep -i 'strict-transport-security'
 
 curl -sS $D/ | grep -o 'data-domain="[^"]*"'
 # data-domain="jjpremiergroup.com"
+
+curl -sS $D/api/health | grep -o '"sentry":[a-z]*'
+# "sentry":true. Then, on the live site, open the browser console and run
+#   setTimeout(() => { throw new Error("Sentry test") })
+# It shows in Sentry → Issues within a minute, with the page's address and no query string. Resolve it there.
 
 ```
 

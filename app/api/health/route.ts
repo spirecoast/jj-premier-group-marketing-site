@@ -38,6 +38,8 @@ export async function GET() {
       },
       // Google Places: the Planner's Nearby lists and Atlas Move's help with the move.
       places: placesEnabled(),
+      // Sentry error reports (lib/sentry/options.ts).
+      sentry: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN),
       now: new Date().toISOString(),
     },
     { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } },

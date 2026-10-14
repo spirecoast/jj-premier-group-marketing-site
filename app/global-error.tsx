@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportClientError } from "@/lib/sentry/client";
 import "./globals.css";
 import { Wordmark } from "@/components/wordmark";
 import { TEAM } from "@/lib/content/seed/team";
@@ -16,6 +17,7 @@ import { site } from "@/lib/site";
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error("[site] fatal render error", error);
+    reportClientError(error);
   }, [error]);
 
   return (
