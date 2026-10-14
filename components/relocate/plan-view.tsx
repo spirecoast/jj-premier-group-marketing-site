@@ -189,7 +189,7 @@ function Exports() {
   }, [copied]);
 
   async function copy() {
-    track("Share", { kind: "relocate" });
+    track("Share", { what: "relocate-plan" });
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);

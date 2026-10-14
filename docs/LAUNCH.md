@@ -618,7 +618,7 @@ the test contact.
 
 Plausible → the `jjpremiergroup.com` site → Realtime. Your own visits from 6.8 show up. Goals →
 add the custom events and properties listed in `docs/MEASUREMENT.md` §3 (Lead, Subscribe, Review
-permission, Calendar feed, Phone tap, Share, Explore, Download, Lead server, Outbound Link: Click). The test
+permission, Calendar feed, Phone tap, Share, Explore, Search, Download, Lead server, Outbound Link: Click). The test
 lead in 6.9 appears as one `Lead` goal with `form = contact`.
 
 ### 6.11 Uptime monitor

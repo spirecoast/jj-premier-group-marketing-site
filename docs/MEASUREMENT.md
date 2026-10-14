@@ -13,7 +13,7 @@ answer lives outside the site.
 
 ## 1. Every goal the site fires
 
-Grepped from `track(`, `TrackedLink event=` and `sendPlausibleEvent(` on 2026-10-01.
+Grepped from `track(`, `TrackedLink event=`, `ShareButton what=` and `sendPlausibleEvent(` on 2026-10-14.
 
 | Goal | Fired from | Props and their values |
 | --- | --- | --- |
@@ -22,9 +22,9 @@ Grepped from `track(`, `TrackedLink event=` and `sendPlausibleEvent(` on 2026-10
 | `Review permission` | `/thanks/review-permission` after the `/reviews` form | `form`: review-permission · `market`: none · `source` |
 | `Lead server` | `lib/lead-pipeline.ts` step 5, from the server, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script. Never add it to `Lead`: the two count the same submission |
 | `Calendar feed` | the ICS links: `/calendar` (the Encore row and the header's Subscribe), the event page, the visit plan, the relocation plan | `kind`: feed, list, event, performance, plan, relocate · `filter`: all, the feed query (`category=music&market=sarasota`), the event slug, or `<n> events` for a saved list |
-| `Phone tap` | `tel:` and `sms:` links | `where`: header, footer, action-bar, action-bar-text, contact, contact-text, thanks, thanks-text, from-youtube, from-instagram, from-facebook, from-nextdoor |
-| `Share` | `components/share-button.tsx` | `what`: calendar-view, event, explorer-view, match, my-list, place, place-page, visit-plan |
-| `Explore` | the tools | `action`: select and filter (Atlas map), match (Atlas match), calendar-day (Encore), visit-plan (Encore plan), relocate-plan, sold-search, home-value, net-proceeds, hub (a click to a market hub; `where`: footer, `hub`: the slug; see the note below), channel-cta and channel-more (the `/from/*` buttons; `channel` and `to` the destination path) |
+| `Phone tap` | `tel:` and `sms:` links | `where`: header, footer, action-bar, action-bar-text, contact, contact-text, thanks, thanks-text, home-work-with, buy-work-with, sell-work-with, from-youtube, from-instagram, from-facebook, from-nextdoor |
+| `Share` | `components/share-button.tsx`, and the relocation plan's Copy link | `what`: calendar-view, event, explorer-view, match, my-list, place, place-page, visit-plan, relocate-plan |
+| `Explore` | the tools | `action`: select and filter (Atlas map), match (Atlas match), calendar-day (Encore), visit-plan (Encore plan), night-out (the Planner's Nearby lists, when opened), relocate-plan, sold-search, home-value, net-proceeds, hub (a click to a market hub; `where`: footer, `hub`: the slug; see the note below), channel-cta and channel-more (the `/from/*` buttons; `channel` and `to` the destination path) |
 | `Download` | the "Download the PDF" buttons on a guide (the cover and the end) | `what`: guide-pdf · `guide`: the guide's slug |
 | `Search` | `components/search/search-goal.tsx` on `/search`, once per query shown | `results`: 0, 1-3, 4-9 or 10+. The query text is never sent: people type names and addresses into search boxes |
 | `Outbound Link: Click` | automatic (outbound-links extension) | `url`. Covers the Google review link on `/reviews`, the footer's social links, ticket links, the listings link |
@@ -72,12 +72,14 @@ Site settings → **Goals** → **Add goal** → *Custom event*, one per name (c
 5. `Phone tap`
 6. `Share`
 7. `Explore`
-8. `Lead server`
-9. `Outbound Link: Click` (sent by the outbound-links extension; add it with exactly this name)
+8. `Search`
+9. `Download`
+10. `Lead server`
+11. `Outbound Link: Click` (sent by the outbound-links extension; add it with exactly this name)
 
 Site settings → **Custom properties** → add each prop name so it can be broken down:
 `form`, `market`, `source`, `channel`, `kind`, `filter`, `where`, `what`, `action`, `to`, `hub`,
-`url`. (Check the plan: custom properties and funnels aren't on every Plausible tier.)
+`guide`, `results`, `url`. (Check the plan: custom properties and funnels aren't on every Plausible tier.)
 
 Saved views worth making on the dashboard (filter, then bookmark the URL):
 
