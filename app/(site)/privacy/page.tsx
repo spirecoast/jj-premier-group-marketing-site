@@ -45,6 +45,9 @@ export default async function PrivacyPage() {
         <p>
           <strong>Analytics.</strong> We use Plausible to count which pages are read. Plausible is designed to work without cookies or stored IP addresses. Forms are not sent to Plausible.
         </p>
+        <p>
+          <strong>Error reports.</strong> When a page on this site fails, it sends a report to Sentry so we can fix it. A report carries the page’s address, your browser and device type, and the error itself. It doesn’t include what you’ve typed into a form, your cookies or your IP address.
+        </p>
 
         <h2>How we use it</h2>
         <p>
@@ -58,7 +61,7 @@ export default async function PrivacyPage() {
 
         <h2>Who sees it</h2>
         <p>
-          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; Home Platform, the customer relationship system Compass runs for our brokerage, where we work on each enquiry (it receives your form from its script on this site, or from this site directly); Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
+          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; Home Platform, the customer relationship system Compass runs for our brokerage, where we work on each enquiry (it receives your form from its script on this site, or from this site directly); Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; Sentry, for the error reports described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
         </p>
 
         <h2>How long we keep it</h2>

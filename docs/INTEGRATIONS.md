@@ -435,6 +435,8 @@ These are in `.env.example` commented out. Skip until the corresponding phase:
 - **Loops or Customer.io** (Phase 8) — marketing email at scale (transactional
   stays on Resend)
 - **Cloudinary / Mux** (Phase 3/8) — media hosting
-- **PostHog / Sentry** (Phase 1/2 if budget allows) — observability
+- **PostHog** (Phase 1/2 if budget allows) — product analytics. Sentry, for
+  error reports, is already in the code (`lib/sentry`), off until
+  `NEXT_PUBLIC_SENTRY_DSN` is set (`docs/LAUNCH.md` section 2)
 - **Langfuse** (Phase 7) — LLM observability
 - **AWS S3 with Object Lock** (Phase 6) — compliance archive

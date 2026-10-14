@@ -42,6 +42,15 @@ const SUPABASE_HOST = (() => {
 /** Home Platform's lead pixel (lib/home-platform.ts): its script and the /cxlp/ calls it makes, when this build loads it. */
 const HOME_PLATFORM = homePlatformPixelId() ? [HOME_PLATFORM_ORIGIN] : [];
 
+/** Sentry (lib/sentry): the ingest host in the DSN, when this build reports errors. */
+const SENTRY_INGEST = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_SENTRY_DSN ? [new URL(process.env.NEXT_PUBLIC_SENTRY_DSN).origin] : [];
+  } catch {
+    return [];
+  }
+})();
+
 /** Vercel injects its preview toolbar on preview deployments only. */
 const VERCEL_PREVIEW = process.env.VERCEL_ENV === "preview" ? ["https://vercel.live"] : [];
 
@@ -65,7 +74,7 @@ function basePolicy(): Directives {
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io", `https://${SUPABASE_HOST}`],
     "font-src": ["'self'", "data:"],
-    "connect-src": ["'self'", PLAUSIBLE_HOST, ...MAP_HOSTS, ...SANITY_API, ...HOME_PLATFORM, ...VERCEL_PREVIEW],
+    "connect-src": ["'self'", PLAUSIBLE_HOST, ...MAP_HOSTS, ...SANITY_API, ...HOME_PLATFORM, ...SENTRY_INGEST, ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
     // www.google.com: the keyless Google Maps embed on /contact (lib/map-embed.ts).
     "frame-src": ["'self'", "https://www.google.com", ...VERCEL_PREVIEW],
