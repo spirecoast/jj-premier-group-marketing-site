@@ -8,21 +8,21 @@
         "https://www.manateepao.gov/data/manateesales2024.csv",
         "https://www.manateepao.gov/data/manatee_situs_addresses.zip"
       ],
-      "rows": 25626,
+      "rows": 25977,
       "byUse": {
-        "single-family": 10729,
-        "condo": 3596,
-        "vacant": 8392,
-        "other": 1722,
-        "villa": 549,
-        "townhome": 638
+        "single-family": 10854,
+        "vacant": 8539,
+        "condo": 3655,
+        "other": 1733,
+        "townhome": 645,
+        "villa": 551
       },
-      "from": "2024-10-11",
+      "from": "2024-10-18",
       "to": "2026-09-24",
       "hasCoordinates": false,
       "file": "manatee.json.gz",
-      "bytes": 812299,
-      "sha256": "d5d2ce018c591ca7"
+      "bytes": 823424,
+      "sha256": "10389c3fb2f447b9"
     },
     "sarasota": {
       "label": "Sarasota County Property Appraiser",
@@ -30,24 +30,24 @@
       "sources": [
         "https://www.sarasotapropertyappraiser.gov/downloads/SCPA_Parcels_Sales_CSV.zip"
       ],
-      "rows": 29222,
+      "rows": 29549,
       "byUse": {
-        "single-family": 16969,
-        "townhome": 2539,
-        "condo": 5778,
-        "vacant": 1437,
-        "other": 2499
+        "townhome": 2597,
+        "single-family": 17225,
+        "condo": 5875,
+        "vacant": 1364,
+        "other": 2488
       },
-      "from": "2024-10-11",
-      "to": "2026-10-05",
+      "from": "2024-10-18",
+      "to": "2026-10-12",
       "hasCoordinates": false,
       "file": "sarasota.json.gz",
-      "bytes": 1018239,
-      "sha256": "d7ed16aa050de81e"
+      "bytes": 1030156,
+      "sha256": "1a802de0872200f6"
     }
   },
-  "generatedAt": "2026-10-11T15:11:23.128Z",
-  "windowStart": "2024-10-11",
+  "generatedAt": "2026-10-18T12:52:17.226Z",
+  "windowStart": "2024-10-18",
   "windowMonths": 24,
   "qualifiedCodes": [
     "01",
