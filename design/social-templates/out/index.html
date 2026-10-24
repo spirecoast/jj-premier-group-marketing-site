@@ -1,0 +1,1082 @@
+<title>JJ Premier Group Templates</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--paper:#FAF8F5;--linen:#E6DDD1;--ink:#2B2D30;--deep:#1E3442;--muted:#5E6268;--rule:#DDD5C8;--accent:#2C6E7E;--sold:#A6483C;--card:#FFFFFF;--display:"Newsreader",Georgia,serif;--body:"Jost","Helvetica Neue",Arial,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#142530;--linen:#1E3442;--ink:#E6DDD1;--deep:#F3EEE6;--muted:#9EBCCC;--rule:#2A4556;--accent:#89D4E3;--sold:#E09A8F;--card:#1A2D3A;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#142530;--linen:#1E3442;--ink:#E6DDD1;--deep:#F3EEE6;--muted:#9EBCCC;--rule:#2A4556;--accent:#89D4E3;--sold:#E09A8F;--card:#1A2D3A;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:300 17px/1.6 var(--body)}code{font-family:var(--mono);font-size:.9em}
+.wrap{max-width:1280px;margin:0 auto;padding-block:48px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2{font-family:var(--display);font-weight:600;color:var(--deep);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(40px,6.5vw,84px);line-height:1}h2{font-size:clamp(32px,4.4vw,52px);line-height:1.04}
+.kicker{font:500 13px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:21px;line-height:1.5;max-width:64ch;margin:22px 0 0}
+.prose{max-width:68ch}.prose p{margin:14px 0 0}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:34px 0 0;max-width:760px}
+.facts div{border-top:2px solid var(--deep);padding-top:10px}.facts b{display:block;font:500 38px/1 var(--mono);color:var(--deep)}.facts span{font-size:14px;color:var(--muted)}
+.confirm{margin-top:56px;border:1px solid var(--rule);background:var(--card);padding:28px clamp(18px,3vw,36px)}
+.confirm h2{font-size:clamp(26px,3.2vw,38px)}.confirm ol{margin:18px 0 0;padding-left:22px;display:grid;gap:12px;max-width:80ch}.confirm li::marker{font-family:var(--mono);color:var(--accent)}.confirm li b{font-weight:500;color:var(--deep)}
+.toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:0 28px;margin-top:56px;border-top:1px solid var(--rule)}
+.toc a{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--rule);color:var(--deep);text-decoration:none;font:500 18px/1.2 var(--body)}
+.toc a b{font:500 13px/1.2 var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:.1em;padding-top:3px}
+.toc a:hover span,.toc a:focus-visible span{text-decoration:underline;text-underline-offset:4px}a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+section{margin-top:72px;padding-top:28px;border-top:2px solid var(--deep)}
+section header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:8px 24px}
+.avg{font-family:var(--mono);font-size:14px;color:var(--muted);margin:0}
+.thesis{margin:14px 0 26px;font-size:18px;max-width:72ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:34px 22px;align-items:start}
+.card{min-width:0}.card img{display:block;width:100%;height:auto;border:1px solid var(--rule);background:var(--linen)}
+.card.tall img{max-width:78%}
+.meta{padding-top:10px}.top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:6px;margin-bottom:8px}
+.id{font-family:var(--mono);font-weight:500;font-size:15px;color:var(--accent)}.ttl{font-size:14px;color:var(--muted);text-align:right}
+.ln{font-size:15.5px;line-height:1.45;margin:0 0 8px;color:var(--ink)}
+.cap{font-size:14px;line-height:1.45;color:var(--ink);margin:0 0 8px;opacity:.9}.cap b{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-right:6px}
+.why{font:400 12.5px/1.45 var(--mono);color:var(--muted);margin:0}
+.notes{margin-top:80px;border-top:2px solid var(--deep);padding-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:28px;font-size:15px}
+.notes h4{font:500 13px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 8px}.notes p{margin:0}
+@media (max-width:760px){.facts b{font-size:28px}}
+</style><div class="wrap">
+<div class="kicker">Social media · round four · 2026-10-24</div>
+<h1>The templates, in fourteen families</h1>
+<p class="lede">Built the way the Virtus set was built: fourteen families, each with one job from the social plan, ten templates in each. The registers are round three's (Gallery, Golden Hour, Big Type, Harbor Night, Poster, Cut Paper, Elevation, Cinema, Chart Room, Quiet, Coldwell Banker Blue, Edition), carried into formats round three didn't have: checklists, dates, corrections, this-or-that, text threads, carousels and stories.</p>
+<div class="prose">
+<p>The writing is the point of this round. Every line talks to one person, plainly. Are you thinking about moving? If you think someone would find this useful, please share it. No exclamation marks, no superlatives, nothing described as stunning or a must-see. Every number carries its source and pull date. Every house is described, never the people who might live in it. Venues are named properly and sell nothing.</p>
+<p>Under each image is the line on the image, a suggested caption written in the same voice, and what to swap or check before it posts.</p>
+</div>
+<div class="facts"><div><b>140</b><span>templates</span></div><div><b>14</b><span>families, ten each</span></div><div><b>12</b><span>visual registers from round three</span></div></div>
+<div class="confirm"><div class="kicker">Before anything is posted</div><h2>Seven things to confirm</h2><ol>
+<li><b>Listings are samples.</b> Every listing, open house, sold and showing piece uses an invented house and price on a real neighborhood name, and says “Sample listing · for review” on the piece. Swap in real listings and their own photos, then remove that line.</li>
+<li><b>Market figures.</b> Medians, counts and shares come from the county appraiser files in the repo (<code>data/sales</code>): qualified home sales, October 2025 to September 2026, pulled October 2026. The month in progress is never complete. Re-run the numbers the week a figure posts.</li>
+<li><b>Encore.</b> Every show, venue and date was checked against the Encore calendar in the repo on October 24, 2026. Check each one again at the venue's own site the week it posts, and never imply a sponsorship.</li>
+<li><b>Brokerage sign-off.</b> “Coldwell Banker Realty” appears on all 140 pieces. Listing pieces carry the Equal Housing mark. The franchise logo appears only in the Coldwell Banker Blue register. Nothing ships without the brokerage contact's review.</li>
+<li><b>Stand-in photos.</b> Photographs are from the site's own library and the Encore stock set. Houses are stand-ins; a few place photos stand in for a neighbor (the Gillespie Park bungalow is a Tampa bungalow, the Alvin Ailey stage is a stock stage). The team photo is the current duo portrait.</li>
+<li><b>Stickers.</b> Poll, question, link and countdown stickers on the stories are drawn placeholders. Add the real Instagram stickers when posting.</li>
+<li><b>Fonts.</b> IvyPresto and Contralto are licensed and not embedded, so the pieces use the brand's documented stand-ins (Newsreader, Cormorant Garamond). Every template is also an HTML file in <code>out/html</code>, so the type can be swapped once the licensed faces are installed.</li>
+</ol></div>
+<nav class="toc" aria-label="Families"><a href="#f01"><span>01 Plain Talk</span><b>reach</b></a><a href="#f02"><span>02 Listings</span><b>click</b></a><a href="#f03"><span>03 One Number</span><b>share</b></a><a href="#f04"><span>04 Before You</span><b>save</b></a><a href="#f05"><span>05 On the Calendar</span><b>save</b></a><a href="#f06"><span>06 What People Think</span><b>share</b></a><a href="#f07"><span>07 Which Would You</span><b>comment</b></a><a href="#f08"><span>08 Drawn</span><b>save</b></a><a href="#f09"><span>09 The Questions</span><b>comment</b></a><a href="#f10"><span>10 Swipe</span><b>save</b></a><a href="#f11"><span>11 Encore</span><b>follow</b></a><a href="#f12"><span>12 Around Here</span><b>reach</b></a><a href="#f13"><span>13 Stories</span><b>comment · click</b></a><a href="#f14"><span>14 Thank You and Please Share</span><b>share</b></a></nav>
+<section id="f01"><header><div><div class="kicker">01 · job: reach · Golden Hour and Quiet</div><h2>Plain Talk</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">One sincere line to one person, over a calm photograph. Are you thinking about moving? No pitch, no punch. These are the posts that earn the right to post everything else.</p>
+<div class="grid"><article class="card">
+<img src="img/01-01.jpg" alt="Template 01-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-01</span><span class="ttl">Thinking about moving</span></div>
+<p class="ln">If you're thinking about a move, even a year out, we're glad to talk it through. No pitch. Just the questions worth asking early.</p>
+<p class="cap"><b>Caption</b> If a move is somewhere in your plans, this year or next, send us a note. We'll tell you what we'd do first, and it's fine if the answer is wait.</p>
+<p class="why">Main Street, Lakewood Ranch, at dawn. The line is the whole brief for this round: talk to one person, plainly.</p>
+</div></article>
+<article class="card">
+<img src="img/01-02.jpg" alt="Template 01-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-02</span><span class="ttl">What your house is worth</span></div>
+<p class="ln">You don't have to be ready to sell to ask what your house is worth. We'll pull what sold on your street from the county record. It's public, and it's free.</p>
+<p class="cap"><b>Caption</b> People wait to ask because they think asking means listing. It doesn't. Tell us your street and we'll send you what actually sold there, with the dates and the prices.</p>
+<p class="why">Lakefront row, Lakewood Ranch. Could run with the Facebook link image for /sell/sold.</p>
+</div></article>
+<article class="card">
+<img src="img/01-03.jpg" alt="Template 01-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-03</span><span class="ttl">Start a year out</span></div>
+<p class="ln">Most people start about a year before they move. The ones who start earlier have an easier time of it. When do you need to be in, and is there a house to sell first? Everything else follows from those two.</p>
+<p class="cap"><b>Caption</b> Starting early isn't about rushing. It's about having time to do the slow things slowly: the roof, the paperwork, the photographer who books six weeks out.</p>
+<p class="why">Quiet register. Jalousie window photo from the library.</p>
+</div></article>
+<article class="card">
+<img src="img/01-04.jpg" alt="Template 01-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-04</span><span class="ttl">Two questions</span></div>
+<p class="ln">Two questions first: when do you need to be in, and is there a house to sell first? Those two answers change everything else, so we ask them before we show you a single house.</p>
+<p class="cap"><b>Caption</b> We ask these before anything else because the answers decide the order of everything that follows. If you've got them, we can get started.</p>
+<p class="why">A phrase from the brand voice doc, used as it was written.</p>
+</div></article>
+<article class="card">
+<img src="img/01-05.jpg" alt="Template 01-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-05</span><span class="ttl">Moving from somewhere else</span></div>
+<p class="ln">Ask us about the flood zone first. The restaurants can wait. Flood zone, roof age, insurance quote. Then we can talk about where to eat after the showing.</p>
+<p class="cap"><b>Caption</b> Everyone who moves here from somewhere else has the same three surprises: flood zones, roof ages and insurance. We'd rather you heard about them from us, early, than from a lender late.</p>
+<p class="why">Mangrove tunnel, Robinson Preserve side. Any place photo works.</p>
+</div></article>
+<article class="card">
+<img src="img/01-06.jpg" alt="Template 01-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-06</span><span class="ttl">The wrong house</span></div>
+<p class="ln">We'd rather tell you not to buy a house than help you buy the wrong one. That sentence costs us a sale now and then. It's still the job.</p>
+<p class="cap"><b>Caption</b> We've talked people out of houses. A seawall estimate, a roof that was going to fail an insurer, a street that floods in August. It's not a sales technique, it's what we'd want someone to do for us.</p>
+<p class="why">Quiet register, terrazzo room.</p>
+</div></article>
+<article class="card">
+<img src="img/01-07.jpg" alt="Template 01-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-07</span><span class="ttl">Explained twice</span></div>
+<p class="ln">Your first one is the one we explain twice. Escrow, contingency, homestead. Nobody is born knowing this, and pretending otherwise is how first-timers get hurt.</p>
+<p class="cap"><b>Caption</b> If you've never bought a house, you are allowed to ask what every word means. We'll explain it, and then we'll explain it again at the table, because that's where it matters.</p>
+<p class="why">Brand phrase, Linen-led register.</p>
+</div></article>
+<article class="card">
+<img src="img/01-08.jpg" alt="Template 01-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-08</span><span class="ttl">The sold price</span></div>
+<p class="ln">The sold price, not the list price. It's a different number, and it's public. Our site reads it straight from the county. Type in a street and see for yourself.</p>
+<p class="cap"><b>Caption</b> List prices are hopes. Sold prices are facts, and in Florida they're public record. Our site shows the county's record for any street, with no sign-up.</p>
+<p class="why">Pairs with the Tide and chart families. Link in bio to /sell/sold.</p>
+</div></article>
+<article class="card">
+<img src="img/01-09.jpg" alt="Template 01-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-09</span><span class="ttl">Looking quietly</span></div>
+<p class="ln">Some of the best houses we've sold never went on the open market. If you're looking quietly, say so. We'll keep it quiet too.</p>
+<p class="cap"><b>Caption</b> Not every sale needs a sign in the yard. If you'd rather look, or sell, without an audience, tell us. That's a normal request and we handle it often.</p>
+<p class="why">Harbor-led, luxury register. One sentence does the work.</p>
+</div></article>
+<article class="card">
+<img src="img/01-10.jpg" alt="Template 01-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">01-10</span><span class="ttl">Thanks for following</span></div>
+<p class="ln">Thank you for following along. If you ever have a question about a house, a street or a neighborhood, just ask. We answer every one.</p>
+<p class="cap"><b>Caption</b> This account is mostly houses, the coast and where we're going this week. If a friend might like it, please share it with them. And if you have a question, the comments are open.</p>
+<p class="why">Good as a pinned post or a re-introduction every few months.</p>
+</div></article></div></section>
+<section id="f02"><header><div><div class="kicker">02 · job: click · All twelve, one per piece</div><h2>Listings</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">The same listing told ten ways: Coldwell Banker Blue for the brokerage feed, Gallery and Golden Hour for the top of the market, Elevation, Cut Paper, Poster, Cinema and Harbor Night for the weeks the feed needs a change. Every one carries the Equal Housing mark and says it is a sample.</p>
+<div class="grid"><article class="card">
+<img src="img/02-01.jpg" alt="Template 02-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-01</span><span class="ttl">New listing · CB Blue</span></div>
+<p class="ln">New listing · Country Club East, Lakewood Ranch · It's open Sunday from one to three. Come by if you'd like to see it.</p>
+<p class="cap"><b>Caption</b> New this week in Country Club East. Four bedrooms, a lake out back, and a kitchen that gets the afternoon light. Open Sunday one to three. If you can't make it, ask us for a time.</p>
+<p class="why">The brokerage register: franchise logo, Equal Housing mark, one status tag.</p>
+</div></article>
+<article class="card">
+<img src="img/02-02.jpg" alt="Template 02-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-02</span><span class="ttl">Just listed · Golden Hour</span></div>
+<p class="ln">Just listed · Bird Key, on the water · We'd see it at seven, when the dock lights come on.</p>
+<p class="cap"><b>Caption</b> Bird Key, on the water. We'd show it to you at seven, when the dock lights come on and the bay goes flat. Private showings by appointment.</p>
+<p class="why">Golden Hour register. Swap in the real twilight photo and the real coordinates.</p>
+</div></article>
+<article class="card">
+<img src="img/02-03.jpg" alt="Template 02-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-03</span><span class="ttl">Just listed · Gallery</span></div>
+<p class="ln">The Lake Club · Lakewood Ranch. Stone, stucco and lamplight.</p>
+<p class="cap"><b>Caption</b> The Lake Club, just listed. Stone, stucco and lamplight, and a lake view from the back terrace. Ask us for the floor plan and the lot survey.</p>
+<p class="why">The flagship register from round three, carried forward.</p>
+</div></article>
+<article class="card">
+<img src="img/02-04.jpg" alt="Template 02-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-04</span><span class="ttl">Private showings · Harbor Night</span></div>
+<p class="ln">Longboat Key · We show this one in the evening, when the lights come on. Ask us for a time.</p>
+<p class="cap"><b>Caption</b> Longboat Key, by appointment. We show it in the evening on purpose. Message us for a time.</p>
+<p class="why">Harbor Night register, for the top of the market.</p>
+</div></article>
+<article class="card">
+<img src="img/02-05.jpg" alt="Template 02-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-05</span><span class="ttl">Open house · Cinema</span></div>
+<p class="ln">Open house · Riverview Boulevard, Bradenton · Open Sunday, one to three. Park on the street and come around the side.</p>
+<p class="cap"><b>Caption</b> Open house Sunday on Riverview Boulevard, one to three. Park on the street and come around the side; the dock is the part you'll want to see first.</p>
+<p class="why">Cinema register. Built for the walk-through Reel cover too.</p>
+</div></article>
+<article class="card">
+<img src="img/02-06.jpg" alt="Template 02-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-06</span><span class="ttl">Open house · Poster</span></div>
+<p class="ln">Open house · Gillespie Park, Sarasota · A bungalow four blocks from the farmers market. Come see the porch.</p>
+<p class="cap"><b>Caption</b> Open Sunday in Gillespie Park, one to three. A bungalow with a real porch, four blocks from the Saturday farmers market. Come see it in daylight.</p>
+<p class="why">Poster register. The stand-in photo is a Tampa bungalow; swap for the listing's own.</p>
+</div></article>
+<article class="card">
+<img src="img/02-07.jpg" alt="Template 02-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-07</span><span class="ttl">Just listed · Elevation</span></div>
+<p class="ln">Palmer Ranch, Sarasota · Just listed</p>
+<p class="cap"><b>Caption</b> Palmer Ranch, just listed. Three bedrooms, a pool, and the preserve behind it so nobody builds there. Ask us for the drawing set and the survey.</p>
+<p class="why">Elevation register: the photo becomes a pen drawing on a title-blocked sheet.</p>
+</div></article>
+<article class="card">
+<img src="img/02-08.jpg" alt="Template 02-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-08</span><span class="ttl">Coming soon · Cut Paper</span></div>
+<p class="ln">Coming soon · Village of the Arts, Bradenton</p>
+<p class="cap"><b>Caption</b> Coming soon in the Village of the Arts. We're photographing it this week. If you want the first look, tell us and we'll call you before it goes live.</p>
+<p class="why">Cut Paper register. Two photos, torn and taped.</p>
+</div></article>
+<article class="card">
+<img src="img/02-09.jpg" alt="Template 02-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-09</span><span class="ttl">Sold · Quiet</span></div>
+<p class="ln">Sold · Sold. Nine days, and the second offer was the one.</p>
+<p class="cap"><b>Caption</b> Sold in Greenbrook. Nine days on the market, two offers, and the second one was the right one. Thank you to the sellers for trusting us with it.</p>
+<p class="why">Quiet register. Sold figures must come from the closing statement and MLS, with the pull date.</p>
+</div></article>
+<article class="card">
+<img src="img/02-10.jpg" alt="Template 02-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">02-10</span><span class="ttl">Just reduced · CB Blue</span></div>
+<p class="ln">Just reduced · Palma Sola, Bradenton · Down from $615,000. Thirty days told us the first number was wrong, so we moved it.</p>
+<p class="cap"><b>Caption</b> Palma Sola, now $585,000 from $615,000. Thirty days on the market told us the first number was wrong, so we moved it. Canal out back, a ten-minute drive to the island.</p>
+<p class="why">The honest price-change line from the brand voice doc.</p>
+</div></article></div></section>
+<section id="f03"><header><div><div class="kicker">03 · job: share · Big Type</div><h2>One Number</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">A single figure from Tide, set huge, with one plain sentence that says what it means and one line that says where it came from. Nothing posts without the source and the pull date.</p>
+<div class="grid"><article class="card">
+<img src="img/03-01.jpg" alt="Template 03-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-01</span><span class="ttl">Lakewood Ranch median</span></div>
+<p class="ln">$730 ,000 · Half of the 1,277 single-family homes that sold on the Ranch in the past year went for more than this, and half for less.</p>
+<p class="cap"><b>Caption</b> The median single-family sale in Lakewood Ranch over the past twelve months was $730,000. That's the middle, not the average, so a few very large sales don't pull it around. Source: the county property appraisers' records, pulled October 2026.</p>
+<p class="why">Re-pull from data/sales before posting; the month in progress is never complete.</p>
+</div></article>
+<article class="card">
+<img src="img/03-02.jpg" alt="Template 03-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-02</span><span class="ttl">Sarasota median</span></div>
+<p class="ln">$619 ,700 · The middle single-family sale in Sarasota over the past year. 3,756 homes went into that number.</p>
+<p class="cap"><b>Caption</b> Sarasota's median single-family sale over the past twelve months was $619,700, across 3,756 qualified sales. If you want the number for your own street rather than the city, ask us.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/03-03.jpg" alt="Template 03-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-03</span><span class="ttl">Bradenton median</span></div>
+<p class="ln">$435 ,000 · The middle single-family sale in Bradenton, Palmetto, Parrish and the island over the past year. 4,100 homes went into it.</p>
+<p class="cap"><b>Caption</b> Bradenton's median single-family sale was $435,000 over the past twelve months. Bradenton here means the mailing address, so it takes in Palmetto, Parrish, Ellenton and Anna Maria Island.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/03-04.jpg" alt="Template 03-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-04</span><span class="ttl">One in five</span></div>
+<p class="ln">1 in 5 · About one in five homes that sold in Sarasota in the past year went for more than a million dollars. In Bradenton it was about one in fourteen.</p>
+<p class="cap"><b>Caption</b> About one in five Sarasota home sales in the past year closed above a million dollars. In Lakewood Ranch it was also about one in five. In Bradenton, about one in fourteen. Same coast, three different markets.</p>
+<p class="why">Shares: Sarasota 22%, Lakewood Ranch 19%, Bradenton 7%.</p>
+</div></article>
+<article class="card">
+<img src="img/03-05.jpg" alt="Template 03-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-05</span><span class="ttl">A square foot</span></div>
+<p class="ln">$224 · What a square foot of home cost in Bradenton, at the median. In Sarasota it was $293. On the Ranch, $282.</p>
+<p class="cap"><b>Caption</b> Price per square foot is the fairest way to compare a 1,400-square-foot house with a 3,000-square-foot one. Bradenton $224, Lakewood Ranch $282, Sarasota $293, at the median over the past year.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/03-06.jpg" alt="Template 03-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-06</span><span class="ttl">March</span></div>
+<p class="ln">2,074 · Homes that closed in March across Lakewood Ranch, Sarasota and Bradenton. January had 1,246. Spring is still when most people move here.</p>
+<p class="cap"><b>Caption</b> March had 2,074 closings across our three markets. January had 1,246. If you're selling, spring brings the most buyers and the most competition. If you're buying, winter is quieter.</p>
+<p class="why">Monthly counts from data/sales; the county publishes weeks after closing.</p>
+</div></article>
+<article class="card">
+<img src="img/03-07.jpg" alt="Template 03-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-07</span><span class="ttl">Three in ten</span></div>
+<p class="ln">3 in 10 · About three in ten homes that sold here in the past year were condos. Ask for the reserve study before you fall for the view.</p>
+<p class="cap"><b>Caption</b> Condos were about three in ten of the homes sold here over the past year. Since the 2022 law most buildings have to have a reserve study. Ask to read it before you make an offer.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/03-08.jpg" alt="Template 03-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-08</span><span class="ttl">Built after 2002</span></div>
+<p class="ln">2002 · Half the single-family homes that sold here in the past year were built after 2002. Ask when the roof was done, not when the house was.</p>
+<p class="cap"><b>Caption</b> The median single-family home that sold here was built in 2002. The year that matters more to your insurer is the roof's. Ask for the permit date.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/03-09.jpg" alt="Template 03-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-09</span><span class="ttl">Atlas</span></div>
+<p class="ln">2,088 · Neighborhoods, communities and enclaves in Atlas. Tell it what matters to you and it narrows them down. No sign-up.</p>
+<p class="cap"><b>Caption</b> Atlas has 2,088 neighborhoods in it, from gated villages on the Ranch to the old grids downtown. It's free on our site. Tell it your budget and what you need nearby and it does the sorting.</p>
+<p class="why">Product post for Atlas.</p>
+</div></article>
+<article class="card">
+<img src="img/03-10.jpg" alt="Template 03-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">03-10</span><span class="ttl">Public record</span></div>
+<p class="ln">14,274 · Every one of them is in the county record, with the price. You can look up your own street on our site in about ten seconds.</p>
+<p class="cap"><b>Caption</b> 14,274 homes sold across our three markets in the past year, and every price is public. Our site reads the county's record for any street. Type yours in.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article></div></section>
+<section id="f04"><header><div><div class="kicker">04 · job: save · Checklist on a photo</div><h2>Before You</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Three or four things to do before you list, offer, close, or buy behind a gate. The lists are short on purpose; the save is the point, and the caption asks people to share it if it would help someone.</p>
+<div class="grid"><article class="card">
+<img src="img/04-01.jpg" alt="Template 04-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-01</span><span class="ttl">Before you list</span></div>
+<p class="ln">Three things to do about eight weeks before you list. (1) Walk the house with us and write down what a buyer will notice first. (2) Book the photographer. The good ones fill up six weeks ahead. (3) Find your insurance, flood and permit paperwork now, not the week of closing.</p>
+<p class="cap"><b>Caption</b> Eight weeks is about right. It's enough time to fix the things that would cost you at inspection and to get the photographer you actually want. If you think someone would find this useful, please share it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-02.jpg" alt="Template 04-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-02</span><span class="ttl">Before you make an offer</span></div>
+<p class="ln">Four things to ask before you make an offer on this coast. (1) The flood zone, and whether there's an elevation certificate. (2) The year the roof was replaced. Your insurer will ask. (3) What the association, and any district, actually charges. (4) What the last three houses on the street sold for.</p>
+<p class="cap"><b>Caption</b> These four answers change what a house costs to own here, not just to buy. We'll get them for you before you write anything. Save this for when you need it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-03.jpg" alt="Template 04-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-03</span><span class="ttl">Before hurricane season</span></div>
+<p class="ln">Before hurricane season, do these three things. (1) Photograph every room and the outside, for insurance. Phone photos are fine. (2) Look up your evacuation zone. It is not the same as your flood zone. (3) Find the water shutoff and know where the shutters are, before you need them.</p>
+<p class="cap"><b>Caption</b> Three things to do before June 1 that take an afternoon. Your evacuation zone and your flood zone are different maps; look up both. If you think someone would find this useful, please share it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-04.jpg" alt="Template 04-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-04</span><span class="ttl">Before you buy a condo</span></div>
+<p class="ln">Three documents to read before you buy a condo here. (1) The milestone inspection report, if the building is three stories or more. (2) The reserve study, and whether the reserves are actually funded. (3) The last two years of board minutes. That's where the real story is.</p>
+<p class="cap"><b>Caption</b> Since 2022, most condo buildings here have to have a milestone inspection and a reserve study. Read both, then read the board minutes. We'll help you get them. Save this.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-05.jpg" alt="Template 04-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-05</span><span class="ttl">Before closing week</span></div>
+<p class="ln">Three things to do the week you close. (1) Confirm wire instructions by phone, calling a number you already had. Never from a new email. (2) Do the walk-through the day before, and run every tap. (3) Have the utilities put in your name for the day of closing.</p>
+<p class="cap"><b>Caption</b> Wire fraud is real and it targets closings. Call the title company on a number you already had, not one from an email that just arrived. We'll remind you again that week.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-06.jpg" alt="Template 04-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-06</span><span class="ttl">Before a gated community</span></div>
+<p class="ln">Four things to ask before you buy in a gated community. (1) Who runs the gate: the association, or a district you also pay. (2) What the fees cover, and what they don't. Roofs and roads are the big ones. (3) The rules on renting, fences, boats and trucks in the driveway. (4) Whether there's a special assessment coming. Ask it exactly that way.</p>
+<p class="cap"><b>Caption</b> Gates come with rules and bills. None of them are deal-breakers if you know them going in. We wrote a longer guide to this on our site; this is the short version.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-07.jpg" alt="Template 04-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-07</span><span class="ttl">Before you move from out of state</span></div>
+<p class="ln">Three things to do before you move here from somewhere else. (1) Get an insurance quote on a house before you fall for it. Here, that's a real number. (2) Do the homestead math. Filing by March 1 can change your tax bill for years. (3) Write down a hurricane plan now, while it's calm and nobody's worried.</p>
+<p class="cap"><b>Caption</b> If you're moving here from another state, these three things will save you more than any negotiation. If you think someone would find this useful, please share it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-08.jpg" alt="Template 04-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-08</span><span class="ttl">Before an open house</span></div>
+<p class="ln">Three things to do before your open house. (1) Lights on, blinds up, every door open. Buyers won't open a closed door. (2) Put the dog somewhere kind. A nervous dog makes nervous buyers. (3) Leave for the whole window. People say what they really think when the owner isn't there.</p>
+<p class="cap"><b>Caption</b> Sellers always ask what to do before an open house. These three, and then go get lunch. We'll call you the minute it ends.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-09.jpg" alt="Template 04-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-09</span><span class="ttl">Before you sell from away</span></div>
+<p class="ln">Three things to sort out before you sell a house you don't live in. (1) A key with a neighbor or with us, and a list of who's allowed in. (2) The water off at the main, and the air conditioning left on. This is Florida. (3) Tell your insurer the house is vacant. Many policies change after thirty or sixty days empty.</p>
+<p class="cap"><b>Caption</b> Selling a house from another state is normal here; about a third of our sellers do it. These three things prevent most of the problems. Save it for when you need it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/04-10.jpg" alt="Template 04-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">04-10</span><span class="ttl">Before a showing</span></div>
+<p class="ln">Three things to do at a showing that most people skip. (1) Drive the street at the hour you'd actually be coming home. (2) Open the electrical panel and look at the water heater's date. (3) Stand in the backyard for a full minute and just listen.</p>
+<p class="cap"><b>Caption</b> A showing lasts twenty minutes. These three take five of them and tell you more than the kitchen does. If you think someone would find this useful, please share it.</p>
+
+</div></article></div></section>
+<section id="f05"><header><div><div class="kicker">05 · job: save · Date block on a photo</div><h2>On the Calendar</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">The dates that actually matter here: March 1, June 1, November 30, the tax discount, a flood policy's 30 days, and a few opening nights. Each one says what to do, not just when.</p>
+<div class="grid"><article class="card">
+<img src="img/05-01.jpg" alt="Template 05-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-01</span><span class="ttl">March 1 · homestead</span></div>
+<p class="ln">March 1 · If you bought a home here last year, file for homestead by March 1.</p>
+<p class="cap"><b>Caption</b> If you closed on a home here last year and you live in it, file for homestead with the county property appraiser by March 1. You do it once. It lowers the bill and caps future increases. Ask us if you're not sure whether you qualify.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-02.jpg" alt="Template 05-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-02</span><span class="ttl">June 1 · season opens</span></div>
+<p class="ln">June 1 · Hurricane season opens June 1. Bind your insurance before a storm has a name.</p>
+<p class="cap"><b>Caption</b> Hurricane season starts June 1. If you're buying this summer, get the insurance bound early. Once there's a named storm nearby, insurers stop binding and closings stall until it passes.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-03.jpg" alt="Template 05-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-03</span><span class="ttl">November 30 · season ends</span></div>
+<p class="ln">November 30 · Season's over. Now read the renewal letter your insurer is about to send.</p>
+<p class="cap"><b>Caption</b> Hurricane season ends November 30. The renewal letters start arriving right after. Read yours all the way through, and if it asks about the roof, call an inspector before everyone else does.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-04.jpg" alt="Template 05-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-04</span><span class="ttl">November · 4 percent off</span></div>
+<p class="ln">November 30 · Pay your property tax in November and you get 4% off.</p>
+<p class="cap"><b>Caption</b> Florida gives you a discount for paying property tax early: 4% in November, dropping a point a month until it's due March 31. It's printed on the bill, and most people never notice it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-05.jpg" alt="Template 05-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-05</span><span class="ttl">Sunday · open house</span></div>
+<p class="ln">Sunday 1–3 · We hold ours from one to three. Come by, no need to tell us first.</p>
+<p class="cap"><b>Caption</b> Open Sunday, one to three, in Country Club East. No need to RSVP. If Sunday doesn't work, we'll meet you there another day.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-06.jpg" alt="Template 05-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-06</span><span class="ttl">December 20 · Nutcracker</span></div>
+<p class="ln">December 20 · The Nutcracker in Sarasota. The Sarasota Ballet, at the Sarasota Opera House.</p>
+<p class="cap"><b>Caption</b> The Sarasota Ballet dances The Nutcracker at the Opera House December 20 to 22. The house is small enough that every seat is a good one. Confirm times on the Ballet's site before you go.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-07.jpg" alt="Template 05-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-07</span><span class="ttl">February 6 · La traviata</span></div>
+<p class="ln">February 6 · La traviata opens the Sarasota Opera's winter season on February 6.</p>
+<p class="cap"><b>Caption</b> Sarasota Opera opens La traviata on February 6 and runs it through March 20. If you've never been to the opera, this is the one to start with; you'll know half the tunes. Confirm dates on the company's site.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-08.jpg" alt="Template 05-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-08</span><span class="ttl">30 days · flood policy</span></div>
+<p class="ln">Flood insurance 30 · A flood policy bought on its own usually takes 30 days to start.</p>
+<p class="cap"><b>Caption</b> Most flood policies have a 30-day waiting period. The common exception is a policy bought for a loan closing, which can start the same day. If you're paying cash, buy it the day you go under contract.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-09.jpg" alt="Template 05-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-09</span><span class="ttl">December 31 · own it by then</span></div>
+<p class="ln">December 31 · Close and move in by December 31, and you can claim homestead for the coming year.</p>
+<p class="cap"><b>Caption</b> Homestead is based on who owns and lives in the house on January 1. Close December 31 and you're in for the coming year. Close January 2 and you wait twelve months. It's one of the few times the date on the contract really matters.</p>
+
+</div></article>
+<article class="card">
+<img src="img/05-10.jpg" alt="Template 05-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">05-10</span><span class="ttl">First Friday · Village of the Arts</span></div>
+<p class="ln">Every month 1st · First Friday in the Village of the Arts, Bradenton.</p>
+<p class="cap"><b>Caption</b> The first Friday and Saturday of every month the studios in the Village of the Arts open their doors. Park on 12th Street and walk. If you're new to Bradenton, start here.</p>
+
+</div></article></div></section>
+<section id="f06"><header><div><div class="kicker">06 · job: share · Paper card on a photo</div><h2>What People Think</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">The thing people believe, struck through, and the thing that's true, said kindly. Insurance, flood zones, homestead, condo fees, the roof. The corrections people forward to a friend who's about to buy.</p>
+<div class="grid"><article class="card">
+<img src="img/06-01.jpg" alt="Template 06-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-01</span><span class="ttl">Insurance before a storm</span></div>
+<p class="ln">People think: You can buy insurance the week a storm is coming. Actually: Once a tropical storm watch is posted, most insurers stop writing new policies until it lifts.</p>
+<p class="cap"><b>Caption</b> People think they can buy insurance when a storm shows up on the news. They can't. Once a watch is posted, binding stops. If you're buying in the summer, insurance is a week-one job, not a closing-week job.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-02.jpg" alt="Template 06-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-02</span><span class="ttl">Zone X</span></div>
+<p class="ln">People think: Flood zone X means it can't flood. Actually: X means lower risk, not no risk. Plenty of homes that flooded in 2024 were in zone X.</p>
+<p class="cap"><b>Caption</b> Zone X is the lower-risk flood zone, and a lot of people read that as no risk. In 2024 plenty of zone X homes took water. Flood insurance in X is inexpensive. We'd buy it every time.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-03.jpg" alt="Template 06-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-03</span><span class="ttl">Highest offer</span></div>
+<p class="ln">People think: Ours was the highest offer, so we'll get the house. Actually: Sellers read the whole offer. A short inspection period and a lender who closes on time often beat a few thousand dollars more.</p>
+<p class="cap"><b>Caption</b> Highest isn't always best. Sellers weigh the inspection period, the financing, the closing date and whether they believe you'll get there. We'll help you write the offer that reads as the sure thing.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-04.jpg" alt="Template 06-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-04</span><span class="ttl">The website's number</span></div>
+<p class="ln">People think: The number on the website is what my house is worth. Actually: It's an estimate from a formula that has never been inside. What sold on your street this year is the number, and it's public.</p>
+<p class="cap"><b>Caption</b> Online estimates are a formula's guess from the outside. The county record is what actually happened on your street. Ours is free to look at. Then, if you want, we'll come stand in the kitchen and tell you the rest.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-05.jpg" alt="Template 06-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-05</span><span class="ttl">Homestead is automatic</span></div>
+<p class="ln">People think: Homestead happens automatically when you buy. Actually: You file for it, once, by March 1. If nobody told you, you may be paying more tax than you need to.</p>
+<p class="cap"><b>Caption</b> Nobody files homestead for you. You do it once, with the county, by March 1 of the year after you move in. If you bought last year and haven't done it, do it this week. If you're not sure, ask us.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-06.jpg" alt="Template 06-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-06</span><span class="ttl">Low condo fees</span></div>
+<p class="ln">People think: A low monthly fee is a good sign in a condo. Actually: Sometimes it means the building hasn't been saving. Ask for the reserve study.</p>
+<p class="cap"><b>Caption</b> A low condo fee can mean a well-run building, or one that put off the roof for ten years. The reserve study tells you which. Ask for it before you make an offer; it's your right to see it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-07.jpg" alt="Template 06-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-07</span><span class="ttl">List in spring</span></div>
+<p class="ln">People think: The best time to list is spring. Actually: Spring is when the most houses sell. It's also when you have the most competition.</p>
+<p class="cap"><b>Caption</b> Spring brings the most buyers and the most other sellers. The houses that do best in March started getting ready in October. If you're thinking about next spring, this is the month to call.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-08.jpg" alt="Template 06-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-08</span><span class="ttl">The roof is a detail</span></div>
+<p class="ln">People think: The roof is a nice-to-have. Actually: On this coast the roof sets your insurance. Ask its age before you ask anything else.</p>
+<p class="cap"><b>Caption</b> Up north the roof is a maintenance item. Here it decides whether you can get insurance and what it costs. The first question we ask about any house is the year of the roof permit.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-09.jpg" alt="Template 06-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-09</span><span class="ttl">Twenty percent down</span></div>
+<p class="ln">People think: You need twenty percent down. Actually: Many buyers here put down less. What you need is a payment you'll still like in August, when the insurance bill comes.</p>
+<p class="cap"><b>Caption</b> Twenty percent is a rule of thumb, not a rule. Plenty of buyers put down less. The number to worry about is the whole monthly payment with taxes and insurance in it. We'll show you that number first.</p>
+
+</div></article>
+<article class="card">
+<img src="img/06-10.jpg" alt="Template 06-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">06-10</span><span class="ttl">Theater here</span></div>
+<p class="ln">People think: There's nothing to do here after dark. Actually: An opera company in its own 1926 house, a ballet, a symphony and a repertory theater, all within a few blocks.</p>
+<p class="cap"><b>Caption</b> People moving here ask about the nightlife. Sarasota has a resident opera company, a ballet, an orchestra and a repertory theater, most of them within walking distance of each other. We keep a calendar of what's on. Come see something.</p>
+
+</div></article></div></section>
+<section id="f07"><header><div><div class="kicker">07 · job: comment · Split photograph</div><h2>Which Would You</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Two pictures, one honest question. Beach or market, canal or lake, matinee or opening night. There is never a wrong answer, and the caption says so.</p>
+<div class="grid"><article class="card">
+<img src="img/07-01.jpg" alt="Template 07-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-01</span><span class="ttl">Beach or market</span></div>
+<p class="ln">Where would you rather be on a Saturday morning? The beach / The market.</p>
+<p class="cap"><b>Caption</b> Saturday morning: the beach, or the market at Waterside? There's a right answer and it's whichever one you picked. Tell us below.</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-02.jpg" alt="Template 07-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-02</span><span class="ttl">Walk to dinner or room for a dog</span></div>
+<p class="ln">Walk to dinner, or room for a dog? Downtown / A yard.</p>
+<p class="cap"><b>Caption</b> A condo you can walk out of to dinner, or a house with a yard and a pool? People come here sure of the answer and change their minds at the second showing. Which are you?</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-03.jpg" alt="Template 07-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-03</span><span class="ttl">Canal or lake</span></div>
+<p class="ln">A boat out back, or a quiet lake? Canal / Lake.</p>
+<p class="cap"><b>Caption</b> Canal or lake? One gets you to the Gulf in twenty minutes. The other is quiet in a way that's hard to describe until you've had coffee on the lanai. Comment with yours.</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-04.jpg" alt="Template 07-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-04</span><span class="ttl">Old porch or new kitchen</span></div>
+<p class="ln">A 1925 porch, or a 2025 kitchen? The porch / The kitchen.</p>
+<p class="cap"><b>Caption</b> Old house with the porch and the oaks, or new build with the kitchen and the hurricane windows? Both exist here, usually not on the same street. Which would you pick?</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-05.jpg" alt="Template 07-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-05</span><span class="ttl">Matinee or opening night</span></div>
+<p class="ln">Two in the afternoon, or eight at night? Matinee / Opening night.</p>
+<p class="cap"><b>Caption</b> Matinee people and opening-night people. Parking is easier at two. The lobby is better at eight. Which are you, and where are you going this month?</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-06.jpg" alt="Template 07-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-06</span><span class="ttl">Sunrise or sunset</span></div>
+<p class="ln">Which end of the day is yours? Sunrise · the Skyway / Sunset · the beach.</p>
+<p class="cap"><b>Caption</b> The Skyway at sunrise, or the dunes at sunset? This coast gives you both. We know which one we'd pick for a Tuesday. Tell us yours.</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-07.jpg" alt="Template 07-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-07</span><span class="ttl">Riverwalk or bayfront</span></div>
+<p class="ln">Where's your evening walk? Bradenton Riverwalk / Sarasota Bayfront.</p>
+<p class="cap"><b>Caption</b> The Riverwalk in Bradenton or the Bayfront in Sarasota? Both are free, both are better at seven in the evening, and people are loyal to one or the other. Which is yours?</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-08.jpg" alt="Template 07-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-08</span><span class="ttl">Ranch or island</span></div>
+<p class="ln">Lakewood Ranch, or an island? The Ranch / The islands.</p>
+<p class="cap"><b>Caption</b> The Ranch or the islands? Everyone who moves here has a strong answer. About a third change it within five years. Where do you land today?</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-09.jpg" alt="Template 07-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-09</span><span class="ttl">Concert or gallery</span></div>
+<p class="ln">A concert hall, or a gallery with a glass of wine? The orchestra / The opening.</p>
+<p class="cap"><b>Caption</b> Friday night: the orchestra, or a gallery opening on Palm Avenue? Sarasota is unusual in doing both well for a city this size. Which are you choosing this week?</p>
+
+</div></article>
+<article class="card">
+<img src="img/07-10.jpg" alt="Template 07-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">07-10</span><span class="ttl">Fix it or move</span></div>
+<p class="ln">Fix the one you have, or start over? Fix it / Move.</p>
+<p class="cap"><b>Caption</b> Fix the house you have, or sell it and start over? It's the question under most of the calls we get. There isn't a wrong answer, and we're happy to help you think it through either way.</p>
+
+</div></article></div></section>
+<section id="f08"><header><div><div class="kicker">08 · job: save · Chart Room</div><h2>Drawn</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Simple charts drawn from the county record and the Atlas data: medians, a year of closings, what sold by type, every neighborhood as a dot. One idea per chart and the source under it.</p>
+<div class="grid"><article class="card">
+<img src="img/08-01.jpg" alt="Template 08-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-01</span><span class="ttl">Medians, market by market</span></div>
+<p class="ln">What half of the houses sold for, market by market.</p>
+<p class="cap"><b>Caption</b> The median single-family sale over the past year: $730,000 on the Ranch, $619,700 in Sarasota, $435,000 in Bradenton. Same coast, three different markets. Source: the county property appraisers, pulled October 2026.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/08-02.jpg" alt="Template 08-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-02</span><span class="ttl">A year of closings</span></div>
+<p class="ln">When people actually close here, month by month. Spring runs about half again as busy as winter. September isn't all in yet; the counties publish sales weeks after they close.</p>
+<p class="cap"><b>Caption</b> Closings by month over the past year. March and June were the big ones at just over 2,000 each; January was the quiet one at 1,246. September looks low only because the counties are still recording it. Save this if you're picking a month to list.</p>
+<p class="why">Re-pull before posting; refresh the September bar.</p>
+</div></article>
+<article class="card">
+<img src="img/08-03.jpg" alt="Template 08-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-03</span><span class="ttl">Price per square foot</span></div>
+<p class="ln">What a square foot cost, at the median. The fairest way to compare a 1,400-square-foot house with a 3,000-square-foot one.</p>
+<p class="cap"><b>Caption</b> Median price per square foot over the past year: Sarasota $293, Lakewood Ranch $282, Bradenton $224. It's the number to use when two houses are different sizes.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/08-04.jpg" alt="Template 08-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-04</span><span class="ttl">Atlas · every neighborhood</span></div>
+<p class="ln">2,088 neighborhoods. One chart. Every dot is a community, enclave or area in Atlas. Tell it what matters to you and it narrows them down.</p>
+<p class="cap"><b>Caption</b> Every dot is a neighborhood in Atlas, 2,088 of them. It's free on our site: tell it your budget, whether you need a gate or a dock or a school nearby, and it does the sorting.</p>
+
+</div></article>
+<article class="card">
+<img src="img/08-05.jpg" alt="Template 08-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-05</span><span class="ttl">Atlas · Lakewood Ranch</span></div>
+<p class="ln">The Ranch, village by village. 170 villages, enclaves and areas, in two counties. The rest of the coast is in the background.</p>
+<p class="cap"><b>Caption</b> Lakewood Ranch is 170 villages and enclaves in Atlas, across Manatee and Sarasota counties. Each one has its own fees, rules and feel. We've been in most of them; ask us about any dot.</p>
+
+</div></article>
+<article class="card">
+<img src="img/08-06.jpg" alt="Template 08-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-06</span><span class="ttl">What sold, by type</span></div>
+<p class="ln">What sold here in the past year, by type.</p>
+<p class="cap"><b>Caption</b> Of the 14,274 homes that sold here in the past year, about two in three were single-family houses and about three in ten were condos. Townhomes and villas made up the rest.</p>
+<p class="why">Re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/08-07.jpg" alt="Template 08-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-07</span><span class="ttl">Million-dollar share</span></div>
+<p class="ln">How much of each market sold above a million.</p>
+<p class="cap"><b>Caption</b> About one in five homes sold in Sarasota and on the Ranch went for more than a million dollars in the past year. In Bradenton it was about one in fourteen. Three markets, one coast.</p>
+<p class="why">Shares from data/sales; re-pull before posting.</p>
+</div></article>
+<article class="card">
+<img src="img/08-08.jpg" alt="Template 08-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-08</span><span class="ttl">Where the shows are</span></div>
+<p class="ln">Where the shows are this season. Events in Encore's calendar as of September 22, 2026.</p>
+<p class="cap"><b>Caption</b> We keep a calendar of what's on at the theaters, museums and halls around here. This is where the season's events are, by venue. The Van Wezel alone has 82 of them. Save it, and go to something.</p>
+
+</div></article>
+<article class="card">
+<img src="img/08-09.jpg" alt="Template 08-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-09</span><span class="ttl">The tax discount</span></div>
+<p class="ln">Pay the tax bill early and it costs less. The discount is printed on the bill. Most people never notice it.</p>
+<p class="cap"><b>Caption</b> Florida takes 4% off your property tax if you pay in November, 3% in December, 2% in January, 1% in February. On a $6,000 bill, November saves you $240 for doing nothing but paying early. If you think someone would find this useful, please share it.</p>
+
+</div></article>
+<article class="card">
+<img src="img/08-10.jpg" alt="Template 08-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">08-10</span><span class="ttl">How long things take</span></div>
+<p class="ln">How long the pieces of a purchase usually take. Rough and typical. Yours will differ, and we'll tell you where.</p>
+<p class="cap"><b>Caption</b> How long things usually take once you're under contract here. The flood policy's 30 days surprises people the most. Save this so the timeline isn't a surprise.</p>
+
+</div></article></div></section>
+<section id="f09"><header><div><div class="kicker">09 · job: comment · Interface on a dimmed photo</div><h2>The Questions</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">The questions people actually send us, shown the way they arrive: a text thread, a search bar, a note on the fridge, a lock screen in closing week. Plain answers, in our voice, inside the frame.</p>
+<div class="grid"><article class="card">
+<img src="img/09-01.jpg" alt="Template 09-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-01</span><span class="ttl">Bad time to sell?</span></div>
+<p class="ln">Them: Is now a bad time to sell? Us: Honest answer: it depends on your street. Want us to pull what sold near you? Them: Yes please — Ask us anything. We'd rather you asked early.</p>
+<p class="cap"><b>Caption</b> We get this text a lot. The honest answer is that it depends on your street more than on the news. Send us yours and we'll pull what sold there.</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-02.jpg" alt="Template 09-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-02</span><span class="ttl">Moving to Sarasota</span></div>
+<p class="ln">"moving to sarasota" + from new york, with kids, flood zones, cost of living — Everybody searches this at some point. Ask us instead.</p>
+<p class="cap"><b>Caption</b> If you've typed this into a search bar, you're not alone. The four things people add after it are the four things we'd talk about first. Ask us; it's faster than the internet.</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-03.jpg" alt="Template 09-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-03</span><span class="ttl">Before we offer · note</span></div>
+<p class="ln">Before we make an offer: / — flood zone? / — roof year? / — HOA and CDD, the real number / — what did the neighbors sell for? / — ask JJ about the water table — Put this on your fridge. We'll answer every line.</p>
+<p class="cap"><b>Caption</b> The note we'd stick on your fridge before you make an offer on anything here. Five questions. We'll answer every one before you write a number.</p>
+<p class="why">Before we make an offer:
+— flood zone?
+— roof year?
+— HOA and CDD, the real number
+— what did the neighbors sell for?
+— ask JJ about the water table</p>
+</div></article>
+<article class="card">
+<img src="img/09-04.jpg" alt="Template 09-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-04</span><span class="ttl">Closing week · lock screen</span></div>
+<p class="ln">JJ Premier Group: Your flood policy is bound as of today. One less thing. · Calendar: Walk-through · 4:00 PM · bring the repair list · Reminder: Call the title company on the number you already have. Never from a new email. — Closing week, as it should look. Boring, and on time.</p>
+<p class="cap"><b>Caption</b> A good closing week is boring. The policy is bound, the walk-through is on the calendar, and the wire instructions come from a person you've already met. We'll keep it that way.</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-05.jpg" alt="Template 09-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-05</span><span class="ttl">Before we list</span></div>
+<p class="ln">Before we list: Walk the house with JJ; Book the photographer; Find the roof permit and the insurance dec page; Fix the thing the inspector will find anyway; Decide on a date, then stop moving it — Five lines. We'll help you check every one.</p>
+<p class="cap"><b>Caption</b> This is the list we'd make with you about eight weeks before you list. Two of the five are usually done after the first walk-through. Want us to start one for your house?</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-06.jpg" alt="Template 09-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-06</span><span class="ttl">From Ohio until March</span></div>
+<p class="ln">Them: We're in Ohio until March. Can we even do this from here? Us: Yes. We'll video every showing, and the closing can be signed where you are. Them: Ok that helps Us: Tell us the timing and we'll build the plan around it. — About a third of the people we work with start from another state.</p>
+<p class="cap"><b>Caption</b> You don't have to be here to buy here. We video every showing, we'll stand in the backyard and listen for you, and the closing can be signed where you are. Tell us the timing.</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-07.jpg" alt="Template 09-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-07</span><span class="ttl">Is Lakewood Ranch</span></div>
+<p class="ln">"is lakewood ranch" + a city, in sarasota or bradenton, cdd fee worth it, good for retirees — Fair questions. The answers are no, both, it depends, and that's up to you.</p>
+<p class="cap"><b>Caption</b> Is Lakewood Ranch a city? No. Is it in Sarasota or Bradenton? Both counties. Is the CDD worth it? Depends on the village. We're happy to explain all three over coffee on Main Street.</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-08.jpg" alt="Template 09-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-08</span><span class="ttl">What's a CDD</span></div>
+<p class="ln">Them: What's a CDD? Us: A district that paid for the roads, lakes and gates when the village was built. You pay it back on your tax bill, over years. Them: How much is it on this house? Us: We'll show you the exact line before you offer. It's different village to village. — The question everyone asks about the Ranch, answered plainly.</p>
+<p class="cap"><b>Caption</b> A CDD is a district that borrowed to build a village's roads and lakes. Homeowners repay it on the tax bill. The amount varies a lot by village, so we pull the exact line for any house before you make an offer.</p>
+
+</div></article>
+<article class="card">
+<img src="img/09-09.jpg" alt="Template 09-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-09</span><span class="ttl">A good Saturday · note</span></div>
+<p class="ln">Saturday / 10:00  the market at Waterside / 1:00  the house on Palm Ave / 4:00  drive the street again / 7:30  the Opera House / after  walk the bayfront — A good Saturday here, if you're deciding whether to move.</p>
+<p class="cap"><b>Caption</b> If you're visiting to decide whether to move here, this is the Saturday we'd plan for you. The market in the morning, a showing after lunch, the same street again at four, and the Opera House at seven thirty.</p>
+<p class="why">Saturday
+10:00  the market at Waterside
+1:00  the house on Palm Ave
+4:00  drive the street again
+7:30  the Opera House
+after  walk the bayfront</p>
+</div></article>
+<article class="card">
+<img src="img/09-10.jpg" alt="Template 09-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">09-10</span><span class="ttl">Encore tonight · lock screen</span></div>
+<p class="ln">Encore: Tonight: Program Two, The Sarasota Ballet, Sarasota Opera House, 7:30 · Parking: Palm Avenue garage, two blocks. Don't move the car again. · Reminder: Dinner at 5:45. Tell them you have a 7:30 curtain. — Our Encore calendar lists what's on this week, with where to park.</p>
+<p class="cap"><b>Caption</b> Encore, on our site, lists what's on this week at the theaters, halls and museums around here, with the practical parts: when, where, and where to park. Free, no sign-up. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article></div></section>
+<section id="f10"><header><div><div class="kicker">10 · job: save · Carousel</div><h2>Swipe</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Two five-slide carousels: the week before closing, told day by day, and a night at the Opera House planned to the minute. Each ends with the same quiet ask: save it, and send it to someone who'd use it.</p>
+<div class="grid"><article class="card">
+<img src="img/10-01.jpg" alt="Template 10-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-01</span><span class="ttl">Closing week · cover</span></div>
+<p class="ln">What actually happens in the last seven days. Five slides, no jargon.</p>
+<p class="cap"><b>Caption</b> The last week before closing, in five slides. Save it for your own closing week, and send it to anyone who's about to have one.</p>
+
+</div></article>
+<article class="card">
+<img src="img/10-02.jpg" alt="Template 10-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-02</span><span class="ttl">Seven days out</span></div>
+<p class="ln">The lender's final numbers. You get a closing disclosure at least three business days before you sign. Read the cash-to-close line. If it moved from the estimate, call us and we'll find out why.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-03.jpg" alt="Template 10-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-03</span><span class="ttl">Three days out</span></div>
+<p class="ln">The wire. Wire instructions come by phone, from a person you've already met, on a number you already had. Never from an email that just arrived. Closing scams are real and they are specific.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-04.jpg" alt="Template 10-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-04</span><span class="ttl">The day before</span></div>
+<p class="ln">The walk-through. Run the taps, open the garage, check the repairs you asked for. If something's wrong, it gets fixed or credited before you sign, not after.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-05.jpg" alt="Template 10-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-05</span><span class="ttl">Closing day · end</span></div>
+<p class="ln">Sign, fund, keys. Usually in that order, usually by early afternoon. Save this for your own week, and if you think someone would find it useful, please send it to them.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-06.jpg" alt="Template 10-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-06</span><span class="ttl">A night at the Opera House · cover</span></div>
+<p class="ln">A night at the Opera House. Where to park, when to eat, what to expect.</p>
+<p class="cap"><b>Caption</b> A night at the Sarasota Opera House, planned to the minute: parking, dinner, curtain, and the walk after. If someone you know is moving here, send them this. It's the kind of thing you only learn by living here. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/10-07.jpg" alt="Template 10-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-07</span><span class="ttl">5:30 · park once</span></div>
+<p class="ln">The Palm Avenue garage. Two blocks from the house, and you won't move the car again all night. Dinner, the show and the bayfront are all on foot from here.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-08.jpg" alt="Template 10-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-08</span><span class="ttl">6:00 · dinner</span></div>
+<p class="ln">Tell them you have a 7:30 curtain. Every restaurant downtown knows what that means and will get you out in time. Order when you sit down.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-09.jpg" alt="Template 10-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-09</span><span class="ttl">7:30 · the house</span></div>
+<p class="ln">About 1,100 seats, built in 1926. There isn't a bad one, and the balcony is the bargain. Sarasota Opera sings in the original language with titles above the stage.</p>
+
+
+</div></article>
+<article class="card">
+<img src="img/10-10.jpg" alt="Template 10-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">10-10</span><span class="ttl">After · the bayfront</span></div>
+<p class="ln">Walk down to the water. Three blocks west, the bay is flat and quiet. That's the whole evening. If you know someone moving here, send them this one.</p>
+
+
+</div></article></div></section>
+<section id="f11"><header><div><div class="kicker">11 · job: follow · Harbor Night, Poster, Gallery, Cinema, Edition, Quiet</div><h2>Encore</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">The culture series. Real shows at real venues, named properly, with one honest line about why we'd go. Nothing is for sale. Every date was checked against the Encore calendar and gets checked again the week it posts.</p>
+<div class="grid"><article class="card">
+<img src="img/11-01.jpg" alt="Template 11-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-01</span><span class="ttl">The Nutcracker · Harbor Night</span></div>
+<p class="ln">The Nutcracker in Sarasota · The Sarasota Ballet · Sarasota Opera House · Dec 20–22 — We go most years. The house is small enough that every seat is a good one.</p>
+<p class="cap"><b>Caption</b> The Sarasota Ballet's Nutcracker, at the Opera House, December 20 to 22. We go most years. If you have visitors that week, this is the thing to take them to. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-02.jpg" alt="Template 11-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-02</span><span class="ttl">La traviata · Poster</span></div>
+<p class="ln">La traviata · Sarasota Opera House · Feb 6 – Mar 20 — Sarasota Opera, sung in Italian with titles above the stage. Go on a weeknight if you can.</p>
+<p class="cap"><b>Caption</b> Sarasota Opera opens La traviata on February 6 and runs it through March 20, in its own house downtown. If you've never been to an opera, start with this one. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-03.jpg" alt="Template 11-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-03</span><span class="ttl">Precession Through Glass · Gallery</span></div>
+<p class="ln">Precession Through Glass · Monica Guggisberg and Philip Baldwin · Sarasota Art Museum · Nov 15 – Apr 25 — An hour is enough, and the building, an old high school, is half the reason to go.</p>
+<p class="cap"><b>Caption</b> Glass by Monica Guggisberg and Philip Baldwin at the Sarasota Art Museum, November 15 through April 25. The museum is the old Sarasota High School, and the building is half the visit. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-04.jpg" alt="Template 11-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-04</span><span class="ttl">Singin' in the Rain · Cinema</span></div>
+<p class="ln">Singin' in the Rain · Asolo Rep · FSU Center for the Performing Arts · Nov 18 – Jan 2 — It rains on stage. Take the kids, or go without them; it works either way.</p>
+<p class="cap"><b>Caption</b> Asolo Rep opens its season with Singin' in the Rain at the FSU Center, November 18 through January 2. It really rains on stage. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-05.jpg" alt="Template 11-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-05</span><span class="ttl">Tchaikovsky and Strauss · Edition</span></div>
+<p class="ln">Tchaikovsky and Strauss · Van Wezel Performing Arts Hall · Dec 5–6</p>
+<p class="cap"><b>Caption</b> Sarasota Orchestra plays Tchaikovsky and Strauss at the Van Wezel, December 5 and 6. The purple hall on the bay was designed by Frank Lloyd Wright's firm, and the lobby at intermission is worth the ticket on its own. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-06.jpg" alt="Template 11-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-06</span><span class="ttl">Daniil Trifonov · Harbor Night</span></div>
+<p class="ln">Daniil Trifonov · Sarasota Concert Association · Sarasota Opera House · Dec 1 · 7:30 — One piano, one night. If you only go to one concert this winter, we'd pick this one.</p>
+<p class="cap"><b>Caption</b> Pianist Daniil Trifonov plays the Sarasota Opera House on December 1, presented by the Sarasota Concert Association. One piano, one night. If you're only going to one concert this winter, this is the one. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-07.jpg" alt="Template 11-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-07</span><span class="ttl">Lights in Bloom · Poster</span></div>
+<p class="ln">Lights in Bloom · Marie Selby Botanical Gardens · Dec 5 – Jan 2 — Go on a weeknight, go early, and wear shoes you can walk in.</p>
+<p class="cap"><b>Caption</b> Lights in Bloom at Selby Gardens runs December 5 through January 2, on the downtown bayfront campus. Weeknights are quieter. Wear walking shoes. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-08.jpg" alt="Template 11-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-08</span><span class="ttl">Program Two · Quiet</span></div>
+<p class="ln">Program Two: MacMillan, Lang &amp; Ratmansky · Sarasota Opera House · Nov 20–21 — Three short ballets in one evening. Easier to love than people expect.</p>
+<p class="cap"><b>Caption</b> The Sarasota Ballet's Program Two, November 20 and 21 at the Opera House: three short works by MacMillan, Lang and Ratmansky. A mixed bill is the easiest way into ballet; if one piece isn't for you, the next one's twenty minutes away. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-09.jpg" alt="Template 11-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-09</span><span class="ttl">Anastasia · Gallery</span></div>
+<p class="ln">Anastasia · Manatee Players · Manatee Performing Arts Center · Dec 3–13 — Community theatre on the river, and it's good. Tickets cost a fraction of downtown.</p>
+<p class="cap"><b>Caption</b> Manatee Players do Anastasia at the Manatee Performing Arts Center, December 3 to 13, on the river in downtown Bradenton. It's community theatre, it's good, and the tickets are a fraction of what you'd pay in Sarasota. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article>
+<article class="card">
+<img src="img/11-10.jpg" alt="Template 11-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">11-10</span><span class="ttl">Alvin Ailey · Cinema</span></div>
+<p class="ln">Alvin Ailey American Dance Theater · Van Wezel Performing Arts Hall · Feb 11 · 7:00 — One night only. Revelations closes the program, as it has for sixty years.</p>
+<p class="cap"><b>Caption</b> Alvin Ailey American Dance Theater, one night at the Van Wezel, February 11. The program ends with Revelations, as it has since 1960. Buy early. Dates checked against Encore's calendar on Oct 24, 2026. Re-check at the venue the week it posts.</p>
+
+</div></article></div></section>
+<section id="f12"><header><div><div class="kicker">12 · job: reach · Suncoast Posters, Golden Hour, Quiet</div><h2>Around Here</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Places, not houses. The Skyway, the Riverwalk, the islands, the live oaks, the beach. One true thing about each, the kind of thing you only know from living here.</p>
+<div class="grid"><article class="card">
+<img src="img/12-01.jpg" alt="Template 12-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-01</span><span class="ttl">Sunshine Skyway · Poster</span></div>
+<p class="ln">Sunshine Skyway · The way into Bradenton from the north, and under an hour to the Tampa airport from most of it.</p>
+<p class="cap"><b>Caption</b> The Skyway, from above. If you're flying in to look at houses, Tampa is usually the easier airport, and the drive down over the bridge is a good first look at the water.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-02.jpg" alt="Template 12-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-02</span><span class="ttl">Bradenton Riverwalk · Golden</span></div>
+<p class="ln">Bradenton · the Riverwalk · A mile and a half along the Manatee River, free, and nobody's in a hurry.</p>
+<p class="cap"><b>Caption</b> The Riverwalk in downtown Bradenton. A mile and a half along the Manatee River, free, and the best way to see why people who live here are loyal to it. Go around seven.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-03.jpg" alt="Template 12-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-03</span><span class="ttl">Barrier islands · Poster</span></div>
+<p class="ln">Barrier islands · Five islands, five sets of rules on rentals, height and parking. We wrote them all down.</p>
+<p class="cap"><b>Caption</b> Anna Maria, Longboat, Lido, Siesta and Casey. Five islands with five different sets of rules on rentals, building height and parking. There's a guide to all of it on our site, island by island.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-04.jpg" alt="Template 12-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-04</span><span class="ttl">Live oaks · Quiet</span></div>
+<p class="ln">Live oaks. The first thing people from up north notice, and the thing they miss most when they leave.</p>
+<p class="cap"><b>Caption</b> Live oaks are the first thing visitors notice and the thing people miss most when they move away. Some streets here have canopy older than the town. We keep a list.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-05.jpg" alt="Template 12-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-05</span><span class="ttl">Tampa · the Straz</span></div>
+<p class="ln">Tampa · an hour up the interstate · Close enough for a show at the Straz Center and home by eleven.</p>
+<p class="cap"><b>Caption</b> Tampa is about an hour up the interstate from the Ranch. The Straz Center on the river gets the Broadway tours, and you can be home by eleven. It's part of living here too.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-06.jpg" alt="Template 12-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-06</span><span class="ttl">Lakewood Ranch · Poster</span></div>
+<p class="ln">Lakewood Ranch · Not a city. A planned community the size of one, in two counties, with its own Main Street.</p>
+<p class="cap"><b>Caption</b> Lakewood Ranch isn't a city, though it's bigger than most around here. It's a planned community that started in 1994, spread across two counties, with its own Main Street and a hundred-odd villages. We'll explain the CDD.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-07.jpg" alt="Template 12-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-07</span><span class="ttl">Venice Pier · Golden</span></div>
+<p class="ln">Venice · the pier at sunrise · Twenty-five minutes south of Sarasota, and a different pace entirely.</p>
+<p class="cap"><b>Caption</b> Venice Pier at sunrise. It's twenty-five minutes south of Sarasota and feels like a different decade in the best way. The beach is known for fossilized sharks' teeth; look down.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-08.jpg" alt="Template 12-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-08</span><span class="ttl">Village of the Arts · Poster</span></div>
+<p class="ln">Village of the Arts · Studios in old bungalows, painted the way their owners wanted. The neighborhood that explains Bradenton fastest.</p>
+<p class="cap"><b>Caption</b> The Village of the Arts in Bradenton: old bungalows turned into studios and galleries, each painted the way its owner wanted. Open studios the first Friday and Saturday of every month.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-09.jpg" alt="Template 12-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-09</span><span class="ttl">Sea oats · Quiet</span></div>
+<p class="ln">Sea oats hold the dune together. It's against the law to pick them, and now you know why.</p>
+<p class="cap"><b>Caption</b> Sea oats are what holds a Gulf beach together through a storm. It's illegal to pick them in Florida, which surprises people. Now you know why.</p>
+
+</div></article>
+<article class="card">
+<img src="img/12-10.jpg" alt="Template 12-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">12-10</span><span class="ttl">The beach · Golden</span></div>
+<p class="ln">The Gulf beaches · The beach is free. The parking is the hard part. Go before nine or after four.</p>
+<p class="cap"><b>Caption</b> The beaches here are free and public. Parking is the only hard part. Go before nine or after four, bring your own chair, and stay for the sunset. People who live here still do.</p>
+
+</div></article></div></section>
+<section id="f13"><header><div><div class="kicker">13 · job: comment · click · 9:16 with drawn sticker placeholders</div><h2>Stories</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Polls, question boxes, link stickers, countdowns and two Reel covers. Type stays clear of the top 250 and bottom 320 pixels. The stickers are drawn placeholders; the real ones go on when posting.</p>
+<div class="grid"><article class="card tall">
+<img src="img/13-01.jpg" alt="Template 13-01" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-01</span><span class="ttl">Story · are you looking</span></div>
+<p class="ln">Are you looking to move in the next year? · sticker: Thinking about it?</p>
+<p class="cap"><b>Caption</b> Poll sticker. Follow up by message with anyone who answers yes: two questions, no pitch.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-02.jpg" alt="Template 13-02" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-02</span><span class="ttl">Story · wish someone had told you</span></div>
+<p class="ln">What's the one thing you wish someone had told you before you bought here? · sticker: We'll share the best ones (no names)</p>
+<p class="cap"><b>Caption</b> Question sticker. Repost the answers as a plain-text story the next day, no names.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-03.jpg" alt="Template 13-03" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-03</span><span class="ttl">Story · what sold on your street</span></div>
+<p class="ln">See what sold on your street, from the county's own record. · jjpremiergroup.com/sell/sold</p>
+<p class="cap"><b>Caption</b> Link sticker to /sell/sold.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-04.jpg" alt="Template 13-04" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-04</span><span class="ttl">Story · open house countdown</span></div>
+<p class="ln">Sunday, one to three. Come by if you'd like to see it. · 2 days</p>
+<p class="cap"><b>Caption</b> Countdown sticker set to Sunday 1 PM. Sample listing; swap in the real one.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-05.jpg" alt="Template 13-05" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-05</span><span class="ttl">Story · beach or bay</span></div>
+<p class="ln">Beach side, or bay side? · sticker: Where would you live?</p>
+<p class="cap"><b>Caption</b> Poll sticker. A light one for a Friday.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-06.jpg" alt="Template 13-06" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-06</span><span class="ttl">Story · ask us anything</span></div>
+<p class="ln">Ask us anything about moving to the Suncoast. We'll answer every one. · sticker: Ask away</p>
+<p class="cap"><b>Caption</b> Question sticker. Answer each in a follow-up story; the good ones become posts.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-07.jpg" alt="Template 13-07" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-07</span><span class="ttl">Story · what's on this week</span></div>
+<p class="ln">What's on this week, at the theaters, halls and museums around here. · jjpremiergroup.com/calendar</p>
+<p class="cap"><b>Caption</b> Link sticker to the Encore calendar. Post Thursdays.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-08.jpg" alt="Template 13-08" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-08</span><span class="ttl">Reel cover · three things</span></div>
+<p class="ln">Three things we'd fix before you list.</p>
+<p class="cap"><b>Caption</b> Reel cover. The series title stays; the subject line changes each week.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-09.jpg" alt="Template 13-09" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-09</span><span class="ttl">Reel cover · what $750,000 buys</span></div>
+<p class="ln">What $750,000 buys on the Ranch right now.</p>
+<p class="cap"><b>Caption</b> Reel cover. Uses real active listings with the brokerage's permission and the MLS attribution in the caption.</p>
+
+</div></article>
+<article class="card tall">
+<img src="img/13-10.jpg" alt="Template 13-10" loading="lazy" width="1080" height="1920">
+<div class="meta"><div class="top"><span class="id">13-10</span><span class="ttl">Story · homestead countdown</span></div>
+<p class="ln">File for homestead by March 1. Ten minutes, once, and it lowers the bill. · 12 days</p>
+<p class="cap"><b>Caption</b> Countdown sticker to March 1. Run it the last two weeks of February.</p>
+
+</div></article></div></section>
+<section id="f14"><header><div><div class="kicker">14 · job: share · Moments and panels</div><h2>Thank You and Please Share</h2></div><p class="avg">10 templates</p></header>
+<p class="thesis">Closing day, the homeversary, Thanksgiving, the holidays, the new year, and the plainest referral ask we could write. These are the posts that sound most like the two of them.</p>
+<div class="grid"><article class="card">
+<img src="img/14-01.jpg" alt="Template 14-01" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-01</span><span class="ttl">Thank you for trusting us</span></div>
+<p class="ln">Thank you for trusting us with this one. If you know someone who's thinking about a move, we'd be glad to help them too.</p>
+<p class="cap"><b>Caption</b> Closed today. Thank you for trusting us with it. If you know someone thinking about a move, an introduction is the kindest thing you can do for us, and we don't take it lightly.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-02.jpg" alt="Template 14-02" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-02</span><span class="ttl">Introductions</span></div>
+<p class="ln">If you know someone thinking about a move to the Suncoast, we'd be glad to help them. Most of our work comes from someone saying our name to a friend. We don't take that lightly.</p>
+<p class="cap"><b>Caption</b> We're Joelyn and Jessica. Most of the people we work with were introduced by someone we'd already worked with. If a friend of yours is thinking about moving here, or away, we'd be glad to talk to them.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-03.jpg" alt="Template 14-03" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-03</span><span class="ttl">Homeversary</span></div>
+<p class="ln">Happy homeversary. We hope the house has been good to you. If anything's come up this year, a question about the roof, the taxes, the neighbors, you know where we are.</p>
+<p class="cap"><b>Caption</b> One year in the house today. We hope it's been good to you. If you've got a question about anything, from the homestead paperwork to who fixes a pool pump, ask.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-04.jpg" alt="Template 14-04" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-04</span><span class="ttl">A good year</span></div>
+<p class="ln">Thank you for a good year. We've met a lot of you at open houses, at the market and in the lobby at the Opera House. See you out there.</p>
+<p class="cap"><b>Caption</b> Thank you for a good year. A lot of you we met at open houses, a lot at the Sunday market, and more than a few in the lobby at intermission. See you out there.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-05.jpg" alt="Template 14-05" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-05</span><span class="ttl">Thanksgiving</span></div>
+<p class="ln">We're thankful for the people who let us into their homes this year, and for the ones who sent them to us. Have a quiet one.</p>
+<p class="cap"><b>Caption</b> Happy Thanksgiving from the two of us. We're thankful for the people who let us into their homes this year, and for everyone who sent them our way.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-06.jpg" alt="Template 14-06" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-06</span><span class="ttl">Happy holidays</span></div>
+<p class="ln">From our kitchen islands to yours, happy holidays. The office is quiet the last week of the year. We're still answering.</p>
+<p class="cap"><b>Caption</b> Happy holidays from the two of us. The office is quiet the last week of the year, but we're still answering messages, and the Opera House is still open if you need to get out.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-07.jpg" alt="Template 14-07" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-07</span><span class="ttl">New Year</span></div>
+<p class="ln">Whatever 2027 holds, if a move is part of it, we're here. And if it isn't, we're still glad you're here.</p>
+<p class="cap"><b>Caption</b> Happy New Year. If a move is somewhere in your 2027, this is a good month to start talking about it. If it isn't, we're glad you're here anyway.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-08.jpg" alt="Template 14-08" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-08</span><span class="ttl">A review helps</span></div>
+<p class="ln">A few honest sentences on Google help the next person decide. If we helped you buy or sell, a review is the most useful thank-you there is. Thank you.</p>
+<p class="cap"><b>Caption</b> If we helped you buy or sell this year and you have two minutes, an honest review on Google helps the next person decide whether to call. The link is on our site. Thank you.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-09.jpg" alt="Template 14-09" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-09</span><span class="ttl">Welcome to the neighborhood</span></div>
+<p class="ln">Welcome to the neighborhood. If you just moved here, from wherever you came from, we're glad you did. Ask us anything, even if we didn't sell you the house.</p>
+<p class="cap"><b>Caption</b> If you just moved to the Suncoast, welcome. You don't have to have bought the house from us to ask us where the good hardware store is, or which beach has parking. Ask away.</p>
+
+</div></article>
+<article class="card">
+<img src="img/14-10.jpg" alt="Template 14-10" loading="lazy" width="1080" height="1350">
+<div class="meta"><div class="top"><span class="id">14-10</span><span class="ttl">Please share</span></div>
+<p class="ln">If you think a friend would find this account useful, please share it with them. Houses, the coast, and where we're going this week. That's all it is.</p>
+<p class="cap"><b>Caption</b> This account is houses, the coast and where we're going this week. If you think a friend would like it, please share it with them. That's the whole ask.</p>
+
+</div></article></div></section>
+<div class="notes">
+<div><h4>How it was built</h4><p>Each template is HTML and CSS rendered by Chromium at 1080 px wide (4:5, square, or 9:16). The deck of copy, photos and registers is <code>design/social-templates/deck-a.mjs</code> and <code>deck-b.mjs</code>; <code>render.mjs</code> draws them; this page is built from the same deck.</p></div>
+<div><h4>Copy rules kept</h4><p>Team voice (“we”), never one agent's first person. No exclamation marks, no emoji, no superlatives, no “reach out”. Fair housing: the property, never the people. The tagline is not rewritten and never used as a headline.</p></div>
+<div><h4>Data</h4><p>Tide figures were recomputed from <code>data/sales</code> for this round (single-family medians: Lakewood Ranch $730,000, Sarasota $619,700, Bradenton $435,000). Atlas maps plot the 2,038 neighborhoods with coordinates in the Atlas dataset. Encore picks come from the site's calendar file.</p></div>
+<div><h4>What's next</h4><p>Pick the strongest two or three per family and we'll cut the rest, score them the way the Virtus set was scored (stop, read, share, craft), and build the editable Express or Figma versions of the keepers.</p></div>
+</div>
+</div>
