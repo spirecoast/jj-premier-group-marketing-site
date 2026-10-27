@@ -9,6 +9,7 @@ import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { getNeighborhoods, getUpcomingEvents, getVenue, getVenueSlugs } from "@/lib/content";
 import { formatAddress } from "@/lib/content/format";
+import { varyStock } from "@/lib/encore/stock";
 import { getMarket, isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, pageMetadata, placeJsonLd } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
@@ -28,13 +29,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!venue) return { title: "Venue not found", robots: { index: false, follow: false } };
   return pageMetadata({
     title: `${venue.name} · ${marketName(venue.market)}`,
-    description: `${venue.name}, ${formatAddress(venue.address)}. What is on, and how to get there.`,
+    description: `${venue.name}, ${formatAddress(venue.address)}. The next shows there, and how to get there.`,
     path: `/venues/${venue.slug}`,
     fileImage: true, // opengraph-image.tsx beside this page
   });
 }
 
-/** A venue page: the place, then what is on there. Overlay hero route. */
+/** A venue page: the place, then the next shows there. Overlay hero route. */
 export default async function VenuePage({ params }: { params: Params }) {
   const { slug } = await params;
   const venue = await getVenue(slug);
@@ -45,6 +46,7 @@ export default async function VenuePage({ params }: { params: Params }) {
     isMarketSlug(venue.market) ? getNeighborhoods(venue.market) : Promise.resolve([]),
   ]);
   const events = allEvents.slice(0, 12);
+  const art = varyStock(events.map((e) => ({ category: e.category, subcategory: e.subcategory, seed: e.slug })));
   const image = venue.image ?? market?.image;
   const placeLine = venue.address.city && venue.address.city !== marketName(venue.market) ? `${marketName(venue.market)} · ${venue.address.city}` : marketName(venue.market);
   const address = formatAddress(venue.address);
@@ -125,14 +127,14 @@ export default async function VenuePage({ params }: { params: Params }) {
 
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="venue-events-title">
         <SectionHeading
-          title={<span id="venue-events-title">What is on at {venue.name}.</span>}
+          title={<span id="venue-events-title">Coming up at {venue.name}.</span>}
           aside={<Link href={`/calendar?market=${venue.market}` as Route} className="link-rule">The {marketName(venue.market)} calendar</Link>}
         />
         {events.length ? (
           <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((e) => (
+            {events.map((e, i) => (
               <li key={e.slug} className="flex">
-                <EventCard event={e} className="w-full" />
+                <EventCard event={e} className="w-full" pick={art[i]} />
               </li>
             ))}
           </ul>

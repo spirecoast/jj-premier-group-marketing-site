@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Event } from "@/lib/content/types";
 import { formatEventShort, formatEventWhen, formatRun, formatTime, weekdayName } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
+import { isAllDayKind, untimedLabel } from "@/lib/encore/when";
 import { cn } from "@/lib/utils";
 import { KeyArt } from "./key-art";
 import { Photo } from "./photo";
@@ -23,6 +24,8 @@ type Props = {
   showMeta?: boolean;
   /** The specific performance to show, when the card stands for one date of a run. */
   at?: { startsAt: string; endsAt?: string; allDay?: boolean };
+  /** Which stand-in photo, from varyStock, so a grid never repeats one beside itself. */
+  pick?: number;
 };
 
 /**
@@ -30,7 +33,7 @@ type Props = {
  * the compact list item that slides 16px on hover; `grid` is the calendar
  * index card. About the venue, never the listing.
  */
-export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta, at }: Props) {
+export function EventCard({ event, variant = "grid", className, sizes, priority, showMeta, at, pick }: Props) {
   const href = `/calendar/${event.slug}` as const;
   const shared = `evt-${event.slug}`;
   // Presenters' images carry no focal point; a little above centre keeps a poster's title and faces in the crop.
@@ -39,6 +42,9 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
   const endsAt = at ? at.endsAt : event.endsAt;
   const allDay = at ? at.allDay : event.allDay;
   const run = formatRun(event);
+  // A listing with no time: "All day" only for an all-day kind of thing.
+  const untimed = isAllDayKind(event.category, event.subcategory) ? "all-day" : "unknown";
+  const art = pick;
 
   if (variant === "feature") {
     return (
@@ -47,7 +53,7 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
           {image ? (
             <Photo image={image} sizes={sizes ?? "(min-width: 1024px) 58vw, 100vw"} priority={priority} className="card-img" />
           ) : (
-            <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={1.3} />
+            <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={1.3} pick={art} />
           )}
         </SharedFrame>
         <div className="scrim" aria-hidden="true" />
@@ -79,14 +85,14 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
           className="relative h-[84px] w-[110px] shrink-0 overflow-hidden bg-linen-100 sm:h-24 sm:w-[130px]"
           title={event.image && event.imageCredit ? `Image: ${event.imageCredit.name}` : undefined}
         >
-          {image ? <Photo image={image} sizes="130px" frame={130 / 96} /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} />}
+          {image ? <Photo image={image} sizes="130px" frame={130 / 96} /> : <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={130 / 96} pick={art} />}
         </SharedFrame>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
           <h3 className="t-h3 text-navy">{event.title}</h3>
           {showMeta ? (
             <p className="t-record break-words text-graphite-600">
-              {allDay ? (run ?? "All day") : formatTime(startsAt)} · {event.venue.name}
+              {allDay ? (run ?? untimedLabel(event.category, event.subcategory)) : formatTime(startsAt)} · {event.venue.name}
               {event.priceNote ? ` · ${event.priceNote}` : ""}
             </p>
           ) : null}
@@ -111,14 +117,14 @@ export function EventCard({ event, variant = "grid", className, sizes, priority,
         {image ? (
           <Photo image={image} sizes={sizes ?? "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"} className="card-img" frame={3 / 2} />
         ) : (
-          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={3 / 2} />
+          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} className="card-img" ratio={3 / 2} pick={art} />
         )}
         {image && event.imageCredit ? <span className="image-credit-on">Image: {event.imageCredit.name}</span> : null}
       </SharedFrame>
       <div className="flex flex-1 flex-col gap-2 p-5">
         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-sky-700">{placeDay(event, startsAt)}</p>
         <h3 className="t-h3 text-navy">{event.title}</h3>
-        <p className="t-record text-graphite-600">{run && !event.performances?.length ? run : formatEventWhen(startsAt, endsAt, allDay)}</p>
+        <p className="t-record text-graphite-600">{run && !event.performances?.length ? run : formatEventWhen(startsAt, endsAt, allDay, untimed)}</p>
         <p className="t-small text-body-muted">
           {event.venue.name}
           {event.priceNote ? ` · ${event.priceNote}` : ""}

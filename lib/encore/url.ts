@@ -6,9 +6,13 @@ import { isEventCategory } from "./categories";
 export type EncoreView = "days" | "week" | "month" | "onview";
 export const VIEWS: EncoreView[] = ["days", "week", "month", "onview"];
 
+/** The two shortcuts the team can put in a post: tonight, and the coming weekend. */
+export type EncoreWhen = "tonight" | "weekend";
+
 /**
  * Every calendar view is a URL: the view, the day it is anchored on, the
- * filters, a search and, when someone shares their saved list, the slugs.
+ * filters, a search, a shortcut (`when`) and, when someone shares their
+ * saved list, the slugs.
  */
 export type EncoreState = {
   view: EncoreView;
@@ -18,6 +22,8 @@ export type EncoreState = {
   market?: MarketSlug;
   venue?: string;
   q: string;
+  /** Tonight or this weekend, as a list of its own in the Days view. */
+  when?: EncoreWhen;
   /** Slugs of a shared list. */
   list: string[];
 };
@@ -29,31 +35,45 @@ const one = (p: Params, k: string): string | undefined => {
   return Array.isArray(v) ? v[0] : v;
 };
 
-export function parseEncoreState(p: Params): EncoreState {
+/**
+ * Reads the state out of a URL. With `today` (YYYY-MM-DD in the site
+ * timezone) a date in the past is dropped, so a stale shared link opens on
+ * today instead of an empty week of history.
+ */
+export function parseEncoreState(p: Params, today?: string): EncoreState {
   const view = one(p, "view");
-  const date = one(p, "date");
+  const rawDate = one(p, "date");
   const category = one(p, "category");
   const market = one(p, "market");
   const venue = one(p, "venue");
+  const whenRaw = one(p, "when");
+  const when: EncoreWhen | undefined = whenRaw === "tonight" || whenRaw === "weekend" ? whenRaw : undefined;
   const list = (one(p, "list") ?? "").split(",").filter((s) => /^[a-z0-9-]{1,120}$/.test(s)).slice(0, 60);
+  let date = rawDate && /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : "";
+  if (today && date && date < today) date = "";
   return {
-    view: view === "month" ? "month" : view === "week" ? "week" : view === "onview" ? "onview" : "days",
-    date: date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "",
+    // A shortcut is a Days view on today.
+    view: when ? "days" : view === "month" ? "month" : view === "week" ? "week" : view === "onview" ? "onview" : "days",
+    date: when ? "" : date,
     category: isEventCategory(category) ? category : undefined,
     market: isMarketSlug(market) ? market : undefined,
     venue: venue && /^[a-z0-9-]{1,120}$/.test(venue) ? venue : undefined,
     q: (one(p, "q") ?? "").slice(0, 80),
+    when,
     list,
   };
 }
 
 /** Every key the calendar reads from a link. */
-export const ENCORE_KEYS = ["view", "date", "category", "market", "venue", "q", "list"] as const;
+export const ENCORE_KEYS = ["view", "date", "category", "market", "venue", "q", "when", "list"] as const;
 
 export function encoreSearch(s: Partial<EncoreState>): string {
   const sp = new URLSearchParams();
-  if (s.view && s.view !== "days") sp.set("view", s.view);
-  if (s.date) sp.set("date", s.date);
+  if (s.when) sp.set("when", s.when);
+  else {
+    if (s.view && s.view !== "days") sp.set("view", s.view);
+    if (s.date) sp.set("date", s.date);
+  }
   if (s.category) sp.set("category", s.category);
   if (s.market) sp.set("market", s.market);
   if (s.venue) sp.set("venue", s.venue);

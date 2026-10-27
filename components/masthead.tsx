@@ -26,6 +26,8 @@ type Props = {
   priority?: boolean;
   titleClassName?: string;
   className?: string;
+  /** On a phone, a short band (the lockup and the byline) so the page's own content starts inside the first screen. */
+  compact?: boolean;
 };
 
 /**
@@ -37,7 +39,7 @@ type Props = {
  * motion only, the slow drift the home hero uses (the art drifts the same
  * way), and none at all for anyone who asked for reduced motion.
  */
-export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className }: Props) {
+export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, children, priority = true, titleClassName, className, compact = false }: Props) {
   const slot = mastheadSlot(route);
   // A product page, and the page of all of them, carries the team's photographs, small, as its maker's mark.
   const team = slot.kind === "photo" && (slot.family || route === "/tools") ? await getTeam() : [];
@@ -56,7 +58,7 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
         holds the band's proportion; the band stretches to the cell, so it
         grows with the words when they need more room (a long title on a phone).
       */}
-      <div className="col-start-1 row-start-1 aspect-[4/3] sm:aspect-[2/1] lg:aspect-[3/1] lg:max-h-[600px]" aria-hidden="true" />
+      <div className={cn("col-start-1 row-start-1 sm:aspect-[2/1] lg:aspect-[3/1] lg:max-h-[600px]", compact ? "min-h-[160px]" : "aspect-[4/3]")} aria-hidden="true" />
       <div className="relative col-start-1 row-start-1">
         {slot.kind === "art" ? (
           <TideMasthead alt={slot.alt} />
@@ -73,8 +75,8 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
         ) : null}
       </div>
       {/* Encore's words start below its marquee's top. */}
-      <div className={cn("relative col-start-1 row-start-1 flex flex-col justify-end pt-10", slot.kind === "photo" && slot.family === "encore" && "md:pt-28")}>
-        <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? "pb-14 sm:pb-20 lg:pb-24" : "pb-10 sm:pb-12 lg:pb-16")}>
+      <div className={cn("relative col-start-1 row-start-1 flex flex-col justify-end", compact ? "pt-6 sm:pt-10" : "pt-10", slot.kind === "photo" && slot.family === "encore" && "md:pt-28")}>
+        <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? cn(compact ? "pb-6" : "pb-14", "sm:pb-20 lg:pb-24") : "pb-10 sm:pb-12 lg:pb-16")}>
           {crumbs}
           {lockup ? (
             <>
