@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { guidePdfHref } from "./guides";
-import { hasOwnPhoneBar, nextStepFor, teamMenu } from "./site";
+import { buyMenu, footerNav, hasOwnPhoneBar, nextStepFor, productFamilies, teamMenu } from "./site";
 
 test("the phone bar's next step: each page's own, or none", () => {
   assert.deepEqual(nextStepFor("/listings/123-main"), { label: "Showing", href: "#inquire" });
@@ -38,4 +38,17 @@ test("the team menu's items are real routes and keep the two-word rule for the b
     teamMenu.items.map((i) => i.href),
     ["/about", "/contact", "/refer", "/reviews"],
   );
+});
+
+test("the Buy menu names the relocation door by its task, and marks only the pages that aren't a product's", () => {
+  assert.deepEqual(
+    buyMenu.items.map((i) => i.href),
+    ["/buy", "/listings", "/relocate", "/neighborhoods/match"],
+  );
+  assert.ok(buyMenu.items.some((i) => i.label === "Moving here" && i.href === "/relocate"));
+  // /relocate and /neighborhoods/match belong to Atlas, whose menu underlines them; Buy marks the guide and the listings.
+  assert.deepEqual([...buyMenu.activeWhen], ["/buy", "/listings"]);
+  const atlas = productFamilies.find((f) => f.key === "atlas")!;
+  assert.ok(atlas.items.some((i) => i.href === "/relocate" && i.plain === "Moving here"));
+  assert.ok(footerNav.buySell.some((l) => l.href === "/relocate" && l.label === "Moving here"));
 });

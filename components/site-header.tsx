@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ViewTransition, useEffect, useState } from "react";
 import { SEARCH_COPY } from "@/lib/search/copy";
-import { primaryNav, productFamilies, site, teamMenu } from "@/lib/site";
+import { buyMenu, primaryNav, productFamilies, site, teamMenu } from "@/lib/site";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { Emblem } from "./brand/emblem";
@@ -130,6 +130,8 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
     family: f.key,
     foot: <ProductMenuFoot open={row.menu === f.key} onClose={() => row.close()} />,
   }));
+  // "Buy" is a small menu too: the guide, the listings, the move, the neighborhoods (lib/site.ts, buyMenu).
+  const buy: MenuSpec = { ...buyMenu };
   const team: MenuSpec = {
     ...teamMenu,
     foot: (
@@ -186,14 +188,17 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
 
         <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-6">
           {primaryNav.map((item) => {
-            // The team is a small menu in the product menus' style: About, the timing form, referrals, reviews, and the two numbers.
-            if (item.href === "/about") {
+            // Two of the plain pages are small menus in the product menus' style: Buy (the guide, the
+            // listings, the move, the neighborhoods) and the team (About, the timing form, referrals,
+            // reviews, and the two numbers).
+            const menu = item.href === "/buy" ? buy : item.href === "/about" ? team : null;
+            if (menu) {
               return (
                 <ProductMenu
                   key={item.href}
-                  menu={team}
+                  menu={menu}
                   pathname={pathname}
-                  open={row.menu === "team"}
+                  open={row.menu === menu.key}
                   switching={row.switching}
                   row={row}
                   solid={solid}

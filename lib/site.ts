@@ -92,7 +92,7 @@ export type NavItem = {
  * until there are live listings to search.
  */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Plan your move with Atlas Move" } },
+  { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Moving here? Plan it with Atlas Move" } },
   { href: "/sell", label: "Sell" },
   { href: "/about", label: "Joelyn & Jessica" },
   { href: "/guides", label: "Guides" },
@@ -113,6 +113,26 @@ export const teamMenu = {
     { href: "/refer", label: "Refer someone", short: "Send a friend our way" },
     { href: "/reviews", label: "Leave a review", short: "Tell others how it went" },
   ],
+} as const;
+
+/**
+ * "Buy" in the desktop header is the same kind of small menu: the guide, the
+ * listings, the move and the neighborhoods, so someone moving here from
+ * another state finds the door by its task and not by a product's name.
+ * `activeWhen` is the pages the Sky rule marks under "Buy"; the move and the
+ * match belong to Atlas, whose menu marks them.
+ */
+export const buyMenu = {
+  key: "buy",
+  name: "Buy",
+  title: "Where to start",
+  items: [
+    { href: "/buy", label: "Buyer’s guide", short: "Buying here, step by step" },
+    { href: "/listings", label: "Find your home", short: "Our listings, and your search" },
+    { href: "/relocate", label: "Moving here", short: "Every date for the move, with Atlas Move" },
+    { href: "/neighborhoods/match", label: "Pick a neighborhood", short: "The places that fit, with Atlas Match" },
+  ],
+  activeWhen: ["/buy", "/listings"],
 } as const;
 
 export type NextStep = {
@@ -165,6 +185,8 @@ export type ProductLink = {
   short: string;
   /** One sentence on what it does for the person using it. */
   line: string;
+  /** The task in plain words, where a product's name alone wouldn't say it ("Moving here"): under the name in the footer. */
+  plain?: string;
 };
 
 export type ProductFamily = {
@@ -209,6 +231,7 @@ export const productFamilies: readonly ProductFamily[] = [
         label: "Atlas Move",
         short: "Every date and deadline for your move",
         line: "Every date and deadline for your move on one page, from the contract to homestead.",
+        plain: "Moving here",
       },
     ],
   },
@@ -277,6 +300,7 @@ export const footerNav = {
     { href: "/sell", label: "Seller’s guide" },
     { href: "/sell/home-value", label: "What’s my home worth" },
     { href: "/listings", label: "Find your home" },
+    { href: "/relocate", label: "Moving here" },
   ],
   guides: [
     { href: "/guides/flood-zones-and-elevation-certificates-on-the-suncoast", label: "Flood zones" },

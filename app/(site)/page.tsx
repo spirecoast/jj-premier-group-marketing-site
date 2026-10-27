@@ -46,7 +46,7 @@ export default async function HomePage() {
     loadEncoreSnapshot(),
   ]);
 
-  /* The order: hero · Meet Joelyn & Jessica · Buyer or seller · Areas of
+  /* The order: hero · Meet Joelyn & Jessica · Buyer, seller or moving here · Areas of
      expertise · Find your home · Work with Joelyn & Jessica · Encore · Tide ·
      the questions people ask first. No eyebrows: each section's title or
      photograph says what it is. */

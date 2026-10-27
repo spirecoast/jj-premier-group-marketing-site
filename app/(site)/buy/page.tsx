@@ -220,9 +220,10 @@ export default async function BuyPage() {
       <JsonLd data={faqJsonLd(FAQS)} />
       <GuideHero title="Buyer’s guide" image={FRAMES.hero} />
 
-      <GuideSteps steps={STEPS} label="Buying, step by step" />
-
+      {/* The first screen offers a choice: the listings, the move, the neighborhoods. The ten steps follow for anyone who scrolls. */}
       <GuideNext title="Where to start" links={NEXT} />
+
+      <GuideSteps steps={STEPS} label="Buying, step by step" />
 
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
 

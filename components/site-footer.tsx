@@ -32,7 +32,7 @@ function hubGoalClasses(href: string): string | undefined {
   return `plausible-event-name=Explore plausible-event-action=hub plausible-event-where=footer plausible-event-hub=${href.slice(1)}`;
 }
 
-function Column({ title, links, note, mark }: { title: string; links: readonly { href: string; label: string }[]; note?: string; mark?: React.ReactNode }) {
+function Column({ title, links, note, mark }: { title: string; links: readonly { href: string; label: string; plain?: string }[]; note?: string; mark?: React.ReactNode }) {
   return (
     <FooterGroup
       heading={
@@ -50,6 +50,8 @@ function Column({ title, links, note, mark }: { title: string; links: readonly {
           <li key={l.href}>
             <IntentLink href={l.href as Route} className={["footer-link -my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
               {l.label}
+              {/* The task in plain words under a product's name, where the name alone wouldn't say it (lib/site.ts). */}
+              {l.plain ? <span className="block text-[12px] text-linen-700">{l.plain}</span> : null}
             </IntentLink>
           </li>
         ))}
