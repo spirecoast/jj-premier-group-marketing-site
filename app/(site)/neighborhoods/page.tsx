@@ -1,9 +1,11 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { ExplorerIsland } from "@/components/explorer/explorer";
+import { MarketDisclosure } from "@/components/explorer/market-index";
 import { JsonLd } from "@/components/json-ld";
 import { MARKETS } from "@/lib/content/markets";
-import { DATASET_VERSION, getAllRecords } from "@/lib/neighborhoods/data";
+import { defaultBounds } from "@/lib/neighborhoods/bounds";
+import { DATASET_VERSION, getAllRecords, getIndexEntries } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
 import { EXPLORER_KEYS } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
@@ -18,6 +20,9 @@ export const metadata: Metadata = pageMetadata({
   fileImage: true, // opengraph-image.tsx beside this page
 });
 
+/** An index link: a 44 px row on a phone, a compact line in the columns from tablet widths up. */
+const INDEX_LINK = "t-small flex min-h-11 items-center text-body transition-colors hover:text-navy md:-my-1 md:inline-block md:min-h-0 md:py-1";
+
 /**
  * The explorer, with a crawlable index of the areas underneath it so every
  * place has a path in from search engines even though the map is client-side.
@@ -25,7 +30,9 @@ export const metadata: Metadata = pageMetadata({
  * the browser (components/explorer/explorer.tsx, ExplorerIsland).
  */
 export default async function NeighborhoodsPage() {
-  const all = await getAllRecords();
+  const [all, entries] = await Promise.all([getAllRecords(), getIndexEntries()]);
+  // The map's opening views, so it starts on its final zoom instead of flying there once the index arrives.
+  const defaults = defaultBounds(entries, MARKETS.map((m) => m.slug));
   const areas = all.filter((r) => r.level === "area").sort((a, b) => a.name.localeCompare(b.name));
   const counts = { total: all.length, points: all.filter((r) => r.lat !== null).length };
   // The places an area doesn't lead to (no parent area above them): listed A to Z below the areas,
@@ -60,7 +67,7 @@ export default async function NeighborhoodsPage() {
 
       <UrlPending keys={EXPLORER_KEYS} />
       <IslandBoundary name="the map and the list" minHeight="560px">
-        <ExplorerIsland datasetVersion={DATASET_VERSION} asOf={asOf} />
+        <ExplorerIsland datasetVersion={DATASET_VERSION} asOf={asOf} defaults={defaults} />
       </IslandBoundary>
 
       <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="areas-title">
@@ -73,27 +80,31 @@ export default async function NeighborhoodsPage() {
             there and who runs the association. The map above is the fast way in; this list is the one you can read.
           </p>
         </div>
-        <div className="grid gap-10 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-3 md:gap-10">
           {MARKETS.map((m) => {
             const mine = areas.filter((a) => a.market === m.slug);
             return (
-              <div key={m.slug} className="flex flex-col gap-3">
-                <h3 className="t-h3 border-b border-hairline pb-2 text-navy">
-                  <Link href={`/neighborhoods?market=${m.slug}` as Route} className="hover:text-harbor-700">
-                    {m.name}
-                  </Link>
-                  <span className="t-mono-sm ml-2 text-graphite-500">{mine.length}</span>
-                </h3>
+              <MarketDisclosure
+                key={m.slug}
+                heading={
+                  <h3 className="t-h3 text-navy">
+                    <Link href={`/neighborhoods?market=${m.slug}` as Route} className="pointer-events-none hover:text-harbor-700 md:pointer-events-auto">
+                      {m.name}
+                    </Link>
+                    <span className="t-mono-sm ml-2 text-graphite-500">{mine.length}</span>
+                  </h3>
+                }
+              >
                 <ul className="columns-1 gap-x-6 sm:columns-2 md:columns-1 lg:columns-2">
                   {mine.map((a) => (
                     <li key={a.slug} className="break-inside-avoid">
-                      <Link href={`/neighborhoods/${a.slug}`} className="t-small -my-1 inline-block py-1 text-body transition-colors hover:text-navy">
+                      <Link href={`/neighborhoods/${a.slug}`} className={INDEX_LINK}>
                         {a.name}
                       </Link>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </MarketDisclosure>
             );
           })}
         </div>
@@ -106,7 +117,7 @@ export default async function NeighborhoodsPage() {
                 if (!mine.length) return null;
                 return (
                   <details key={m.slug} className="group border-b border-hairline py-2">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-1 [&::-webkit-details-marker]:hidden">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-1 [&::-webkit-details-marker]:hidden">
                       <span className="t-body text-navy">{m.name}</span>
                       <span className="t-mono-sm text-graphite-500">
                         {mine.length} <span className="inline-block transition-transform group-open:rotate-45" aria-hidden="true">+</span>
@@ -115,7 +126,7 @@ export default async function NeighborhoodsPage() {
                     <ul className="columns-1 gap-x-6 pt-3 sm:columns-2 md:columns-1 lg:columns-2">
                       {mine.map((o) => (
                         <li key={o.slug} className="break-inside-avoid">
-                          <Link href={`/neighborhoods/${o.slug}`} className="t-small -my-1 inline-block py-1 text-body transition-colors hover:text-navy">
+                          <Link href={`/neighborhoods/${o.slug}`} className={INDEX_LINK}>
                             {o.name}
                           </Link>
                         </li>
@@ -128,7 +139,7 @@ export default async function NeighborhoodsPage() {
           </div>
         ) : null}
         <p className="t-note">
-          Catalog as of {asOf}. Facts carry their sources on each page. Nothing here is a rating, a price, or a description of who lives where.
+          Catalogue as of {asOf}. Facts carry their sources on each page. Nothing here is a rating, a price, or a description of who lives where.
         </p>
       </section>
 

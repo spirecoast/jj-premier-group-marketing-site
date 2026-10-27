@@ -123,7 +123,7 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
         <div className="flex flex-col gap-1">
           <dt className="t-mono-sm text-graphite-500">{C.where}</dt>
           <dd className="flex flex-col gap-1">
-            <Link href={`/venues/${event.venue.slug}`} className="t-h4 text-navy transition-colors hover:text-harbor-700">
+            <Link href={`/venues/${event.venue.slug}`} className="t-h4 -my-2 flex min-h-11 items-center self-start py-2 text-navy transition-colors hover:text-harbor-700">
               {event.venue.name}
             </Link>
             {event.room ? <span className="t-small text-body-muted">{event.room}</span> : null}
