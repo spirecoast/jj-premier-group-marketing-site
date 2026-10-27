@@ -5,6 +5,8 @@ import { buildMatcher, type KnownEvent } from "./match";
 import { formatPrice, parsePrice } from "./price";
 import type { SourceSpec } from "./sources";
 import type { Availability, CollectedEvent, CollectedPerformance } from "./types";
+import { eventSlug, slugify } from "../slug";
+import { unlistedVenue } from "../venue-rules";
 import { isTicketingUrl, normTitle, normUrl, stripDateSuffix } from "./util";
 
 /**
@@ -102,9 +104,7 @@ export type ReconcileInput = {
 
 const sameMoney = (a?: number | null, b?: number | null) => (a ?? null) === (b ?? null) || (a != null && b != null && Math.abs(a - b) < 0.005);
 
-export function slugify(s: string): string {
-  return normTitle(s).replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80).replace(/-$/, "");
-}
+export { slugify };
 
 export function fingerprint(sourceId: string, e: Pick<CollectedEvent, "title" | "venueKey" | "venueName">): string {
   return `new|${sourceId}|${normTitle(stripDateSuffix(e.title))}|${e.venueKey ?? normTitle(e.venueName ?? "")}`;
@@ -349,7 +349,7 @@ export function reconcile(input: ReconcileInput): Plan {
         firstDate,
         payload: c as unknown as Record<string, unknown>,
         proposed: {
-          slug: `${slugify(stripDateSuffix(c.title))}-${firstDate.slice(0, 7)}`,
+          slug: eventSlug(c.title, firstDate),
           venueKey: venueKey ?? null,
           market: venueKey ? (venueMarket.get(venueKey) ?? null) : null,
           presenter: c.presenter ?? (source.presenter || null),
@@ -358,7 +358,11 @@ export function reconcile(input: ReconcileInput): Plan {
           ticketUrl: c.ticketUrl ?? null,
           imageUrl: c.imageUrl ?? null,
         },
-        note: venueKey ? undefined : `Venue "${c.venueName ?? "not given"}" needs mapping.`,
+        note: !venueKey
+          ? unlistedVenue({ key: "", name: c.venueName ?? null, type: null, address: null, notes: null }) === "private"
+            ? `Venue "${c.venueName}" reads as a private home: map it to a venue row whose name says Residence, so it gets no page and the event shows the city only.`
+            : `Venue "${c.venueName ?? "not given"}" needs mapping.`
+          : undefined,
       });
     }
     // A platform that lists everything stopped listing a known production with dates ahead.

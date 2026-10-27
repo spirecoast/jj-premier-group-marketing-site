@@ -1,7 +1,9 @@
 import type { DatasetEvent, DatasetVenue } from "@/lib/encore/collect/known";
 import { isTicketingUrl } from "@/lib/encore/collect/util";
+import { publicSlugs } from "@/lib/encore/slug";
 import { jsonSnapshot } from "@/lib/encore/store/convert";
 import type { EncoreSnapshot, StoreEvent, StorePerformance } from "@/lib/encore/store/types";
+import { UNLISTED_NAME, unlistedVenue } from "@/lib/encore/venue-rules";
 import data from "./encore/encore-calendar.json";
 import { isMarketSlug } from "./markets";
 import type { Address, Event, EventCategory, MarketSlug, Performance, Venue, VenueDate } from "./types";
@@ -94,29 +96,47 @@ function venueDateOf(p: StorePerformance, hours: number): VenueDate {
   };
 }
 
-type Built = { venues: Venue[]; events: Omit<Event, "startsAt" | "endsAt" | "allDay">[] };
+type Built = {
+  /** The venues with a page of their own. */
+  venues: Venue[];
+  events: Omit<Event, "startsAt" | "endsAt" | "allDay">[];
+  /** A stored slug the first collector clipped → the slug the site serves it under (lib/encore/slug.ts). */
+  aliases: Map<string, string>;
+  /** Venues with no page (a placeholder or a home), by key. */
+  unlisted: Map<string, Venue>;
+};
 const builtCache = new WeakMap<EncoreSnapshot, Built>();
 
 /** Venues and events from a snapshot (memoised per snapshot). */
 export function buildEncore(snap: EncoreSnapshot): Built {
   const hit = builtCache.get(snap);
   if (hit) return hit;
-  const venues: Venue[] = snap.venues
-    .filter((v) => v.name && v.key !== "venue-tbd")
-    .map((v) => ({
-      _id: `venue-${v.key}`,
-      name: v.name!,
-      slug: v.key,
-      address: parseAddress(v),
-      website: v.website ?? undefined,
-      market: marketOf(v.market),
-    }));
-  const venueByKey = new Map(venues.map((v) => [v.slug, v]));
+  const all: Venue[] = snap.venues
+    .filter((v) => v.name || v.key === "venue-tbd")
+    .map((v) => {
+      const unlisted = unlistedVenue(v);
+      const address = parseAddress(v);
+      return {
+        _id: `venue-${v.key}`,
+        name: unlisted ? UNLISTED_NAME[unlisted] : v.name!,
+        slug: v.key,
+        // A placeholder or a home: the city, never a street.
+        address: unlisted ? { street: "", city: v.city ?? address.city, state: "FL", zip: "" } : address,
+        website: unlisted ? undefined : (v.website ?? undefined),
+        market: marketOf(v.market),
+        ...(unlisted ? { unlisted } : {}),
+      };
+    });
+  const venues = all.filter((v) => !v.unlisted);
+  const venueByKey = new Map(all.map((v) => [v.slug, v]));
   const images = new Map(snap.images.filter((i) => i.publicUrl && !i.hidden).map((i) => [i.eventSlug, i]));
+  const aliases = publicSlugs(snap.events);
   const events = snap.events
     .filter((e) => !e.hidden && e.status !== "announced" && e.venueKey && venueByKey.has(e.venueKey))
     .map((e) => {
-      const venue = venueByKey.get(e.venueKey!)!;
+      const known = venueByKey.get(e.venueKey!)!;
+      // The "to be confirmed" row carries no city or market of its own: the event's stand in.
+      const venue: Venue = known.slug === "venue-tbd" ? { ...known, market: marketOf(e.market), address: { ...known.address, city: e.city ?? "" } } : known;
       // The dataset's own eight categories; siteCategory folds film and talks into six.
       const category = categoryOf(e.category);
       const hours = HOURS[category];
@@ -130,16 +150,16 @@ export function buildEncore(snap: EncoreSnapshot): Built {
       const event: Omit<Event, "startsAt" | "endsAt" | "allDay"> = {
         _id: `event-${e.slug}`,
         title: e.title,
-        slug: e.slug,
+        slug: aliases.get(e.slug) ?? e.slug,
         summary: e.description ?? "",
-        venue: { name: venue.name, slug: venue.slug, market: venue.market, address: venue.address, geo: venue.geo },
+        venue: { name: venue.name, slug: venue.slug, market: venue.market, address: venue.address, geo: venue.geo, ...(venue.unlisted ? { unlisted: venue.unlisted } : {}) },
         category,
         ticketUrl: e.ticketUrl ?? undefined,
         priceNote: status === "sold-out" ? "Sold out" : status === "cancelled" ? "Cancelled" : status === "postponed" ? "Postponed" : (e.price ?? undefined),
         // The presenter's own image when the collector found one; otherwise pages draw key art for the category.
         image: img?.publicUrl && img.width && img.height ? { src: img.publicUrl, alt: img.alt || e.title, width: img.width, height: img.height } : undefined,
         imageCredit: img?.publicUrl ? { name: img.credit, url: img.pageUrl ?? undefined } : undefined,
-        source: e.presenter ?? venue.name,
+        source: e.presenter ?? known.name,
         sourceUrl: e.sources[0],
         featured: false,
         presenter: e.presenter ?? undefined,
@@ -159,13 +179,19 @@ export function buildEncore(snap: EncoreSnapshot): Built {
       };
       return event;
     });
-  const out = { venues, events };
+  const unlisted = new Map(all.filter((v) => v.unlisted).map((v) => [v.slug, v]));
+  const out = { venues, events, aliases, unlisted };
   builtCache.set(snap, out);
   return out;
 }
 
 export function encoreVenues(snap: EncoreSnapshot = JSON_SNAPSHOT): Venue[] {
   return buildEncore(snap).venues;
+}
+
+/** A venue that has no page (lib/encore/venue-rules.ts): its old address redirects to its market's calendar. */
+export function unlistedEncoreVenue(slug: string, snap: EncoreSnapshot = JSON_SNAPSHOT): Venue | undefined {
+  return buildEncore(snap).unlisted.get(slug);
 }
 
 /**
@@ -192,4 +218,31 @@ export function encoreEvents(from: Date = new Date(), snap: EncoreSnapshot = JSO
     }
   }
   return out.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+/**
+ * What an event address answers (app/(site)/calendar/[slug]):
+ * - `live`: on the calendar now;
+ * - `closed`: its dates are all behind `from`; the page stays, says so and
+ *   points at what's next, with noindex;
+ * - `moved`: a slug the first collector clipped, now served under a clean
+ *   one (a permanent redirect).
+ * Undefined when the snapshot has no such event (hidden, never listed, or
+ * pruned more than a year after its last date).
+ */
+export type EventLookup = { kind: "live"; event: Event } | { kind: "closed"; event: Event } | { kind: "moved"; slug: string };
+
+export function lookupEncoreEvent(slug: string, from: Date = new Date(), snap: EncoreSnapshot = JSON_SNAPSHOT): EventLookup | undefined {
+  const built = buildEncore(snap);
+  const moved = built.aliases.get(slug);
+  if (moved) return { kind: "moved", slug: moved };
+  const live = encoreEvents(from, snap).find((e) => e.slug === slug);
+  if (live) return { kind: "live", event: live };
+  const e = built.events.find((x) => x.slug === slug);
+  if (!e) return undefined;
+  const last = e.performances?.[e.performances.length - 1];
+  if (last) return { kind: "closed", event: { ...e, startsAt: last.startsAt, endsAt: last.endsAt, allDay: last.allDay } };
+  const day = e.runsThrough ?? e.firstDate;
+  if (!day) return undefined;
+  return { kind: "closed", event: { ...e, startsAt: noon(day), allDay: true } };
 }

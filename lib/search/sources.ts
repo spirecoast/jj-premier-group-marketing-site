@@ -215,16 +215,17 @@ export function eventChunk(e: Event): Chunk {
   const first = perfs[0]?.startsAt ?? e.firstDate ?? e.startsAt;
   const last = perfs[perfs.length - 1]?.startsAt ?? e.runsThrough ?? e.endsAt ?? first;
   const span = day(first) === day(last) ? `On ${day(first)}.` : `From ${day(first)} to ${day(last)}${perfs.length > 1 ? `, ${perfs.length} dates` : ""}.`;
-  const place = [e.venue.name, e.venue.address?.city].filter(Boolean).join(", ");
+  // A venue with no page of its own (a placeholder or a home) is only its town.
+  const at = e.venue.unlisted ? `in ${e.venue.address?.city || e.venue.market}` : `at ${[e.venue.name, e.venue.address?.city].filter(Boolean).join(", ")}`;
   const category = CATEGORY_LABEL[e.category] ?? e.category;
   const body = [
     e.summary,
     e.presenter && e.presenter !== e.venue.name ? `Presented by ${e.presenter}.` : "",
-    `${category}${e.subcategory ? `, ${e.subcategory}` : ""}, at ${place}${e.room ? `, ${e.room}` : ""}.`,
+    `${category}${e.subcategory ? `, ${e.subcategory}` : ""}, ${at}${e.room ? `, ${e.room}` : ""}.`,
     span,
     e.status === "sold-out" ? "Sold out." : "",
   ];
-  return { id: `event:${e.slug}`, kind: "event", title: e.title, sectionTitle: `${category} at ${e.venue.name}`, url: `/calendar/${e.slug}`, body: body.map(sentence).filter(Boolean).join(" ") };
+  return { id: `event:${e.slug}`, kind: "event", title: e.title, sectionTitle: e.venue.unlisted ? `${category} ${at}` : `${category} at ${e.venue.name}`, url: `/calendar/${e.slug}`, body: body.map(sentence).filter(Boolean).join(" ") };
 }
 
 /** A venue: where it is and what it puts on the calendar (by category, which changes slowly). */

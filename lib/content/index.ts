@@ -2,6 +2,7 @@ import { isSanityConfigured } from "@/sanity/env";
 import { filterListings, sortListings } from "./filters";
 import { MARKETS, getMarket } from "./markets";
 import { seedSource } from "./seed-source";
+import type { EventLookup } from "./encore";
 import type { ContentSource } from "./source";
 import type {
   Event,
@@ -20,6 +21,7 @@ import type {
 } from "./types";
 
 export * from "./types";
+export type { EventLookup } from "./encore";
 export { MARKETS, REGIONS, getMarket, isMarketSlug, isRegionSlug, marketName } from "./markets";
 
 /**
@@ -184,8 +186,26 @@ export async function getEvent(slug: string): Promise<Event | undefined> {
   return (await (await source()).events()).find((e) => e.slug === slug);
 }
 
-export async function getEventSlugs(): Promise<string[]> {
-  return (await (await source()).events()).map((e) => e.slug);
+/**
+ * Every event address the site serves. `endingAfter` leaves out events whose
+ * last date is before then: the sitemap passes tomorrow, so a crawler is
+ * never sent to something that closes tonight.
+ */
+export async function getEventSlugs(opts: { endingAfter?: Date } = {}): Promise<string[]> {
+  const events = await (await source()).events();
+  const after = opts.endingAfter?.getTime();
+  return (after == null ? events : events.filter((e) => lastMoment(e) >= after)).map((e) => e.slug);
+}
+
+/**
+ * An event address: the event, or the event after it closed, or the clean
+ * slug a clipped one moved to. Undefined for an address the calendar never had.
+ */
+export async function findEvent(slug: string): Promise<EventLookup | undefined> {
+  const src = await source();
+  if (src.lookupEvent) return src.lookupEvent(slug);
+  const event = (await src.events()).find((e) => e.slug === slug);
+  return event ? { kind: "live", event } : undefined;
 }
 
 export async function getVenues(market?: RegionSlug): Promise<Venue[]> {
@@ -195,6 +215,12 @@ export async function getVenues(market?: RegionSlug): Promise<Venue[]> {
 
 export async function getVenue(slug: string): Promise<Venue | undefined> {
   return (await getVenues()).find((v) => v.slug === slug);
+}
+
+/** A venue address with no page behind it any more (a placeholder or a home), for a redirect. */
+export async function getUnlistedVenue(slug: string): Promise<Venue | undefined> {
+  const src = await source();
+  return src.unlistedVenue ? src.unlistedVenue(slug) : undefined;
 }
 
 export async function getVenueSlugs(): Promise<string[]> {

@@ -10,7 +10,8 @@ import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { FIRST_PAINT_DAYS } from "@/lib/encore/index-format";
 import { addDays } from "@/lib/encore/select";
 import { ENCORE_KEYS } from "@/lib/encore/url";
-import { pageMetadata } from "@/lib/seo";
+import { eventListJsonLd, pageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/json-ld";
 import { IslandBoundary } from "@/components/ui/island-boundary";
 import { UrlPending } from "@/components/url-pending";
 
@@ -38,9 +39,18 @@ export default async function CalendarPage() {
   const sliceRange: [string, string] = [today, addDays(today, FIRST_PAINT_DAYS - 1)];
   const slice = sliceIndex(index, sliceRange[0], sliceRange[1]);
   const venues = await getVenues();
+  // The next 30 productions, once each, in date order: the calendar's ItemList for crawlers.
+  const now = Date.now();
+  const listed = new Set<number>();
+  for (const p of index.perfs) {
+    if (listed.size >= 30) break;
+    if (p[4] >= now) listed.add(p[0]);
+  }
+  const itemList = eventListJsonLd([...listed].map((i) => ({ slug: index.events[i]!.s, title: index.events[i]!.t })));
 
   return (
     <>
+      <JsonLd data={itemList} />
       {/* On a phone the masthead is short (the lockup and the byline), so the first show is inside the first screen. */}
       <Masthead route="/calendar" titleId="encore-title" compact>
         <p className="rise d3 t-lead hidden max-w-[600px] text-linen-100 text-shadow-soft md:block">Theater, concerts and cultural events in Lakewood Ranch, Sarasota and Bradenton.</p>
