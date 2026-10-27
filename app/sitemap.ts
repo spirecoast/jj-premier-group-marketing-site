@@ -47,7 +47,8 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [listings, events, venues, editorial, catalog, posts] = await Promise.all([
     getListingSlugs(),
-    getEventSlugs(),
+    // Nothing that closes in the next day: by the time a crawler comes, it would be gone.
+    getEventSlugs({ endingAfter: new Date(Date.now() + 24 * 3600_000) }),
     getVenueSlugs(),
     getNeighborhoodSlugs(),
     getIndexableSlugs(),

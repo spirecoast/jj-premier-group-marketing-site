@@ -20,7 +20,7 @@ function slot(day: number, minutes: number): { day: number; at: number } {
  * before an evening show and after a matinee; drinks are after. Restaurants
  * and bars are only listed if Google has them open then.
  */
-export function NightOut({ o, id }: { o: Occ; id: string }) {
+export function NightOut({ o, id, askHref }: { o: Occ; id: string; askHref?: string }) {
   const [h, m] = o.time.split(":").map(Number) as [number, number];
   const start = h * 60 + m;
   const run = o.end > o.start ? Math.round((o.end - o.start) / 60_000) : DEFAULT_RUN_MIN;
@@ -40,7 +40,7 @@ export function NightOut({ o, id }: { o: Occ; id: string }) {
   return (
     <li id={id} className="flex flex-col gap-4 border-b border-hairline bg-linen-50 px-4 py-5 sm:px-5">
       <p className="t-h4 text-navy">Near {o.e.vn}</p>
-      <PlaceTabs tabs={tabs} label={`Near ${o.e.vn}`} note="Nobody pays to be on this list." />
+      <PlaceTabs tabs={tabs} label={`Near ${o.e.vn}`} note="Nobody pays to be on this list." askHref={askHref} />
     </li>
   );
 }

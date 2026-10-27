@@ -1,11 +1,11 @@
-import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
 import type { Database } from "@/lib/db";
 import { encoreChecks, encoreEvents, encoreImages, encorePerformances, encoreReviewQueue, encoreRuns, encoreSources, encoreVenues } from "@/lib/db/encore-schema";
 import type { DatasetEvent, DatasetVenue } from "../collect/known";
 import type { Plan } from "../collect/reconcile";
 import type { SourceSpec } from "../collect/sources";
 import { datasetToStore } from "./convert";
-import type { EncoreStore, ReviewRow, RunKind, SourceResult, SourceState } from "./store";
+import type { EncoreStore, LoadOptions, ReviewRow, RunKind, SourceResult, SourceState } from "./store";
 import type { EncoreSnapshot, StoreEvent, StoreImage, StorePerformance } from "./types";
 
 /** The encore_* tables over DATABASE_URL (Drizzle + postgres-js). */
@@ -17,12 +17,24 @@ export function pgStore(db: Database): EncoreStore {
   return {
     kind: "pg",
 
-    async load(): Promise<EncoreSnapshot> {
+    async load(opts?: LoadOptions): Promise<EncoreSnapshot> {
+      const since = opts?.since;
+      // With `since`: dates from that day on (encore_performances_date_idx), the productions that
+      // still have one, runs with no dates that reach it, and those events' images (sinceSnapshot in ./store).
+      const kept = since
+        ? sql`(exists (select 1 from encore_performances p where p.event_slug = ${encoreEvents.slug} and p.date >= ${since}::date)
+            or (not exists (select 1 from encore_performances p where p.event_slug = ${encoreEvents.slug}) and coalesce(${encoreEvents.endDate}, ${encoreEvents.startDate}) >= ${since}::date))`
+        : undefined;
       const [venues, events, perfs, images] = await Promise.all([
         db.select().from(encoreVenues),
-        db.select().from(encoreEvents),
-        db.select().from(encorePerformances),
-        db.select().from(encoreImages),
+        kept ? db.select().from(encoreEvents).where(kept) : db.select().from(encoreEvents),
+        since ? db.select().from(encorePerformances).where(gte(encorePerformances.date, since)) : db.select().from(encorePerformances),
+        kept
+          ? db
+              .select()
+              .from(encoreImages)
+              .where(inArray(encoreImages.eventSlug, db.select({ slug: encoreEvents.slug }).from(encoreEvents).where(kept)))
+          : db.select().from(encoreImages),
       ]);
       const byEvent = new Map<string, StorePerformance[]>();
       for (const p of perfs) {
@@ -106,6 +118,33 @@ export function pgStore(db: Database): EncoreStore {
           fetchedAt: iso(i.fetchedAt),
         })),
       };
+    },
+
+    async hasEvents() {
+      const rows = await db.select({ slug: encoreEvents.slug }).from(encoreEvents).limit(1);
+      return rows.length > 0;
+    },
+
+    async prune({ before, checksBefore }) {
+      return db.transaction(async (tx) => {
+        const checks = await tx.delete(encoreChecks).where(lt(encoreChecks.checkedAt, checksBefore)).returning({ id: encoreChecks.id });
+        const performances = await tx.delete(encorePerformances).where(lt(encorePerformances.date, before)).returning({ id: encorePerformances.id });
+        // Productions with no dates left whose run (or first date) is before the cut-off.
+        const gone = sql`coalesce(${encoreEvents.endDate}, ${encoreEvents.startDate}) < ${before}::date
+          and not exists (select 1 from encore_performances p where p.event_slug = ${encoreEvents.slug})`;
+        const doomed = await tx.select({ slug: encoreEvents.slug }).from(encoreEvents).where(gone);
+        const slugs = doomed.map((d) => d.slug);
+        const images = slugs.length
+          ? await tx.select({ path: encoreImages.storagePath }).from(encoreImages).where(inArray(encoreImages.eventSlug, slugs))
+          : [];
+        for (const part of chunks(slugs)) await tx.delete(encoreEvents).where(inArray(encoreEvents.slug, part));
+        return {
+          checks: checks.length,
+          performances: performances.length,
+          events: slugs.length,
+          imagePaths: images.map((r) => r.path).filter((p): p is string => Boolean(p)),
+        };
+      });
     },
 
     async sources(): Promise<SourceState[]> {

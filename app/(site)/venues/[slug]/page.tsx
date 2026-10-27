@@ -1,14 +1,16 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { EventCard } from "@/components/event-card";
+import { FreshList } from "@/components/encore/fresh-events";
 import { JsonLd } from "@/components/json-ld";
 import { Photo } from "@/components/photo";
 import { SharedFrame } from "@/components/shared-frame";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
-import { getNeighborhoods, getUpcomingEvents, getVenue, getVenueSlugs } from "@/lib/content";
+import { getNeighborhoods, getUnlistedVenue, getUpcomingEvents, getVenue, getVenueSlugs } from "@/lib/content";
 import { formatAddress } from "@/lib/content/format";
+import { cardEndsAt } from "@/lib/encore/fresh";
 import { varyStock } from "@/lib/encore/stock";
 import { getMarket, isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, pageMetadata, placeJsonLd } from "@/lib/seo";
@@ -39,7 +41,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function VenuePage({ params }: { params: Params }) {
   const { slug } = await params;
   const venue = await getVenue(slug);
-  if (!venue) notFound();
+  if (!venue) {
+    // A placeholder or someone's home never has a page; its old address goes to its town's calendar.
+    const gone = await getUnlistedVenue(slug);
+    if (gone) permanentRedirect(`/calendar?market=${gone.market}`);
+    notFound();
+  }
   const market = getMarket(venue.market);
   const [allEvents, neighborhoods] = await Promise.all([
     getUpcomingEvents({ venue: venue.slug, datedFirst: true }),
@@ -130,23 +137,25 @@ export default async function VenuePage({ params }: { params: Params }) {
           title={<span id="venue-events-title">Coming up at {venue.name}.</span>}
           aside={<Link href={`/calendar?market=${venue.market}` as Route} className="link-rule">The {marketName(venue.market)} calendar</Link>}
         />
-        {events.length ? (
-          <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((e, i) => (
-              <li key={e.slug} className="flex">
-                <EventCard event={e} className="w-full" pick={art[i]} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="t-body max-w-measure text-body">
-            Nothing on the calendar here this week. The Monday email carries the full list; the{" "}
-            <Link href="/calendar#subscribe" className="text-harbor-700 underline underline-offset-4">
-              box is here
-            </Link>
-            .
-          </p>
-        )}
+        <FreshList
+          ends={events.map(cardEndsAt)}
+          className="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+          empty={
+              <p className="t-body max-w-measure text-body">
+                Nothing on the calendar here this week. The Monday email carries the full list; the{" "}
+                <Link href="/calendar#subscribe" className="text-harbor-700 underline underline-offset-4">
+                  box is here
+                </Link>
+                .
+              </p>
+          }
+        >
+          {events.map((e, i) => (
+            <li key={e.slug} className="flex">
+              <EventCard event={e} className="w-full" pick={art[i]} />
+            </li>
+          ))}
+        </FreshList>
       </section>
 
       {neighborhoods.length ? (

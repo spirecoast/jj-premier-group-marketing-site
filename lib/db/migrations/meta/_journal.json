@@ -120,6 +120,13 @@
       "when": 1793203200000,
       "tag": "0016_ops_and_retention",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793289600000,
+      "tag": "0017_places_visitors",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { isMissingTable, warnMissingTable } from "@/lib/db/missing-table";
@@ -21,8 +22,17 @@ import { isMissingTable, warnMissingTable } from "@/lib/db/missing-table";
 
 export const PLACES_CAP = { day: 30, month: 900 } as const;
 
+/**
+ * Lists one visitor can open in a Pacific-time day, across both SKUs, inside
+ * the site-wide cap: a Planner evening with two shows (dinner, drinks and a
+ * hotel near each) is six, and a few more for a change of mind. At most a
+ * quarter of a day's calls go to any one visitor.
+ */
+export const PLACES_VISITOR_CAP = 8;
+
 export type Sku = "nearby" | "text";
 export type Take = { ok: true } | { ok: false; reason: "day" | "month" | "error" };
+export type CapReason = "day" | "month" | "error" | "visitor";
 
 /** "2026-10-12", the calendar day in Pacific time. */
 export function pacificDay(now: Date): string {
@@ -59,9 +69,47 @@ export async function takeCall(sku: Sku, now: Date = new Date()): Promise<Take> 
   }
 }
 
-/** Thrown in place of a call to Google once the cap is reached. */
+/** A visitor, for the per-visitor count: a hash of the day and their address, so the address is never stored. */
+export function visitorKey(ip: string, day: string): string {
+  return createHash("sha256").update(`places|${day}|${ip}`).digest("hex").slice(0, 32);
+}
+
+let swept = "";
+
+/**
+ * Count one list for this visitor today, if they have room
+ * (PLACES_VISITOR_CAP). Fails open: without the table (migration 0017 not
+ * applied) or a database that won't answer, there's no per-visitor count
+ * and the site-wide cap in takeCall still stops the spending.
+ */
+export async function takeVisitorCall(ip: string, now: Date = new Date()): Promise<{ ok: boolean }> {
+  if (!process.env.DATABASE_URL) return { ok: true };
+  const day = pacificDay(now);
+  try {
+    const database = getDb();
+    const rows = await database.execute(sql`
+      INSERT INTO places_visitors (day, visitor, calls)
+      VALUES (${day}::date, ${visitorKey(ip, day)}, 1)
+      ON CONFLICT (day, visitor) DO UPDATE SET calls = places_visitors.calls + 1
+        WHERE places_visitors.calls < ${PLACES_VISITOR_CAP}
+      RETURNING calls
+    `);
+    // Yesterday's counts are kept a day for the Pacific/UTC overlap, then go.
+    if (swept !== day) {
+      swept = day;
+      await database.execute(sql`DELETE FROM places_visitors WHERE day < ${day}::date - 1`).catch(() => undefined);
+    }
+    return { ok: rows.length > 0 };
+  } catch (err) {
+    if (isMissingTable(err)) warnMissingTable("places_visitors", "0017_places_visitors.sql");
+    else console.error("[places/budget] visitor count", err instanceof Error ? err.message : err);
+    return { ok: true };
+  }
+}
+
+/** Thrown in place of a call to Google once a cap is reached. */
 export class PlacesCapError extends Error {
-  constructor(readonly reason: "day" | "month" | "error") {
+  constructor(readonly reason: CapReason) {
     super(`Places cap: ${reason}`);
   }
 }

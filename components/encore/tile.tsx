@@ -131,6 +131,9 @@ export function AgendaRow({ o, saved, onSave, i }: { o: Occ; saved: boolean; onS
           <Meta e={e} />
         </span>
         <span className={cn("t-mono-sm hidden shrink-0 sm:block", e.so ? "text-amber" : "text-graphite-500")}>{e.so ? "Sold out" : (e.pr ?? "")}</span>
+        <span className="encore-agenda-arrow" aria-hidden="true">
+          →
+        </span>
       </Link>
       <SaveButton saved={saved} onToggle={onSave} title={e.t} className="encore-agenda-save" />
     </li>

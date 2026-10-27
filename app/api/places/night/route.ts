@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { isNightKind, nearVenue, placesEnabled, venueLatLng } from "@/lib/places/google";
-import { intParam, placesFailure, placesJson, placesLimiter } from "@/lib/places/route-helpers";
+import { intParam, placesFailure, placesJson, placesLimiter, takeVisitorList } from "@/lib/places/route-helpers";
 import { clientIp } from "@/lib/search/query";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,8 @@ export const runtime = "nodejs";
  * restaurants and bars to the ones open then. Only venues with coordinates
  * on file can be asked about, so the key can't be used to search anywhere
  * else. 404 when Places is off (no key, or no database for the cap); 429
- * once today's or this month's cap is used (lib/places/budget.ts).
+ * once today's or this month's cap is used, or this visitor's share of
+ * today's (lib/places/budget.ts), with `capped: true`.
  */
 export async function GET(request: NextRequest) {
   if (!placesEnabled()) return placesJson({ error: "Not available" }, 404);
@@ -30,6 +31,8 @@ export async function GET(request: NextRequest) {
   if (!placesLimiter.take(ip)) return placesJson({ error: "Too many requests. Try again in a minute." }, 429, { "Retry-After": String(placesLimiter.retryAfter(ip)) });
 
   try {
+    // This visitor's share of the day first, then the site-wide cap (lib/places/budget.ts).
+    await takeVisitorList(ip);
     const places = await nearVenue(venue, kind, day != null && minutes != null ? { day, minutes } : undefined);
     return placesJson({ places });
   } catch (err) {

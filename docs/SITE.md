@@ -161,6 +161,13 @@ In a component write `duration-(--dur-panel)` and `ease-reveal`, never a number.
 who asked for reduced motion (`@media (prefers-reduced-motion: reduce)` in the base layer zeroes
 every duration and delay).
 
+**Rows that open something** share one interaction (`.row-link` and `.row-arrow` in
+`app/globals.css`; `.encore-agenda-link` in `components/encore/encore.css` for the calendar's and
+the Planner's rows): on hover and keyboard focus the row slides, the category rule thickens and the
+arrow fades in from 8px to the left over `--dur-panel`; on a touch screen the arrow rests at half
+strength; with reduced motion the arrow shows and nothing slides. The Move plan's answer chips keep
+their pencil, which steps forward and turns sky on hover and focus.
+
 ## Movement between pages
 
 The site moves on the View Transitions API, through React's `ViewTransition` and Next's
@@ -414,7 +421,10 @@ builder source with its checked date).
   the index and the client refetches the full index for new dates. "Add this plan to my
   calendar" is `/api/calendar/plan.ics` (showing blocks ten to four plus the picks, passed as
   `pick=slug:start` so the file matches the screen); the ICS pieces shared with the feed live in
-  `lib/ics.ts`. The ask at the end is the buy form with the dates and places in the message.
+  `lib/ics.ts`. The ask at the end is the buy form with the dates and places in the message. A plan of five days or more gets a day jumper: once the stage's
+  strip has scrolled away, a compact row of the days slides down under the header (on a phone, to
+  the top while the header is tucked away), marks the day being read, and jumps to any day; it is
+  one tab stop (← → Home End). The day heads stick under it.
 
 `lib/content/encore.ts` turns the dataset's productions and venues into the site's `Event` and
 `Venue` shapes:
@@ -424,7 +434,27 @@ builder source with its checked date).
   performance. The list and month views expand these to one row per date with `getOccurrences()`.
 - A run with no published times (an exhibition) is an all-day event from its first day through
   `runsThrough`; the list view shows these in the "On view now" strip via `getOnView()`.
-- Items marked `announced` and the three whose venue is still to be confirmed are left off.
+- Items marked `announced` are left off.
+- **Venues without a page** (`lib/encore/venue-rules.ts`). A placeholder (Venue TBD, Various
+  venues, online, the dataset's `venue-tbd`) and someone's home (a name that reads as a residence,
+  "Home of", a private address: the house concerts) get no venue page, no place in the venue
+  filter, the sitemap or search, and no coordinates for Nearby. Their events still show, named
+  "Venue to be announced" or "A private home" with the town only and, for a home, "Address given
+  with tickets"; the JSON-LD names the town. An old address of such a venue page redirects to its
+  town's calendar. The collector's review note flags a new venue that reads as a home.
+- **Slugs** (`lib/encore/slug.ts`). A production's slug is its title cut at a word boundary (64
+  characters, no dangling "and" or "of the"), then the month of its first date (`-2026-11`), then
+  `-2` for a second one that month. The first collector clipped 60 slugs mid-word without the
+  month; they stay as stored (the collector, the queue and the image rows know them) and the site
+  serves each under a clean slug computed at load, the old address answering a permanent redirect.
+- **After the last date.** An event whose dates are all past keeps its page for about five weeks
+  (the window pages read, below): the title, "This one has closed" with its last date, the venue's
+  next shows (or the town's), Back to the calendar, noindex. An event address shaped like a past
+  month that the calendar no longer has (pruned) redirects to `/calendar`. Lists of event cards on
+  neighborhood, venue and event pages drop, in the browser, any card whose date has ended
+  (`components/encore/fresh-events.tsx`), so a cached copy never shows last night. Every collect
+  and daily check rebuilds the Encore pages (`ENCORE_PATHS` in `lib/encore/ops.ts`), and the
+  sitemap leaves out events that end within a day.
   Sold-out productions show "Sold out" and their offers carry `SoldOut` in the Event JSON-LD.
 - **Guide covers.** Each guide's cover is a free Adobe Stock photo licensed through the Adobe
   connector on October 3, 2026, 2400px wide so it stays sharp full-bleed, none flagged
@@ -515,6 +545,15 @@ never needs it.
   check with time to spare finishes whatever the weekly run left due. Both accept
   `Authorization: Bearer $CRON_SECRET` or `$ENCORE_COLLECT_SECRET`; `?only=<id>,<id>` runs
   named sources whether due or not.
+- **What reads what.** Pages read from 35 days back (`load({ since })` in `lib/encore/store/pg.ts`:
+  the dates from that day on, the productions that still have one, the runs that reach it, and
+  their images); the status report from yesterday; only the collector reads everything.
+- **Pruning** (`lib/encore/prune.ts`). The Sunday collect starts by deleting dates more than 13
+  months past, status readings (`encore_checks`) older than 90 days, and productions with nothing
+  left whose run ended more than 13 months ago, with their image rows and their files in the
+  bucket. It runs in app code, so it is part of a watched job and no pg_cron job is needed; the
+  run's `stats.pruned` has the counts. A later `seed` would add pruned seed events back (it adds
+  what is missing); the next Sunday removes them again.
 - **Health.** `GET /api/encore/status` (same secret) returns every source with its last good
   run, last error and counts, the review queue by kind, the last runs, and counts of events,
   dates in the next 21 days and how many were checked, images. `?queue=1` adds the pending
