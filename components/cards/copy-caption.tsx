@@ -10,7 +10,7 @@ export function CopyCaption({ id, text, label }: { id: string; text: string; lab
       <label htmlFor={id} className="field-label">
         {label}
       </label>
-      <textarea id={id} readOnly rows={4} value={text} className="field-input min-h-[7rem] resize-y text-[15px] leading-[1.5]" onFocus={(e) => e.currentTarget.select()} />
+      <textarea id={id} readOnly rows={5} value={text} className="field-input min-h-[7rem] resize-y [field-sizing:content] text-[15px] leading-[1.5]" onFocus={(e) => e.currentTarget.select()} />
       <div className="flex items-center gap-3">
         <button
           type="button"

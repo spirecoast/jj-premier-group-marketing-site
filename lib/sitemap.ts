@@ -5,6 +5,7 @@ import { MARKETS } from "@/lib/content/markets";
 import { GUIDES } from "@/lib/guides";
 import { FOLDED_POSTS, isRebuiltGuide } from "@/lib/guides/slugs";
 import { DATASET_VERSION, getAllRecords } from "@/lib/neighborhoods/data";
+import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { getSalesManifest } from "@/lib/sales";
 import { absoluteUrl } from "@/lib/seo";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
@@ -96,14 +97,17 @@ async function neighborhoods(): Promise<Entry[]> {
 
 async function calendar(): Promise<Entry[]> {
   // Nothing that closes in the next day: by the time a crawler comes, it would be gone.
-  const [events, venues] = await Promise.all([getSitemapEvents({ endingAfter: new Date(Date.now() + 24 * 3600_000) }), getVenues()]);
+  const [events, venues, snap] = await Promise.all([getSitemapEvents({ endingAfter: new Date(Date.now() + 24 * 3600_000) }), getVenues(), loadEncoreSnapshot()]);
+  // An event the collector hasn't read carries the bundled dataset's date; a database snapshot's own
+  // date is the time it was read, which says nothing about the event, so it isn't used.
+  const fallback = snap.origin === "db" ? undefined : snap.generatedAt || undefined;
   const venueRead = new Map<string, string>();
   for (const e of events) {
-    const at = e.live?.checkedAt;
+    const at = e.live?.checkedAt ?? fallback;
     if (at && (!venueRead.has(e.venue.slug) || at > venueRead.get(e.venue.slug)!)) venueRead.set(e.venue.slug, at);
   }
   return [
-    ...events.map((e) => entry(`/calendar/${e.slug}`, 0.6, "weekly", e.live?.checkedAt, [e.image?.src])),
+    ...events.map((e) => entry(`/calendar/${e.slug}`, 0.6, "weekly", e.live?.checkedAt ?? fallback, [e.image?.src])),
     ...venues.map((v) => entry(`/venues/${v.slug}`, 0.5, "monthly", venueRead.get(v.slug), [v.image?.src])),
   ];
 }

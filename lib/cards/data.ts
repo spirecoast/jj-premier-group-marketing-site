@@ -116,7 +116,10 @@ async function streetCard(channel: CardChannel, q: string): Promise<CardModel | 
   const m = /^(.*?)(?:\s+(\d{5}))?$/.exec(q.trim());
   const street = m?.[1]?.trim();
   if (!street) return null;
-  const [res, manifest] = await Promise.all([searchByStreet({ street, zip: m?.[2], limit: 1 }), getSalesManifest()]);
+  const [first, manifest] = await Promise.all([searchByStreet({ street, zip: m?.[2], limit: 1 }), getSalesManifest()]);
+  // A name on several streets or ZIPs: the one with the most sales, as Tide Street offers it first.
+  const top = first.match === "ambiguous" ? first.options[0] : undefined;
+  const res = top ? await searchByStreet({ street: top.street, zip: top.zip, limit: 1 }) : first;
   if (!res.total || res.match === "none" || res.match === "ambiguous") return null;
   const months = manifest?.windowMonths ?? 24;
   const name = res.streets[0] ?? street;

@@ -95,7 +95,7 @@ export default async function CardsPage({ params, searchParams }: { params: Prom
           <input type="hidden" name="channel" value={channel} />
           {street ? <input type="hidden" name="street" value={street} /> : null}
           <label className="field flex-1">
-            <span className="field-label">{C.placeLabel}</span>
+            <span className="field-label">{C.placeField}</span>
             <input name="place" defaultValue={place} className="field-input" autoComplete="off" aria-describedby="place-hint" />
             <span id="place-hint" className="t-small text-graphite-500">{C.placeHint}</span>
           </label>
@@ -109,7 +109,7 @@ export default async function CardsPage({ params, searchParams }: { params: Prom
           <input type="hidden" name="channel" value={channel} />
           {place ? <input type="hidden" name="place" value={place} /> : null}
           <label className="field flex-1">
-            <span className="field-label">{C.streetLabel}</span>
+            <span className="field-label">{C.streetField}</span>
             <input name="street" defaultValue={street} className="field-input" autoComplete="off" aria-describedby="street-hint" />
             <span id="street-hint" className="t-small text-graphite-500">{C.streetHint}</span>
           </label>
