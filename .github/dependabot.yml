@@ -1,0 +1,34 @@
+# Weekly dependency updates, grouped so there is one npm pull request a week
+# (plus one for GitHub Actions) rather than one per package. Security updates
+# are raised as soon as an advisory lands, independent of this schedule, once
+# "Dependabot security updates" is on in the repository's Security settings.
+# Every pull request runs .github/workflows/ci.yml and gets a Vercel preview.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    # Majors (Next, React, Sanity, Tailwind…) are upgraded by hand with a full check of the site.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: "Dependencies"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "CI"
