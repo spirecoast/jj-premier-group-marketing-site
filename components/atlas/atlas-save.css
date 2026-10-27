@@ -90,13 +90,6 @@
     padding: 0 1rem 0.875rem;
   }
 
-  /* With the rail at the top right, the map's zoom and locate buttons move to the bottom right, above the attribution. */
-  .explorer.is-desktop:has(.my-places-rail) .maplibregl-ctrl-top-right {
-    top: auto;
-    bottom: 2.5rem;
-    right: 1rem;
-  }
-
   /* Phone: a 44px navy bar docked to the top of the sheet. */
   .my-places-tray {
     display: none;
@@ -173,4 +166,12 @@
   .my-places-tray-spacer {
     flex: 1;
   }
+}
+
+/* With the rail at the top right, the map's zoom and locate buttons move to the bottom right, above the
+   attribution. Outside the layer: MapLibre's own sheet is unlayered, and an unlayered rule beats any layer. */
+.explorer.is-desktop:has(.my-places-rail) .maplibregl-ctrl-top-right {
+  top: auto;
+  bottom: 2.5rem;
+  right: 1rem;
 }
