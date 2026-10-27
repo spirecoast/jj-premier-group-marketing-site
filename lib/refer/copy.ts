@@ -6,7 +6,7 @@
  * referrer) and about them (the person moving: name, email or phone, what
  * they are planning, a note), and a required box confirming they know their
  * details are being passed along (REFERRAL_CONSENT_WORDING and REFERRAL_PLANS
- * in lib/leads.ts, checked by the same script). No gifts or rewards are mentioned (Florida
+ * in lib/leads/constants.ts, checked by the same script). No gifts or rewards are mentioned (Florida
  * limits paying unlicensed people for referrals; anything like that is
  * cleared with the brokerage first).
  */

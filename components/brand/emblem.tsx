@@ -1,5 +1,3 @@
-"use client";
-
 import { useId, type ReactNode } from "react";
 import type { ProductFamily } from "@/lib/site";
 import { cn } from "@/lib/utils";

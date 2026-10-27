@@ -9,7 +9,7 @@
  * ones exist).
  */
 
-import type { LeadChannel } from "../leads";
+import type { LeadChannel } from "../leads/constants";
 
 export type ChannelSlug = LeadChannel;
 

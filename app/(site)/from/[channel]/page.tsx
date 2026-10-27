@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ChannelLanding } from "@/components/growth/channel-landing";
 import { CHANNELS } from "@/lib/channels/copy";
 import { getSiteSettings } from "@/lib/content";
-import { LEAD_CHANNELS, isLeadChannel } from "@/lib/leads";
+import { LEAD_CHANNELS, isLeadChannel } from "@/lib/leads/constants";
 import { pageMetadata } from "@/lib/seo";
 
 /**
