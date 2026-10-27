@@ -60,8 +60,10 @@ A subdomain keeps the newsletters' sending reputation apart from anything else t
    (`us-east-1`). Use the Resend account that holds `RESEND_API_KEY` (the team email's account), on
    a plan whose daily limit is at least `NEWSLETTER_DAILY_CAP`. The free plan allows 100 a day and
    3,000 a month: past about 100 subscribers on a list a send spreads over more than one day, and
-   the monthly limit runs out at around 500 Encore subscribers. Move to a paid plan before then and
-   raise `NEWSLETTER_DAILY_CAP` to its daily limit.
+   the monthly limit runs out at around 500 Encore subscribers. The cap defaults to 80, not 100,
+   because the team's "New lead" emails and alerts go through the same key and must never be the
+   ones Resend turns away. Move to a paid plan before then and raise `NEWSLETTER_DAILY_CAP` to its
+   daily limit less about 20, or give the newsletter its own key.
 2. Resend shows the records it wants. **Copy them from that screen**; at the time of writing they
    are, with Cloudflare's names relative to the zone `jjpremiergroup.com`:
 

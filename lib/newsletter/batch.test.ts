@@ -23,13 +23,13 @@ describe("batching", () => {
 });
 
 describe("the daily cap", () => {
-  it("defaults to 100, Resend's free daily limit", () => {
-    assert.equal(DEFAULT_DAILY_CAP, 100);
-    assert.equal(parseDailyCap(undefined), 100);
-    assert.equal(parseDailyCap(""), 100);
-    assert.equal(parseDailyCap("abc"), 100);
-    assert.equal(parseDailyCap("0"), 100);
-    assert.equal(parseDailyCap("-5"), 100);
+  it("defaults to 80, leaving the team email room under Resend's free 100 a day", () => {
+    assert.equal(DEFAULT_DAILY_CAP, 80);
+    assert.equal(parseDailyCap(undefined), 80);
+    assert.equal(parseDailyCap(""), 80);
+    assert.equal(parseDailyCap("abc"), 80);
+    assert.equal(parseDailyCap("0"), 80);
+    assert.equal(parseDailyCap("-5"), 80);
     assert.equal(parseDailyCap("3000"), 3000);
   });
   it("sends what fits today and leaves the rest for the next day's run", () => {
@@ -128,7 +128,7 @@ describe("the switch", () => {
     assert.equal(c.enabled, true);
     assert.deepEqual(c.missing, []);
     assert.equal(c.replyTo, null);
-    assert.equal(c.dailyCap, 100);
+    assert.equal(c.dailyCap, 80);
   });
   it("is off without the key or the From, and says which", () => {
     const c = newsletterConfig({ ...full, RESEND_API_KEY: "", NEWSLETTER_FROM: undefined });

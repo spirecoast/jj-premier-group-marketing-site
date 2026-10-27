@@ -7,7 +7,7 @@ import { checkFairHousing } from "@/lib/fair-housing";
 import { fill } from "@/lib/issues/copy";
 import { footerFacts, issueToday, latestTidePath, loadEncoreIssue, loadTideIssue } from "@/lib/issues/load";
 import type { Issue } from "@/lib/issues/render";
-import type { LeadForm } from "@/lib/leads";
+import type { LeadForm } from "@/lib/leads/constants";
 import { site } from "@/lib/site";
 import { signUnsubscribe, verifyUnsubscribe } from "@/lib/unsubscribe";
 import { BATCH_GAP_MS, BATCH_SIZE, MAX_ATTEMPTS, batchIdempotencyKey, failureStatus, pendingRecipients, remainingToday, utcDayStart, type DeliveryRecord, type Recipient } from "./batch";
@@ -122,6 +122,24 @@ async function footerForEmail(): Promise<FooterFacts> {
 
 /* ---- Subscribing ------------------------------------------------------------ */
 
+/**
+ * Confirmation emails across the whole site in any hour. A form can be
+ * posted by anyone with any address, and each confirmation spends the
+ * sending domain's reputation and the shared Resend quota, so past this the
+ * subscription is recorded but the email waits (the next request for that
+ * address sends it) and the log says so once an hour.
+ */
+export const CONFIRMATIONS_PER_HOUR = 50;
+let capLoggedAt = 0;
+
+async function confirmationsLastHour(now: Date): Promise<number> {
+  const [row] = await getDb()
+    .select({ n: sql<number>`count(*)::int` })
+    .from(newsletterDeliveries)
+    .where(and(eq(newsletterDeliveries.kind, "confirmation"), sql`${newsletterDeliveries.createdAt} >= ${new Date(now.getTime() - 3_600_000).toISOString()}`));
+  return row?.n ?? 0;
+}
+
 export type SubscribeOutcome = { list: NewsletterList; outcome: string; confirmationSent: boolean };
 
 /**
@@ -165,7 +183,12 @@ export async function requestSubscriptions(lead: { contactId: string | null; ema
         id = row?.id ?? id;
       }
       let sent = false;
-      if (t.send === "confirmation" && id) {
+      const overCap = t.send === "confirmation" && (await confirmationsLastHour(now)) >= CONFIRMATIONS_PER_HOUR;
+      if (overCap && now.getTime() - capLoggedAt > 3_600_000) {
+        capLoggedAt = now.getTime();
+        console.error(`[lead-alarm] newsletter confirmations hit ${CONFIRMATIONS_PER_HOUR} in an hour; holding the rest (a form flood?)`);
+      }
+      if (t.send === "confirmation" && id && !overCap) {
         const token = signToken({ p: "confirm", s: id }, config.secret, CONFIRM_TTL_SECONDS, now);
         const content = confirmationEmail({
           list,
