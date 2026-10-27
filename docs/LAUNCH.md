@@ -13,12 +13,13 @@ must supply are written `<like-this>`. Nothing in this file is a real secret.
 |---|---|
 | Launch domain | `jjpremiergroup.com` (bare, no `www.`; `site.domain` in `lib/site.ts`) |
 | DNS | Nameservers are Cloudflare (`mario.ns.cloudflare.com`, `shaz.ns.cloudflare.com`). No `A` or `CNAME` records exist for the apex or `www` today, so nothing is live at the domain yet. |
-| Vercel project | `jj-premier-group-marketing-site` (team `spirecoasts`), Node 24, framework Next.js. Production alias `https://jj-premier-group-marketing-site.vercel.app`. |
-| Repo | `spirecoast/real-estate`, branch `main`. The checkout also has a `marketing` remote (`spirecoast/jj-premier-group-marketing-site`) at the same commit. **Verify** in Vercel → Settings → Git which repository the project builds from before relying on "merge to `main` deploys". |
-| Site URL resolution | `lib/site.ts`: `NEXT_PUBLIC_SITE_URL` if it is a valid absolute URL, else `https://` + `VERCEL_PROJECT_PRODUCTION_URL`, else `https://jjpremiergroup.com`. Canonicals, `og:url`, sitemap `<loc>`, `robots.txt` host and ICS UIDs all use it. |
+| Vercel project | `jj-premier-group-marketing-site` (team `jj-premier-group`, "JJ Premier Group"), Node 24, framework Next.js. Production alias `https://jj-premier-group-marketing-site.vercel.app`. |
+| Repo | `spirecoast/jj-premier-group-marketing-site`, branch `main`; a merge to `main` deploys production. Pull requests get a Vercel preview and run `.github/workflows/ci.yml`. |
+| Site URL resolution | `lib/site-url.ts` (tested in `site-url.test.ts`): `NEXT_PUBLIC_SITE_URL` if it is a valid absolute URL; else, while `NEXT_PUBLIC_ROBOTS_NOINDEX=true`, `https://jj-premier-group-marketing-site.vercel.app`; else `https://` + `VERCEL_PROJECT_PRODUCTION_URL`; else `https://jjpremiergroup.com`. The noindex rule matters because Vercel reports the attached custom domain as `VERCEL_PROJECT_PRODUCTION_URL` whether or not its DNS resolves, so without it a merge would point every canonical at a domain that doesn't answer. Canonicals, `og:url`, sitemap `<loc>`, `robots.txt` host, `llms.txt` and ICS UIDs all use it. |
 | Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /subscribe/ /thanks/ /q/`, plus the sitemap line. |
-| Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
+| Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. On a production build whose origin is the domain (that is, after launch), the `jj-premier-group-marketing-site.vercel.app` host sends every path to the same path on the domain (`canonicalHostRedirects` in `lib/site-url.ts`); before launch it serves the site. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
 | CRM | The Coldwell Banker Home Platform. Its Lead Flows pixel (client id `bsw9jbac2nu2`) is on every production page and sends each form from the browser (`lib/home-platform.ts`); the "Pixel" lead flow makes each one a contact in Jessica Garza's account, with name, email and phone only. The message, timing, address and consent reach the agents in the "New lead" email, which also names the leads to add by hand (privacy signals, a blocked script, the person a referral names). A Zapier Catch Hook can add those instead (section 3). Env: `CRM_PROVIDER=none` until there's a Zap, then `CRM_PROVIDER=webhook` and `CRM_WEBHOOK_URL`. Follow Up Boss code stays in the repo behind the provider switch and is not used. |
+| Health | `GET /api/health` answers `{ ok }` to anyone. Every check below that reads a field from it (`newsletter`, `places`, `sentry`, `issues`) needs `-H "Authorization: Bearer $CRON_SECRET"`. |
 | Database | Supabase Postgres through Drizzle (`lib/db`). Leads are mirrored into the `contacts` and `events` tables (there is no table called `leads`). |
 | Visitor email | The reply a visitor gets comes from the agent's own Coldwell Banker mailbox through a Zapier step. The only email the site itself sends a visitor is the newsletter confirmation (double opt-in) and, once they confirm, the welcome and the newsletters (next row). The team's internal "New lead" copy and the delivery alert go through Resend when it is configured. |
 | Newsletters | Tide is monthly (sent the 3rd), Encore is weekly on Monday. The site sends both itself through Resend, from `letters@mail.jjpremiergroup.com`, to the people who subscribed and confirmed (decision 1.4; `docs/ISSUES.md`). |
@@ -148,7 +149,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_MAP_QUERY` | Optional. What the Google Maps embed on `/contact` searches for while the office street address (1.1) is still empty in `settings.ts`; once the address is filled in it drives the pin and this is ignored. Empty = "Coldwell Banker Realty, Lakewood Ranch, FL". Inlined at build time (6.6). |
 | `ISSUE_PREVIEW_SECRET` | `openssl rand -hex 24`. The `?secret=` for the newsletter previews at `/api/issues/encore` and `/api/issues/tide`; unset, both answer 404. Mark as Sensitive. (`docs/ISSUES.md`) |
 | `ISSUE_WEBHOOK_URL` | A Zapier Catch Hook that receives each finished issue (Encore on Mondays, Tide on the 1st) for an Outlook draft or the Marketing Center. Unset, the issue goes only to `TEAM_NOTIFY_EMAIL`. Mark as Sensitive. (`docs/ISSUES.md`) |
-| `GOOGLE_MAPS_API_KEY` | Server only; mark as Sensitive. Turns on the Planner's Nearby lists (dinner, drinks and hotels by a show's venue) and Atlas Move's "Help with the move" (movers, painters, handyman services, house cleaners). Needs `DATABASE_URL` too; without either, both are hidden and `/api/places/*` answers 404, and `/api/health` shows `places`. Create it in Google Cloud: a project with billing, **Places API (New)** enabled, a key restricted to that one API. Every call asks for rating, price, website, phone and hours, so each is billed at the Enterprise SKU of Nearby Search or Text Search: 1,000 free a month on each, then about $35 per 1,000 ([pricing](https://developers.google.com/maps/billing-and-pricing/pricing)). Google Cloud has no per-day quota for these, so the site caps itself: `lib/places/budget.ts` counts every call in `places_usage` (migration 0014, also created on first use) and refuses it past 30 a day or 900 a month per SKU, Pacific time, as Google bills. If the count can't be read, no call is made. Google's terms forbid storing anything but place IDs, so nothing is cached; each list opened is one call. Redeploy after setting it (6.6): the Planner page reads it when it builds. |
+| `GOOGLE_MAPS_API_KEY` | Server only; mark as Sensitive. Turns on the Planner's Nearby lists (dinner, drinks and hotels by a show's venue) and Atlas Move's "Help with the move" (movers, painters, handyman services, house cleaners). Needs `DATABASE_URL` too; without either, both are hidden and `/api/places/*` answers 404, and `/api/health` shows `places`. Create it in Google Cloud: a project with billing, **Places API (New)** enabled, a key restricted to that one API. Every call asks for rating, price, website, phone and hours, so each is billed at the Enterprise SKU of Nearby Search or Text Search: 1,000 free a month on each, then about $35 per 1,000 ([pricing](https://developers.google.com/maps/billing-and-pricing/pricing)). Google Cloud has no per-day quota for these, so the site caps itself: `lib/places/budget.ts` counts every call in `places_usage` (migration 0014; until it's applied no call is made) and refuses it past 30 a day or 900 a month per SKU, Pacific time, as Google bills. If the count can't be read, no call is made. Google's terms forbid storing anything but place IDs, so nothing is cached; each list opened is one call. Redeploy after setting it (6.6): the Planner page reads it when it builds. |
 | `NEXT_PUBLIC_SENTRY_DSN` | The DSN from Sentry (Project settings → Client Keys). Turns on error reports from the server, the edge and the browser (`lib/sentry`): errors only, no tracing or replay, and every report goes through `lib/sentry/scrub.ts`, which drops form data, cookies, IP addresses, query strings, console logs and the `/q/` token. Empty loads nothing and ships no Sentry code to visitors; `/api/health` shows `sentry`. Production only, like Plausible. In Sentry → Project settings → Security & Privacy, turn on **Prevent Storing of IP Addresses** too: the privacy page says reports carry no IP address. Inlined at build time, so redeploy after setting it (6.6). |
 
 ### Stay unset at launch
@@ -321,12 +322,16 @@ The three dashboard values for the optional variables in section 2: Settings →
 ### 4.3 Run the migrations
 
 From a checkout of `main` with dependencies installed. `drizzle.config.ts` reads `DATABASE_URL` and
-applies `lib/db/migrations/0000` through `0008` in order. `0001`–`0005` built the old agent dashboard
+applies `lib/db/migrations/0000` through `0014` in order. `0001`–`0005` built the old agent dashboard
 and `0008_remove_portal` drops all of it again, so the end state is only what the public site uses
-(`docs/INTEGRATIONS.md`, section 1). Migrations are immutable; a schema change is a new file.
+(`docs/INTEGRATIONS.md`, section 1). Migrations are immutable; a schema change is a new file, made with
+`npm run db:generate` after editing `lib/db/schema.ts` (CI runs `npm run db:check`, which fails when the
+schema and the migration snapshots disagree). The site never creates tables from a request: until a
+migration is applied, the feature that needs it stays off and the logs say once which file to apply
+(`lib/db/missing-table.ts`).
 
 ```bash
-cd <checkout of spirecoast/real-estate>
+cd <checkout of spirecoast/jj-premier-group-marketing-site>
 npm ci
 DATABASE_URL="<transaction pooler URL>" npm run db:migrate
 ```
@@ -411,7 +416,7 @@ curl -sS $P/ | grep -o '<link rel="canonical"[^>]*>\|<meta property="og:url"[^>]
 # 2026-10-01: all three resolve to https://jj-premier-group-marketing-site.vercel.app (NEXT_PUBLIC_SITE_URL is empty on the preview)
 ```
 
-That is correct for the preview and wrong for production; 6.5 sets `NEXT_PUBLIC_SITE_URL`. Open the
+That is correct for the preview and, until launch, for production too: with noindex on and `NEXT_PUBLIC_SITE_URL` empty the code holds the vercel.app origin even though the domain is attached. 6.5 sets `NEXT_PUBLIC_SITE_URL`. Open the
 `og:image` URL in a browser: it must be the home-page card with the team photograph and the lockup, 1200×630.
 Check one neighborhood page and one calendar page too (`/neighborhoods/the-lake-club`, `/calendar`): each
 has its own generated card. Paste the preview URL into a share debugger (LinkedIn Post Inspector or
@@ -565,8 +570,15 @@ build; the neighborhood index and the static pages are generated here).
 
 ### 6.7 Verification
 
+Before anything else, the domain must answer (do not print business cards with the QR code until it does):
+
 ```bash
 D=https://jjpremiergroup.com
+
+curl -sSI $D/ | head -1
+# HTTP/2 200
+curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' https://jj-premier-group-marketing-site.vercel.app/neighborhoods
+# 308 https://jjpremiergroup.com/neighborhoods
 
 curl -sS $D/robots.txt
 # User-Agent: *  Allow: /  Disallow: /studio /api/ /unsubscribe /subscribe/ /thanks/ /q/
@@ -602,7 +614,9 @@ curl -sSI $D/ | grep -i 'strict-transport-security'
 curl -sS $D/ | grep -o 'data-domain="[^"]*"'
 # data-domain="jjpremiergroup.com"
 
-curl -sS $D/api/health | grep -o '"sentry":[a-z]*'
+curl -sS $D/api/health
+# {"ok":true}: the public answer is the status alone. The detail needs the cron secret:
+curl -sS -H "Authorization: Bearer $CRON_SECRET" $D/api/health | grep -o '"sentry":[a-z]*'
 # "sentry":true. Then, on the live site, open the browser console and run
 #   setTimeout(() => { throw new Error("Sentry test") })
 # It shows in Sentry → Issues within a minute, with the page's address and no query string. Resolve it there.

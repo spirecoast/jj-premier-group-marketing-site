@@ -3,28 +3,7 @@
  * Editorial values (phones, licenses, office address, stats) live in the
  * `siteSettings` document and its seed in lib/content/seed — edit them there.
  */
-/**
- * Public origin of the site. `NEXT_PUBLIC_SITE_URL` wins when it is a valid
- * absolute URL; an empty or malformed value (easy to leave behind in a hosting
- * dashboard) must not break the build, so it falls through to the Vercel
- * production hostname and finally the launch domain.
- */
-function resolveSiteUrl(): string {
-  const candidates = [
-    process.env.NEXT_PUBLIC_SITE_URL,
-    process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
-    "https://jjpremiergroup.com",
-  ];
-  for (const c of candidates) {
-    if (!c) continue;
-    try {
-      return new URL(c).origin;
-    } catch {
-      // try the next candidate
-    }
-  }
-  return "https://jjpremiergroup.com";
-}
+import { resolveSiteUrl } from "./site-url";
 
 export const site = {
   name: "JJ Premier Group",
@@ -34,7 +13,13 @@ export const site = {
     "Joelyn Nauman and Jessica Garza, a mother and daughter team with Coldwell Banker Realty, helping people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton.",
   /** Bare domain — also the Follow Up Boss lead `source`. No `www.`. */
   domain: "jjpremiergroup.com",
-  url: resolveSiteUrl(),
+  /** Public origin; the rules, including the pre-launch hold on the vercel.app address, are in lib/site-url.ts. */
+  // Each variable is named so Next inlines the public ones into client bundles.
+  url: resolveSiteUrl({
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_ROBOTS_NOINDEX: process.env.NEXT_PUBLIC_ROBOTS_NOINDEX,
+    VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  }),
   locale: "en_US",
   region: "Lakewood Ranch · Sarasota · Bradenton",
   /** Where "see our current listings" points until an MLS feed is wired in. */

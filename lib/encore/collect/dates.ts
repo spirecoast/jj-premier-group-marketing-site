@@ -137,7 +137,8 @@ export function parseDateRange(s: string, today: string): { start?: string; end?
   const all = parseAllMonthDays(t, today);
   if (!all.length) return undefined;
   if (all.length === 1) return { start: all[0], end: all[0] };
-  let [start, end] = [all[0]!, all[all.length - 1]!];
+  const start = all[0]!;
+  let end = all[all.length - 1]!;
   if (end < start) end = `${Number(end.slice(0, 4)) + 1}${end.slice(4)}`;
   return { start, end };
 }

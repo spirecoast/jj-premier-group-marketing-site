@@ -484,7 +484,7 @@ Resend (docs/LAUNCH.md 1.4).
 | `ISSUE_PREVIEW_SECRET` | | `openssl rand -hex 24` | The `?secret=` for the browser previews. Unset = no preview (404). Sensitive. |
 | `ISSUE_WEBHOOK_URL` | | | A Zapier Catch Hook that receives each issue. Unset = team email only. Sensitive. |
 
-`GET /api/health` reports `issues: { previewSecret, webhook, teamEmail, resend, cronSecret }` as
+`GET /api/health` (with the cron secret as a Bearer token; without it, only `{ ok }`) reports `issues: { previewSecret, webhook, teamEmail, resend, cronSecret }` as
 booleans and `newsletter: { subscriberEmail, missing, replyTo, dailyCap }` (the names of missing
 variables, never values).
 

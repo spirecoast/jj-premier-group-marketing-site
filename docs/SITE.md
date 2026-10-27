@@ -772,13 +772,21 @@ team) lives on the site at three private links. Nobody needs an account.
 
 ```bash
 npm run dev          # http://localhost:3000
-npm run typecheck    # tsc --noEmit (run `npx next typegen` first if routes changed)
+npm run typecheck    # next typegen (typed routes), then tsc --noEmit
+npm run test:unit
+npm run check:copy
+npm run lint         # ESLint 9 with eslint-config-next (eslint.config.mjs)
 npm run build
 npm run sanity:typegen
 ```
 
-`npm run lint` still calls `next lint`, which Next 16 removed, and the repo has no ESLint config.
-That predates this build; wire up `eslint` + `eslint-config-next` directly when there is time.
+`.github/workflows/ci.yml` runs typecheck, unit tests, the copy check, lint and
+`npm audit --omit=dev --audit-level=critical` on every pull request and every push to main.
+Make its `checks` job a required status check on main (Settings → Branches) so nothing merges red.
+Dependabot (`.github/dependabot.yml`) opens one grouped minor-and-patch pull request a week;
+majors are upgraded by hand. Lint's React Compiler rules (`set-state-in-effect`, `purity`, `refs`,
+`immutability`) are warnings because the site doesn't use the compiler; see the comment in
+`eslint.config.mjs`.
 
 Useful switches:
 
@@ -859,10 +867,24 @@ Deliberate keeps from the review passes:
   `Permissions-Policy`, `X-Frame-Options: SAMEORIGIN` (not DENY: the Studio's Presentation tool
   frames site pages from `/studio`) and a `Content-Security-Policy-Report-Only` whose hosts are
   derived from the same env vars the app reads (Plausible host, MapTiler or OpenFreeMap, the
-  Sanity project). `/studio` gets a wider variant. It stays report-only until a per-request nonce
-  is issued from a `proxy.ts`: Next's inline hydration scripts and the inlined Plausible queue need
-  `'unsafe-inline'`, and the dev server needs `'unsafe-eval'`. Watch the browser console for
-  `[Report Only]` violations after adding any third-party script.
+  Sanity project). `/studio` gets a wider variant. Next's inline hydration scripts and the inlined
+  Plausible queue need `'unsafe-inline'` until a per-request nonce is issued from a `proxy.ts`, and
+  the dev server needs `'unsafe-eval'`. The policy is still report-only: the one report every
+  production page sent (zod's `Function("")` JIT probe) is gone (`instrumentation-client.ts` sets
+  zod to jitless), and a local pass over the main pages with Plausible and Sentry on sends none. The
+  last step, once a week of production traffic (which is where the Home Platform pixel runs) has
+  logged no `[csp-report]` lines, is to change `CSP_HEADER` in `next.config.ts` to
+  `Content-Security-Policy`; check `/studio` the same way once Sanity is configured. Each report line
+  names the script (`source=`). Also set: `Cross-Origin-Opener-Policy: same-origin`
+  (`same-origin-allow-popups` on `/studio` for Sanity's sign-in window), and no `X-Powered-By`.
+- `GET /api/health` answers `{ ok }` (200, or 503 when production would drop a lead) to anyone; the
+  detail (sinks, newsletter, Places, Sentry) needs `Authorization: Bearer` with `CRON_SECRET`,
+  `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`. Bearer checks go through `lib/bearer.ts`
+  (constant-time).
+- Caching: photos under `/images` are `max-age=604800, stale-while-revalidate=2592000` (names are
+  reused when a file is replaced, so not immutable); optimized images keep 31 days
+  (`images.minimumCacheTTL`); the MapLibre worker lives in `/vendor/maplibre-gl/<version>/`
+  (immutable) behind a one-line `/vendor/maplibre-gl-worker.mjs` that imports it.
 - The privacy policy names the stack as deployed: Plausible (cookieless), Vercel, Supabase,
   Zapier to the brokerage's CRM (the Home Platform), Resend for team notifications only, MapTiler
   for tiles. Production needs `NEXT_PUBLIC_MAPTILER_KEY` set for the map paragraph to be exact;

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { bearerMatches } from "@/lib/bearer";
 import { isSanityConfigured } from "@/sanity/env";
 import { staleEventIdsQuery } from "@/sanity/lib/queries";
 import { getWriteClient } from "@/sanity/lib/write-client";
@@ -13,9 +14,7 @@ export const dynamic = "force-dynamic";
  * Vercel Cron calls this with `Authorization: Bearer ${CRON_SECRET}`.
  */
 function authorised(request: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  return request.headers.get("authorization") === `Bearer ${secret}`;
+  return bearerMatches(request.headers.get("authorization"), [process.env.CRON_SECRET]);
 }
 
 async function run(request: NextRequest) {

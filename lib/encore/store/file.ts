@@ -21,7 +21,7 @@ type FileData = EncoreSnapshot & {
 const empty = (): FileData => ({ generatedAt: new Date(0).toISOString(), origin: "file", venues: [], events: [], images: [], sources: [], queue: [], checks: [], runs: [] });
 
 export function fileStore(path?: string): EncoreStore & { data: () => FileData } {
-  let data: FileData = path && existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as FileData) : empty();
+  const data: FileData = path && existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as FileData) : empty();
   const save = () => {
     data.generatedAt = new Date().toISOString();
     if (!path) return;

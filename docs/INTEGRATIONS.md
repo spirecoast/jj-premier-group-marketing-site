@@ -149,11 +149,12 @@ be configured. With no CRM at all, set `CRM_PROVIDER=none` explicitly: an unset
 or invalid `CRM_PROVIDER` in production sends the "not configured" alert on
 every lead, an explicit `none` does not. That's the setting while the Pixel is
 the only path into Home Platform (no Zap yet). The server logs an error at boot if none is (`instrumentation.ts`),
-and `GET /api/health` returns `{ ok, sinks }` — booleans and the provider name
-only, never values. On the live site (`VERCEL_ENV=production`) `ok` also needs a
-sink that tells a person, the CRM webhook or the team email
-(`sinks.humanSink`): Postgres alone keeps leads where nobody looks, so health
-answers 503 until `TEAM_NOTIFY_EMAIL` (with Resend) or `CRM_WEBHOOK_URL` is set.
+and `GET /api/health` returns `{ ok }` to anyone and, with `Authorization: Bearer` set to
+`CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, the detail including `sinks`: booleans
+and the provider name only, never values. On the live site (`VERCEL_ENV=production`) `ok` also needs a
+sink that tells a person, the CRM webhook or the team email (`sinks.humanSink`): Postgres alone keeps
+leads where nobody looks, so health answers 503 until `TEAM_NOTIFY_EMAIL` (with Resend) or
+`CRM_WEBHOOK_URL` is set.
 
 ### The webhook payload
 
