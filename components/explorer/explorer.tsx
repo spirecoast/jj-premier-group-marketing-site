@@ -12,6 +12,8 @@ import { useJsonResource } from "@/lib/use-json-resource";
 import { hasAny, replaceQuery, sessionMemory, useUrlInitial } from "@/lib/url-state";
 import type { Bounds, ExplorerMapProps, FitRequest } from "./explorer-map";
 import { ExplorerPanel, type SheetPosition } from "./explorer-panel";
+import { MyPlacesRail, MyPlacesTray } from "./my-places";
+import { useMyPlaces } from "@/components/atlas/use-my-places";
 import "./explorer.css";
 
 /**
@@ -73,6 +75,18 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
   const [q, setQ] = useState(initial.q);
   const [filters, setFilters] = useState<Filters>(initial.filters);
   const [place, setPlace] = useState<string | null>(initial.place);
+  /* A list the view is held to (?list=: a Match list, a shared My places). "Show everything" lets it go. */
+  const [list, setList] = useState<string[]>(initial.list);
+  const listSet = useMemo(() => new Set(list), [list]);
+  const [fromMatch, setFromMatch] = useState(false);
+  useEffect(() => {
+    try {
+      setFromMatch(initial.list.length > 0 && new URL(document.referrer).pathname === "/neighborhoods/match");
+    } catch {
+      /* no referrer */
+    }
+  }, [initial.list.length]);
+  const my = useMyPlaces();
   const [hover, setHover] = useState<string | null>(null);
   const [view, setView] = useState<MapView | null>(initial.map);
   const [bounds, setBounds] = useState<Bounds | null>(null);
@@ -93,7 +107,12 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
 
   const by = useMemo(() => new Map((entries ?? []).map((e) => [e.s, e])), [entries]);
   const selected = place ? (by.get(place) ?? null) : null;
-  const results = useMemo(() => (entries ? search(entries, q, filters) : []), [entries, q, filters]);
+  const results = useMemo(() => {
+    if (!entries) return [];
+    // Held to a list: the list's places, in the catalog's order, through the search and the filters; registry names stay in, since the list names them.
+    const pool = listSet.size ? entries.filter((e) => listSet.has(e.s)) : entries;
+    return search(pool, q, listSet.size ? { ...filters, registry: true } : filters);
+  }, [entries, q, filters, listSet]);
   const searching = q.trim().length > 0;
   const children = useMemo(() => (selected && entries ? childrenOf(selected.s, entries).filter((c) => filters.registry || c.r === 1 || searching) : []), [selected, entries, filters.registry, searching]);
   const childrenAll = useMemo(() => (selected && entries ? childrenOf(selected.s, entries) : []), [selected, entries]);
@@ -114,10 +133,10 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
       const desc = descendantsOf(selected.s, entries);
       return [selected, ...desc];
     }
-    if (searching) return results;
+    if (searching || listSet.size) return results;
     // Browsing: show everything that passes the filters, registry names included, so the map is the whole catalog.
     return entries.filter((e) => search([e], "", { ...filters, registry: true }).length);
-  }, [entries, selected, childrenAll.length, searching, results, filters]);
+  }, [entries, selected, childrenAll.length, searching, results, filters, listSet.size]);
 
   const requestFit = useCallback((r: FitInput) => {
     fitId.current += 1;
@@ -130,7 +149,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
   );
 
   // Fit the map whenever the interesting set changes for a reason other than panning.
-  const fitKey = `${q}|${JSON.stringify(filters)}|${place ?? ""}`;
+  const fitKey = `${q}|${JSON.stringify(filters)}|${place ?? ""}|${list.length}`;
   const lastFitKey = useRef<string | null>(null);
   useEffect(() => {
     if (!entries || !mapReady) return;
@@ -148,8 +167,8 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
       return;
     }
     const b = boundsOf(results);
-    if (b) requestFit({ kind: "bounds", bounds: b, maxZoom: searching ? 14 : 12.5 });
-  }, [entries, mapReady, fitKey, selected, childrenAll.length, results, searching, place, requestFit]);
+    if (b) requestFit({ kind: "bounds", bounds: b, maxZoom: searching || list.length ? 14 : 12.5 });
+  }, [entries, mapReady, fitKey, selected, childrenAll.length, results, searching, place, list.length, requestFit]);
 
   // The address follows the committed choices (filters, the selected place), once per change.
   // The search words and the map's position stay in this tab (lib/url-state.ts), so Back to
@@ -160,13 +179,13 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
       firstUrl.current = false;
       return;
     }
-    replaceQuery(explorerAddress({ filters, place }));
-  }, [filters, place]);
+    replaceQuery(explorerAddress({ filters, place, list }));
+  }, [filters, place, list]);
   useEffect(() => {
     const t = setTimeout(() => sessionMemory.write(MEMORY, { q, map: view }), 300);
     return () => clearTimeout(t);
   }, [q, view, filters, place]);
-  const shareUrl = explorerHref({ q, filters, place, map: view });
+  const shareUrl = explorerHref({ q, filters, place, map: view, list });
 
   const select = useCallback(
     (slug: string | null) => {
@@ -209,7 +228,10 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
         onMove={onMove}
         onReady={onReady}
       />
+      {desktop ? <MyPlacesRail by={by} onSelect={select} /> : null}
       <ExplorerPanel
+        tray={<MyPlacesTray />}
+        list={list.length ? { count: results.length, fromMatch, onSaveAll: () => my.addAll(results.map((e) => e.s)) } : null}
         loading={!entries && !loadError}
         error={loadError}
         onRetry={retryLoad}
@@ -243,6 +265,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
           setPlace(null);
           setQ("");
           setFilters({});
+          setList([]);
           requestFit({ kind: "bounds", bounds: [-82.78, 27.17, -82.25, 27.67], maxZoom: 12 });
         }}
       />
@@ -261,7 +284,7 @@ function viewFromUrl(sp: URLSearchParams): ExplorerState | null {
   return { ...s, q: s.q || (typeof mem?.q === "string" ? mem.q.slice(0, 80) : ""), map: s.map ?? mem?.map ?? null };
 }
 
-const DEFAULT_VIEW: ExplorerState = { q: "", filters: {}, place: null, map: null };
+const DEFAULT_VIEW: ExplorerState = { q: "", filters: {}, place: null, map: null, list: [] };
 
 /**
  * The explorer as the static page serves it: the default view on the server,

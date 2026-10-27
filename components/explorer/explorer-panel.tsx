@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ProductLockup } from "@/components/brand/emblem";
-import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { ShareButton } from "@/components/share-button";
 import { MARKETS, marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL } from "@/lib/neighborhoods/format";
@@ -16,6 +16,10 @@ import "./explorer.css";
 export type SheetPosition = "peek" | "half" | "full";
 
 type Props = {
+  /** My places, docked to the top of the sheet on a phone. */
+  tray?: ReactNode;
+  /** The view is held to a list of places (?list=): how many fit, whether it came from Atlas Match, and a way to save them all. */
+  list: { count: number; fromMatch: boolean; onSaveAll: () => void } | null;
   loading: boolean;
   error: boolean;
   /** Fetch the index again after it failed to load. */
@@ -80,9 +84,11 @@ export function ExplorerPanel(p: Props) {
     ? `Inside ${p.selected.n}`
     : p.searching
       ? `${p.total.toLocaleString()} ${p.total === 1 ? "match" : "matches"}`
-      : p.browsingInView
-        ? `${p.listed.length.toLocaleString()} in view`
-        : `${p.listed.length.toLocaleString()} places`;
+      : p.list
+        ? `${p.listed.length.toLocaleString()} ${p.listed.length === 1 ? "place" : "places"} · ${p.list.fromMatch ? "your Match list" : "your list"}`
+        : p.browsingInView
+          ? `${p.listed.length.toLocaleString()} in view`
+          : `${p.listed.length.toLocaleString()} places`;
 
   return (
     <aside className="explorer-panel" aria-label="Atlas, the neighborhood explorer">
@@ -92,6 +98,7 @@ export function ExplorerPanel(p: Props) {
         </button>
       ) : null}
 
+      {p.tray}
       {/* Atlas's strip: the product's name and the team's, on its own green. */}
       <div className="atlas-plate">
         <ProductLockup family="atlas" product="Atlas Neighborhoods" size="sm" />
@@ -100,14 +107,29 @@ export function ExplorerPanel(p: Props) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1.5">
             <h1 className="font-display text-[clamp(1.2rem,1.8vw,1.45rem)] font-light leading-[1.15] text-navy">
-              Every neighborhood in Lakewood Ranch, Sarasota and Bradenton.
+              {p.list ? (p.list.fromMatch ? "Your Match list" : "Your list") : "Every neighborhood in Lakewood Ranch, Sarasota and Bradenton."}
             </h1>
-            <p className="t-small text-body">
-              Not sure where to start?{" "}
-              <Link href="/neighborhoods/match" className="text-harbor-700 underline underline-offset-4 hover:text-navy">
-                Try Atlas Match
-              </Link>
-            </p>
+            {p.list ? (
+              <p className="t-small flex flex-wrap gap-x-3 gap-y-1 text-body">
+                <span>
+                  {p.list.count.toLocaleString()} {p.list.count === 1 ? "place" : "places"}
+                  {p.list.fromMatch ? " from Atlas Match." : " from this link."}
+                </span>
+                <button type="button" className="text-harbor-700 underline underline-offset-4 hover:text-navy" onClick={p.list.onSaveAll}>
+                  Save them all
+                </button>
+                <Link href="/neighborhoods/match" className="text-harbor-700 underline underline-offset-4 hover:text-navy">
+                  {p.list.fromMatch ? "Change the answers" : "Try Atlas Match"}
+                </Link>
+              </p>
+            ) : (
+              <p className="t-small text-body">
+                Not sure where to start?{" "}
+                <Link href="/neighborhoods/match" className="text-harbor-700 underline underline-offset-4 hover:text-navy">
+                  Try Atlas Match
+                </Link>
+              </p>
+            )}
           </div>
           <ShareButton title="Atlas · JJ Premier Group" url={p.shareUrl} what="explorer-view" className="mt-1 shrink-0" />
         </div>
@@ -188,7 +210,7 @@ export function ExplorerPanel(p: Props) {
 
         <div className="flex items-baseline justify-between gap-3 border-b border-hairline px-5 py-3">
           <p className="t-note">{p.loading ? "Loading the catalog" : p.error ? "The catalog did not load" : context}</p>
-          {p.selected || p.searching || activeFilters || p.filters.market ? (
+          {p.selected || p.searching || activeFilters || p.filters.market || p.list ? (
             <button type="button" className="t-note text-harbor-700 underline underline-offset-4 hover:text-navy" onClick={p.onShowAll}>
               Show everything
             </button>

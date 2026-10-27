@@ -1,0 +1,176 @@
+/* Atlas: the Save bookmark and My places (the tray on a phone, the rail on a
+   desktop, the row on the compare page). Loaded by components/atlas/*. */
+@layer components {
+  .atlas-glyph-fill {
+    fill: transparent;
+    transition: fill var(--dur-state) var(--ease-brand);
+  }
+  .atlas-save[aria-pressed="true"] {
+    color: var(--color-atlas-ink);
+    border-color: var(--color-atlas-ink);
+  }
+  .atlas-save[aria-pressed="true"] .atlas-glyph-fill {
+    fill: currentColor;
+  }
+  /* On the Atlas green (the Match results panel): paper ink, a hairline of white. */
+  .atlas-save.is-dark {
+    color: var(--color-linen-100);
+    background: transparent;
+    border-color: rgb(255 255 255 / 0.25);
+  }
+  .atlas-save.is-dark:hover:not(:disabled),
+  .atlas-save.is-dark:focus-visible {
+    background: rgb(255 255 255 / 0.08);
+    border-color: var(--color-atlas);
+  }
+  .atlas-save.is-dark[aria-pressed="true"] {
+    color: var(--color-atlas);
+    border-color: var(--color-atlas);
+  }
+
+  /* ---- My places on the explorer ---- */
+  /* Desktop: a 280px rail at the top right of the map. */
+  .explorer.is-desktop .my-places-rail {
+    position: absolute;
+    z-index: 10;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 280px;
+    max-height: calc(100% - 2.5rem);
+    display: flex;
+    flex-direction: column;
+    background: var(--color-paper);
+    border: 1px solid var(--color-hairline);
+    box-shadow: 0 18px 50px -24px rgba(30, 52, 66, 0.35);
+  }
+  .explorer.is-mobile .my-places-rail {
+    display: none;
+  }
+  .my-places-rail-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .my-places-rail-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    max-height: 17.5rem; /* five rows */
+  }
+  .my-places-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3.5rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .my-places-row-text {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.125rem;
+    text-align: left;
+  }
+  .my-places-row-text:hover .t-h4,
+  .my-places-row-text:focus-visible .t-h4 {
+    color: var(--color-harbor-700);
+  }
+  .my-places-rail-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.875rem 1rem;
+  }
+  .my-places-rail-note {
+    padding: 0 1rem 0.875rem;
+  }
+
+  /* With the rail at the top right, the map's zoom and locate buttons move to the bottom right, above the attribution. */
+  .explorer.is-desktop:has(.my-places-rail) .maplibregl-ctrl-top-right {
+    top: auto;
+    bottom: 2.5rem;
+    right: 1rem;
+  }
+
+  /* Phone: a 44px navy bar docked to the top of the sheet. */
+  .my-places-tray {
+    display: none;
+  }
+  .explorer.is-mobile .my-places-tray {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    background: var(--color-navy);
+    color: var(--color-linen-100);
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .my-places-tray::-webkit-scrollbar {
+    display: none;
+  }
+  .my-places-tray-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-linen-100);
+  }
+  .my-places-tray-count svg {
+    width: 16px;
+    height: 16px;
+  }
+  .my-places-tray-count .atlas-glyph-fill {
+    fill: var(--color-atlas);
+    stroke: var(--color-atlas);
+  }
+  .my-places-tray a,
+  .my-places-tray button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-linen-100);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: rgb(255 255 255 / 0.45);
+  }
+  .my-places-tray a:hover,
+  .my-places-tray button:hover {
+    text-decoration-color: var(--color-atlas);
+  }
+  .my-places-tray .link-rule {
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-linen-100);
+    border: 0;
+    padding: 0;
+    margin: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: rgb(255 255 255 / 0.45);
+  }
+  .my-places-tray .link-rule:hover {
+    color: var(--color-linen-100);
+    text-decoration-color: var(--color-atlas);
+  }
+  .my-places-tray .is-off {
+    opacity: 0.5;
+    text-decoration: none;
+    cursor: default;
+  }
+  .my-places-tray-spacer {
+    flex: 1;
+  }
+}
