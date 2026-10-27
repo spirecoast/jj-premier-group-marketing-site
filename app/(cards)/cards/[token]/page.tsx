@@ -8,6 +8,39 @@ import { CARD_CHANNELS, isCardChannel, loadCard, type CardChannel, type CardMode
 export const dynamic = "force-dynamic";
 
 type Search = Promise<{ channel?: string; place?: string; street?: string }>;
+type ImageHref = (kind: CardKind, size: CardSize, extra?: Record<string, string>, download?: boolean) => string;
+
+/** One card: its feed-size preview, the two downloads and the caption; or why there's none. */
+function Card({ img, card, kind, extra = {}, missing }: { img: ImageHref; card: CardModel | null; kind: CardKind; extra?: Record<string, string>; missing?: string }) {
+  if (!card) return missing ? <p className="t-body text-graphite-500">{missing}</p> : null;
+  if (card.held) return <p className="t-body text-navy">{C.held}</p>;
+  return (
+    <div className="grid gap-8 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-12">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={img(kind, "feed", extra)} alt={`${card.title}: the card at feed size`} width={1080} height={1350} loading="lazy" className="h-auto w-full max-w-[320px] bg-linen-100" />
+      <div className="flex flex-col gap-6">
+        <div className="btn-row gap-3">
+          {(Object.keys(CARD_SIZES) as CardSize[]).map((size) => (
+            <a key={size} href={img(kind, size, extra, true)} download className={size === "feed" ? "btn btn-navy" : "btn btn-outline"}>
+              {C.download[size]}
+            </a>
+          ))}
+        </div>
+        <p className="t-mono-sm text-graphite-500">{`${CARD_SIZES.feed.label} · ${CARD_SIZES.story.label}`}</p>
+        <CopyCaption id={`caption-${kind}`} text={card.caption} label={C.captionLabel} />
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="flex flex-col gap-6 border-t border-hairline pt-10">
+      <h2 className="t-h3 text-navy">{title}</h2>
+      {children}
+    </section>
+  );
+}
 
 /**
  * /cards/<token>: cards for Joelyn and Jessica to post, drawn from the site's own data and
@@ -29,37 +62,8 @@ export default async function CardsPage({ params, searchParams }: { params: Prom
   ]);
   const base = `/cards/${token}`;
   const q = (o: Record<string, string>) => new URLSearchParams({ channel, ...(place ? { place } : {}), ...(street ? { street } : {}), ...o }).toString();
-  const img = (kind: CardKind, size: CardSize, extra: Record<string, string> = {}, download = false) =>
+  const img: ImageHref = (kind, size, extra = {}, download = false) =>
     `${base}/image?${new URLSearchParams({ card: kind, size, channel, ...extra, ...(download ? { download: "1" } : {}) }).toString()}`;
-
-  const Card = ({ card, kind, extra = {}, missing }: { card: CardModel | null; kind: CardKind; extra?: Record<string, string>; missing?: string }) => {
-    if (!card) return missing ? <p className="t-body text-graphite-500">{missing}</p> : null;
-    if (card.held) return <p className="t-body text-navy">{C.held}</p>;
-    return (
-      <div className="grid gap-8 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:gap-12">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={img(kind, "feed", extra)} alt={`${card.title}: the card at feed size`} width={1080} height={1350} loading="lazy" className="h-auto w-full max-w-[320px] bg-linen-100" />
-        <div className="flex flex-col gap-6">
-          <div className="btn-row gap-3">
-            {(Object.keys(CARD_SIZES) as CardSize[]).map((size) => (
-              <a key={size} href={img(kind, size, extra, true)} download className={size === "feed" ? "btn btn-navy" : "btn btn-outline"}>
-                {C.download[size]}
-              </a>
-            ))}
-          </div>
-          <p className="t-mono-sm text-graphite-500">{`${CARD_SIZES.feed.label} · ${CARD_SIZES.story.label}`}</p>
-          <CopyCaption id={`caption-${kind}`} text={card.caption} label={C.captionLabel} />
-        </div>
-      </div>
-    );
-  };
-
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <section className="flex flex-col gap-6 border-t border-hairline pt-10">
-      <h2 className="t-h3 text-navy">{title}</h2>
-      {children}
-    </section>
-  );
 
   return (
     <main className="mx-auto flex max-w-[64rem] flex-col gap-12 px-4 py-14 sm:px-8 md:py-20">
@@ -79,11 +83,11 @@ export default async function CardsPage({ params, searchParams }: { params: Prom
       </header>
 
       <Section title={C.tide.title}>
-        <Card card={tide} kind="tide" missing={C.tide.missing} />
+        <Card img={img} card={tide} kind="tide" missing={C.tide.missing} />
       </Section>
 
       <Section title={C.week.title}>
-        <Card card={week} kind="week" missing={C.week.missing} />
+        <Card img={img} card={week} kind="week" missing={C.week.missing} />
       </Section>
 
       <Section title={C.placeLabel}>
@@ -97,7 +101,7 @@ export default async function CardsPage({ params, searchParams }: { params: Prom
           </label>
           <button type="submit" className="btn btn-navy">{C.show}</button>
         </form>
-        {place ? <Card card={placeCard} kind="place" extra={{ q: place }} missing={C.placeNone(place)} /> : null}
+        {place ? <Card img={img} card={placeCard} kind="place" extra={{ q: place }} missing={C.placeNone(place)} /> : null}
       </Section>
 
       <Section title={C.streetLabel}>
@@ -111,7 +115,7 @@ export default async function CardsPage({ params, searchParams }: { params: Prom
           </label>
           <button type="submit" className="btn btn-navy">{C.show}</button>
         </form>
-        {street ? <Card card={streetCard} kind="street" extra={{ q: street }} missing={C.streetNone(street)} /> : null}
+        {street ? <Card img={img} card={streetCard} kind="street" extra={{ q: street }} missing={C.streetNone(street)} /> : null}
       </Section>
     </main>
   );
