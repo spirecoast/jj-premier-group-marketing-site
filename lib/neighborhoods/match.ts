@@ -3,7 +3,7 @@ import type { MarketSlug } from "@/lib/content/types";
 import { STATUS_LABEL, titleCase } from "./format";
 import type { IndexEntry } from "./index-format";
 import type { EvacuationZone, HomeType, WaterAccess } from "./types";
-import { explorerHref } from "./url";
+import { LIST_MAX, explorerHref } from "./url";
 
 /**
  * Atlas Match: up to ten questions about the place and the home, each read
@@ -529,7 +529,7 @@ export function matchHref(s: MatchState): string {
   return `/neighborhoods/match${matchToSearch(s)}`;
 }
 
-/** "See them on the map": the explorer opened on exactly this list (?list=a,b,c), never a looser filter. */
+/** "See them on the map": the explorer opened on exactly this list (?list=a,b,c), never a looser filter. A list past LIST_MAX is cut there, and the panel says so. */
 export function matchListHref(matches: Match[]): string {
-  return explorerHref({ list: matches.map((m) => m.entry.s) });
+  return explorerHref({ list: matches.slice(0, LIST_MAX).map((m) => m.entry.s) });
 }

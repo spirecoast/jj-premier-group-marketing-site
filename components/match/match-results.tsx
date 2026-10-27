@@ -11,8 +11,9 @@ import { ShareButton } from "@/components/share-button";
 import { marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, TYPE_LABEL } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
-import { QUESTIONS, answerBars, answeredIds, coverageLine, matchHref, matchListHref, questionIndex, sortMatches, summarize, unknownCount, type Answers, type Coverage, type Match, type QuestionId } from "@/lib/neighborhoods/match";
+import { QUESTIONS, answeredIds, coverageLine, matchHref, matchListHref, questionIndex, sortMatches, summarize, unknownCount, type AnswerBar, type Answers, type Coverage, type Match, type QuestionId } from "@/lib/neighborhoods/match";
 import { pathOf } from "@/lib/neighborhoods/search";
+import { LIST_MAX } from "@/lib/neighborhoods/url";
 import { cn } from "@/lib/utils";
 
 const PAGE = 60;
@@ -23,6 +24,8 @@ type Props = {
   matches: Match[];
   by: Map<string, IndexEntry>;
   asOf: string;
+  /** One bar per answered question: confirmed on it, or in only because the fact isn't known yet. */
+  bars: AnswerBar[];
   /** Questions held back for thin coverage, offered under the answers. */
   more: { id: QuestionId; coverage: Coverage | null }[];
   onEdit: (step: number) => void;
@@ -38,7 +41,7 @@ type Props = {
  * when a point was chosen); each shows the facts that matched, says "not
  * known" where a field is missing rather than pretending, and carries Save.
  */
-export function MatchResults({ answers, onAnswers, matches, by, asOf, more, onEdit, onRestart }: Props) {
+export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more, onEdit, onRestart }: Props) {
   const [order, setOrder] = useState<"fit" | "name" | "distance">(answers.near ? "distance" : "fit");
   const [limit, setLimit] = useState(PAGE);
   useEffect(() => setLimit(PAGE), [matches.length]);
@@ -50,7 +53,6 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, more, onEd
   const sorted = useMemo(() => sortMatches(matches, order), [matches, order]);
   const ids = answeredIds(answers);
   const summary = summarize(answers, by);
-  const bars = useMemo(() => answerBars(matches, summary), [matches, summary]);
   const anyUnknown = bars.some((b) => b.unknown > 0);
   const registryCount = useMemo(() => [...by.values()].filter((e) => e.r === 0).length, [by]);
   const slugs = useMemo(() => matches.map((m) => m.entry.s), [matches]);
@@ -120,6 +122,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, more, onEd
             <ButtonLink href={matchListHref(matches) as Route} variant="linen" dash>
               See them on the map
             </ButtonLink>
+            {matches.length > LIST_MAX ? <p className="t-small text-white/60 lg:text-right">The map holds the first {LIST_MAX.toLocaleString()} of these.</p> : null}
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <button type="button" className="link-rule" onClick={() => my.addAll(slugs)} disabled={allSaved} aria-disabled={allSaved}>
                 {allSaved ? "All saved" : "Save them all"}

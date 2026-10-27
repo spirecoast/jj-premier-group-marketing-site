@@ -46,7 +46,8 @@ type Props = {
   /** Absent on the first question. */
   onBack?: () => void;
   onSkip: () => void;
-  count: { total: number; confirmed: number } | null;
+  /** How many places fit so far, and, once this question is answered, how many of them are confirmed on it and how many are in only because the fact isn't known yet. */
+  count: { total: number; here: { confirmed: number; unknown: number } | null } | null;
   /** True once the visitor has moved between questions, so the new one takes focus. */
   moved?: boolean;
   /** Which way the visitor moved, so the question slides in from that side. */
@@ -157,7 +158,11 @@ export function MatchQuestion({ question: q, number, total, coverage, answers, o
               <span className="font-display text-[2.5rem] font-light leading-none text-navy tabular-nums">{count.total.toLocaleString()}</span>
               <span className="t-body text-body">
                 {count.total === 1 ? "place fits" : "places fit"}
-                {count.total && count.confirmed !== count.total ? <span className="t-small block text-graphite-500">{count.confirmed.toLocaleString()} confirmed on every answer</span> : null}
+                {count.here && count.here.unknown ? (
+                  <span className="t-small block text-graphite-500">
+                    {count.here.confirmed.toLocaleString()} confirmed on this answer · {count.here.unknown.toLocaleString()} not known yet
+                  </span>
+                ) : null}
               </span>
             </>
           ) : (
