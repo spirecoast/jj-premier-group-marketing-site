@@ -88,7 +88,10 @@ export function VisitPlan({
     steps.push(next);
   };
   const goBack = () => {
-    if (!steps.back()) setQ((n) => Math.max(0, n - 1));
+    const prev = Math.max(0, q - 1);
+    if (steps.back((before) => before === prev)) return;
+    setQ(prev);
+    steps.replace(prev);
   };
 
   useEffect(() => setNowMs(Date.now()), []);

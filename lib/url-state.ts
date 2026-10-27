@@ -70,7 +70,8 @@ export function replaceQuery(href: string): void {
 
 /* ---- Steps -------------------------------------------------------------- */
 
-type StepRecord = { name: string; depth: number; entry: unknown };
+/** This flow's mark on a history entry: what it shows, how many entries in it is, and what the entry before it showed. */
+type StepRecord = { name: string; depth: number; entry: unknown; from?: unknown };
 
 function stepRecord(state: unknown): StepRecord | null {
   const r = (state as Record<string, unknown> | null)?.[STEP_KEY] as StepRecord | undefined;
@@ -93,6 +94,14 @@ export function useStepHistory<T>(name: string, initial: T, onEntry: (entry: T) 
   });
 
   useEffect(() => {
+    // The entry the page loaded on is this flow's first step: mark it, so coming Back to it
+    // (even after a reload further on) returns to what it showed. A remount with the link's
+    // state (useUrlInitial) marks it again; an entry this flow pushed keeps its own record.
+    const here = stepRecord(window.history.state);
+    if (!here || (here.name === name && here.depth === 0)) {
+      const record: StepRecord = { name, depth: 0, entry: initialRef.current };
+      window.history.replaceState({ [STEP_KEY]: record }, "", `${window.location.pathname}${window.location.search}${window.location.hash}`);
+    }
     const onPop = (e: PopStateEvent) => {
       const r = stepRecord(e.state);
       onEntryRef.current(r && r.name === name ? (r.entry as T) : initialRef.current);
@@ -106,7 +115,7 @@ export function useStepHistory<T>(name: string, initial: T, onEntry: (entry: T) 
       const current = stepRecord(window.history.state);
       const depth = how === "push" ? (current?.name === name ? current.depth : 0) + 1 : (current?.name === name ? current.depth : 0);
       const url = href ?? `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      const record: StepRecord = { name, depth, entry };
+      const record: StepRecord = how === "push" ? { name, depth, entry, from: current?.name === name ? current.entry : initialRef.current } : { name, depth, entry, from: current?.from };
       if (how === "push") window.history.pushState({ [STEP_KEY]: record }, "", url);
       else window.history.replaceState({ [STEP_KEY]: record }, "", url);
     },
@@ -116,15 +125,23 @@ export function useStepHistory<T>(name: string, initial: T, onEntry: (entry: T) 
   const push = useCallback((entry: T, href?: string) => write("push", entry, href), [write]);
   const replace = useCallback((entry: T, href?: string) => write("replace", entry, href), [write]);
 
-  /** Steps back through history when this flow pushed the entry we're on; otherwise returns false and the caller moves itself. */
-  const back = useCallback((): boolean => {
-    const r = stepRecord(window.history.state);
-    if (r && r.name === name && r.depth > 0) {
-      window.history.back();
-      return true;
-    }
-    return false;
-  }, [name]);
+  /**
+   * Steps back through history when the entry before this one is the step the visitor means
+   * (`isPrevious`), so the in-page Back and the browser's agree. Otherwise (the page was opened
+   * on this step, or it was reached by a jump) returns false, and the caller moves itself and
+   * `replace`s this entry.
+   */
+  const back = useCallback(
+    (isPrevious: (before: T) => boolean): boolean => {
+      const r = stepRecord(window.history.state);
+      if (r && r.name === name && r.depth > 0 && isPrevious(r.from as T)) {
+        window.history.back();
+        return true;
+      }
+      return false;
+    },
+    [name],
+  );
 
   return { push, replace, back };
 }

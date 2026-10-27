@@ -91,7 +91,7 @@ function PlannerState({ start, children }: { start: Start; children: ReactNode }
     setGeneric(e.generic);
     if (e.mode === "questions") setReached((r) => Math.max(r, e.step));
   });
-  const { push, back: historyBack } = history;
+  const { push, replace: replaceEntry, back: historyBack } = history;
 
   const setAnswers = useCallback(
     (patch: Partial<Answers>) => {
@@ -113,9 +113,11 @@ function PlannerState({ start, children }: { start: Start; children: ReactNode }
   );
 
   const back = useCallback(() => {
-    if (historyBack()) return;
-    setStep((s) => Math.max(0, s - 1));
-  }, [historyBack]);
+    const prev = Math.max(0, step - 1);
+    if (historyBack((before) => before.mode === "questions" && before.step === prev)) return;
+    setStep(prev);
+    replaceEntry({ mode: "questions", step: prev, generic: false });
+  }, [historyBack, replaceEntry, step]);
 
   const finish = useCallback(() => {
     setReached(MOVE_STEPS);

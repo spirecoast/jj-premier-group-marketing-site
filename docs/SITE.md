@@ -10,7 +10,9 @@ jj-premier-brand-system.vercel.app).
 | Area | Where |
 |---|---|
 | Brand tokens (the single definition) | `app/globals.css` `@theme`, `styles/tokens.css`, `docs/handoff/design/BRAND-TOKENS.md` |
-| Fonts | `app/layout.tsx` (Newsreader, Cormorant Garamond, Jost, IBM Plex Mono via `next/font`) |
+| Fonts | `app/layout.tsx` (Newsreader, Cormorant Garamond, Jost, IBM Plex Mono via `next/font`). Only what the first screen draws is preloaded: Newsreader roman (with its optical-size axis, which the display sizes need), Jost and Cormorant, about 180 KB. Newsreader italic is a separate family without the axis, not preloaded, reached through `--font-display-italic` (`.font-display.italic`, `t-quote`, the guide quotes and PDF leads); Plex Mono loads with the page |
+| Stylesheets | `app/globals.css` holds the tokens, the base layer, the type and shared components and every utility, and loads on every page. A product's own CSS sits beside it and loads only on the routes that render it: `components/encore/encore.css`, `components/explorer/explorer.css`, `components/guides/guides.css` and `guide-card.css`, `components/sales/street.css`, and `app/(print)/print.css` for the guide PDFs. New feature CSS goes in its feature's file, imported by the components that use it |
+| Tool state | `lib/url-state.ts` (the rules below, "The tools and the address bar"), `components/url-pending.tsx`, `lib/use-json-resource.ts`, `lib/scroll.ts` |
 | Site chrome | `components/site-header.tsx`, `site-footer.tsx`, `mobile-action-bar.tsx`, `app/(site)/layout.tsx` |
 | Home page sections | `components/home/*`, in page order: 01 `hero`, 02 `meet`, 03 `doors`, 04 `what-we-do`, 05 `three`, 06 `places`, 07 `find-home`, 08 `questions`, 09 `calendar-preview` (Encore), 10 `letter-band` (Tide); composed in `app/(site)/page.tsx`. The design treatments for 03, 04 and 05 live in `components/home/variants/` and are chosen by the `variant` default in `doors.tsx`, `what-we-do.tsx` and `three.tsx`; the gallery is `docs/screenshots/home-design/index.html` |
 | Component library | `components/*` (cards, bands, forms, headings, wordmark, CB mark, Equal Housing mark) |
@@ -179,6 +181,10 @@ off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
   calendar can show one event twice and two boxes with one name cancel the browser's transition.
   The link prefetches on hover, focus and touch so the page is ready when the change happens; a
   loading state has no hero to pair with.
+- **Prefetching.** The primary nav prefetches when it comes into view. The footer, the product
+  menus, the product bar and the phone menu's secondary links prefetch on intent instead
+  (`components/intent-link.tsx`: pointer over, focus or a finger down), so a page doesn't fetch
+  fifty routes on load.
 - **The header.** On phones (below `lg`) it tucks away on a scroll down past the first 160 px and
   returns on the first scroll up, a route change, keyboard focus, or while the phone menu is open
   (`components/site-header.tsx` sets `html[data-scroll]`; the stylesheet moves the header and the
@@ -189,6 +195,37 @@ off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
   never flashes them.
 - During a route change React waits up to 500 ms (its own cap) for the new page's in-view images
   and fonts, so a page never fades in with holes. Initial loads are untouched.
+
+## The tools and the address bar
+
+The tool pages (`/neighborhoods`, `/neighborhoods/match`, `/calendar`, `/calendar/plan`,
+`/relocate`, and the forms on `/contact` and `/listings`) are static: the server renders each in
+its default state, fast from the CDN and complete for crawlers, and the browser applies what the
+address asks for once, right after hydration (`lib/url-state.ts`, `useUrlInitial`). When a link
+carries a tool's keys (or a returning visitor has answers in progress),
+`components/url-pending.tsx` hides that tool until then, so nobody sees the default view swap
+for the one they were sent; it lets go after four seconds whatever happens. One set of rules for
+every tool, in `lib/url-state.ts`:
+
+- **Steps push.** Atlas Move, Atlas Match and the Encore Planner's questions are one history entry
+  each, so the browser's Back (and a phone's swipe back) returns to the question before, with the
+  answers kept. The finished plan replaces the last entry with its canonical link.
+- **Choices replace.** A filter, a view, a day or a selected place replaces the URL once, when
+  it's made. Nothing is written on arrival, so a campaign's `utm_*` tags stay as they came.
+- **Typing stays out.** Search words, the map's position and the street or address in the sales
+  lookups never go into the address bar. The Home Platform pixel records a page view on every
+  history write and reads the address (`lib/home-platform.ts`), so nothing writes per keystroke
+  or per pan, and nothing typed reaches the CRM that way. Words and the map are kept for the tab
+  (sessionStorage), and go into a link only when someone presses Share.
+- **Answers in progress are kept.** Move, Match and the Planner save their answers in
+  localStorage on every change (`relocate:answers`, `atlas:match`, `encore:plan-draft`), so a
+  reload or an accidental exit comes back to the same question.
+- **Shared data.** The neighborhood index and the Encore season are fetched once per visit
+  (`lib/use-json-resource.ts`); whichever tool opens first fetches, and a failed fetch offers Try
+  again.
+- **Moving between questions.** The new question takes focus and, if it had scrolled up under
+  the header, comes back into view below it (`components/ui/stepper.tsx`). Every scroll from
+  code goes through `lib/scroll.ts`, which is instant for anyone who asked for reduced motion.
 
 ## The neighborhood explorer
 
@@ -206,8 +243,10 @@ builder source with its checked date).
   gzipped, built at deploy time and cached hard) reaches the client. The full 8MB dataset is read
   server-side by `lib/neighborhoods/data.ts` for the detail pages, the sitemap and the share images.
 - **URL state.** Every view is a link: `q`, `market`, `level`, `type`, `status`, `gated=1`, `all=1`
-  (include county-registry names), `place=<slug>` and `map=zoom/lat/lng`. The Share button uses
-  the phone's share sheet or copies the link.
+  (include county-registry names), `place=<slug>` and `map=zoom/lat/lng`. The address bar carries
+  the filters and the selected place; the search words and the map position stay in the tab
+  (Back to the explorer brings them back) and go into the link only through the Share button,
+  which uses the phone's share sheet or copies the link. See "The tools and the address bar".
 - **Detail pages.** Every record has `/neighborhoods/[slug]`, statically generated. The eight
   editorial neighborhoods keep their hero, overview, highlights and FAQs and gain the dataset
   facts underneath, joined by slug (`lake-club` became `the-lake-club`; the old path redirects).
@@ -243,9 +282,16 @@ builder source with its checked date).
   hourly) and every move after that is instant. Local days and times are precomputed in the site
   timezone, so the client does no timezone math (`lib/encore/select.ts`).
 - **URL state.** `view`, `date` (YYYY-MM-DD), `category`, `market`, `venue`, `q`, and `list`
-  (comma-separated slugs of a shared list). `lib/encore/url.ts` parses and prints it.
+  (comma-separated slugs of a shared list). `lib/encore/url.ts` parses and prints it. The address
+  bar follows the view, the day and the filters; the search words reach a link only through
+  "Share this view".
+- **Static.** The page is prerendered hourly with today and the next two weeks; a link to another
+  window shows "Loading the season…" until the full index arrives, and says so with a Try again if
+  it doesn't.
 - **My list.** Save keeps slugs in `localStorage` (`encore:list`); "Share my list" turns it into a
-  `?list=` link, and a visitor who opens one can save it all to their own list.
+  `?list=` link, and a visitor who opens one can save it all to their own list. Every Save
+  button and count reads one store (`components/encore/use-my-list.ts`), and a save in another
+  tab shows up in this one.
 - **Feeds.** `/api/calendar.ics` with no parameters is a rolling **90-day** window (every dated
   performance in the next 90 days, plus the exhibitions on view now or opening inside the window),
   because calendar apps refetch it every few hours and the six-month file was over a megabyte.
@@ -256,8 +302,9 @@ builder source with its checked date).
   subscriber's calendar rolls forward on every refresh, so nothing has to change on their side.
 - **Plan a visit.** `/calendar/plan` is for someone coming to look at homes: arrival and
   departure (up to 14 days, the coming weekend by default), the markets to see, optional
-  category preferences and an evenings-only toggle, all in the URL (`from`, `to`, `market`,
-  `cat`, `evenings`) so a plan is shareable. `lib/encore/plan.ts` builds it: each day gets a
+  category preferences and an evenings-only toggle, all in the URL once the plan is built
+  (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable. Each question is a
+  history entry, so Back returns to the one before. `lib/encore/plan.ts` builds it: each day gets a
   market or two by rotating through the chosen ones and a "Showings with us (10 to 4)" block,
   then up to three timed performances from five o'clock (and one weekend matinee), scored to
   prefer the chosen categories and the day's market and to spread categories and venues across

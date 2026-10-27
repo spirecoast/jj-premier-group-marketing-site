@@ -57,10 +57,9 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
     });
   }, []);
 
-  // Back and Forward through the steps.
+  // Back and Forward move between the questions; the answers given stay as they are.
   const history = useStepHistory<MatchState>("match", { answers: initial.answers, step }, (entry) => {
     moved.current = true;
-    setAnswers(entry.answers);
     setStep(entry.step);
     if (entry.step === null) showResults();
   });
@@ -79,10 +78,10 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
     if (next === null) showResults();
   };
   const back = (to: number) => {
-    if (!history.back()) {
-      moved.current = true;
-      setStep(to);
-    }
+    if (history.back((before) => before.step === to)) return;
+    moved.current = true;
+    setStep(to);
+    history.replace({ answers, step: to }, matchHref({ answers, step: to }));
   };
 
   const total = QUESTIONS.length;
