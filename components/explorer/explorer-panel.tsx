@@ -11,6 +11,7 @@ import { pathOf, type Filters } from "@/lib/neighborhoods/search";
 import { LEVELS, STATUSES, TYPES } from "@/lib/neighborhoods/types";
 import { cn } from "@/lib/utils";
 import { PlaceCard } from "./place-card";
+import "./explorer.css";
 
 export type SheetPosition = "peek" | "half" | "full";
 
@@ -35,6 +36,8 @@ type Props = {
   onSelect: (slug: string | null) => void;
   by: Map<string, IndexEntry>;
   asOf: string;
+  /** The view as a link, with the search words and the map position (the address bar has neither). */
+  shareUrl: string;
   desktop: boolean;
   sheet: SheetPosition;
   onSheet: (p: SheetPosition) => void;
@@ -106,7 +109,7 @@ export function ExplorerPanel(p: Props) {
               </Link>
             </p>
           </div>
-          <ShareButton title="Atlas · JJ Premier Group" what="explorer-view" className="mt-1 shrink-0" />
+          <ShareButton title="Atlas · JJ Premier Group" url={p.shareUrl} what="explorer-view" className="mt-1 shrink-0" />
         </div>
 
         <div className="explorer-search">

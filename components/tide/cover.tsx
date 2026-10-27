@@ -5,6 +5,7 @@ import { Byline } from "@/components/byline";
 import { Photo } from "@/components/photo";
 import type { TeamMember } from "@/lib/content/types";
 import type { IssueModel } from "@/lib/tide/issue";
+import "@/components/guides/guides.css";
 
 /**
  * The issue's cover: the month's photograph full-bleed under the harbor wash,

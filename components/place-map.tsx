@@ -9,6 +9,7 @@ import { MapUnavailable } from "@/components/map-unavailable";
 import { startMap, type MapStatus } from "@/components/map-runtime";
 import { MAP_COLORS } from "@/lib/neighborhoods/map-style";
 import { explorerHref } from "@/lib/neighborhoods/url";
+import "@/components/explorer/explorer.css";
 
 export type PlacePoint = { slug: string; name: string; lng: number; lat: number; kind: "self" | "child" | "parent" };
 

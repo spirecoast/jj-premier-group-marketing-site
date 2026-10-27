@@ -1,0 +1,229 @@
+/* The long-form guides (/guides/*) and the cover they share with Tide's issue
+   pages, with their print rules. Loaded only by the routes that render them
+   (imported by components/guides/* and components/tide/cover.tsx). */
+
+/* -----------------------------------------------------------------------------
+   Guides (/guides) — long-form, data-rich pages built from lib/guides/*.
+   The figures' series colours, in fixed order: Harbor 800, Coral, Sky 600.
+   Marks carry the colour; text never does (dataviz rule).
+   ----------------------------------------------------------------------------- */
+@layer components {
+  .guide-text {
+    font-size: 1.0625rem;
+    line-height: 1.72;
+    color: var(--color-ink);
+  }
+  @media (min-width: 768px) {
+    .guide-text { font-size: 1.125rem; }
+  }
+  /* Sources: small, quiet, one line's worth; the link shows itself on hover. */
+  .guide-source {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--color-graphite-500);
+  }
+  .guide-source-label {
+    margin-right: 0.5em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-graphite-600);
+  }
+  .guide-source a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgb(0 0 0 / 0.15);
+    text-underline-offset: 3px;
+  }
+  .guide-source a:hover {
+    color: var(--color-navy);
+    text-decoration-color: currentColor;
+  }
+  /* A defined term: a card in the sky tint with the accent down its edge. */
+  .guide-definition {
+    background: var(--color-sky-50);
+    border-left: 3px solid var(--color-sky-600);
+  }
+  .guide-text a {
+    color: var(--color-harbor-700);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-harbor-300);
+  }
+  .guide-text a:hover {
+    color: var(--color-navy);
+    text-decoration-color: currentColor;
+  }
+  /* The first letter of a section's opening paragraph, as the samples set it. */
+  .guide-drop::first-letter {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 3.6em;
+    line-height: 0.78;
+    float: left;
+    padding-right: 0.08em;
+    margin-top: 0.08em;
+    color: var(--color-navy);
+  }
+  /* The cover ground: deep harbor, a teal glow from the upper right, and a
+     fine grid like the Virtus covers. */
+  /* The cover photo sits under a harbor wash: strongest at the bottom left, where the text is. */
+  .guide-cover-photo {
+    opacity: 0.9;
+  }
+  .guide-cover-wash {
+    background:
+      /* The top band sits under the see-through header: 120px of deeper shade so the nav labels hold over a bright sky. */
+      linear-gradient(180deg, rgb(13 27 36 / 0.55) 0%, transparent 7.5rem),
+      linear-gradient(0deg, rgb(20 37 48 / 0.55) 0%, rgb(20 37 48 / 0.2) 45%, rgb(20 37 48 / 0.3) 100%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.3) 0%, transparent 70%);
+  }
+  /*
+    The glass under the cover's words. On a phone or tablet it's an even pane
+    with a hairline frame. From lg it fades into the photograph toward the
+    right: the tint, the blur (where the browser masks a backdrop) and the
+    frame's lines all fade together, the lines drawn as gradients so they fade
+    in every browser.
+  */
+  .guide-cover-glass {
+    --edge: rgb(255 255 255 / 0.24);
+    background: rgb(16 37 52 / 0.55);
+    border: 1px solid var(--edge);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    backdrop-filter: blur(18px) saturate(1.35);
+  }
+  .guide-cover-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0.625rem;
+    border: 1px solid rgb(255 255 255 / 0.2);
+  }
+  /* On a phone the pane's padding is too narrow for the inner hairline. */
+  @media (max-width: 639px) {
+    .guide-cover-glass::after { display: none; }
+  }
+  @media (min-width: 1024px) {
+    .guide-cover-glass {
+      border: 0;
+      box-shadow: none;
+      background:
+        linear-gradient(90deg, var(--edge), var(--edge) 45%, transparent 92%) top left / 100% 1px no-repeat,
+        linear-gradient(90deg, var(--edge), var(--edge) 45%, transparent 92%) bottom left / 100% 1px no-repeat,
+        linear-gradient(var(--edge), var(--edge)) top left / 1px 100% no-repeat,
+        linear-gradient(90deg, rgb(16 37 52 / 0.62) 0%, rgb(16 37 52 / 0.5) 45%, rgb(16 37 52 / 0.16) 85%, rgb(16 37 52 / 0) 100%);
+      -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 55%, transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0%, #000 55%, transparent 100%);
+    }
+    .guide-cover-glass::after {
+      border: 0;
+      --line: rgb(255 255 255 / 0.2);
+      background:
+        linear-gradient(90deg, var(--line), var(--line) 40%, transparent 88%) top left / 100% 1px no-repeat,
+        linear-gradient(90deg, var(--line), var(--line) 40%, transparent 88%) bottom left / 100% 1px no-repeat,
+        linear-gradient(var(--line), var(--line)) top left / 1px 100% no-repeat;
+    }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .guide-cover-glass { background: linear-gradient(100deg, rgb(16 37 52 / 0.85), rgb(16 37 52 / 0.5)); }
+  }
+  .guide-cover-ground {
+    background-color: var(--color-harbor-950);
+    background-image:
+      linear-gradient(rgb(199 231 239 / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(199 231 239 / 0.055) 1px, transparent 1px),
+      radial-gradient(110% 90% at 88% 18%, rgb(53 137 156 / 0.55), transparent 62%),
+      linear-gradient(165deg, var(--color-harbor-950) 0%, var(--color-harbor-900) 55%, var(--color-navy) 100%);
+    background-size: 56px 56px, 56px 56px, 100% 100%, 100% 100%;
+  }
+  /* Section numerals: the ghost numeral behind the section title. */
+  .guide-ghost {
+    font-family: var(--font-display);
+    font-weight: 200;
+    font-size: clamp(7rem, 4rem + 9vw, 11rem);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(230 221 209 / 0.35);
+    user-select: none;
+  }
+  /* Contents: the active section carries a drawn rule. */
+  .guide-toc a[aria-current="true"] {
+    color: var(--color-navy);
+  }
+  .guide-toc a[aria-current="true"] .guide-toc-rule {
+    transform: scaleX(1);
+  }
+  .guide-toc-rule {
+    display: block;
+    height: 1px;
+    background: var(--color-sky-700);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-card) var(--ease-brand);
+  }
+  /* Figure series. Marks only. */
+  .series-0 { fill: var(--color-harbor-800); }
+  .series-1 { fill: var(--color-coral); }
+  .series-2 { fill: var(--color-sky-600); }
+  .series-0-stroke { stroke: var(--color-harbor-800); }
+  .series-1-stroke { stroke: var(--color-coral); }
+  .series-2-stroke { stroke: var(--color-sky-600); }
+  .series-0-bg { background: var(--color-harbor-800); }
+  .series-1-bg { background: var(--color-coral); }
+  .series-2-bg { background: var(--color-sky-600); }
+}
+
+/* Print: the guide prints as a document. No chrome, sections start on a new
+   page, figures never split, link targets are written out for the sources. */
+@media print {
+  html:has(#guide-article) body > :not(main) {
+    display: none !important;
+  }
+  html:has(#guide-article) .print-hide {
+    display: none !important;
+  }
+  html:has(#guide-article) main {
+    background: #fff;
+  }
+  #guide-article {
+    color: #000;
+  }
+  #guide-article .guide-cover {
+    min-height: 7.5in !important;
+    margin-top: 0 !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  #guide-article .container-site {
+    padding-inline: 0.25in;
+  }
+  #guide-article .guide-section {
+    page-break-before: always;
+    break-before: page;
+  }
+  #guide-article figure,
+  #guide-article .guide-callout,
+  #guide-article .guide-definition,
+  #guide-article table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #guide-article a {
+    color: inherit;
+    text-decoration: none;
+  }
+  #guide-article .guide-sources a[href^="http"]::after {
+    content: " " attr(href);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: #555;
+    word-break: break-all;
+  }
+  @page {
+    size: Letter;
+    margin: 0.6in 0.7in;
+  }
+}

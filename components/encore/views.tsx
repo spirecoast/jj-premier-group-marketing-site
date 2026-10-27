@@ -24,6 +24,7 @@ import {
 } from "@/lib/encore/select";
 import { cn } from "@/lib/utils";
 import { AgendaRow, EventTile, RunCard } from "./tile";
+import "./encore.css";
 
 type ListProps = { has: (slug: string) => boolean; toggle: (slug: string) => void };
 

@@ -427,6 +427,12 @@ export function matchToSearch(s: MatchState): string {
   return qs ? `?${qs}` : "";
 }
 
+/** Where answers in progress are kept in the browser (components/match/atlas-match.tsx). */
+export const MATCH_DRAFT = "atlas:match";
+
+/** Every key Atlas Match reads from a link. */
+export const MATCH_KEYS = ["market", "county", "homes", "build", "gated", "hoa", "cdd", "water", "evac", "near", "within", "strict", "all", "step"] as const;
+
 export function matchHref(s: MatchState): string {
   return `/neighborhoods/match${matchToSearch(s)}`;
 }

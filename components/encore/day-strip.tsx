@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { dayNumber, daysInRange, weekday, weekdayShort, monthLabel } from "@/lib/encore/select";
 import { cn } from "@/lib/utils";
+import { scrollBehavior } from "@/lib/scroll";
+import "./encore.css";
 
 /**
  * A strip of days you flick through. Each day shows how much is on as a
@@ -34,10 +36,10 @@ export function DayStrip({
     if (!el || !ref.current) return;
     const box = ref.current.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    if (r.left < box.left || r.right > box.right) el.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    if (r.left < box.left || r.right > box.right) el.scrollIntoView({ inline: "center", block: "nearest", behavior: scrollBehavior() });
   }, [selected]);
 
-  const scrollBy = (dir: number) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.8, behavior: "smooth" });
+  const scrollBy = (dir: number) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.8, behavior: scrollBehavior() });
 
   return (
     <div className="encore-strip-wrap">

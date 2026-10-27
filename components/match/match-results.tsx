@@ -64,7 +64,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
       <div className="atlas-panel relative flex flex-col gap-8 overflow-hidden bg-atlas-deep px-5 py-8 text-linen-100 sm:p-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="flex flex-col gap-5" aria-live="polite">
-            <h2 className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white">
+            <h2 data-results-title="" tabIndex={-1} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white outline-none">
               <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] font-light leading-none tabular-nums">{matches.length.toLocaleString()}</span>
               <span className="t-h1">{matches.length === 1 ? "neighborhood fits" : "neighborhoods fit"}</span>
             </h2>

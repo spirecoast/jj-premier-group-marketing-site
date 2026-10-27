@@ -47,6 +47,9 @@ export function parseEncoreState(p: Params): EncoreState {
   };
 }
 
+/** Every key the calendar reads from a link. */
+export const ENCORE_KEYS = ["view", "date", "category", "market", "venue", "q", "list"] as const;
+
 export function encoreSearch(s: Partial<EncoreState>): string {
   const sp = new URLSearchParams();
   if (s.view && s.view !== "days") sp.set("view", s.view);

@@ -12,6 +12,7 @@ import type { EncoreEvent } from "@/lib/encore/index-format";
 import { coversFrame } from "@/lib/photo-fit";
 import { clock, shortDay, through, weekdayShort, type Occ } from "@/lib/encore/select";
 import { cn } from "@/lib/utils";
+import "./encore.css";
 
 export function SaveButton({ saved, onToggle, className, title }: { saved: boolean; onToggle: () => void; className?: string; title: string }) {
   return (

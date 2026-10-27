@@ -34,6 +34,7 @@ import type { Listing, RichText as RichTextValue, SiteSettings, Stat } from "@/l
 import { breadcrumbJsonLd, listingJsonLd, pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { ExternalLink } from "@/components/ui/external-link";
+import { CONTAINER_SIZES } from "@/lib/image-sizes";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -230,7 +231,7 @@ export default async function ListingPage({ params }: { params: Params }) {
             <Photo
               image={listing.hero}
               priority
-              sizes={frames.length ? "(min-width: 1024px) 624px, 100vw" : "(min-width: 1024px) 1248px, 100vw"}
+              sizes={frames.length ? "(min-width: 1024px) 624px, 100vw" : CONTAINER_SIZES}
             />
             <ListingTag listing={listing} className="absolute left-4 top-4" />
             <p className="t-mono-sm absolute bottom-4 right-4 bg-paper/95 px-3 py-2 text-navy">

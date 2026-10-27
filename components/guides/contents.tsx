@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import "./guides.css";
 
 type Item = { id: string; number: string; title: string };
 

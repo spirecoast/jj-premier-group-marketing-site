@@ -6,6 +6,7 @@ import { PANEL_COPY as C, STATUS, compactWhen, monthDay, overall, priceRange, up
 import { cn } from "@/lib/utils";
 import { CheckedAgo } from "./checked-ago";
 import { ExternalLink } from "@/components/ui/external-link";
+import "./encore.css";
 
 /**
  * "From the venue": the event page's side panel. What the venue's or

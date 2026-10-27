@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import "@/components/explorer/explorer.css";
 
 /**
  * What sits in the map's place when the map can't be drawn: no WebGL, a

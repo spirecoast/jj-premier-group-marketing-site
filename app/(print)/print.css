@@ -1,0 +1,187 @@
+/* The print documents (app/(print)), printed to PDF by scripts/guides-pdf.mjs.
+   Loaded only by the print routes, never by the site. */
+
+/* ---- Guides as PDFs (app/(print)/print/guides/[slug], printed by scripts/guides-pdf.mjs).
+   US Letter. The cover and the back page bleed to the edge; every other page
+   carries the guide's name at the head and the team, the brokerage and the
+   page number at the foot. The text is set in the display serif at reading
+   size, the way a printed guide would be. */
+@page {
+  size: letter;
+  margin: 0.8in 0.85in 0.8in;
+  @bottom-left {
+    content: "JJ Premier Group  ·  Coldwell Banker Realty";
+    font-family: var(--font-jost), sans-serif;
+    font-size: 7.5pt;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b5d4e;
+  }
+  @bottom-right {
+    content: counter(page);
+    font-family: var(--font-newsreader), serif;
+    font-size: 9pt;
+    color: #2e4a5c;
+  }
+}
+@page bleed {
+  margin: 0;
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+  @top-left { content: none; }
+}
+.pdf-doc {
+  background: #fff;
+  color: var(--color-ink);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.pdf-doc .print-hide { display: none !important; }
+.pdf-doc .guide-text {
+  font-family: var(--font-display);
+  font-size: 10.75pt;
+  line-height: 1.58;
+  color: #2b2d30;
+  font-variation-settings: "opsz" 12;
+}
+.pdf-doc .guide-text a { color: #2c6e7e; text-decoration: none; }
+.pdf-doc .t-lead { font-size: 12pt; }
+/* A book's measure: about 75 characters a line, the right margin left open. */
+.pdf-doc .max-w-measure { max-width: 5.25in; }
+/* Figures set a little smaller than on screen, so a tall one keeps its source line on its page. */
+.pdf-doc figure { zoom: 0.88; }
+.pdf-doc figure,
+.pdf-doc .guide-callout,
+.pdf-doc .guide-definition,
+.pdf-doc table,
+.pdf-doc blockquote { break-inside: avoid; }
+.pdf-doc h2, .pdf-doc h3 { break-after: avoid; }
+
+/* Cover */
+.pdf-cover {
+  page: bleed;
+  position: relative;
+  width: 8.5in;
+  height: 11in;
+  overflow: hidden;
+  background: #f3eee6;
+  break-after: page;
+}
+.pdf-cover-photo { position: absolute; inset: 0 0 auto 0; height: 6.3in; overflow: hidden; background: #142530; }
+.pdf-cover-photo img { width: 100%; height: 100%; object-fit: cover; }
+.pdf-cover-panel {
+  position: absolute;
+  inset: 6.3in 0 0 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5in 0.75in 0.55in;
+}
+.pdf-cover-panel::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 1.9in;
+  height: 4px;
+  background: var(--color-sky-300);
+}
+.pdf-cover-top,
+.pdf-cover-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.3in;
+  font-family: var(--font-jost), sans-serif;
+  font-size: 7.75pt;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2c6e7e;
+}
+.pdf-cover-title {
+  margin-top: 0.22in;
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: 34pt;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  color: #2e4a5c;
+  text-wrap: balance;
+}
+.pdf-cover-promise {
+  margin-top: 0.16in;
+  max-width: 5.6in;
+  font-family: var(--font-display-italic);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 12.5pt;
+  line-height: 1.45;
+  color: #3a3d42;
+}
+.pdf-cover-foot {
+  margin-top: auto;
+  padding-top: 0.14in;
+  border-top: 1px solid #c4b69f;
+  color: #4e443a;
+  letter-spacing: 0.1em;
+  font-size: 7.25pt;
+}
+
+/* Inside pages */
+/* Block flow, not flex: Chromium fragments flex columns across pages badly (a sliver of the next page's first line paints at the foot of this one). */
+.pdf-page { break-before: page; display: block; }
+.pdf-page > * + * { margin-top: 10pt; }
+.pdf-h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 20pt;
+  line-height: 1.15;
+  color: #2e4a5c;
+}
+.pdf-gap { margin-top: 16pt; }
+.pdf-contents { display: flex; flex-direction: column; border-top: 1px solid #e4ded2; }
+.pdf-contents li {
+  display: grid;
+  grid-template-columns: 0.42in 1fr;
+  align-items: baseline;
+  padding: 6pt 0;
+  border-bottom: 1px solid #e4ded2;
+  font-family: var(--font-display);
+  font-size: 12pt;
+  color: #2b2d30;
+}
+.pdf-contents li span { font-family: var(--font-jost), sans-serif; font-size: 8pt; letter-spacing: 0.08em; color: #2c6e7e; }
+.pdf-questions { margin-top: 18pt; padding: 14pt 16pt; background: #f1e9dc; break-inside: avoid; }
+.pdf-questions-title { font-family: var(--font-display); font-size: 12.5pt; color: #2e4a5c; margin-bottom: 8pt; }
+.pdf-questions ol { display: flex; flex-direction: column; gap: 6pt; }
+.pdf-questions li { display: grid; grid-template-columns: 0.36in 1fr; align-items: baseline; font-family: var(--font-display); font-size: 11.5pt; color: #2e4a5c; }
+.pdf-questions li span { font-size: 22pt; font-weight: 200; line-height: 1; }
+
+.pdf-section { break-before: page; display: block; }
+.pdf-section > * + * { margin-top: 14pt; }
+.pdf-doc .pdf-section > div.flex { display: block; }
+.pdf-doc .pdf-section > div.flex > * + * { margin-top: 13pt; }
+.pdf-doc .pdf-section > div.flex > div.flex { display: block; }
+.pdf-doc .pdf-section > div.flex > div.flex > * + * { margin-top: 5pt; }
+.pdf-section-head { position: relative; display: block; padding-bottom: 12pt; margin-bottom: 4pt; border-bottom: 1px solid #c4b69f; break-inside: avoid; }
+.pdf-section-head > * + * { margin-top: 8pt; }
+.pdf-section-no { display: block; font-family: var(--font-display); font-weight: 200; font-size: 46pt; line-height: 1.15; color: #89d4e3; }
+.pdf-section-title { font-family: var(--font-display); font-weight: 300; font-size: 24pt; line-height: 1.1; letter-spacing: -0.01em; color: #2e4a5c; text-wrap: balance; }
+.pdf-section-lead { font-family: var(--font-display-italic); font-style: italic; font-weight: 300; font-size: 12pt; line-height: 1.45; color: #3a3d42; }
+.pdf-sheet { border-top: 1px solid #c4b69f; }
+.pdf-sheet li { display: grid; grid-template-columns: 1fr 1.1fr; gap: 14pt; padding: 8pt 0; border-bottom: 1px solid #e4ded2; break-inside: avoid; }
+.pdf-sheet li span:first-child { font-family: var(--font-jost), sans-serif; font-size: 10pt; font-weight: 500; color: #2b2d30; }
+.pdf-sheet li span:last-child { font-family: var(--font-display); font-size: 10.5pt; color: #3a3d42; }
+.pdf-sources ol { display: flex; flex-direction: column; gap: 5pt; list-style: decimal; padding-left: 0.22in; font-family: var(--font-jost), sans-serif; font-size: 8.5pt; line-height: 1.45; color: #3a3d42; }
+.pdf-url { display: block; color: #2c6e7e; word-break: break-all; }
+.pdf-fine { margin-top: 12pt; font-family: var(--font-jost), sans-serif; font-size: 7.5pt; line-height: 1.5; color: #6b5d4e; }
+
+/* Back page */
+.pdf-back { page: bleed; break-before: page; width: 8.5in; height: 11in; background: #2e4a5c; color: #f3eee6; display: flex; align-items: flex-end; }
+.pdf-back-inner { display: flex; flex-direction: column; gap: 10pt; padding: 0.85in 0.85in 0.75in; width: 100%; }
+.pdf-back-brokerage { font-family: var(--font-display); font-weight: 300; font-size: 15pt; color: #f3eee6; }
+.pdf-back-line { margin-top: 0.35in; max-width: 5.6in; font-family: var(--font-display); font-weight: 200; font-size: 26pt; line-height: 1.1; color: #fff; text-wrap: balance; }
+.pdf-back-body { max-width: 5.4in; font-family: var(--font-jost), sans-serif; font-size: 10pt; line-height: 1.55; color: #e6ddd1; }
+.pdf-back-team { margin-top: 0.25in; display: grid; grid-template-columns: 1fr 1fr; gap: 0.3in; padding-top: 12pt; border-top: 1px solid rgb(255 255 255 / 0.25); font-family: var(--font-jost), sans-serif; font-size: 9.5pt; line-height: 1.6; color: #e6ddd1; }
+.pdf-back-name { font-family: var(--font-display); font-size: 14pt; color: #fff; }
+.pdf-back-web { margin-top: 8pt; font-family: var(--font-jost), sans-serif; font-size: 8.5pt; letter-spacing: 0.06em; color: #89d4e3; }
+.pdf-back-fine { color: rgb(230 221 209 / 0.75); max-width: 6.2in; }

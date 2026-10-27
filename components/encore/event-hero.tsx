@@ -4,6 +4,7 @@ import { SharedFrame } from "@/components/shared-frame";
 import { stockPhoto } from "@/lib/encore/stock";
 import type { Event } from "@/lib/content/types";
 import { ExternalLink } from "@/components/ui/external-link";
+import { CONTAINER_SIZES } from "@/lib/image-sizes";
 
 /**
  * The event page's picture. The presenter's own image when the collector
@@ -21,7 +22,7 @@ export function EventHero({ event }: { event: Event }) {
     return (
       <figure className="flex flex-col gap-2">
         <SharedFrame name={`evt-${event.slug}`} role="target" className="relative aspect-[21/9] max-h-[420px] overflow-hidden bg-linen-100">
-          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={21 / 9} sizes="(min-width: 1024px) 1248px, 100vw" priority />
+          <KeyArt category={event.category} seed={event.slug} subcategory={event.subcategory} ratio={21 / 9} sizes={CONTAINER_SIZES} priority />
         </SharedFrame>
         {/* A stand-in, said plainly so no one takes it for the production. */}
         {stock ? <figcaption className="image-credit">Stock photo · Adobe Stock</figcaption> : null}
@@ -32,7 +33,7 @@ export function EventHero({ event }: { event: Event }) {
     <figure className="flex flex-col gap-2">
       {/* The card's picture grows into this box on the way in (components/shared-frame.tsx). */}
       <SharedFrame name={`evt-${event.slug}`} role="target" className="relative aspect-[16/9] max-h-[560px] w-full overflow-hidden bg-linen-100 sm:aspect-[21/9]">
-        <Photo image={{ ...img, position: img.position ?? "50% 38%" }} priority sizes="(min-width: 1024px) 1248px, 100vw" frame={21 / 9} />
+        <Photo image={{ ...img, position: img.position ?? "50% 38%" }} priority sizes={CONTAINER_SIZES} frame={21 / 9} />
       </SharedFrame>
       {event.imageCredit ? <ImageCredit credit={event.imageCredit} /> : null}
     </figure>

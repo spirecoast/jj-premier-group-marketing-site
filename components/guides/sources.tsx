@@ -1,6 +1,7 @@
 import type { Guide } from "@/lib/guides/types";
 import { guideFigures, guideSources } from "@/lib/guides";
 import { ExternalLink } from "@/components/ui/external-link";
+import "./guides.css";
 
 const two = (n: number) => String(n).padStart(2, "0");
 

@@ -1,11 +1,11 @@
 "use client";
 
 import type { Route } from "next";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ProductLockup } from "@/components/brand/emblem";
 import { productFamilies, type ProductFamily } from "@/lib/site";
+import { IntentLink } from "@/components/intent-link";
 
 /** The pages each family's bar shows on. Pages whose first screen sits under the header (a place, a venue, an issue) keep the header alone. */
 const ROUTES: Record<ProductFamily["key"], RegExp[]> = {
@@ -65,24 +65,24 @@ export function ProductBar() {
   return (
     <nav data-product-bar data-ground="dark" data-family={family.key} aria-label={`${family.name} products`} className="product-bar">
       <div className="container-site flex h-full items-center gap-5 sm:gap-7">
-        <Link href={family.items[0]!.href as Route} className="flex shrink-0 items-center transition-opacity hover:opacity-85">
+        <IntentLink href={family.items[0]!.href as Route} className="flex shrink-0 items-center transition-opacity hover:opacity-85">
           <ProductLockup family={family.key} size="bar" byline={false} decorative />
           <span className="sr-only">{family.name}</span>
-        </Link>
+        </IntentLink>
         <span aria-hidden="true" className="hidden h-5 w-px shrink-0 bg-white/20 sm:block" />
         <ul ref={tabs} className="product-bar-tabs flex h-full min-w-0 flex-1 items-stretch gap-5 overflow-x-auto sm:gap-8">
           {family.items.map((i) => (
             <li key={i.href} className="flex">
-              <Link href={i.href as Route} aria-current={current?.href === i.href ? "page" : undefined} className="product-tab">
+              <IntentLink href={i.href as Route} aria-current={current?.href === i.href ? "page" : undefined} className="product-tab">
                 <span className="hidden lg:inline">{i.label}</span>
                 <span className="lg:hidden">{i.label.replace(`${family.name} `, "")}</span>
-              </Link>
+              </IntentLink>
             </li>
           ))}
         </ul>
-        <Link href="/tools" className="hidden shrink-0 text-[13px] tracking-[0.02em] text-linen-200/75 transition-colors hover:text-white md:inline">
+        <IntentLink href="/tools" className="hidden shrink-0 text-[13px] tracking-[0.02em] text-linen-200/75 transition-colors hover:text-white md:inline">
           All tools <span aria-hidden="true">→</span>
-        </Link>
+        </IntentLink>
       </div>
     </nav>
   );

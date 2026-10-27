@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useId } from "react";
 import { Chip, ChipGroup } from "@/components/ui/chip";
 import { Checkbox, Field, Select } from "@/components/ui/field";
-import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepFocus } from "@/components/ui/stepper";
+import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepFocus, type StepDir } from "@/components/ui/stepper";
 import { MARKETS } from "@/lib/content/markets";
 import { titleCase } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
@@ -22,6 +22,7 @@ import {
   type Question,
   type QuestionId,
 } from "@/lib/neighborhoods/match";
+import "@/components/explorer/explorer.css";
 
 const PointPicker = dynamic(() => import("./point-picker").then((m) => m.PointPicker), {
   ssr: false,
@@ -42,10 +43,12 @@ type Props = {
   count: { total: number; confirmed: number } | null;
   /** True once the visitor has moved between questions, so the new one takes focus. */
   moved?: boolean;
+  /** Which way the visitor moved, so the question slides in from that side. */
+  dir?: StepDir;
 };
 
 /** One question, one screen. The count at the bottom moves as the answer changes. */
-export function MatchQuestion({ question: q, number, total, answers, onAnswers, areas, onNext, onBack, onSkip, count, moved = false }: Props) {
+export function MatchQuestion({ question: q, number, total, answers, onAnswers, areas, onNext, onBack, onSkip, count, moved = false, dir = "next" }: Props) {
   const uid = useId();
   const isAnswered = answered(answers, q.id);
   const strict = answers.strict.includes(q.id);
@@ -58,7 +61,7 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
   return (
     <StepCard aria-labelledby={`${uid}-title`}>
       <StepProgress step={number} total={total} />
-      <StepBody stepKey={q.id} className="min-h-0 gap-8">
+      <StepBody stepKey={q.id} dir={dir} className="min-h-0 gap-8">
       <div className="flex flex-col gap-4">
         <StepTitle id={`${uid}-title`} ref={titleRef}>
           {q.title}

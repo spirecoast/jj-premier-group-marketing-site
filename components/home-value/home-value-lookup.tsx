@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { LeadForm } from "@/components/lead-form";
 import { SalesTable, fmtDate, int, saleFlagged, titleCase, typeLabel, usd, type SaleRow, type SalesSummary } from "@/components/sales/sales-table";
 import { SectionHeading } from "@/components/section-heading";
-import { track } from "@/lib/analytics";
+import { useSalesLookup } from "@/components/sales/use-sales-lookup";
 import { parseHouseNumber } from "@/lib/sales/parcel";
 import { HOME_VALUE_COPY as C } from "./copy";
 
@@ -38,6 +38,19 @@ type Props = {
   children?: ReactNode;
 };
 
+type Searched = { address: string; zip: string };
+
+/** The lookup as /api/sales takes it: the house number, the street and the ZIP, or what's missing. */
+function toQuery(a: string, z: string): { query: URLSearchParams; searched: Searched } | { error: string } {
+  const address = a.trim().replace(/\s+/g, " ").slice(0, 90);
+  const zip = z.trim().slice(0, 5);
+  const { number, street } = parseHouseNumber(address);
+  if (!number) return { error: C.form.needNumber };
+  if (street.length < 2) return { error: C.form.needStreet };
+  if (!/^\d{5}$/.test(zip)) return { error: C.form.needZip };
+  return { query: new URLSearchParams({ street, zip, number }), searched: { address, zip } };
+}
+
 /** The address as the seller typed it, tidied: "9403 9th Ave NW, 34209" (a pasted city, state or ZIP is dropped). */
 function displayAddress(address: string, zip: string) {
   const { number, street } = parseHouseNumber(address);
@@ -59,74 +72,47 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [state, setState] = useState<{ status: "idle" | "loading" | "done" | "error"; data?: Api; searched?: { address: string; zip: string } }>({ status: "idle" });
   // The ask form's address and message are a snapshot of the last completed lookup, so typing never remounts the form.
   const [sent, setSent] = useState<{ address: string; message: string } | null>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const abort = useRef<AbortController | null>(null);
-
-  async function run(a: string, z: string) {
-    const addressValue = a.trim().replace(/\s+/g, " ").slice(0, 90);
-    const zipValue = z.trim().slice(0, 5);
-    const { number, street } = parseHouseNumber(addressValue);
-    if (!number) return setFormError(C.form.needNumber);
-    if (street.length < 2) return setFormError(C.form.needStreet);
-    if (!/^\d{5}$/.test(zipValue)) return setFormError(C.form.needZip);
-    setFormError(null);
-    abort.current?.abort();
-    const controller = new AbortController();
-    abort.current = controller;
-    const searched = { address: addressValue, zip: zipValue };
-    setState({ status: "loading", searched });
-    track("Explore", { action: "home-value" });
-    const params = new URLSearchParams({ street, zip: zipValue, number });
-    try {
-      const res = await fetch(`/api/sales?${params}`, { signal: controller.signal });
-      const data = (await res.json()) as Api;
-      // 400s and the 503 "not loaded" answer are states the page explains; anything else is an error.
-      const settled = data.ok || res.status === 400 || res.status === 503;
-      setState({ status: settled ? "done" : "error", data, searched });
-      if (data.ok || res.status === 400) {
-        const shown = displayAddress(addressValue, zipValue);
-        const lines = [C.ask.messageIntro(shown)];
-        if (data.ok) {
-          lines.push(streetLine(data, months));
-          const last = data.parcel?.rows[0];
-          lines.push(last ? C.ask.messageParcel(fmtDate(last.saleDate), usd.format(last.salePrice), last.livingArea ? int.format(last.livingArea) : null, last.yearBuilt) : C.ask.messageNoParcel);
-        }
-        setSent({ address: shown, message: lines.join("\n") });
-      }
-      const url = new URL(window.location.href);
-      url.searchParams.set("address", addressValue);
-      url.searchParams.set("zip", zipValue);
-      window.history.replaceState(null, "", url);
-    } catch (e) {
-      if ((e as Error).name === "AbortError") return;
-      setState({ status: "error", searched });
-    }
-  }
-
-  // A shared link carries the address in the URL; run it once on load.
-  useEffect(() => {
-    if (!loaded) return;
-    const p = new URLSearchParams(window.location.search);
-    const a = p.get("address") ?? "";
-    const z = p.get("zip") ?? "";
-    if (a) {
+  const { state, run: lookup, resultsRef } = useSalesLookup<Api, Searched>({
+    action: "home-value",
+    // A link that carries an address (/sell/home-value?address=…&zip=…) runs it on arrival.
+    fromLink: (p) => {
+      if (!loaded) return null;
+      const a = p.get("address") ?? "";
+      if (!a) return null;
+      const z = p.get("zip") ?? "";
       setAddress(a);
       setZip(z);
-      void run(a, z);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded]);
+      const q = toQuery(a, z);
+      if ("error" in q) {
+        setFormError(q.error);
+        return null;
+      }
+      return q;
+    },
+    onAsk: (data, searched) => {
+      const shown = displayAddress(searched.address, searched.zip);
+      const lines = [C.ask.messageIntro(shown)];
+      if (data.ok) {
+        lines.push(streetLine(data, months));
+        const last = data.parcel?.rows[0];
+        lines.push(last ? C.ask.messageParcel(fmtDate(last.saleDate), usd.format(last.salePrice), last.livingArea ? int.format(last.livingArea) : null, last.yearBuilt) : C.ask.messageNoParcel);
+      }
+      setSent({ address: shown, message: lines.join("\n") });
+    },
+  });
 
-  useEffect(() => {
-    if (state.status === "done" || state.status === "error") resultsRef.current?.focus();
-  }, [state.status]);
+  function run(a: string, z: string) {
+    const q = toQuery(a, z);
+    if ("error" in q) return setFormError(q.error);
+    setFormError(null);
+    void lookup(q.query, q.searched);
+  }
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    void run(address, zip);
+    run(address, zip);
   }
 
   const data = state.status === "done" && state.data?.ok ? state.data : null;

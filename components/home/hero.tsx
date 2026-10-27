@@ -3,6 +3,7 @@ import { MotionToggle } from "@/components/motion-toggle";
 import { Photo } from "@/components/photo";
 import type { ImageRef, TeamMember } from "@/lib/content/types";
 import { site } from "@/lib/site";
+import { HOME_HERO_SIZES } from "@/lib/image-sizes";
 
 /**
  * The hero. The photograph is the layout: type sits in the calm third of
@@ -23,7 +24,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
       <div className="relative overflow-hidden bg-paper lg:h-[780px] lg:bg-navy">
         {/* Photograph */}
         <div className="relative aspect-[3/2] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
-          <Photo image={image} priority sizes="(min-width: 1024px) 1248px, 100vw" className="hero-img" />
+          <Photo image={image} priority sizes={HOME_HERO_SIZES} className="hero-img" />
           <div className="hero-shade" aria-hidden="true" />
 
           {/* Cameo: the photograph and the names are one link to the team page. The

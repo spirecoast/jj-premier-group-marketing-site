@@ -15,6 +15,12 @@
   --stack-display:
     "IvyPresto Headline", var(--font-newsreader, "Newsreader"), "Frank Ruhl Libre",
     Georgia, serif;
+  /* Italic display type. Newsreader's italic is its own family (app/layout.tsx),
+     loaded only where italic display type is on the page; the roman follows it
+     so a missing italic falls back to the slanted roman, never to Georgia. */
+  --stack-display-italic:
+    "IvyPresto Headline", var(--font-newsreader-italic, "Newsreader"),
+    var(--font-newsreader, "Newsreader"), "Frank Ruhl Libre", Georgia, serif;
   --stack-wordmark:
     "Contralto", var(--font-cormorant, "Cormorant Garamond"), Georgia, serif;
   --stack-body: var(--font-jost, "Jost"), Helvetica, Arial, sans-serif;

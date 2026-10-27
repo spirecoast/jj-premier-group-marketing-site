@@ -6,10 +6,13 @@ import { MapUnavailable } from "@/components/map-unavailable";
 import { track } from "@/lib/analytics";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import { childrenOf, descendantsOf, pathOf, search, type Filters } from "@/lib/neighborhoods/search";
-import { explorerHref, type ExplorerState, type MapView } from "@/lib/neighborhoods/url";
+import { EXPLORER_KEYS, explorerAddress, explorerHref, parseState, type ExplorerState, type MapView } from "@/lib/neighborhoods/url";
 import { withRetry } from "@/lib/retry";
+import { useJsonResource } from "@/lib/use-json-resource";
+import { hasAny, replaceQuery, sessionMemory, useUrlInitial } from "@/lib/url-state";
 import type { Bounds, ExplorerMapProps, FitRequest } from "./explorer-map";
 import { ExplorerPanel, type SheetPosition } from "./explorer-panel";
+import "./explorer.css";
 
 /**
  * The map's code (MapLibre and all) loads as its own chunk. A chunk can fail on
@@ -63,9 +66,10 @@ function boundsOf(entries: IndexEntry[]): Bounds | null {
  * once from /api/neighborhoods/index and everything after is in memory.
  */
 export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerState; datasetVersion: string; asOf: string }) {
-  const [entries, setEntries] = useState<IndexEntry[] | null>(null);
-  const [loadError, setLoadError] = useState(false);
-  const [loadAttempt, setLoadAttempt] = useState(0);
+  const index = useJsonResource<{ entries: IndexEntry[] }>(`/api/neighborhoods/index?v=${encodeURIComponent(datasetVersion)}`);
+  const entries = index.data?.entries ?? null;
+  const loadError = index.error;
+  const retryLoad = index.retry;
   const [q, setQ] = useState(initial.q);
   const [filters, setFilters] = useState<Filters>(initial.filters);
   const [place, setPlace] = useState<string | null>(initial.place);
@@ -86,19 +90,6 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
-
-  useEffect(() => {
-    const ctrl = new AbortController();
-    setLoadError(false);
-    fetch(`/api/neighborhoods/index?v=${encodeURIComponent(datasetVersion)}`, { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: { entries: IndexEntry[] }) => setEntries(data.entries))
-      .catch((err) => {
-        if (err?.name !== "AbortError") setLoadError(true);
-      });
-    return () => ctrl.abort();
-  }, [datasetVersion, loadAttempt]);
-  const retryLoad = useCallback(() => setLoadAttempt((n) => n + 1), []);
 
   const by = useMemo(() => new Map((entries ?? []).map((e) => [e.s, e])), [entries]);
   const selected = place ? (by.get(place) ?? null) : null;
@@ -160,14 +151,22 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
     if (b) requestFit({ kind: "bounds", bounds: b, maxZoom: searching ? 14 : 12.5 });
   }, [entries, mapReady, fitKey, selected, childrenAll.length, results, searching, place, requestFit]);
 
-  // Keep the URL honest.
+  // The address follows the committed choices (filters, the selected place), once per change.
+  // The search words and the map's position stay in this tab (lib/url-state.ts), so Back to
+  // this page brings them back without a history write per keystroke or pan.
+  const firstUrl = useRef(true);
   useEffect(() => {
-    const t = setTimeout(() => {
-      const state: ExplorerState = { q, filters, place, map: view };
-      window.history.replaceState(window.history.state, "", explorerHref(state));
-    }, 250);
+    if (firstUrl.current) {
+      firstUrl.current = false;
+      return;
+    }
+    replaceQuery(explorerAddress({ filters, place }));
+  }, [filters, place]);
+  useEffect(() => {
+    const t = setTimeout(() => sessionMemory.write(MEMORY, { q, map: view }), 300);
     return () => clearTimeout(t);
-  }, [q, filters, place, view]);
+  }, [q, view, filters, place]);
+  const shareUrl = explorerHref({ q, filters, place, map: view });
 
   const select = useCallback(
     (slug: string | null) => {
@@ -194,7 +193,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
   const ancestors = selected ? pathOf(selected, by) : [];
 
   return (
-    <div className={`explorer ${desktop ? "is-desktop" : "is-mobile"}`} data-sheet={desktop ? undefined : sheet}>
+    <div className={`explorer ${desktop ? "is-desktop" : "is-mobile"}`} data-sheet={desktop ? undefined : sheet} data-url-island="">
       {/* Atlas's survey frame: ticks along the top and right of the map, as on a printed sheet. */}
       <span className="atlas-frame atlas-frame-top" aria-hidden="true" />
       <span className="atlas-frame atlas-frame-right" aria-hidden="true" />
@@ -236,6 +235,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
         onSelect={select}
         by={by}
         asOf={asOf}
+        shareUrl={shareUrl}
         desktop={desktop}
         sheet={sheet}
         onSheet={setSheet}
@@ -248,4 +248,26 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
       />
     </div>
   );
+}
+
+const MEMORY = "atlas";
+type Memory = { q: string; map: MapView | null };
+
+/** A link's view, plus what this tab remembers for this address (the search words and the map). Null when there is neither. */
+function viewFromUrl(sp: URLSearchParams): ExplorerState | null {
+  const mem = sessionMemory.read<Memory>(MEMORY);
+  if (!hasAny(sp, EXPLORER_KEYS) && !mem) return null;
+  const s = parseState(sp);
+  return { ...s, q: s.q || (typeof mem?.q === "string" ? mem.q.slice(0, 80) : ""), map: s.map ?? mem?.map ?? null };
+}
+
+const DEFAULT_VIEW: ExplorerState = { q: "", filters: {}, place: null, map: null };
+
+/**
+ * The explorer as the static page serves it: the default view on the server,
+ * then the view the address asks for, read once in the browser.
+ */
+export function ExplorerIsland({ datasetVersion, asOf }: { datasetVersion: string; asOf: string }) {
+  const { initial, key } = useUrlInitial(viewFromUrl, DEFAULT_VIEW);
+  return <Explorer key={key} initial={initial} datasetVersion={datasetVersion} asOf={asOf} />;
 }

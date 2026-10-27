@@ -5,7 +5,7 @@ import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, typ
 import { ButtonLink, RuleButton } from "@/components/ui/button";
 import { Chip, ChipGroup } from "@/components/ui/chip";
 import { Checkbox, Field, Input } from "@/components/ui/field";
-import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepFocus } from "@/components/ui/stepper";
+import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepDirection, useStepFocus } from "@/components/ui/stepper";
 import { LeadForm } from "@/components/lead-form";
 import { ShareButton } from "@/components/share-button";
 import { track } from "@/lib/analytics";
@@ -13,13 +13,19 @@ import { MARKETS, marketName } from "@/lib/content/markets";
 import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import { CATEGORY, CATEGORY_ORDER } from "@/lib/encore/categories";
 import type { EncoreIndex } from "@/lib/encore/index-format";
-import { MAX_DAYS, PRESETS, SHOWINGS, buildPlan, marketList, normalizeDates, planHref, planIcsHref, presetDates, type PlanDay, type PlanState } from "@/lib/encore/plan";
+import { localDay } from "@/lib/encore/day";
+import { MAX_DAYS, PLAN_DRAFT, PLAN_KEYS, PRESETS, SHOWINGS, buildPlan, marketList, normalizeDates, parsePlanState, planHref, planIcsHref, planSearch, presetDates, readPlanDraft, type PlanDay, type PlanDraft, type PlanState } from "@/lib/encore/plan";
 import { addDays, clock, longDay, weekdayShort, type Occ } from "@/lib/encore/select";
 import { encoreHref } from "@/lib/encore/url";
+import { scrollToTop } from "@/lib/scroll";
+import { SEASON_URL } from "@/lib/encore/index-format";
+import { useJsonResource } from "@/lib/use-json-resource";
+import { draft as store, hasAny, useStepHistory, useUrlInitial } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { NightOut } from "./night-out";
 import { SaveButton } from "./tile";
 import { useMyList } from "./use-my-list";
+import "./encore.css";
 
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const dayNum = (day: string) => Number(day.slice(8, 10));
@@ -36,20 +42,30 @@ const QUESTION_COUNT = 4;
  */
 export function VisitPlan({
   initial,
+  initialQuestion = 0,
+  initialForm,
   today,
   initialIndex,
+  sliceRange,
   trimmed: initialTrimmed,
   nearby,
 }: {
   initial: PlanState;
+  /** The question the form opens on (answers in progress bring a visitor back to theirs). */
+  initialQuestion?: number;
+  /** The form's answers, when they differ from the plan shown (answers in progress). */
+  initialForm?: PlanState;
   today: string;
   initialIndex: EncoreIndex;
+  /** The days the server's slice of the season covers; a plan outside them waits for the full season. */
+  sliceRange: [string, string];
   trimmed: boolean;
   nearby?: string[];
 }) {
-  const [index, setIndex] = useState<EncoreIndex>(initialIndex);
-  const [full, setFull] = useState(false);
-  const [draft, setDraft] = useState<PlanState>(initial);
+  const season = useJsonResource<EncoreIndex>(SEASON_URL);
+  const full = season.data !== null;
+  const index = season.data ?? initialIndex;
+  const [draft, setDraft] = useState<PlanState>(initialForm ?? initial);
   const [applied, setApplied] = useState<PlanState>(initial);
   const [trimmed, setTrimmed] = useState(initialTrimmed);
   // Zero on the server and at hydration, so both paint the same plan; set once mounted.
@@ -59,34 +75,52 @@ export function VisitPlan({
   const nearbyVenues = useMemo(() => new Set(nearby ?? []), [nearby]);
   // One pick's Nearby panel open at a time.
   const [openNear, setOpenNear] = useState<string | null>(null);
-  // The form asks one question at a time; after a move the question takes focus.
-  const [q, setQ] = useState(0);
+  // The form asks one question at a time. Each is a history entry, so the browser's Back returns to
+  // the one before; after a move the question takes focus and comes back into view under the header.
+  const [q, setQ] = useState(initialQuestion);
   const qTitle = useStepFocus<HTMLHeadingElement>(q);
-  const go = (n: number) => setQ(Math.max(0, Math.min(QUESTION_COUNT - 1, n)));
+  const dir = useStepDirection(q);
+  const steps = useStepHistory<number>("planner", initialQuestion, setQ);
+  const go = (n: number) => {
+    const next = Math.max(0, Math.min(QUESTION_COUNT - 1, n));
+    if (next === q) return;
+    setQ(next);
+    steps.push(next);
+  };
+  const goBack = () => {
+    const prev = Math.max(0, q - 1);
+    if (steps.back((before) => before === prev)) return;
+    setQ(prev);
+    steps.replace(prev);
+  };
 
+  useEffect(() => setNowMs(Date.now()), []);
+
+  // The answers in progress are kept in this browser on every change (from the first change).
+  const keep = useRef(false);
   useEffect(() => {
-    setNowMs(Date.now());
-    const ctrl = new AbortController();
-    fetch("/api/encore/index", { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: EncoreIndex) => {
-        setIndex(data);
-        setFull(true);
-      })
-      .catch(() => {});
-    return () => ctrl.abort();
-  }, []);
+    if (!keep.current) {
+      keep.current = true;
+      return;
+    }
+    store.write(PLAN_DRAFT, { search: planSearch(draft), q } satisfies PlanDraft);
+  }, [draft, q]);
 
-  // After a build the URL follows the plan and the build is an Explore event.
-  // Not on mount: the landing URL (and its utm_* params) stays as it came.
+  // After a build the URL follows the plan (the form's last step becomes the plan's
+  // canonical link) and the build is an Explore event. Not on mount: the landing URL
+  // (and its utm_* params) stays as it came.
   const built = useRef(false);
   useEffect(() => {
     if (!built.current) return;
-    window.history.replaceState(window.history.state, "", planHref(applied));
+    steps.replace(q, planHref(applied));
     track("Explore", { action: "visit-plan" });
+    // Only a new plan writes the address.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applied]);
 
   const plan = useMemo(() => buildPlan(index, applied, today, nowMs), [index, applied, today, nowMs]);
+  // The server's slice covers its default dates; other dates wait for the full season.
+  const covered = full || (applied.from >= sliceRange[0] && applied.to <= sliceRange[1]);
   const nights = plan.days.length;
   const all = plan.days.flatMap((d) => [...(d.matinee ? [d.matinee] : []), ...d.picks]);
   const picked = all.length;
@@ -105,7 +139,7 @@ export function VisitPlan({
     setTrimmed(dates.trimmed);
     built.current = true;
     setApplied(next);
-    requestAnimationFrame(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    requestAnimationFrame(() => scrollToTop(document.getElementById("plan")));
   }
   const toggleMarket = (m: MarketSlug) => setDraft((d) => ({ ...d, markets: d.markets.includes(m) ? d.markets.filter((x) => x !== m) : [...d.markets, m] }));
   const toggleCat = (c: EventCategory) => setDraft((d) => ({ ...d, categories: d.categories.includes(c) ? d.categories.filter((x) => x !== c) : [...d.categories, c] }));
@@ -138,14 +172,14 @@ export function VisitPlan({
   }, [origin, askProse, applied]);
 
   return (
-    <div className="encore">
+    <div className="encore" data-url-island="">
       {/* The form: who, when, where, what. */}
       <section className="bg-parchment py-8 sm:py-section" aria-labelledby="plan-inputs-title">
         <div className="container-site">
           <StepCard as="form" onSubmit={build} className="p-6" aria-labelledby="plan-inputs-title">
             <StepProgress step={q + 1} total={QUESTION_COUNT} tone="encore" />
 
-            <StepBody stepKey={q} className="min-h-[260px] gap-7">
+            <StepBody stepKey={q} dir={dir} className="min-h-[260px] gap-7">
               <div className="flex flex-col gap-3">
                 <StepTitle id="plan-inputs-title" ref={qTitle}>
                   {q === 0 ? "Who’s it for?" : q === 1 ? (visiting ? "When are you visiting?" : "Which days?") : q === 2 ? (visiting ? "Where do you want to look?" : "Where would you go?") : "What do you like?"}
@@ -240,7 +274,7 @@ export function VisitPlan({
             </StepBody>
 
             <StepFooter
-              back={q > 0 ? { label: "Back", onClick: () => go(q - 1) } : undefined}
+              back={q > 0 ? { label: "Back", onClick: goBack } : undefined}
               next={q < QUESTION_COUNT - 1 ? { label: "Next", onClick: () => go(q + 1) } : { label: "Build my plan" }}
               submit={q === QUESTION_COUNT - 1}
               aside={
@@ -256,89 +290,95 @@ export function VisitPlan({
       </section>
 
       {/* The plan: a summary, the days at a glance, then each day. */}
-      <section id="plan" className="container-site flex scroll-mt-header flex-col gap-10 py-section" aria-labelledby="plan-days-title">
-        <div className="encore-stage flex flex-col gap-8 px-5 py-8 sm:p-10">
-          <div className="relative grid items-end gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
-            <div className="flex flex-col gap-3">
-              <p className="t-body text-encore">{nights === 1 ? longDay(applied.from) : `${longDay(applied.from)} to ${longDay(applied.to)}`}</p>
-              <h2 id="plan-days-title" className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white" aria-live="polite">
-                <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] font-light leading-none tabular-nums">{picked}</span>
-                <span className="t-h1">
-                  {picked === 1 ? "pick" : "picks"} over {nights === 1 ? "one day" : `${nights} days`}
-                </span>
-              </h2>
-              <p className="t-body text-white/75">
-                {picked
-                  ? `At ${venues} ${venues === 1 ? "venue" : "venues"}, with no show twice.${applied.local ? "" : " Ten to four is held for showings."}`
-                  : "Encore has nothing timed on these dates yet. Venues add dates through the season, so check back closer to the day."}
-              </p>
-            </div>
-            {mix.length ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex h-3 w-full gap-0.5 overflow-hidden bg-white/10" aria-hidden="true">
-                  {mix.map(({ c, n }) => (
-                    <span key={c} className="h-full" style={{ width: `${(n / picked) * 100}%`, background: CATEGORY[c].color }} />
-                  ))}
+      <section id="plan" className="container-site flex scroll-mt-header flex-col gap-10 py-section" aria-labelledby="plan-days-title" aria-busy={!covered}>
+        {!covered ? (
+          <SeasonWait error={season.error} onRetry={season.retry} />
+        ) : (
+          <>
+            <div className="encore-stage flex flex-col gap-8 px-5 py-8 sm:p-10">
+              <div className="relative grid items-end gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+                <div className="flex flex-col gap-3">
+                  <p className="t-body text-encore">{nights === 1 ? longDay(applied.from) : `${longDay(applied.from)} to ${longDay(applied.to)}`}</p>
+                  <h2 id="plan-days-title" className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white" aria-live="polite">
+                    <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] font-light leading-none tabular-nums">{picked}</span>
+                    <span className="t-h1">
+                      {picked === 1 ? "pick" : "picks"} over {nights === 1 ? "one day" : `${nights} days`}
+                    </span>
+                  </h2>
+                  <p className="t-body text-white/75">
+                    {picked
+                      ? `At ${venues} ${venues === 1 ? "venue" : "venues"}, with no show twice.${applied.local ? "" : " Ten to four is held for showings."}`
+                      : "Encore has nothing timed on these dates yet. Venues add dates through the season, so check back closer to the day."}
+                  </p>
                 </div>
-                <ul className="flex flex-wrap gap-x-5 gap-y-2" aria-label="What’s in the plan">
-                  {mix.map(({ c, n }) => (
-                    <li key={c} className="t-small inline-flex items-center gap-2 text-white/85">
-                      <span className="size-2.5" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
-                      {CATEGORY[c].label} <span className="tabular-nums text-white/55">{n}</span>
-                    </li>
-                  ))}
-                </ul>
+                {mix.length ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex h-3 w-full gap-0.5 overflow-hidden bg-white/10" aria-hidden="true">
+                      {mix.map(({ c, n }) => (
+                        <span key={c} className="h-full" style={{ width: `${(n / picked) * 100}%`, background: CATEGORY[c].color }} />
+                      ))}
+                    </div>
+                    <ul className="flex flex-wrap gap-x-5 gap-y-2" aria-label="What’s in the plan">
+                      {mix.map(({ c, n }) => (
+                        <li key={c} className="t-small inline-flex items-center gap-2 text-white/85">
+                          <span className="size-2.5" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
+                          {CATEGORY[c].label} <span className="tabular-nums text-white/55">{n}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
+
+              {nights > 1 ? (
+                <nav aria-label="Days in the plan" className="relative">
+                  <ol className="plan-strip">
+                    {plan.days.map((d) => {
+                      const picks = [...(d.matinee ? [d.matinee] : []), ...d.picks];
+                      return (
+                        <li key={d.day}>
+                          <a href={`#day-${d.day}`} className={cn("plan-strip-day", d.weekend && "is-weekend")}>
+                            <span className="t-small text-white/60">{weekdayShort(d.day)}</span>
+                            <span className="font-display text-[1.75rem] font-light leading-none text-white tabular-nums">{dayNum(d.day)}</span>
+                            <span className="text-[11px] uppercase tracking-[0.12em] text-encore">{monthShort(d.day)}</span>
+                            <span className="mt-1 flex h-2 gap-1">
+                              <span className="sr-only">
+                                {picks.length} {picks.length === 1 ? "pick" : "picks"}
+                              </span>
+                              {picks.map((o) => (
+                                <span key={`${o.e.s}-${o.start}`} className="size-2" style={{ background: CATEGORY[o.e.c].color }} aria-hidden="true" />
+                              ))}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </nav>
+              ) : null}
+            </div>
+
+            <div className="plan-days">
+              {plan.days.map((d, i) => (
+                <DayCard
+                  key={d.day}
+                  d={d}
+                  n={i + 1}
+                  today={today}
+                  local={applied.local}
+                  has={my.has}
+                  toggle={my.toggle}
+                  near={{ venues: nearbyVenues, open: openNear, setOpen: setOpenNear }}
+                />
+              ))}
+            </div>
+            {!full ? (
+              <p className="sr-only" aria-live="polite">
+                Loading the full season
+              </p>
             ) : null}
-          </div>
-
-          {nights > 1 ? (
-            <nav aria-label="Days in the plan" className="relative">
-              <ol className="plan-strip">
-                {plan.days.map((d) => {
-                  const picks = [...(d.matinee ? [d.matinee] : []), ...d.picks];
-                  return (
-                    <li key={d.day}>
-                      <a href={`#day-${d.day}`} className={cn("plan-strip-day", d.weekend && "is-weekend")}>
-                        <span className="t-small text-white/60">{weekdayShort(d.day)}</span>
-                        <span className="font-display text-[1.75rem] font-light leading-none text-white tabular-nums">{dayNum(d.day)}</span>
-                        <span className="text-[11px] uppercase tracking-[0.12em] text-encore">{monthShort(d.day)}</span>
-                        <span className="mt-1 flex h-2 gap-1">
-                          <span className="sr-only">
-                            {picks.length} {picks.length === 1 ? "pick" : "picks"}
-                          </span>
-                          {picks.map((o) => (
-                            <span key={`${o.e.s}-${o.start}`} className="size-2" style={{ background: CATEGORY[o.e.c].color }} aria-hidden="true" />
-                          ))}
-                        </span>
-                      </a>
-                    </li>
-                  );
-                })}
-              </ol>
-            </nav>
-          ) : null}
-        </div>
-
-        <div className="plan-days">
-          {plan.days.map((d, i) => (
-            <DayCard
-              key={d.day}
-              d={d}
-              n={i + 1}
-              today={today}
-              local={applied.local}
-              has={my.has}
-              toggle={my.toggle}
-              near={{ venues: nearbyVenues, open: openNear, setOpen: setOpenNear }}
-            />
-          ))}
-        </div>
-        {!full ? (
-          <p className="sr-only" aria-live="polite">
-            Loading the full season
-          </p>
-        ) : null}
+          </>
+        )}
         <p className="t-note">Times and prices come from each venue’s own listing. Check with the venue before you go.</p>
       </section>
 
@@ -570,3 +610,63 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
     </li>
   );
 }
+
+/** The plan's place while the season it needs is on its way, or, if it didn't come, why and a retry. */
+function SeasonWait({ error, onRetry }: { error: boolean; onRetry: () => void }) {
+  return (
+    <div className="encore-stage flex min-h-[320px] flex-col justify-center gap-4 px-5 py-8 text-white sm:p-10" role="status">
+      {error ? (
+        <>
+          <p className="t-h3">The season didn’t load, so there’s no plan for these dates yet.</p>
+          <RuleButton onClick={onRetry} className="self-start text-white">
+            Try again
+          </RuleButton>
+        </>
+      ) : (
+        <>
+          <p className="t-body text-white/75">Loading the season for these dates…</p>
+          <span className="block h-9 w-2/3 animate-pulse bg-white/10" aria-hidden="true" />
+          <span className="block h-4 w-1/2 animate-pulse bg-white/10" aria-hidden="true" />
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The planner as the static page serves it: the coming weekend from the
+ * server, then a plan link's dates, or the answers in progress, on the
+ * browser's date.
+ */
+export function VisitPlanIsland({ serverToday, initialIndex, nearby }: { serverToday: string; initialIndex: EncoreIndex; nearby?: string[] }) {
+  const server = parsePlanState({}, serverToday);
+  const { initial, key } = useUrlInitial(
+    (sp): Start | null => {
+      const today = localDay(Date.now());
+      if (hasAny(sp, PLAN_KEYS)) return { today, ...parsePlanState(sp, today), question: 0 };
+      const saved = readPlanDraft(store.read<unknown>(PLAN_DRAFT));
+      if (saved) {
+        const { state, trimmed } = parsePlanState(new URLSearchParams(saved.search), today);
+        // The plan below is the coming weekend; the form comes back as it was left.
+        return { today, state: parsePlanState({}, today).state, trimmed, question: saved.q, form: state };
+      }
+      return today === serverToday ? null : { today, ...parsePlanState({}, today), question: 0 };
+    },
+    { today: serverToday, ...server, question: 0 },
+  );
+  return (
+    <VisitPlan
+      key={key}
+      initial={initial.state}
+      initialForm={initial.form}
+      initialQuestion={initial.question}
+      today={initial.today}
+      initialIndex={initialIndex}
+      sliceRange={[server.state.from, server.state.to]}
+      trimmed={initial.trimmed}
+      nearby={nearby}
+    />
+  );
+}
+
+type Start = { today: string; state: PlanState; trimmed: boolean; question: number; form?: PlanState };
