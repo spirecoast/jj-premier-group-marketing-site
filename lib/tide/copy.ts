@@ -27,6 +27,19 @@ export const TIDE_WEB_COPY = {
   headlineFallback: "Home sales in {data}",
   dekFallback: "Here’s how Lakewood Ranch, Sarasota and Bradenton did, with every number from the county’s public record.",
   coverLine: "Figures for {data} from the county record · {minutes} min read",
+  /** "October issue · July figures": the cover says which month the numbers are. */
+  issueLine: "{issue} issue · {data} figures",
+  /** Each county file's reach when the figures were computed. */
+  throughRecords: "{county} records through {date}",
+  throughShort: "{county} through {date}",
+
+  /** The strip under the big figure: what the county has posted for the months since. */
+  sinceHeading: "Since then",
+  sinceNote: "Qualified sales posted so far, as of {asOf}. The bar is the share of a typical month.",
+  sinceToDate: "{month} to date",
+  sinceShare: "{pct}% of a typical month",
+  sinceNoTypical: "No typical month yet",
+  sincePartial: "partial: the county posts sales weeks late",
 
   storyEyebrow: "The story",
   aboutEyebrow: "About this issue",
@@ -139,6 +152,8 @@ export const TIDE_WEB_COPY = {
   description: "Tide for {issue}: how home sales went in {data} in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.",
 
   everyIssue: "Every issue of Tide",
+  /** On /tide while only one issue is out: the archive opens with the next one. */
+  nextIssue: "Next issue: {month}. Every issue stays here once the next one is out.",
   indexEyebrow: "Tide · Every issue",
   indexTitle: "Market Report",
   indexLead: "What homes sold for each month in Lakewood Ranch, Sarasota and Bradenton, and what it means for you.",

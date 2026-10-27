@@ -1476,22 +1476,20 @@ body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="f
    cover's photo, wash and ground; these set the letter's reading type.
    ----------------------------------------------------------------------------- */
 @layer components {
+  /* Running text at the site's body size (17/1.7) on the 660px measure: about
+     70 characters a line on desktop. Only the first paragraph under a chapter
+     title, and the story's opening paragraph, are set as a lead (19/1.6). */
   .tide-prose {
     font-family: var(--font-body);
-    font-size: 1.125rem;
-    line-height: 1.78;
+    font-size: 1.0625rem;
+    line-height: 1.7;
     color: var(--color-body);
-    @media (min-width: 64rem) {
-      font-size: 1.1875rem;
-    }
   }
-  .tide-story > p:first-child {
+  .tide-story > p:first-child,
+  .tide-chapter-story > p:first-child {
     font-size: 1.1875rem;
+    line-height: 1.6;
     color: var(--color-ink);
-    @media (min-width: 64rem) {
-      font-size: 1.3125rem;
-      line-height: 1.7;
-    }
   }
   /* The small cover on Tide's issue cards: dark enough at the top for the
      masthead and at the foot for the headline, clear in the middle. */
@@ -2014,7 +2012,15 @@ html:has([data-product-bar]) {
   .tide-contents-item:focus-visible { background: rgb(255 255 255 / 0.08); }
 }
 
-/* Tide: an empty place in the archive, kept for an issue still to come into it. */
+/* Tide's "Since then" strip: the bars settle over a card's beat; none for reduced motion. */
+.tide-since-bar {
+  transition: width var(--dur-card) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tide-since-bar { transition: none; }
+}
+
+/* Tide: an empty place in the archive, kept for sample previews and the print sheet (never on the public page). */
 .tide-slot {
   border: 1px dashed var(--color-rule);
   background: rgb(255 255 255 / 0.35);

@@ -17,6 +17,8 @@ import { buildIssueModel, type IssueMarket } from "./issue";
 import { TIDE_ISSUES, TIDE_MARKET_KEYS, narrativeTexts, tideNarrativeStrings, type TideIssueEntry } from "./issues";
 import { checkNarrative, closeEnough, issueFigures, matchFigure, writingFacts, writtenNumbers } from "./narrative";
 import { narrativeOf, noteSlots } from "./notes";
+import { snapshotFor } from "./snapshots";
+import { figureTokens, fillEntry, fillTokens, tokensIn } from "./tokens";
 
 /**
  * The narrative layer: the numbers in the hand-written story must be ones the
@@ -224,6 +226,74 @@ describe("the narrative check", () => {
   });
 });
 
+describe("the narrative's tokens", () => {
+  const tokens = figureTokens(MONTH);
+  it("names every figure the tiles, the charts and the bands show, formatted as the page formats it", () => {
+    assert.equal(tokens.get("bradenton.sales"), "793");
+    assert.equal(tokens.get("bradenton.prevSales"), "1,080");
+    assert.equal(tokens.get("lakewood-ranch.medianPrice"), "$625,000");
+    assert.equal(tokens.get("lakewood-ranch.vsTypicalPct"), "13%");
+    assert.equal(tokens.get("lakewood-ranch.vsTypicalWord"), "fewer");
+    assert.equal(tokens.get("sarasota.vsTypicalWord"), "more");
+    assert.equal(tokens.get("sarasota.ppsfVsTypicalPct"), "0%");
+    assert.equal(tokens.get("bradenton.lastYearMonth"), "July 2025");
+    assert.equal(tokens.get("bradenton.ppsfVsLastYearDir"), "up");
+    assert.equal(tokens.get("sarasota.sales.2026-06"), "717");
+    assert.equal(tokens.get("sarasota.highMonth"), "June 2026");
+    assert.equal(tokens.get("sarasota.lowMonth"), "July 2026");
+    assert.equal(tokens.get("sarasota.houses.median"), "$610,000");
+    assert.equal(tokens.get("sarasota.band.under400k"), "35%");
+    assert.equal(tokens.get("sarasota.band.1.5mUp"), "8%");
+    assert.equal(tokens.get("sarasota.over750k"), "27%");
+    assert.equal(tokens.get("bradenton.streets.1.name"), "Bradenton Main St");
+    assert.equal(tokens.get("bradenton.streets.1.sales"), "9");
+    assert.equal(tokens.get("all.sales"), "1,620");
+    assert.equal(tokens.get("all.vsTypicalPct"), "7%");
+    assert.equal(tokens.get("all.lastYearSales"), "1,500");
+    assert.equal(tokens.get("all.month"), "July");
+    assert.equal(tokens.get("all.monthYear"), "July 2026");
+    // Every percent is the size of the change: the sentence says which way.
+    for (const [k, v] of tokens) if (/Pct$/.test(k)) assert.doesNotMatch(v, /-/, k);
+  });
+  it("fills the tokens in a text and lists the ones that name nothing", () => {
+    assert.deepEqual(tokensIn("{all.sales} homes sold, {all.vsTypicalPct} more; {not.a.token}"), ["all.sales", "all.vsTypicalPct", "not.a.token"]);
+    const r = fillTokens("In July, {all.sales} homes sold, {all.vsTypicalPct} more than a typical month. {no.such}", tokens);
+    assert.equal(r.text, "In July, 1,620 homes sold, 7% more than a typical month. {no.such}");
+    assert.deepEqual(r.missing, ["no.such"]);
+    // Not a token: a brace without a dotted key, or a key the regex doesn't shape.
+    assert.deepEqual(tokensIn("{ok} {Sales} {all.}"), []);
+  });
+  it("fills every narrative field of an entry and leaves the signed notes alone", () => {
+    const e = entry({
+      coverTitle: "{all.sales} sales",
+      dek: "{all.vsTypicalPct} more.",
+      opening: ["Bradenton had {bradenton.sales}.", "Plain."],
+      markets: { sarasota: ["{sarasota.medianPrice} median."] },
+      marketMoves: { bradenton: "Under $400K, where {bradenton.band.under400k} sold." },
+      buying: [{ move: "Compare {all.month}.", why: "{missing.one} here.", link: { href: "/sell/sold", label: "Sales in {all.monthYear}" } }],
+      watch: ["{bradenton.typical} typical."],
+      commentary: { joelyn: ["Joelyn wrote {all.sales} herself."] },
+    });
+    const { entry: out, missing } = fillEntry(e, tokens);
+    assert.equal(out.coverTitle, "1,620 sales");
+    assert.equal(out.dek, "7% more.");
+    assert.deepEqual(out.opening, ["Bradenton had 793.", "Plain."]);
+    assert.deepEqual(out.markets?.sarasota, ["$530,000 median."]);
+    assert.equal(out.marketMoves?.bradenton, "Under $400K, where 50% sold.");
+    assert.equal(out.buying?.[0]?.move, "Compare July.");
+    assert.equal(out.buying?.[0]?.link?.label, "Sales in July 2026");
+    assert.deepEqual(out.watch, ["706 typical."]);
+    assert.deepEqual(missing, [{ field: "buying[0].why", token: "missing.one" }]);
+    assert.deepEqual(out.commentary, e.commentary, "a signed note is never filled");
+    assert.equal(e.coverTitle, "{all.sales} sales", "the entry passed in is untouched");
+  });
+  it("passes the number check once filled, since every token is a figure the issue computes", () => {
+    const e = entry({ opening: ["In July, {all.sales} homes sold, {all.vsTypicalPct} more than a typical month of {all.typical}. Bradenton had {bradenton.sales}, {bradenton.vsTypicalPct} more than its typical {bradenton.typical}."] });
+    const { entry: out } = fillEntry(e, tokens);
+    assert.deepEqual(checkNarrative(out, MONTH), []);
+  });
+});
+
 describe("the facts to write from", () => {
   const facts = writingFacts(MONTH);
   it("leads with the largest change against a typical month", () => {
@@ -299,6 +369,24 @@ describe("the narratives in lib/tide/issues.ts", () => {
   const strings = tideNarrativeStrings();
   const PEOPLE = /\b(famil(y|ies)|kids|children|retirees?|retired|seniors?|young professionals?|millennials|boomers|snowbirds?|empty nesters?|couples?|singles)\b/i;
 
+  // The county sales as deployed, and each issue's model built from them (or
+  // from its frozen snapshot, as the page builds it): the words with every
+  // token filled, which is what a reader sees and what the checks run over.
+  const loaded = (() => {
+    const dir = path.join(process.cwd(), "data", "sales");
+    const manifest = JSON.parse(readFileSync(path.join(dir, "manifest.json"), "utf8")) as { generatedAt: string; counties: Record<string, { label: string; to: string | null; from: string | null; file: string }> };
+    const sales = Object.values(manifest.counties).flatMap((c) => JSON.parse(gunzipSync(readFileSync(path.join(dir, c.file))).toString("utf8")) as Sale[]);
+    const tideManifest = { generatedAt: manifest.generatedAt, counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c.label, to: c.to, from: c.from }])) };
+    return { sales, tideManifest };
+  })();
+  /** Each written issue the data (or a snapshot) can build, with its model: the page's words. */
+  const built = TIDE_ISSUES.filter((e) => narrativeOf(e)).flatMap((e) => {
+    const figures = snapshotFor(e.issue);
+    const model = buildIssueModel({ entry: e, sales: loaded.sales, manifest: loaded.tideManifest, posts: [], figures });
+    // An issue the 24-month data window no longer reaches is a 404 on the site: nothing to check it against.
+    return model.markets.every((m) => m.stats.count === 0) ? [] : [{ entry: e, model, filled: model.narrativeEntry }];
+  });
+
   it("pass the voice rules, Fair Housing, and the issue rules", () => {
     for (const { where, text } of strings) {
       assert.deepEqual(aiTells(text), [], `${where}: ${text}`);
@@ -312,7 +400,7 @@ describe("the narratives in lib/tide/issues.ts", () => {
     }
   });
   it("keep the shape of each field that's written", () => {
-    for (const e of TIDE_ISSUES) {
+    for (const { filled: e } of built) {
       const n = narrativeOf(e);
       if (!n) continue;
       const count = (ps: string[]) => (ps.length ? readability(ps).sentences : 0);
@@ -360,9 +448,7 @@ describe("the narratives in lib/tide/issues.ts", () => {
     }
   });
   it("read at about a sixth-grade level, with no sentence over 24 words", () => {
-    for (const e of TIDE_ISSUES) {
-      const n = narrativeOf(e);
-      if (!n) continue;
+    for (const { filled: e } of built) {
       const r = readability(narrativeTexts(e).map((t) => t.text));
       assert.ok(r.grade <= 6.5, `${e.issue}: grade ${r.grade}`);
       assert.ok(r.longest.words <= 24, `${e.issue}: “${r.longest.text}” is ${r.longest.words} words`);
@@ -374,19 +460,27 @@ describe("the narratives in lib/tide/issues.ts", () => {
   });
 
   it("use only numbers the issue computes from the county record, within rounding", () => {
-    const dir = path.join(process.cwd(), "data", "sales");
-    const manifest = JSON.parse(readFileSync(path.join(dir, "manifest.json"), "utf8")) as { generatedAt: string; counties: Record<string, { label: string; to: string | null; from: string | null; file: string }> };
-    const sales = Object.values(manifest.counties).flatMap((c) => JSON.parse(gunzipSync(readFileSync(path.join(dir, c.file))).toString("utf8")) as Sale[]);
-    const tideManifest = { generatedAt: manifest.generatedAt, counties: Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, { label: c.label, to: c.to, from: c.from }])) };
-    let checked = 0;
-    for (const e of TIDE_ISSUES) {
-      if (!narrativeOf(e)) continue;
-      const model = buildIssueModel({ entry: e, sales, manifest: tideManifest, posts: [] });
-      // An issue the 24-month data window no longer reaches is a 404 on the site: nothing to check it against.
-      if (model.markets.every((m) => m.stats.count === 0)) continue;
-      assert.deepEqual(checkNarrative(e, model), [], `${e.issue}: a number in the narrative isn't one the page computes. Rewrite it from the page's figures (docs/ISSUES.md).`);
-      checked += 1;
+    for (const { entry: e, model } of built) {
+      assert.deepEqual(model.missingTokens, [], `${e.issue}: a token in the narrative names no figure (lib/tide/tokens.ts lists them)`);
+      assert.deepEqual(checkNarrative(model.narrativeEntry, model), [], `${e.issue}: a number in the narrative isn't one the page computes. Write it as a token, or rewrite it from the page's figures (docs/ISSUES.md).`);
+      assert.doesNotMatch(JSON.stringify(narrativeTexts(model.narrativeEntry)), /\{[a-z][a-z0-9-]*(?:\.[a-zA-Z0-9-]+)+\}/, `${e.issue}: a token was left unfilled`);
     }
-    assert.ok(checked >= 1, "at least one written narrative is checked against the data");
+    assert.ok(built.length >= 1, "at least one written narrative is checked against the data");
+  });
+  it("keep a published issue's figures frozen: the snapshot and the entry agree on the data month and the figures fill every token", () => {
+    for (const e of TIDE_ISSUES) {
+      const snap = snapshotFor(e.issue);
+      if (!snap) continue;
+      assert.equal(snap.issue, e.issue);
+      assert.equal(snap.schema, 1);
+      if (e.data) assert.equal(snap.dataMonth, e.data, `${e.issue}: the snapshot covers ${snap.dataMonth} but the entry pins ${e.data}`);
+      assert.equal(snap.markets.length, 3);
+      assert.ok(Object.values(snap.manifest.counties).every((c) => c?.to), `${e.issue}: the snapshot records each county's through-date`);
+      const model = buildIssueModel({ entry: e, sales: [], manifest: snap.manifest, posts: [], figures: snap });
+      assert.equal(model.frozen, true);
+      assert.equal(model.combined.count, snap.combined.count);
+      assert.deepEqual(model.missingTokens, []);
+      assert.equal(model.sinceThen, null, "with no sales passed in there is nothing since then");
+    }
   });
 });

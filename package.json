@@ -26,6 +26,7 @@
     "nbhd:discover": "node neighborhood-data/scripts/discover.mjs",
     "sales:ingest": "node scripts/sales/ingest.mjs",
     "issue:preview": "tsx --conditions=react-server scripts/issue-preview.mjs",
+    "tide:freeze": "tsx --conditions=react-server scripts/tide-freeze.mjs",
     "guides:pdf": "node scripts/guides-pdf.mjs",
     "predev": "node scripts/copy-maplibre-worker.mjs",
     "prebuild": "node scripts/copy-maplibre-worker.mjs && node scripts/check-copy.mjs",
