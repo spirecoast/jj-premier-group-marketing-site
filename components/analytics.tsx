@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { WebVitals } from "@/components/web-vitals";
 import { sideEffectsAllowed } from "@/lib/deploy-env";
 
 /**
@@ -12,6 +13,9 @@ import { sideEffectsAllowed } from "@/lib/deploy-env";
  * docs/MEASUREMENT.md, and section 3 there lists every goal to add in the
  * Plausible dashboard. The lead pipeline also sends a separate "Lead server"
  * goal from the server (lib/plausible-server.ts) as an ad-blocker backstop.
+ *
+ * Real visitors' Web Vitals go to the same Plausible site as the "Web Vitals"
+ * goal, from a sample of page loads (components/web-vitals.tsx).
  *
  * Home Platform's lead pixel is a separate script (components/home-platform-pixel.tsx).
  */
@@ -30,6 +34,7 @@ export function Analytics() {
       <Script id="plausible-init" strategy="afterInteractive">
         {`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)};`}
       </Script>
+      <WebVitals domain={plausible} host={plausibleHost} />
     </>
   );
 }
