@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useStepDirection } from "@/components/ui/stepper";
 import { track } from "@/lib/analytics";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
-import { EMPTY_ANSWERS, MATCH_DRAFT, MATCH_KEYS, QUESTIONS, answeredIds, matchAll, matchHref, parseMatch, type Answers, type MatchState } from "@/lib/neighborhoods/match";
+import { EMPTY_ANSWERS, MATCH_DRAFT, MATCH_KEYS, QUESTIONS, QUESTION_IDS, answeredIds, coverage, deferredIds, flowOf, matchAll, matchHref, parseMatch, questionIndex, type Answers, type MatchState, type QuestionId } from "@/lib/neighborhoods/match";
 import { revealStep } from "@/lib/scroll";
 import { useJsonResource } from "@/lib/use-json-resource";
 import { draft, hasAny, replaceQuery, useStepHistory, useUrlInitial } from "@/lib/url-state";
@@ -37,6 +37,10 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
   const areas = useMemo(() => (entries ?? []).filter((e) => e.l === "area" && e.x !== null && e.y !== null).sort((a, b) => a.n.localeCompare(b.n)), [entries]);
   const matches = useMemo(() => (entries ? matchAll(entries, answers, by) : null), [entries, answers, by]);
   const count = matches ? { total: matches.length, confirmed: matches.filter((m) => m.confirmed).length } : null;
+  /* How much of the catalog holds each fact, and which questions wait behind "More questions" for thin coverage. */
+  const coverages = useMemo(() => Object.fromEntries(QUESTION_IDS.map((id) => [id, entries ? coverage(entries, id, answers.registry) : null])) as Record<QuestionId, ReturnType<typeof coverage>>, [entries, answers.registry]);
+  const deferred = useMemo(() => deferredIds(entries, answers.registry), [entries, answers.registry]);
+  const flow = useMemo(() => flowOf(deferred), [deferred]);
 
   // Answers in progress, kept in this browser on every change.
   useEffect(() => {
@@ -84,8 +88,12 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
     history.replace({ answers, step: to }, matchHref({ answers, step: to }));
   };
 
-  const total = QUESTIONS.length;
+  const total = flow.length;
   const question = step !== null ? QUESTIONS[step - 1] : undefined;
+  /* Where this question sits in the main flow; a deferred one has no place in it and goes back to the list. */
+  const at = question ? flow.indexOf(question.id) : -1;
+  const nextStep = at >= 0 && at < flow.length - 1 ? questionIndex(flow[at + 1]!) + 1 : null;
+  const prevStep = at > 0 ? questionIndex(flow[at - 1]!) + 1 : 1;
 
   return (
     <div ref={root} className="scroll-mt-header flex flex-col gap-8" aria-busy={!entries && !loadError} data-url-island="">
@@ -101,17 +109,18 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
         <MatchQuestion
           key={question.id}
           question={question}
-          number={step!}
+          number={at >= 0 ? at + 1 : null}
           total={total}
+          coverage={coverages[question.id]}
           answers={answers}
           onAnswers={setAnswers}
           areas={areas}
           count={count}
           moved={moved.current}
           dir={dir}
-          onBack={() => back(Math.max(1, step! - 1))}
-          onSkip={() => go(step! < total ? step! + 1 : null)}
-          onNext={() => go(step! < total ? step! + 1 : null)}
+          onBack={at > 0 ? () => back(prevStep) : at < 0 ? () => go(null) : undefined}
+          onSkip={() => go(nextStep)}
+          onNext={() => go(nextStep)}
         />
       ) : matches ? (
         <MatchResults
@@ -120,6 +129,7 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
           matches={matches}
           by={by}
           asOf={asOf}
+          more={deferred.map((id) => ({ id, coverage: coverages[id] }))}
           onEdit={(s) => go(s)}
           onRestart={() => {
             setAnswers(EMPTY_ANSWERS);

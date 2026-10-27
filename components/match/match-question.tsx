@@ -16,7 +16,9 @@ import {
   WATER_LABEL,
   WATER_TYPES,
   answered,
+  coverageLine,
   type Answers,
+  type Coverage,
   type Build,
   type EvacPref,
   type Question,
@@ -31,14 +33,18 @@ const PointPicker = dynamic(() => import("./point-picker").then((m) => m.PointPi
 
 type Props = {
   question: Question;
-  number: number;
+  /** Where the question sits in the main flow, or null for one opened from "More questions" on the list. */
+  number: number | null;
   total: number;
+  /** How many of the places considered hold this fact (null for market: every place does). */
+  coverage: Coverage | null;
   answers: Answers;
   onAnswers: (a: Answers) => void;
   /** Area records with a point, for the distance question. */
   areas: IndexEntry[];
   onNext: () => void;
-  onBack: () => void;
+  /** Absent on the first question. */
+  onBack?: () => void;
   onSkip: () => void;
   count: { total: number; confirmed: number } | null;
   /** True once the visitor has moved between questions, so the new one takes focus. */
@@ -48,7 +54,7 @@ type Props = {
 };
 
 /** One question, one screen. The count at the bottom moves as the answer changes. */
-export function MatchQuestion({ question: q, number, total, answers, onAnswers, areas, onNext, onBack, onSkip, count, moved = false, dir = "next" }: Props) {
+export function MatchQuestion({ question: q, number, total, coverage, answers, onAnswers, areas, onNext, onBack, onSkip, count, moved = false, dir = "next" }: Props) {
   const uid = useId();
   const isAnswered = answered(answers, q.id);
   const strict = answers.strict.includes(q.id);
@@ -56,17 +62,25 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
     onAnswers({ ...answers, strict: on ? answers.strict.filter((s) => s !== q.id) : [...new Set([...answers.strict, q.id])] });
   const set = (patch: Partial<Answers>) => onAnswers({ ...answers, ...patch });
   const toggle = <T,>(xs: T[], x: T) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
-  const titleRef = useStepFocus<HTMLHeadingElement>(number, moved);
+  const titleRef = useStepFocus<HTMLHeadingElement>(q.id, moved);
+  const held = coverageLine(coverage, q.id);
+  const last = number !== null && number === total;
 
   return (
     <StepCard aria-labelledby={`${uid}-title`}>
-      <StepProgress step={number} total={total} />
+      {number !== null ? <StepProgress step={number} total={total} /> : <p className="t-small text-graphite-500">One more question. The list is a step away.</p>}
       <StepBody stepKey={q.id} dir={dir} className="min-h-0 gap-8">
       <div className="flex flex-col gap-4">
         <StepTitle id={`${uid}-title`} ref={titleRef}>
           {q.title}
         </StepTitle>
         <p className="t-body max-w-measure text-body">{q.help}</p>
+        {held ? (
+          <p className="t-note flex items-center gap-2">
+            <span className="size-2 shrink-0 bg-atlas" aria-hidden="true" />
+            {held}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-5">
@@ -133,9 +147,9 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
       </StepBody>
 
       <StepFooter
-        back={number > 1 ? { label: "Back", onClick: onBack } : undefined}
-        skip={!isAnswered ? { label: "Skip", onClick: onSkip } : undefined}
-        next={{ label: number === total ? "See my matches" : "Next", onClick: onNext }}
+        back={onBack ? { label: number === null ? "Back to the list" : "Back", onClick: onBack } : undefined}
+        skip={!isAnswered && number !== null ? { label: "Skip", onClick: onSkip } : undefined}
+        next={{ label: last || number === null ? "See my matches" : "Next", onClick: onNext }}
       >
         <p className="flex items-baseline gap-3" aria-live="polite">
           {count ? (

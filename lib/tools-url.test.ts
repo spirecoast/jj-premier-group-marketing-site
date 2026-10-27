@@ -15,7 +15,7 @@ import { MOVE_STEPS, RELOCATE_KEYS, answersToQuery, parseAnswers, readMoveDraft 
 const sp = (search: string) => new URLSearchParams(search.replace(/^\?/, ""));
 
 test("explorer: a view round-trips, and the address bar leaves out the search words and the map", () => {
-  const view = { q: "lakewood", filters: { market: "sarasota" as const, gated: true as const }, place: "the-lake-club", map: { zoom: 12.5, lat: 27.4, lng: -82.4 } };
+  const view = { q: "lakewood", filters: { market: "sarasota" as const, gated: true as const }, place: "the-lake-club", map: { zoom: 12.5, lat: 27.4, lng: -82.4 }, list: [] };
   const back = parseState(sp(stateToSearch(view)));
   assert.deepEqual(back.filters, { market: "sarasota", gated: true, level: undefined, type: undefined, status: undefined, registry: undefined });
   assert.equal(back.q, "lakewood");
@@ -26,6 +26,15 @@ test("explorer: a view round-trips, and the address bar leaves out the search wo
   assert.ok(!/[?&](q|map)=/.test(address));
   assert.ok(explorerHref(view).includes("q=lakewood"), "the shared link keeps them");
   for (const k of new URL(explorerHref(view), "https://x").searchParams.keys()) assert.ok((EXPLORER_KEYS as readonly string[]).includes(k), k);
+});
+
+test("explorer: a list of places (a Match list, a shared My places) round-trips, cleaned", () => {
+  const view = { q: "", filters: {}, place: null, map: null, list: ["the-lake-club", "esplanade", "the-lake-club", "Not A Slug!"] };
+  const back = parseState(sp(stateToSearch(view)));
+  assert.deepEqual(back.list, ["the-lake-club", "esplanade"]);
+  assert.equal(explorerAddress(back), "/neighborhoods?list=the-lake-club%2Cesplanade");
+  assert.ok((EXPLORER_KEYS as readonly string[]).includes("list"));
+  assert.deepEqual(parseState(sp("")).list, []);
 });
 
 test("encore: a view round-trips, and every key it writes is one the page waits for", () => {
