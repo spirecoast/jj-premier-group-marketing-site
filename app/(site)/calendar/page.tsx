@@ -7,7 +7,8 @@ import { TrackedLink } from "@/components/tracked-link";
 import { getVenues } from "@/lib/content";
 import { MARKETS, marketName } from "@/lib/content/markets";
 import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
-import { addDays, monthEnd, monthStart, weekStart } from "@/lib/encore/select";
+import { FIRST_PAINT_DAYS } from "@/lib/encore/index-format";
+import { addDays, matches, monthEnd, monthStart, tokens, weekStart } from "@/lib/encore/select";
 import { parseEncoreState } from "@/lib/encore/url";
 import { pageMetadata } from "@/lib/seo";
 import { IslandBoundary } from "@/components/ui/island-boundary";
@@ -31,14 +32,14 @@ type SearchParams = Record<string, string | string[] | undefined>;
  */
 export default async function CalendarPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
-  const initial = parseEncoreState(params);
   const today = localDay(Date.now());
+  const initial = parseEncoreState(params, today);
   const anchor = initial.date || today;
   const index = await loadEncoreIndex();
 
-  // The slice covers today's spotlight, the strip's counts for two weeks, and the requested window.
+  // The slice covers today's spotlight, the strip's first three weeks, and the requested window.
   let from = today;
-  let to = addDays(today, 14);
+  let to = addDays(today, FIRST_PAINT_DAYS - 1);
   if (initial.view === "week") {
     from = weekStart(anchor) < from ? weekStart(anchor) : from;
     to = addDays(weekStart(anchor), 6) > to ? addDays(weekStart(anchor), 6) : to;
@@ -49,20 +50,24 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     from = anchor < from ? anchor : from;
     to = addDays(anchor, 6) > to ? addDays(anchor, 6) : to;
   }
-  const slice = initial.list.length ? sliceIndex(index, today, addDays(today, 365)) : sliceIndex(index, from, to);
+  // A shared list or a search is rendered over the season, narrowed to what it names.
+  const season = addDays(today, 365);
+  const slice = initial.list.length
+    ? sliceIndex(index, today, season, (e) => initial.list.includes(e.s))
+    : initial.q
+      ? sliceIndex(index, today, season, (e) => matches(e, { q: initial.q }, tokens(initial.q)))
+      : sliceIndex(index, from, to);
   const venues = await getVenues();
 
   return (
     <>
       {/* The masthead carries the eyebrow and the heading; the calendar keeps its links and toolbar. */}
-      <Masthead
-        route="/calendar"
-        titleId="encore-title"
-      >
-        <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">Theater, concerts and cultural events in Lakewood Ranch, Sarasota and Bradenton.</p>
+      {/* On a phone the masthead is short (the lockup and the byline), so the first show is inside the first screen. */}
+      <Masthead route="/calendar" titleId="encore-title" compact>
+        <p className="rise d3 t-lead hidden max-w-[600px] text-linen-100 text-shadow-soft md:block">Theater, concerts and cultural events in Lakewood Ranch, Sarasota and Bradenton.</p>
       </Masthead>
       <IslandBoundary name="the calendar" minHeight="480px">
-        <Encore initial={initial} today={today} initialIndex={slice} masthead />
+        <Encore initial={initial} today={today} initialIndex={slice} />
       </IslandBoundary>
 
       <section id="subscribe" className="scroll-mt-header bg-linen-200">

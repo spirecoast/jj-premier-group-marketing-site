@@ -114,11 +114,15 @@ export function formatTime(d: string | Date): string {
   return timeFmt.format(toDate(d)).replace(":00", "");
 }
 
-/** "Thursday, September 10 · 7:30–10 PM" */
-export function formatEventWhen(startsAt: string, endsAt?: string, allDay?: boolean): string {
+/**
+ * "Thursday, September 10 · 7:30–10 PM". A listing with no time is "All day"
+ * only when it is that kind of thing (lib/encore/when.ts); otherwise the day
+ * stands alone and the event page points at the venue's listing for the time.
+ */
+export function formatEventWhen(startsAt: string, endsAt?: string, allDay?: boolean, untimed: "all-day" | "unknown" = "all-day"): string {
   const start = toDate(startsAt);
   const day = `${weekdayName(start)}, ${shortDate.format(start)}`;
-  if (allDay) return `${day} · All day`;
+  if (allDay) return untimed === "unknown" ? day : `${day} · All day`;
   if (!endsAt) return `${day} · ${formatTime(start)}`;
   const end = toDate(endsAt);
   const sameDay = shortDate.format(start) === shortDate.format(end);

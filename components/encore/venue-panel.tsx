@@ -3,6 +3,7 @@ import { TrackedLink } from "@/components/tracked-link";
 import { formatAddress, formatEventWhen, formatRun } from "@/lib/content/format";
 import type { Event, VenueDateStatus } from "@/lib/content/types";
 import { PANEL_COPY as C, STATUS, compactWhen, monthDay, overall, priceRange, upcomingDates } from "@/lib/encore/panel";
+import { UNTIMED, isAllDayKind } from "@/lib/encore/when";
 import { cn } from "@/lib/utils";
 import { CheckedAgo } from "./checked-ago";
 import { ExternalLink } from "@/components/ui/external-link";
@@ -37,6 +38,8 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
   const callable = !cancelled && head !== "sold-out";
   const presenter = event.presenter && event.presenter !== event.venue.name ? event.presenter : event.venue.name;
   const last = dates[dates.length - 1];
+  // A play with no published curtain time: say so, and point at the listing.
+  const untimed = !isRun && !isAllDayKind(event.category, event.subcategory) && (shown.length ? shown.some((d) => d.allDay) : Boolean(event.allDay));
 
   return (
     <aside aria-labelledby="venue-panel-title" className="flex flex-col gap-6 self-start border border-hairline bg-white p-6 sm:p-7 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
@@ -93,8 +96,22 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
               {more > 0 && last ? <span className="t-mono-sm pt-1.5 text-graphite-500">{C.more(more, monthDay.format(new Date(last.startsAt)))}</span> : null}
             </dd>
           ) : (
-            <dd className="t-record text-navy">{formatEventWhen(event.startsAt, event.endsAt, event.allDay)}</dd>
+            <dd className="t-record text-navy">{formatEventWhen(event.startsAt, event.endsAt, event.allDay, untimed ? "unknown" : "all-day")}</dd>
           )}
+          {untimed ? (
+            <p className="t-note pt-1">
+              {UNTIMED.note}{" "}
+              {live?.venuePage ? (
+                <ExternalLink href={live.venuePage} className="text-harbor-700 underline underline-offset-4 hover:text-navy">
+                  {UNTIMED.onSite}
+                </ExternalLink>
+              ) : (
+                <ExternalLink href={event.ticketUrl ?? `/venues/${event.venue.slug}`} className="text-harbor-700 underline underline-offset-4 hover:text-navy">
+                  {UNTIMED.onSite}
+                </ExternalLink>
+              )}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-1">

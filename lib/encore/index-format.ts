@@ -30,6 +30,12 @@ export type EncorePerf = [number, string, string, number, number];
 
 export type EncoreVenue = { s: string; n: string; m: MarketSlug };
 
+/**
+ * How many days from today the server's first-paint slice covers, and the
+ * day strip opens with. Beyond it the browser fetches the whole season.
+ */
+export const FIRST_PAINT_DAYS = 21;
+
 export type EncoreIndex = {
   generated: string;
   events: EncoreEvent[];

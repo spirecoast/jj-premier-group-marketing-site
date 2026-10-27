@@ -14,9 +14,10 @@ import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import { CATEGORY, CATEGORY_ORDER } from "@/lib/encore/categories";
 import type { EncoreIndex } from "@/lib/encore/index-format";
 import { MAX_DAYS, PRESETS, SHOWINGS, buildPlan, marketList, normalizeDates, planHref, planIcsHref, presetDates, type PlanDay, type PlanState } from "@/lib/encore/plan";
-import { addDays, clock, longDay, weekdayShort, type Occ } from "@/lib/encore/select";
+import { addDays, longDay, timeLabel, weekdayShort, type Occ } from "@/lib/encore/select";
 import { encoreHref } from "@/lib/encore/url";
 import { cn } from "@/lib/utils";
+import { Pin } from "./glyphs";
 import { NightOut } from "./night-out";
 import { SaveButton } from "./tile";
 import { useMyList } from "./use-my-list";
@@ -224,14 +225,14 @@ export function VisitPlan({
 
               {q === 3 ? (
                 <div className="flex flex-col gap-4">
-                  <div className="encore-cats" role="group" aria-labelledby="plan-inputs-title">
+                  <ChipGroup aria-labelledby="plan-inputs-title">
                     {CATEGORY_ORDER.map((c) => (
-                      <button key={c} type="button" className="encore-cat" aria-pressed={draft.categories.includes(c)} onClick={() => toggleCat(c)}>
-                        <i style={{ background: CATEGORY[c].color }} aria-hidden="true" />
+                      <Chip key={c} size="lg" tick={false} selected={draft.categories.includes(c)} onClick={() => toggleCat(c)}>
+                        <i className="chip-dot" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
                         {CATEGORY[c].label}
-                      </button>
+                      </Chip>
                     ))}
-                  </div>
+                  </ChipGroup>
                   <Checkbox checked={draft.eveningsOnly} onChange={(e) => setDraft((d) => ({ ...d, eveningsOnly: e.target.checked }))}>
                     {visiting ? "Evenings only. Keep the weekend afternoons for houses." : "Evenings only"}
                   </Checkbox>
@@ -537,18 +538,18 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
   return (
     <li className="encore-agenda-row" style={{ "--cat": CATEGORY[e.c].color } as CSSProperties}>
       <Link href={`/calendar/${e.s}`} className="encore-agenda-link">
-        <span className="encore-agenda-time">{clock(o.time)}</span>
+        <span className="encore-agenda-time">{timeLabel(o)}</span>
         <span className="min-w-0 flex-1">
           <span className="encore-agenda-title">{e.t}</span>
-          <span className="t-note block">
+          <span className="encore-meta">
             {[e.vn, marketName(e.m)].join(" · ")} ·{" "}
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block size-2" style={{ background: CATEGORY[e.c].color }} aria-hidden="true" />
+            <span className="encore-meta-kind">
+              <i aria-hidden="true" />
               {CATEGORY[e.c].label}
             </span>
           </span>
         </span>
-        <span className="t-small hidden shrink-0 text-graphite-500 sm:block">{e.pr ?? ""}</span>
+        <span className="t-mono-sm hidden shrink-0 text-graphite-500 sm:block">{e.pr ?? ""}</span>
       </Link>
       {nearby ? (
         <button
@@ -557,13 +558,10 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
           aria-expanded={nearby.open}
           aria-controls={nearby.open ? nearby.controls : undefined}
           aria-label={`Dinner, drinks and hotels near ${e.vn}`}
-          className={cn("encore-save encore-agenda-save", nearby.open && "is-open")}
+          title="Nearby"
+          className="btn-quiet is-square encore-agenda-save"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
-            <circle cx="12" cy="10" r="2.3" />
-          </svg>
-          <span className="encore-save-label">Nearby</span>
+          <Pin />
         </button>
       ) : null}
       <SaveButton saved={saved} onToggle={onSave} title={e.t} className="encore-agenda-save" />

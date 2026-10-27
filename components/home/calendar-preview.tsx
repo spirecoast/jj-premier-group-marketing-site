@@ -27,9 +27,23 @@ export function CalendarPreview({ events }: { events: Event[] }) {
           title={<span id="encore-title">This week in theater, music and art, close to home.</span>}
           titleClassName="max-w-[820px]"
           aside={
-            <Link href="/calendar" className="link-rule">
-              The full calendar
-            </Link>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              {/* The three views people ask for first, as links the team can share. */}
+              <div className="flex flex-wrap gap-2" aria-label="Open the calendar on">
+                <Link href="/calendar?when=tonight" className="chip">
+                  Tonight
+                </Link>
+                <Link href="/calendar?when=weekend" className="chip">
+                  This weekend
+                </Link>
+                <Link href="/calendar?view=onview" className="chip">
+                  On view
+                </Link>
+              </div>
+              <Link href="/calendar" className="link-rule">
+                The full calendar
+              </Link>
+            </div>
           }
         />
         <div className="sr-img relative aspect-[16/7] max-h-[440px] w-full overflow-hidden bg-navy">

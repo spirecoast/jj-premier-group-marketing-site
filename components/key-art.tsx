@@ -18,6 +18,7 @@ export function KeyArt({
   ratio = 16 / 9,
   sizes = "(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw",
   priority,
+  pick,
 }: {
   category: EventCategory;
   seed: string;
@@ -27,8 +28,10 @@ export function KeyArt({
   ratio?: number;
   sizes?: string;
   priority?: boolean;
+  /** Which of the theme's photos, from varyStock, so a grid never repeats one beside itself. */
+  pick?: number;
 }) {
-  const photo = stockPhoto({ category, subcategory, seed });
+  const photo = stockPhoto({ category, subcategory, seed, pick });
   if (photo)
     return <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} className={cn("object-cover", className)} />;
   const width = 1200;

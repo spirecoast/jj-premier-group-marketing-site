@@ -12,7 +12,7 @@ import { formatDateLong } from "@/lib/content/format";
 import { getMarket } from "@/lib/content/markets";
 import type { MarketSlug, Post } from "@/lib/content/types";
 import { CATEGORY } from "@/lib/encore/categories";
-import { clock, shortDay, through, weekdayShort } from "@/lib/encore/select";
+import { shortDay, through, timeLabel, weekdayShort } from "@/lib/encore/select";
 import { encoreHref } from "@/lib/encore/url";
 import { HUBS } from "@/lib/hubs/copy";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
@@ -60,7 +60,7 @@ function GuideCard({ post }: { post: Post }) {
 
 function WeekRow({ item }: { item: HubEncoreItem }) {
   const e = item.kind === "perf" ? item.o.e : item.e;
-  const when = item.kind === "perf" ? `${weekdayShort(item.o.day)} ${shortDay(item.o.day)} · ${item.o.time ? clock(item.o.time) : "All day"}` : `On view · ${through(e) ?? "Open now"}`;
+  const when = item.kind === "perf" ? `${weekdayShort(item.o.day)} ${shortDay(item.o.day)} · ${timeLabel(item.o)}` : `On view · ${through(e) ?? "Open now"}`;
   return (
     <li className="border-b border-hairline" style={{ ["--cat" as string]: CATEGORY[e.c].color }}>
       <Link href={`/calendar/${e.s}`} className="row-link flex flex-col gap-1.5 py-4 sm:flex-row sm:items-baseline sm:gap-6">
