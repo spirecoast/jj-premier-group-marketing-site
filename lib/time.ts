@@ -10,10 +10,10 @@
  * Neither uses `toISOString().slice(0, 10)`: that is the UTC day, which is
  * tomorrow from eight in the evening on the east coast.
  *
- * `useToday` keeps a day current in a component: it ticks over at the next
- * local midnight, so a tab left open overnight says "today" about today.
+ * `useToday` (lib/use-today.ts, a client hook) keeps a day current in a
+ * component: it ticks over at the next local midnight, so a tab left open
+ * overnight says "today" about today.
  */
-import { useEffect, useState } from "react";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -52,35 +52,4 @@ export function msUntilNextDay(read: (d: Date) => string, now: Date = new Date()
   start.setSeconds(0, 0);
   const ms = start.getTime() + 1000 - now.getTime();
   return Math.max(1000, ms);
-}
-
-/**
- * A day that stays current. `initial` is what the server (or the first
- * client read) decided; `read` is how to read the clock, the visitor's own
- * day by default. The value updates at the next midnight and every one after.
- */
-export function useToday(initial: string, read: (d: Date) => string = dayHere): string {
-  const [today, setToday] = useState(initial);
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const arm = () => {
-      const now = new Date();
-      setToday((t) => (t === read(now) ? t : read(now)));
-      timer = setTimeout(arm, msUntilNextDay(read, now));
-    };
-    timer = setTimeout(arm, msUntilNextDay(read));
-    // A tab that was asleep (laptop lid closed) checks the day again when it wakes.
-    const onVisible = () => {
-      if (document.visibilityState === "visible") {
-        const now = read(new Date());
-        setToday((t) => (t === now ? t : now));
-      }
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      if (timer) clearTimeout(timer);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [read]);
-  return today;
 }

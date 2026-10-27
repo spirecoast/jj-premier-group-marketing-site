@@ -8,7 +8,7 @@ import { marketName } from "@/lib/content/markets";
 import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import { CATEGORY } from "@/lib/encore/categories";
 import { localDay } from "@/lib/encore/day";
-import { useToday } from "@/lib/time";
+import { useToday } from "@/lib/use-today";
 import { FIRST_PAINT_DAYS, SEASON_URL, type EncoreIndex } from "@/lib/encore/index-format";
 import { addDays, countsByCategory, countsByDay, dayNumber, monthEnd, monthLabel, monthStart, occurrences, onView, opensLater, shortDay, weekStart, weekendOf, weekday, type Filter } from "@/lib/encore/select";
 import { ENCORE_KEYS, encoreHref, parseEncoreState, VIEWS, type EncoreState, type EncoreView, type EncoreWhen } from "@/lib/encore/url";

@@ -223,7 +223,7 @@ every tool, in `lib/url-state.ts`:
 - **Today is a calendar day, never the UTC day** (`lib/time.ts`). Atlas Move counts from the
   visitor's own day (`dayHere`, from the browser's clock; the static page's server render uses the
   site's day, `dayIn(SITE_TIMEZONE)`, until the browser replaces it), Encore from the site's day,
-  and both keep it current with `useToday`, which ticks over at midnight and when a sleeping tab
+  and both keep it current with `useToday` (`lib/use-today.ts`), which ticks over at midnight and when a sleeping tab
   wakes. Move's plan says plainly when a move-in is too soon for the standard timeline (the first
   step would already have passed), names the earliest move-in the chain allows from today, and
   offers it as one tap; the date picker reaches three years ahead. "Send us your plan" appears once

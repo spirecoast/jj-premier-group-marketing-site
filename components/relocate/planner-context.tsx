@@ -5,7 +5,8 @@ import { track } from "@/lib/analytics";
 import { buildPlan, normalizeAnswers, type Answers, type Plan } from "@/lib/relocate/plan";
 import { MOVE_DRAFT, MOVE_STEPS, answersToQuery, hasAnswers, parseAnswers, planPath, readMoveDraft, type MoveDraft } from "@/lib/relocate/url";
 import { scrollToTop } from "@/lib/scroll";
-import { dayHere, useToday } from "@/lib/time";
+import { dayHere } from "@/lib/time";
+import { useToday } from "@/lib/use-today";
 import { draft, replaceQuery, useStepHistory, useUrlInitial } from "@/lib/url-state";
 
 export type Mode = "questions" | "plan";
