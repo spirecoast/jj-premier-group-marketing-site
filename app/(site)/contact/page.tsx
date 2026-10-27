@@ -12,6 +12,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Call, text or write to Joelyn Nauman and Jessica Garza. Two questions first: when do you need to be in, and is there a house to sell?",
   path: "/contact",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /**

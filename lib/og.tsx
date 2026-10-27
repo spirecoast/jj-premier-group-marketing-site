@@ -7,10 +7,29 @@ import { ImageResponse } from "next/og";
  * Open Graph images drawn in the brand: a photograph on the left, navy on
  * the right, mono eyebrow, display headline, record line. Used by the
  * opengraph-image routes for listings, events, venues, neighborhoods and
- * letters. Static pages use /og-image.jpg.
+ * letters. Pages without a card of their own use /og-image.jpg.
+ *
+ * Every card leaves as a JPEG under OG_BUDGET: WhatsApp is widely reported to
+ * skip a preview image over about 300 KB, and the PNGs these used to be ran
+ * to 900 KB. The photograph is cut to its box before it's drawn, so the
+ * renderer never decodes a 2560px original (the slow part of a cold render).
  */
 export const OG_SIZE = { width: 1200, height: 630 };
-export const OG_CONTENT_TYPE = "image/png";
+export const OG_CONTENT_TYPE = "image/jpeg";
+export const OG_BUDGET = 300 * 1024;
+
+/** The rendered card, re-encoded as a JPEG with the renderer's own cache headers. */
+export async function toJpeg(res: Response, quality = 82): Promise<Response> {
+  const sharp = (await import("sharp")).default;
+  const png = Buffer.from(await res.arrayBuffer());
+  let jpg = await sharp(png).jpeg({ quality, mozjpeg: true }).toBuffer();
+  // A busy photograph can still run large; step the quality down until it fits the budget.
+  for (let q = quality - 10; jpg.byteLength > OG_BUDGET && q >= 50; q -= 10) jpg = await sharp(png).jpeg({ quality: q, mozjpeg: true }).toBuffer();
+  const headers = new Headers(res.headers);
+  headers.set("Content-Type", "image/jpeg");
+  headers.delete("Content-Length");
+  return new Response(new Uint8Array(jpg), { status: res.status, headers });
+}
 
 const COLORS = {
   navy: "#2e4a5c",
@@ -71,12 +90,20 @@ function Lockup({ color }: { color: string }) {
   );
 }
 
-/** A /public path becomes a data URI; anything else is used as-is. */
-export async function ogImageSrc(src: string): Promise<string | undefined> {
+/**
+ * A /public path becomes a data URI; anything else is used as-is. Given a box, a JPEG or PNG is cut
+ * to it first (cover, centred, as the card draws it), so the card carries only the pixels it shows.
+ */
+export async function ogImageSrc(src: string, box?: { width: number; height: number }): Promise<string | undefined> {
   if (/^(https?:\/\/|data:)/.test(src)) return src;
   try {
     const file = await readFile(path.join(process.cwd(), "public", src));
     const ext = path.extname(src).slice(1).toLowerCase();
+    if (box && (ext === "jpg" || ext === "jpeg" || ext === "png")) {
+      const sharp = (await import("sharp")).default;
+      const jpg = await sharp(file).resize(box.width, box.height, { fit: "cover" }).jpeg({ quality: 86 }).toBuffer();
+      return `data:image/jpeg;base64,${jpg.toString("base64")}`;
+    }
     const mime = ext === "jpg" || ext === "jpeg" ? "image/jpeg" : ext === "png" ? "image/png" : ext === "svg" ? "image/svg+xml" : "application/octet-stream";
     return `data:${mime};base64,${file.toString("base64")}`;
   } catch {
@@ -95,11 +122,11 @@ export async function brandOgImage({
   meta?: string;
   photo?: string;
 }) {
-  const [f, photoSrc] = await Promise.all([fonts(), photo ? ogImageSrc(photo) : Promise.resolve(undefined)]);
+  const [f, photoSrc] = await Promise.all([fonts(), photo ? ogImageSrc(photo, { width: 520, height: 630 }) : Promise.resolve(undefined)]);
   const titleSize = title.length > 48 ? 44 : title.length > 28 ? 54 : 64;
   const faces = fontList(f);
 
-  return new ImageResponse(
+  const card = new ImageResponse(
     (
       <div style={{ display: "flex", width: "100%", height: "100%", background: COLORS.navy, color: COLORS.white, fontFamily: "Jost, sans-serif" }}>
         {photoSrc ? (
@@ -123,6 +150,7 @@ export async function brandOgImage({
     ),
     { ...OG_SIZE, ...(faces.length ? { fonts: faces } : {}) },
   );
+  return toJpeg(card);
 }
 
 
@@ -171,7 +199,7 @@ export async function constellationOgImage({
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${dots}${mark}</svg>`;
   const svgSrc = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
 
-  return new ImageResponse(
+  const card = new ImageResponse(
     (
       <div style={{ display: "flex", width: "100%", height: "100%", background: "#f3eee6", color: COLORS.navy, fontFamily: "Jost, sans-serif", position: "relative" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -190,4 +218,5 @@ export async function constellationOgImage({
     ),
     { ...OG_SIZE, fonts: faces },
   );
+  return toJpeg(card);
 }

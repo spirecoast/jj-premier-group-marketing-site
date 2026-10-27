@@ -175,7 +175,7 @@ the Fair Housing checker.
   category and day, with a slight lean to evenings. Each shows the day, time, category, market,
   title (linked to `/calendar/<slug>`), venue, the dataset's one-line summary, presenter and
   price note. The first pick's picture sits under the intro: `/api/issues/encore/image/<slug>`, a
-  PNG with the same composition as the event's share image (the venue's photo or the Encore key
+  JPEG (under 300 KB, like every share card) with the same composition as the event's share image (the venue's photo or the Encore key
   art, the title and the date). Email clients don't render SVG, and the share image's own URL
   carries a build hash, so the issue uses this stable, public route instead. It is static
   (rendered on the first open of each slug, then cached for a day), and an unknown slug redirects

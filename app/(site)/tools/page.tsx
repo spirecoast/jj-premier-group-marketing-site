@@ -13,6 +13,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Atlas finds the neighborhoods that fit and plans your move. Encore lists the theater, music and art. Tide shows what homes sold for. Free, with no sign-up.",
   path: "/tools",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /**
