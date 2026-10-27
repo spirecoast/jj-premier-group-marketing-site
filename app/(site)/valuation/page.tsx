@@ -59,7 +59,7 @@ export default async function ValuationPage() {
             Send the address and the timing, and Joelyn or Jessica will pull the four comparable sales, drive the
             street, and call you with the number and the reason for it.
           </p>
-          <p className="t-mono-sm max-w-[420px] text-graphite-500">
+          <p className="t-note max-w-[420px]">
             A comp-based answer from Joelyn or Jessica within a day · no algorithm guess
           </p>
           <p className="t-small max-w-[420px] text-graphite-500">

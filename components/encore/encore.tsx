@@ -294,7 +294,7 @@ export function Encore({
           </div>
         ) : null}
         {!full ? <p className="sr-only" aria-live="polite">Loading the full season</p> : null}
-        <p className="t-mono-sm text-graphite-500">
+        <p className="t-note">
           Times and prices come from each venue&rsquo;s own listing; confirm before you go. {mode === "browse" && venue ? <Link href={`/venues/${venue}`} className="underline underline-offset-4">The venue&rsquo;s page →</Link> : null}
         </p>
       </div>

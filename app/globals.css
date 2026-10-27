@@ -236,12 +236,23 @@
     outline: 2px solid var(--color-sky-700);
     outline-offset: 2px;
   }
-  /* On navy, teal and photographic grounds the ring steps up to Sky 300. */
+  /* On navy, teal and photographic grounds the ring steps up to Sky 300
+     (5.6:1 on navy). A dark ground says so with data-ground="dark" (the
+     header, the product bar, the phone menu, the product stages); the class
+     sniffing stays for the utility-coloured panels. */
+  [data-ground="dark"] :focus-visible,
+  .header-glass :focus-visible,
+  .header-overlay :focus-visible,
+  .product-bar :focus-visible,
+  .encore-stage :focus-visible,
   [class*="bg-navy"] :focus-visible,
   [class*="bg-sky-7"] :focus-visible,
   [class*="bg-sky-8"] :focus-visible,
   [class*="bg-deep-harbor"] :focus-visible,
-  [class*="bg-harbor-9"] :focus-visible {
+  [class*="bg-harbor-9"] :focus-visible,
+  [class*="bg-atlas-deep"] :focus-visible,
+  [class*="bg-encore-deep"] :focus-visible,
+  [class*="bg-tide-deep"] :focus-visible {
     outline-color: var(--color-sky-300);
   }
 
@@ -508,12 +519,34 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Mono caps for what stays a tag, a date, a count or a label: runs under about
+   40 characters ("FIG. 01", "SARASOTA · THURSDAY", "635 IN VIEW"). A sentence
+   is never set in it; that is t-note. On a phone the floor is 12px. */
 @utility t-mono-sm {
   font-family: var(--font-mono);
   font-size: 0.625rem; /* 10 */
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.5;
+  @media (max-width: 47.99rem) {
+    font-size: 0.75rem; /* 12 */
+  }
+}
+
+/* A note: the line that says what a figure includes, who pays, where a
+   number came from or what isn't verified. Jost in sentence case, Graphite
+   500, 13px on a phone and 14px from tablet, held to a reading measure. A
+   single colour or width utility beside it wins over these defaults. */
+@utility t-note {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.8125rem; /* 13 */
+  line-height: 1.55;
+  color: var(--color-graphite-500);
+  max-width: 60ch;
+  @media (min-width: 48rem) {
+    font-size: 0.875rem; /* 14 */
+  }
 }
 
 @utility t-stat {
@@ -687,12 +720,17 @@
     color: var(--color-harbor-700);
     border-bottom: 1px solid var(--color-rule);
     padding-bottom: 4px;
-    /* Enlarged hit area without moving the baseline. */
+    /* Enlarged hit area without moving the baseline or the rule: the top
+       padding is paid back by the margin. 33px on a desktop, 44px on a phone. */
     padding-top: 0.5rem;
     margin-top: -0.5rem;
     transition:
       color var(--dur-ui) ease,
       border-color var(--dur-ui) ease;
+    @media (max-width: 47.99rem) {
+      padding-top: 1.25rem;
+      margin-top: -1.25rem;
+    }
   }
   .link-rule:hover {
     color: var(--color-navy);
@@ -774,7 +812,8 @@
     padding: 0.5625rem 0.125rem;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid var(--color-graphite-400);
+    /* Graphite 500: 3:1 or better on Paper as well as white (Graphite 400 was 2.9:1 on Paper). */
+    border-bottom: 1px solid var(--color-graphite-500);
     font-family: var(--font-body);
     font-size: 1rem;
     color: var(--color-ink);
@@ -836,6 +875,18 @@
     background: var(--color-navy);
     color: var(--color-linen-200);
   }
+  /* The questionnaire size (an answer in Atlas Match, Move and the Planner)
+     and the compact one (a short list of distances). Same chip, same corners. */
+  .chip-lg {
+    padding: 0 1.125rem;
+    font-size: 0.9375rem;
+    font-weight: 400;
+  }
+  .chip-sm {
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
 
   /* Hero photograph: one motion (the drift, defined below) and the shade. */
   /* The one scrim for type over a card or panel photograph: a faint harbor
@@ -859,7 +910,10 @@
   .hero-shade {
     position: absolute;
     inset: 0;
+    /* The top band sits under the see-through header: 120px of deeper shade
+       so the nav labels keep 4.5:1 over a bright sky. */
     background:
+      linear-gradient(180deg, rgb(13 27 36 / 0.55) 0%, transparent 7.5rem),
       linear-gradient(180deg, rgb(20 37 48 / 0.42) 0%, transparent 22%),
       linear-gradient(90deg, rgb(20 37 48 / 0.62) 0%, rgb(20 37 48 / 0.44) 38%, rgb(20 37 48 / 0.14) 68%, rgb(20 37 48 / 0.02) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.42) 0%, transparent 42%);
@@ -1239,7 +1293,8 @@
     font-size: 0.9375rem;
     color: var(--color-ink);
     background: #fff;
-    border: 1px solid var(--color-rule);
+    /* Graphite 400: a 3:1 edge on white, so the box reads in sunlight. */
+    border: 1px solid var(--color-graphite-400);
     outline: none;
     -webkit-appearance: none;
     appearance: none;
@@ -1295,6 +1350,13 @@
   .explorer-row:focus-visible {
     background: var(--color-linen-100);
     outline: none;
+  }
+  /* The linen tint alone is 1.09:1 against the list; a Sky bar and an inset
+     ring mark the focused row so the keyboard never loses its place. */
+  .explorer-row:focus-visible {
+    box-shadow:
+      inset 3px 0 0 var(--color-sky-700),
+      inset 0 0 0 2px var(--color-sky-700);
   }
   .explorer-dot {
     width: 7px;
@@ -1366,7 +1428,7 @@
     font-size: 0.9375rem;
     color: var(--color-ink);
     background: #fff;
-    border: 1px solid var(--color-rule);
+    border: 1px solid var(--color-graphite-400);
     outline: none;
     -webkit-appearance: none;
     appearance: none;
@@ -1399,7 +1461,7 @@
     font-size: 1.0625rem;
     color: var(--color-ink);
     background: #fff;
-    border: 1px solid var(--color-rule);
+    border: 1px solid var(--color-graphite-400);
     border-right: 0;
     border-radius: 0;
     outline: none;
@@ -1446,6 +1508,18 @@
   }
   .encore-select:hover {
     border-color: var(--color-harbor-900);
+  }
+  /* On a phone every search control is 16px, so iOS Safari never zooms the
+     page on focus and leaves it offset; the select is also a 44px target. */
+  @media (max-width: 47.99rem) {
+    .explorer-input,
+    .encore-input,
+    .encore-select {
+      font-size: 1rem;
+    }
+    .encore-select {
+      height: 2.75rem;
+    }
   }
   .encore-cats {
     display: flex;
@@ -2326,6 +2400,8 @@
   }
   .guide-cover-wash {
     background:
+      /* The top band sits under the see-through header: 120px of deeper shade so the nav labels hold over a bright sky. */
+      linear-gradient(180deg, rgb(13 27 36 / 0.55) 0%, transparent 7.5rem),
       linear-gradient(0deg, rgb(20 37 48 / 0.55) 0%, rgb(20 37 48 / 0.2) 45%, rgb(20 37 48 / 0.3) 100%),
       linear-gradient(90deg, rgb(20 37 48 / 0.3) 0%, transparent 70%);
   }
@@ -2484,9 +2560,10 @@
 body:not(:has([data-header-overlay])) .header-overlay,
 .header-glass {
   border-bottom-color: rgb(137 212 227 / 0.15);
-  /* Navy at 55% over the page, blurred and dimmed behind: it reads as glass,
-     and the light nav type keeps at least 4.5:1 over the palest ground. */
-  background-color: rgb(46 74 92 / 0.55);
+  /* Navy at 68% over the page, blurred and dimmed behind: it reads as glass,
+     and the 12px linen nav labels measure about 5.3:1 over Paper, the palest
+     ground (at 55% they were 4.4:1). */
+  background-color: rgb(46 74 92 / 0.68);
   -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(0.5);
   backdrop-filter: blur(20px) saturate(1.3) brightness(0.5);
 }
@@ -2703,40 +2780,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
   }
 }
 
-/* ---- Atlas Match: choices as pills, a tick when chosen. Scoped, so Encore's chips keep their look. */
-@layer components {
-  .match-q .chip {
-    min-height: 2.75rem;
-    padding: 0 1.125rem;
-    border-radius: 9999px;
-    border: 1px solid var(--color-hairline);
-    background: var(--color-white);
-    color: var(--color-navy);
-    font-size: 0.9375rem;
-    font-weight: 400;
-  }
-  .match-q .chip:hover {
-    border-color: var(--color-navy);
-  }
-  .match-q .chip[aria-pressed="true"],
-  .match-q .chip[data-active="true"] {
-    background: var(--color-navy);
-    border-color: var(--color-navy);
-    color: var(--color-linen-100);
-  }
-  .match-q .chip[aria-pressed="true"]::before,
-  .match-q .chip[data-active="true"]::before {
-    content: "";
-    width: 0.65rem;
-    height: 0.35rem;
-    margin-top: -0.2rem;
-    border-left: 1.6px solid currentColor;
-    border-bottom: 1.6px solid currentColor;
-    transform: rotate(-45deg);
-  }
-}
-
-/* ---- Encore Planner: the days at a glance, and the pill choices on its form. */
+/* ---- Encore Planner: the days at a glance. Its choices are the system's chips (components/ui/chip.tsx). */
 @layer components {
   .plan-strip {
     display: grid;
@@ -2781,23 +2825,6 @@ body:not(:has([data-header-overlay])) .header-overlay,
   }
   .encore-stage .plan-strip {
     scrollbar-color: rgb(255 255 255 / 0.25) transparent;
-  }
-  .plan-pills .chip {
-    border-radius: 9999px;
-    border: 1px solid var(--color-hairline);
-    background: #fff;
-    color: var(--color-navy);
-    font-size: 0.9375rem;
-    font-weight: 400;
-    padding: 0 1.125rem;
-  }
-  .plan-pills .chip:hover {
-    border-color: var(--color-navy);
-  }
-  .plan-pills .chip[aria-pressed="true"] {
-    background: var(--color-navy);
-    border-color: var(--color-navy);
-    color: var(--color-linen-100);
   }
   @media (prefers-reduced-motion: reduce) {
     .plan-strip-day { transition: none; }
@@ -2930,6 +2957,8 @@ html:has([data-product-bar]) {
   }
   .product-tab:hover { color: #fff; }
   .product-tab[aria-current="page"] { color: #fff; }
+  /* The tabs scroll inside the bar, so the ring is drawn inside the tab's own box. */
+  .product-tab:focus-visible { outline-offset: -3px; }
   .product-tab::after {
     content: "";
     position: absolute;
@@ -3394,7 +3423,7 @@ html:has([data-product-bar]) {
   .street-sign-label {
     font-size: 0.75rem;
     letter-spacing: 0.04em;
-    color: rgb(255 255 255 / 0.78);
+    color: var(--color-linen-200); /* 7.3:1 on the teal plate */
   }
   .street-sign-input {
     width: 100%;

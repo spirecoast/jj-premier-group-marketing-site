@@ -46,11 +46,12 @@ export function Legend({ id, items }: { id: string; items: { label: string; seri
 /** The accessible twin of a drawn figure: a real table, folded under the drawing. */
 export function FigureTable({ caption, columns, rows }: { caption: string; columns: string[]; rows: (string | number)[][] }) {
   return (
-    <details className="print-hide mt-4 border-t border-hairline pt-3">
-      <summary className="cursor-pointer list-none font-mono text-[10px] uppercase tracking-[0.14em] text-graphite-600 [&::-webkit-details-marker]:hidden">
+    <details className="print-hide mt-4 border-t border-hairline">
+      {/* A 44px row for the finger; the words stay the figure's 10px mono tag. */}
+      <summary className="flex min-h-11 cursor-pointer list-none items-center font-mono text-[10px] uppercase tracking-[0.14em] text-graphite-600 [&::-webkit-details-marker]:hidden">
         Read this figure as a table
       </summary>
-      <table className="mt-3 w-full border-collapse text-[13px] leading-snug text-body">
+      <table className="mt-1 w-full border-collapse text-[13px] leading-snug text-body">
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr>

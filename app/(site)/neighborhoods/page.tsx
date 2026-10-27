@@ -7,6 +7,7 @@ import { DATASET_VERSION, getAllRecords } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
 import { parseState } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { IslandBoundary } from "@/components/ui/island-boundary";
 
 export const metadata: Metadata = pageMetadata({
   title: "Atlas · Every place in Lakewood Ranch, Sarasota and Bradenton",
@@ -58,7 +59,9 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
         }}
       />
 
-      <Explorer initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
+      <IslandBoundary name="the map and the list" minHeight="560px">
+        <Explorer initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
+      </IslandBoundary>
 
       <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="areas-title">
         <div className="flex flex-col gap-3">
@@ -124,7 +127,7 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
             </div>
           </div>
         ) : null}
-        <p className="t-mono-sm text-graphite-500">
+        <p className="t-note">
           Catalog as of {asOf}. Facts carry their sources on each page. Nothing here is a rating, a price, or a description of who lives where.
         </p>
       </section>

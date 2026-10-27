@@ -10,6 +10,7 @@ import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { addDays, monthEnd, monthStart, weekStart } from "@/lib/encore/select";
 import { parseEncoreState } from "@/lib/encore/url";
 import { pageMetadata } from "@/lib/seo";
+import { IslandBoundary } from "@/components/ui/island-boundary";
 
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
@@ -60,7 +61,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       >
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">Theater, concerts and cultural events in Lakewood Ranch, Sarasota and Bradenton.</p>
       </Masthead>
-      <Encore initial={initial} today={today} initialIndex={slice} masthead />
+      <IslandBoundary name="the calendar" minHeight="480px">
+        <Encore initial={initial} today={today} initialIndex={slice} masthead />
+      </IslandBoundary>
 
       <section id="subscribe" className="scroll-mt-header bg-linen-200">
         <div className="container-site grid items-center gap-8 py-section lg:grid-cols-[1.2fr_1fr] lg:gap-16">
@@ -112,7 +115,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
               );
             })}
           </div>
-          <p className="t-mono-sm text-graphite-500">{marketName("sarasota")}, {marketName("bradenton")} and {marketName("lakewood-ranch")}. Every listing comes from the venue&rsquo;s or presenter&rsquo;s own site.</p>
+          <p className="t-note">{marketName("sarasota")}, {marketName("bradenton")} and {marketName("lakewood-ranch")}. Every listing comes from the venue&rsquo;s or presenter&rsquo;s own site.</p>
         </section>
       ) : null}
     </>

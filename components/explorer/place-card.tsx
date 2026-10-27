@@ -52,7 +52,7 @@ export function PlaceCard({
         </button>
       </div>
       <h2 className="t-h1 mt-2 text-navy">{e.n}</h2>
-      <p className="t-mono-sm mt-1 text-graphite-500">
+      <p className="t-note mt-1">
         {LEVEL_LABEL[e.l]}
         {e.a.length ? ` · also ${e.a.join(", ")}` : ""}
         {!e.r ? " · county registry name" : ""}

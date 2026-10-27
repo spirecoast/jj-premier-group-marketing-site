@@ -101,7 +101,7 @@ export function SearchBox({ initial }: { initial: string }) {
           {C.submit}
         </button>
       </div>
-      <p className="t-mono-sm h-4 text-graphite-500" aria-live="polite">
+      <p className="t-note min-h-5" aria-live="polite">
         {pending ? C.searching : ""}
       </p>
     </form>

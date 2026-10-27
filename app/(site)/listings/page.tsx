@@ -10,6 +10,7 @@ import { img } from "@/lib/content/seed/helpers";
 import { formatPriceShort } from "@/lib/content/format";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
   title: "Find your home",
@@ -82,9 +83,9 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
             ))}
           </ol>
           {site.listingsUrl ? (
-            <a href={site.listingsUrl} rel="noopener noreferrer" target="_blank" className="link-rule self-start">
+            <ExternalLink href={site.listingsUrl} className="link-rule self-start">
               See our current listings
-            </a>
+            </ExternalLink>
           ) : null}
           <div className="relative aspect-[3/2] overflow-hidden bg-linen-100">
             <Photo image={FRAMES.kitchen} sizes="(min-width: 1024px) 560px, 100vw" />
@@ -104,7 +105,7 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
 
       <div className="container-site pb-section">
         <div className="flex flex-col gap-3 border-y border-hairline py-4 md:flex-row md:items-center md:justify-between md:gap-10">
-          <p className="t-mono-sm max-w-[820px] text-graphite-500">
+          <p className="t-note max-w-[820px]">
             Serving {MARKETS.map((m) => m.name).join(", ")} with {settings.brokerageName}.
           </p>
           <p className="t-mono-sm flex shrink-0 items-center gap-2 text-graphite-500">
