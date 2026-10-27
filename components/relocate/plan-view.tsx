@@ -92,11 +92,9 @@ function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
                 </div>
                 <div className="flex flex-col justify-end gap-2 lg:mt-3 lg:flex-1 lg:justify-between">
                   <span className={cn("text-[16px] font-medium leading-snug", goal ? "text-atlas-deep" : "text-white")}>{C.keyTitles[m.id] ?? m.title}</span>
-                  {away >= 0 ? (
-                    <span className={cn("self-start px-2.5 py-0.5 pt-1 text-[12px] tabular-nums print:hidden", goal ? "bg-atlas-deep text-atlas" : "bg-white/10 text-white/80")}>
-                      {C.inDays(away)}
-                    </span>
-                  ) : null}
+                  <span className={cn("self-start px-2.5 py-0.5 pt-1 text-[12px] tabular-nums print:hidden", away < 0 ? "bg-coral/90 text-white" : goal ? "bg-atlas-deep text-atlas" : "bg-white/10 text-white/80")}>
+                    {away < 0 ? C.past : C.inDays(away)}
+                  </span>
                 </div>
               </div>
             </li>
@@ -108,9 +106,11 @@ function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
 }
 
 function CalloutCard({ c }: { c: Callout }) {
+  const { setAnswers } = usePlanner();
+  const urgent = c.id === "past";
   return (
-    <li data-print="callout" className="flex gap-4 border border-hairline bg-white p-6">
-      <span className="grid size-9 shrink-0 place-items-center bg-warning-fill text-warning print:hidden" aria-hidden="true">
+    <li data-print="callout" className={cn("flex gap-4 border bg-white p-6", urgent ? "border-coral md:col-span-2" : "border-hairline")}>
+      <span className={cn("grid size-9 shrink-0 place-items-center print:hidden", urgent ? "bg-coral text-white" : "bg-warning-fill text-warning")} aria-hidden="true">
         <svg width="16" height="16" viewBox="0 0 16 16">
           <circle cx="8" cy="4" r="1.2" fill="currentColor" />
           <path d="M8 7v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -119,9 +119,17 @@ function CalloutCard({ c }: { c: Callout }) {
       <div className="flex min-w-0 flex-col gap-2">
         <h4 className="t-h4 text-navy">{c.title}</h4>
         <p className="t-body text-body">{c.body}</p>
-        <ExternalLink href={c.source.url} className="t-small self-start text-graphite-600 underline underline-offset-4 hover:text-navy print:hidden">
-          {C.sourceLabel}: {c.source.label}
-        </ExternalLink>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1">
+          {c.action ? (
+            <button type="button" className="btn btn-navy !min-h-11 print:hidden" onClick={() => setAnswers({ moveInDate: c.action!.moveInDate })}>
+              {c.action.label}
+              <span className="btn-dash" aria-hidden="true" />
+            </button>
+          ) : null}
+          <ExternalLink href={c.source.url} className="t-small text-graphite-600 underline underline-offset-4 hover:text-navy print:hidden">
+            {C.sourceLabel}: {c.source.label}
+          </ExternalLink>
+        </div>
       </div>
     </li>
   );
@@ -255,6 +263,9 @@ export function PlanView() {
   if (mode !== "plan") return null;
   const grouped = PHASES.map((p) => ({ phase: p, items: plan.milestones.filter((m) => m.phase === p) })).filter((g) => g.items.length);
   const keyDates = KEY_IDS.map((id) => plan.milestones.find((m) => m.id === id)).filter((m): m is Milestone => Boolean(m?.date));
+  /* A plan that doesn't fit says so before the dates; the rest of the callouts follow them. */
+  const urgent = plan.callouts.filter((c) => c.id === "past");
+  const callouts = plan.callouts.filter((c) => c.id !== "past");
 
   return (
     <section id="plan" className="scroll-mt-header bg-linen-50 print:bg-white" aria-labelledby="plan-title">
@@ -276,11 +287,19 @@ export function PlanView() {
 
         <p className="hidden text-[9pt] text-graphite-600 print:block">{shareUrl}</p>
 
+        {urgent.length ? (
+          <ul className="grid gap-3">
+            {urgent.map((c) => (
+              <CalloutCard key={c.id} c={c} />
+            ))}
+          </ul>
+        ) : null}
+
         <KeyDates items={keyDates} today={today} />
 
-        {plan.callouts.length ? (
+        {callouts.length ? (
           <ul className="grid gap-3 md:grid-cols-2">
-            {plan.callouts.map((c) => (
+            {callouts.map((c) => (
               <CalloutCard key={c.id} c={c} />
             ))}
           </ul>

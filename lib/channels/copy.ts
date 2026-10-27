@@ -30,7 +30,7 @@ export type ChannelCopy = {
   image: { name: string; alt: string; position?: string };
 };
 
-const RELOCATE_NOTE = "Six questions, no email, and every rule in the plan comes with its source.";
+const RELOCATE_NOTE = "Five questions, no email, and every rule in the plan comes with its source.";
 const SOLD_NOTE = "From the county property appraisers’ records. No sign-up, and no algorithm guessing.";
 
 export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
@@ -39,7 +39,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     name: "YouTube",
     title: "From YouTube · Plan the move",
     description:
-      "You’ve watched the coast; here’s the next step. The relocation planner turns six questions into a dated plan for a move to Lakewood Ranch, Sarasota or Bradenton.",
+      "You’ve watched the coast; here’s the next step. The relocation planner turns five questions into a dated plan for a move to Lakewood Ranch, Sarasota or Bradenton.",
     eyebrow: "From YouTube",
     heading: "You’ve seen the coast. Now plan the move.",
     line: "We’re Joelyn and Jessica. If one of our videos has you thinking about Lakewood Ranch, Sarasota or Bradenton, start here: tell the planner when you’re coming and it puts the whole move on a calendar, from the contract deadlines to the week the insurance has to be bound.",
@@ -51,10 +51,10 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     name: "Instagram",
     title: "From Instagram · Where to start",
     description:
-      "Thanks for following along. If you’re moving here from somewhere else, the relocation planner turns six questions into a dated plan for the move.",
+      "Thanks for following along. If you’re moving here from somewhere else, the relocation planner turns five questions into a dated plan for the move.",
     eyebrow: "From Instagram",
     heading: "Thanks for following along. Here’s where to start.",
-    line: "If you’re moving here from somewhere else, the relocation planner asks six questions and gives you the move on a calendar: the contract deadlines, the week insurance has to be bound, and when homestead comes into it.",
+    line: "If you’re moving here from somewhere else, the relocation planner asks five questions and gives you the move on a calendar: the contract deadlines, the week insurance has to be bound, and when homestead comes into it.",
     cta: { href: "/relocate", label: "Plan the move", note: RELOCATE_NOTE },
     image: { name: "library/lakes-aerial-sunset", alt: "Lakefront streets from the air at sunset" },
   },

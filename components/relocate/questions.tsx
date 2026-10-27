@@ -13,6 +13,9 @@ import { usePlanner } from "./planner-context";
 
 const STEPS = ["moveIn", "path", "homeToSell", "fromState", "county"] as const;
 
+/** How far ahead the date picker reaches: a move-in three years out is as far as a plan is worth drawing. */
+const MOVE_IN_YEARS_AHEAD = 3;
+
 const DAY = 86_400_000;
 const daysBetween = (from: string, to: string) => Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / DAY);
 
@@ -150,6 +153,7 @@ export function Questions() {
                       aria-labelledby={id("q")}
                       className="max-w-[260px] text-[18px]"
                       min={today}
+                      max={`${Number(today.slice(0, 4)) + MOVE_IN_YEARS_AHEAD}${today.slice(4)}`}
                       value={answers.moveInDate}
                       onChange={(e) => e.target.value && setAnswers({ moveInDate: e.target.value })}
                     />

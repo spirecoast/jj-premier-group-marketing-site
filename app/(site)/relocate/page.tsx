@@ -13,6 +13,8 @@ import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { SOURCES } from "@/lib/relocate/sources";
 import { MOVE_DRAFT, RELOCATE_KEYS } from "@/lib/relocate/url";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
+import { SITE_TIMEZONE } from "@/lib/content/format";
+import { dayIn } from "@/lib/time";
 import { ExternalLink } from "@/components/ui/external-link";
 import { IslandBoundary } from "@/components/ui/island-boundary";
 import { UrlPending } from "@/components/url-pending";
@@ -75,11 +77,13 @@ const PRINT_CSS = `
 /**
  * Static: the server renders question one; a plan link's answers, the answers
  * in progress and today's date are applied in the browser
- * (components/relocate/planner-context.tsx).
+ * (components/relocate/planner-context.tsx). The server's "today" is the
+ * site's own day (not the UTC day), the best guess until the browser
+ * replaces it with the visitor's.
  */
 export default async function RelocatePage() {
   const team = await getTeam();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dayIn(SITE_TIMEZONE);
 
   return (
     <PlannerProvider serverToday={today}>

@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import { checkFairHousing } from "../fair-housing";
 import { RELOCATE_COPY } from "./copy";
 import { planToIcs } from "./ics";
-import { HOMESTEAD_AMOUNTS, addDays, buildPlan, daysBetween, defaultAnswers, formatDate, homesteadCycle, inHurricaneSeason, inspectionRunsPastBind, isISODate, type Answers, type Milestone } from "./plan";
+import { HOMESTEAD_AMOUNTS, addDays, buildPlan, daysBetween, defaultAnswers, earliestMoveInFor, formatDate, homesteadCycle, inHurricaneSeason, inspectionRunsPastBind, isISODate, type Answers, type Milestone } from "./plan";
 import { FACTS, SOURCE_LIST } from "./sources";
 import { answersToQuery, parseAnswers } from "./url";
 
@@ -174,6 +174,52 @@ describe("financed vs cash", () => {
     assert.equal(inspectionRunsPastBind("2027-02-06", "2027-02-05"), true);
     assert.equal(inspectionRunsPastBind("2027-02-05", "2027-02-05"), false);
     assert.equal(inspectionRunsPastBind("2027-01-13", "2027-02-05"), false);
+  });
+});
+
+describe("a move-in too soon for the chain", () => {
+  it("the sample plan fits, so there is no callout and no earliest date", () => {
+    const plan = buildPlan(SAMPLE, TODAY);
+    assert.equal(plan.callouts.find((c) => c.id === "past"), undefined);
+    assert.equal(plan.earliestMoveIn, undefined);
+    assert.equal(earliestMoveInFor(plan.milestones, SAMPLE.moveInDate, TODAY), undefined);
+  });
+
+  it("a move-in tomorrow puts the contract in the past and says so, with the earliest date that works", () => {
+    const tomorrow = addDays(TODAY, 1);
+    const plan = buildPlan({ ...SAMPLE, moveInDate: tomorrow, closingOffset: 0 }, TODAY);
+    const effective = dateOf(plan.milestones, "effective")!;
+    assert.ok(effective < TODAY, "the contract date is before today");
+    const c = plan.callouts.find((x) => x.id === "past");
+    assert.ok(c, "the callout is there");
+    assert.equal(plan.callouts[0]!.id, "past", "and it comes first");
+    assert.match(c.body, new RegExp(formatDate(tomorrow, "long")));
+    assert.ok(plan.earliestMoveIn && plan.earliestMoveIn > TODAY);
+    assert.equal(c.action?.moveInDate, plan.earliestMoveIn);
+    // Redrawn to that date, every step is today or later and the callout is gone.
+    const fixed = buildPlan({ ...SAMPLE, moveInDate: plan.earliestMoveIn!, closingOffset: 0 }, TODAY);
+    assert.equal(fixed.callouts.find((x) => x.id === "past"), undefined);
+    const first = fixed.milestones.filter((m) => m.date && m.phase !== "after").map((m) => m.date!).sort()[0]!;
+    assert.equal(first, TODAY, "the first step is today itself");
+    // A day sooner would not fit.
+    const tooSoon = buildPlan({ ...SAMPLE, moveInDate: addDays(plan.earliestMoveIn!, -1), closingOffset: 0 }, TODAY);
+    assert.ok(tooSoon.callouts.find((x) => x.id === "past"));
+  });
+
+  it("names the first step that had to happen: the pre-approval on a financed plan, the contract when paying cash", () => {
+    const tomorrow = addDays(TODAY, 1);
+    const financed = buildPlan({ ...SAMPLE, moveInDate: tomorrow, financing: "financed" }, TODAY);
+    assert.match(financed.callouts.find((x) => x.id === "past")!.body, /pre-approval letter/);
+    const cash = buildPlan({ ...SAMPLE, moveInDate: tomorrow, financing: "cash", homeToSell: "no" }, TODAY);
+    assert.match(cash.callouts.find((x) => x.id === "past")!.body, /visit trip|signed contract/);
+  });
+
+  it("renting first has no contract chain, so only a home to list can be late", () => {
+    const tomorrow = addDays(TODAY, 1);
+    const renting = buildPlan({ ...SAMPLE, moveInDate: tomorrow, path: "renting-first", homeToSell: "no" }, TODAY);
+    assert.equal(renting.callouts.find((x) => x.id === "past"), undefined);
+    const selling = buildPlan({ ...SAMPLE, moveInDate: tomorrow, path: "renting-first", homeToSell: "yes" }, TODAY);
+    assert.match(selling.callouts.find((x) => x.id === "past")!.body, /home you're selling/);
   });
 });
 

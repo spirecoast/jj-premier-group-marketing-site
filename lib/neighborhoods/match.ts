@@ -2,18 +2,23 @@ import { isMarketSlug, MARKETS } from "@/lib/content/markets";
 import type { MarketSlug } from "@/lib/content/types";
 import { STATUS_LABEL, titleCase } from "./format";
 import type { IndexEntry } from "./index-format";
-import type { Filters } from "./search";
 import type { EvacuationZone, HomeType, WaterAccess } from "./types";
-import { explorerHref } from "./url";
+import { LIST_MAX, explorerHref } from "./url";
 
 /**
  * Atlas Match: up to ten questions about the place and the home, each read
  * against one field of the index. There is no score and no ranking. A place
  * is in or out, question by question, and a field we do not hold for it is
  * "not known", which the reader can keep in or leave out per question.
+ *
+ * The questions run in order of how much of the catalog holds the fact
+ * (market and county for every place, the evacuation zone for most, the
+ * water for few), so the list narrows on what we know before it meets what
+ * we don't. Each question says its coverage before the choices, and one
+ * whose coverage is under a quarter waits behind "More questions".
  */
 
-export const QUESTION_IDS = ["market", "county", "homes", "build", "gated", "hoa", "cdd", "water", "evac", "near"] as const;
+export const QUESTION_IDS = ["market", "county", "evac", "hoa", "homes", "build", "cdd", "gated", "water", "near"] as const;
 export type QuestionId = (typeof QUESTION_IDS)[number];
 
 export type Build = "new" | "soon" | "resale";
@@ -108,6 +113,22 @@ export const QUESTIONS: readonly Question[] = [
     noun: "county",
   },
   {
+    id: "evac",
+    field: "evacuationZone",
+    title: "How far from the storm surge?",
+    help: "Evacuation zones run from A, nearest the water, to E. They decide when you’d be asked to leave before a storm.",
+    any: "Any zone",
+    noun: "evacuation zone",
+  },
+  {
+    id: "hoa",
+    field: "hoa",
+    title: "Want an HOA community?",
+    help: "An HOA or condo association means monthly dues, rules and usually shared amenities like a pool or clubhouse.",
+    any: "Either",
+    noun: "association",
+  },
+  {
     id: "homes",
     field: "homeTypes",
     title: "What kind of home?",
@@ -124,22 +145,6 @@ export const QUESTIONS: readonly Question[] = [
     noun: "new construction or resale",
   },
   {
-    id: "gated",
-    field: "gated",
-    title: "Do you want a gate?",
-    help: "We mark a community gated only when its association or builder says so.",
-    any: "Either",
-    noun: "gating",
-  },
-  {
-    id: "hoa",
-    field: "hoa",
-    title: "Want an HOA community?",
-    help: "An HOA or condo association means monthly dues, rules and usually shared amenities like a pool or clubhouse.",
-    any: "Either",
-    noun: "association",
-  },
-  {
     id: "cdd",
     field: "cdd",
     title: "Want a CDD community?",
@@ -148,20 +153,20 @@ export const QUESTIONS: readonly Question[] = [
     noun: "CDD",
   },
   {
+    id: "gated",
+    field: "gated",
+    title: "Do you want a gate?",
+    help: "We mark a community gated only when its association or builder says so.",
+    any: "Either",
+    noun: "gating",
+  },
+  {
     id: "water",
     field: "waterAccess",
     title: "On the water?",
     help: "Pick any that fit.",
     any: "Doesn't matter",
     noun: "water access",
-  },
-  {
-    id: "evac",
-    field: "evacuationZone",
-    title: "How far from the storm surge?",
-    help: "Evacuation zones run from A, nearest the water, to E. They decide when you’d be asked to leave before a storm.",
-    any: "Any zone",
-    noun: "evacuation zone",
   },
   {
     id: "near",
@@ -175,6 +180,80 @@ export const QUESTIONS: readonly Question[] = [
 
 export function questionIndex(id: QuestionId): number {
   return QUESTION_IDS.indexOf(id);
+}
+
+/* ---------- Coverage ---------- */
+
+export type Coverage = { known: number; total: number };
+
+/** Whether the index holds the fact a question reads, for one place. Market is always known. */
+export function holdsFact(e: IndexEntry, id: QuestionId): boolean {
+  switch (id) {
+    case "market":
+      return true;
+    case "county":
+      return e.c !== null;
+    case "homes":
+      return e.h.length > 0;
+    case "build":
+      return e.st !== null || e.b.length > 0;
+    case "gated":
+      return e.g !== null;
+    case "hoa":
+      return e.ho !== null;
+    case "cdd":
+      return e.cd !== null;
+    case "water":
+      return e.w !== null;
+    case "evac":
+      return e.ev !== null;
+    case "near":
+      return e.x !== null && e.y !== null;
+  }
+}
+
+/** The places a match considers: every researched record, plus the county-registry names when asked. */
+export function considered(entries: IndexEntry[], registry: boolean): IndexEntry[] {
+  return registry ? entries : entries.filter((e) => e.r === 1);
+}
+
+/** How many of the places considered hold the fact a question reads. Null for market, which every place has. */
+export function coverage(entries: IndexEntry[], id: QuestionId, registry = false): Coverage | null {
+  if (id === "market") return null;
+  const pool = considered(entries, registry);
+  return { known: pool.filter((e) => holdsFact(e, id)).length, total: pool.length };
+}
+
+/** "We hold this for 545 of 678 places." The sentence the question shows before its choices. */
+export function coverageLine(c: Coverage | null, id: QuestionId): string | null {
+  if (!c) return null;
+  const n = c.known.toLocaleString();
+  const t = c.total.toLocaleString();
+  return id === "near" ? `We have a map point for ${n} of ${t} places.` : `We hold this for ${n} of ${t} places.`;
+}
+
+/** A deferrable question whose fact we hold for fewer places than this share waits behind "More questions". */
+export const DEFER_BELOW = 0.25;
+
+/**
+ * The questions that may wait: water (5% coverage in October 2026). Gated is
+ * thin too (14%) but stays in the flow near its end, since it is one of the
+ * first things a buyer asks; its coverage line says how thin it is.
+ */
+export const DEFERRABLE: readonly QuestionId[] = ["water"];
+
+/** The questions held back for thin coverage. Before the index arrives, every deferrable one. */
+export function deferredIds(entries: IndexEntry[] | null, registry = false): QuestionId[] {
+  if (!entries) return [...DEFERRABLE];
+  return DEFERRABLE.filter((id) => {
+    const c = coverage(entries, id, registry);
+    return c !== null && c.total > 0 && c.known / c.total < DEFER_BELOW;
+  });
+}
+
+/** The questions in the main flow, in order. */
+export function flowOf(deferred: readonly QuestionId[]): QuestionId[] {
+  return QUESTION_IDS.filter((id) => !deferred.includes(id));
 }
 
 /** Whether the reader gave an answer to the question (an "any" choice is no answer). */
@@ -310,6 +389,26 @@ export function matchAll(entries: IndexEntry[], a: Answers, by: Map<string, Inde
 /** How many of a match's facts are not known. */
 export const unknownCount = (m: Match): number => m.facts.filter((f) => f.state === "unknown").length;
 
+export type AnswerBar = { id: QuestionId; text: string; confirmed: number; unknown: number };
+
+/**
+ * One bar per answered question: of the places that fit, how many are
+ * confirmed on that answer and how many are in only because the fact isn't
+ * known and the reader kept them. Together the two always equal the list.
+ */
+export function answerBars(matches: Match[], parts: SummaryPart[]): AnswerBar[] {
+  return parts.map(({ id, text }) => {
+    let confirmed = 0;
+    let unknown = 0;
+    for (const m of matches) {
+      const f = m.facts.find((x) => x.id === id);
+      if (f?.state === "match") confirmed += 1;
+      else if (f?.state === "unknown") unknown += 1;
+    }
+    return { id, text, confirmed, unknown };
+  });
+}
+
 /** "fit": confirmed on every answer first, then fewest unknowns, then A to Z. */
 export function sortMatches(ms: Match[], order: "fit" | "name" | "distance"): Match[] {
   const byName = (x: Match, y: Match) => x.entry.n.localeCompare(y.entry.n);
@@ -437,27 +536,7 @@ export function matchHref(s: MatchState): string {
   return `/neighborhoods/match${matchToSearch(s)}`;
 }
 
-/**
- * The explorer's nearest filter state. It knows market (one), status, gated
- * and registry names; the rest of the answers do not carry over.
- */
-export function explorerFilters(a: Answers, placed: QuestionId[] = answeredIds(a)): { href: string; carried: string[]; dropped: string[] } {
-  const f: Filters = {};
-  const carried: string[] = [];
-  const dropped: string[] = [];
-  if (a.market.length === 1) {
-    f.market = a.market[0];
-    carried.push("market");
-  } else if (a.market.length > 1) dropped.push("more than one market");
-  if (a.build === "new" || a.build === "soon") {
-    f.status = a.build === "new" ? "selling" : "coming-soon";
-    carried.push("status");
-  } else if (a.build) dropped.push("resale only");
-  if (a.gated === true) {
-    f.gated = true;
-    carried.push("gated");
-  } else if (a.gated === false) dropped.push("not gated");
-  if (a.registry) f.registry = true;
-  for (const id of ["county", "homes", "hoa", "cdd", "water", "evac", "near"] as const) if (placed.includes(id)) dropped.push(QUESTIONS[questionIndex(id)]!.noun);
-  return { href: explorerHref({ filters: f }), carried, dropped };
+/** "See them on the map": the explorer opened on exactly this list (?list=a,b,c), never a looser filter. A list past LIST_MAX is cut there, and the panel says so. */
+export function matchListHref(matches: Match[]): string {
+  return explorerHref({ list: matches.slice(0, LIST_MAX).map((m) => m.entry.s) });
 }

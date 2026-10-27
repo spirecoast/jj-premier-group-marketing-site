@@ -9,7 +9,7 @@ import { IntentLink } from "@/components/intent-link";
 
 /** The pages each family's bar shows on. Pages whose first screen sits under the header (a place, a venue, an issue) keep the header alone. */
 const ROUTES: Record<ProductFamily["key"], RegExp[]> = {
-  atlas: [/^\/neighborhoods$/, /^\/neighborhoods\/match$/, /^\/relocate$/],
+  atlas: [/^\/neighborhoods$/, /^\/neighborhoods\/match$/, /^\/neighborhoods\/compare$/, /^\/relocate$/],
   encore: [/^\/calendar(\/.*)?$/],
   tide: [/^\/tide$/, /^\/sell\/sold$/, /^\/sell\/net-proceeds$/],
 };

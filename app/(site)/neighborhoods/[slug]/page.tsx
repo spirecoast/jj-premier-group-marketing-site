@@ -12,6 +12,7 @@ import { PlaceMapIsland } from "@/components/place-map-island";
 import { PlacePoster } from "@/components/place-poster";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
+import { SavePlaceButton } from "@/components/atlas/save-place";
 import { ShareButton } from "@/components/share-button";
 import { getNeighborhood, getNeighborhoodSlugs, getUpcomingEvents } from "@/lib/content";
 import { formatDateShort } from "@/lib/content/format";
@@ -196,6 +197,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           {n ? <RichText value={n.overview} /> : null}
           {record?.description && (!n || record.research === "full") ? <p className="t-lead max-w-measure text-body">{record.description}</p> : null}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            {record ? <SavePlaceButton slug={slug} name={name} word /> : null}
             {record ? (
               <Link href={explorerHref({ place: slug }) as Route} className="link-rule">
                 See it on the map
