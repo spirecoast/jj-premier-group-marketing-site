@@ -8,6 +8,7 @@ import { DATASET_VERSION, getIndexEntries } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
 import { parseMatch } from "@/lib/neighborhoods/match";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { IslandBoundary } from "@/components/ui/island-boundary";
 
 export async function generateMetadata(): Promise<Metadata> {
   const count = (await getIndexEntries()).length;
@@ -56,7 +57,9 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <section className="bg-parchment py-8 sm:py-section" aria-label="The questions">
         <div className="container-site">
-          <AtlasMatch initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
+          <IslandBoundary name="the questions" className="px-0 py-0">
+            <AtlasMatch initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
+          </IslandBoundary>
         </div>
       </section>
 

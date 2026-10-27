@@ -13,6 +13,8 @@ import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { SOURCES } from "@/lib/relocate/sources";
 import { hasAnswers, parseAnswers, type QueryParams } from "@/lib/relocate/url";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
+import { ExternalLink } from "@/components/ui/external-link";
+import { IslandBoundary } from "@/components/ui/island-boundary";
 
 export const metadata: Metadata = pageMetadata({
   title: "Atlas Move: your Florida move, to the day",
@@ -30,9 +32,9 @@ const FAQ_ITEMS: Faq[] = FAQS.map((f) => ({
       <p>{f.answer}</p>
       <p className="mt-3 t-small text-graphite-500">
         Source:{" "}
-        <a href={SOURCES[f.source].url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-navy">
+        <ExternalLink href={SOURCES[f.source].url} className="underline underline-offset-4 hover:text-navy">
           {SOURCES[f.source].label}
-        </a>
+        </ExternalLink>
       </p>
     </>
   ),
@@ -94,9 +96,10 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">{HERO.lead}</p>
       </Masthead>
 
-      <Questions />
-
-      <PlanView />
+      <IslandBoundary name="the planner" minHeight="480px">
+        <Questions />
+        <PlanView />
+      </IslandBoundary>
       <MoveHelp enabled={placesEnabled()} />
 
       <Ask team={team.map((m) => ({ slug: m.slug, name: m.name, phone: m.phone, phoneE164: m.phoneE164 }))} />

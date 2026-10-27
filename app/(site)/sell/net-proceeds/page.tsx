@@ -3,6 +3,8 @@ import { Masthead } from "@/components/masthead";
 import { NetProceedsCalculator } from "@/components/net-proceeds/calculator";
 import { CFO_TITLE_URL, CHECKED, CONDO_STATUTE_URL, MANATEE_RECORDING_URL, NOVEMBER_DISCOUNT_PCT, SOURCES, TAX_DISCOUNT_URL } from "@/lib/net-proceeds";
 import { pageMetadata } from "@/lib/seo";
+import { ExternalLink } from "@/components/ui/external-link";
+import { IslandBoundary } from "@/components/ui/island-boundary";
 
 export const metadata: Metadata = pageMetadata({
   title: "Tide Sale Calculator: what you'd keep",
@@ -43,7 +45,9 @@ export default function NetProceedsPage() {
       </Masthead>
 
       <section className="container-site flex flex-col gap-10 py-section">
-        <NetProceedsCalculator />
+        <IslandBoundary name="the calculator" className="px-0 py-0">
+          <NetProceedsCalculator />
+        </IslandBoundary>
       </section>
 
       {/* What this isn't. */}
@@ -70,9 +74,9 @@ export default function NetProceedsPage() {
             return (
               <li key={key} className="flex flex-col gap-2 border-t border-hairline pt-4">
                 <p className="t-body text-navy">
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-harbor-700">
+                  <ExternalLink href={s.url} className="underline underline-offset-4 hover:text-harbor-700">
                     {s.title}
-                  </a>
+                  </ExternalLink>
                 </p>
                 <p className="t-mono-sm text-graphite-500">
                   {s.publisher} · checked {CHECKED}
@@ -81,36 +85,36 @@ export default function NetProceedsPage() {
                 {key === "titleRates" ? (
                   <p className="t-small text-graphite-500">
                     The rule is also named, with its first two tiers, on the{" "}
-                    <a href={CFO_TITLE_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                    <ExternalLink href={CFO_TITLE_URL} className="underline underline-offset-4">
                       Florida CFO&rsquo;s title insurance overview
-                    </a>
+                    </ExternalLink>
                     .
                   </p>
                 ) : null}
                 {key === "estoppelStatute" ? (
                   <p className="t-small text-graphite-500">
                     Condominiums:{" "}
-                    <a href={CONDO_STATUTE_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                    <ExternalLink href={CONDO_STATUTE_URL} className="underline underline-offset-4">
                       F.S. 718.116(8)
-                    </a>
+                    </ExternalLink>
                     .
                   </p>
                 ) : null}
                 {key === "prorations" ? (
                   <p className="t-small text-graphite-500">
                     The maximum discount is {NOVEMBER_DISCOUNT_PCT} percent, for payment in November, under{" "}
-                    <a href={TAX_DISCOUNT_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                    <ExternalLink href={TAX_DISCOUNT_URL} className="underline underline-offset-4">
                       F.S. 197.162
-                    </a>
+                    </ExternalLink>
                     .
                   </p>
                 ) : null}
                 {key === "recording" ? (
                   <p className="t-small text-graphite-500">
                     Manatee&rsquo;s schedule is the same:{" "}
-                    <a href={MANATEE_RECORDING_URL} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                    <ExternalLink href={MANATEE_RECORDING_URL} className="underline underline-offset-4">
                       Manatee County Clerk, recording fees
-                    </a>
+                    </ExternalLink>
                     .
                   </p>
                 ) : null}
