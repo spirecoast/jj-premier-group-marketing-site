@@ -346,16 +346,38 @@
     --vt-page: 240ms;
     --vt-share: 320ms;
   }
-  /* The page body (components/page-transition.tsx): the old page leaves and
-     the new one arrives as two groups, so nothing morphs between sizes. */
-  ::view-transition-group(.vt-page) {
+  /* The page body (components/page-transition.tsx) is the document root's
+     own snapshot, the size of the viewport: the old page fades out and the
+     new one in, as two layers, so nothing morphs between sizes. */
+  ::view-transition-group(root) {
     animation: none;
   }
-  ::view-transition-old(.vt-page) {
+  ::view-transition-old(root) {
     animation: vt-fade-out var(--vt-page) var(--ease-brand) both;
   }
-  ::view-transition-new(.vt-page) {
+  ::view-transition-new(root) {
     animation: vt-fade-in var(--vt-page) var(--ease-brand) both;
+  }
+  /* The chrome holds still: each piece is its own group, taken out of the
+     root's snapshot, and neither moves nor fades (an identical old and new
+     image, blended plus-lighter, read as one). */
+  .site-header {
+    view-transition-name: site-header;
+  }
+  .product-bar {
+    view-transition-name: product-bar;
+  }
+  .action-bar {
+    view-transition-name: mobile-bar;
+  }
+  .action-pill {
+    view-transition-name: mobile-pill;
+  }
+  ::view-transition-group(site-header),
+  ::view-transition-group(product-bar),
+  ::view-transition-group(mobile-bar),
+  ::view-transition-group(mobile-pill) {
+    animation: none;
   }
   /* The nav rule (components/site-header.tsx): one name, so it slides between items. */
   ::view-transition-group(.vt-underline) {
@@ -385,12 +407,6 @@
     object-fit: cover;
     animation-duration: var(--vt-share);
     animation-timing-function: var(--ease-reveal);
-  }
-  /* The document root is the frame: header, footer, grounds. It holds still. */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
   }
   @keyframes vt-fade-out {
     from { opacity: 1; }
