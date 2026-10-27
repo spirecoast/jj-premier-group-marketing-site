@@ -44,7 +44,7 @@ export function SinceThen({ since }: { since: SinceThenModel }) {
                       <div className="h-0.5 w-full bg-sky-300/25" aria-hidden="true">
                         <div className="tide-since-bar h-full bg-tide" style={{ width: `${share ?? 0}%` }} />
                       </div>
-                      <dd className="t-note max-w-none text-linen-200">{x.partial ? `${shareLine} · ${W.sincePartial}` : shareLine}</dd>
+                      <dd className="t-note max-w-none text-linen-200">{x.count === 0 ? W.sinceNone : x.partial ? `${shareLine} · ${W.sincePartial}` : shareLine}</dd>
                     </div>
                   );
                 })}

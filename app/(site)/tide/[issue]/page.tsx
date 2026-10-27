@@ -11,7 +11,9 @@ import { IssueChart } from "@/components/tide/issue-chart";
 import { MarketChapter } from "@/components/tide/market-chapter";
 import { Moves } from "@/components/tide/moves";
 import { SinceThen } from "@/components/tide/since-then";
+import { ReaderClose } from "@/components/tide/reader-close";
 import { TeamNotes } from "@/components/tide/team-notes";
+import { ArrivedFrom } from "@/components/arrived-from";
 import { getEvent, getTeam } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import type { Event } from "@/lib/content/types";
@@ -310,18 +312,24 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           )}
         </section>
 
-        {/* The ask */}
-        <section className="border-t border-rule bg-linen-100" aria-labelledby="ask-title">
-          <div className="container-site grid gap-8 py-14 md:grid-cols-2 md:items-center md:gap-12 lg:py-16">
-            <div className="flex flex-col gap-3">
-              <h2 id="ask-title" className="t-h2 text-navy">
-                {W.askHeading}
-              </h2>
-              <p className="t-body max-w-measure text-body">{W.askBody}</p>
-            </div>
-            <LetterForm />
-          </div>
-        </section>
+        {/* The ask; for a reader who came from the email, their own street instead. */}
+        <ArrivedFrom
+          list="tide"
+          reader={<ReaderClose title={model.title} />}
+          signup={
+            <section className="border-t border-rule bg-linen-100" aria-labelledby="ask-title">
+              <div className="container-site grid gap-8 py-14 md:grid-cols-2 md:items-center md:gap-12 lg:py-16">
+                <div className="flex flex-col gap-3">
+                  <h2 id="ask-title" className="t-h2 text-navy">
+                    {W.askHeading}
+                  </h2>
+                  <p className="t-body max-w-measure text-body">{W.askBody}</p>
+                </div>
+                <LetterForm />
+              </div>
+            </section>
+          }
+        />
 
         {/* 11. Method and sources */}
         <section className="container-site py-14 lg:py-16" aria-labelledby="method-title">

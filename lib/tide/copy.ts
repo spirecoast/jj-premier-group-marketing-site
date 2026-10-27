@@ -39,6 +39,7 @@ export const TIDE_WEB_COPY = {
   sinceToDate: "{month} to date",
   sinceShare: "{pct}% of a typical month",
   sinceNoTypical: "No typical month yet",
+  sinceNone: "Nothing posted yet",
   sincePartial: "partial: the county posts sales weeks late",
 
   storyEyebrow: "The story",
@@ -141,6 +142,14 @@ export const TIDE_WEB_COPY = {
   methodHeading: "Method and sources",
   fairHousingLine: "Tide describes places and homes, never the people who live in them. Equal Housing Opportunity.",
 
+  /** The closing block for a reader who came from the email: they have Tide; what they want is their street. */
+  readerHeading: "Your street, this month",
+  readerBody: "Tide reads the three markets. Tide Street reads your own street from the same county record, every qualified sale on it.",
+  readerStreet: "Your street",
+  readerZip: "ZIP or city",
+  readerSubmit: "Show the sales",
+  readerCalculator: "Tide Sale Calculator: what you’d keep",
+  readerForward: "Forward this issue",
   askHeading: "Get Tide by email",
   askBody: "Tide comes out once a month. You can stop any time, and we never share the list.",
   source: "County property appraisers, public record, qualified sales, as of {asOf}.",

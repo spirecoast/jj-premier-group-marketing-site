@@ -177,36 +177,6 @@ export const POSTS: Post[] = [
     ),
   },
   {
-    _id: "post-water-table",
-    title: "Ask us about the water table.",
-    slug: "ask-us-about-the-water-table",
-    cover: img("library/place-mangrove-tunnel", "A waterway through the mangroves"),
-    excerpt:
-      "This one covers flood zones X, AE and VE, elevation certificates, and why the insurance quote is now the first question on any waterfront street.",
-    publishedAt: "2026-05-20",
-    author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
-    categories: ["Guides"],
-    body: rich(
-      p(
-        "Every waterfront conversation on this coast now starts with a letter. X, AE or VE. It decides the insurance quote, the lender's requirement, and often whether a house is worth the drive.",
-      ),
-      h(2, "The three letters"),
-      p(
-        "Zone X is outside the special flood hazard area. Flood insurance is optional for a lender and usually inexpensive. Several canal streets in West Bradenton and most of the Ranch sit here.",
-        "Zone AE is the hundred-year floodplain with a base flood elevation on the map. Insurance is required with a mortgage, and the premium depends on how the finished floor compares to that elevation. Most of Siesta Key and the bayfront is AE.",
-        "Zone VE is AE with wave action. Beachfront and open-bay lots. Construction rules are stricter and premiums are higher.",
-      ),
-      h(2, "The elevation certificate"),
-      p(
-        "A surveyor's document that states the finished floor height against the base flood elevation. It is the single page that moves a quote most. Ask for it before you make an offer; if the seller doesn’t have one, we order it during inspection.",
-      ),
-      quote("The map tells you the zone. The neighbors tell you what happened the last time it rained for three days. Ask both."),
-      p(
-        "History matters as much as the map. We ask what a street did in the last big storms before you fall in love with the kitchen, and we tell you what we hear.",
-      ),
-    ),
-  },
-  {
     _id: "post-start-in-october",
     title: "Getting your house ready to sell",
     slug: "thinking-about-spring-start-in-october",

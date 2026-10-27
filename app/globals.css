@@ -1911,6 +1911,12 @@ html:has([data-product-bar]) {
   .motif-tide span { display: block; height: 1px; background: var(--color-tide); }
   .motif-tide span:nth-child(2) { opacity: 0.45; }
   .motif-tide span:nth-child(3) { opacity: 0.2; }
+  /* Tide's three hairlines with the lockup: the lockup's own width, 6px apart,
+     the brightest on top, 16px under the byline (the grid gap carries 12 of it). */
+  .motif-tide-lockup { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 100%; }
+  .motif-tide-lockup span { display: block; height: 1px; background: var(--color-tide); }
+  .motif-tide-lockup span:nth-child(2) { opacity: 0.45; }
+  .motif-tide-lockup span:nth-child(3) { opacity: 0.2; }
   /* The marquee stands outside the text column, so a line never touches a word. */
   .motif-encore { inset: 1.25rem max(0.5rem, calc(var(--gutter) - 2.25rem)); }
   .motif-spot {
@@ -1960,9 +1966,12 @@ html:has([data-product-bar]) {
     }
     .encore-marquee-bulb:nth-of-type(even) { animation-delay: calc(var(--i) * 22ms + 700ms), calc(var(--i) * 22ms + 4.2s); }
     .motif-spot { opacity: 0; animation: motif-light 2.4s ease 0.6s forwards; }
-    .motif-tide span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
-    .motif-tide span:nth-child(2) { animation-delay: 0.15s; }
-    .motif-tide span:nth-child(3) { animation-delay: 0.3s; }
+    .motif-tide span,
+    .motif-tide-lockup span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
+    .motif-tide span:nth-child(2),
+    .motif-tide-lockup span:nth-child(2) { animation-delay: 0.15s; }
+    .motif-tide span:nth-child(3),
+    .motif-tide-lockup span:nth-child(3) { animation-delay: 0.3s; }
   }
   @keyframes encore-marquee-draw { to { stroke-dashoffset: 0; } }
   @keyframes motif-light { to { opacity: var(--o, 0.95); } }
