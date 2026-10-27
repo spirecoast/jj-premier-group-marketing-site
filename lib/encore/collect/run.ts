@@ -229,7 +229,7 @@ export async function runCollector(opts: RunOptions): Promise<RunResult> {
             url = better;
             out = await processImage({ slug: img.eventSlug, url, fetch: fetcher, sink });
           }
-          if (img.storagePath && img.storagePath !== out.storagePath) await sink.remove?.(img.storagePath).catch(() => undefined);
+          if (img.storagePath && img.storagePath !== out.storagePath) await sink.remove?.([img.storagePath]).catch(() => undefined);
           await store.setImage({ ...img, imageSourceUrl: url, alt: titles.get(img.eventSlug) ?? null, ...out, error: null, fetchedAt: new Date().toISOString() });
           result.images.stored += 1;
         } catch (err) {

@@ -39,10 +39,44 @@ export type ReviewRow = QueueItem & { id: number; status: "pending" | "approved"
 
 export type RunKind = "collect" | "check" | "seed" | "images";
 
+export type LoadOptions = { since?: string };
+
+export type PruneResult = { checks: number; performances: number; events: number; imagePaths: string[] };
+
+/** A snapshot cut to `since` the way load({ since }) cuts it: for stores that hold everything in memory, and for tests. */
+export function sinceSnapshot(snap: EncoreSnapshot, since?: string): EncoreSnapshot {
+  if (!since) return snap;
+  const events = snap.events.flatMap((e) => {
+    // A dated production stays while it has a date on or after `since`; a run with no dates, while it reaches it.
+    if (e.performances.length) {
+      const performances = e.performances.filter((p) => p.date >= since);
+      return performances.length ? [{ ...e, performances }] : [];
+    }
+    return (e.endDate ?? e.startDate) >= since ? [e] : [];
+  });
+  const kept = new Set(events.map((e) => e.slug));
+  return { ...snap, events, images: snap.images.filter((i) => kept.has(i.eventSlug)) };
+}
+
 export interface EncoreStore {
   readonly kind: "pg" | "file";
-  /** Everything the site and the collector read: venues, events (hidden ones too), performances, images. */
-  load(): Promise<EncoreSnapshot>;
+  /**
+   * What the site and the collector read: venues, events (hidden ones too),
+   * performances, images. The collector reads everything; pages and the
+   * status report pass `since` (an ISO day) and get only performances on or
+   * after it and the events that still have one, or whose run reaches it.
+   */
+  load(opts?: LoadOptions): Promise<EncoreSnapshot>;
+  /** Whether any event is stored at all (the first run seeds an empty calendar). */
+  hasEvents(): Promise<boolean>;
+  /**
+   * Remove what no page or run needs (lib/encore/prune.ts): dates before
+   * `before`, status readings before `checksBefore`, and productions with no
+   * dates left whose run ended before `before`. Returns the counts and the
+   * storage paths of the removed productions' images, for the caller to
+   * delete from the bucket. Stores that hold nothing long-lived leave it out.
+   */
+  prune?(opts: { before: string; checksBefore: Date }): Promise<PruneResult>;
   sources(): Promise<SourceState[]>;
   /** Insert sources that are not stored yet; stored rows keep their config and state. */
   ensureSources(specs: SourceSpec[]): Promise<number>;

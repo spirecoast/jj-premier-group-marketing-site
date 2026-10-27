@@ -1,4 +1,5 @@
 import { JSON_SNAPSHOT } from "@/lib/content/encore";
+import { addDays, todayLocal } from "./collect/dates";
 import type { EncoreSnapshot } from "./store/types";
 
 /**
@@ -14,6 +15,14 @@ import type { EncoreSnapshot } from "./store/types";
  */
 
 const TTL = 5 * 60_000;
+
+/**
+ * How far back pages read: a closed event keeps its page (with what's next
+ * at the venue) for about a month after its last date, and the compare
+ * page counts this month's shows. Everything older stays in the tables for
+ * the collector, which reads them all, until encore_prune() removes it.
+ */
+export const PAGE_HISTORY_DAYS = 35;
 let memo: { at: number; snap: EncoreSnapshot } | null = null;
 let inflight: Promise<EncoreSnapshot> | null = null;
 
@@ -31,7 +40,7 @@ async function read(): Promise<EncoreSnapshot> {
   if (!process.env.DATABASE_URL || process.env.ENCORE_SOURCE === "json") return JSON_SNAPSHOT;
   try {
     const [{ getDb }, { pgStore }] = await Promise.all([import("@/lib/db"), import("./store/pg")]);
-    const snap = await timeout(pgStore(getDb()).load(), 8000);
+    const snap = await timeout(pgStore(getDb()).load({ since: addDays(todayLocal(Date.now()), -PAGE_HISTORY_DAYS) }), 8000);
     if (!snap.events.length) return JSON_SNAPSHOT;
     return snap;
   } catch (err) {
