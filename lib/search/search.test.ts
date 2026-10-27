@@ -547,6 +547,15 @@ describe("snippets", () => {
     assert.deepEqual(snippetParts("plain"), [{ text: "plain", mark: false }]);
   });
 
+  test("snippetParts marks at most maxMarks runs; the rest read plain", () => {
+    assert.deepEqual(snippetParts(`${S}a${E} ${S}b${E} ${S}c${E}`, 2), [
+      { text: "a", mark: true },
+      { text: " ", mark: false },
+      { text: "b", mark: true },
+      { text: " c", mark: false },
+    ]);
+  });
+
   test("excerpt cuts at a word and never leaves a mark open", () => {
     assert.equal(excerpt("short"), "short");
     const e = excerpt(`${words(10)} ${S}${words(80)}${E}`, 100);
