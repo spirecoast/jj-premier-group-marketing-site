@@ -27,13 +27,13 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   };
 }
 
-/** "Flood zones and flood insurance, explained" → the path a reader sees under it. */
-const displayPath = (url: string) => url.replace(/#.*$/, "").replace(/^\//, "").replace(/\//g, " / ") || "home";
+/** Past two highlights the marks are noise: the rest of the snippet reads plain. */
+const MAX_MARKS = 2;
 
 function Snippet({ text }: { text: string }) {
   return (
     <p className="t-small max-w-measure text-body">
-      {snippetParts(text).map((p, i) =>
+      {snippetParts(text, MAX_MARKS).map((p, i) =>
         p.mark ? (
           <mark key={i} className="search-mark">
             {p.text}
@@ -46,16 +46,16 @@ function Snippet({ text }: { text: string }) {
   );
 }
 
+/** One row: the kind as its one tag, the title, the section in sentence case, the snippet. The row is the link, so no path repeats it. */
 function Result({ hit }: { hit: SearchHit }) {
   return (
     <li className="border-t border-hairline">
       <Link href={hit.url as Route} className="group flex flex-col gap-2 py-6 md:flex-row md:gap-10">
-        <p className="t-mono-sm w-36 shrink-0 pt-1 uppercase tracking-[0.12em] text-sky-700">{KIND_LABEL[hit.kind]}</p>
+        <p className="t-label w-32 shrink-0 pt-1.5 text-sky-700">{KIND_LABEL[hit.kind]}</p>
         <div className="flex min-w-0 flex-col gap-2">
           <h2 className="t-h3 text-navy underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-harbor-300">{hit.title}</h2>
-          {hit.section && hit.section !== hit.title ? <p className="t-label text-graphite-600">{hit.section}</p> : null}
+          {hit.section && hit.section !== hit.title ? <p className="t-note">{hit.section}</p> : null}
           {hit.snippet ? <Snippet text={hit.snippet} /> : null}
-          <p className="t-mono-sm truncate text-graphite-500">{displayPath(hit.url)}</p>
         </div>
       </Link>
     </li>

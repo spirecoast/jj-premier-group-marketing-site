@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { pageMetadata } from "@/lib/seo";
@@ -24,11 +25,12 @@ function googleReviewUrl(): string | null {
 }
 
 /**
- * /reviews — the ask, never the display. The Google link renders only when
- * NEXT_PUBLIC_GOOGLE_REVIEW_URL is set. The `review-permission` form stores
- * the words like any lead (tagged consent:review) and nothing from it is shown
- * here or anywhere else on the site: a quote goes up only when a person enters
- * it in Sanity with the permission on file.
+ * /reviews — the ask, never the display. The Google column renders only when
+ * NEXT_PUBLIC_GOOGLE_REVIEW_URL is set; until then the form takes the page,
+ * and the lead says there is one way rather than two. The `review-permission`
+ * form stores the words like any lead (tagged consent:review) and nothing
+ * from it is shown here or anywhere else on the site: a quote goes up only
+ * when a person enters it in Sanity with the permission on file.
  */
 export default function ReviewsPage() {
   const google = googleReviewUrl();
@@ -36,22 +38,20 @@ export default function ReviewsPage() {
     <section className="container-site flex flex-col gap-14 py-section" aria-labelledby="reviews-title">
       <div className="flex flex-col gap-8">
         <SectionHeading as="h1" size="display" title={<span id="reviews-title">{REVIEWS.heading}</span>} />
-        <p className="t-lead max-w-measure text-body">{REVIEWS.lead}</p>
+        <p className="t-lead max-w-measure text-body">{google ? REVIEWS.lead : REVIEWS.leadOne}</p>
       </div>
 
-      <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-20">
-        <div className="relative flex flex-col gap-4 self-start border-t border-rule pt-7">
-          <span className="absolute -top-px left-0 h-px w-12 bg-amber" aria-hidden="true" />
-          <h2 className="t-h2 text-navy">{REVIEWS.google.title}</h2>
-          <p className="t-body max-w-[44ch] text-body">{REVIEWS.google.body}</p>
-          {google ? (
+      <div className={google ? "grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-20" : "grid max-w-[860px] gap-12"}>
+        {google ? (
+          <div className="relative flex flex-col gap-4 self-start border-t border-rule pt-7">
+            <span className="absolute -top-px left-0 h-px w-12 bg-amber" aria-hidden="true" />
+            <h2 className="t-h2 text-navy">{REVIEWS.google.title}</h2>
+            <p className="t-body max-w-[44ch] text-body">{REVIEWS.google.body}</p>
             <ExternalLink href={google} className="btn btn-navy self-start">
               {REVIEWS.google.label} ↗
             </ExternalLink>
-          ) : (
-            <p className="t-small max-w-[44ch] text-graphite-500">{REVIEWS.google.soon}</p>
-          )}
-        </div>
+          </div>
+        ) : null}
 
         <div className="relative flex flex-col gap-6 border-t border-rule pt-7">
           <span className="absolute -top-px left-0 h-px w-12 bg-amber" aria-hidden="true" />
@@ -69,6 +69,13 @@ export default function ReviewsPage() {
             />
           </div>
           <p className="t-small text-graphite-500">{REVIEWS.note}</p>
+          {/* The other past-client page, one quiet line under the form. */}
+          <p className="t-body border-t border-hairline pt-6 text-body">
+            {REVIEWS.refer.line}{" "}
+            <Link href="/refer" className="link-rule">
+              {REVIEWS.refer.label}
+            </Link>
+          </p>
         </div>
       </div>
     </section>

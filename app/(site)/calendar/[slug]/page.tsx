@@ -185,7 +185,7 @@ export default async function EventPage({ params }: { params: Params }) {
           <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nearby-title">
             <SectionHeading
               title={<span id="nearby-title">Homes in {marketName(event.venue.market)}, in case the evening goes well.</span>}
-              aside={<Link href={`/listings?market=${event.venue.market}` as Route} className="link-rule">All {marketName(event.venue.market)} listings</Link>}
+              aside={<Link href={`/listings?market=${event.venue.market}` as Route} className="link-rule">Find your home in {marketName(event.venue.market)}</Link>}
             />
             <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {listings.map((l) => (

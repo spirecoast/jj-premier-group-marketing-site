@@ -26,6 +26,7 @@ import type { ContentSource } from "./source";
 import type {
   Address,
   Event,
+  Geo,
   ImageRef,
   Listing,
   MarketSlug,
@@ -55,6 +56,11 @@ const rich = (v: unknown): RichText => (Array.isArray(v) ? (v as RichText) : [])
 const refOf = (v: unknown): Ref | undefined => {
   const r = v as { name?: string; slug?: string } | null;
   return r?.name && r?.slug ? { name: r.name, slug: r.slug } : undefined;
+};
+/** A geopoint with both numbers; anything else is "not set". */
+const geo = (v: unknown): Geo | undefined => {
+  const g = v as { lat?: unknown; lng?: unknown } | null;
+  return g && typeof g.lat === "number" && typeof g.lng === "number" ? { lat: g.lat, lng: g.lng } : undefined;
 };
 const address = (v: unknown): Address => {
   const a = (v ?? {}) as Partial<Address>;
@@ -238,6 +244,7 @@ function mapSettings(r: Raw | null): SiteSettings {
     brokerageName: str(r.brokerageName, d.brokerageName),
     brokerageLogo: image(r.brokerageLogo, "Coldwell Banker") ?? d.brokerageLogo,
     officeAddress: r.officeAddress ? address(r.officeAddress) : d.officeAddress,
+    officeGeo: geo(r.officeGeo) ?? d.officeGeo,
     licenses: Array.isArray(r.licenses)
       ? (r.licenses as Raw[]).map((l) => ({ name: str(l.name), number: str(l.number) }))
       : d.licenses,

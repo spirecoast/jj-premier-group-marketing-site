@@ -3,6 +3,7 @@ import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from "@/components/guide";
 import { WorkWith } from "@/components/home/work-with";
 import { JsonLd } from "@/components/json-ld";
+import { SoldByUs } from "@/components/sold-by-us";
 import { ButtonLink } from "@/components/ui/button";
 import { getSiteSettings } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
@@ -204,6 +205,9 @@ export default async function SellPage() {
       <GuideSteps steps={STEPS} label="Selling, step by step" />
 
       <GuideNext title="The public record first" links={NEXT} />
+
+      {/* The team's own recent sales, with the percent of list on each card; nothing until the agents enter them. */}
+      <SoldByUs tone="parchment" />
 
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="sell-work-with" />
 

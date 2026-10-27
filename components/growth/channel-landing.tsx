@@ -7,7 +7,9 @@ import { img } from "@/lib/content/seed/helpers";
 
 /**
  * One page for every /from/<channel> link: a line in the team's voice, one
- * primary action, then Atlas Match, Encore Planner and the Tide bar.
+ * primary action (and, where the channel reaches locals too, a second door
+ * beside it for the follower who already lives here), then Atlas Match,
+ * Encore Planner and the Tide bar.
  * Every click here is an `Explore` goal with the channel attached, and the
  * Tide bar sends `source=<channel>` so the lead is tagged `source:<channel>`.
  * The visit's channel is also remembered by components/utm-tracker.tsx, so a
@@ -27,18 +29,43 @@ export function ChannelLanding({ copy, phone }: { copy: ChannelCopy; phone: { e1
         <div className="flex flex-col gap-8">
           <SectionHeading as="h1" size="display" title={<span id="from-title">{copy.heading}</span>} />
           <p className="t-lead max-w-measure text-body">{copy.line}</p>
-          <div className="flex flex-col gap-4">
-            <TrackedLink
-              href={copy.cta.href}
-              event="Explore"
-              props={{ action: "channel-cta", channel: copy.slug, to: copy.cta.href }}
-              className="btn btn-navy self-start"
-            >
-              {copy.cta.label}
-              <span className="btn-dash" aria-hidden="true" />
-            </TrackedLink>
-            <p className="t-small max-w-[440px] text-graphite-500">{copy.cta.note}</p>
-          </div>
+          {copy.second ? (
+            <ul className="grid gap-4 sm:grid-cols-2" aria-label="Where to start">
+              {[copy.cta, copy.second].map((door, i) => (
+                <li key={door.href} className="flex">
+                  <TrackedLink
+                    href={door.href}
+                    event="Explore"
+                    props={{ action: "channel-cta", channel: copy.slug, to: door.href }}
+                    className={`card group flex w-full flex-col gap-3 border p-6 transition-colors duration-(--dur-micro) ${
+                      i === 0 ? "border-navy bg-navy text-linen-200 hover:bg-harbor-800" : "border-hairline bg-white text-navy hover:border-deep-harbor"
+                    }`}
+                  >
+                    <span className="flex items-start justify-between gap-4">
+                      <span className="t-h3 text-balance">{door.label}</span>
+                      <span aria-hidden="true" className="mt-1 shrink-0 transition-transform duration-(--dur-panel) group-hover:translate-x-1">
+                        →
+                      </span>
+                    </span>
+                    <span className={`t-small ${i === 0 ? "text-linen-200/80" : "text-graphite-500"}`}>{door.note}</span>
+                  </TrackedLink>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <TrackedLink
+                href={copy.cta.href}
+                event="Explore"
+                props={{ action: "channel-cta", channel: copy.slug, to: copy.cta.href }}
+                className="btn btn-navy self-start"
+              >
+                {copy.cta.label}
+                <span className="btn-dash" aria-hidden="true" />
+              </TrackedLink>
+              <p className="t-small max-w-[440px] text-graphite-500">{copy.cta.note}</p>
+            </div>
+          )}
           <p className="t-small text-body">
             {MORE.talk}{" "}
             <TrackedLink href={`tel:${phone.e164}`} event="Phone tap" props={{ where }} className="font-mono text-navy underline underline-offset-4 hover:text-harbor-700">

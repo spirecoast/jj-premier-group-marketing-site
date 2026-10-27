@@ -58,7 +58,7 @@ export const testimonialsQuery = defineQuery(`*[_type == "testimonial"] | order(
 }`);
 
 export const siteSettingsQuery = defineQuery(`*[_type == "siteSettings"][0] {
-  brokerageName, officeAddress, licenses, socialLinks, footerDisclosure, mlsAttribution,
+  brokerageName, officeAddress, officeGeo, licenses, socialLinks, footerDisclosure, mlsAttribution,
   stats, ticker, primaryPhoneE164, primaryPhoneDisplay,
   "brokerageLogo": brokerageLogo ${image},
   "defaultOgImage": defaultOgImage ${image}

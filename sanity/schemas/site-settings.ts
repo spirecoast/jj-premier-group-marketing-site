@@ -9,6 +9,7 @@ export const siteSettingsType = defineType({
     defineField({ name: "brokerageName", type: "string", title: "Brokerage name", initialValue: "Coldwell Banker Realty" }),
     imageWithAlt("brokerageLogo", "Brokerage logo"),
     defineField({ name: "officeAddress", type: "address", title: "Office address" }),
+    defineField({ name: "officeGeo", type: "geopoint", title: "Office map point", description: "Where the marker sits on the map on /contact. Until it is set, the map centres on Lakewood Ranch." }),
     defineField({ name: "licenses", type: "array", title: "License numbers", of: [defineArrayMember({ type: "license" })] }),
     defineField({ name: "socialLinks", type: "array", title: "Social links", of: [defineArrayMember({ type: "socialLink" })] }),
     imageWithAlt("defaultOgImage", "Default social image"),
