@@ -12,7 +12,7 @@ import { getSiteSettings, getTeamMember } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import { TrackedLink } from "@/components/tracked-link";
 import { getGuide, getGuideSlugs, guidePdfHref, guideReadingMinutes, guideWordCount } from "@/lib/guides";
-import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
+import { DESCRIPTION_MIN, absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
 import "@/components/guides/guides.css";
 
@@ -33,7 +33,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!guide) return { title: "Guide not found", robots: { index: false, follow: false } };
   return pageMetadata({
     title: guide.title,
-    description: guide.promise,
+    // A short promise gets the byline and the day its sources were opened, so the result fills its line.
+    description: guide.promise.length >= DESCRIPTION_MIN ? guide.promise : `${guide.promise} By ${guide.author.name}, sources ${guide.checked}.`,
     path: `/guides/${guide.slug}`,
     fileImage: true, // opengraph-image.tsx beside this page
     type: "article",

@@ -63,7 +63,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     // Kept so links in posts and emails still answer, but not for search.
     return {
       ...pageMetadata({
-        title: `${event.title} · ${event.venue.unlisted ? marketName(event.venue.market) : event.venue.name}`,
+        title: event.title,
+        titleQualifiers: [event.venue.unlisted ? marketName(event.venue.market) : event.venue.name],
         description: `${event.title} has closed. What's next ${where(event)}, on the Encore Arts Calendar.`,
         path: `/calendar/${event.slug}`,
         fileImage: true,
@@ -73,7 +74,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     };
   }
   return pageMetadata({
-    title: `${event.title} · ${event.venue.unlisted ? marketName(event.venue.market) : event.venue.name}`,
+    title: event.title,
+    titleQualifiers: [event.venue.unlisted ? marketName(event.venue.market) : event.venue.name],
     description: `${formatRun(event) && !event.performances?.length ? formatRun(event) : formatEventWhen(event.startsAt, event.endsAt, event.allDay)} ${where(event)}. ${event.summary}`,
     path: `/calendar/${event.slug}`,
     fileImage: true, // opengraph-image.tsx beside this page

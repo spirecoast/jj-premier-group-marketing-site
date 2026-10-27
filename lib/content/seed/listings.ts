@@ -42,7 +42,7 @@ export const LISTINGS: Listing[] = [
       img("library/listing-aerial-lot-morning", "Aerial view of the lot in the morning"),
     ],
     description: p(
-      "Water views from three levels, a kitchen rebuilt in 2019, and the good end of the street. Four similar homes sold here last year, all inside nine days.",
+      "Water views from three levels, a kitchen rebuilt in 2019, and the end of the street with no through traffic. Four similar homes sold here last year, all inside nine days.",
       "The lot backs to the lake with western exposure, so the lanai gets the evening light and the parcel behind it is deed-restricted open space. The primary suite is on the main level; three bedrooms and a study are upstairs.",
       "Cliffside Terrace is a cul-de-sac of fourteen homes inside The Lake Club gate, two minutes from the clubhouse and eleven from Main Street.",
     ),

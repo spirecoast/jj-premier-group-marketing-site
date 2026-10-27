@@ -22,6 +22,7 @@ import type {
   VenuesQueryResult,
 } from "@/sanity.types";
 import { SITE_SETTINGS } from "./seed/settings";
+import { TEAM } from "./seed/team";
 import type { ContentSource } from "./source";
 import type {
   Address,
@@ -223,6 +224,8 @@ function mapTeamMember(r: Raw): TeamMember {
     register: opt(r.register),
     quote: opt(r.quote),
     headshot: requireImage(r.headshot, str(r.name)),
+    // The Studio has no field for these yet; the seed's list follows the agent by slug.
+    profiles: TEAM.find((m) => m.slug === str(r.slug))?.profiles,
   };
 }
 

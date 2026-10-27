@@ -12,6 +12,7 @@ export const metadata: Metadata = pageMetadata({
   title: "Guides",
   description: "Guides for life on the Gulf Coast: the things that work differently here, from storm season to the tax bill, each explained simply for Lakewood Ranch, Sarasota and Bradenton. Free, with no sign-up.",
   path: "/guides",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 const BAND = img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%");

@@ -16,6 +16,8 @@ export const TEAM: TeamMember[] = [
     phoneE164: "+13092580225",
     email: "joelyn.nauman@cbrealty.com",
     order: 1,
+    // Her Coldwell Banker Realty agent page (Lakewood Ranch office), found October 27, 2026.
+    profiles: ["https://www.coldwellbankerhomes.com/fl/lakewood-ranch/agent/joelyn-nauman/aid_271042/"],
   },
   {
     _id: "team-jessica-garza",
@@ -29,5 +31,7 @@ export const TEAM: TeamMember[] = [
     phoneE164: "+19413068699",
     email: "jessica.garza@cbrealty.com",
     order: 2,
+    // No Coldwell Banker agent page found for her on October 27, 2026; add it here when the team sends it.
+    profiles: [],
   },
 ];

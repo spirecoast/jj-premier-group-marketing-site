@@ -21,7 +21,7 @@ jj-premier-brand-system.vercel.app).
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
 | Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres, then after the response the CRM → team email → Plausible), `lib/lead-outbox.ts` (retries), `lib/lead-guard.ts` (resends, rate limit, honeypot), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads/` (`constants.ts` and `rules.ts` for the browser, `schema.ts` with zod for the server, `pixel.ts`), `lib/phone.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `app/api/cron/lead-redeliver`, `scripts/test-lead.mjs` |
-| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/cron/lead-redeliver`, `app/api/cron/ops-check`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
+| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/cron/lead-redeliver`, `app/api/cron/ops-check`, `app/api/search/reindex`, `app/sitemap.xml` (index) and `app/sitemaps/sitemap.ts` (`lib/sitemap.ts`), `app/robots.ts`, `app/llms.txt`, `app/llms-full.txt` |
 | Site search | `lib/search/*` (chunks, indexer, scored hybrid query, fallback, `eval/`), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, `scripts/search-eval.ts`, migrations `0010_search.sql` and `0011_search_score_fusion.sql`; see "Site search" below |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
@@ -824,7 +824,30 @@ commented `DROP` for it, to run once the new function has been live for a while.
   neighborhood page (three questions each, in `lib/content/seed/neighborhoods.ts` and the Sanity
   `faqs` field). Every FAQ carries a plain-text `answer` beside its JSX `a`; keep both in step.
 - Open Graph images are generated per page (`opengraph-image.tsx` beside home, buy, sell, about,
-  listings, events and neighborhoods) from the page's photograph and the brand lockup.
+  listings, events, venues, neighborhoods, the market hubs, the tools, and since October 2026
+  `/calendar`, `/guides`, `/tools`, `/contact`, `/reviews` and `/listings`) from the page's photograph
+  and the brand lockup (`lib/og.tsx`). Every card leaves as a JPEG under 300 KB (`OG_BUDGET`,
+  checked by `lib/og-budget.test.ts`; WhatsApp skips larger previews), and the photograph is cut to
+  its 520x630 box before it's drawn, so a cold render never decodes a full-size original. Pages
+  without a card of their own (privacy, terms, search) use `/og-image.jpg`.
+- Titles: one template in `pageMetadata` (`lib/seo.ts`, `composeTitle`). The team's name follows
+  the title when both fit a result's width (measured as 20px Arial against 600px, not counted in
+  characters); a data page's qualifiers (`titleQualifiers`: a place's town and kind, an event's
+  venue, a listing's price) give way first. Titles, descriptions, share titles and FAQ structured
+  data get curly quotes (`lib/typography.ts`).
+- Descriptions: place pages build theirs from the record's facts when the words run short
+  (`lib/neighborhoods/describe.ts`), guides add the byline and the day their sources were checked,
+  and `lib/neighborhoods/describe.test.ts` holds every researched place and guide at 110 characters
+  or more.
+- Structured data for answer engines: each Person has its `/about#slug` address and `sameAs` from
+  `profiles` on the team record (the agents' own pages elsewhere; only real ones); the team lists
+  Manatee and Sarasota counties and `knowsAbout`; each place page's Place carries `additionalProperty`
+  rows for gated, HOA, CDD, evacuation zone and water, each with the source that names it.
+- `/llms.txt` lists every researched place by market; `/llms-full.txt` carries every guide's text
+  with its sources (`lib/guides/markdown.ts`).
+- Sitemap: `/sitemap.xml` is an index of `/sitemaps/sitemap/pages.xml`, `neighborhoods.xml` and
+  `calendar.xml` (`lib/sitemap.ts`), with real `lastmod` dates only (a place's latest source check,
+  an event's last collector read, the sales refresh, a guide's update) and `image:image` entries.
 - Three evergreen guides ship in the seed (gated communities, inspections, selling from away). They
   carry no figures. The sample market reports stay behind `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS`.
 - RealEstateAgent and Person on every page, Article on reports and guides, Event and Place on the
@@ -1007,6 +1030,28 @@ team) lives on the site at three private links. Nobody needs an account.
   3. Replace that role's `sha256` in `TOKEN_HASHES`, deploy, and send the new
      `https://<site>/q/<token>` link. The old link stops working on deploy; answers stay, since
      they're stored by person, not by token.
+
+## Cards to post: a private link for Joelyn and Jessica
+
+`/cards/<token>` gives the team cards they can post, drawn from the site's own data and
+photographs, at Instagram's feed (1080x1350) and story (1080x1920) sizes, as PNGs to download:
+
+- **Tide**: the latest issue's three median sale prices, on the issue's cover photo.
+- **This week on the coast**: the Monday issue's Encore picks for the week (`pickWeek`).
+- **A neighborhood**: any place Atlas has researched, by name: its kind, jurisdiction, gated, HOA
+  and CDD on record, evacuation zone and ZIPs, each only when the record holds it.
+- **A street**: Tide Street's count and median for one street over the sales window.
+
+Each card carries the JJ lockup, the Coldwell Banker mark (the brand's white file) and the short
+address of the chosen network's landing page (`jjpremiergroup.com/from/instagram`, …), and comes
+with a caption to copy. Every caption and card line runs through `checkFairHousing` before the card
+is offered; a held card says so instead. The words are in `lib/cards/copy.ts` (checked by
+`check:copy`), the data in `lib/cards/data.ts`, the drawing in `lib/cards/render.tsx`, the page in
+`app/(cards)` (bare like the questionnaire: no header, analytics or pixels; `noindex`,
+`X-Robots-Tag`, `Referrer-Policy: no-referrer` and `no-store` on `/cards/:path*`; `Disallow:
+/cards/`; not in the sitemap). The token works like the questionnaire's: only its SHA-256 is in
+`lib/cards/access.ts`, the raw link is kept outside the repo, and `CARDS_TOKEN_SHA256` (optional)
+replaces the hash to rotate it without a code change.
 
 ## Commands
 

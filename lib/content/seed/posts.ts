@@ -179,7 +179,7 @@ export const POSTS: Post[] = [
   {
     _id: "post-start-in-october",
     title: "Getting your house ready to sell",
-    slug: "thinking-about-spring-start-in-october",
+    slug: "getting-your-house-ready-to-sell",
     cover: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring"),
     excerpt:
       "What to do before you list, in what order, and how long each step takes.",

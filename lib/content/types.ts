@@ -257,6 +257,11 @@ export type TeamMember = {
   register?: string;
   /** A short quote in the agent's own voice. */
   quote?: string;
+  /**
+   * The agent's own profile pages elsewhere (the brokerage's agent page, Realtor.com, Zillow), for
+   * `sameAs` in the Person structured data. Only pages that exist and name this agent.
+   */
+  profiles?: string[];
 };
 
 export type Testimonial = {

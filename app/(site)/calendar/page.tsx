@@ -22,6 +22,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Encore lists tonight, this weekend and the whole season: theater, concerts, galleries, talks, film and festivals in Lakewood Ranch, Sarasota and Bradenton, by day, week and month. It is the arts calendar from JJ Premier Group.",
   path: "/calendar",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /** Hourly: "tonight" moves, and the index behind it is regenerated on the same schedule. */

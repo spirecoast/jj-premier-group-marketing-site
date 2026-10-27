@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { FOLDED_POSTS, REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
+import { FOLDED_POSTS, MOVED_GUIDES, REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
 import { HOME_PLATFORM_ORIGIN, homePlatformPixelId } from "./lib/home-platform";
 import { canonicalHostRedirects } from "./lib/site-url";
 
@@ -195,6 +195,15 @@ const nextConfig: NextConfig = {
       { source: "/vendor/maplibre-gl/:version/:file", headers: [{ key: "Cache-Control", value: IMMUTABLE }] },
       // The guide PDFs repeat the guide pages; the pages are the ones to index.
       { source: "/guides/pdf/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+      // The private cards link: the same rules as the questionnaire's.
+      {
+        source: "/cards/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
       // The private questionnaire links: the token is in the path, so no referrer, no caching, no indexing.
       {
         source: "/q/:path*",
@@ -221,6 +230,12 @@ const nextConfig: NextConfig = {
       { source: "/blog", destination: "/tide", permanent: true },
       // Guides rebuilt as long-form pages (lib/guides) moved from Tide to /guides; the old links follow.
       ...REBUILT_GUIDE_SLUGS.map((slug) => ({ source: `/blog/${slug}`, destination: `/guides/${slug}`, permanent: true })),
+      // A guide that moved to a clearer slug: its old page, its old /blog link and its old PDF.
+      ...Object.entries(MOVED_GUIDES).flatMap(([from, to]) => [
+        { source: `/guides/${from}`, destination: `/guides/${to}`, permanent: true },
+        { source: `/blog/${from}`, destination: `/guides/${to}`, permanent: true },
+        { source: `/guides/pdf/${from}.pdf`, destination: `/guides/pdf/${to}.pdf`, permanent: true },
+      ]),
       // A post folded into a guide follows the guide.
       ...Object.entries(FOLDED_POSTS).map(([slug, guide]) => ({ source: `/blog/${slug}`, destination: `/guides/${guide}`, permanent: true })),
       // At launch the vercel.app address sends every path to the domain, so search engines see one

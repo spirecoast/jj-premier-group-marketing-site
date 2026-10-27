@@ -57,6 +57,7 @@ export const ENCORE_PATHS = [
   "/neighborhoods/compare",
   "/api/encore/index",
   "/sitemap.xml",
+  "/sitemaps/sitemap/calendar.xml",
   "/",
   "/sarasota",
   "/bradenton",

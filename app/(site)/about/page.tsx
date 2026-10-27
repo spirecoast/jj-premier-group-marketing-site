@@ -28,7 +28,7 @@ const FRAMES = {
 const VALUES = [
   {
     title: "We're specific",
-    body: "We tell you the flood zone, the age of the roof and which end of the street is the good one. You make decisions with details, so that's what we give you.",
+    body: "We tell you the flood zone, the age of the roof and which end of the street floods first. You make decisions with details, so that's what we give you.",
   },
   {
     title: "We tell you what we think",
@@ -71,7 +71,7 @@ export default async function AboutPage() {
                 We&rsquo;re Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we&rsquo;d want it done for our own family.
               </p>
               <p className="t-body max-w-measure text-body">
-                Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
+                If you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
               </p>
             </div>
           </div>

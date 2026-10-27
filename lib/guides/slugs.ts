@@ -9,7 +9,7 @@ export const REBUILT_GUIDE_SLUGS = [
   "homeowners-wind-and-flood-insurance-on-this-coast",
   "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
   "selling-a-home-you-dont-live-in",
-  "thinking-about-spring-start-in-october",
+  "getting-your-house-ready-to-sell",
   "cdd-fees-in-lakewood-ranch-village-by-village",
   "condo-and-hoa-documents-after-the-2022-law",
   "what-to-ask-before-you-buy-in-a-gated-community",
@@ -26,6 +26,14 @@ export const REBUILT_GUIDE_SLUGS = [
  */
 export const FOLDED_POSTS: Readonly<Record<string, (typeof REBUILT_GUIDE_SLUGS)[number]>> = {
   "ask-us-about-the-water-table": "flood-zones-and-elevation-certificates-on-the-suncoast",
+};
+
+/**
+ * Guides that moved to a clearer slug before launch, old to new. next.config.ts sends the old
+ * /guides, /blog and PDF addresses to the new ones with a permanent redirect.
+ */
+export const MOVED_GUIDES: Readonly<Record<string, (typeof REBUILT_GUIDE_SLUGS)[number]>> = {
+  "thinking-about-spring-start-in-october": "getting-your-house-ready-to-sell",
 };
 
 export function isRebuiltGuide(slug: string): boolean {
