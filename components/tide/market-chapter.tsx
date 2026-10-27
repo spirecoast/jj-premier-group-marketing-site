@@ -58,7 +58,7 @@ export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: st
     <section id={m.market} className="tide-chapter scroll-mt-24 border-t border-rule" aria-labelledby={`${m.market}-title`}>
       <div className="container-site flex flex-col gap-10 py-section lg:gap-14">
         <header className="flex flex-col gap-6">
-          <h2 id={`${m.market}-title`} className="t-hero text-navy">
+          <h2 id={`${m.market}-title`} className="t-display text-navy">
             {m.name}
           </h2>
           {photo ? (
@@ -84,7 +84,7 @@ export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: st
         </dl>
 
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="tide-prose flex max-w-[66ch] flex-col gap-5 lg:col-span-7" data-tide-market-story={m.story.written ? "written" : "computed"}>
+          <div className="tide-prose tide-chapter-story flex max-w-measure flex-col gap-5 lg:col-span-7" data-tide-market-story={m.story.written ? "written" : "computed"}>
             {m.story.paragraphs.map((p) => (
               <p key={p.slice(0, 40)}>{p}</p>
             ))}

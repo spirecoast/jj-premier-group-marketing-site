@@ -3,7 +3,7 @@ import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
 import { SOLD_COPY as C } from "@/components/sales/copy";
 import { SoldSearch } from "@/components/sales/sold-search";
-import { getSalesManifest } from "@/lib/sales";
+import { getSalesManifest, type County } from "@/lib/sales";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { IslandBoundary } from "@/components/ui/island-boundary";
 
@@ -27,6 +27,8 @@ export default async function SoldPage() {
   const asOf = manifest?.generatedAt ? manifest.generatedAt.slice(0, 10) : null;
   const counties = manifest ? Object.values(manifest.counties).map((c) => c.label) : [];
   const months = manifest?.windowMonths ?? 24;
+  // How far each county's file reaches: the honest "as of" for a street in that county.
+  const through = manifest ? (Object.entries(manifest.counties) as [County, { label: string; to: string | null }][]).map(([county, c]) => ({ county, label: c.label, to: c.to })) : [];
 
   return (
     <>
@@ -41,7 +43,7 @@ export default async function SoldPage() {
       </Masthead>
       <div className="pt-section" />
       <IslandBoundary name="the search" minHeight="480px">
-        <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} />
+        <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} windowStart={manifest?.windowStart ?? null} through={through} />
       </IslandBoundary>
     </>
   );

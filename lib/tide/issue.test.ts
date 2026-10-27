@@ -9,6 +9,7 @@ import { tideWebStrings } from "./copy";
 import {
   baselines,
   buildIssueModel,
+  computeFigures,
   dataMonthFor,
   guidesForMonth,
   homeMix,
@@ -22,6 +23,8 @@ import {
   readingMinutes,
   shares,
   shortMonth,
+  sinceThenFor,
+  throughFor,
   yAxis,
 } from "./issue";
 import { tideCover } from "./cover";
@@ -299,6 +302,66 @@ describe("the new figures", () => {
     assert.ok(m.cover.alt.length > 20);
     // 400 words and the 11 figures: 2 + 3.7, rounded up.
     assert.equal(readingMinutes(Array.from({ length: 4 }, () => "word ".repeat(100))), 6);
+  });
+});
+
+describe("the frozen figures and the months since", () => {
+  it("compute every figure once, and build the same issue from the snapshot with no sales at all", () => {
+    const figures = computeFigures({ entry: { issue: "2026-10", data: "2026-07" }, sales: SALES, manifest: MANIFEST_COMPLETE });
+    assert.equal(figures.schema, 1);
+    assert.equal(figures.issue, "2026-10");
+    assert.equal(figures.dataMonth, "2026-07");
+    assert.equal(figures.frozenAt, MANIFEST_COMPLETE.generatedAt);
+    assert.deepEqual(figures.manifest.counties, MANIFEST_COMPLETE.counties);
+    const live = model({ entry: { issue: "2026-10", data: "2026-07" } });
+    const frozen = buildIssueModel({ entry: { issue: "2026-10", data: "2026-07" }, sales: [], manifest: { generatedAt: "2027-01-01T00:00:00.000Z", counties: {} }, posts: POSTS, figures });
+    assert.equal(frozen.frozen, true);
+    assert.equal(live.frozen, false);
+    assert.deepEqual(frozen.markets.map((x) => x.stats), live.markets.map((x) => x.stats));
+    assert.deepEqual(frozen.combined, live.combined);
+    assert.deepEqual(frozen.charts, live.charts);
+    // The source line describes the data the figures came from, not the data passed in later.
+    assert.equal(frozen.asOf, live.asOf);
+    assert.equal(frozen.throughLine, live.throughLine);
+    assert.equal(frozen.sinceThen, null, "nothing since then without sales");
+  });
+  it("say how far each county's record reaches", () => {
+    const t = throughFor({ generatedAt: "2026-10-25T11:24:05.490Z", counties: { manatee: { label: "Manatee", to: "2026-09-24" }, sarasota: { label: "Sarasota", to: "2026-10-20" } } });
+    assert.deepEqual(
+      t.through.map((x) => [x.county, x.label]),
+      [
+        ["manatee", "Manatee records through Sep 24, 2026"],
+        ["sarasota", "Sarasota records through Oct 20, 2026"],
+      ],
+    );
+    assert.equal(t.line, "Manatee records through Sep 24, 2026 · Sarasota through Oct 20, 2026");
+    assert.deepEqual(throughFor({ generatedAt: "", counties: {} }), { through: [], line: null });
+    assert.equal(throughFor({ generatedAt: "", counties: { manatee: { label: "Manatee", to: null } } }).line, null);
+  });
+  it("list the months after the data month as far as the county has posted them, marked partial while short of a typical month", () => {
+    // The fixture: August has one sale per market, September none; the data was refreshed in September.
+    const since = sinceThenFor(SALES, "2026-07", MANIFEST_COMPLETE)!;
+    assert.equal(since.asOf, "September 15, 2026");
+    assert.deepEqual(since.months.map((m) => m.label), ["August"]);
+    const aug = since.months[0]!;
+    assert.equal(aug.month, "2026-08");
+    assert.deepEqual(aug.markets.map((x) => [x.market, x.count, x.partial]), [["lakewood-ranch", 1, true], ["sarasota", 1, true], ["bradenton", 1, true]]);
+    assert.ok(aug.markets.every((x) => x.typical !== null && x.share !== null && x.share < 100));
+    // Refreshed in October: October to date shows only when the county posted something for it.
+    const later = sinceThenFor(SALES, "2026-07", { ...MANIFEST_COMPLETE, generatedAt: "2026-10-25T11:00:00.000Z" })!;
+    assert.deepEqual(later.months.map((m) => m.label), ["August"]);
+    const oct = sinceThenFor([...SALES, sale({ city: "SARASOTA", zip: "34236", county: "sarasota", saleDate: "2026-10-03", salePrice: 400_000 })], "2026-07", { ...MANIFEST_COMPLETE, generatedAt: "2026-10-25T11:00:00.000Z" })!;
+    assert.deepEqual(oct.months.map((m) => m.label), ["August", "October to date"]);
+    assert.equal(oct.months[1]!.markets[1]!.count, 1);
+    // Nothing after the data month: no strip.
+    assert.equal(sinceThenFor(SALES.filter((s) => s.saleDate < "2026-08"), "2026-07", MANIFEST_COMPLETE), null);
+    assert.equal(sinceThenFor(SALES, "2026-07", { generatedAt: "", counties: {} }), null);
+  });
+  it("carry the issue line and the through-dates on the model", () => {
+    const m = model();
+    assert.equal(m.issueLine, "October issue · July figures");
+    assert.equal(m.throughLine, "Manatee records through Sep 12, 2026 · Sarasota through Sep 12, 2026");
+    assert.ok(issueText(m).includes(m.issueLine));
   });
 });
 

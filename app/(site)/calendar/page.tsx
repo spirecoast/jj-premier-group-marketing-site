@@ -1,6 +1,8 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
+import { ArrivedFrom } from "@/components/arrived-from";
 import { EncoreIsland } from "@/components/encore/encore";
+import { EncoreReaderClose } from "@/components/encore/reader-close";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TrackedLink } from "@/components/tracked-link";
@@ -60,24 +62,31 @@ export default async function CalendarPage() {
         <EncoreIsland serverToday={today} initialIndex={slice} sliceRange={sliceRange} />
       </IslandBoundary>
 
-      <section id="subscribe" className="scroll-mt-header bg-linen-200">
-        <div className="container-site grid items-center gap-8 py-section lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-          <div className="flex flex-col gap-3">
-            <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>
-            <p className="t-body max-w-measure text-body">The week&rsquo;s shows, concerts and openings come in one email every Monday.</p>
-          </div>
-          <div className="flex flex-col gap-4">
-            <LetterForm form="calendar" label="Subscribe" />
-            <p className="t-small text-linen-700">
-              Prefer your own calendar app?{" "}
-              <TrackedLink href="/api/calendar.ics" event="Calendar feed" props={{ kind: "feed", filter: "all" }} className="text-navy underline underline-offset-4 hover:text-harbor-700">
-                Subscribe to the feed
-              </TrackedLink>
-              , or narrow it to a category or a venue above and subscribe to just that.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* The sign-up; for a reader who came from the Encore email, the week's own actions instead. */}
+      <ArrivedFrom
+        list="encore"
+        reader={<EncoreReaderClose />}
+        signup={
+          <section id="subscribe" className="scroll-mt-header bg-linen-200">
+            <div className="container-site grid items-center gap-8 py-section lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+              <div className="flex flex-col gap-3">
+                <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>
+                <p className="t-body max-w-measure text-body">The week&rsquo;s shows, concerts and openings come in one email every Monday.</p>
+              </div>
+              <div className="flex flex-col gap-4">
+                <LetterForm form="calendar" label="Subscribe" />
+                <p className="t-small text-linen-700">
+                  Prefer your own calendar app?{" "}
+                  <TrackedLink href="/api/calendar.ics" event="Calendar feed" props={{ kind: "feed", filter: "all" }} className="text-navy underline underline-offset-4 hover:text-harbor-700">
+                    Subscribe to the feed
+                  </TrackedLink>
+                  , or narrow it to a category or a venue above and subscribe to just that.
+                </p>
+              </div>
+            </div>
+          </section>
+        }
+      />
 
       {venues.length ? (
         <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="venues-title">

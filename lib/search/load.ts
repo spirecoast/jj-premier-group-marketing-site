@@ -1,7 +1,7 @@
 import "server-only";
 import { getNeighborhoods, getPosts, getUpcomingEvents, getVenues } from "@/lib/content";
 import { GUIDES } from "@/lib/guides";
-import { isRebuiltGuide } from "@/lib/guides/slugs";
+import { FOLDED_POSTS, isRebuiltGuide } from "@/lib/guides/slugs";
 import { HUBS } from "@/lib/hubs/copy";
 import { getAllRecords } from "@/lib/neighborhoods/data";
 import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
@@ -41,7 +41,7 @@ export async function loadAllChunks(): Promise<{ chunks: Chunk[]; errors: string
         return placeChunks({ slug, record, parentName, editorial: editorialBySlug.get(slug) });
       });
     }),
-    safe("posts", async () => (await getPosts()).filter((p) => !isRebuiltGuide(p.slug)).flatMap(postChunks)),
+    safe("posts", async () => (await getPosts()).filter((p) => !isRebuiltGuide(p.slug) && !FOLDED_POSTS[p.slug]).flatMap(postChunks)),
     safe("tide", async () => {
       const models = await Promise.all(TIDE_ISSUES.map((e) => loadIssueModel(e.issue)));
       return models.flatMap((m) => (m ? tideChunks(m) : []));

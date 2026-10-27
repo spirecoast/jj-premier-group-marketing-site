@@ -108,16 +108,50 @@ record should be a fact about the property or the transaction.
   directional variants, ordinals, case) and exposes `searchByStreet`,
   `nearby`, `summarize`, `getSalesManifest` and `formatSaleAddress`.
 - `app/api/sales/route.ts` is the only way the browser sees the data:
-  `GET /api/sales?street=&zip=&city=&county=`, inputs length-capped, at
-  most 50 rows newest first, a summary computed over every match on the
-  street, `Cache-Control: s-maxage=60`. With no data it answers 503
+  `GET /api/sales?street=&zip=&city=&county=`, inputs length-capped, every
+  row on the street newest first (up to 1,000; a street in the window has a
+  few hundred at most), a summary computed over every match on the street
+  (`medianPrice` over everything, `medianResalePrice` over the rows the roll
+  shows as a building and `medianNewerPrice` over the new builds and lots,
+  since a street of lot transfers must not set the price a seller sees),
+  `Cache-Control: s-maxage=60`. With no data it answers 503
   `{ error: "no-data" }` and the page shows its "not loaded yet" state.
-  With `&number=` (one to eight digits; a ZIP is then required) the
-  response adds `parcel`: that house's own qualified sales, newest first,
-  from `findParcelSales` (exact number, street key and ZIP; a typed unit
-  picks the unit). `/sell/home-value` reads it for "This address on the
-  record". The pure matcher and street parsing live in `lib/sales/parcel.ts`
-  and `lib/sales/street.ts` so `lib/sales/parcel.test.ts` runs on a fixture.
+  `source.through` lists each county's `to` date, so a page can say
+  "Manatee records through Sep 24, 2026" instead of the manifest's date.
+  A typed `city` is resolved to the ZIPs the county files that city in
+  (`lib/sales/area.ts`: a ZIP counts for a city when the city labels 5% or
+  25 of its rows), because the county labels 34211 both LAKEWOOD RANCH and
+  BRADENTON row by row; the rows keep their stored label. An ambiguous
+  street (several spellings or ZIPs, nothing to pick one) answers 400
+  `zip-required` with `options`, one `{ street, zip, count }` per pair, which
+  Tide Street offers as chips.
+  With `&number=` (one to eight digits) the response adds `parcel`: that
+  house's own qualified sales, newest first, from `findParcelSales` (exact
+  number, street key and ZIP; a typed unit picks the unit). The ZIP may be
+  left out when the street runs through one ZIP only; otherwise the answer
+  is `zip-required`. `/sell/home-value` reads it for "This address on the
+  record", and Tide Street for the parcel card above the street. The pure
+  matcher and street parsing live in `lib/sales/parcel.ts` and
+  `lib/sales/street.ts` so `lib/sales/parcel.test.ts` runs on a fixture.
+- When the typed street names a place instead (an Atlas area, community or
+  enclave by name or alias, or a postal city), a non-exact answer carries
+  `place: { slug, name, zips }` and Tide Street offers "Sales in {place}".
+  `GET /api/sales?place=<slug>` then answers `match: "area"` with every
+  qualified sale in the place's ZIPs (its own and its descendants'; newest
+  200 rows, the summary over all of them). A postal city's set is the slug
+  `city:<zip>-<zip>`. The matcher is `lib/sales/area.ts`; the route reads the
+  Atlas search index through `lib/neighborhoods/data.ts`, so `next.config.ts`
+  traces it for `/api/sales`.
+- Tide Street draws every row on a timeline (`lib/sales/timeline.ts`,
+  `components/sales/sales-timeline.tsx`): date across, price up, resales
+  filled and new builds and lots hollow, the chosen group's median as a
+  dashed rule. The median toggle (resales, new builds and lots, and "like
+  yours" when a house number found a parcel with a recorded size: resales
+  within 300 square feet of it, `sizeBand` in `lib/sales/stats.ts`) swaps the
+  median and the $/sqft; the timeline and the table keep every sale. The
+  table sits behind a disclosure, 25 rows at a time. The last five streets
+  searched are kept in the visitor's own browser (`lib/sales/recent.ts`),
+  never a house number.
 - `next.config.ts` lists `data/sales/**` in `outputFileTracingIncludes`
   for the route and the page so the files ship with the serverless
   functions.

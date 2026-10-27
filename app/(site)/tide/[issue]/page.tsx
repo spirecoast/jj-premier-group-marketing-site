@@ -10,7 +10,10 @@ import { TideCover } from "@/components/tide/cover";
 import { IssueChart } from "@/components/tide/issue-chart";
 import { MarketChapter } from "@/components/tide/market-chapter";
 import { Moves } from "@/components/tide/moves";
+import { SinceThen } from "@/components/tide/since-then";
+import { ReaderClose } from "@/components/tide/reader-close";
 import { TeamNotes } from "@/components/tide/team-notes";
+import { ArrivedFrom } from "@/components/arrived-from";
 import { getEvent, getTeam } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import type { Event } from "@/lib/content/types";
@@ -145,19 +148,19 @@ export default async function TideIssuePage({ params }: { params: Params }) {
             </div>
             <div className="flex flex-col gap-8 lg:col-span-8">
               {told && story!.headline ? (
-                <div className="flex max-w-[66ch] flex-col gap-4 border-b border-hairline pb-8">
+                <div className="flex max-w-measure flex-col gap-4 border-b border-hairline pb-8">
                   <p className="font-display text-[clamp(1.5rem,1.1rem+1.2vw,2.125rem)] font-light leading-[1.2] text-navy">{story!.headline}</p>
                   {story!.dek ? <p className="t-lead text-body">{story!.dek}</p> : null}
                 </div>
               ) : null}
-              <div className="tide-prose tide-story flex max-w-[66ch] flex-col gap-6" data-tide-opening="">
+              <div className="tide-prose tide-story flex max-w-measure flex-col gap-6" data-tide-opening="">
                 {(told ? story!.opening : [model.note, model.intro]).map((p, i) => (
                   <p key={p.slice(0, 40)} className={i === 0 ? "guide-drop" : undefined}>
                     {p}
                   </p>
                 ))}
               </div>
-              {told ? <p className="t-small max-w-[66ch] border-t border-hairline pt-5 text-body-muted">{`${model.note} ${model.intro}`}</p> : null}
+              {told ? <p className="t-small max-w-measure border-t border-hairline pt-5 text-body-muted">{`${model.note} ${model.intro}`}</p> : null}
             </div>
           </div>
         </section>
@@ -199,6 +202,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
               </dl>
             </div>
           </div>
+          {model.sinceThen ? <SinceThen since={model.sinceThen} /> : null}
         </section>
 
         {/* 4. The three market chapters */}
@@ -210,7 +214,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         {movesNo ? (
           <section className="bg-linen-100" aria-labelledby="moves-title">
             <div className="container-site flex flex-col gap-12 py-section">
-              <SectionHeading title={<span id="moves-title">{W.movesHeading}</span>} className="scroll-mt-24" />
+              <SectionHeading title={<span id="moves-title">{W.movesHeading}</span>} className="scroll-mt-24" titleClassName="t-h2" />
               <div className="grid gap-14 lg:grid-cols-2 lg:gap-16">
                 <Moves id="buyers" heading={W.buyersHeading} moves={buying} legacy={story?.buyers ?? []} />
                 <Moves id="sellers" heading={W.sellersHeading} moves={selling} legacy={story?.sellers ?? []} />
@@ -222,9 +226,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
 
         {/* 6. The two charts */}
         <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="charts-title">
-          <SectionHeading
-            title={<span id="charts-title" className="scroll-mt-24">{W.chartsHeading}</span>}
-          />
+          <SectionHeading title={<span id="charts-title" className="scroll-mt-24">{W.chartsHeading}</span>} titleClassName="t-h2" />
           <div className="grid gap-5 lg:grid-cols-2">
             <IssueChart chart={model.charts.sales} />
             <IssueChart chart={model.charts.ppsf} />
@@ -236,7 +238,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           <section className="border-t border-hairline" aria-labelledby="watch-title">
             <div className="container-site grid gap-8 py-section lg:grid-cols-12 lg:gap-16">
               <div className="flex flex-col gap-3 lg:col-span-4">
-                <h2 id="watch-title" className="t-h1 text-navy">
+                <h2 id="watch-title" className="t-h2 text-navy">
                   {W.watchHeading}
                 </h2>
               </div>
@@ -263,6 +265,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
             <div className="container-site flex flex-col gap-10 py-section">
               <SectionHeading
                 title={<span id="encore-title">{W.encoreHeading}</span>}
+                titleClassName="t-h2"
                 aside={
                   <Link href="/calendar" className="link-rule">
                     {W.encoreAll}
@@ -285,6 +288,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="guides-title">
           <SectionHeading
             title={<span id="guides-title">{W.guidesHeading}</span>}
+            titleClassName="t-h2"
             aside={
               <Link href="/guides" className="link-rule">
                 {W.guidesAll}
@@ -308,18 +312,24 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           )}
         </section>
 
-        {/* The ask */}
-        <section className="border-t border-rule bg-linen-100" aria-labelledby="ask-title">
-          <div className="container-site grid gap-8 py-14 md:grid-cols-2 md:items-center md:gap-12 lg:py-16">
-            <div className="flex flex-col gap-3">
-              <h2 id="ask-title" className="t-h1 text-navy">
-                {W.askHeading}
-              </h2>
-              <p className="t-body max-w-measure text-body">{W.askBody}</p>
-            </div>
-            <LetterForm />
-          </div>
-        </section>
+        {/* The ask; for a reader who came from the email, their own street instead. */}
+        <ArrivedFrom
+          list="tide"
+          reader={<ReaderClose title={model.title} />}
+          signup={
+            <section className="border-t border-rule bg-linen-100" aria-labelledby="ask-title">
+              <div className="container-site grid gap-8 py-14 md:grid-cols-2 md:items-center md:gap-12 lg:py-16">
+                <div className="flex flex-col gap-3">
+                  <h2 id="ask-title" className="t-h2 text-navy">
+                    {W.askHeading}
+                  </h2>
+                  <p className="t-body max-w-measure text-body">{W.askBody}</p>
+                </div>
+                <LetterForm />
+              </div>
+            </section>
+          }
+        />
 
         {/* 11. Method and sources */}
         <section className="container-site py-14 lg:py-16" aria-labelledby="method-title">
@@ -327,7 +337,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
             <h2 id="method-title" className="t-label text-linen-700 lg:col-span-3">
               {W.methodHeading}
             </h2>
-            <div className="flex max-w-[78ch] flex-col gap-3 lg:col-span-9">
+            <div className="flex max-w-measure flex-col gap-3 lg:col-span-9">
               <p className="t-record text-graphite-600">{model.source}</p>
               <p className="t-small text-body-muted">{model.methods}</p>
               <p className="t-small flex items-center gap-3 text-body-muted">

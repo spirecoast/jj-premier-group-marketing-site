@@ -114,7 +114,10 @@ export const HOME_VALUE_COPY = {
     notLoadedHelp: "Until it is, send the address below and we'll pull the record by hand from the appraiser's file.",
     error: "The record didn't answer. Try once more in a moment.",
   },
-  source: (counties: string, asOf: string) => `Source: ${counties}, public record, as of ${asOf}.`,
+  /** "Source: Manatee County Property Appraiser, public record. Manatee records through Sep 24, 2026." */
+  source: (counties: string, through: string) => `Source: ${counties}, public record. ${through}.`,
+  through: (county: string, date: string) => `${county} records through ${date}`,
+  throughShort: (county: string, date: string) => `${county} through ${date}`,
   sourceDefault: "Manatee County Property Appraiser and Sarasota County Property Appraiser",
   links: {
     sold: "Just the street, without the house: what sold on your street",

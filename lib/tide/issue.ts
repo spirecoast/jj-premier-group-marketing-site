@@ -1,6 +1,6 @@
 import { checkFairHousing, type FairHousingResult } from "../fair-housing";
 import { TIDE_COPY, fill } from "../issues/copy";
-import { MARKET_NAMES, MARKET_ORDER, dateLong, easternDay, monthLabel, type MarketSlug } from "../issues/render";
+import { MARKET_NAMES, MARKET_ORDER, dateLong, dateShort, easternDay, monthLabel, type MarketSlug } from "../issues/render";
 import {
   addMonths,
   counted,
@@ -17,11 +17,12 @@ import {
 } from "../issues/tide-monthly";
 import type { ImageRef } from "../content/types";
 import { median, rollChanged } from "../sales/stats";
-import type { Sale } from "../sales/types";
+import type { County, Sale } from "../sales/types";
 import { TIDE_WEB_COPY as W } from "./copy";
 import { tideCover } from "./cover";
 import type { TideIssueEntry } from "./issues";
 import { narrativeOf, narrativeParagraphs, noteSlots, type Narrative, type NoteSlot } from "./notes";
+import { figureTokens, fillEntry, type MissingToken } from "./tokens";
 
 /**
  * The Tide web issue (/tide/<issue>) as data. Every figure is computed from
@@ -148,6 +149,40 @@ export type ChartModel = {
 
 export type IssueGuide = { slug: string; title: string; excerpt: string; publishedAt: string };
 
+/** One market's computed figures, without its words: what a snapshot freezes. */
+export type MarketFigures = Pick<IssueMarket, "market" | "stats" | "baseline" | "streets" | "series" | "lastYear" | "mix" | "bands">;
+
+/**
+ * Every figure an issue is drawn from, computed once from the county sales.
+ * Frozen to lib/tide/snapshots/<issue>.json when the issue goes out
+ * (`npm run tide:freeze`), so a later data refresh never changes a published
+ * issue: the tiles, the charts and the narrative's tokens all read this.
+ */
+export type IssueFigures = {
+  schema: 1;
+  issue: string;
+  dataMonth: string;
+  latestComplete: string | null;
+  /** The sales manifest's generated date the figures were computed from. */
+  frozenAt: string;
+  manifest: TideManifest;
+  markets: MarketFigures[];
+  combined: Combined;
+};
+
+/** One county file's reach: "Manatee records through Sep 24, 2026". */
+export type Through = { county: County; name: string; to: string; label: string };
+
+/** A month after the data month: the qualified sales the county has posted for it so far, per market. */
+export type SinceThenMonth = {
+  month: string;
+  /** "August", or "October to date" for the month the data was refreshed in. */
+  label: string;
+  markets: { market: MarketSlug; name: string; count: number; typical: number | null; /** Whole percent of a typical month; null without one. */ share: number | null; partial: boolean }[];
+};
+
+export type SinceThen = { asOf: string; months: SinceThenMonth[] };
+
 export type IssueModel = {
   issue: string;
   issueLabel: string;
@@ -182,6 +217,19 @@ export type IssueModel = {
   dek: string;
   /** "Figures for July 2026 from the county record · 9 min read". */
   coverLine: string;
+  /** "October issue · July figures". */
+  issueLine: string;
+  /** Each county file's reach when the figures were computed, and the one line that says it. */
+  through: Through[];
+  throughLine: string | null;
+  /** The months after the data month, as far as the county has posted them; null when the data stops at the data month. Live, never frozen. */
+  sinceThen: SinceThen | null;
+  /** True when the figures came from a snapshot (lib/tide/snapshots), not from the sales passed in. */
+  frozen: boolean;
+  /** The narrative entry with its tokens filled from the figures: what the words on the page are checked against. */
+  narrativeEntry: TideIssueEntry;
+  /** Tokens in the narrative that named no figure; the build fails on any. */
+  missingTokens: MissingToken[];
   /** The line under the combined figure: "home sales across the three markets in July, 7% more than a typical month". */
   combinedLine: string;
   /**
@@ -210,6 +258,8 @@ export type IssueInput = {
   posts: { slug: string; title: string; excerpt: string; publishedAt: string; categories: string[] }[];
   /** NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true". */
   showSamples?: boolean;
+  /** The frozen figures for a published issue; without them the figures are computed from `sales`. */
+  figures?: IssueFigures;
 };
 
 const HUB: Record<MarketSlug, string> = { "lakewood-ranch": "/lakewood-ranch", sarasota: "/sarasota", bradenton: "/bradenton" };
@@ -485,6 +535,9 @@ export function issueText(m: Omit<IssueModel, "fairHousing">): string[] {
     m.headline,
     m.dek,
     m.coverLine,
+    m.issueLine,
+    m.throughLine ?? "",
+    ...(m.sinceThen ? [m.sinceThen.asOf, ...m.sinceThen.months.map((x) => x.label)] : []),
     m.combinedLine,
     m.cover.alt,
     ...m.markets.flatMap((x) => [...x.story.paragraphs, ...x.mix.map((p) => p.label), ...x.bands.bands.map((b) => b.label)]),
@@ -511,25 +564,21 @@ export function combinedLine(c: Combined, dataMonth: string): string {
   return fill(c.pct > 0 ? W.combinedMore : W.combinedFewer, { month, pct: String(r) });
 }
 
-export function buildIssueModel(input: IssueInput): IssueModel {
-  const { entry, sales, manifest } = input;
+/** The month `day` (YYYY-MM-DD) falls in. */
+const monthOf = (day: string) => day.slice(0, 7);
+
+/** Every figure for an issue, computed from the county sales: what `tide:freeze` writes down. */
+export function computeFigures({ entry, sales, manifest }: Pick<IssueInput, "entry" | "sales" | "manifest">): IssueFigures {
   const { dataMonth, latestComplete } = dataMonthFor(entry, sales);
-  const issueLabel = monthLabel(entry.issue);
-  const dataLabel = monthLabel(dataMonth);
   const months = monthsEnding(dataMonth, CHART_MONTHS);
   const series = monthlySeries(sales, months);
   const base = baselines(sales, dataMonth);
   const stats = tideStats(sales, dataMonth);
-
   const lastYear = lastYearFor(sales, dataMonth, manifest);
-  const narrative = narrativeOf(entry);
-  const markets: IssueMarket[] = stats.map((s) => {
+  const markets: MarketFigures[] = stats.map((s) => {
     const rows = marketRows(sales, dataMonth, s.market);
-    const written = narrative?.markets[s.market] ?? [];
     return {
       market: s.market,
-      name: s.name,
-      href: HUB[s.market],
       stats: s,
       baseline: base[s.market],
       streets: topStreets(rows, STREETS_PER_MARKET),
@@ -537,13 +586,95 @@ export function buildIssueModel(input: IssueInput): IssueModel {
       lastYear: lastYear[s.market],
       mix: homeMix(rows),
       bands: priceBands(rows),
-      story: written.length ? { paragraphs: written, written: true } : { paragraphs: [marketParagraph(s, dataMonth)], written: false },
     };
   });
-  const combined = combinedFor(sales, dataMonth, markets);
+  const named = markets.map((m) => ({ ...m, name: MARKET_NAMES[m.market] }));
+  return {
+    schema: 1,
+    issue: entry.issue,
+    dataMonth,
+    latestComplete,
+    frozenAt: manifest.generatedAt,
+    manifest: { generatedAt: manifest.generatedAt, counties: manifest.counties },
+    markets,
+    combined: combinedFor(sales, dataMonth, named),
+  };
+}
 
+const COUNTY_NAME: Record<County, string> = { manatee: "Manatee", sarasota: "Sarasota" };
+
+/** "Sep 24, 2026" from an ISO day. */
+export const dayShort = (day: string) => `${dateShort(day)}, ${day.slice(0, 4)}`;
+
+/** Each county file's reach, in the manifest's order, with the line that says so. */
+export function throughFor(manifest: TideManifest): { through: Through[]; line: string | null } {
+  const through = (Object.entries(manifest.counties) as [County, { to: string | null } | undefined][])
+    .filter(([k, c]) => c?.to && COUNTY_NAME[k])
+    .map(([k, c]) => ({ county: k, name: COUNTY_NAME[k], to: c!.to as string, label: fill(W.throughRecords, { county: COUNTY_NAME[k], date: dayShort(c!.to as string) }) }));
+  if (!through.length) return { through, line: null };
+  const [first, ...rest] = through;
+  return { through, line: [first!.label, ...rest.map((t) => fill(W.throughShort, { county: t.name, date: dayShort(t.to) }))].join(" · ") };
+}
+
+/**
+ * The months after the data month, as far as the county has posted them, up
+ * to the month the data was refreshed in: what each market has recorded so
+ * far against its typical month. Marked partial while under the completeness
+ * ratio. Computed live from the sales passed in, never frozen, since the
+ * point is what has come in since the issue went out.
+ */
+export function sinceThenFor(sales: Sale[], dataMonth: string, manifest: TideManifest): SinceThen | null {
   const asOfDay = manifest.generatedAt && !Number.isNaN(Date.parse(manifest.generatedAt)) ? easternDay(new Date(manifest.generatedAt)) : null;
+  if (!asOfDay) return null;
+  const last = monthOf(asOfDay);
+  const months: SinceThenMonth[] = [];
+  for (let m = addMonths(dataMonth, 1); m <= last && months.length < 4; m = addMonths(m, 1)) {
+    const stats = tideStats(sales, m);
+    if (stats.every((s) => s.count === 0)) continue;
+    months.push({
+      month: m,
+      label: m === last ? fill(W.sinceToDate, { month: monthLabel(m).split(" ")[0]! }) : monthLabel(m).split(" ")[0]!,
+      markets: stats.map((s) => ({
+        market: s.market,
+        name: s.name,
+        count: s.count,
+        typical: s.typical,
+        share: s.typical ? Math.round((100 * s.count) / s.typical) : null,
+        partial: !s.complete || m === last,
+      })),
+    });
+  }
+  return months.length ? { asOf: dateLong(asOfDay), months } : null;
+}
+
+export function buildIssueModel(input: IssueInput): IssueModel {
+  const { entry, sales, manifest } = input;
+  const figures = input.figures ?? computeFigures({ entry, sales, manifest });
+  const { dataMonth, latestComplete } = figures;
+  const issueLabel = monthLabel(entry.issue);
+  const dataLabel = monthLabel(dataMonth);
+  const months = monthsEnding(dataMonth, CHART_MONTHS);
+
+  // The words, with every token filled from the same figures the page draws.
+  const tokens = figureTokens({ dataMonth, markets: figures.markets.map((m) => ({ ...m, name: MARKET_NAMES[m.market], href: HUB[m.market], story: { paragraphs: [], written: false } })), combined: figures.combined });
+  const filled = fillEntry(entry, tokens);
+  const words = filled.entry;
+  const narrative = narrativeOf(words);
+  const markets: IssueMarket[] = figures.markets.map((m) => {
+    const written = narrative?.markets[m.market] ?? [];
+    return {
+      ...m,
+      name: MARKET_NAMES[m.market],
+      href: HUB[m.market],
+      story: written.length ? { paragraphs: written, written: true } : { paragraphs: [marketParagraph(m.stats, dataMonth)], written: false },
+    };
+  });
+  const combined = figures.combined;
+
+  // The source line and the through-dates describe the data the figures came from.
+  const asOfDay = figures.frozenAt && !Number.isNaN(Date.parse(figures.frozenAt)) ? easternDay(new Date(figures.frozenAt)) : null;
   const asOf = asOfDay ? dateLong(asOfDay) : null;
+  const through = throughFor(figures.manifest);
   const minutes = readingMinutes([
     ...narrativeParagraphs(narrative),
     ...(narrative?.opening.length ? [] : [W.note, W.intro]),
@@ -551,6 +682,7 @@ export function buildIssueModel(input: IssueInput): IssueModel {
   ]);
   const headline = narrative?.headline ?? fill(W.headlineFallback, { data: dataLabel });
   const dek = narrative?.dek ?? W.dekFallback;
+  const monthWord = (m: string) => monthLabel(m).split(" ")[0]!;
 
   const model: Omit<IssueModel, "fairHousing"> = {
     issue: entry.issue,
@@ -568,11 +700,18 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     combined,
     cover: tideCover(entry.issue),
     minutes,
-    coverTitle: entry.coverTitle?.trim() || null,
-    coverKicker: entry.coverKicker?.trim() || null,
+    coverTitle: words.coverTitle?.trim() || null,
+    coverKicker: words.coverKicker?.trim() || null,
     headline,
     dek,
     coverLine: fill(W.coverLine, { data: dataLabel, minutes: String(minutes) }),
+    issueLine: fill(W.issueLine, { issue: monthWord(entry.issue), data: monthWord(dataMonth) }),
+    through: through.through,
+    throughLine: through.line,
+    sinceThen: sales.length ? sinceThenFor(sales, dataMonth, manifest) : null,
+    frozen: Boolean(input.figures),
+    narrativeEntry: words,
+    missingTokens: filled.missing,
     combinedLine: combinedLine(combined, dataMonth),
     charts: {
       sales: chart(

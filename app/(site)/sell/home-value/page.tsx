@@ -10,7 +10,7 @@ import { HomeValueLookup } from "@/components/home-value/home-value-lookup";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
 import { SectionHeading } from "@/components/section-heading";
-import { getSalesManifest } from "@/lib/sales";
+import { getSalesManifest, type County } from "@/lib/sales";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 const FRAMES = {
@@ -61,6 +61,7 @@ export default async function HomeValuePage() {
   const asOf = manifest?.generatedAt ? manifest.generatedAt.slice(0, 10) : null;
   const counties = manifest ? Object.values(manifest.counties).map((c) => c.label) : [];
   const months = manifest?.windowMonths ?? 24;
+  const through = manifest ? (Object.entries(manifest.counties) as [County, { label: string; to: string | null }][]).map(([county, c]) => ({ county, label: c.label, to: c.to })) : [];
   const testimonials = await getTestimonials();
   const seller = testimonials.find((t) => /seller/i.test(t.attribution)) ?? testimonials[0];
 
@@ -88,7 +89,7 @@ export default async function HomeValuePage() {
         </ul>
       </section>
 
-      <HomeValueLookup loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months}>
+      <HomeValueLookup loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} through={through}>
         {/* 03 · What the record can't tell you. No figures: the list is of things, not numbers. */}
         <section className="border-t border-hairline">
           <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">

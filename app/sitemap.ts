@@ -8,7 +8,7 @@ import {
 } from "@/lib/content";
 import { MARKETS } from "@/lib/content/markets";
 import { GUIDES } from "@/lib/guides";
-import { isRebuiltGuide } from "@/lib/guides/slugs";
+import { FOLDED_POSTS, isRebuiltGuide } from "@/lib/guides/slugs";
 import { getIndexableSlugs } from "@/lib/neighborhoods/data";
 import { absoluteUrl } from "@/lib/seo";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
@@ -70,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...events.map((s) => entry(`/calendar/${s}`, 0.6, "weekly" as const)),
     ...venues.map((s) => entry(`/venues/${s}`, 0.5, "monthly" as const)),
     ...neighborhoods.map((s) => entry(`/neighborhoods/${s}`, 0.7, "weekly" as const)),
-    ...posts.filter((s) => !isRebuiltGuide(s)).map((s) => entry(`/blog/${s}`, 0.5, "monthly" as const)),
+    ...posts.filter((s) => !isRebuiltGuide(s) && !FOLDED_POSTS[s]).map((s) => entry(`/blog/${s}`, 0.5, "monthly" as const)),
     ...GUIDES.map((g) => entry(`/guides/${g.slug}`, 0.7, "monthly" as const, g.updatedAt)),
     ...TIDE_ISSUES.map((e) => entry(`/tide/${e.issue}`, 0.6, "monthly" as const, `${e.issue}-01`)),
   ];

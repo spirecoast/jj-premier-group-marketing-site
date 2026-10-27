@@ -18,11 +18,23 @@ export const REBUILT_GUIDE_SLUGS = [
   "getting-here-and-getting-around",
 ] as const;
 
+/**
+ * Posts that were folded into a rebuilt guide: the old /blog path answers
+ * with a permanent redirect to the guide that carries the topic now.
+ * "Ask us about the water table" (May 2026) covered the flood zones the
+ * flood guide explains with sources; the guide is the one page for it.
+ */
+export const FOLDED_POSTS: Readonly<Record<string, (typeof REBUILT_GUIDE_SLUGS)[number]>> = {
+  "ask-us-about-the-water-table": "flood-zones-and-elevation-certificates-on-the-suncoast",
+};
+
 export function isRebuiltGuide(slug: string): boolean {
   return (REBUILT_GUIDE_SLUGS as readonly string[]).includes(slug);
 }
 
-/** Where a guide lives now: /guides for a rebuilt one, /blog for the rest. */
+/** Where a guide lives now: /guides for a rebuilt one (or the one a post folded into), /blog for the rest. */
 export function guideHref(slug: string): `/guides/${string}` | `/blog/${string}` {
+  const folded = FOLDED_POSTS[slug];
+  if (folded) return `/guides/${folded}`;
   return isRebuiltGuide(slug) ? `/guides/${slug}` : `/blog/${slug}`;
 }

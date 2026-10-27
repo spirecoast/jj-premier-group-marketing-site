@@ -43,6 +43,9 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
   const slot = mastheadSlot(route);
   // A product page, and the page of all of them, carries the team's photographs, small, as its maker's mark.
   const team = slot.kind === "photo" && (slot.family || route === "/tools") ? await getTeam() : [];
+  const tide = slot.kind === "photo" && slot.family === "tide";
+  // In the Tide grid every child but the lockup and the hairlines spans both columns.
+  const span = tide ? "col-span-2" : "";
   const lockup = (() => {
     if (slot.kind !== "photo" || !slot.product) return null;
     for (const family of productFamilies) {
@@ -70,31 +73,50 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
         {slot.kind === "photo" && slot.family ? (
           <>
             <div className={`masthead-tint-${slot.family} absolute inset-0`} aria-hidden="true" />
-            <FamilyMotif family={slot.family} />
+            {/* Tide's motif sits with the words (below), not across the photograph. */}
+            {slot.family !== "tide" ? <FamilyMotif family={slot.family} /> : null}
           </>
         ) : null}
       </div>
       {/* Encore's words start below its marquee's top. */}
       <div className={cn("relative col-start-1 row-start-1 flex flex-col justify-end", compact ? "pt-6 sm:pt-10" : "pt-10", slot.kind === "photo" && slot.family === "encore" && "md:pt-28")}>
-        <div className={cn("container-site flex flex-col gap-4", slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? cn(compact ? "pb-6" : "pb-14", "sm:pb-20 lg:pb-24") : "pb-10 sm:pb-12 lg:pb-16")}>
-          {crumbs}
+        {/*
+          Tide's masthead is a two-column grid so its three hairlines can run
+          exactly the lockup's width (the first column is as wide as the
+          lockup; everything else spans both), 16px under the byline.
+        */}
+        <div
+          className={cn(
+            "container-site gap-4",
+            tide ? "grid grid-cols-[auto_minmax(0,1fr)]" : "flex flex-col",
+            slot.kind === "photo" && (slot.family === "tide" || slot.family === "encore") ? cn(compact ? "pb-6" : "pb-14", "sm:pb-20 lg:pb-24") : "pb-10 sm:pb-12 lg:pb-16",
+          )}
+        >
+          {crumbs ? <div className={span}>{crumbs}</div> : null}
           {lockup ? (
             <>
               {/* On a product's page the lockup is the title you see; the h1 says it in words, and one line of description follows. */}
               <Tag id={titleId} className="sr-only">
                 {lockup.item.label}, by {site.name}
               </Tag>
-              <ProductLockup family={lockup.family.key} product={lockup.item.label} size="hero" decorative className="rise d1 mb-2 lg:mb-3" />
+              <ProductLockup family={lockup.family.key} product={lockup.item.label} size="hero" decorative className={cn("rise d1 mb-2 lg:mb-3", tide && "col-start-1")} />
             </>
           ) : null}
           {title && !lockup ? (
-            <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", titleClassName)}>
+            <Tag id={titleId} className={cn("rise d2 t-display max-w-[820px] text-balance text-white text-shadow-photo", span, titleClassName)}>
               {title}
             </Tag>
           ) : null}
-          {children}
+          {children ? <div className={cn("contents", tide && "[&>*]:col-span-2")}>{children}</div> : null}
           {team.length ? (
-            <Byline people={team.map((m) => ({ name: m.name, headshot: m.headshot }))} tone="dark" size="sm" className="rise d4 mt-2" />
+            <Byline people={team.map((m) => ({ name: m.name, headshot: m.headshot }))} tone="dark" size="sm" className={cn("rise d4 mt-2", span)} />
+          ) : null}
+          {tide ? (
+            <div className="motif-tide-lockup col-start-1 mt-3" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
           ) : null}
         </div>
       </div>

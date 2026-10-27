@@ -304,11 +304,15 @@ The sections, always in this order:
 
 1. **Cover.** The month's photograph full-bleed under the harbor wash (`components/tide/cover.tsx`,
    with the guide covers' `.guide-cover-*` classes); the header sits over it. "Tide · October 2026",
-   then the `headline` in the display face (until it's written: "Home sales in July 2026"), the
-   `dek` (until then: "Here's how Lakewood Ranch, Sarasota and Bradenton did, with every number from
-   the county's public record."), and the mono line "Figures for July 2026 from the county record ·
-   8 min read". The reading time is computed from the words on the page (200 a minute, plus a minute
-   for every three figures). From 1024px up the issue's contents run along the foot as anchor links.
+   the mono line "October issue · July figures" (so a reader never takes the issue month for the
+   data month), then the `coverTitle` or `headline` in the display face at the page's largest size
+   (until it's written: "Home sales in July 2026"), the `dek` (until then: "Here's how Lakewood
+   Ranch, Sarasota and Bradenton did, with every number from the county's public record."), the
+   line that says how far each county's record reached when the figures were computed ("Manatee
+   records through Sep 24, 2026 · Sarasota through Oct 20, 2026", from the manifest's `counties[c].to`),
+   and the byline with the reading time, computed from the words on the page (200 a minute, plus a
+   minute for every three figures). From 1024px up the issue's contents run along the foot as anchor
+   links.
    The cover rotates through three photos by issue month (`lib/tide/cover.ts`).
 2. **The story.** `opening`, three to five paragraphs at about 66 characters a line, the first with
    a drop cap, then the line on why this month ("The county posts sales a few weeks late…"). Before
@@ -316,7 +320,12 @@ The sections, always in this order:
 3. **One big figure.** The three markets' home sales together, very large on the dark harbor band,
    with one computed line under it ("home sales across the three markets in July, 7% more than a
    typical month"), the typical month and the same month a year before, and each market's share as
-   a thin bar.
+   a thin bar. Under it, the "Since then" strip (`components/tide/since-then.tsx`): for each
+   market, the qualified sales the county has posted so far for each month after the data month, up
+   to the month the data was refreshed in ("October to date"), each with a bar for its share of a
+   typical month and marked partial while under the completeness ratio. It is the one part of a
+   frozen issue that stays live, so a reader sees the issue's figures as published and what has
+   come in since.
 4. **Three market chapters** (`components/tide/market-chapter.tsx`), one per market: the name set
    big; a quiet strip with the month's sales (against a typical month and the same month a year
    before), the median price, the median per square foot and the new-build share, each with its
@@ -387,6 +396,33 @@ note Joelyn or Jessica sends as `commentary: { joelyn: ["…"], jessica: ["…"]
 Check the page with `npm run build && npm run start`, then `/tide/2026-11`. A month the data no
 longer reaches (the window is 24 months) is a 404, not a page of zeros.
 
+### Freezing an issue
+
+A published issue must never change under a reader, but the weekly sales refresh recomputes every
+figure (a late-posted July sale moves July's count). So once an issue is out, freeze it:
+
+```
+npm run tide:freeze -- 2026-11
+```
+
+The script builds the issue from `data/sales` exactly as the page would, writes every computed
+figure (the stats, the typical month, the streets, the twelve-month series, the kinds of home, the
+price bands, the three markets together, and each county's through-date) to
+`lib/tide/snapshots/2026-11.json`, and rewrites `lib/tide/snapshots/index.ts` from the folder.
+Commit both. From then on `lib/tide/load.ts` draws the issue from the snapshot: the tiles, the
+charts, the cover lines and the narrative's tokens all read it, and a later refresh changes nothing
+on the page except the live "Since then" strip under the big figure (what the county has posted for
+the months after the data month, per market, against a typical month, marked partial while short).
+The subscriber send (`lib/issues/load.ts`) reads the same snapshot, so the email and the page agree.
+
+The script refuses an issue whose entry hasn't pinned `data`, one whose narrative carries a token
+the figures can't fill, and one that is already frozen (`--force` replaces it; a published issue
+should not change, so say why in the commit). The test `lib/tide/narrative.test.ts` checks that a
+snapshot's data month matches its entry's pin.
+
+Freeze on the day the issue goes out, after the data refresh it was written from is merged. The
+October 2026 issue is frozen from the October 25 refresh (July figures).
+
 ### Writing the narrative
 
 Each issue's story is written by hand, once a month, in the entry in `lib/tide/issues.ts`. Prose
@@ -426,9 +462,22 @@ checked against the page.
    for sale): the page says it under the moves, so don't imply them. Say "stand-alone houses"
    rather than "single-family" in the words: the places-not-people check reads "family" as a
    familial-status reference (the computed labels on the page aren't run through that rule).
-4. Run `npm run test:unit`. `lib/tide/narrative.test.ts` builds the issue from `data/sales` and
-   fails on any number in the narrative that the page doesn't compute, within rounding (half a
-   point on a percent; 1% on a dollar figure or a count, so "about $400,000" for $399,450 passes).
+4. Write every figure as a token, not as digits. `{bradenton.sales}`, `{all.vsTypicalPct}`,
+   `{sarasota.ppsf}`: the page fills each from the same figures the tiles and charts are drawn from,
+   so the words and the numbers can't disagree, and a refresh before the issue is frozen moves the
+   prose with the data. The full list is at the top of `lib/tide/tokens.ts`: per market and for
+   `all`, the month's sales, the typical month, the change against it and against a year before (as
+   a size, `12%`, and as a word, `more`/`fewer`), the medians, the price per square foot, the
+   new-build share, the month before, the busiest and quietest months on the chart, any chart month
+   (`{bradenton.sales.2026-06}`), the kinds of home, the price bands and the cumulative shares, and
+   the busiest streets (`{sarasota.streets.1.name}`). The direction words around a token ("more",
+   "fewer", "up", "down", "went the other way") are yours: check them against the figures when you
+   write, since a token carries only the size of a change. A token that names no figure fails the
+   build. The signed notes are never filled: Joelyn's and Jessica's words are their own.
+5. Run `npm run test:unit`. `lib/tide/narrative.test.ts` builds the issue from `data/sales` (or its
+   snapshot once frozen), fills the tokens, and fails on any number still typed in digits that the
+   page doesn't compute, within rounding (half a point on a percent; 1% on a dollar figure or a
+   count, so "about $400,000" for $399,450 passes).
    The figures it knows are every number on the page plus the differences a writer quotes: against
    the typical month, the month before and the same month a year before, in sales, dollars and
    percent; the kinds of home, the price bands (and the shares under and over each band's edge, so
@@ -436,9 +485,10 @@ checked against the page.
    digits ("12%", "1,080"); a figure spelled out ("twelve percent") fails, since the check can't see
    it. It also checks the shape (sentence counts above), a reading level of about sixth grade (the
    Flesch-Kincaid grade of the whole narrative at 6.5 or under) and no sentence over 24 words.
-5. A data refresh that changes a published month's figures can fail that test. That's on purpose:
-   the words no longer match the record. Rewrite the sentence from the new figures.
-6. `npm run check:copy` (and every build) runs the voice rules, Fair Housing and the
+6. A data refresh that changes an unfrozen month's figures can fail that test on a figure typed in
+   digits. That's on purpose: the words no longer match the record. Write it as a token, or rewrite
+   the sentence from the new figures. A frozen issue (above) never moves.
+7. `npm run check:copy` (and every build) runs the voice rules, Fair Housing and the
    places-not-people rules over every narrative and note.
 
 The October 2026 issue (data month July 2026) is the worked example.
@@ -644,7 +694,9 @@ Don't do both: with subscriber email on, an issue sent by hand as well reaches p
 | `app/api/issues/encore/image/[slug]/route.ts` | The lead pick's PNG for the Monday issue. |
 | `scripts/issue-preview.mjs` | Local render to files. |
 | `docs/screenshots/issues/` | The two previews at 600px. |
-| `lib/tide/issue.ts` | The web issue's model (pure): data month, figures, typical months, chart data, streets, guides. |
+| `lib/tide/issue.ts` | The web issue's model (pure): data month, figures, typical months, chart data, streets, guides, the through-dates and the "Since then" months; `computeFigures` is what a snapshot freezes. |
+| `lib/tide/tokens.ts` | The narrative's tokens (`{bradenton.sales}`), filled from the figures. |
+| `lib/tide/snapshots/` | One JSON of frozen figures per published issue, written by `scripts/tide-freeze.mjs` (`npm run tide:freeze`). |
 | `lib/tide/issues.ts` | The list of web issues, with each one's hand-written narrative and the signed notes. |
 | `lib/tide/notes.ts` | Reads the narrative and decides which signed notes show. |
 | `lib/tide/narrative.ts`, `lib/tide/narrative.test.ts` | The figures a narrative may quote, the number check, the facts to write from; the tests check the October 2026 narrative against `data/sales`. |
