@@ -5,6 +5,8 @@ import { track } from "@/lib/analytics";
 import { buildPlan, normalizeAnswers, type Answers, type Plan } from "@/lib/relocate/plan";
 import { MOVE_DRAFT, MOVE_STEPS, answersToQuery, hasAnswers, parseAnswers, planPath, readMoveDraft, type MoveDraft } from "@/lib/relocate/url";
 import { scrollToTop } from "@/lib/scroll";
+import { dayHere } from "@/lib/time";
+import { useToday } from "@/lib/use-today";
 import { draft, replaceQuery, useStepHistory, useUrlInitial } from "@/lib/url-state";
 
 export type Mode = "questions" | "plan";
@@ -49,7 +51,8 @@ type Start = { today: string; answers: Answers; mode: Mode; step: number; reache
  * or an accidental exit comes back to the same question.
  */
 function PlannerState({ start, children }: { start: Start; children: ReactNode }) {
-  const { today } = start;
+  /* The visitor's own day, kept current: it ticks over at their midnight, so "In 3 days" is still right in the morning. */
+  const today = useToday(start.today);
   const [answers, setAnswersState] = useState<Answers>(start.answers);
   const [mode, setMode] = useState<Mode>(start.mode);
   const [generic, setGeneric] = useState(false);
@@ -152,8 +155,8 @@ function PlannerState({ start, children }: { start: Start; children: ReactNode }
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>;
 }
 
-/** The browser's date, the way the server writes it. */
-const clientToday = () => new Date().toISOString().slice(0, 10);
+/** The visitor's own calendar day, from the browser's clock (never the UTC day: that is tomorrow from eight in the evening on the east coast). */
+const clientToday = () => dayHere();
 
 const fresh = (today: string): Start => ({ today, answers: parseAnswers({}, today), mode: "questions", step: 0, reached: 0 });
 

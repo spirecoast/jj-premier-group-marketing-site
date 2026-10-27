@@ -62,6 +62,8 @@ export const PLAN = {
   /** Short names for the five key dates; the timeline keeps the full titles. */
   keyTitles: { effective: "Contract signed", inspection: "Inspection period ends", closing: "Closing day", "move-in": "Move-in day", homestead: "Homestead filing deadline" } as Record<string, string>,
   inDays: (n: number) => (n === 0 ? "Today" : n === 1 ? "Tomorrow" : `In ${n.toLocaleString("en-US")} days`),
+  /** A key date that has already gone by (the plan's first callout says what to do). */
+  past: "Already past",
   gapDays: (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "day" : "days"} later`,
   basisLabel: "Why this date",
   sourceLabel: "Source",
@@ -156,6 +158,9 @@ export const ASK = {
   body: "We'll look at your dates and tell you what we'd change. One of us will call or write back.",
   submit: "Send my plan",
   placeholder: "Anything else we should know?",
+  /** Shown instead of the form while the questions are still open: there is no plan to send yet. */
+  beforePlan: "Rather just talk?",
+  beforePlanLink: "Tell us the timing",
 };
 
 export const FAQ_SECTION = { title: "Common questions about moving here" };

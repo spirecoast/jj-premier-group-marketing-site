@@ -3,19 +3,21 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { SavePlaceButton } from "@/components/atlas/save-place";
+import { useMyPlaces } from "@/components/atlas/use-my-places";
 import { ButtonLink } from "@/components/buttons";
 import { LeadForm } from "@/components/lead-form";
 import { ShareButton } from "@/components/share-button";
 import { marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, TYPE_LABEL } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
-import { QUESTIONS, answeredIds, explorerFilters, matchHref, questionIndex, sortMatches, summarize, unknownCount, type Answers, type Match } from "@/lib/neighborhoods/match";
+import { QUESTIONS, answeredIds, coverageLine, matchHref, matchListHref, questionIndex, sortMatches, summarize, unknownCount, type AnswerBar, type Answers, type Coverage, type Match, type QuestionId } from "@/lib/neighborhoods/match";
 import { pathOf } from "@/lib/neighborhoods/search";
+import { LIST_FROM_KEY } from "@/lib/neighborhoods/my-places";
+import { LIST_MAX } from "@/lib/neighborhoods/url";
 import { cn } from "@/lib/utils";
 
 const PAGE = 60;
-
-const orList = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} or ${xs.at(-1)}`);
 
 type Props = {
   answers: Answers;
@@ -23,31 +25,39 @@ type Props = {
   matches: Match[];
   by: Map<string, IndexEntry>;
   asOf: string;
+  /** One bar per answered question: confirmed on it, or in only because the fact isn't known yet. */
+  bars: AnswerBar[];
+  /** Questions held back for thin coverage, offered under the answers. */
+  more: { id: QuestionId; coverage: Coverage | null }[];
   onEdit: (step: number) => void;
   onRestart: () => void;
 };
 
 /**
- * The places that fit. A summary on the Atlas green leads: the count, how
- * many are confirmed on every answer, the answers themselves and what to do
- * next. The cards follow, best fit first (or A to Z, or nearest first when a
- * point was chosen); each shows the facts that matched and says "not known"
- * where a field is missing rather than pretending.
+ * The places that fit. A summary on the Atlas green leads: the count, then
+ * one bar per answered question (how many of the list are confirmed on it
+ * and how many are in only because the fact isn't known yet), the answers
+ * themselves and what to do next: the map with exactly this list, Save them
+ * all, Share. The cards follow, best fit first (or A to Z, or nearest first
+ * when a point was chosen); each shows the facts that matched, says "not
+ * known" where a field is missing rather than pretending, and carries Save.
  */
-export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, onRestart }: Props) {
+export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more, onEdit, onRestart }: Props) {
   const [order, setOrder] = useState<"fit" | "name" | "distance">(answers.near ? "distance" : "fit");
   const [limit, setLimit] = useState(PAGE);
   useEffect(() => setLimit(PAGE), [matches.length]);
   useEffect(() => {
     if (!answers.near) setOrder((o) => (o === "distance" ? "fit" : o));
   }, [answers.near]);
+  const my = useMyPlaces();
 
   const sorted = useMemo(() => sortMatches(matches, order), [matches, order]);
-  const confirmed = matches.filter((m) => m.confirmed).length;
   const ids = answeredIds(answers);
   const summary = summarize(answers, by);
-  const explorer = explorerFilters(answers, summary.map((s) => s.id));
+  const anyUnknown = bars.some((b) => b.unknown > 0);
   const registryCount = useMemo(() => [...by.values()].filter((e) => e.r === 0).length, [by]);
+  const slugs = useMemo(() => matches.map((m) => m.entry.s), [matches]);
+  const allSaved = slugs.length > 0 && slugs.every((s) => my.has(s));
 
   const message = [
     `From Atlas Match: ${matches.length.toLocaleString()} ${matches.length === 1 ? "neighborhood fits" : "neighborhoods fit"} what I told it${summary.length ? ` (${summary.map((s) => s.text).join(" · ")})` : ""}.`,
@@ -63,25 +73,42 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
     <div className="flex flex-col gap-12">
       <div className="atlas-panel relative flex flex-col gap-8 overflow-hidden bg-atlas-deep px-5 py-8 text-linen-100 sm:p-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div className="flex flex-col gap-5" aria-live="polite">
+          <div className="flex flex-col gap-6" aria-live="polite">
             <h2 data-results-title="" tabIndex={-1} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white outline-none">
               <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] font-light leading-none tabular-nums">{matches.length.toLocaleString()}</span>
               <span className="t-h1">{matches.length === 1 ? "neighborhood fits" : "neighborhoods fit"}</span>
             </h2>
-            {matches.length && ids.length ? (
-              <div className="flex max-w-[560px] flex-col gap-3">
-                <span className="flex h-2 overflow-hidden bg-white/12" aria-hidden="true">
-                  <span className="bg-atlas transition-[width] duration-(--dur-card)" style={{ width: `${(confirmed / matches.length) * 100}%` }} />
-                </span>
+            {matches.length && bars.length ? (
+              <div className="flex max-w-[560px] flex-col gap-4">
+                <ul className="flex flex-col gap-3" aria-label="How many of the list each answer is confirmed for">
+                  {bars.map((b) => {
+                    const q = QUESTIONS[questionIndex(b.id)]!;
+                    const pct = (n: number) => `${(n / matches.length) * 100}%`;
+                    return (
+                      <li key={b.id} className="flex flex-col gap-1.5">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                          <span className="t-small text-white">{b.text.charAt(0).toUpperCase() + b.text.slice(1)}</span>
+                          <span className="t-small text-white/75 tabular-nums">
+                            {b.unknown ? `${b.confirmed.toLocaleString()} confirmed · ${b.unknown.toLocaleString()} not known yet` : `${b.confirmed.toLocaleString()} of ${matches.length.toLocaleString()} confirmed`}
+                          </span>
+                        </div>
+                        <span className="flex h-1.5 overflow-hidden bg-white/12" role="img" aria-label={`${q.title} ${b.confirmed} confirmed, ${b.unknown} not known yet`}>
+                          <span className="bg-atlas transition-[width] duration-(--dur-card)" style={{ width: pct(b.confirmed) }} />
+                          <span className="bg-white/30 transition-[width] duration-(--dur-card)" style={{ width: pct(b.unknown) }} />
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
                 <p className="t-small flex flex-wrap gap-x-6 gap-y-1 text-white/75">
                   <span className="inline-flex items-center gap-2">
                     <span className="size-2 bg-atlas" aria-hidden="true" />
-                    {confirmed.toLocaleString()} confirmed on every answer
+                    confirmed on that answer
                   </span>
-                  {confirmed !== matches.length ? (
+                  {anyUnknown ? (
                     <span className="inline-flex items-center gap-2">
                       <span className="size-2 bg-white/30" aria-hidden="true" />
-                      {(matches.length - confirmed).toLocaleString()} missing a detail
+                      not known yet · kept because “Keep places we don’t have this detail for” is ticked
                     </span>
                   ) : null}
                 </p>
@@ -93,10 +120,27 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
             )}
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-4 lg:flex-col lg:items-end">
-            <ButtonLink href={explorer.href as Route} variant="linen" dash>
+            <ButtonLink
+              href={matchListHref(matches) as Route}
+              variant="linen"
+              dash
+              onClick={() => {
+                try {
+                  window.sessionStorage.setItem(LIST_FROM_KEY, "match");
+                } catch {
+                  /* blocked storage: the explorer falls back to the referrer */
+                }
+              }}
+            >
               See them on the map
             </ButtonLink>
-            <ShareButton title="Atlas Match · JJ Premier Group" url={matchHref({ answers, step: null })} what="match" label="Share this list" />
+            {matches.length > LIST_MAX ? <p className="t-small text-white/60 lg:text-right">The map holds the first {LIST_MAX.toLocaleString()} of these.</p> : null}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <button type="button" className="link-rule" onClick={() => my.addAll(slugs)} disabled={allSaved} aria-disabled={allSaved}>
+                {allSaved ? "All saved" : "Save them all"}
+              </button>
+              <ShareButton title="Atlas Match · JJ Premier Group" url={matchHref({ answers, step: null })} what="match" label="Share this list" />
+            </div>
           </div>
         </div>
 
@@ -135,7 +179,26 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
             </ul>
           </div>
         ) : null}
-        {explorer.dropped.length ? <p className="t-small -mt-2 max-w-measure text-white/55">The map can’t filter by {orList(explorer.dropped)}, so it will show more places than this list.</p> : null}
+        {more.filter((m) => !ids.includes(m.id)).length ? (
+          <div className="flex flex-col gap-2 border-t border-white/12 pt-6">
+            <p className="t-small text-white/60">More questions. We hold these for fewer places, so they come last.</p>
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {more
+                .filter((m) => !ids.includes(m.id))
+                .map((m) => {
+                  const q = QUESTIONS[questionIndex(m.id)]!;
+                  return (
+                    <li key={m.id} className="flex flex-wrap items-baseline gap-x-3">
+                      <button type="button" className="link-rule" onClick={() => onEdit(questionIndex(m.id) + 1)}>
+                        {q.title}
+                      </button>
+                      {coverageLine(m.coverage, m.id) ? <span className="t-small text-white/55">{coverageLine(m.coverage, m.id)}</span> : null}
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-5">
@@ -207,7 +270,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
   );
 }
 
-/** One neighborhood: where it sits, its name, a meter of how many answers it's confirmed on, then each fact with a tick or "not known yet". */
+/** One neighborhood: where it sits, its name, Save, a meter of how many answers it's confirmed on, then each fact with a tick or "not known yet". */
 function MatchCard({ match: m, by, asOf }: { match: Match; by: Map<string, IndexEntry>; asOf: string }) {
   const e = m.entry;
   const path = pathOf(e, by).map((a) => a.n);
@@ -220,13 +283,17 @@ function MatchCard({ match: m, by, asOf }: { match: Match; by: Map<string, Index
       aria-label={e.n}
     >
       <span className={cn("absolute inset-x-0 top-0 h-[3px]", unknown ? "bg-linen-300" : "bg-atlas")} aria-hidden="true" />
-      <div className="flex flex-col gap-1.5">
-        <p className="t-small text-graphite-500">{[path.length ? path.join(" › ") : marketName(e.m), e.t ? TYPE_LABEL[e.t] : LEVEL_LABEL[e.l]].join(" · ")}</p>
-        <h3 className="t-h3 text-navy">
-          <Link href={`/neighborhoods/${e.s}`} className="after:absolute after:inset-0 transition-colors group-hover:text-atlas-ink">
-            {e.n}
-          </Link>
-        </h3>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <p className="t-small text-graphite-500">{[path.length ? path.join(" › ") : marketName(e.m), e.t ? TYPE_LABEL[e.t] : LEVEL_LABEL[e.l]].join(" · ")}</p>
+          <h3 className="t-h3 text-navy">
+            <Link href={`/neighborhoods/${e.s}`} className="after:absolute after:inset-0 transition-colors group-hover:text-atlas-ink">
+              {e.n}
+            </Link>
+          </h3>
+        </div>
+        {/* Above the card's link, so Save is its own target. */}
+        <SavePlaceButton slug={e.s} name={e.n} className="relative z-10 -mr-2 -mt-2 shrink-0 !border-transparent" />
       </div>
       {total ? (
         <div className="flex items-center gap-3">

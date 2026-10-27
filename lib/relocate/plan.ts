@@ -56,10 +56,12 @@ export type Milestone = {
 };
 
 export type Callout = {
-  id: "hurricane" | "nfip" | "forceMajeure" | "homestead" | "assessment" | "portability" | "undecided" | "renting" | "tight";
+  id: "hurricane" | "nfip" | "forceMajeure" | "homestead" | "assessment" | "portability" | "undecided" | "renting" | "tight" | "past";
   title: string;
   body: string;
   source: Source;
+  /** A one-tap fix: a move-in date the plan can be redrawn to. */
+  action?: { label: string; moveInDate: string };
 };
 
 export type HomesteadCycle = {
@@ -85,6 +87,8 @@ export type Plan = {
   documents: string[];
   /** Plain text for the lead form and the share sheet. */
   summary: string;
+  /** The first move-in day the standard timeline allows from today, when the chosen one puts a step in the past. */
+  earliestMoveIn?: string;
 };
 
 /* ----------------------------------------------------------------------------
@@ -594,6 +598,17 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
 
   /* Callouts: plain paragraphs the plan shows once. */
   const callouts: Callout[] = [];
+  const earliestMoveIn = earliestMoveInFor(milestones, moveIn, today);
+  if (earliestMoveIn) {
+    const first = firstDated(milestones)!;
+    callouts.push({
+      id: "past",
+      title: "These dates don't fit",
+      body: `A move-in on ${formatDate(moveIn, "long")} would have needed ${firstStepPhrase(first)} by ${formatDate(first.date!, "long")}, which has passed. The earliest move-in the standard timeline allows from today is ${formatDate(earliestMoveIn, "long")}. A faster close is sometimes possible; ask us before you count on it.`,
+      source: src(C.source),
+      action: { label: `Use ${formatDate(earliestMoveIn)}`, moveInDate: earliestMoveIn },
+    });
+  }
   if (a.path === "undecided") {
     callouts.push({
       id: "undecided",
@@ -678,7 +693,42 @@ export function buildPlan(input: Partial<Answers>, today: string): Plan {
 
   const summary = buildSummary(a, milestones, homestead);
 
-  return { answers: a, today, milestones, callouts, homestead, counties, documents, summary };
+  return { answers: a, today, milestones, callouts, homestead, counties, documents, summary, ...(earliestMoveIn ? { earliestMoveIn } : {}) };
+}
+
+/** The earliest dated step before move-in: the one that has to happen first. */
+function firstDated(ms: Milestone[]): Milestone | undefined {
+  return ms.filter((m) => m.date && m.phase !== "after").sort((x, y) => (x.date! < y.date! ? -1 : x.date! > y.date! ? 1 : 0))[0];
+}
+
+/** "a signed contract", "the pre-approval letter": the first step as the sentence needs it. */
+function firstStepPhrase(m: Milestone): string {
+  switch (m.id) {
+    case "effective":
+    case "flood-disclosure":
+    case "nfip-order":
+      return "a signed contract";
+    case "preapproval":
+      return "the pre-approval letter";
+    case "visit":
+      return "the visit trip";
+    case "list-home":
+      return "the home you're selling on the market";
+    default:
+      return m.title.toLowerCase();
+  }
+}
+
+/**
+ * Every date before move-in is a fixed number of days back from it, so when
+ * the first of them has already passed, the whole chain slides forward by the
+ * same amount: the earliest move-in is today plus the length of the chain.
+ * Undefined when the chain fits.
+ */
+export function earliestMoveInFor(ms: Milestone[], moveIn: string, today: string): string | undefined {
+  const first = firstDated(ms);
+  if (!first || first.date! >= today) return undefined;
+  return addDays(today, daysBetween(first.date!, moveIn));
 }
 
 function sortMilestones(ms: Milestone[]): Milestone[] {

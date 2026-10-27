@@ -234,6 +234,15 @@ every tool, in `lib/url-state.ts`:
   (`lib/site.ts`, `ownPhoneBars`), and tapping it opens the same sheet as a three-stop bottom
   sheet; the in-flow sheet at the foot of the page is what prints. One live region reads
   "Estimated net, $X" once typing has settled.
+- **Today is a calendar day, never the UTC day** (`lib/time.ts`). Atlas Move counts from the
+  visitor's own day (`dayHere`, from the browser's clock; the static page's server render uses the
+  site's day, `dayIn(SITE_TIMEZONE)`, until the browser replaces it), Encore from the site's day,
+  and both keep it current with `useToday` (`lib/use-today.ts`), which ticks over at midnight and when a sleeping tab
+  wakes. Move's plan says plainly when a move-in is too soon for the standard timeline (the first
+  step would already have passed), names the earliest move-in the chain allows from today, and
+  offers it as one tap; the date picker reaches three years ahead. "Send us your plan" appears once
+  there is a plan; before that one line points at the contact page. The count of questions is
+  `MOVE_STEPS`, and `lib/relocate/steps.test.ts` holds every sentence that says it to that number.
 - **Shared data.** The neighborhood index and the Encore season are fetched once per visit
   (`lib/use-json-resource.ts`); whichever tool opens first fetches, and a failed fetch offers Try
   again.
@@ -257,10 +266,44 @@ builder source with its checked date).
   gzipped, built at deploy time and cached hard) reaches the client. The full 8MB dataset is read
   server-side by `lib/neighborhoods/data.ts` for the detail pages, the sitemap and the share images.
 - **URL state.** Every view is a link: `q`, `market`, `level`, `type`, `status`, `gated=1`, `all=1`
-  (include county-registry names), `place=<slug>` and `map=zoom/lat/lng`. The address bar carries
-  the filters and the selected place; the search words and the map position stay in the tab
-  (Back to the explorer brings them back) and go into the link only through the Share button,
-  which uses the phone's share sheet or copies the link. See "The tools and the address bar".
+  (include county-registry names), `list=a,b,c` (the view held to exactly those places: a Match
+  list, a shared My places; the panel is titled "Your Match list" when it came from Match, with
+  "Save them all"; "Show everything" lets it go), `place=<slug>` and `map=zoom/lat/lng`. The
+  address bar carries the filters, the list and the selected place; the search words and the map
+  position stay in the tab (Back to the explorer brings them back) and go into the link only
+  through the Share button, which uses the phone's share sheet or copies the link. See "The
+  tools and the address bar".
+- **The place card** (`components/explorer/place-card.tsx`) always shows the four facts the index
+  carries beyond the search fields (evacuation zone, HOA on record, CDD on record, water access),
+  each "Not known yet" when the record has no checked source, and a Save in its header.
+- **My places.** Save (the bookmark on a place card, a Match result, a place page and the compare
+  page) keeps slugs in `localStorage` (`atlas:places`, `lib/neighborhoods/my-places.ts`), the
+  Encore pattern: one store every button reads (`components/atlas/use-my-places.ts`, built with
+  `lib/slug-list-store.ts`, which Encore's My list now uses too). On the explorer the list shows as
+  a rail at the top right on a desktop and a navy bar docked to the top of the sheet on a phone
+  (`components/explorer/my-places.tsx`), with Compare, Share (the explorer with `?list=`) and
+  "Walk me through these" (the contact form with the list's link in the message). Nothing leaves
+  the browser unless the visitor shares or sends it.
+- **Compare.** `/neighborhoods/compare?places=a,b,c` holds two to four places side by side
+  (`lib/neighborhoods/compare.ts` reads the rows from the full records on the server): one row per
+  fact the schema holds, the value as the source stated it with the source's host and checked date
+  beneath, "Not known yet" where the record is empty, then Encore's month in each place's market.
+  No figures are invented: the "Sales · ZIP area · 24 months" row is a marked slot in the page for
+  the street-watch work to fill from `lib/sales`. The label column is sticky on a phone and the
+  place columns scroll under it. The page is `noindex` (a view of one visitor's list) and the ask
+  under the table is the buy form with the page's link in the message.
+- **Atlas Match** (`lib/neighborhoods/match.ts`, `components/match/*`). Each question reads one
+  field of the index; a place is in or out per question, and a fact we don't hold is "not known
+  yet", kept in unless the reader unticks it. The questions run in order of coverage (market,
+  county, evacuation zone, HOA, home types, builder status, CDD, gated, water, distance), each
+  says its coverage before the choices ("We hold this for 545 of 678 places", counted over the
+  places the match considers, so it moves with the registry toggle), and a question whose coverage
+  is under a quarter (water, in October 2026) waits behind "More questions" on the list. The list
+  shows one bar per answered question (confirmed on that answer, not known yet), never a single
+  "confirmed on every answer" figure; "See them on the map" opens the explorer on exactly the list
+  (`?list=`); "Save them all" and a Save on every card feed My places. Coverage is a research
+  backlog, not a site change: gated and home types for the Lakewood Ranch communities first, from
+  the builders' and associations' sites in `neighborhood-data/docs/REFRESH-RUNBOOK.md`.
 - **Layout.** `components/explorer/explorer.css` owns the explorer's two layouts by media query: a 400 px
   column from 1024 px, and below that a bottom sheet moved on `translateY` with three stops (peek, half,
   full) that follows the finger and works from the keyboard (the handle: Enter, the arrows, Escape). The

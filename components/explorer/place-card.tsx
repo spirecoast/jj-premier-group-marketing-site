@@ -1,13 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import { SavePlaceButton } from "@/components/atlas/save-place";
 import type { RefObject } from "react";
 import { ShareButton } from "@/components/share-button";
 import { marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, titleCase } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
+import { WATER_LABEL } from "@/lib/neighborhoods/match";
 import { explorerHref } from "@/lib/neighborhoods/url";
+import { cn } from "@/lib/utils";
 import "./explorer.css";
+
+/** What the card says when the record has no checked source for a fact yet. */
+export const NOT_KNOWN = "Not known yet";
+
+/**
+ * The four facts the index carries that the card used to leave off. Always
+ * present, so a reader sees "Not known yet" rather than nothing and the
+ * cards of two places line up.
+ */
+export function indexFacts(e: IndexEntry): [string, string | null][] {
+  return [
+    ["Evacuation zone", e.ev === null ? null : e.ev === "none" ? "Outside every zone" : `Zone ${e.ev}`],
+    ["HOA on record", e.ho ? "Yes" : null],
+    ["CDD on record", e.cd ? "Yes" : null],
+    ["Water access", e.w === null ? null : WATER_LABEL[e.w]],
+  ];
+}
 
 /** The selected place, in the panel: the short facts and the ways out. */
 export function PlaceCard({
@@ -28,7 +48,7 @@ export function PlaceCard({
   onSelect: (slug: string) => void;
   onClose: () => void;
 }) {
-  const facts: [string, string][] = [];
+  const facts: [string, string | null][] = [];
   if (e.t) facts.push(["Type", TYPE_LABEL[e.t]]);
   if (e.st) facts.push([`Status · as of ${asOf}`, STATUS_LABEL[e.st]]);
   if (e.j) facts.push(["Jurisdiction", e.j]);
@@ -36,7 +56,8 @@ export function PlaceCard({
   if (e.z.length) facts.push([e.z.length > 1 ? "ZIPs" : "ZIP", e.z.join(", ")]);
   if (e.b.length) facts.push([`Builders selling · as of ${asOf}`, e.b.join(", ")]);
   if (e.h.length) facts.push(["Home types", e.h.map(titleCase).join(", ")]);
-  if (e.g === true) facts.push(["Gated", "Yes"]);
+  if (e.g !== null) facts.push(["Gated", e.g ? "Yes" : "No"]);
+  facts.push(...indexFacts(e));
 
   return (
     <article className="explorer-card" aria-label={e.n}>
@@ -52,9 +73,12 @@ export function PlaceCard({
             </span>
           ))}
         </nav>
-        <button type="button" onClick={onClose} className="explorer-quiet -mr-3 -mt-3" aria-label="Close">
-          <span aria-hidden="true">✕</span>
-        </button>
+        <div className="-mr-3 -mt-3 flex shrink-0 items-center gap-1">
+          <SavePlaceButton slug={e.s} name={e.n} className="!border-transparent !bg-transparent" />
+          <button type="button" onClick={onClose} className="explorer-quiet" aria-label="Close">
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
       </div>
       <h2 ref={headingRef} tabIndex={-1} className="t-h1 explorer-card-title mt-2 text-navy">
         {e.n}
@@ -69,7 +93,7 @@ export function PlaceCard({
           {facts.map(([k, v]) => (
             <div key={k} className="contents">
               <dt className="t-mono-sm text-graphite-500">{k}</dt>
-              <dd className="t-small text-body">{v}</dd>
+              <dd className={cn("t-small", v === null ? "text-graphite-500" : "text-body")}>{v ?? NOT_KNOWN}</dd>
             </div>
           ))}
         </dl>

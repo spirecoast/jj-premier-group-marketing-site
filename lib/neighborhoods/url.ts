@@ -15,7 +15,19 @@ export type ExplorerState = {
   filters: Filters;
   place: string | null;
   map: MapView | null;
+  /** A list of slugs the view is held to (a Match list, a shared My places): the map and the list show exactly these. Empty = the whole catalog. */
+  list: string[];
 };
+
+const SLUG = /^[a-z0-9-]{1,120}$/;
+/** The most slugs a `?list=` carries: a Match list is a few hundred at most, and the address stays well inside what a server reads. */
+export const LIST_MAX = 500;
+
+/** `a,b,c` as clean slugs, once each, in order. */
+export function parseList(raw: string | undefined): string[] {
+  if (!raw) return [];
+  return [...new Set(raw.split(",").map((x) => x.trim()).filter((x) => SLUG.test(x)))].slice(0, LIST_MAX);
+}
 
 type Params = Record<string, string | string[] | undefined> | URLSearchParams;
 
@@ -43,8 +55,9 @@ export function parseState(p: Params): ExplorerState {
       gated: one(p, "gated") === "1" || undefined,
       registry: one(p, "all") === "1" || undefined,
     },
-    place: placeRaw && /^[a-z0-9-]{1,120}$/.test(placeRaw) ? placeRaw : null,
+    place: placeRaw && SLUG.test(placeRaw) ? placeRaw : null,
     map: map && map.zoom >= 3 && map.zoom <= 20 && Math.abs(map.lat) <= 90 && Math.abs(map.lng) <= 180 ? map : null,
+    list: parseList(one(p, "list")),
   };
 }
 
@@ -57,6 +70,7 @@ export function stateToSearch(s: ExplorerState): string {
   if (s.filters.status) sp.set("status", s.filters.status);
   if (s.filters.gated) sp.set("gated", "1");
   if (s.filters.registry) sp.set("all", "1");
+  if (s.list.length) sp.set("list", s.list.join(","));
   if (s.place) sp.set("place", s.place);
   if (s.map) sp.set("map", `${s.map.zoom.toFixed(2)}/${s.map.lat.toFixed(5)}/${s.map.lng.toFixed(5)}`);
   const qs = sp.toString();
@@ -64,17 +78,22 @@ export function stateToSearch(s: ExplorerState): string {
 }
 
 /** Every key the explorer reads from a link. */
-export const EXPLORER_KEYS = ["q", "market", "level", "type", "status", "gated", "all", "place", "map"] as const;
+export const EXPLORER_KEYS = ["q", "market", "level", "type", "status", "gated", "all", "list", "place", "map"] as const;
 
 /**
  * The address bar's URL for a view: the committed choices (filters, the
  * selected place) only. The search words and the map's position stay out of
  * it (lib/url-state.ts) and go into the link only when the view is shared.
  */
-export function explorerAddress(s: Pick<ExplorerState, "filters" | "place">): Route {
-  return explorerHref({ filters: s.filters, place: s.place });
+export function explorerAddress(s: Pick<ExplorerState, "filters" | "place" | "list">): Route {
+  return explorerHref({ filters: s.filters, place: s.place, list: s.list });
 }
 
 export function explorerHref(s: Partial<ExplorerState>): Route {
-  return `/neighborhoods${stateToSearch({ q: "", filters: {}, place: null, map: null, ...s })}` as Route;
+  return `/neighborhoods${stateToSearch({ q: "", filters: {}, place: null, map: null, list: [], ...s })}` as Route;
+}
+
+/** The compare page for a few saved places. */
+export function compareHref(slugs: readonly string[]): Route {
+  return `/neighborhoods/compare${slugs.length ? `?places=${slugs.join(",")}` : ""}` as Route;
 }
