@@ -20,8 +20,8 @@ jj-premier-brand-system.vercel.app).
 | Content types and data API | `lib/content/` — pages call `getListings()`, `getUpcomingEvents()`, … and never touch a source |
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
-| Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres → CRM → team email → Plausible), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `scripts/test-lead.mjs` |
-| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
+| Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres, then after the response the CRM → team email → Plausible), `lib/lead-outbox.ts` (retries), `lib/lead-guard.ts` (resends, rate limit, honeypot), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads/` (`constants.ts` and `rules.ts` for the browser, `schema.ts` with zod for the server, `pixel.ts`), `lib/phone.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `app/api/cron/lead-redeliver`, `scripts/test-lead.mjs` |
+| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/cron/lead-redeliver`, `app/api/cron/ops-check`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
 | Site search | `lib/search/*` (chunks, indexer, scored hybrid query, fallback, `eval/`), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, `scripts/search-eval.ts`, migrations `0010_search.sql` and `0011_search_score_fusion.sql`; see "Site search" below |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
@@ -703,32 +703,68 @@ Tier notes, cost levers and the archive requirement are in `docs/handoff/integra
 Every form (`components/lead-form.tsx`, `components/letter-form.tsx`) posts to
 `actions/submit-lead.ts`, which validates and hands off to `lib/lead-pipeline.ts`:
 
+0. **Rules and the guard.** `lib/leads/rules.ts` holds the checks (no zod), run by the form before
+   it sends and by the server schema (`lib/leads/schema.ts`) when it arrives. An email or a phone
+   is enough on the enquiry forms; phones are parsed by `lib/phone.ts` and kept as `(941) 555-0100`
+   with E.164 beside them. `lib/lead-guard.ts` then answers a resend of the same attempt (the
+   form's `submissionId`) without sending anything twice, and keeps a honeypot hit or a sender over
+   the rate limit (6 per address per 10 minutes, 4 per email or phone per hour; the keys are
+   hashes) as `suspected_bot`, sent nowhere. Every check fails open.
 1. **Postgres first** (`leads` + `lead_deliveries`, plus `contacts`/`events` for the consent record), when
-   `DATABASE_URL` is set. The lead row exists before anything external is tried.
+   `DATABASE_URL` is set. The lead row exists before anything external is tried, and it's all the
+   visitor waits for: the steps below run after the response (`after()` from `next/server`). A
+   returning email updates its `contacts` row, and the lead carries `priorEnquiries`.
 2. **CRM** through `lib/crm.ts`. `CRM_PROVIDER=webhook` (the default when `CRM_WEBHOOK_URL` is
    set) POSTs the payload to a Zapier Catch Hook, which runs Compass "Create a New Lead" into the
-   Home Platform; 8s timeout, one retry, any 2xx is success. `fub` keeps the old Follow Up Boss
-   client (`lib/fub.ts`); `none` means no CRM. The result lands in `leads.delivery_status`.
+   Home Platform; 8s timeout, one retry, any 2xx is success, `Idempotency-Key` = the lead's id.
+   `fub` keeps the old Follow Up Boss client (`lib/fub.ts`); `none` means no CRM. The result lands
+   in `leads.delivery_status`.
 3. **Team email** with the full payload to `TEAM_NOTIFY_EMAIL` (Resend), reply-to the visitor.
 4. **Alert** to `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) when the CRM step failed.
 5. **Server-side Plausible** `Lead server` event (`form`, `channel: server`), with the visitor's
    User-Agent and IP forwarded, as a backstop for visitors whose ad blocker stops the script.
+
+Steps 2 and 3 go through the outbox (`lib/lead-outbox.ts`, table `lead_outbox`): a failure is
+retried after 1, 5, 15, 60 and 240 minutes, swept after every new lead and daily by
+`/api/cron/lead-redeliver`, and marked `dead` after six tries or three days with a `[lead-alarm]`
+log line (and a Sentry message when it's on). Without a database there's nothing to come back to,
+so the steps run before the answer and decide it. Migration `0015_lead_guard_and_outbox.sql`
+holds the outbox and the guard's tables; until it's applied each sink is tried once, as before,
+and one log line names the file.
+
+The form itself (`components/lead-form.tsx`, Figma "01 Lead form"): the two questions (timing,
+then a house to sell) come first as rows of chips (radios underneath), then name, email and
+phone. With JavaScript it never resets: a failed check focuses the first field to fix, under the
+header, and lists them by Send ("Two things to fix above: name, email"); the Send label and width
+hold while it's sending and the dash runs; a failed or dropped request shows the call-or-text
+line, never the error page. Without JavaScript it posts as a plain form and the page comes back
+with the values. Home Platform's pixel reads named fields as they're typed, so once the page is
+live only the visitor's own name, email and phone and the two questions keep a `name`
+(`lib/leads/pixel.ts`); the message, the address and everything about a referred friend are added
+to the request by the form itself. `scripts/check-client-bundle.mjs` (postbuild) fails the build if
+zod reaches a browser chunk.
 
 Then a `LeadForm` sends the visitor to `/thanks/<form>` (what happens next, both direct numbers,
 "Book 15 minutes" when `NEXT_PUBLIC_BOOKING_URL` is set, one next step; `noindex`; fires the `Lead`
 goal). The `LetterForm` bars stay inline: the success line shows where the bar was and `Subscribe`
 fires there. With JavaScript off the inline success state shows for every form. The visitor sees an error only
 when nothing kept the lead; in production a deployment with no sink at all logs an error at boot
-(`instrumentation.ts`) and `GET /api/health` reports `ok: false`.
+(`instrumentation.ts`) and `GET /api/health` reports `ok: false`. On the live site health also
+needs a sink that tells a person (the CRM webhook or the team email): with Postgres alone it
+answers 503 (`no-human-sink`). The thank-you page says back what was sent ("For 9403 9th Ave NW,
+moving inside three months.", from sessionStorage, never the URL), offers the plan link a tool
+sent for sharing, and puts "Book 15 minutes" first, prefilled with name and email, on the
+contact, buy, sell and valuation pages when the booking URL is set.
 
 **The site emails a visitor only about the newsletters.** A Tide or Encore sign-up, or a ticked
 email box, gets one confirmation email (double opt-in); once confirmed, a short welcome and each
 issue (`docs/ISSUES.md`). Replies to an enquiry come from the agents' own Coldwell Banker mailboxes
 (a Zapier step if they want a template).
 
-Consent: every form with an email field shows an unchecked **email** box; forms with a phone also
-show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in
-`lib/leads.ts`). Neither is required. State, timestamp and `CONSENT_WORDING_VERSION` are stored on
+Consent: every enquiry form with an email field shows an unchecked **email** box; forms with a phone
+also show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in
+`lib/leads/constants.ts`). Neither is required, and the referral and review-permission forms show
+neither. Call/text consent is recorded only with a valid phone number. State, timestamp and `CONSENT_WORDING_VERSION` are stored on
 the lead and travel as `consent:email` / `consent:sms` tags. The Tide and Encore boxes imply email
 consent and record `IMPLIED_CONSENT_VERSION` (`implied:subscribe`) instead, since the visitor saw
 the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTEGRATIONS.md`.
@@ -745,8 +781,10 @@ the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTE
   `utm_medium=social` in the first-touch record (`docs/MEASUREMENT.md` §4).
 - **`/refer`**: "Know someone moving here?" The `referral` form is two labelled groups: "About you"
   (the referrer's first name, last name, email and phone) and "About them" (the person moving: first
-  name, last name, email and/or phone, what they're planning, a note), plus a required box: "They know
-  I'm passing their details along and expect to hear from Joelyn and Jessica." The referred person
+  name, last name, email and/or phone, what they're planning, a note), closed by a required box
+  marked "(required)": "They know I'm passing their details along and expect to hear from Joelyn
+  and Jessica." No marketing boxes for the referrer. Under the form, "Rather send them a link"
+  shares Atlas instead, and the referral thank-you page has the same share. The referred person
   travels under `referral` in the payload with a CRM note naming the referrer (`lib/crm.ts`,
   `docs/INTEGRATIONS.md`). The copy says we write back to the referrer first and reach out to the
   person at their pace. No gifts or rewards are mentioned (anything like that is cleared with the
@@ -854,6 +892,7 @@ Useful switches:
   | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
   | `Explore` | the tools, the footer's hub links, the `/from/*` buttons | `action`: select, filter, match, calendar-day, visit-plan, relocate-plan, sold-search, home-value, net-proceeds, hub, channel-cta, channel-more |
   | `Search` | `/search`, once per query shown | `results`: 0, 1-3, 4-9 or 10+. Never the query text (people type names and addresses) |
+  | `Web Vitals` | `components/web-vitals.tsx`, 10% of page loads, once per metric | `metric`: LCP, INP, CLS · `rating` · `value`: a bucket · `template`: the landing route · `device` · `pixel`: on, off (`docs/MEASUREMENT.md` §5) |
 
   The full list of props, the funnel each goal answers and the exact Plausible setup are in
   `docs/MEASUREMENT.md`.
@@ -885,7 +924,7 @@ The operator's runbook for the cutover itself (client and brokerage checklist, V
   delivered to the CRM (webhook rejected or unreachable; with `CRM_PROVIDER=fub`, also the
   archived-flow 204 case).
 - `CRON_SECRET` protects `GET /api/cron/archive-events` (Bearer token), scheduled weekly in
-  `vercel.json`, and the daily search reindex (`/api/search/reindex`, which also takes
+  `vercel.json`, the daily lead redelivery (`/api/cron/lead-redeliver`), and the daily search reindex (`/api/search/reindex`, which also takes
   `SEARCH_REINDEX_SECRET`).
 
 ## Verification done for this build
@@ -925,9 +964,10 @@ Deliberate keeps from the review passes:
   names the script (`source=`). Also set: `Cross-Origin-Opener-Policy: same-origin`
   (`same-origin-allow-popups` on `/studio` for Sanity's sign-in window), and no `X-Powered-By`.
 - `GET /api/health` answers `{ ok }` (200, or 503 when production would drop a lead) to anyone; the
-  detail (sinks, newsletter, Places, Sentry) needs `Authorization: Bearer` with `CRON_SECRET`,
-  `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`. Bearer checks go through `lib/bearer.ts`
-  (constant-time).
+  detail (sinks, newsletter, Places, Sentry, which deployment) needs `Authorization: Bearer` with
+  `CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, and `?deep=1` with the same secret
+  adds what the database knows ("Scheduled jobs and alerts" below). Bearer checks go through
+  `lib/bearer.ts` (constant-time).
 - Caching: photos under `/images` are `max-age=604800, stale-while-revalidate=2592000` (names are
   reused when a file is replaced, so not immutable); optimized images keep 31 days
   (`images.minimumCacheTTL`); the MapLibre worker lives in `/vendor/maplibre-gl/<version>/`
@@ -949,7 +989,7 @@ Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:
 3. The Zapier Catch Hook URL (`CRM_WEBHOOK_URL`) and the Zap into the Home Platform. Until it is
    set, leads are mirrored to the database and emailed only, and production logs an alert.
 4. The Sanity project and dataset, then the seed script and webhook in the section above.
-5. Consent wording sign-off from counsel (`CONSENT_WORDING` in `lib/leads.ts`) and 10DLC
+5. Consent wording sign-off from counsel (`CONSENT_WORDING` in `lib/leads/constants.ts`) and 10DLC
    registration before any texting starts.
 6. An IDX licence from Stellar MLS before any MLS data or MLS wording goes on the site. The sample
    listings are placeholders.
@@ -962,6 +1002,69 @@ Also worth knowing:
   `consent:email`) and are mirrored to the database. Nothing emails them from the site.
 - Every statistic on the site carries its source and date in the seed content. When the numbers
   are replaced in Sanity, keep the source field filled.
+
+## Previews
+
+Preview deployments share production's database and keys (`docs/LAUNCH.md` §2), so
+`lib/deploy-env.ts` reads `VERCEL_ENV` and only production does anything outside the site. On a
+preview (and on `vercel dev`):
+
+- the CRM provider is `none` (`lib/lead-sinks.ts`): no Zapier webhook, no Follow Up Boss;
+- `sendEmail` (`lib/email`) sends nothing, or, with `PREVIEW_EMAIL_TO` set, sends to that one test
+  inbox with "[Preview]" in front of the subject; it answers ok with id `preview-noop`, so nothing is
+  queued for production to retry;
+- subscriber email is off (`lib/newsletter/config.ts` lists "a production deployment" as missing):
+  no subscription is recorded and no confirmation goes;
+- Google Places is off (`placesEnabled()`), so previews never spend production's daily allowance;
+- Plausible is off, the script and the server-side `Lead server` event alike;
+- every lead is saved with `is_test = true` and the tag `preview`, and the team email (to the test
+  inbox, if any) says so;
+- scheduled jobs refuse to run (403), whoever calls them, since they write to production's data;
+- the lead outbox's sweep (`redeliverDue`) doesn't run on a preview, and production's sweep skips
+  any lead tagged `preview`, so a preview never settles a production lead and production never
+  retries a preview's lead into a real inbox.
+
+Home Platform's pixel was already production only (`lib/home-platform.ts`). Off Vercel
+(`next dev`, `next start` on a laptop) `VERCEL_ENV` is unset and the keys decide, as before.
+`/api/health` shows `deployment` and, on a preview, what it holds back.
+
+## Scheduled jobs and alerts
+
+Every cron in `vercel.json` is a route wrapped in `monitoredCron` (`lib/ops/cron.ts`); a unit test
+fails if one isn't. A call with a job secret (`CRON_SECRET`, `ENCORE_COLLECT_SECRET`,
+`SEARCH_REINDEX_SECRET`) is a run, and every run:
+
+1. writes one log line, `[cron] {"job":"encore-check","outcome":"ok","http":200,"ms":…}`, at error
+   level when it didn't go well;
+2. is kept in `ops_runs` (migration 0016) with its outcome (`ok`, `held`, `partial`, `failed`), the
+   HTTP status and a short summary;
+3. when it failed, sends an alert (`lib/ops/alert.ts`): an email to `LEAD_ALERT_EMAIL` (falling back
+   to `TEAM_NOTIFY_EMAIL`) through Resend, an `[ops-alert]` log line, and a Sentry issue when
+   `NEXT_PUBLIC_SENTRY_DSN` is set. A run where only some parts failed (an Encore venue's page, a
+   search source; HTTP 207) is emailed once the same part fails on two runs in a row. A held
+   newsletter hand-off (422) isn't a failure: the team email already says why. Each problem is
+   emailed once, then weekly while it lasts; a good run clears it, so a relapse is emailed again.
+
+`/api/cron/ops-check` runs daily at 07:53 UTC and emails what fails without a sound: a job whose
+last run is older than its schedule allows (a daily job after 26 hours, a weekly one after 7 days
+and 2 hours, a monthly one after 31 days and 2 hours), or that never ran; the nightly
+`retention_purge()` not having run (it writes its own `ops_runs` row; the email includes pg_cron's
+error when there is one); the database not answering; a newsletter send that has stopped, or that
+won't reach everyone before it expires at the daily cap. With a Sentry DSN, the ops check is also
+the one Sentry Crons monitor (`site-crons`): if the check itself stops, Sentry says so. Sentry's free
+plan includes one cron monitor and charges for more, so the jobs don't each get one
+(`monitorEveryJob` in `lib/ops/jobs.ts` turns that on once the plan allows).
+
+`GET /api/health?deep=1` (the health secret) shows the same picture: the database ping, each job's
+last run and state (`ok`, `held`, `partial`, `failed`, `stale`, `never`, `waiting` before the first
+run), the purge, the newsletter sends against the cap (`newsletterSends`: confirmed subscribers per
+list, how many one issue can reach, each open send's pending count and shortfall), the Encore review
+queue and today's Google Places calls. Counts and times only.
+
+To run a job by hand: `curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/encore/check`
+(Encore's routes and the reindex also take their own secrets). The run is logged and kept like a
+scheduled one. Before migration 0016 is applied everything above still runs except the record:
+one log line names the file, and alerts go out on every failure instead of once a week.
 
 ## Personal data retention
 
@@ -976,3 +1079,30 @@ entries. Five years covers the 4-year window for TCPA claims. IP addresses are n
 Questionnaire answers are deleted by hand once the site copy is final. The privacy page states
 the same periods; change both together. Check runs with
 `select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'retention-purge') order by start_time desc limit 5;`.
+
+`0016_ops_and_retention.sql` replaces the function with one that keeps every rule above and adds the
+newsletter tables: a sign-up never confirmed is deleted 30 days after it was asked for (the confirm
+link lasts 7), with the record of its confirmation email; a confirmed subscription with no email
+sent to it and no change for 5 years is deleted; an unsubscribed one stays, as the do-not-email
+record the privacy page promises; `newsletter_deliveries` (who was sent which email) go after 2
+years. It also clears `ops_runs` and `ops_alerts` after 180 days, and writes each run's counts to
+`ops_runs`, so `/api/cron/ops-check` emails when a night is missed.
+
+**Erasing one person.** For a request under the privacy page's "To see, correct or delete …":
+
+```bash
+DATABASE_URL="<pooler URL>" npx tsx scripts/forget.ts --email jane@example.com --phone "(941) 555-0100"
+DATABASE_URL="<pooler URL>" npx tsx scripts/forget.ts --email jane@example.com --phone "(941) 555-0100" --confirm
+```
+
+The first is a dry run that changes nothing and prints what it found; the second does it in one
+transaction: their leads (with `lead_deliveries` and anything else that hangs off a lead), their
+`contacts` rows (with their events), their newsletter subscriptions and the record of every
+newsletter email sent to them. Where someone referred them, their name, email, phone and the note
+about them are scrubbed from the referrer's lead and event, and the referrer's own record stays. A
+phone matches on its last ten digits however it was typed. One row goes into `erasures` with the
+date, the counts and a SHA-256 of the address and number (never the address), and the receipt
+lists what's held elsewhere and has to be deleted by hand: the contact in Home Platform, the Zap's
+task history in Zapier, the "New lead" emails in the team's inboxes. The site keeps no contact list
+at Resend. An erasure also removes a do-not-contact flag, which is what the person asked for; a new
+sign-up later starts over with double opt-in.

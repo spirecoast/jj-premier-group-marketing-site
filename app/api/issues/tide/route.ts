@@ -3,6 +3,7 @@ import { cronAllowed, handOff, handoffResponse, notFound, previewAllowed, previe
 import { issueToday, loadTideIssue } from "@/lib/issues/load";
 import { isDay } from "@/lib/issues/render";
 import { prepareSubscriberSend } from "@/lib/newsletter/service";
+import { monitoredCron } from "@/lib/ops/cron";
 import { tideTeamSubject } from "@/lib/issues/tide-monthly";
 
 /**
@@ -45,15 +46,15 @@ async function run(request: NextRequest): Promise<Response> {
   return handoffResponse(result);
 }
 
-export async function GET(request: NextRequest) {
+export const GET = monitoredCron(async (request: NextRequest) => {
   if (cronAllowed(request)) return run(request);
   if (!previewAllowed(request)) return notFound();
   const issue = await loadTideIssue(...args(request));
   if (!issue) return noData();
   return previewResponse(issue, request);
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = monitoredCron(async (request: NextRequest) => {
   if (!cronAllowed(request)) return Response.json({ message: "Unauthorized" }, { status: 401 });
   return run(request);
-}
+});

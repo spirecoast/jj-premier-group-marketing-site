@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { previewEmailTo, sideEffectsAllowed } from "@/lib/deploy-env";
 import { checkFairHousing } from "@/lib/fair-housing";
 
 let cached: Resend | null = null;
@@ -34,6 +35,9 @@ export type SendEmailInput = {
   attachments?: { filename: string; content: Buffer; contentType?: string }[];
 };
 
+/** The id sendEmail answers with on a preview that sent nothing. */
+export const PREVIEW_NOOP_ID = "preview-noop";
+
 export type SendEmailResult =
   | { ok: true; id: string }
   | { ok: false; error: string };
@@ -50,6 +54,12 @@ export type SendEmailResult =
  *
  * In dev without RESEND_API_KEY set, logs the payload and returns ok=true so
  * local form testing isn't blocked.
+ *
+ * On a preview deployment nothing goes to the real recipients
+ * (lib/deploy-env.ts): with PREVIEW_EMAIL_TO set the email goes to that one
+ * test inbox with "[Preview]" in front of the subject; without it, nothing is
+ * sent and the result is ok with id PREVIEW_NOOP_ID, so a caller records the
+ * step as done and never queues it for production to retry.
  */
 export async function sendEmail(
   input: SendEmailInput,
@@ -67,13 +77,25 @@ export async function sendEmail(
     }
   }
 
+  let to = input.to;
+  let subject = input.subject;
+  if (!sideEffectsAllowed()) {
+    const inbox = previewEmailTo();
+    if (!inbox) {
+      console.info("[email] preview deployment: not sent (set PREVIEW_EMAIL_TO for a test inbox)", { subject: input.subject, category });
+      return { ok: true, id: PREVIEW_NOOP_ID };
+    }
+    to = inbox;
+    subject = `[Preview] ${input.subject}`;
+  }
+
   const resend = getResend();
   const from = process.env.RESEND_FROM_EMAIL;
 
   if (!resend || !from) {
     console.info("[email] dev mode (no RESEND_API_KEY/FROM) — would send:", {
-      to: input.to,
-      subject: input.subject,
+      to,
+      subject,
       category,
     });
     return { ok: true, id: "dev-noop" };
@@ -82,8 +104,8 @@ export async function sendEmail(
   try {
     const { data, error } = await resend.emails.send({
       from,
-      to: input.to,
-      subject: input.subject,
+      to,
+      subject,
       html: input.html,
       replyTo: input.replyTo,
       attachments: input.attachments,

@@ -116,6 +116,7 @@ export const TEAM_SEND_COPY = {
   sendLabel: "Send it now",
   holdLabel: "Hold this issue",
   linksNote: "Each button opens a page on the site where you confirm.",
+  capacity: "At the sending limit of {cap} emails a day, about {canSend} of them can get it before it expires on {when}, so {short} would miss it. An alert has gone out about raising the limit.",
   failed: "The subscriber send couldn’t be set up: {error}. Nothing will go out on its own; check the logs.",
 } as const;
 

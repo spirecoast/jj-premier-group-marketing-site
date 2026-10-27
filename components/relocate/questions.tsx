@@ -191,7 +191,6 @@ export function Questions() {
             </StepBody>
 
             <StepFooter
-              className="flex-row items-center justify-between"
               back={step > 0 ? { label: Q.back, onClick: back } : undefined}
               next={{ label: last ? Q.showPlan : Q.next, onClick: last ? finish : () => go(step + 1) }}
             />

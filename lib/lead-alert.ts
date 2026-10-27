@@ -1,9 +1,10 @@
 import "server-only";
 import type { CrmFailure, CrmLead } from "@/lib/crm";
+import { isPreviewDeployment } from "@/lib/deploy-env";
 import { escapeHtml, sendEmail } from "@/lib/email";
 import { emailList } from "@/lib/email/recipients";
 import { homePlatformNote, homePlatformPixelId } from "@/lib/home-platform";
-import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION } from "@/lib/leads";
+import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION } from "@/lib/leads/constants";
 
 /**
  * Internal email for the lead pipeline. Two jobs, both addressed to the team,
@@ -47,8 +48,9 @@ function leadHtml(lead: CrmLead): string {
   const rows: [string, string | null | undefined][] = [
     ["Form", lead.form],
     ["Name", fullName(lead)],
-    ["Email", lead.email],
+    ["Email", lead.email || "none given (phone only)"],
     ["Phone", lead.phone],
+    ["Earlier enquiries", lead.priorEnquiries ? `${lead.priorEnquiries} before this one, same email or phone` : null],
     ["Message", lead.message],
     ["Timing", lead.timing],
     ["House to sell first", lead.sellFirst],
@@ -64,7 +66,7 @@ function leadHtml(lead: CrmLead): string {
     ["Page", lead.source.page],
     ["Referrer", lead.source.referrer],
     ["Submitted", lead.submittedAt],
-    ["Test lead", lead.test ? "YES — from scripts/test-lead.mjs, ignore" : null],
+    ["Test lead", lead.test ? (lead.tags.includes("preview") ? "YES, sent from a preview deployment, ignore" : "YES — from scripts/test-lead.mjs, ignore") : null],
   ];
   const table = `<table cellpadding="6" style="font-family:Helvetica,Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows
     .filter(([, v]) => v)
@@ -95,9 +97,9 @@ export async function notifyTeamOfLead(
   const status = [crmLine, homePlatform.line].filter(Boolean).join(" ");
   const res = await sendEmail({
     to,
-    subject: `${lead.test ? "TEST · " : ""}New lead · ${lead.form} · ${fullName(lead)}${homePlatform.addByHand ? " · add to Home Platform" : ""}`,
+    subject: `${lead.test ? "TEST · " : ""}${lead.priorEnquiries ? "Returning" : "New"} lead · ${lead.form} · ${fullName(lead)}${homePlatform.addByHand ? " · add to Home Platform" : ""}`,
     html: `<p style="font-family:Helvetica,Arial,sans-serif;font-size:14px">New website lead. ${escapeHtml(status)}${context.leadId ? ` Database id ${escapeHtml(context.leadId)}.` : ""}</p>${leadHtml(lead)}`,
-    replyTo: lead.email,
+    replyTo: lead.email || undefined,
   });
   // The email helper returns a dev no-op when Resend is not configured; that is not delivery.
   if (!res.ok) return { ok: false, error: res.error };
@@ -116,9 +118,12 @@ const HEADLINES: Record<CrmFailure, string> = {
 export async function alertLeadDelivery(
   reason: CrmFailure,
   lead: CrmLead,
-  context: { provider: string; detail?: string; leadId?: string | null; mirrored: boolean; notified: boolean },
+  context: { provider: string; detail?: string; leadId?: string | null; mirrored: boolean; notified: boolean; retrying?: boolean },
 ): Promise<void> {
   console.error(`[lead-alert] ${reason}`, { form: lead.form, leadId: context.leadId, provider: context.provider, detail: context.detail });
+
+  // A preview holds the CRM back on purpose (lib/deploy-env.ts): nothing for anyone to fix.
+  if (reason === "not_configured" && isPreviewDeployment()) return;
   const to = alertRecipients();
   if (!to.length) return;
   const kept = [
@@ -126,10 +131,11 @@ export async function alertLeadDelivery(
     context.notified ? "in the team notification email" : null,
   ].filter(Boolean);
   const where = kept.length ? `The lead is ${kept.join(" and ")}.` : "The lead was NOT kept anywhere else: this email is the only copy.";
+  const retry = context.retrying ? " The site will try the CRM again over the next few hours; if it still fails, it stops and logs a [lead-alarm]." : "";
   await sendEmail({
     to,
     subject: `ALERT · lead not delivered to CRM (${context.provider}: ${reason})`,
-    html: `<p style="font-family:Helvetica,Arial,sans-serif;font-size:14px"><strong>${escapeHtml(HEADLINES[reason])}</strong> ${escapeHtml(where)}</p>${context.detail ? `<p style="font-family:monospace;font-size:12px">${escapeHtml(context.detail)}</p>` : ""}${leadHtml(lead)}`,
-    replyTo: lead.email,
+    html: `<p style="font-family:Helvetica,Arial,sans-serif;font-size:14px"><strong>${escapeHtml(HEADLINES[reason])}</strong> ${escapeHtml(where + retry)}</p>${context.detail ? `<p style="font-family:monospace;font-size:12px">${escapeHtml(context.detail)}</p>` : ""}${leadHtml(lead)}`,
+    replyTo: lead.email || undefined,
   });
 }

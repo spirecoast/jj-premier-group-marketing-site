@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cronAllowed } from "@/lib/issues/handoff";
 import { dispatchDue } from "@/lib/newsletter/service";
+import { monitoredCron } from "@/lib/ops/cron";
 
 /**
  * The sends to subscribers (docs/ISSUES.md), run by Vercel Cron:
@@ -38,10 +39,7 @@ async function run(request: NextRequest, params: Promise<{ kind: string }>): Pro
   }
 }
 
-export function GET(request: NextRequest, ctx: { params: Promise<{ kind: string }> }) {
-  return run(request, ctx.params);
-}
-
-export function POST(request: NextRequest, ctx: { params: Promise<{ kind: string }> }) {
-  return run(request, ctx.params);
-}
+/** Logged, kept in ops_runs and alerted on when it fails (lib/ops/cron.ts). */
+const monitored = monitoredCron((request: NextRequest, ctx: { params: Promise<{ kind: string }> }) => run(request, ctx.params));
+export const GET = monitored;
+export const POST = monitored;

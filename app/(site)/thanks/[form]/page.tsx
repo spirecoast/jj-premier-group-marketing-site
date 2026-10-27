@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ButtonLink, RuleLink } from "@/components/buttons";
+import { ShareButton } from "@/components/share-button";
+import { ThanksBooking, ThanksEcho } from "@/components/thanks-echo";
 import { ThanksGoal } from "@/components/thanks-goal";
 import { TrackedLink } from "@/components/tracked-link";
 import { getTeam } from "@/lib/content";
-import { LEAD_FORMS, LEAD_GOAL, type LeadForm } from "@/lib/leads";
+import { LEAD_FORMS, LEAD_GOAL, isLeadForm, type LeadForm } from "@/lib/leads/constants";
 import { newsletterConfig } from "@/lib/newsletter/config";
 import { SIGNUP_COPY } from "@/lib/newsletter/copy";
 import { REFER } from "@/lib/refer/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { pageMetadata } from "@/lib/seo";
 import { products } from "@/lib/site";
-import { ExternalLink } from "@/components/ui/external-link";
+import { cn } from "@/lib/utils";
 
 /**
  * /thanks/[form] — where every form lands after a successful send. What
@@ -99,9 +101,8 @@ const COPY: Record<LeadForm, Next> = {
   },
 };
 
-function isLeadForm(value: string): value is LeadForm {
-  return (LEAD_FORMS as readonly string[]).includes(value);
-}
+/** Where a booked call is the first thing to offer: the enquiries that lead to a conversation. */
+const BOOKING_FIRST: readonly LeadForm[] = ["contact", "buy", "sell", "valuation"];
 
 /** Only the lead forms exist; anything else is a 404 at the router, before the page streams. */
 export const dynamicParams = false;
@@ -141,6 +142,7 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
             {copy.title}
           </h1>
         </div>
+        <ThanksEcho form={form} />
         {confirming ? <p className="t-lead max-w-[560px] text-navy">{form === "letter" ? SIGNUP_COPY.thanksTide : SIGNUP_COPY.thanksEncore}</p> : null}
         <p className="t-lead max-w-[560px] text-body">{copy.body}</p>
         <div className="flex flex-col gap-5 border-t border-hairline pt-6">
@@ -149,13 +151,20 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
             <ButtonLink href={copy.href} dash>
               {copy.label}
             </ButtonLink>
+            {form === "referral" ? <ShareButton title={atlas.name} url={atlas.href} label="Send them the link" what="thanks-referral" /> : null}
             <RuleLink href="/">Back to the front page</RuleLink>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-10 lg:pt-24">
-        <div className="flex flex-col gap-6">
+        {bookingUrl && BOOKING_FIRST.includes(form) ? (
+          <div className="flex flex-col gap-4">
+            <p className="t-body max-w-[380px] text-body">It’s fifteen minutes on the phone, at a time that suits you.</p>
+            <ThanksBooking form={form} url={bookingUrl} primary />
+          </div>
+        ) : null}
+        <div className={cn("flex flex-col gap-6", bookingUrl && BOOKING_FIRST.includes(form) && "border-t border-hairline pt-5")}>
           <p className="t-body max-w-[380px] text-body">Call or text either of us directly. We’re usually in a house, so a text gets the quickest answer.</p>
           <ul className="flex flex-col gap-6">
             {team.map((m) => (
@@ -171,12 +180,10 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
             ))}
           </ul>
         </div>
-        {bookingUrl ? (
+        {bookingUrl && !BOOKING_FIRST.includes(form) ? (
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">
             <p className="t-body max-w-[380px] text-body">It’s fifteen minutes on the phone, at a time that suits you.</p>
-            <ExternalLink href={bookingUrl} className="link-rule self-start">
-              Book 15 minutes ↗
-            </ExternalLink>
+            <ThanksBooking form={form} url={bookingUrl} primary={false} />
           </div>
         ) : null}
       </div>

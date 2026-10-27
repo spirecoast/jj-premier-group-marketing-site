@@ -23,10 +23,11 @@ Grepped from `track(`, `TrackedLink event=`, `ShareButton what=` and `sendPlausi
 | `Lead server` | `lib/lead-pipeline.ts` step 5, from the server, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script. Never add it to `Lead`: the two count the same submission |
 | `Calendar feed` | the ICS links: `/calendar` (the Encore row and the header's Subscribe), the event page, the visit plan, the relocation plan | `kind`: feed, list, event, performance, plan, relocate · `filter`: all, the feed query (`category=music&market=sarasota`), the event slug, or `<n> events` for a saved list |
 | `Phone tap` | `tel:` and `sms:` links | `where`: header (the numbers in the desktop team menu and the phone menu, and the phone menu's Call), header-text (the phone menu's Text), footer, action-bar, action-bar-text (the bar and its tucked Call · Text chip), contact, contact-text, thanks, thanks-text, home-work-with, buy-work-with, sell-work-with, from-youtube, from-instagram, from-facebook, from-nextdoor |
-| `Share` | `components/share-button.tsx`, and the relocation plan's Copy link | `what`: calendar-view, event, explorer-view, match, my-list, place, place-page, visit-plan, relocate-plan, sold-street (Tide Street's "Share this street") |
-| `Explore` | the tools | `action`: select and filter (Atlas map), match (Atlas match), calendar-day (Encore), visit-plan (Encore plan), night-out (the Planner's Nearby lists, when opened), relocate-plan, sold-search, home-value, net-proceeds, hub (a click to a market hub; `where`: footer, `hub`: the slug; see the note below), channel-cta and channel-more (the `/from/*` buttons; `channel` and `to` the destination path), next-step (the phone action bar's middle cell, `where`: action-bar, `to`: the anchor or path; a guide's PDF cell fires `Download` instead) |
+| `Share` | `components/share-button.tsx`, and the relocation plan's Copy link | `what`: calendar-view, event, explorer-view, match, my-list, place, place-page, visit-plan, relocate-plan, thanks-plan (the plan a tool sent, from its thank-you page), thanks-referral (Atlas, from the referral thank-you page), refer-link ("Rather send them a link" on `/refer`), sold-street (Tide Street's "Share this street") |
+| `Explore` | the tools | `action`: select and filter (Atlas map), match (Atlas match), calendar-day (Encore), visit-plan (Encore plan), night-out (the Planner's Nearby lists, when opened), relocate-plan, sold-search, home-value, net-proceeds, hub (a click to a market hub; `where`: footer, `hub`: the slug; see the note below), channel-cta and channel-more (the `/from/*` buttons; `channel` and `to` the destination path), next-step (the phone action bar's middle cell, `where`: action-bar, `to`: the anchor or path; a guide's PDF cell fires `Download` instead), book ("Book 15 minutes" on a thank-you page, with `form`; only when `NEXT_PUBLIC_BOOKING_URL` is set) |
 | `Download` | the "Download the PDF" buttons on a guide (the cover and the end) | `what`: guide-pdf · `guide`: the guide's slug |
 | `Search` | `components/search/search-goal.tsx` on `/search`, once per query shown | `results`: 0, 1-3, 4-9 or 10+. The query text is never sent: people type names and addresses into search boxes |
+| `Web Vitals` | `components/web-vitals.tsx`, from 10% of page loads, once per metric (§5) | `metric`: LCP, INP, CLS · `rating`: good, needs-improvement, poor · `value`: a bucket (`2.0-2.5s`, `100-200ms`, `0.02-0.05`) · `template`: the route the visit landed on (`/neighborhoods/[slug]`) · `device`: phone, tablet, desktop · `pixel`: on or off (Home Platform's pixel running) |
 | `Outbound Link: Click` | automatic (outbound-links extension) | `url`. Covers the Google review link on `/reviews`, the footer's social links, ticket links, the listings link |
 | pageviews | automatic | path, entry page, source, UTM. The `/from/*`, `/refer`, `/reviews` and the market hub pages are plain pageviews |
 
@@ -76,10 +77,12 @@ Site settings → **Goals** → **Add goal** → *Custom event*, one per name (c
 9. `Download`
 10. `Lead server`
 11. `Outbound Link: Click` (sent by the outbound-links extension; add it with exactly this name)
+12. `Web Vitals`
 
 Site settings → **Custom properties** → add each prop name so it can be broken down:
 `form`, `market`, `source`, `channel`, `kind`, `filter`, `where`, `what`, `action`, `to`, `hub`,
-`guide`, `results`, `url`. (Check the plan: custom properties and funnels aren't on every Plausible tier.)
+`guide`, `results`, `url`, and for `Web Vitals` `metric`, `rating`, `value`, `template`, `device`,
+`pixel`. (Check the plan: custom properties and funnels aren't on every Plausible tier.)
 
 Saved views worth making on the dashboard (filter, then bookmark the URL):
 
@@ -104,9 +107,42 @@ If the plan includes **Funnels**, two are worth defining:
    `utm_medium = social` when it carried neither `utm_source` nor `utm_medium`. Tags on the link
    always win.
 3. Every form sends the visit's channel as the hidden `source` field (the `/from/*` Tide bar sends
-   it directly). `lib/leads.ts` accepts only the four channel names; anything else is dropped.
+   it directly). `lib/leads/schema.ts` accepts only the four channel names; anything else is dropped.
 4. The lead's tags carry `source:youtube` (the channel wins over `utm_source`), the payload carries
    `source.channel`, and the thank-you page's goal carries `source = youtube`.
 
 A returning visitor keeps their original first touch (that's the point of first touch); the
 session channel still credits the post that brought them back.
+
+## 5. Real visitors' Web Vitals
+
+Lab numbers (Lighthouse on a preview) leave out the Home Platform pixel and real phones on real
+networks; Google ranks on what real visitors get. So the site reports it: `components/web-vitals.tsx`
+picks 10% of page loads (`VITALS_SAMPLE_RATE` in `lib/web-vitals.ts`; every event counts toward the
+Plausible plan's monthly total, and a sampled load sends at most three), and those send LCP, INP
+and CLS once each as the `Web Vitals` goal, by `sendBeacon` so a value reported as the page is
+hidden still arrives. Only where Plausible itself runs: production, with
+`NEXT_PUBLIC_PLAUSIBLE_DOMAIN` set. Nothing new to configure beyond the goal and the six
+properties in §3.
+
+- `template` is the route the visit landed on, from the params Next resolved, so a street or a
+  neighborhood name never goes to Plausible. Only that first page is measured: a value measured
+  after a client-side navigation isn't sent, and in browsers without soft-navigation support
+  INP and CLS cover the whole visit and are counted against the landing page.
+- `value` is a bucket because Plausible counts property values, it doesn't average them. The
+  edges sit on the budgets: LCP every half second to 3.0 s, then 3.0-4.0s and 4.0s+; INP at 100,
+  200, 300 and 500 ms; CLS at 0.02, 0.05, 0.10 and 0.25.
+- `pixel` is on when Home Platform's pixel is running when the value is sent, off when it isn't
+  (visitors with Global Privacy Control or Do Not Track, or a browser without Web Crypto).
+
+**Each month.** Goals → `Web Vitals` → filter `metric` (and `device` = phone, the harder case),
+then break down by `value`. The 75th percentile is the bucket where the running share passes
+75%. Compare it with the budgets from the October review: LCP 2.5 s or less, CLS 0.05 or less on
+every template, INP 200 ms or less (Google's "good"). Break down by `template` to find the page
+that's off.
+
+**The pixel's cost on the forms.** Filter `metric` = INP and `template` = `/contact` (or `/buy`,
+`/sell`, `/sell/valuation`), then break down by `pixel`. The two groups are the same pages with and
+without the pixel's script running, so a gap between their INP buckets is its cost. Expect the off
+group to be small; read it over a few months.
+

@@ -8,6 +8,7 @@ import { Motion } from "@/components/motion";
 import { PageTransition } from "@/components/page-transition";
 import { ProductBar } from "@/components/product-bar";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteContactProvider } from "@/components/site-contact";
 import { SiteHeader } from "@/components/site-header";
 import { UtmTracker } from "@/components/utm-tracker";
 import { getSiteSettings, getTeam } from "@/lib/content";
@@ -15,8 +16,9 @@ import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 
 /**
  * Gives every page under the site, and the server actions the forms post to,
- * 30s instead of the default: the lead pipeline waits on Postgres, the CRM
- * webhook (8s + one retry) and Resend in turn.
+ * 30s instead of the default. A form's response waits only for Postgres; the
+ * CRM webhook (8s + one retry) and Resend run after it, inside the same
+ * budget (lib/lead-pipeline.ts).
  */
 export const maxDuration = 30;
 
@@ -47,7 +49,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main id="main">
         {/* A route change cross-fades the old page into the new one. The header,
             footer and action bar sit outside the boundary and stay put. */}
-        <PageTransition>{children}</PageTransition>
+        <SiteContactProvider phoneE164={settings.primaryPhoneE164}>
+          <PageTransition>{children}</PageTransition>
+        </SiteContactProvider>
       </main>
       <SiteFooter settings={settings} team={team} />
       <MobileActionBar phoneE164={settings.primaryPhoneE164} />

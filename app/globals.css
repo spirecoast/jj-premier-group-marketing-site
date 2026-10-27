@@ -2045,6 +2045,183 @@ html:has([data-product-bar]) {
   }
 }
 
+/* ---- Lead forms (components/lead-form.tsx, letter-form.tsx): the chip
+   questions, the error line, the summary, the pending Send and the success
+   card. Figma "01 Lead form" Spec. ---------------------------------------- */
+@layer components {
+  /* A row of buttons: side by side from 40rem, one full-width stack below it. */
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    @media (max-width: 40rem) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      & > .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  /* The questions as chips: a radio in each, visually hidden; the chip is its label. */
+  .choice-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .choice-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    line-height: 1.3;
+    color: var(--color-ink);
+    background: var(--color-white);
+    /* Graphite 500, like the field rule: 3:1 or better on white and Paper. */
+    border: 1px solid var(--color-graphite-500);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-micro) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand),
+      color var(--dur-micro) var(--ease-brand);
+  }
+  .choice-chip:hover {
+    border-color: var(--color-navy);
+  }
+  .choice-chip:has(input:checked) {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .choice-chip:has(input:focus-visible) {
+    outline: 2px solid var(--color-sky-700);
+    outline-offset: 2px;
+  }
+  .lead-form-dark .choice-chip {
+    background: transparent;
+    color: var(--color-linen-200);
+    border-color: rgb(230 221 209 / 0.6);
+  }
+  .lead-form-dark .choice-chip:hover {
+    border-color: var(--color-linen-200);
+  }
+  .lead-form-dark .choice-chip:has(input:checked) {
+    background: var(--color-linen-200);
+    border-color: var(--color-linen-200);
+    color: var(--color-navy);
+  }
+  .lead-form-dark .choice-chip:has(input:focus-visible) {
+    outline-color: var(--color-mist);
+  }
+  .choice-legend {
+    margin-bottom: 0.625rem;
+    padding: 0;
+  }
+
+  /* Dark tone: the rule in linen, focus in mist, an error in coral (the rule only; the words stay white). */
+  .lead-form-dark .field-label {
+    color: var(--color-mist);
+  }
+  .lead-form-dark .field:focus-within .field-label {
+    color: var(--color-white);
+  }
+  .lead-form-dark .field-input {
+    color: var(--color-linen-200);
+    border-bottom-color: rgb(230 221 209 / 0.5);
+  }
+  .lead-form-dark .field-input::placeholder {
+    color: rgb(230 221 209 / 0.6);
+  }
+  .lead-form-dark .field-input:focus {
+    border-bottom-color: var(--color-mist);
+    box-shadow: 0 1px 0 0 var(--color-mist);
+  }
+  .lead-form-dark .field-input[aria-invalid="true"] {
+    border-bottom-color: var(--color-coral);
+  }
+  .field-input[aria-invalid="true"]:focus {
+    box-shadow: 0 1px 0 0 var(--color-danger);
+  }
+
+  /* The error under a field, and the summary by Send: they rise 4px into place. */
+  .field-error {
+    animation: field-error-in var(--dur-state) var(--ease-brand) both;
+  }
+  @keyframes field-error-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  /* While sending: the label stays, the width holds, and the dash runs. */
+  .btn-send {
+    min-width: 10rem;
+    @media (max-width: 40rem) {
+      width: 100%;
+      .btn-dash {
+        display: inline-block;
+      }
+    }
+  }
+  .btn-send[aria-busy="true"] {
+    cursor: progress;
+  }
+  .btn-send[aria-busy="true"] .btn-dash {
+    width: 32px;
+    opacity: 1;
+    background: linear-gradient(90deg, currentColor 0 0) no-repeat, color-mix(in srgb, currentColor 35%, transparent);
+    background-size: 12px 1px, 100% 1px;
+    animation: send-glint 900ms linear infinite;
+  }
+  @keyframes send-glint {
+    from {
+      background-position: -12px 0, 0 0;
+    }
+    to {
+      background-position: 32px 0, 0 0;
+    }
+  }
+  .lead-form[aria-busy="true"] :is(.field, .choice-chip, .consent-line) {
+    opacity: 0.6;
+    pointer-events: none;
+    transition: opacity var(--dur-micro) var(--ease-brand);
+  }
+
+  /* The success card replaces the form at the form's height, fading across; the heading rises 8px. */
+  .lead-success {
+    animation: lead-success-in var(--dur-panel) var(--ease-reveal) both;
+  }
+  .lead-success > :first-child {
+    animation: lead-success-rise var(--dur-panel) var(--ease-reveal) both;
+  }
+  @keyframes lead-success-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes lead-success-rise {
+    from {
+      transform: translateY(8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .field-error,
+    .lead-success > :first-child {
+      animation: none;
+    }
+    .btn-send[aria-busy="true"] .btn-dash {
+      animation: none;
+      background: currentColor;
+    }
+  }
+}
+
 /* -----------------------------------------------------------------------------
    The phone action bar (components/mobile-action-bar.tsx). A cell settles a
    pixel when pressed, like a button. On a scroll down the bar steps out of

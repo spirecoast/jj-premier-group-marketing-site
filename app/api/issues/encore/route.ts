@@ -4,6 +4,7 @@ import { cronAllowed, handOff, handoffResponse, notFound, previewAllowed, previe
 import { issueToday, loadEncoreIssue } from "@/lib/issues/load";
 import { isDay } from "@/lib/issues/render";
 import { prepareSubscriberSend } from "@/lib/newsletter/service";
+import { monitoredCron } from "@/lib/ops/cron";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 
 /**
@@ -41,14 +42,14 @@ async function run(request: NextRequest): Promise<Response> {
   return handoffResponse(result);
 }
 
-export async function GET(request: NextRequest) {
+export const GET = monitoredCron(async (request: NextRequest) => {
   if (cronAllowed(request)) return run(request);
   if (!previewAllowed(request)) return notFound();
   await loadEncoreSnapshot();
   return previewResponse(await loadEncoreIssue(day(request)), request);
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = monitoredCron(async (request: NextRequest) => {
   if (!cronAllowed(request)) return Response.json({ message: "Unauthorized" }, { status: 401 });
   return run(request);
-}
+});

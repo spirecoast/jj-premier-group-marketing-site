@@ -69,7 +69,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
             </span>
           </h1>
           <span className="draw block h-px w-[120px] bg-navy lg:bg-sky-300" aria-hidden="true" />
-          <div className="rise d4 flex flex-wrap gap-3.5">
+          <div className="rise d4 btn-row gap-3.5">
             <Link
               href="/listings"
               className="btn border-navy bg-navy text-linen-200 hover:bg-harbor-800 lg:border-linen-200 lg:bg-linen-200 lg:text-navy lg:hover:border-linen-100 lg:hover:bg-linen-100"

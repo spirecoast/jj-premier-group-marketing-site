@@ -7,17 +7,19 @@ import { checkFairHousing } from "@/lib/fair-housing";
 import { fill } from "@/lib/issues/copy";
 import { footerFacts, issueToday, latestTidePath, loadEncoreIssue, loadTideIssue } from "@/lib/issues/load";
 import type { Issue } from "@/lib/issues/render";
-import type { LeadForm } from "@/lib/leads";
+import type { LeadForm } from "@/lib/leads/constants";
 import { site } from "@/lib/site";
 import { signUnsubscribe, verifyUnsubscribe } from "@/lib/unsubscribe";
+import { opsAlert } from "@/lib/ops/alert";
 import { BATCH_GAP_MS, BATCH_SIZE, MAX_ATTEMPTS, batchIdempotencyKey, failureStatus, pendingRecipients, remainingToday, utcDayStart, type DeliveryRecord, type Recipient } from "./batch";
+import { capacityBeforeExpiry, checkCapacity, type CapacityCheck } from "./capacity";
 import { disabledLine, newsletterConfig, type NewsletterConfig } from "./config";
 import { ISSUE_ACTION_COPY } from "./copy";
 import { UNSUBSCRIBE_PLACEHOLDERS, confirmationEmail, personalize, unsentable, welcomeEmail, type FooterFacts } from "./emails";
 import { listUnsubscribeHeaders, subscriptionSigningId, unsubscribeLinks } from "./headers";
 import { LIST_NAME, listsForLead, type NewsletterList } from "./lists";
 import { sendBatch, sendOne, type OutgoingEmail } from "./resend";
-import { holdDecision, initialHold, scheduledSendTime, sendDecision, sendExpiry, type IssueKindName, type IssueSendStatus } from "./schedule";
+import { easternWhen, holdDecision, initialHold, scheduledSendTime, sendDecision, sendExpiry, type IssueKindName, type IssueSendStatus } from "./schedule";
 import { transition, type SubscriptionState, type SubscriptionStatus } from "./state";
 import { CONFIRM_TTL_SECONDS, ISSUE_ACTION_TTL_SECONDS, signToken, verifyToken, type ConfirmPayload, type IssueActionPayload } from "./token";
 
@@ -122,6 +124,24 @@ async function footerForEmail(): Promise<FooterFacts> {
 
 /* ---- Subscribing ------------------------------------------------------------ */
 
+/**
+ * Confirmation emails across the whole site in any hour. A form can be
+ * posted by anyone with any address, and each confirmation spends the
+ * sending domain's reputation and the shared Resend quota, so past this the
+ * subscription is recorded but the email waits (the next request for that
+ * address sends it) and the log says so once an hour.
+ */
+export const CONFIRMATIONS_PER_HOUR = 50;
+let capLoggedAt = 0;
+
+async function confirmationsLastHour(now: Date): Promise<number> {
+  const [row] = await getDb()
+    .select({ n: sql<number>`count(*)::int` })
+    .from(newsletterDeliveries)
+    .where(and(eq(newsletterDeliveries.kind, "confirmation"), sql`${newsletterDeliveries.createdAt} >= ${new Date(now.getTime() - 3_600_000).toISOString()}`));
+  return row?.n ?? 0;
+}
+
 export type SubscribeOutcome = { list: NewsletterList; outcome: string; confirmationSent: boolean };
 
 /**
@@ -165,7 +185,12 @@ export async function requestSubscriptions(lead: { contactId: string | null; ema
         id = row?.id ?? id;
       }
       let sent = false;
-      if (t.send === "confirmation" && id) {
+      const overCap = t.send === "confirmation" && (await confirmationsLastHour(now)) >= CONFIRMATIONS_PER_HOUR;
+      if (overCap && now.getTime() - capLoggedAt > 3_600_000) {
+        capLoggedAt = now.getTime();
+        console.error(`[lead-alarm] newsletter confirmations hit ${CONFIRMATIONS_PER_HOUR} in an hour; holding the rest (a form flood?)`);
+      }
+      if (t.send === "confirmation" && id && !overCap) {
         const token = signToken({ p: "confirm", s: id }, config.secret, CONFIRM_TTL_SECONDS, now);
         const content = confirmationEmail({
           list,
@@ -353,6 +378,8 @@ export type TeamSendInfo = {
   holdUrl: string;
   fairHousingFlagged: boolean;
   addressComplete: boolean;
+  /** Whether everyone can get it before it expires, at the daily cap; null when there's no one to send to. */
+  capacity: (CapacityCheck & { cap: number; expiresAt: Date }) | null;
 };
 
 const addressComplete = (f: { officeAddress: { street: string; zip: string } }) => Boolean(f.officeAddress.street && f.officeAddress.zip);
@@ -366,6 +393,67 @@ async function confirmedRecipients(list: NewsletterList): Promise<Recipient[]> {
     order by s.confirmed_at nulls last, s.id
   `)) as unknown as Recipient[];
   return [...rows];
+}
+
+/** Confirmations and welcomes on an average day this past week: the part of the daily cap issues can't use. */
+async function reservePerDay(now: Date): Promise<number> {
+  const [row] = await getDb()
+    .select({ n: sql<number>`count(*)::int` })
+    .from(newsletterDeliveries)
+    .where(and(sql`${newsletterDeliveries.kind} in ('confirmation', 'welcome')`, sql`${newsletterDeliveries.createdAt} >= ${new Date(now.getTime() - 7 * 86_400_000).toISOString()}`));
+  return (row?.n ?? 0) / 7;
+}
+
+/** Whether `pending` subscribers can all get a send before it expires, at the daily cap (lib/newsletter/capacity.ts). */
+async function sendCapacity(expiresAt: Date, pending: number, config: NewsletterConfig, from: Date): Promise<CapacityCheck> {
+  const now = new Date();
+  const start = from.getTime() > now.getTime() ? from : now;
+  const capacity = capacityBeforeExpiry({ cap: config.dailyCap, usedToday: utcDayStart(start).getTime() === utcDayStart(now).getTime() ? await usedToday(now) : 0, reservePerDay: await reservePerDay(now), now: start, expiresAt });
+  return checkCapacity(pending, capacity);
+}
+
+const sendName = (row: Pick<IssueSend, "kind" | "periodLabel">) => `${LIST_NAME[row.kind as NewsletterList]} for ${row.periodLabel}`;
+
+/** The alert before a send runs out of days: once per send. Never throws. */
+async function warnCapacity(row: Pick<IssueSend, "id" | "kind" | "periodLabel" | "expiresAt">, check: CapacityCheck, config: NewsletterConfig): Promise<void> {
+  if (check.fits) return;
+  try {
+    await opsAlert({
+      key: `newsletter-capacity:${row.id}`,
+      level: "warning",
+      repeatAfterDays: 30,
+      subject: `${sendName(row)} won't reach everyone before it expires`,
+      lines: [
+        `${sendName(row)} still has ${check.pending} subscribers to go. At the daily limit of ${config.dailyCap} emails (NEWSLETTER_DAILY_CAP, shared with confirmations and welcomes), about ${check.emails} can get it before it expires on ${easternWhen(row.expiresAt)}, so ${check.short} would miss it.`,
+        "To reach everyone, raise NEWSLETTER_DAILY_CAP to what the Resend plan allows and redeploy; the daily catch-up run then sends the rest. Resend's free plan allows 100 a day across the whole account (docs/ISSUES.md).",
+      ],
+    });
+  } catch (err) {
+    warn("couldn't send the capacity alert", err instanceof Error ? err.message : err);
+  }
+}
+
+/** The alert when a send expires with people still owed it: once per send. Never throws. */
+async function alertExpired(row: IssueSend, config: NewsletterConfig): Promise<void> {
+  try {
+    const owed = row.status === "sending" ? Math.max(0, row.recipients - row.sentCount) : (await confirmedRecipients(row.kind as NewsletterList)).length;
+    if (owed === 0) return;
+    const got = row.status === "sending" ? `${row.sentCount} of ${row.recipients} got it` : "it never started";
+    await opsAlert({
+      key: `newsletter-expired:${row.id}`,
+      repeatAfterDays: 365,
+      subject: `${sendName(row)} expired with ${owed} subscribers unsent`,
+      lines: [
+        `${sendName(row)} reached its expiry on ${easternWhen(row.expiresAt)} before it went to everyone: ${got}, and ${owed} won't get this issue.`,
+        row.status === "sending"
+          ? `The usual cause is the daily limit: NEWSLETTER_DAILY_CAP is ${config.dailyCap}, shared with confirmations and welcomes. Raise it to what the Resend plan allows so the next issue fits (docs/ISSUES.md).`
+          : "Nothing sent it in time: check that the newsletter crons ran (Vercel → Cron Jobs) and that the send wasn't left waiting.",
+      ],
+      detail: row.lastError ?? undefined,
+    });
+  } catch (err) {
+    warn("couldn't send the expiry alert", err instanceof Error ? err.message : err);
+  }
 }
 
 function actionUrl(config: NewsletterConfig, a: "send" | "hold", kind: IssueKindName, period: string, now = new Date()): string {
@@ -413,6 +501,18 @@ export async function prepareIssueSend(issue: Issue, now = new Date()): Promise<
     [row] = await db.update(issueSends).set({ status: "held", heldBy: "system", holdReason: hold, heldAt: now, updatedAt: now }).where(eq(issueSends.id, row.id)).returning();
   }
   const recipients = (await confirmedRecipients(kind)).length;
+  // Warn now, days ahead, when the list is bigger than the daily cap can reach before the send expires.
+  let capacity: TeamSendInfo["capacity"] = null;
+  if (recipients > 0 && (row!.status === "scheduled" || row!.status === "held" || row!.status === "sending")) {
+    try {
+      const pending = row!.status === "sending" ? Math.max(0, recipients - row!.sentCount) : recipients;
+      const check = await sendCapacity(row!.expiresAt, pending, config, row!.scheduledFor);
+      capacity = { ...check, cap: config.dailyCap, expiresAt: row!.expiresAt };
+      await warnCapacity(row!, check, config);
+    } catch (err) {
+      warn(`couldn't check the ${kind} send against the daily cap`, err instanceof Error ? err.message : err);
+    }
+  }
   return {
     status: row!.status as IssueSendStatus,
     scheduledFor: row!.scheduledFor,
@@ -424,6 +524,7 @@ export async function prepareIssueSend(issue: Issue, now = new Date()): Promise<
     holdUrl: actionUrl(config, "hold", kind, period, now),
     fairHousingFlagged: !fh.passed,
     addressComplete: complete,
+    capacity,
   };
 }
 
@@ -475,6 +576,8 @@ async function runSend(row: IssueSend, config: NewsletterConfig, opts: { now: Da
   const decision = sendDecision({ status: row.status as IssueSendStatus, scheduledFor: row.scheduledFor, expiresAt: row.expiresAt }, opts.now, opts.force);
   if (decision === "expired" && row.status !== "expired") {
     await db.update(issueSends).set({ status: "expired", updatedAt: opts.now }).where(eq(issueSends.id, row.id));
+    warn(`${row.kind} ${row.period} expired at ${row.expiresAt.toISOString()} (${row.status}, ${row.sentCount} of ${row.recipients} sent)`);
+    await alertExpired(row, config);
   }
   if (decision !== "send") return { ...base, decision, status: decision === "expired" ? "expired" : (row.status as IssueSendStatus) };
 
@@ -527,6 +630,7 @@ async function runSend(row: IssueSend, config: NewsletterConfig, opts: { now: Da
     if (room === 0) {
       deferred = pending.length;
       log(`${row.kind} ${row.period}: today's cap of ${config.dailyCap} is used; ${pending.length} wait for the next run`);
+      await warnCapacity(row, await sendCapacity(row.expiresAt, pending.length, config, new Date()), config).catch(() => undefined);
       break;
     }
     const next = pending.slice(0, Math.min(BATCH_SIZE, room));
@@ -647,6 +751,102 @@ export async function dispatchDue(kind?: IssueKindName, now = new Date()): Promi
     }
   }
   return { ok: runs.every((r) => !r.error), enabled: true, runs };
+}
+
+/* ---- The ops check (app/api/cron/ops-check) and /api/health?deep=1 ---------- */
+
+/** A send has a run every day (the 13:30 UTC catch-up); "sending" with no run for longer than this has stalled. */
+const STALLED_MS = 26 * 3_600_000;
+
+export type OpenSend = {
+  kind: string;
+  period: string;
+  status: IssueSendStatus;
+  pending: number;
+  canSend: number;
+  short: number;
+  expiresAt: string;
+  lastRunAt: string | null;
+  stalled: boolean;
+};
+
+export type NewsletterOps = {
+  cap: number;
+  /** Confirmations and welcomes on an average day this past week. */
+  reservePerDay: number;
+  confirmed: Record<NewsletterList, number>;
+  /** How many one issue can reach at this cap: Encore has 7 days, Tide 14. */
+  perIssue: Record<NewsletterList, number>;
+  open: OpenSend[];
+};
+
+/** Where the sends stand against the daily cap. Null when subscriber email is off. */
+export async function newsletterOps(now = new Date()): Promise<NewsletterOps | null> {
+  const config = newsletterConfig();
+  if (!config.enabled) return null;
+  const db = getDb();
+  const reserve = await reservePerDay(now);
+  const confirmed = { tide: 0, encore: 0 } as Record<NewsletterList, number>;
+  const rows = (await db.execute(sql`select list, count(*)::int as n from newsletter_subscriptions where status = 'confirmed' group by list`)) as unknown as { list: NewsletterList; n: number }[];
+  for (const r of rows) confirmed[r.list] = r.n;
+  const sends = await db.select().from(issueSends).where(sql`${issueSends.status} in ('scheduled', 'sending')`).orderBy(issueSends.scheduledFor);
+  const open: OpenSend[] = [];
+  for (const row of sends) {
+    const pending = row.status === "sending" ? Math.max(0, row.recipients - row.sentCount) : confirmed[row.kind as NewsletterList] ?? 0;
+    const check = await sendCapacity(row.expiresAt, pending, config, row.scheduledFor);
+    const last = row.lastRunAt ?? row.startedAt;
+    open.push({
+      kind: row.kind,
+      period: row.period,
+      status: row.status as IssueSendStatus,
+      pending,
+      canSend: check.emails,
+      short: check.short,
+      expiresAt: row.expiresAt.toISOString(),
+      lastRunAt: last ? last.toISOString() : null,
+      stalled: row.status === "sending" && (!last || now.getTime() - last.getTime() > STALLED_MS),
+    });
+  }
+  const perDay = Math.max(0, config.dailyCap - Math.ceil(reserve));
+  return { cap: config.dailyCap, reservePerDay: Math.round(reserve * 10) / 10, confirmed, perIssue: { encore: perDay * 7, tide: perDay * 14 }, open };
+}
+
+/**
+ * The daily ops check's part: alert on a send that has stalled or won't
+ * reach everyone in time. Returns the alert keys it raised. Never throws.
+ */
+export async function checkOpenSends(now = new Date()): Promise<string[]> {
+  const raised: string[] = [];
+  try {
+    const config = newsletterConfig();
+    const report = await newsletterOps(now);
+    if (!report) return raised;
+    const rows = await getDb().select().from(issueSends).where(sql`${issueSends.status} in ('scheduled', 'sending')`);
+    for (const send of report.open) {
+      const row = rows.find((r) => r.kind === send.kind && r.period === send.period);
+      if (!row) continue;
+      if (send.short > 0) {
+        await warnCapacity(row, checkCapacity(send.pending, { emails: send.canSend, days: 0 }), config);
+        raised.push(`newsletter-capacity:${row.id}`);
+      }
+      if (send.stalled) {
+        await opsAlert({
+          key: `newsletter-stalled:${row.id}`,
+          subject: `${sendName(row)} has stopped sending`,
+          lines: [
+            `${sendName(row)} started going out but hasn't sent anything since ${send.lastRunAt ? easternWhen(new Date(send.lastRunAt)) : "it started"}. ${send.pending} subscribers are still owed it, and it expires on ${easternWhen(row.expiresAt)}.`,
+            "The daily catch-up run (/api/newsletter/send/all, 13:30 UTC) should carry it on. Check that it ran (Vercel → Cron Jobs) and what it said (Vercel → Logs).",
+          ],
+          detail: row.lastError ?? undefined,
+        });
+        raised.push(`newsletter-stalled:${row.id}`);
+      }
+    }
+  } catch (err) {
+    warn("the ops check couldn't read the sends", err instanceof Error ? err.message : err);
+    raised.push("newsletter-unreadable");
+  }
+  return raised;
 }
 
 /* ---- The team's hold and send links ----------------------------------------- */

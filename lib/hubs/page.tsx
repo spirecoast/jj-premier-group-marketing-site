@@ -158,7 +158,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
           <p className="t-lead max-w-[640px] text-white text-shadow-soft">
             {copy.orientation[0]} {copy.orientation[1]}
           </p>
-          <div className="flex flex-wrap items-center gap-3.5 pt-2">
+          <div className="btn-row gap-3.5 pt-2">
             {lead ? (
               <ButtonLink href={`tel:${lead.phoneE164}`} variant="linen" dash>
                 Call {lead.name.split(" ")[0]} · {lead.phone}

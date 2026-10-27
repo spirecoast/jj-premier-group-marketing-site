@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/privacy",
 });
 
-const UPDATED = "October 11, 2026";
+const UPDATED = "October 27, 2026";
 
 /** Named from the same switch the explorer uses, so the page is true under either configuration. */
 // MapTiler when a key is set, with OpenFreeMap as the fallback (components/map-runtime.ts); OpenFreeMap alone otherwise.
@@ -61,7 +61,7 @@ export default async function PrivacyPage() {
 
         <h2>Who sees it</h2>
         <p>
-          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; Home Platform, the customer relationship system Compass runs for our brokerage, where we work on each enquiry (it receives your form from its script on this site, or from this site directly); Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; Sentry, for the error reports described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
+          Joelyn and Jessica and, where necessary, {settings.brokerageName} as the brokerage of record. The service providers that run this website on our behalf process data under contract: Vercel, which hosts the site; Supabase, which hosts the site database where form submissions are stored; Home Platform, the customer relationship system Compass runs for our brokerage, where we work on each enquiry (it receives your form from its script on this site, or from this site directly); Zapier, which carries your form from this site to Home Platform; Resend, which delivers the newsletters and the email confirming your subscription, and the notification email to our team when a form arrives (it receives your email address and records whether each email was delivered); Plausible, for the page counts described above; Sentry, for the error reports described above; and {MAP_PROVIDER_NAME}, for the map. We do not give your information to other businesses for their own marketing. We may disclose information if the law requires it or to protect our rights.
         </p>
 
         <h2>How long we keep it</h2>

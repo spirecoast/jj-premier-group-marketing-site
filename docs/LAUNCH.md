@@ -61,8 +61,10 @@ A subdomain keeps the newsletters' sending reputation apart from anything else t
    (`us-east-1`). Use the Resend account that holds `RESEND_API_KEY` (the team email's account), on
    a plan whose daily limit is at least `NEWSLETTER_DAILY_CAP`. The free plan allows 100 a day and
    3,000 a month: past about 100 subscribers on a list a send spreads over more than one day, and
-   the monthly limit runs out at around 500 Encore subscribers. Move to a paid plan before then and
-   raise `NEWSLETTER_DAILY_CAP` to its daily limit.
+   the monthly limit runs out at around 500 Encore subscribers. The cap defaults to 80, not 100,
+   because the team's "New lead" emails and alerts go through the same key and must never be the
+   ones Resend turns away. Move to a paid plan before then and raise `NEWSLETTER_DAILY_CAP` to its
+   daily limit less about 20, or give the newsletter its own key.
 2. Resend shows the records it wants. **Copy them from that screen**; at the time of writing they
    are, with Cloudflare's names relative to the zone `jjpremiergroup.com`:
 
@@ -107,6 +109,19 @@ What the project has today (names only, read through the Vercel API on 2026-10-0
 `CRM_WEBHOOK_URL`, `NEXT_PUBLIC_BOOKING_URL`. Many of the existing ones are present with an empty value;
 treat "present" as "has a row", not "is set".
 
+**Previews share all of this.** Every row above is on Production and Preview, so a preview runs
+against the production database with the production keys. The code holds previews back
+(`lib/deploy-env.ts`, `docs/SITE.md` "Previews"): on a preview there's no CRM or Zapier, no team or
+subscriber email, no Google Places, no Plausible, no scheduled job, and every lead is saved as a test
+(`is_test`, tag `preview`). What it still writes to production's database is the lead itself, its
+`contacts` and `events` rows, and the questionnaire. To keep even those apart, give previews their own
+database: a second free Supabase project (or a Supabase branch), with `DATABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY` set to it on **Preview** only and the production values on **Production**
+only, and the migrations applied to it (4.3). When setting the email variables (`TEAM_NOTIFY_EMAIL`,
+`LEAD_ALERT_EMAIL`, `RESEND_*`), scope them to Production. `PREVIEW_EMAIL_TO` (Preview only, one
+address) sends a preview's team emails to one test inbox, marked "[Preview]", for testing the email
+itself.
+
 **The one rule that cannot be broken:** in production `actions/submit-lead.ts` tells the visitor "We could
 not send that just now" unless at least one of three sinks succeeded: the CRM accepted the lead,
 `DATABASE_URL` mirrored it, or the team email was sent. Never launch with all three empty.
@@ -127,7 +142,7 @@ not send that just now" unless at least one of three sinks succeeded: the CRM ac
 | `NEXT_PUBLIC_MAPTILER_KEY` | already set | MapTiler tiles for Atlas. Add the launch domain as an allowed origin (section 5.6). |
 | `NEXT_PUBLIC_LISTINGS_URL` | `<URL from 1.6>` | The "See our current listings" link on `/listings`. Empty hides the link. |
 | `NEXT_PUBLIC_ROBOTS_NOINDEX` | **removed from Production** (or empty); `true` on Preview | The index gate. Section 6.5 flips it. |
-| `CRON_SECRET` | already set | Bearer token for `GET /api/cron/archive-events`, which `vercel.json` runs every Monday 09:00 UTC (a no-op until Sanity is live, but the route must stay protected), for the two newsletter hand-offs, `/api/issues/encore` (Mondays 10:00 UTC) and `/api/issues/tide` (the 1st, 12:00 UTC), which email the finished issue to `TEAM_NOTIFY_EMAIL`, and for the sends to subscribers, `/api/newsletter/send/encore` (Mondays 12:00 UTC), `/api/newsletter/send/tide` (the 3rd, 13:00 UTC) and `/api/newsletter/send/all` (daily 13:30 UTC) (`docs/ISSUES.md`). |
+| `CRON_SECRET` | already set | Bearer token for `GET /api/cron/archive-events`, which `vercel.json` runs every Monday 09:00 UTC (a no-op until Sanity is live, but the route must stay protected), for the two newsletter hand-offs, `/api/issues/encore` (Mondays 10:00 UTC) and `/api/issues/tide` (the 1st, 12:00 UTC), which email the finished issue to `TEAM_NOTIFY_EMAIL`, and for the sends to subscribers, `/api/newsletter/send/encore` (Mondays 12:00 UTC), `/api/newsletter/send/tide` (the 3rd, 13:00 UTC) and `/api/newsletter/send/all` (daily 13:30 UTC) (`docs/ISSUES.md`), and the daily ops check, `/api/cron/ops-check` (07:53 UTC), which emails `LEAD_ALERT_EMAIL` when a job stops (6.13). |
 | `NEWSLETTER_FROM` | `JJ Premier Group <letters@mail.jjpremiergroup.com>` | The From of every newsletter email. Set it once `mail.jjpremiergroup.com` is verified in Resend (1.4); it's the switch for sending to subscribers. |
 | `NEWSLETTER_SECRET` | `openssl rand -base64 48` | Signs the confirm links and the team's hold and send links. Mark as Sensitive. |
 | `NEWSLETTER_REPLY_TO` | `<the agent's address that should get replies>` | Where a subscriber's reply ("stop", a question) goes. |
@@ -341,6 +356,12 @@ on the existing tables; if the SQL Editor path is used, every future migration m
 way, or the journal rows must be inserted by hand first. Prefer `db:migrate` from a network that can reach
 the pooler.
 
+`0015_lead_guard_and_outbox.sql` (additive: `lead_outbox`, `lead_rate_limits`, `lead_submissions` and
+an index on `lower(contacts.email)`) turns on the lead retries and the form guard. The site works
+before it's applied (each part fails soft and logs once which file is missing); with it, a failed
+CRM webhook or team email is retried and the forms get their rate limit and resend check. Check:
+`select count(*) from lead_outbox;` answers 0, not an error.
+
 ### 4.4 Confirm the tables
 
 The lead mirror writes to `leads` and `lead_deliveries`, with the person and their consent in
@@ -356,6 +377,12 @@ select count(*) from contacts;   -- 0 before the first test lead
 
 Row-level security is on and deny-by-default on every table, with no policies; the site writes through the `postgres`
 role in `DATABASE_URL`, which bypasses RLS, so no policy work is needed for the mirror.
+
+`0016_ops_and_retention.sql` (additive: `ops_runs`, `ops_alerts`, `erasures`, and
+`retention_purge()` replaced with a version that also covers the newsletter tables) turns on the
+record of every scheduled run, the weekly-not-hourly alert emails and the nightly purge's own record.
+Check: `select public.retention_purge();` answers the counts, and `select job, outcome, started_at
+from ops_runs order by started_at desc limit 5;` shows that run as `retention-purge`.
 
 ### 4.5 Where to see leads
 
@@ -643,7 +670,8 @@ the test contact.
 
 Plausible → the `jjpremiergroup.com` site → Realtime. Your own visits from 6.8 show up. Goals →
 add the custom events and properties listed in `docs/MEASUREMENT.md` §3 (Lead, Subscribe, Review
-permission, Calendar feed, Phone tap, Share, Explore, Search, Download, Lead server, Outbound Link: Click). The test
+permission, Calendar feed, Phone tap, Share, Explore, Search, Download, Lead server, Outbound Link: Click,
+Web Vitals). The test
 lead in 6.9 appears as one `Lead` goal with `form = contact`.
 
 ### 6.11 Uptime monitor
@@ -655,6 +683,7 @@ In UptimeRobot, Better Stack or the monitor the team already pays for: two HTTPS
 |---|---|---|
 | Home | `https://jjpremiergroup.com/` | status 200 and the keyword `JJ Premier Group` in the body |
 | Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<urlset` |
+| Leads | `https://jjpremiergroup.com/api/health` | status 200. It answers 503 when production would keep leads only in Postgres, where nobody is told: set `TEAM_NOTIFY_EMAIL` with `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, or `CRM_WEBHOOK_URL`, before launch. This is the first launch gate. |
 
 ### 6.12 Rollback plan
 
@@ -674,6 +703,22 @@ provider treats any non-2xx from the Catch Hook as a failure (one retry, then an
 `LEAD_ALERT_EMAIL` per lead and `delivery_status = failed` on the row); whether a paused Zap's hook answers
 2xx or not is Zapier's choice (**verify** by turning the Zap off and submitting one test lead on the
 preview); until that is known, check Zap History by hand each morning.
+
+### 6.13 Scheduled jobs and the deep health check
+
+Nothing to set up beyond `CRON_SECRET` (already set) and `LEAD_ALERT_EMAIL` (section 2): every cron
+reports its own failures, and `/api/cron/ops-check` (daily, 07:53 UTC) emails when one stops
+running (`docs/SITE.md`, "Scheduled jobs and alerts"). After the first full day:
+
+```bash
+curl -s -H "Authorization: Bearer $CRON_SECRET" "https://jjpremiergroup.com/api/health?deep=1" | jq '.ops.jobs, .ops.db'
+# every daily job "ok" (weekly and monthly ones "waiting" until their day), retention-purge "ok", db.ok true
+```
+
+To have something outside the site watch it too, add a third monitor in 6.11 for that URL with the
+`Authorization` header, if the monitor's plan allows custom headers, checking the keyword
+`"ok":true`. With `NEXT_PUBLIC_SENTRY_DSN` set, Sentry's one included cron monitor, `site-crons`,
+appears after the first ops check and warns if the check itself stops.
 
 ## 7. First week
 

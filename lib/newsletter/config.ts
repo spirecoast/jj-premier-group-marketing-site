@@ -1,3 +1,5 @@
+import { sideEffectsAllowed } from "../deploy-env";
+
 /**
  * Whether the site may email subscribers, and with what. Pure: reads the env
  * object it's given (process.env by default), so the tests can pass their own.
@@ -13,10 +15,12 @@
  *   DATABASE_URL        the subscriptions and the send records live in Postgres
  *
  * Optional: NEWSLETTER_REPLY_TO (where a reply goes; also the List-Unsubscribe
- * mailto) and NEWSLETTER_DAILY_CAP (default 100, Resend's free daily limit).
+ * mailto) and NEWSLETTER_DAILY_CAP (default 80: Resend's free plan allows
+ * 100 a day across the whole account, and the team's "New lead" emails and
+ * alerts use the same key, so subscriber mail leaves them 20).
  */
 
-export const DEFAULT_DAILY_CAP = 100;
+export const DEFAULT_DAILY_CAP = 80;
 
 export type NewsletterConfig = {
   enabled: boolean;
@@ -47,6 +51,8 @@ export function newsletterConfig(env: Env = process.env): NewsletterConfig {
   if (secret.length < 32) missing.push("NEWSLETTER_SECRET (32+ characters)");
   if ((env.UNSUBSCRIBE_SECRET ?? "").length < 32) missing.push("UNSUBSCRIBE_SECRET (32+ characters)");
   if (!env.DATABASE_URL) missing.push("DATABASE_URL");
+  // Previews share production's database and key: they never record a subscription or email a subscriber (lib/deploy-env.ts).
+  if (!sideEffectsAllowed(env)) missing.push("a production deployment (previews never email subscribers)");
   return {
     enabled: missing.length === 0,
     missing,
