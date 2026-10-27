@@ -79,3 +79,19 @@ describe("a clamped description", () => {
     assert.equal(clampDescription(text), "A National Register-listed historic streetscape on St. Armands Key made up of the central park of St. Armands Circle and the shops around it.");
   });
 });
+
+describe("the team in structured data", () => {
+  test("each agent has a page address, the team, and sameAs only from real profiles", async () => {
+    const { personJsonLd, organizationJsonLd } = await import("./seo");
+    const { TEAM } = await import("./content/seed/team");
+    const { SITE_SETTINGS } = await import("./content/seed/settings");
+    const joelyn = personJsonLd(TEAM[0]!, SITE_SETTINGS) as Record<string, unknown>;
+    assert.match(String(joelyn.url), /\/about#joelyn-nauman$/);
+    assert.deepEqual(joelyn.sameAs, ["https://www.coldwellbankerhomes.com/fl/lakewood-ranch/agent/joelyn-nauman/aid_271042/"]);
+    const jessica = personJsonLd(TEAM[1]!, SITE_SETTINGS) as Record<string, unknown>;
+    assert.equal(jessica.sameAs, undefined);
+    const org = organizationJsonLd(SITE_SETTINGS, TEAM) as { areaServed: { "@type": string }[]; knowsAbout: string[] };
+    assert.deepEqual(org.areaServed.map((a) => a["@type"]), ["City", "City", "City", "AdministrativeArea", "AdministrativeArea"]);
+    assert.ok(org.knowsAbout.length > 0);
+  });
+});

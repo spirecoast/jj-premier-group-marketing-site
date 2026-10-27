@@ -20,7 +20,7 @@ import { cardEndsAt } from "@/lib/encore/fresh";
 import { getMarket, marketName } from "@/lib/content/markets";
 import { varyStock } from "@/lib/encore/stock";
 import type { MarketSlug } from "@/lib/content/types";
-import { placeDescription } from "@/lib/neighborhoods/describe";
+import { placeDescription, placeFactProperties } from "@/lib/neighborhoods/describe";
 import { DATASET_VERSION, checkedDate, evacuationSource, getAncestors, getChildren, getRecord, getRecordSlugs } from "@/lib/neighborhoods/data";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, hostOf, monthYear, titleCase } from "@/lib/neighborhoods/format";
 import { sourceLine } from "@/lib/neighborhoods/sources";
@@ -169,6 +169,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             ...(record.lat !== null && record.lng !== null ? { geo: { "@type": "GeoCoordinates", latitude: record.lat, longitude: record.lng } } : {}),
             ...(parent ? { containedInPlace: { "@type": "Place", name: parent.name, url: absoluteUrl(`/neighborhoods/${parent.slug}`) } } : {}),
             ...(record.officialUrl ? { sameAs: record.officialUrl } : {}),
+            ...(placeFactProperties(record).length ? { additionalProperty: placeFactProperties(record) } : {}),
           }}
         />
       ) : null}

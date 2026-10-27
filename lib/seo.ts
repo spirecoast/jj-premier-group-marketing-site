@@ -185,26 +185,44 @@ export function organizationJsonLd(settings: SiteSettings, team: TeamMember[]) {
     email: team[0]?.email,
     parentOrganization: { "@type": "Organization", name: settings.brokerageName },
     address: postalAddress(settings.officeAddress),
-    areaServed: ["Lakewood Ranch", "Sarasota", "Bradenton"].map((name) => ({
-      "@type": "City",
-      name,
-    })),
+    areaServed: [
+      ...["Lakewood Ranch", "Sarasota", "Bradenton"].map((name) => ({ "@type": "City", name })),
+      ...["Manatee County", "Sarasota County"].map((name) => ({ "@type": "AdministrativeArea", name: `${name}, Florida` })),
+    ],
+    // What the guides and Atlas cover, so an answer engine knows what to ask the team about.
+    knowsAbout: KNOWS_ABOUT,
     employee: team.map((m) => personJsonLd(m, settings)),
     // The team's profiles (lib/site.ts socialLinks plus the CMS list); omitted while there are none.
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
 
+/** The subjects the team writes about and answers questions on, from the guides and Atlas. */
+export const KNOWS_ABOUT = [
+  "Flood zones and flood insurance in Manatee and Sarasota counties",
+  "Hurricane evacuation zones",
+  "Community development districts (CDDs)",
+  "Florida homestead exemption and Save Our Homes portability",
+  "Condominium and HOA documents under Florida's 2022 condo law",
+  "Lakewood Ranch villages",
+  "Barrier island building rules",
+  "Selling a Florida home from out of state",
+];
+
 export function personJsonLd(m: TeamMember, settings: SiteSettings) {
+  const profiles = (m.profiles ?? []).filter((u) => /^https:\/\//.test(u));
   return {
     "@type": "Person",
     "@id": `${site.url}/about#${m.slug}`,
+    url: absoluteUrl(`/about#${m.slug}`),
     name: m.name,
     jobTitle: m.title,
     telephone: m.phoneE164,
     email: m.email,
     image: absoluteUrl(m.headshot.src),
     worksFor: { "@type": "Organization", name: settings.brokerageName },
+    memberOf: { "@id": `${site.url}/#organization` },
+    ...(profiles.length ? { sameAs: profiles } : {}),
   };
 }
 

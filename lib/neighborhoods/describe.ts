@@ -61,3 +61,42 @@ export function placeDescription(base: string, r: Facts | undefined, min = DESCR
   }
   return out;
 }
+
+type Sourced = Facts & Pick<NeighborhoodRecord, "sources" | "waterAccess">;
+
+/** The source behind a field: the latest-checked one whose `supports` names it. */
+function sourceFor(r: Sourced, field: string) {
+  return r.sources
+    .filter((s) => s.supports.split(",").some((f) => f.trim().toLowerCase().startsWith(field.toLowerCase())))
+    .sort((a, b) => a.checked.localeCompare(b.checked))
+    .at(-1);
+}
+
+/**
+ * The page's place facts as schema.org PropertyValue rows (additionalProperty on the Place): gated,
+ * HOA, CDD, evacuation zone and water access, each only when the record holds it, with the source's
+ * address and the day it was checked. Where no source names the field, the row is left out.
+ */
+export function placeFactProperties(r: Sourced): Record<string, unknown>[] {
+  const rows: [string, string, string | boolean | null | undefined][] = [
+    ["Gated", "gated", r.gated],
+    ["HOA on record", "hoa", r.hoa?.name ?? null],
+    ["CDD on record", "cdd", r.cdd?.name ?? null],
+    ["Evacuation zone", "evacuationZone", r.evacuationZone === "none" ? "Outside every evacuation zone" : r.evacuationZone],
+    ["Water access", "waterAccess", r.waterAccess],
+  ];
+  const out: Record<string, unknown>[] = [];
+  for (const [name, field, value] of rows) {
+    if (value === null || value === undefined) continue;
+    const src = sourceFor(r, field);
+    if (!src) continue;
+    out.push({
+      "@type": "PropertyValue",
+      name,
+      value,
+      url: src.url,
+      description: `Checked ${src.checked}.`,
+    });
+  }
+  return out;
+}

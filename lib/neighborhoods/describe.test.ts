@@ -5,7 +5,7 @@ import path from "node:path";
 import { DESCRIPTION_MIN, clampDescription } from "../seo";
 import { NEIGHBORHOODS } from "../content/seed/neighborhoods";
 import { GUIDES } from "../guides";
-import { ATLAS_LINE, placeDescription } from "./describe";
+import { ATLAS_LINE, placeDescription, placeFactProperties } from "./describe";
 import type { NeighborhoodRecord } from "./types";
 
 const base: Parameters<typeof placeDescription>[1] & object = { jurisdiction: null, county: null, gated: null, hoa: null, cdd: null, evacuationZone: null, zips: [] };
@@ -58,5 +58,31 @@ describe("every page in the sitemap fills its search result", () => {
       const d = clampDescription(g.promise.length >= DESCRIPTION_MIN ? g.promise : `${g.promise} By ${g.author.name}, sources ${g.checked}.`);
       assert.ok(d.length >= DESCRIPTION_MIN, `${g.slug}: ${d}`);
     }
+  });
+});
+
+describe("a place's facts as structured data", () => {
+  test("each fact the record holds, with the source that names it; nothing for an unknown or unsourced fact", () => {
+    const rows = placeFactProperties({
+      ...base,
+      gated: true,
+      hoa: { name: "Lake Club HOA", website: null },
+      cdd: null,
+      evacuationZone: "none",
+      waterAccess: "lake",
+      sources: [
+        { url: "https://a.example/hoa", supports: "hoa,name", checked: "2026-09-01", sourceDate: null },
+        { url: "https://b.example/evac", supports: "evacuationZone", checked: "2026-09-02", sourceDate: null },
+        { url: "https://c.example/gate", supports: "gated,amenities", checked: "2026-09-03", sourceDate: null },
+      ],
+    });
+    assert.deepEqual(
+      rows.map((r) => [r.name, r.value, r.url]),
+      [
+        ["Gated", true, "https://c.example/gate"],
+        ["HOA on record", "Lake Club HOA", "https://a.example/hoa"],
+        ["Evacuation zone", "Outside every evacuation zone", "https://b.example/evac"],
+      ],
+    );
   });
 });
