@@ -3,6 +3,7 @@ import { TrackedLink } from "@/components/tracked-link";
 import { formatAddress, formatEventWhen, formatRun } from "@/lib/content/format";
 import type { Event, VenueDateStatus } from "@/lib/content/types";
 import { PANEL_COPY as C, STATUS, compactWhen, monthDay, overall, priceRange, upcomingDates } from "@/lib/encore/panel";
+import { UNLISTED_NOTE } from "@/lib/encore/venue-rules";
 import { UNTIMED, isAllDayKind } from "@/lib/encore/when";
 import { cn } from "@/lib/utils";
 import { CheckedAgo } from "./checked-ago";
@@ -24,7 +25,7 @@ function StatusPill({ status }: { status: VenueDateStatus }) {
   return <span className={cn("venue-status", `is-${s.tone}`)}>{s.label}</span>;
 }
 
-export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsUrl: string; renderedAt: string }) {
+export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsUrl?: string; renderedAt: string }) {
   const live = event.live;
   const isRun = Boolean(event.runsThrough) && !event.performances?.length;
   const dates = upcomingDates(live?.dates ?? [], renderedAt);
@@ -106,11 +107,11 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
                 <ExternalLink href={live.venuePage} className="text-harbor-700 underline underline-offset-4 hover:text-navy">
                   {UNTIMED.onSite}
                 </ExternalLink>
-              ) : (
+              ) : event.ticketUrl || !event.venue.unlisted ? (
                 <ExternalLink href={event.ticketUrl ?? `/venues/${event.venue.slug}`} className="text-harbor-700 underline underline-offset-4 hover:text-navy">
                   {UNTIMED.onSite}
                 </ExternalLink>
-              )}
+              ) : null}
             </p>
           ) : null}
         </div>
@@ -122,16 +123,27 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
 
         <div className="flex flex-col gap-1">
           <dt className="t-mono-sm text-graphite-500">{C.where}</dt>
-          <dd className="flex flex-col gap-1">
-            <Link href={`/venues/${event.venue.slug}`} className="t-h4 -my-2 flex min-h-11 items-center self-start py-2 text-navy transition-colors hover:text-harbor-700">
-              {event.venue.name}
-            </Link>
-            {event.room ? <span className="t-small text-body-muted">{event.room}</span> : null}
-            <span className="t-small text-body-muted">{formatAddress(event.venue.address)}</span>
-            <ExternalLink href={mapsUrl} className="link-rule mt-1 self-start">
-              {C.maps}
-            </ExternalLink>
-          </dd>
+          {event.venue.unlisted ? (
+            // A placeholder or someone's home: the town, and no page or map for it.
+            <dd className="flex flex-col gap-1">
+              <span className="t-h4 text-navy">{event.venue.name}</span>
+              <span className="t-small text-body-muted">{formatAddress(event.venue.address)}</span>
+              <span className="t-small text-body-muted">{UNLISTED_NOTE[event.venue.unlisted]}</span>
+            </dd>
+          ) : (
+            <dd className="flex flex-col gap-1">
+              <Link href={`/venues/${event.venue.slug}`} className="t-h4 -my-2 flex min-h-11 items-center self-start py-2 text-navy transition-colors hover:text-harbor-700">
+                {event.venue.name}
+              </Link>
+              {event.room ? <span className="t-small text-body-muted">{event.room}</span> : null}
+              <span className="t-small text-body-muted">{formatAddress(event.venue.address)}</span>
+              {mapsUrl ? (
+                <ExternalLink href={mapsUrl} className="link-rule mt-1 self-start">
+                  {C.maps}
+                </ExternalLink>
+              ) : null}
+            </dd>
+          )}
         </div>
       </dl>
 

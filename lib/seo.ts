@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { Event, Listing, SiteSettings, TeamMember } from "@/lib/content/types";
 import { formatAddress } from "@/lib/content/format";
+import { marketName } from "@/lib/content/markets";
 import { allSocialLinks, site } from "@/lib/site";
 
 export function absoluteUrl(path: string): string {
@@ -187,45 +188,70 @@ export function listingJsonLd(l: Listing) {
   };
 }
 
-export function eventJsonLd(e: Event) {
+/** Kinds of listing Google should read as an exhibition rather than a dated performance. */
+const EXHIBITION = /exhibit|installation|on view|collection/i;
+
+/**
+ * schema.org Event for an event page, written to what Google's event
+ * results read:
+ * - an exhibition (a run with no performance times) is an ExhibitionEvent;
+ * - a production with several dates lists only the dates still ahead as
+ *   subEvents, and its startDate is the next one;
+ * - offers point at the ticket page (the event's, or a date's) and are left
+ *   out when there is none, instead of pointing back at this page;
+ * - called-off and moved productions say so in eventStatus;
+ * - a venue with no page of its own (a placeholder or a home) is named by
+ *   its town only.
+ */
+export function eventJsonLd(e: Event, now: Date = new Date()) {
   const url = absoluteUrl(`/calendar/${e.slug}`);
   const priceMatch = e.priceNote?.match(/\$\s?(\d+)/);
+  const isRun = !e.performances?.length && Boolean(e.runsThrough);
+  const exhibition = isRun && (e.category === "gallery" || EXHIBITION.test(e.subcategory ?? ""));
+  const nowIso = now.toISOString();
+  const ahead = (e.performances ?? []).filter((p) => (p.endsAt ?? p.startsAt) >= nowIso);
+  const location = e.venue.unlisted
+    ? { "@type": "Place", name: `${e.venue.address.city || marketName(e.venue.market)}, FL`, address: postalAddress(e.venue.address) }
+    : {
+        "@type": "Place",
+        name: e.venue.name,
+        address: postalAddress(e.venue.address),
+        ...(e.venue.geo ? { geo: { "@type": "GeoCoordinates", latitude: e.venue.geo.lat, longitude: e.venue.geo.lng } } : {}),
+      };
+  const ticketUrl = e.ticketUrl ?? e.live?.dates.find((d) => d.ticketUrl && d.startsAt >= nowIso)?.ticketUrl;
+  const eventStatus =
+    e.status === "cancelled" ? "https://schema.org/EventCancelled" : e.status === "postponed" ? "https://schema.org/EventPostponed" : "https://schema.org/EventScheduled";
+  const last = ahead[ahead.length - 1];
   return {
     "@context": "https://schema.org",
-    "@type": "Event",
+    "@type": exhibition ? "ExhibitionEvent" : "Event",
     "@id": url,
     url,
     name: e.title,
     description: e.summary,
-    startDate: e.firstDate && !e.performances?.length ? e.firstDate : e.startsAt,
-    endDate: e.runsThrough && !e.performances?.length ? e.runsThrough : (e.endsAt ?? e.performances?.[e.performances.length - 1]?.endsAt),
-    eventStatus: "https://schema.org/EventScheduled",
+    startDate: isRun && e.firstDate ? e.firstDate : (ahead[0]?.startsAt ?? e.startsAt),
+    endDate: isRun ? e.runsThrough : (last?.endsAt ?? last?.startsAt ?? e.endsAt),
+    eventStatus,
     ...(e.presenter ? { organizer: { "@type": "Organization", name: e.presenter } } : {}),
-    ...(e.performances && e.performances.length > 1
+    ...(ahead.length > 1
       ? {
-          subEvent: e.performances.slice(0, 50).map((p) => ({
+          subEvent: ahead.slice(0, 50).map((p) => ({
             "@type": "Event",
             name: e.title,
             startDate: p.startsAt,
             ...(p.endsAt ? { endDate: p.endsAt } : {}),
-            location: { "@type": "Place", name: e.venue.name, address: postalAddress(e.venue.address) },
+            eventStatus,
+            location,
           })),
         }
       : {}),
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     image: e.image ? absoluteUrl(e.image.src) : undefined,
-    location: {
-      "@type": "Place",
-      name: e.venue.name,
-      address: postalAddress(e.venue.address),
-      ...(e.venue.geo
-        ? { geo: { "@type": "GeoCoordinates", latitude: e.venue.geo.lat, longitude: e.venue.geo.lng } }
-        : {}),
-    },
-    offers: e.ticketUrl || e.priceNote
+    location,
+    offers: ticketUrl
       ? {
           "@type": "Offer",
-          url: e.ticketUrl ?? url,
+          url: ticketUrl,
           ...(e.priceNote?.toLowerCase().startsWith("free")
             ? { price: 0, priceCurrency: "USD" }
             : priceMatch
@@ -234,6 +260,21 @@ export function eventJsonLd(e: Event) {
           availability: e.status === "sold-out" ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
         }
       : undefined,
+  };
+}
+
+/**
+ * ItemList for /calendar: the next events, each by its page, so a crawler
+ * reading the calendar finds them without running the page's script.
+ */
+export function eventListJsonLd(events: Pick<Event, "slug" | "title">[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Encore Arts Calendar",
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: events.length,
+    itemListElement: events.map((e, i) => ({ "@type": "ListItem", position: i + 1, url: absoluteUrl(`/calendar/${e.slug}`), name: e.title })),
   };
 }
 

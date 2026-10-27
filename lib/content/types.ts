@@ -124,6 +124,12 @@ export type Venue = {
   /* extensions */
   market: RegionSlug;
   about?: RichText;
+  /**
+   * Set on a venue that gets no page of its own (lib/encore/venue-rules.ts):
+   * a placeholder ("tbd") or someone's home ("private"). Its events name the
+   * city only and link to no venue page.
+   */
+  unlisted?: "tbd" | "private";
 };
 
 /** One dated performance of a production. `allDay` when the venue published no time. */
@@ -169,7 +175,7 @@ export type Event = {
   startsAt: string;
   endsAt?: string;
   allDay?: boolean;
-  venue: Pick<Venue, "name" | "slug" | "market" | "address" | "geo">;
+  venue: Pick<Venue, "name" | "slug" | "market" | "address" | "geo" | "unlisted">;
   category: EventCategory;
   ticketUrl?: string;
   priceNote?: string;

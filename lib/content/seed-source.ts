@@ -1,7 +1,7 @@
 import { deployEnv } from "@/lib/deploy-env";
 import type { ContentSource } from "./source";
 import { LISTINGS } from "./seed/listings";
-import { encoreEvents, encoreVenues } from "./encore";
+import { encoreEvents, encoreVenues, lookupEncoreEvent, unlistedEncoreVenue } from "./encore";
 import { NEIGHBORHOODS } from "./seed/neighborhoods";
 import { POSTS } from "./seed/posts";
 import { TEAM } from "./seed/team";
@@ -32,9 +32,17 @@ export const seedSource: ContentSource = {
     const { loadEncoreSnapshot } = await import("@/lib/encore/live");
     return encoreEvents(new Date(), await loadEncoreSnapshot());
   },
+  async lookupEvent(slug) {
+    const { loadEncoreSnapshot } = await import("@/lib/encore/live");
+    return lookupEncoreEvent(slug, new Date(), await loadEncoreSnapshot());
+  },
   async venues() {
     const { loadEncoreSnapshot } = await import("@/lib/encore/live");
     return encoreVenues(await loadEncoreSnapshot());
+  },
+  async unlistedVenue(slug) {
+    const { loadEncoreSnapshot } = await import("@/lib/encore/live");
+    return unlistedEncoreVenue(slug, await loadEncoreSnapshot());
   },
   async neighborhoods() {
     return NEIGHBORHOODS;

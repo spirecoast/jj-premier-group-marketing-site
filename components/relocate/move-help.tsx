@@ -52,7 +52,7 @@ export function MoveHelp({ enabled }: { enabled: boolean }) {
           </h2>
           <p className="t-body max-w-[440px] text-body">{HELP.intro(where)}</p>
         </div>
-        <PlaceTabs key={county} tabs={tabs} label={HELP.title} note={HELP.note} />
+        <PlaceTabs key={county} tabs={tabs} label={HELP.title} note={HELP.note} askHref="#contact" />
       </div>
     </section>
   );

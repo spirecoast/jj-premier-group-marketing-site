@@ -3,7 +3,7 @@ import { dirname } from "node:path";
 import type { CheckWrite, Plan } from "../collect/reconcile";
 import type { SourceSpec } from "../collect/sources";
 import { datasetToStore } from "./convert";
-import type { EncoreStore, ReviewRow, RunKind, SourceResult, SourceState } from "./store";
+import { sinceSnapshot, type EncoreStore, type LoadOptions, type ReviewRow, type RunKind, type SourceResult, type SourceState } from "./store";
 import type { EncoreSnapshot, StoreImage } from "./types";
 
 /**
@@ -33,8 +33,11 @@ export function fileStore(path?: string): EncoreStore & { data: () => FileData }
   return {
     kind: "file",
     data: () => data,
-    async load() {
-      return structuredClone({ generatedAt: data.generatedAt, origin: "file" as const, venues: data.venues, events: data.events, images: data.images });
+    async load(opts?: LoadOptions) {
+      return sinceSnapshot(structuredClone({ generatedAt: data.generatedAt, origin: "file" as const, venues: data.venues, events: data.events, images: data.images }), opts?.since);
+    },
+    async hasEvents() {
+      return data.events.length > 0;
     },
     async sources() {
       return structuredClone(data.sources);

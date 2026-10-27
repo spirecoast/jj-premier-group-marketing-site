@@ -1,4 +1,4 @@
-import { getEvent } from "@/lib/content";
+import { findEvent } from "@/lib/content";
 import { formatEventWhen } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
 import { eventOgPhoto } from "@/lib/encore/og-photo";
@@ -9,12 +9,13 @@ export const contentType = OG_CONTENT_TYPE;
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const e = await getEvent(slug);
-  if (!e) return brandOgImage({ eyebrow: "Encore Arts Calendar", title: "Not on the calendar." });
+  const found = await findEvent(slug);
+  if (!found || found.kind === "moved") return brandOgImage({ eyebrow: "Encore Arts Calendar", title: "Not on the calendar." });
+  const e = found.event;
   return brandOgImage({
     eyebrow: `Encore Arts Calendar · ${marketName(e.venue.market)}`,
     title: e.title,
-    meta: `${formatEventWhen(e.startsAt, e.endsAt, e.allDay)} · ${e.venue.name}`,
+    meta: found.kind === "closed" ? `Closed · ${e.venue.name}` : `${formatEventWhen(e.startsAt, e.endsAt, e.allDay)} · ${e.venue.name}`,
     photo: await eventOgPhoto(e),
   });
 }

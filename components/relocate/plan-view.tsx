@@ -239,10 +239,18 @@ function AnswerChips() {
           <button
             type="button"
             onClick={() => editAt(i)}
-            className="group inline-flex min-h-9 items-center gap-2 border border-hairline bg-white px-3 py-1 text-[13px] text-graphite-700 transition-colors hover:border-navy hover:text-navy print:border-0 print:p-0"
+            aria-label={`${c}. Change this answer`}
+            className="group inline-flex min-h-9 items-center gap-2 border border-hairline bg-white px-3 py-1 text-[13px] text-graphite-700 transition-colors hover:border-navy hover:bg-linen-100 hover:text-navy focus-visible:border-navy focus-visible:bg-linen-100 focus-visible:text-navy print:border-0 print:p-0"
           >
             {c}
-            <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" className="text-graphite-400 transition-colors group-hover:text-navy print:hidden">
+            {/* The edit pencil: always there, and it steps forward on hover and focus, like the site's row arrow. */}
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 12 12"
+              aria-hidden="true"
+              className="text-graphite-400 transition-[color,transform] duration-(--dur-panel) ease-(--ease-brand) group-hover:translate-x-0.5 group-hover:text-sky-700 group-focus-visible:translate-x-0.5 group-focus-visible:text-sky-700 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0 print:hidden"
+            >
               <path d="M8.5 1.5 10.5 3.5 4 10H2V8Z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
             </svg>
           </button>

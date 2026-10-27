@@ -19,7 +19,8 @@ const NOT_ART = /logo|favicon|placeholder|default[-_]?(image|og)|blank\.|spacer|
 export type ImageSink = {
   /** Store bytes at path; returns the public URL. */
   put(path: string, bytes: Uint8Array, contentType: string): Promise<string>;
-  remove?(path: string): Promise<void>;
+  /** Delete stored files (paths as `put` was given them). */
+  remove?(paths: string[]): Promise<void>;
 };
 
 export type Processed = { publicUrl: string; storagePath: string; width: number; height: number; sha256: string };
@@ -92,8 +93,10 @@ export function supabaseSink(opts: { url: string; serviceKey: string; bucket?: s
       if (!res.ok) throw new Error(`storage upload ${res.status}: ${(await res.text()).slice(0, 200)}`);
       return `${base}/storage/v1/object/public/${bucket}/${path}`;
     },
-    async remove(path) {
-      await f(`${base}/storage/v1/object/${bucket}`, { method: "DELETE", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ prefixes: [path] }) });
+    async remove(paths) {
+      if (!paths.length) return;
+      const res = await f(`${base}/storage/v1/object/${bucket}`, { method: "DELETE", headers: { ...auth, "Content-Type": "application/json" }, body: JSON.stringify({ prefixes: paths }) });
+      if (!res.ok) throw new Error(`storage delete ${res.status}: ${(await res.text()).slice(0, 200)}`);
     },
   };
 }

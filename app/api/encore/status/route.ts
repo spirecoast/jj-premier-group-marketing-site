@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const store = encoreStore();
     const now = new Date();
     const today = todayLocal(now.getTime());
-    const [states, snap, pending, runs] = await Promise.all([store.sources(), store.load(), store.review("pending", 5000), store.lastRuns(12)]);
+    const [states, snap, pending, runs] = await Promise.all([store.sources(), store.load({ since: addDays(today, -1) }), store.review("pending", 5000), store.lastRuns(12)]);
     const sources = effectiveSources(states).map((s) => ({
       id: s.id,
       domain: s.domain,
@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
         due: automated.filter((s) => s.due).length,
         manual: sources.length - automated.length,
       },
+      // Counts cover what is current: productions with a date from yesterday on, and runs still open.
       counts: {
         events: live.length,
         hidden: snap.events.filter((e) => e.hidden).length,

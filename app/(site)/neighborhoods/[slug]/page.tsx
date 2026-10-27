@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ButtonLink, RuleLink } from "@/components/buttons";
 import { CtaBand } from "@/components/cta-band";
 import { EventCard } from "@/components/event-card";
+import { FreshList, FreshSpan } from "@/components/encore/fresh-events";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { ListingCard } from "@/components/listing-card";
@@ -15,7 +16,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { SavePlaceButton } from "@/components/atlas/save-place";
 import { ShareButton } from "@/components/share-button";
 import { getNeighborhood, getNeighborhoodSlugs, getUpcomingEvents } from "@/lib/content";
-import { formatDateShort } from "@/lib/content/format";
+import { cardEndsAt } from "@/lib/encore/fresh";
 import { getMarket, marketName } from "@/lib/content/markets";
 import { varyStock } from "@/lib/encore/stock";
 import type { MarketSlug } from "@/lib/content/types";
@@ -126,6 +127,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
   const listings = editorial?.listings ?? [];
   const active = listings.filter((l) => l.status !== "sold").slice(0, 3);
   const events = editorial?.events ?? (await getUpcomingEvents({ market, limit: 4, distinctVenues: true, datedFirst: true }));
+  const eventEnds = events.map(cardEndsAt);
   const eventArt = varyStock(events.map((e) => ({ category: e.category, subcategory: e.subcategory, seed: e.slug })));
   const faqs = (n?.faqs ?? []).map((f) => ({ q: f.q, a: f.answer, answer: f.answer }));
   const evacUrl = record ? evacuationSource(record) : undefined;
@@ -379,26 +381,33 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       <section className="bg-linen-100">
         <div className="container-site flex flex-col gap-10 py-section" aria-labelledby="nb-events-title">
           <SectionHeading
-            title={<span id="nb-events-title">Theater, music and art in {marketName(market)}{eventSpan(events)}.</span>}
+            title={
+              <span id="nb-events-title">
+                Theater, music and art in {marketName(market)}
+                <FreshSpan starts={events.map((e) => e.startsAt)} ends={eventEnds} />.
+              </span>
+            }
             aside={<RuleLink href={`/calendar?market=${market}`}>The full calendar</RuleLink>}
           />
-          {events.length ? (
-            <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-              {events.map((e, i) => (
-                <li key={e.slug} className="flex">
-                  <EventCard event={e} className="w-full" pick={eventArt[i]} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="t-body max-w-measure text-body">
-              A quiet stretch on the calendar here. The Monday Encore email carries the full list for all three places;{" "}
-              <Link href="/calendar#subscribe" className="text-harbor-700 underline underline-offset-4">
-                the box is here
-              </Link>
-              .
-            </p>
-          )}
+          <FreshList
+            ends={eventEnds}
+            className="grid gap-5 md:grid-cols-2 lg:grid-cols-4"
+            empty={
+              <p className="t-body max-w-measure text-body">
+                A quiet stretch on the calendar here. The Monday Encore email carries the full list for all three places;{" "}
+                <Link href="/calendar#subscribe" className="text-harbor-700 underline underline-offset-4">
+                  the box is here
+                </Link>
+                .
+              </p>
+            }
+          >
+            {events.map((e, i) => (
+              <li key={e.slug} className="flex">
+                <EventCard event={e} className="w-full" pick={eventArt[i]} />
+              </li>
+            ))}
+          </FreshList>
         </div>
       </section>
 
@@ -445,14 +454,3 @@ function Crumbs({ ancestors, market, light }: { ancestors: NeighborhoodRecord[];
   );
 }
 
-/** ", November 6 to 13": the span the cards actually cover, so the heading never says "this month" over next month's dates. */
-function eventSpan(events: { startsAt: string }[]): string {
-  const days = events.map((e) => formatDateShort(e.startsAt));
-  if (!days.length) return "";
-  const first = days[0]!;
-  const last = days[days.length - 1]!;
-  if (first === last) return `, ${first}`;
-  const [m1] = first.split(" ");
-  const [m2, d2] = last.split(" ");
-  return `, ${first} to ${m1 === m2 ? d2 : last}`;
-}

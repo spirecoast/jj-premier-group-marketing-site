@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db";
 import { supabaseSink } from "./collect/images";
 import { runCollector, type RunResult } from "./collect/run";
+import { pruneEncore } from "./prune";
 import { pgStore } from "./store/pg";
 import type { EncoreStore } from "./store/store";
 
@@ -40,12 +41,30 @@ export function encoreImageSink() {
 }
 
 /**
- * Pages that show Encore data: rebuilt on their next request. A dynamic page
- * is named by its file path, route group included: "/calendar/[slug]" alone
- * matches nothing, so event and venue pages kept their build-time copy.
+ * Pages that show Encore data: rebuilt on their next request, so a page
+ * changes when the data does and never waits for its hourly ISR to notice
+ * that last night's shows are over. The daily check runs at 07:41 UTC, after
+ * every evening show has ended. A dynamic page is named by its file path,
+ * route group included: "/calendar/[slug]" alone matches nothing, so event
+ * and venue pages kept their build-time copy.
  */
+export const ENCORE_PATHS = [
+  "/calendar",
+  "/calendar/plan",
+  "/(site)/calendar/[slug]",
+  "/(site)/venues/[slug]",
+  "/(site)/neighborhoods/[slug]",
+  "/neighborhoods/compare",
+  "/api/encore/index",
+  "/sitemap.xml",
+  "/",
+  "/sarasota",
+  "/bradenton",
+  "/lakewood-ranch",
+] as const;
+
 export function refreshPages() {
-  for (const p of ["/calendar", "/(site)/calendar/[slug]", "/(site)/venues/[slug]", "/api/encore/index", "/", "/sarasota", "/bradenton", "/lakewood-ranch"]) {
+  for (const p of ENCORE_PATHS) {
     try {
       revalidatePath(p, p.includes("[") ? "page" : undefined);
     } catch {
@@ -74,6 +93,15 @@ export async function runRoute(request: NextRequest, mode: "collect" | "check", 
   try {
     const store = encoreStore();
     await seedIfEmpty(store, log);
+    // Once a week, before the Sunday collect: what no page or run needs any more (lib/encore/prune.ts).
+    let pruned: Awaited<ReturnType<typeof pruneEncore>> = null;
+    if (mode === "collect" && chain === 0 && !only) {
+      pruned = await pruneEncore(store, encoreImageSink()).catch((err: unknown) => {
+        console.error(`[encore/${mode}] prune failed`, err instanceof Error ? err.message : err);
+        return null;
+      });
+      if (pruned) log(`pruned ${pruned.performances} dates, ${pruned.events} productions, ${pruned.checks} readings, ${pruned.imagesRemoved} image files`);
+    }
     const runId = await store.startRun(mode);
     const result: RunResult = await runCollector({ store, mode, deadline, images: mode === "collect" ? encoreImageSink() : null, only, cursor: sp.get("cursor") ?? undefined, log });
     let followUp: RunResult | null = null;
@@ -81,7 +109,7 @@ export async function runRoute(request: NextRequest, mode: "collect" | "check", 
     if (mode === "check" && !result.remaining && Date.now() < deadline - 30_000) {
       followUp = await runCollector({ store, mode: "collect", deadline, images: encoreImageSink(), log });
     }
-    await store.finishRun(runId, { sources: result.processed.length, remaining: result.remaining, stats: { ...summary(result), followUp: followUp ? summary(followUp) : null } });
+    await store.finishRun(runId, { sources: result.processed.length, remaining: result.remaining, stats: { ...summary(result), followUp: followUp ? summary(followUp) : null, ...(pruned ? { pruned: { ...pruned, imagePaths: pruned.imagePaths.length } } : {}) } });
     refreshPages();
     const left = result.remaining + result.remainingImages + (followUp ? followUp.remaining + followUp.remainingImages : 0);
     if (left > 0 && chain < MAX_CHAIN && !only) {
@@ -108,8 +136,7 @@ export async function runRoute(request: NextRequest, mode: "collect" | "check", 
  * fill the review queue; the first run loads the bundled dataset instead.
  */
 export async function seedIfEmpty(store: EncoreStore, log: (m: string) => void) {
-  const snap = await store.load();
-  if (snap.events.length) return;
+  if (await store.hasEvents()) return;
   const [{ default: data }, { SOURCES, sourceForUrl }] = await Promise.all([import("@/lib/content/encore/encore-calendar.json"), import("./collect/sources")]);
   const counts = await store.seed(data as unknown as Parameters<EncoreStore["seed"]>[0], SOURCES, (e) => (sourceForUrl(e.sources[0]) ?? sourceForUrl(e.ticketUrl))?.id);
   log(`empty calendar: seeded ${JSON.stringify(counts)}`);

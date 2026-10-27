@@ -1,6 +1,9 @@
 "use client";
 
+import type { Route } from "next";
+import Link from "next/link";
 import { useEffect, useId, useState, type ReactNode } from "react";
+import { loadSentry } from "@/lib/sentry/client";
 import type { Place } from "@/lib/places/rank";
 import { cn } from "@/lib/utils";
 import { ExternalLink } from "@/components/ui/external-link";
@@ -15,14 +18,27 @@ export type PlaceTab = {
   intro?: ReactNode;
 };
 
-type Result = { status: "done"; places: Place[] } | { status: "error"; message: string };
+type Result = { status: "done"; places: Place[] } | { status: "error"; message: string; capped?: boolean };
+
+/** Said for anything that isn't the server's own answer: a dropped connection, a timeout, a page that wasn't JSON. */
+export const PLACES_UNREACHABLE = "Google didn’t answer. Try again in a moment.";
+
+/** The server's own words, when it sent some. */
+class PlacesAnswer extends Error {
+  constructor(
+    message: string,
+    readonly capped: boolean,
+  ) {
+    super(message);
+  }
+}
 
 /**
  * A few lists from Google, one per tab, each fetched the first time its tab
  * opens and kept only while the page is open. Every list carries the
  * "Google Maps" attribution Google asks for when there's no map.
  */
-export function PlaceTabs({ tabs, label, note, className }: { tabs: PlaceTab[]; label: string; note?: ReactNode; className?: string }) {
+export function PlaceTabs({ tabs, label, note, askHref = "/contact", className }: { tabs: PlaceTab[]; label: string; note?: ReactNode; askHref?: string; className?: string }) {
   const uid = useId();
   const [active, setActive] = useState(tabs[0]!.id);
   // A tab with no result is loading.
@@ -37,13 +53,16 @@ export function PlaceTabs({ tabs, label, note, className }: { tabs: PlaceTab[]; 
     const id = tab.id;
     fetch(tab.url, { signal: ctrl.signal })
       .then(async (res) => {
-        const body = (await res.json().catch(() => ({}))) as { places?: Place[]; error?: string };
-        if (!res.ok || !body.places) throw new Error(body.error || "Google didn’t answer. Try again in a moment.");
-        setResults((r) => ({ ...r, [id]: { status: "done", places: body.places! } }));
+        const body = (await res.json().catch(() => ({}))) as { places?: Place[]; error?: string; capped?: boolean };
+        if (res.ok && body.places) return setResults((r) => ({ ...r, [id]: { status: "done", places: body.places! } }));
+        throw body.error ? new PlacesAnswer(body.error, body.capped === true) : new Error(`places ${res.status}`);
       })
       .catch((err: unknown) => {
         if (ctrl.signal.aborted) return;
-        setResults((r) => ({ ...r, [id]: { status: "error", message: err instanceof Error ? err.message : "Something went wrong." } }));
+        if (err instanceof PlacesAnswer) return setResults((r) => ({ ...r, [id]: { status: "error", message: err.message, capped: err.capped } }));
+        // The browser's own words ("Failed to fetch", "Load failed") never reach the page; they go to Sentry.
+        void loadSentry().then((Sentry) => Sentry?.captureException(err, { tags: { feature: "places" }, extra: { url: tab.url } }));
+        setResults((r) => ({ ...r, [id]: { status: "error", message: PLACES_UNREACHABLE } }));
       });
     return () => ctrl.abort();
     // Only a new tab, or Try again, starts a fetch; a result arriving doesn't.
@@ -90,12 +109,23 @@ export function PlaceTabs({ tabs, label, note, className }: { tabs: PlaceTab[]; 
             ))}
           </ul>
         ) : result.status === "error" ? (
-          <p className="t-small flex flex-wrap items-center gap-x-4 gap-y-2 text-body">
-            {result.message}
-            <button type="button" className="link-rule" onClick={retry}>
-              Try again
-            </button>
-          </p>
+          result.capped ? (
+            // Nothing to retry until tomorrow: offer the team's own list instead.
+            <p className="t-small text-body" role="status">
+              {result.message}{" "}
+              <Link href={askHref as Route} className="text-navy underline underline-offset-4 hover:text-sky-700">
+                Ask us
+              </Link>{" "}
+              and we’ll send our own list.
+            </p>
+          ) : (
+            <p className="t-small flex flex-wrap items-center gap-x-4 gap-y-2 text-body" role="status">
+              {result.message}
+              <button type="button" className="link-rule" onClick={retry}>
+                Try again
+              </button>
+            </p>
+          )
         ) : result.places.length ? (
           <ol className="flex flex-col">
             {result.places.map((p) => (
