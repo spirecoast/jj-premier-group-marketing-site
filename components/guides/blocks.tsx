@@ -4,6 +4,7 @@ import type { ImageRef } from "@/lib/content/types";
 import type { Block, CalloutBlock, DefinitionBlock, Inline, Source, TableBlock } from "@/lib/guides/types";
 import { TOOLS } from "@/lib/guides";
 import { Figure } from "./figure";
+import { ExternalLink } from "@/components/ui/external-link";
 
 export function InlineText({ segs }: { segs: Inline[] }) {
   return (
@@ -12,9 +13,9 @@ export function InlineText({ segs }: { segs: Inline[] }) {
         if (typeof s === "string") return <span key={i}>{s}</span>;
         const external = /^https?:\/\//.test(s.href);
         return external ? (
-          <a key={i} href={s.href} target="_blank" rel="noopener noreferrer">
+          <ExternalLink key={i} href={s.href}>
             {s.text}
-          </a>
+          </ExternalLink>
         ) : (
           <Link key={i} href={s.href as "/"}>
             {s.text}
@@ -31,9 +32,9 @@ export function SourceLine({ source, className = "" }: { source: Source; classNa
     <p className={`guide-source ${className}`}>
       <span className="guide-source-label">Source</span>
       {source.href ? (
-        <a href={source.href} target="_blank" rel="noopener noreferrer">
+        <ExternalLink href={source.href}>
           {source.label}
-        </a>
+        </ExternalLink>
       ) : (
         <span>{source.label}</span>
       )}

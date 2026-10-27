@@ -231,7 +231,7 @@ export default async function SellPage() {
             street, and calls you with the number and the reason for it. No listing agreement attached; the number is
             yours either way.
           </p>
-          <p className="t-mono-sm max-w-[400px] text-graphite-500">
+          <p className="t-note max-w-[400px]">
             A comp-based answer from Joelyn or Jessica soon after · no algorithm guess
           </p>
         </div>

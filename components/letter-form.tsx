@@ -107,7 +107,7 @@ export function LetterForm({
           autoComplete="email"
           placeholder="you@example.com"
           className={cn(
-            "w-full min-w-0 px-5 py-3 text-[15px] text-ink placeholder:text-graphite-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-sky-700 sm:w-0 sm:flex-1 sm:bg-transparent sm:px-0 sm:py-2 sm:focus-visible:outline-0",
+            "w-full min-w-0 px-5 py-3 text-base text-ink md:text-[15px] placeholder:text-graphite-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-sky-700 sm:w-0 sm:flex-1 sm:bg-transparent sm:px-0 sm:py-2 sm:focus-visible:outline-0",
             tone === "dark" ? "bg-paper/95" : "border border-rule bg-white sm:border-0",
           )}
           aria-invalid={Boolean(state.errors?.email)}

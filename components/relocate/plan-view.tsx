@@ -11,6 +11,7 @@ import { STATES } from "@/lib/relocate/states";
 import { icsPath } from "@/lib/relocate/url";
 import { cn } from "@/lib/utils";
 import { usePlanner } from "./planner-context";
+import { ExternalLink } from "@/components/ui/external-link";
 
 const PHASES: Phase[] = ["before", "contract", "closing", "after"];
 
@@ -18,7 +19,7 @@ const PHASES: Phase[] = ["before", "contract", "closing", "after"];
 const TONE: Record<Phase, { dot: string; line: string; text: string }> = {
   before: { dot: "bg-sky-600", line: "bg-sky-300", text: "text-sky-700" },
   contract: { dot: "bg-navy", line: "bg-harbor-300", text: "text-navy" },
-  closing: { dot: "bg-coral", line: "bg-coral/40", text: "text-[#b4523c]" },
+  closing: { dot: "bg-coral", line: "bg-coral/40", text: "text-danger" },
   after: { dot: "bg-success", line: "bg-success/35", text: "text-success" },
 };
 
@@ -28,11 +29,11 @@ const KEY_IDS = ["effective", "inspection", "closing", "move-in", "homestead"] a
 function Flag({ flag }: { flag: Milestone["flags"][number] }) {
   const tone =
     flag === "hurricaneSeason" || flag === "forceMajeure"
-      ? "border-warning/50 bg-[#fbf4e6] text-warning"
+      ? "border-warning/50 bg-warning-fill text-warning"
       : flag === "nfip30"
         ? "border-sky-300 bg-sky-50 text-sky-800"
         : "border-hairline bg-linen-50 text-graphite-600";
-  return <span className={cn("rounded-full border px-2.5 py-0.5 text-[12px]", tone)}>{C.flags[flag]}</span>;
+  return <span className={cn("border px-2.5 py-0.5 text-[12px]", tone)}>{C.flags[flag]}</span>;
 }
 
 const DAY = 86_400_000;
@@ -76,7 +77,7 @@ function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
                 data-print="key"
                 className={cn(
                   "grid flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-4 border p-5 transition-transform duration-300 hover:-translate-y-0.5 lg:flex lg:flex-col lg:gap-1",
-                  goal ? "border-atlas bg-atlas text-atlas-deep shadow-[0_24px_48px_-24px_rgba(95,201,168,0.6)]" : "border-white/12 bg-white/[0.06] backdrop-blur-sm",
+                  goal ? "border-atlas bg-atlas text-atlas-deep" : "border-white/12 bg-white/[0.06] backdrop-blur-sm",
                 )}
               >
                 <div className="flex flex-col gap-1">
@@ -92,7 +93,7 @@ function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
                 <div className="flex flex-col justify-end gap-2 lg:mt-3 lg:flex-1 lg:justify-between">
                   <span className={cn("text-[16px] font-medium leading-snug", goal ? "text-atlas-deep" : "text-white")}>{C.keyTitles[m.id] ?? m.title}</span>
                   {away >= 0 ? (
-                    <span className={cn("self-start rounded-full px-2.5 py-0.5 pt-1 text-[12px] tabular-nums print:hidden", goal ? "bg-atlas-deep text-atlas" : "bg-white/10 text-white/80")}>
+                    <span className={cn("self-start px-2.5 py-0.5 pt-1 text-[12px] tabular-nums print:hidden", goal ? "bg-atlas-deep text-atlas" : "bg-white/10 text-white/80")}>
                       {C.inDays(away)}
                     </span>
                   ) : null}
@@ -108,8 +109,8 @@ function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
 
 function CalloutCard({ c }: { c: Callout }) {
   return (
-    <li data-print="callout" className="flex gap-4 border border-hairline bg-white p-6 shadow-[0_18px_44px_-36px_rgba(16,37,66,0.5)]">
-      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-warning-fill text-warning print:hidden" aria-hidden="true">
+    <li data-print="callout" className="flex gap-4 border border-hairline bg-white p-6">
+      <span className="grid size-9 shrink-0 place-items-center bg-warning-fill text-warning print:hidden" aria-hidden="true">
         <svg width="16" height="16" viewBox="0 0 16 16">
           <circle cx="8" cy="4" r="1.2" fill="currentColor" />
           <path d="M8 7v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -118,9 +119,9 @@ function CalloutCard({ c }: { c: Callout }) {
       <div className="flex min-w-0 flex-col gap-2">
         <h4 className="t-h4 text-navy">{c.title}</h4>
         <p className="t-body text-body">{c.body}</p>
-        <a href={c.source.url} target="_blank" rel="noopener noreferrer" className="t-small self-start text-graphite-600 underline underline-offset-4 hover:text-navy print:hidden">
+        <ExternalLink href={c.source.url} className="t-small self-start text-graphite-600 underline underline-offset-4 hover:text-navy print:hidden">
           {C.sourceLabel}: {c.source.label}
-        </a>
+        </ExternalLink>
       </div>
     </li>
   );
@@ -161,9 +162,9 @@ function Step({ m, phase, lastInPhase }: { m: Milestone; phase: Phase; lastInPha
               </p>
             ) : null}
             {m.source ? (
-              <a href={m.source.url} target="_blank" rel="noopener noreferrer" className="self-start underline underline-offset-4 hover:text-navy">
+              <ExternalLink href={m.source.url} className="self-start underline underline-offset-4 hover:text-navy">
                 {C.sourceLabel}: {m.source.label}
-              </a>
+              </ExternalLink>
             ) : (
               <span>{m.flags.includes("askUs") ? C.askUs : C.ourRule}</span>
             )}
@@ -230,7 +231,7 @@ function AnswerChips() {
           <button
             type="button"
             onClick={() => editAt(i)}
-            className="group inline-flex items-center gap-2 rounded-full border border-hairline bg-white px-3 py-1 text-[13px] text-graphite-700 transition-colors hover:border-navy hover:text-navy print:border-0 print:p-0"
+            className="group inline-flex min-h-9 items-center gap-2 border border-hairline bg-white px-3 py-1 text-[13px] text-graphite-700 transition-colors hover:border-navy hover:text-navy print:border-0 print:p-0"
           >
             {c}
             <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true" className="text-graphite-400 transition-colors group-hover:text-navy print:hidden">
@@ -326,12 +327,12 @@ export function PlanView() {
               <div key={c.key} className="flex flex-col gap-2">
                 <p className="t-body text-body">{C.countyBody(c.name, c.titleCustom)}</p>
                 <p className="t-small flex flex-wrap gap-x-4 gap-y-1 text-graphite-500 print:hidden">
-                  <a href={c.clerk.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-navy">
+                  <ExternalLink href={c.clerk.url} className="underline underline-offset-4 hover:text-navy">
                     {c.clerk.label}
-                  </a>
-                  <a href={c.pao.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-navy">
+                  </ExternalLink>
+                  <ExternalLink href={c.pao.url} className="underline underline-offset-4 hover:text-navy">
                     {c.pao.label}
-                  </a>
+                  </ExternalLink>
                 </p>
               </div>
             ))}
@@ -350,9 +351,9 @@ export function PlanView() {
           <ul className="flex flex-col gap-2 pt-4">
             {SOURCE_LIST.map((s) => (
               <li key={s.id} className="t-small text-graphite-600">
-                <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-navy">
+                <ExternalLink href={s.url} className="underline underline-offset-4 hover:text-navy">
                   {s.label}
-                </a>
+                </ExternalLink>
                 {s.note ? <span className="text-graphite-500"> · {s.note}</span> : null}
               </li>
             ))}

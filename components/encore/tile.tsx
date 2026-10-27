@@ -32,13 +32,10 @@ export function SaveButton({ saved, onToggle, className, title }: { saved: boole
   );
 }
 
-function Meta({ e }: { e: EncoreEvent }) {
+/** Venue, market and kind. A tile keeps the mono tag; an agenda row, which is read down a list of eighty, sets it as a note. */
+function Meta({ e, note = false }: { e: EncoreEvent; note?: boolean }) {
   const sub = subcategoryLabel(e.sc);
-  return (
-    <p className="t-mono-sm text-graphite-500">
-      {[e.vn, marketName(e.m), sub].filter(Boolean).join(" · ")}
-    </p>
-  );
+  return <p className={note ? "t-note" : "t-mono-sm text-graphite-500"}>{[e.vn, marketName(e.m), sub].filter(Boolean).join(" · ")}</p>;
 }
 
 /**
@@ -109,7 +106,7 @@ export function AgendaRow({ o, saved, onSave }: { o: Occ; saved: boolean; onSave
         <span className="encore-agenda-time">{o.time ? clock(o.time) : "All day"}</span>
         <span className="min-w-0 flex-1">
           <span className="encore-agenda-title">{e.t}</span>
-          <Meta e={e} />
+          <Meta e={e} note />
         </span>
         <span className={cn("t-mono-sm hidden shrink-0 sm:block", e.so ? "text-amber" : "text-graphite-500")}>{e.so ? "Sold out" : (e.pr ?? "")}</span>
       </Link>

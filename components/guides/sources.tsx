@@ -1,5 +1,6 @@
 import type { Guide } from "@/lib/guides/types";
 import { guideFigures, guideSources } from "@/lib/guides";
+import { ExternalLink } from "@/components/ui/external-link";
 
 const two = (n: number) => String(n).padStart(2, "0");
 
@@ -26,9 +27,9 @@ export function GuideSources({ guide }: { guide: Guide }) {
             <span className="font-mono text-[11px] text-amber">{two(i + 1)}</span>
             <div className="flex flex-col gap-0.5">
               {s.href ? (
-                <a href={s.href} target="_blank" rel="noopener noreferrer" className="text-[14px] font-medium leading-snug text-ink underline decoration-harbor-300 underline-offset-2 hover:text-navy">
+                <ExternalLink href={s.href} className="text-[14px] font-medium leading-snug text-ink underline decoration-harbor-300 underline-offset-2 hover:text-navy">
                   {s.label}
-                </a>
+                </ExternalLink>
               ) : (
                 <span className="text-[14px] font-medium leading-snug text-ink">{s.label}</span>
               )}
@@ -50,9 +51,9 @@ export function GuideSources({ guide }: { guide: Guide }) {
                 <span className="text-[14px] font-medium leading-snug text-ink">{f.title}</span>
                 <span className="text-[13px] leading-snug text-body-muted">
                   {f.source.href ? (
-                    <a href={f.source.href} target="_blank" rel="noopener noreferrer" className="underline decoration-harbor-300 underline-offset-2 hover:text-navy">
+                    <ExternalLink href={f.source.href} className="underline decoration-harbor-300 underline-offset-2 hover:text-navy">
                       {f.source.label}
-                    </a>
+                    </ExternalLink>
                   ) : (
                     f.source.label
                   )}

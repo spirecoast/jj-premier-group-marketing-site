@@ -11,6 +11,7 @@ import { getNeighborhoods, getUpcomingEvents, getVenue, getVenueSlugs } from "@/
 import { formatAddress } from "@/lib/content/format";
 import { getMarket, isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, pageMetadata, placeJsonLd } from "@/lib/seo";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -89,7 +90,7 @@ export default async function VenuePage({ params }: { params: Params }) {
             </p>
           )}
         </div>
-        <aside className="flex flex-col gap-5 self-start border border-hairline bg-white p-7">
+        <section aria-label="Venue details" className="flex flex-col gap-5 self-start border border-hairline bg-white p-7">
           <dl className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
               <dt className="t-mono-sm text-graphite-500">Address</dt>
@@ -99,9 +100,9 @@ export default async function VenuePage({ params }: { params: Params }) {
               <div className="flex flex-col gap-1">
                 <dt className="t-mono-sm text-graphite-500">Website</dt>
                 <dd>
-                  <a href={venue.website} target="_blank" rel="noopener noreferrer" className="t-small break-all text-harbor-700 underline underline-offset-4 hover:text-navy">
+                  <ExternalLink href={venue.website} className="t-small break-all text-harbor-700 underline underline-offset-4 hover:text-navy">
                     {venue.website.replace(/^https?:\/\//, "")}
-                  </a>
+                  </ExternalLink>
                 </dd>
               </div>
             ) : null}
@@ -116,10 +117,10 @@ export default async function VenuePage({ params }: { params: Params }) {
               </div>
             ) : null}
           </dl>
-          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="link-rule self-start">
+          <ExternalLink href={mapsUrl} className="link-rule self-start">
             Open in Google Maps ↗
-          </a>
-        </aside>
+          </ExternalLink>
+        </section>
       </section>
 
       <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="venue-events-title">

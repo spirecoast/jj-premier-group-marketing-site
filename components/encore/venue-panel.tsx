@@ -5,6 +5,7 @@ import type { Event, VenueDateStatus } from "@/lib/content/types";
 import { PANEL_COPY as C, STATUS, compactWhen, monthDay, overall, priceRange, upcomingDates } from "@/lib/encore/panel";
 import { cn } from "@/lib/utils";
 import { CheckedAgo } from "./checked-ago";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /**
  * "From the venue": the event page's side panel. What the venue's or
@@ -46,7 +47,7 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
           </h2>
           {head ? <StatusPill status={head} /> : null}
         </div>
-        <p className="t-mono-sm text-graphite-500">
+        <p className="t-note">
           {live?.checkedAt ? (
             <>
               Checked <CheckedAgo iso={live.checkedAt} renderedAt={renderedAt} /> on {presenter}&rsquo;s listing
@@ -109,24 +110,24 @@ export function VenuePanel({ event, mapsUrl, renderedAt }: { event: Event; mapsU
             </Link>
             {event.room ? <span className="t-small text-body-muted">{event.room}</span> : null}
             <span className="t-small text-body-muted">{formatAddress(event.venue.address)}</span>
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="link-rule mt-1 self-start">
+            <ExternalLink href={mapsUrl} className="link-rule mt-1 self-start">
               {C.maps}
-            </a>
+            </ExternalLink>
           </dd>
         </div>
       </dl>
 
       <div className="flex flex-col gap-3">
         {event.ticketUrl && callable ? (
-          <a href={event.ticketUrl} target="_blank" rel="noopener noreferrer" className="btn btn-navy">
+          <ExternalLink href={event.ticketUrl} className="btn btn-navy">
             {free ? C.signUp : C.getTickets}
             <span className="btn-dash" aria-hidden="true" />
-          </a>
+          </ExternalLink>
         ) : null}
         {live?.venuePage ? (
-          <a href={live.venuePage} target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+          <ExternalLink href={live.venuePage} className="btn btn-outline">
             {C.venuePage(presenter)}
-          </a>
+          </ExternalLink>
         ) : null}
         {!event.ticketUrl && callable ? <p className="t-small text-body-muted">{free ? C.free : C.door}</p> : null}
       </div>

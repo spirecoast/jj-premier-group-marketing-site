@@ -16,7 +16,7 @@ export function GuideCard({ guide, author, priority }: { guide: Guide; author?: 
   const first = (author?.name ?? guide.author.name).split(" ")[0];
   return (
     <Link href={guideHref(guide.slug)} className="card group flex w-full flex-col gap-4">
-      <div className="@container relative aspect-[4/5] overflow-hidden bg-navy shadow-[0_24px_48px_-28px_rgb(20_37_48/0.45)]">
+      <div className="@container relative aspect-[4/5] overflow-hidden bg-navy">
         <Photo image={guide.cover} priority={priority} sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw" className="card-img" />
         <div className="absolute inset-0 bg-linear-to-b from-harbor-950/15 via-transparent to-harbor-950/55" aria-hidden="true" />
         <div className="guide-tile-glass absolute inset-x-[3.5cqw] bottom-[3.5cqw] flex h-[46cqw] flex-col justify-between px-[5.5cqw] pb-[4.2cqw] pt-[5cqw] text-white transition-transform duration-500 group-hover:-translate-y-[1cqw]">

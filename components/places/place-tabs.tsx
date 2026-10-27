@@ -3,6 +3,7 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import type { Place } from "@/lib/places/rank";
 import { cn } from "@/lib/utils";
+import { ExternalLink } from "@/components/ui/external-link";
 
 export type PlaceTab = {
   id: string;
@@ -69,7 +70,7 @@ export function PlaceTabs({ tabs, label, note, className }: { tabs: PlaceTab[]; 
             aria-selected={t.id === tab.id}
             aria-controls={`${uid}-panel`}
             data-active={t.id === tab.id}
-            className="chip rounded-full"
+            className="chip"
             onClick={() => setActive(t.id)}
           >
             {t.label}
@@ -123,9 +124,9 @@ function PlaceRow({ p }: { p: Place }) {
   return (
     <li className="flex flex-col gap-1 border-b border-hairline py-3.5 last:border-b-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
       <div className="flex min-w-0 flex-col gap-0.5">
-        <a href={p.mapsUri} target="_blank" rel="noopener noreferrer" className="font-display text-[1.125rem] leading-snug text-navy underline-offset-4 hover:underline">
+        <ExternalLink href={p.mapsUri} className="font-display text-[1.125rem] leading-snug text-navy underline-offset-4 hover:underline">
           {p.name}
-        </a>
+        </ExternalLink>
         <p className="t-small text-graphite-600">
           <span className="text-navy">
             {p.rating.toFixed(1)}
@@ -144,9 +145,9 @@ function PlaceRow({ p }: { p: Place }) {
       </div>
       <p className="t-small flex shrink-0 flex-wrap gap-x-4 gap-y-1">
         {p.website ? (
-          <a href={p.website} target="_blank" rel="noopener noreferrer" className="text-navy underline underline-offset-4 hover:text-sky-700">
+          <ExternalLink href={p.website} className="text-navy underline underline-offset-4 hover:text-sky-700">
             Website
-          </a>
+          </ExternalLink>
         ) : null}
         {p.phone ? (
           <a href={`tel:${p.phone.replace(/[^\d+]/g, "")}`} className="text-navy tabular-nums underline underline-offset-4 hover:text-sky-700">

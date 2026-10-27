@@ -11,7 +11,7 @@ export function MapUnavailable({ message, onRetry, className }: { message: strin
   return (
     <div className={cn("map-unavailable", className)} role="status">
       <div className="map-unavailable-note">
-        <p className="t-mono-sm text-graphite-600">{message}</p>
+        <p className="t-note text-graphite-600">{message}</p>
         <button type="button" className="btn btn-outline !min-h-10 !px-4 !text-[11px]" onClick={onRetry}>
           Try again
         </button>

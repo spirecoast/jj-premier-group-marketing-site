@@ -184,9 +184,9 @@ export function ExplorerPanel(p: Props) {
         ) : null}
 
         <div className="flex items-baseline justify-between gap-3 border-b border-hairline px-5 py-3">
-          <p className="t-mono-sm text-graphite-500">{p.loading ? "Loading the catalog" : p.error ? "The catalog did not load" : context}</p>
+          <p className="t-note">{p.loading ? "Loading the catalog" : p.error ? "The catalog did not load" : context}</p>
           {p.selected || p.searching || activeFilters || p.filters.market ? (
-            <button type="button" className="t-mono-sm text-harbor-700 underline underline-offset-4 hover:text-navy" onClick={p.onShowAll}>
+            <button type="button" className="t-note text-harbor-700 underline underline-offset-4 hover:text-navy" onClick={p.onShowAll}>
               Show everything
             </button>
           ) : null}
@@ -221,7 +221,7 @@ export function ExplorerPanel(p: Props) {
                       <span className="t-h4 text-navy">{e.n}</span>
                       {e.x === null ? <span className="t-mono-sm text-graphite-400">no point</span> : null}
                     </span>
-                    <span className="t-mono-sm block text-graphite-500">
+                    <span className="t-note block">
                       {[path.length ? path.join(" › ") : marketName(e.m), e.t ? TYPE_LABEL[e.t] : LEVEL_LABEL[e.l]].join(" · ")}
                     </span>
                   </button>

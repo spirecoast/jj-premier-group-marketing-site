@@ -87,9 +87,9 @@ export default async function GuidePage({ params }: { params: Params }) {
 
         {/* The sections, with the contents beside them */}
         <div className="container-site grid grid-cols-1 gap-10 pt-14 pb-section md:pt-20 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-16 xl:grid-cols-[260px_minmax(0,1fr)] print:block print:pb-0">
-          <aside className="print-hide lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:self-start">
+          <div className="print-hide lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:self-start">
             <GuideContents items={contents} onePageId={ONE_PAGE_ID} />
-          </aside>
+          </div>
           <div className="flex min-w-0 max-w-[860px] flex-col gap-16 md:gap-20 print:max-w-none print:gap-10">
             {guide.sections.map((s, i) => (
               <section key={s.id} id={s.id} className="guide-section flex scroll-mt-header flex-col gap-8" aria-labelledby={`${s.id}-title`}>
@@ -121,7 +121,7 @@ export default async function GuidePage({ params }: { params: Params }) {
               </TrackedLink>
             </section>
             <GuideSources guide={guide} />
-            <p className="t-mono-sm max-w-measure text-graphite-500">
+            <p className="t-note max-w-measure">
               This guide is general information about places and rules, written for {site.region}. It is not legal, insurance or tax advice, and nothing in it is a figure for any particular house.
             </p>
           </div>

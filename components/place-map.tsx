@@ -103,7 +103,7 @@ export function PlaceMap({ slug, points }: { slug: string; points: PlacePoint[] 
   if (!self) return null;
   return (
     <div className="explorer-hero-map">
-      <div key={attempt} ref={el} style={{ position: "absolute", inset: 0 }} role="img" aria-label={`Map of ${self.name}`} />
+      <div key={attempt} ref={el} style={{ position: "absolute", inset: 0 }} role="region" aria-label={`Map of ${self.name}`} />
       {status === "failed" ? (
         <MapUnavailable
           message="The map didn't load. Everything else on this page is here."

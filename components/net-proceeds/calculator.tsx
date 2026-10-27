@@ -101,7 +101,7 @@ function Field({
       </label>
       {children}
       {hint ? (
-        <p id={`${id}-hint`} className="t-mono-sm text-graphite-500">
+        <p id={`${id}-hint`} className="t-note">
           {hint}
         </p>
       ) : null}
@@ -128,7 +128,7 @@ function Money({ id, value, onChange, placeholder = "0", described }: { id: stri
 function Legend({ number, children }: { number: string; children: React.ReactNode }) {
   return (
     <legend className="mb-5 flex items-center gap-3">
-      <span className="grid h-8 w-8 place-items-center rounded-full bg-sky-100 font-display text-[16px] text-sky-800" aria-hidden="true">
+      <span className="grid size-7 place-items-center bg-navy font-mono text-[12px] text-linen-100 tabular-nums" aria-hidden="true">
         {Number(number)}
       </span>
       <span className="font-display text-[1.5rem] font-light leading-none text-navy">{children}</span>
@@ -393,7 +393,7 @@ export function NetProceedsCalculator() {
                   {sheet.credits ? ` + credits ${formatUsd(sheet.credits)}` : ""}
                 </p>
                 {sheet.notes.map((n) => (
-                  <p key={n} className="t-small border-l-2 border-warning bg-[#fbf4e6] px-3 py-2 text-body">
+                  <p key={n} className="t-small border-l-2 border-warning bg-warning-fill px-3 py-2 text-body">
                     {n}
                   </p>
                 ))}
