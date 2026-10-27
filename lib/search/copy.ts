@@ -31,6 +31,14 @@ export const SEARCH_COPY = {
   searching: "Searching…",
   shortcut: "Search the site",
   headerButton: "Search",
+  /** A street or an address typed into search: the lead card to Tide Street and Home Value. */
+  streetLead: "Looking for sales on {street}?",
+  streetBody: "Tide Street has every qualified sale on that street from the county record.",
+  streetCta: "See what sold on {street}",
+  addressCta: "What’s my home worth",
+  zipLead: "Looking for sales in {zip}?",
+  zipBody: "Tide Street shows every qualified sale on a street from the county record. Type the street and it narrows to {zip}.",
+  zipCta: "Open Tide Street",
 };
 
 /** Real guide titles, shortened to what someone would type. Shown when the box is empty. */
@@ -145,16 +153,18 @@ export const PAGE_SUMMARIES: PageSummary[] = [
   },
   {
     url: "/sell/sold",
-    title: "What sold on your street",
+    title: "Tide Street: what sold on your street",
     summary: [
-      "Every qualified sale the Manatee and Sarasota County Property Appraisers recorded on your street: address, date, price and living area, from the public record, not an estimate.",
+      "Tide Street shows every qualified home sale the Manatee and Sarasota County Property Appraisers recorded on your street: address, date, price and living area, from the public record, not an estimate.",
+      "Type the street, and the ZIP or city if you know it. Resales are kept apart from new builds and lots, every sale sits on a timeline, and the whole table is there to read. Sold prices on my street, what the house next door sold for, what homes sold for in Lakewood Ranch, Sarasota or Bradenton.",
     ],
   },
   {
     url: "/sell/home-value",
-    title: "What your house is worth",
+    title: "What’s my home worth: the record for your address",
     summary: [
       "No algorithm guess. The county's public record for your address: recent qualified sales on your street, the last sale the roll has for the house, what the record can't see, and then a written range from two people who have stood in it.",
+      "Home value, house value, what is my home worth, what my house would sell for: type the house number, the street and the ZIP.",
     ],
   },
   {

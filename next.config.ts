@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
+import { FOLDED_POSTS, REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
 import { HOME_PLATFORM_ORIGIN, homePlatformPixelId } from "./lib/home-platform";
 import { canonicalHostRedirects } from "./lib/site-url";
 
@@ -146,7 +146,8 @@ const nextConfig: NextConfig = {
   // lib/sales reads data/sales/*.json.gz at request time; make sure the
   // files travel with the functions that need them.
   outputFileTracingIncludes: {
-    "/api/sales": ["./data/sales/**"],
+    // The sales route also reads the Atlas index, to offer "Sales in {place}" when a street box names a place.
+    "/api/sales": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.search.json", "./neighborhood-data/data/neighborhoods.json"],
     "/sell/sold": ["./data/sales/**"],
     "/sell/home-value": ["./data/sales/**"],
     // The Tide issue pages are prerendered; the share image is drawn on request and reads the data.
@@ -221,6 +222,8 @@ const nextConfig: NextConfig = {
       { source: "/blog", destination: "/tide", permanent: true },
       // Guides rebuilt as long-form pages (lib/guides) moved from Tide to /guides; the old links follow.
       ...REBUILT_GUIDE_SLUGS.map((slug) => ({ source: `/blog/${slug}`, destination: `/guides/${slug}`, permanent: true })),
+      // A post folded into a guide follows the guide.
+      ...Object.entries(FOLDED_POSTS).map(([slug, guide]) => ({ source: `/blog/${slug}`, destination: `/guides/${guide}`, permanent: true })),
       // At launch the vercel.app address sends every path to the domain, so search engines see one
       // site. Before launch (noindex on) the vercel.app address is the site and nothing redirects.
       ...canonicalHostRedirects({

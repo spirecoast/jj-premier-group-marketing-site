@@ -8,7 +8,8 @@ import { easternDay, type FooterInput } from "./render";
 import { buildIssueModel } from "@/lib/tide/issue";
 import { TIDE_ISSUES, type TideIssueEntry } from "@/lib/tide/issues";
 import { writingFacts } from "@/lib/tide/narrative";
-import { narrativeOf, noteSlots } from "@/lib/tide/notes";
+import { noteSlots } from "@/lib/tide/notes";
+import { snapshotFor } from "@/lib/tide/snapshots";
 import { addMonths, buildTideIssue, monthBounds, previousMonth, tideMonthFor, type TideIssue } from "./tide-monthly";
 
 /**
@@ -65,8 +66,11 @@ export async function loadTideIssue(today = issueToday(), month?: string, opts: 
   const covers = tideMonthFor(sales, today, month);
   // The subscriber send names its month but is this month's issue: it takes this month's words even before `data` is pinned.
   const entry = tideEntryFor(covers, today, opts.audience === "subscriber" ? undefined : month);
-  // The web issue's model for the same month gives the facts to write from: the same figures the page shows.
-  const model = buildIssueModel({ entry: { ...entry, data: covers }, sales, manifest: tideManifest, posts: [] });
+  // The web issue's model for the same month gives the facts to write from and the
+  // narrative with its tokens filled: the same figures the page shows. A frozen
+  // issue (lib/tide/snapshots) keeps its published figures here too.
+  const frozen = snapshotFor(entry.issue);
+  const model = buildIssueModel({ entry: { ...entry, data: covers }, sales, manifest: tideManifest, posts: [], figures: frozen && frozen.dataMonth === covers ? frozen : undefined });
   return buildTideIssue({
     sales,
     manifest: tideManifest,
@@ -75,7 +79,7 @@ export async function loadTideIssue(today = issueToday(), month?: string, opts: 
     footer: { ...(await footerFacts()), unsubscribe: opts.unsubscribe },
     audience: opts.audience,
     issue: entry.issue,
-    writing: { narrative: narrativeOf(entry), notes: noteSlots(entry.commentary, "draft"), facts: writingFacts(model) },
+    writing: { narrative: model.narrative, notes: noteSlots(entry.commentary, "draft"), facts: writingFacts(model) },
   });
 }
 

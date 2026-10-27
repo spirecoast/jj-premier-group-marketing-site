@@ -1476,22 +1476,20 @@ body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="f
    cover's photo, wash and ground; these set the letter's reading type.
    ----------------------------------------------------------------------------- */
 @layer components {
+  /* Running text at the site's body size (17/1.7) on the 660px measure: about
+     70 characters a line on desktop. Only the first paragraph under a chapter
+     title, and the story's opening paragraph, are set as a lead (19/1.6). */
   .tide-prose {
     font-family: var(--font-body);
-    font-size: 1.125rem;
-    line-height: 1.78;
+    font-size: 1.0625rem;
+    line-height: 1.7;
     color: var(--color-body);
-    @media (min-width: 64rem) {
-      font-size: 1.1875rem;
-    }
   }
-  .tide-story > p:first-child {
+  .tide-story > p:first-child,
+  .tide-chapter-story > p:first-child {
     font-size: 1.1875rem;
+    line-height: 1.6;
     color: var(--color-ink);
-    @media (min-width: 64rem) {
-      font-size: 1.3125rem;
-      line-height: 1.7;
-    }
   }
   /* The small cover on Tide's issue cards: dark enough at the top for the
      masthead and at the foot for the headline, clear in the middle. */
@@ -1913,6 +1911,12 @@ html:has([data-product-bar]) {
   .motif-tide span { display: block; height: 1px; background: var(--color-tide); }
   .motif-tide span:nth-child(2) { opacity: 0.45; }
   .motif-tide span:nth-child(3) { opacity: 0.2; }
+  /* Tide's three hairlines with the lockup: the lockup's own width, 6px apart,
+     the brightest on top, 16px under the byline (the grid gap carries 12 of it). */
+  .motif-tide-lockup { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 100%; }
+  .motif-tide-lockup span { display: block; height: 1px; background: var(--color-tide); }
+  .motif-tide-lockup span:nth-child(2) { opacity: 0.45; }
+  .motif-tide-lockup span:nth-child(3) { opacity: 0.2; }
   /* The marquee stands outside the text column, so a line never touches a word. */
   .motif-encore { inset: 1.25rem max(0.5rem, calc(var(--gutter) - 2.25rem)); }
   .motif-spot {
@@ -1962,9 +1966,12 @@ html:has([data-product-bar]) {
     }
     .encore-marquee-bulb:nth-of-type(even) { animation-delay: calc(var(--i) * 22ms + 700ms), calc(var(--i) * 22ms + 4.2s); }
     .motif-spot { opacity: 0; animation: motif-light 2.4s ease 0.6s forwards; }
-    .motif-tide span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
-    .motif-tide span:nth-child(2) { animation-delay: 0.15s; }
-    .motif-tide span:nth-child(3) { animation-delay: 0.3s; }
+    .motif-tide span,
+    .motif-tide-lockup span { transform: scaleX(0); transform-origin: left; animation: motif-line 1.6s var(--ease-reveal) forwards; }
+    .motif-tide span:nth-child(2),
+    .motif-tide-lockup span:nth-child(2) { animation-delay: 0.15s; }
+    .motif-tide span:nth-child(3),
+    .motif-tide-lockup span:nth-child(3) { animation-delay: 0.3s; }
   }
   @keyframes encore-marquee-draw { to { stroke-dashoffset: 0; } }
   @keyframes motif-light { to { opacity: var(--o, 0.95); } }
@@ -2014,7 +2021,15 @@ html:has([data-product-bar]) {
   .tide-contents-item:focus-visible { background: rgb(255 255 255 / 0.08); }
 }
 
-/* Tide: an empty place in the archive, kept for an issue still to come into it. */
+/* Tide's "Since then" strip: the bars settle over a card's beat; none for reduced motion. */
+.tide-since-bar {
+  transition: width var(--dur-card) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tide-since-bar { transition: none; }
+}
+
+/* Tide: an empty place in the archive, kept for sample previews and the print sheet (never on the public page). */
 .tide-slot {
   border: 1px dashed var(--color-rule);
   background: rgb(255 255 255 / 0.35);

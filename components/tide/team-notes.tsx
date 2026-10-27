@@ -14,7 +14,7 @@ export function TeamNotes({ notes, eyebrow }: { notes: NoteSlot[]; eyebrow: stri
   return (
     <section className="container-site flex flex-col gap-8 pb-section" aria-labelledby="notes-title" data-tide-notes="">
       <div className="flex max-w-[760px] flex-col gap-3">
-        <h2 id="notes-title" className="t-h1 text-navy">
+        <h2 id="notes-title" className="t-h2 text-navy">
           {W.notesHeading}
         </h2>
       </div>

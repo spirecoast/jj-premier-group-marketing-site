@@ -32,7 +32,7 @@ function staticChunks(): Chunk[] {
     ...relocateChunks({ lead: HERO.lead, faqs: FAQS, faqTitle: FAQ_SECTION.title }),
     ...GUIDES.flatMap(guideChunks),
     ...NEIGHBORHOODS.flatMap((n) => placeChunks({ slug: n.slug, editorial: n })),
-    ...POSTS.filter((p) => p.slug === "ask-us-about-the-water-table").flatMap(postChunks),
+    ...POSTS.filter((p) => p.slug === "q2-2026-what-we-got-wrong").flatMap(postChunks),
   ];
 }
 
@@ -101,7 +101,7 @@ describe("chunking", () => {
   });
 
   test("Portable Text splits into sections at each h2", () => {
-    const post = POSTS.find((p) => p.slug === "ask-us-about-the-water-table")!;
+    const post = POSTS.find((p) => p.slug === "q2-2026-what-we-got-wrong")!;
     const sections = portableTextSections(post.body);
     assert.equal(sections[0]!.heading, null);
     assert.ok(sections.slice(1).every((s) => s.heading && s.paragraphs.length));

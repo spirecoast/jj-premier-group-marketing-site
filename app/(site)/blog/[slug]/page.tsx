@@ -9,7 +9,7 @@ import { RichText } from "@/components/rich-text";
 import { getPost, getPostSlugs, getPosts, getSiteSettings, getTeamMember } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import { img } from "@/lib/content/seed/helpers";
-import { guideHref, isRebuiltGuide } from "@/lib/guides/slugs";
+import { FOLDED_POSTS, guideHref, isRebuiltGuide } from "@/lib/guides/slugs";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { CONTAINER_SIZES } from "@/lib/image-sizes";
@@ -20,7 +20,7 @@ const noon = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00` : d
 
 export async function generateStaticParams() {
   // Rebuilt guides live at /guides; next.config.ts redirects the old path, and the page below does too.
-  return (await getPostSlugs()).filter((slug) => !isRebuiltGuide(slug)).map((slug) => ({ slug }));
+  return (await getPostSlugs()).filter((slug) => !isRebuiltGuide(slug) && !FOLDED_POSTS[slug]).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function PostPage({ params }: { params: Params }) {
   const { slug } = await params;
   if (isRebuiltGuide(slug)) permanentRedirect(`/guides/${slug}`);
+  if (FOLDED_POSTS[slug]) permanentRedirect(`/guides/${FOLDED_POSTS[slug]}`);
   const post = await getPost(slug);
   if (!post) notFound();
   const [posts, author, settings] = await Promise.all([getPosts(), getTeamMember(post.author.slug), getSiteSettings()]);

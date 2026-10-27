@@ -7,6 +7,9 @@ import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TideIssueCard } from "@/components/tide/issue-card";
 import { TideCover, TideWordmark } from "@/components/tide/tide-cover";
+import { fill } from "@/lib/issues/copy";
+import { monthLabel } from "@/lib/issues/render";
+import { addMonths } from "@/lib/issues/tide-monthly";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { getTeam } from "@/lib/content";
 import { loadIssueCards } from "@/lib/tide/load";
@@ -20,11 +23,13 @@ export const metadata: Metadata = pageMetadata({
 
 /**
  * /tide, Tide's home: the newest issue as a full cover beside its headline and
- * the sign-up, then every earlier issue as a cover. Issues only; the guides
- * have their own page.
+ * the sign-up, then every earlier issue as a cover, once there is one (with
+ * one issue out, the page ends on the next issue's month rather than on empty
+ * frames). Issues only; the guides have their own page.
  */
 export default async function TideIndexPage() {
   const [[latest, ...earlier], team] = await Promise.all([loadIssueCards(), getTeam()]);
+  const showSamples = process.env.NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS === "true";
   return (
     <>
       <JsonLd
@@ -65,32 +70,45 @@ export default async function TideIndexPage() {
         </section>
       ) : null}
 
-      {/* Past issues: the archive, with a place kept for the issues still to come into it. */}
-      <section className="bg-parchment" aria-labelledby="past-title">
-        <div className="container-site flex flex-col gap-10 py-section">
-          <div className="flex flex-col gap-3">
-            <h2 id="past-title" className="t-h1 text-navy">
-              Past issues
-            </h2>
-            <p className="t-body max-w-measure text-body">Every issue stays here once the next one is out, newest first.</p>
+      {/* Past issues: the archive, only once there is one. Until then the page ends on the next issue's month. */}
+      {earlier.length ? (
+        <section className="bg-parchment" aria-labelledby="past-title">
+          <div className="container-site flex flex-col gap-10 py-section">
+            <div className="flex flex-col gap-3">
+              <h2 id="past-title" className="t-h1 text-navy">
+                Past issues
+              </h2>
+              <p className="t-body max-w-measure text-body">Every issue stays here once the next one is out, newest first.</p>
+            </div>
+            <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {earlier.map((c, i) => (
+                <li key={c.issue} className="sr flex max-w-[400px]" style={{ ["--sr-i" as string]: i % 3 }}>
+                  <TideIssueCard card={c} />
+                </li>
+              ))}
+              {/* The empty slot, kept for sample previews and the print sheet; never on the public page. */}
+              {showSamples
+                ? Array.from({ length: Math.max(0, 3 - earlier.length) }, (_, i) => (
+                    <li key={`slot-${i}`} className="flex max-w-[400px]" aria-hidden="true">
+                      <div className="tide-slot flex aspect-[4/5] w-full flex-col items-center justify-center gap-4">
+                        <TideWordmark id={`tide-slot-${i}`} decorative className="w-1/2 text-navy opacity-25" />
+                        <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-navy/40">Market Report</span>
+                      </div>
+                    </li>
+                  ))
+                : null}
+            </ul>
           </div>
-          <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {earlier.map((c, i) => (
-              <li key={c.issue} className="sr flex" style={{ ["--sr-i" as string]: i % 3 }}>
-                <TideIssueCard card={c} />
-              </li>
-            ))}
-            {Array.from({ length: Math.max(0, 3 - earlier.length) }, (_, i) => (
-              <li key={`slot-${i}`} className="flex" aria-hidden="true">
-                <div className="tide-slot flex aspect-[4/5] w-full flex-col items-center justify-center gap-4">
-                  <TideWordmark id={`tide-slot-${i}`} decorative className="w-1/2 text-navy opacity-25" />
-                  <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-navy/40">Market Report</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+        </section>
+      ) : latest ? (
+        <section className="border-t border-hairline" aria-label="Next issue">
+          <div className="container-site py-10">
+            <p className="t-note" data-tide-next-issue="">
+              {fill(W.nextIssue, { month: monthLabel(addMonths(latest.issue, 1)) })}
+            </p>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

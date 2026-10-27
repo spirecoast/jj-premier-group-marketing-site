@@ -36,9 +36,20 @@ type Props = {
   counties: string[];
   /** manifest.windowMonths: the "last N months" every line on the page refers to. */
   months: number;
+  /** How far each county's file reaches: the honest "as of" for a street in that county. */
+  through?: { county: "manatee" | "sarasota"; label: string; to: string | null }[];
   /** The static "what the record can't tell you" section, rendered on the server, placed between the record and the ask. */
   children?: ReactNode;
 };
+
+const COUNTY_NAME = { manatee: "Manatee", sarasota: "Sarasota" } as const;
+
+/** "Manatee records through Sep 24, 2026 · Sarasota through Oct 20, 2026", for the counties in the result (or all of them). */
+function throughLine(through: NonNullable<Props["through"]>, counties: Set<string> | null, asOf: string | null): string {
+  const list = through.filter((t) => t.to && (!counties || counties.has(t.county)));
+  if (!list.length) return asOf ? `as of ${fmtDate(asOf)}` : "";
+  return list.map((t, i) => (i === 0 ? C.through(COUNTY_NAME[t.county], fmtDate(t.to!)) : C.throughShort(COUNTY_NAME[t.county], fmtDate(t.to!)))).join(" · ");
+}
 
 type Searched = { address: string; zip: string };
 
@@ -69,7 +80,7 @@ function streetLine(data: Extract<Api, { ok: true }>, months: number) {
   );
 }
 
-export function HomeValueLookup({ loaded, asOf, counties, months, children }: Props) {
+export function HomeValueLookup({ loaded, asOf, counties, months, through = [], children }: Props) {
   const uid = useId();
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
@@ -122,7 +133,10 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
 
   const data = state.status === "done" && state.data?.ok ? state.data : null;
   const failed = state.status === "done" && state.data && !state.data.ok ? state.data : null;
-  const sourceLine = C.source(counties.length ? counties.join(" and ") : C.sourceDefault, asOf ?? "—");
+  // The source line names the counties in the result and how far each one's record reaches.
+  const resultCounties = data?.rows.length ? new Set<string>(data.rows.map((r) => r.county)) : null;
+  const sourceLabels = resultCounties ? through.filter((t) => resultCounties.has(t.county)).map((t) => t.label) : counties;
+  const sourceLine = C.source(sourceLabels.length ? sourceLabels.join(" and ") : C.sourceDefault, throughLine(through, resultCounties, asOf));
   const shownAddress = state.searched ? displayAddress(state.searched.address, state.searched.zip) : "";
   const last = data?.parcel?.rows[0] ?? null;
   const earlier = data?.parcel?.rows.slice(1) ?? [];

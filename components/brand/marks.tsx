@@ -64,7 +64,9 @@ export function FamilyMotif({ family }: { family: FamilyKey }) {
         <EncoreMarquee />
       </div>
     );
-  // Tide: three straight hairlines along the foot, the brightest on top.
+  // Tide: three straight hairlines, the brightest on top. The masthead sets
+  // them with the lockup (components/masthead.tsx, .motif-tide-lockup) rather
+  // than across the photograph; this full-bleed form is kept for any other caller.
   return (
     <div className="motif motif-tide" aria-hidden="true">
       <span />

@@ -27,7 +27,7 @@
     { "id": "place-nutcracker", "type": "place", "q": "nutcracker", "expect": ["event:*nutcracker*"] },
     { "id": "place-lakewood-ranch", "type": "place", "q": "living in Lakewood Ranch", "expect": ["page:/lakewood-ranch*"] },
     { "id": "typo-portability", "type": "typo", "q": "hommestead portabilty", "expect": ["guide:homestead-save-our-homes-and-portability", "guide:homestead-save-our-homes-and-portability#portability"] },
-    { "id": "typo-flood-zone", "type": "typo", "q": "flod zone", "expect": ["guide:flood-zones-and-elevation-certificates-on-the-suncoast*", "post:ask-us-about-the-water-table*"] },
+    { "id": "typo-flood-zone", "type": "typo", "q": "flod zone", "expect": ["guide:flood-zones-and-elevation-certificates-on-the-suncoast*"] },
     { "id": "typo-siesta", "type": "typo", "q": "siesta kee", "expect": ["place:siesta-key", "place:siesta-key#faq", "place:siesta-key-village", "guide:barrier-island-rules-island-by-island#siesta-key"] },
     { "id": "typo-cdd", "type": "typo", "q": "lakewod ranch cdd", "expect": ["guide:cdd-fees-in-lakewood-ranch-village-by-village*"] },
     { "id": "typo-deductible", "type": "typo", "q": "hurricane deductable", "expect": ["guide:homeowners-wind-and-flood-insurance-on-this-coast#the-hurricane-deductible"] },

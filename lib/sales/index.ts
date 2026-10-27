@@ -2,6 +2,8 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
+import { getIndexEntries } from "../neighborhoods/data";
+import { cityZipTable, cityZips, matchPlace, placeBySlug, streetOptions, type CityZipTable, type PlaceMatch, type PlaceRow } from "./area";
 import { matchParcel, stripTypedUnit, type ParcelQuery } from "./parcel";
 import { parseTypedStreet, streetKey } from "./street";
 import { fullStreet, summarize, type SalesSummary } from "./stats";
@@ -10,7 +12,8 @@ import type { County, PropertyUse, Sale } from "./types";
 export { matchParcel, parcelCount, parseHouseNumber, parseTypedUnit, stripTypedUnit, type ParcelQuery } from "./parcel";
 export { parseTypedStreet, streetKey } from "./street";
 export type { County, PropertyUse, Sale } from "./types";
-export { fullStreet, median, rollChanged, summarize, type SalesSummary } from "./stats";
+export { fullStreet, groupSummary, isResale, median, rollChanged, sizeBand, summarize, type GroupSummary, type SalesSummary } from "./stats";
+export { normalizeCity, type PlaceMatch } from "./area";
 
 /**
  * County sales data: the qualified, arm's-length sales from the last 24
@@ -61,6 +64,8 @@ type Index = {
   rows: Sale[];
   byStreet: Map<string, Sale[]>;
   keys: string[];
+  /** Which ZIPs each postal city reaches, from the rows (lib/sales/area.ts). */
+  cities: CityZipTable;
 };
 
 let cache: Promise<Index> | null = null;
@@ -100,7 +105,7 @@ async function build(): Promise<Index> {
     if (list) list.push(r);
     else byStreet.set(k, [r]);
   }
-  return { manifest, rows, byStreet, keys: [...byStreet.keys()] };
+  return { manifest, rows, byStreet, keys: [...byStreet.keys()], cities: cityZipTable(rows) };
 }
 
 function index(): Promise<Index> {
@@ -126,11 +131,16 @@ export async function hasSalesData(): Promise<boolean> {
 
 export type StreetQuery = {
   street: string;
+  /** A postal city, resolved to the ZIPs the county files it in; a city the record doesn't know matches nothing. */
   city?: string;
   zip?: string;
   county?: County;
+  /** At most this many rows back, newest first; the summary is always over every match. Up to MAX_ROWS. */
   limit?: number;
 };
+
+/** The most rows one answer carries: a whole street in the 24-month window (the biggest has a few hundred). */
+export const MAX_ROWS = 1000;
 
 export type StreetResult = {
   /**
@@ -144,6 +154,8 @@ export type StreetResult = {
   streets: string[];
   /** Every ZIP in the result. */
   zips: string[];
+  /** When ambiguous: each street-and-ZIP pair that answers, most sales first, for the page to offer as chips. */
+  options: { street: string; zip: string; count: number }[];
   rows: Sale[];
   total: number;
   /** Computed over every match on the street, not only the rows returned. */
@@ -176,9 +188,9 @@ function editDistanceAtMost(a: string, b: string, max: number): boolean {
  * away, but only when a ZIP or city keeps the widening honest.
  */
 export async function searchByStreet(q: StreetQuery): Promise<StreetResult> {
-  const { byStreet, keys } = await index();
+  const { byStreet, keys, cities } = await index();
   const typed = (q.street ?? "").trim();
-  const none = (match: StreetResult["match"] = "none"): StreetResult => ({ match, streets: [], zips: [], rows: [], total: 0, summary: summarize([]) });
+  const none = (match: StreetResult["match"] = "none"): StreetResult => ({ match, streets: [], zips: [], options: [], rows: [], total: 0, summary: summarize([]) });
   // Guard on what was typed, not the folded key: "9th Ave" folds to "9" and is a real street.
   if (typed.length < 2) return none();
   // "Midnight Pass" is a whole name, "Lilac Sky Dr" carries a suffix: try the typed words as-is, then with one suffix folded.
@@ -189,11 +201,15 @@ export async function searchByStreet(q: StreetQuery): Promise<StreetResult> {
   const wanted = parseTypedStreet(typed);
   // When the typed words matched as a whole name (Midnight Pass), the last word is part of the name, not a suffix.
   if (key === asTyped && asTyped !== folded) wanted.suffix = "";
-  const limit = Math.min(Math.max(q.limit ?? 50, 1), 50);
+  const limit = Math.min(Math.max(q.limit ?? 50, 1), MAX_ROWS);
   const zip = (q.zip ?? "").replace(/\D/g, "").slice(0, 5);
-  const city = (q.city ?? "").trim().toUpperCase();
+  // A typed city narrows to the ZIPs the county files that city in, not to the label on the row:
+  // 34211 is LAKEWOOD RANCH and BRADENTON row by row, and a seller means the place, not the label.
+  const city = (q.city ?? "").trim();
+  const cityZipSet = city ? new Set(cityZips(cities, city) ?? []) : null;
+  if (cityZipSet && !cityZipSet.size) return none();
   const scoped = (rows: Sale[]) =>
-    rows.filter((r) => (!zip || r.zip === zip) && (!city || r.city === city) && (!q.county || r.county === q.county));
+    rows.filter((r) => (!zip || r.zip === zip) && (!cityZipSet || cityZipSet.has(r.zip)) && (!q.county || r.county === q.county));
 
   let match: StreetResult["match"] = "exact";
   let hit = scoped(byStreet.get(key) ?? []);
@@ -223,10 +239,95 @@ export async function searchByStreet(q: StreetQuery): Promise<StreetResult> {
   const streets = [...new Set(hit.map(fullStreet))];
   const zips = [...new Set(hit.map((r) => r.zip))].sort();
   // Several distinct streets or several ZIPs with nothing to pick one: ask for the ZIP rather than blend them.
-  if (!zip && !city && (streets.length > 1 || zips.length > 1)) {
-    return { match: "ambiguous", streets, zips, rows: [], total: hit.length, summary: summarize([]) };
+  if (!zip && !cityZipSet && (streets.length > 1 || zips.length > 1)) {
+    return { match: "ambiguous", streets, zips, options: streetOptions(hit), rows: [], total: hit.length, summary: summarize([]) };
   }
-  return { match, streets, zips, rows: hit.slice(0, limit), total: hit.length, summary: summarize(hit) };
+  return { match, streets, zips, options: [], rows: hit.slice(0, limit), total: hit.length, summary: summarize(hit) };
+}
+
+/** The ZIPs a typed city reaches in the record, or null when it isn't a postal city the county uses. */
+export async function zipsForCity(city: string): Promise<string[] | null> {
+  const { cities } = await index();
+  return cityZips(cities, city);
+}
+
+export type AreaResult = {
+  place: PlaceMatch;
+  rows: Sale[];
+  total: number;
+  /** Over every sale in the area, not only the rows returned. */
+  summary: SalesSummary;
+  streets: string[];
+};
+
+/** The Atlas search index, in the shape lib/sales/area.ts reads. Read once per process. */
+let places: Promise<PlaceRow[]> | null = null;
+function placeRows(): Promise<PlaceRow[]> {
+  if (!places) {
+    places = getIndexEntries()
+      .then((rows) => rows.map((e) => ({ slug: e.s, name: e.n, aliases: e.a, parentSlug: e.p, zips: e.z, level: e.l, market: e.m })))
+      .catch((e) => {
+        places = null;
+        throw e;
+      });
+  }
+  return places;
+}
+
+/**
+ * The place a typed street box names, if it names one: an Atlas area,
+ * community or enclave by its name or an alias, or a postal city the county
+ * uses. Null for a street. Never throws: without the Atlas file there is no
+ * place to offer.
+ */
+export async function placeFor(typed: string): Promise<PlaceMatch | null> {
+  const t = (typed ?? "").trim();
+  if (t.length < 4) return null;
+  try {
+    const atlas = matchPlace(await placeRows(), t);
+    if (atlas) return atlas;
+  } catch {
+    // The Atlas index is optional here.
+  }
+  const zips = await zipsForCity(t);
+  return zips?.length ? { slug: `city:${zips.join("-")}`, name: titleCity(t), market: "", zips } : null;
+}
+
+/** "lakewood ranch" → "Lakewood Ranch". */
+function titleCity(s: string): string {
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/\s+(fl|fla|florida)\s*$/, "")
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+/**
+ * Every qualified sale in a place's ZIPs, newest first, with the summary
+ * over all of them: "Sales in The Lake Club (ZIP area)". A place slug from
+ * `placeFor`; `city:<zips>` is a postal city's set. Null when unknown.
+ */
+export async function searchByArea({ place: slug, limit = 200 }: { place: string; limit?: number }): Promise<AreaResult | null> {
+  const { rows } = await index();
+  let place: PlaceMatch | null = null;
+  const city = /^city:((?:\d{5})(?:-\d{5})*)$/.exec(slug);
+  if (city) {
+    const zips = city[1]!.split("-");
+    place = { slug, name: "", market: "", zips };
+  } else {
+    try {
+      place = placeBySlug(await placeRows(), slug);
+    } catch {
+      place = null;
+    }
+  }
+  if (!place) return null;
+  const set = new Set(place.zips);
+  const hit = rows.filter((r) => set.has(r.zip));
+  const streets = [...new Set(hit.map(fullStreet))];
+  return { place, rows: hit.slice(0, Math.min(Math.max(limit, 1), MAX_ROWS)), total: hit.length, summary: summarize(hit), streets };
 }
 
 /**

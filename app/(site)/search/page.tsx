@@ -5,6 +5,7 @@ import { SearchBox } from "@/components/search/search-box";
 import { SearchGoal } from "@/components/search/search-goal";
 import { GUIDES } from "@/lib/guides";
 import { SEARCH_COPY as C, SUGGESTED_SEARCHES } from "@/lib/search/copy";
+import { homeValueHref, searchIntent, tideStreetHref, titleStreet, type SearchIntent } from "@/lib/search/intent";
 import { clientIp, normalizeQuery } from "@/lib/search/query";
 import { searchSite, searchSiteKeywordOnly, pageLimiter } from "@/lib/search/search";
 import { snippetParts } from "@/lib/search/snippet";
@@ -61,6 +62,31 @@ function Result({ hit }: { hit: SearchHit }) {
   );
 }
 
+/** A street, an address or a ZIP typed into search: the way to Tide Street, and to Home Value for an address. */
+function StreetLead({ intent }: { intent: NonNullable<SearchIntent> }) {
+  const fill = (t: string) => t.replace("{street}", intent.kind === "street" ? titleStreet(intent.street) : "").replace("{zip}", intent.kind === "zip" ? intent.zip : "");
+  const home = intent.kind === "street" ? homeValueHref(intent) : null;
+  return (
+    <aside className="flex flex-col gap-4 border border-hairline bg-white p-6 sm:p-8" aria-label={intent.kind === "zip" ? fill(C.zipLead) : fill(C.streetLead)} data-search-lead={intent.kind}>
+      <div className="flex flex-col gap-2">
+        <p className="t-h3 text-navy">{intent.kind === "zip" ? fill(C.zipLead) : fill(C.streetLead)}</p>
+        <p className="t-body max-w-measure text-body">{intent.kind === "zip" ? fill(C.zipBody) : C.streetBody}</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <Link href={tideStreetHref(intent) as Route} className="btn btn-navy">
+          {intent.kind === "zip" ? C.zipCta : fill(C.streetCta)}
+          <span className="btn-dash" aria-hidden="true" />
+        </Link>
+        {home ? (
+          <Link href={home as Route} className="link-rule">
+            {C.addressCta}
+          </Link>
+        ) : null}
+      </div>
+    </aside>
+  );
+}
+
 function EmptyState() {
   return (
     <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
@@ -98,6 +124,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const check = normalizeQuery(raw);
   const q = check.q;
 
+  const intent = check.ok ? searchIntent(q) : null;
   let results: SearchHit[] = [];
   let source = "";
   if (check.ok) {
@@ -124,7 +151,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       ) : !check.ok ? (
         <p className="t-body text-body">{C.tooShort}</p>
       ) : results.length ? (
-        <div className="flex flex-col gap-4" data-search-source={source}>
+        <div className="flex flex-col gap-6" data-search-source={source}>
+          {intent ? <StreetLead intent={intent} /> : null}
           <p className="t-note" aria-live="polite">
             {results.length === 1 ? C.oneResult : C.manyResults.replace("{n}", String(results.length))} {C.resultsFor} “{q}”
           </p>
@@ -135,17 +163,20 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
           </ol>
         </div>
       ) : (
-        <div className="flex max-w-measure flex-col gap-4" data-search-source={source}>
-          <p className="t-h3 text-navy" aria-live="polite">
-            {C.noResults}
-          </p>
-          <p className="t-body text-body">{C.noResultsHelp}</p>
-          <Link href="/contact" className="btn btn-outline self-start">
-            {C.noResultsCta}
-          </Link>
+        <div className="flex flex-col gap-8" data-search-source={source}>
+          {intent ? <StreetLead intent={intent} /> : null}
+          <div className="flex max-w-measure flex-col gap-4">
+            <p className="t-h3 text-navy" aria-live="polite">
+              {C.noResults}
+            </p>
+            <p className="t-body text-body">{C.noResultsHelp}</p>
+            <Link href="/contact" className="btn btn-outline self-start">
+              {C.noResultsCta}
+            </Link>
+          </div>
         </div>
       )}
-      {check.ok ? <SearchGoal q={q} count={results.length} /> : null}
+      {check.ok ? <SearchGoal q={q} count={results.length} intent={intent ? (intent.kind === "zip" ? "zip" : intent.number ? "address" : "street") : undefined} /> : null}
     </section>
   );
 }
