@@ -1,4 +1,4 @@
-import type { LeadForm } from "../leads";
+import type { LeadForm } from "../leads/constants";
 
 /**
  * The two lists the site sends to. Tide is the monthly letter on home sales

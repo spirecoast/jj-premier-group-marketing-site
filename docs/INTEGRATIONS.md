@@ -85,12 +85,30 @@ through a Zapier step if the team wants a templated first reply.
 
 ### What happens on every form submit (`lib/lead-pipeline.ts`)
 
-1. **Postgres first.** A row in `leads` (the exact payload, consent + timestamp
-   + wording version, source/UTM) plus the `contacts`/`events` rows (the person
-   and their consent record). Migration `0006_leads_and_deliveries.sql`.
-2. **CRM.** `lib/crm.ts` POSTs the payload to `CRM_WEBHOOK_URL` (8s timeout,
-   one retry, any 2xx is success). The result lands in `leads.delivery_status`
-   and a `lead_deliveries` row.
+0. **The guard** (`lib/lead-guard.ts`, migration `0015`). The same rules the
+   browser ran (`lib/leads/rules.ts`), then: a resend of the same attempt
+   (the form's random `submissionId`) gets the first answer and sends nothing
+   twice; the honeypot, or more than 6 sends from one network address in 10
+   minutes or 4 for one email or phone in an hour, keeps the lead in `leads`
+   with `delivery_status = 'suspected_bot'` and sends it nowhere, while the
+   visitor sees the usual thank-you. Every check fails open.
+1. **Postgres first, while the visitor waits.** A row in `leads` (the exact
+   payload, consent + timestamp + wording version, source/UTM) plus the
+   `contacts`/`events` rows (the person and their consent record; a returning
+   email updates its oldest open `contacts` row instead of adding another).
+   Migration `0006_leads_and_deliveries.sql`. Then the visitor gets their
+   answer: everything below runs after the response (`after()`), so nobody
+   waits on Zapier or Resend.
+2. **CRM, through the outbox.** `lib/crm.ts` POSTs the payload to
+   `CRM_WEBHOOK_URL` (8s timeout, one retry, any 2xx is success) with
+   `Idempotency-Key: <leads.id>`. The result lands in `leads.delivery_status`
+   and a `lead_deliveries` row. A failure is retried by `lib/lead-outbox.ts`
+   (table `lead_outbox`, migration `0015`) after 1, 5, 15, 60 and 240
+   minutes, swept after every new lead and daily by
+   `/api/cron/lead-redeliver`; after six tries or three days it's marked
+   `dead` and logged as `[lead-alarm]` (and sent to Sentry when it's on). A
+   redelivery can reach the Zap twice if the first attempt timed out after
+   Zapier caught it: `leadId` in the payload is the key to skip it on.
 3. **Team email.** The full payload to `TEAM_NOTIFY_EMAIL` (one address or
    several, comma-separated) via Resend, with reply-to set to the visitor. It's
    the only place the team sees the message, timing, address and consent, since
@@ -98,7 +116,9 @@ through a Zapier step if the team wants a templated first reply.
    Home Platform should already have the contact (`homePlatformNote` in
    `lib/home-platform.ts`), and the subject ends "· add to Home Platform" when
    it doesn't: the Pixel didn't run, or it's the person a referral names. It's
-   also the safety net when Zapier is down.
+   also the safety net when Zapier is down. Retried through the outbox like the
+   CRM; with `CRM_PROVIDER=none` a failed team email raises the `[lead-alarm]`
+   at once, since nothing else would tell a person.
 4. **Alert.** If the CRM step failed (or no CRM is configured in production),
    an ALERT email to `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`)
    saying where the lead was kept.
@@ -122,6 +142,7 @@ through a Zapier step if the team wants a templated first reply.
 | `NEXT_PUBLIC_BOOKING_URL` | Shows "Book 15 minutes" on the thank-you pages when set |
 | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | Also enables the server-side `Lead server` backstop event |
 | `LEAD_TEST_SECRET` | Bearer token for `POST /api/leads` on the live site (launch test only) |
+| `CRON_SECRET` | Also lets Vercel Cron run `/api/cron/lead-redeliver` (daily on Hobby; every ten minutes on Pro, see `vercel.json`) |
 
 In production at least one of Postgres, the CRM webhook or the team email must
 be configured. With no CRM at all, set `CRM_PROVIDER=none` explicitly: an unset
@@ -130,15 +151,20 @@ every lead, an explicit `none` does not. That's the setting while the Pixel is
 the only path into Home Platform (no Zap yet). The server logs an error at boot if none is (`instrumentation.ts`),
 and `GET /api/health` returns `{ ok }` to anyone and, with `Authorization: Bearer` set to
 `CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, the detail including `sinks`: booleans
-and the provider name only, never values.
+and the provider name only, never values. On the live site (`VERCEL_ENV=production`) `ok` also needs a
+sink that tells a person, the CRM webhook or the team email (`sinks.humanSink`): Postgres alone keeps
+leads where nobody looks, so health answers 503 until `TEAM_NOTIFY_EMAIL` (with Resend) or
+`CRM_WEBHOOK_URL` is set.
 
 ### The webhook payload
 
 ```json
 {
+  "leadId": "3f1c…",
   "form": "buy",
   "firstName": "Pat", "lastName": "Example",
-  "email": "pat@example.com", "phone": "(941) 555-0100",
+  "email": "pat@example.com", "phone": "(941) 555-0100", "phoneE164": "+19415550100",
+  "priorEnquiries": 0,
   "message": "…", "market": "sarasota", "propertyAddress": null,
   "timing": "Inside three months", "sellFirst": "Yes",
   "property": null,
@@ -155,6 +181,17 @@ and the provider name only, never values.
 }
 ```
 
+`leadId` is the `leads.id` (null without a database) and is also sent as the
+`Idempotency-Key` header. `email` is lowercased and can be empty: on the
+enquiry forms an email or a phone is enough (the Tide and Encore bars and the
+review permission still need an email), so a Zap step that needs an email
+should fall back to `phone`. `phone` is tidied to `(941) 555-0100` for a US or
+Canadian number (an international one is kept as typed), with `phoneE164`
+beside it; anything that isn't a full number is refused on the form.
+`priorEnquiries` counts the earlier leads with the same email or phone (null
+without a database), and the team email's subject starts "Returning lead" when
+it isn't 0. A ticked call/text box with no phone number records no consent and
+is tagged `consent:sms-no-phone`.
 `form` is one of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`,
 `calendar`, `referral` (`/refer`) and `review-permission` (`/reviews`).
 `referral` is set on a referral from `/refer` and `null` otherwise. The lead's
@@ -169,10 +206,11 @@ contact came via a referral, who referred them, what they're planning, how to
 reach them and the referrer's note. Create the CRM contact from `referral.*`
 and put `referral.note` on it; the lead is tagged `form:referral`.
 `consent.timestamp` and `consent.wordingVersion` describe the email and
-call/text boxes only. A review permission shows neither box, so it carries
+call/text boxes only. A referral and a review permission show neither box
+(the referrer is doing the team a favour), so they carry
 `email: false`, `sms: false`, `timestamp: null` and `wordingVersion:
-"none:not-shown"` (any marketing consent posted with it is ignored); its own
-permission is `consent.review: true` with `reviewAt` and
+"none:not-shown"` (any marketing consent posted with them is ignored). A review
+permission's own permission is `consent.review: true` with `reviewAt` and
 `reviewWordingVersion`, and the lead is tagged `consent:review`. `source.channel` is youtube, instagram,
 facebook or nextdoor when the visit came through `/from/<channel>`; the
 `source:` tag uses it ahead of `utm_source`. `property` is set on listing inquiries only (`slug`, `title`,
@@ -233,11 +271,12 @@ the Plausible goal.
 
 ### Consent
 
-Every form that asks for an email shows an unchecked **email** box
+Every enquiry form that asks for an email (all but the referral and the review
+permission) shows an unchecked **email** box
 ("Yes, you can email me about the market and my search. I can stop any time by
 replying 'stop' to any email.");
 forms that ask for a phone also show the unchecked **calls/texts** box. Neither
-is required. The state, timestamp and `CONSENT_WORDING_VERSION` (lib/leads.ts)
+is required. The state, timestamp and `CONSENT_WORDING_VERSION` (lib/leads/constants.ts)
 are stored on the lead and carried as `consent:email` / `consent:sms` tags.
 Bump the version whenever the wording changes. Subscribers from the Tide and
 Encore bars record `implied:subscribe` instead.

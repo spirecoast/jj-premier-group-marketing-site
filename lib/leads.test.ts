@@ -3,7 +3,8 @@ import { describe, it } from "node:test";
 import { channelFromPath } from "../components/utm-tracker";
 import { CHANNELS } from "./channels/copy";
 import { checkFairHousing } from "./fair-housing";
-import { LEAD_CHANNELS, LEAD_FORMS, LEAD_GOAL, REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, leadSchema } from "./leads";
+import { LEAD_CHANNELS, LEAD_FORMS, LEAD_GOAL, REFERRAL_CONSENT_WORDING, REFERRAL_PLANS } from "./leads/constants";
+import { leadSchema } from "./leads/schema";
 import { REFER, referStrings } from "./refer/copy";
 import { allSocialLinks, socialLinks, socialNetwork } from "./site";
 
@@ -51,7 +52,7 @@ describe("lead forms: referral and review-permission", () => {
     assert.equal(ok.success && ok.data.referredPlan, "Moving here");
     assert.equal(ok.success && ok.data.referralConsent, true);
 
-    const junkPlan = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredPhone: "1", referredPlan: "Renting", referralConsent: "on" });
+    const junkPlan = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredPhone: "941 555 0100", referredPlan: "Renting", referralConsent: "on" });
     assert.ok(junkPlan.success);
     assert.equal(junkPlan.success && junkPlan.data.referredPlan, undefined);
   });

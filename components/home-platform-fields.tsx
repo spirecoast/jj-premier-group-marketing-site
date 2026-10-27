@@ -12,35 +12,28 @@ import { pixelCapturingHere } from "@/lib/home-platform";
  * input, which the pixel skips, carries "on" or "". Without JavaScript the
  * box keeps its name and posts as it always did.
  */
-export function ConsentBox({ name, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "name" | "onChange"> & { name: string }) {
+export function ConsentBox({ name, defaultChecked, ...props }: Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "name" | "onChange"> & { name: string }) {
   const [live, setLive] = useState(false);
+  // The mirror's value is React state, not a value written into the DOM: a
+  // hidden input's value is its attribute, which React rewrites from its props
+  // on every render, so a written-in "on" would be lost the next time the
+  // form re-renders (a field's error appearing, say).
+  const [checked, setChecked] = useState(Boolean(defaultChecked));
   const box = useRef<HTMLInputElement>(null);
-  const mirror = useRef<HTMLInputElement>(null);
-  useEffect(() => setLive(true), []);
   useEffect(() => {
-    if (!live) return;
-    const sync = () => {
-      if (box.current && mirror.current) mirror.current.value = box.current.checked ? "on" : "";
-    };
-    sync();
+    setLive(true);
+    // The browser may have restored the box (back/forward cache, autofill) before React ran.
+    if (box.current) setChecked(box.current.checked);
     // React resets uncontrolled fields after a form action; read the box again once the reset has run.
     const form = box.current?.form;
-    const onReset = () => window.setTimeout(sync, 0);
+    const onReset = () => window.setTimeout(() => box.current && setChecked(box.current.checked), 0);
     form?.addEventListener("reset", onReset);
     return () => form?.removeEventListener("reset", onReset);
-  }, [live]);
+  }, []);
   return (
     <>
-      <input
-        ref={box}
-        type="checkbox"
-        name={live ? undefined : name}
-        onChange={(e) => {
-          if (mirror.current) mirror.current.value = e.target.checked ? "on" : "";
-        }}
-        {...props}
-      />
-      {live ? <input ref={mirror} type="hidden" name={name} defaultValue="" /> : null}
+      <input ref={box} type="checkbox" name={live ? undefined : name} defaultChecked={defaultChecked} onChange={(e) => setChecked(e.target.checked)} {...props} />
+      {live ? <input type="hidden" name={name} value={checked ? "on" : ""} /> : null}
     </>
   );
 }

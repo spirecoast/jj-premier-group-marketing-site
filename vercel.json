@@ -35,6 +35,10 @@
     {
       "path": "/api/encore/check",
       "schedule": "41 7 * * *"
+    },
+    {
+      "path": "/api/cron/lead-redeliver",
+      "schedule": "37 15 * * *"
     }
   ]
 }

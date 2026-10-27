@@ -61,8 +61,10 @@ A subdomain keeps the newsletters' sending reputation apart from anything else t
    (`us-east-1`). Use the Resend account that holds `RESEND_API_KEY` (the team email's account), on
    a plan whose daily limit is at least `NEWSLETTER_DAILY_CAP`. The free plan allows 100 a day and
    3,000 a month: past about 100 subscribers on a list a send spreads over more than one day, and
-   the monthly limit runs out at around 500 Encore subscribers. Move to a paid plan before then and
-   raise `NEWSLETTER_DAILY_CAP` to its daily limit.
+   the monthly limit runs out at around 500 Encore subscribers. The cap defaults to 80, not 100,
+   because the team's "New lead" emails and alerts go through the same key and must never be the
+   ones Resend turns away. Move to a paid plan before then and raise `NEWSLETTER_DAILY_CAP` to its
+   daily limit less about 20, or give the newsletter its own key.
 2. Resend shows the records it wants. **Copy them from that screen**; at the time of writing they
    are, with Cloudflare's names relative to the zone `jjpremiergroup.com`:
 
@@ -340,6 +342,12 @@ Supabase → SQL Editor in filename order instead. That fallback skips drizzle's
 on the existing tables; if the SQL Editor path is used, every future migration must be applied the same
 way, or the journal rows must be inserted by hand first. Prefer `db:migrate` from a network that can reach
 the pooler.
+
+`0015_lead_guard_and_outbox.sql` (additive: `lead_outbox`, `lead_rate_limits`, `lead_submissions` and
+an index on `lower(contacts.email)`) turns on the lead retries and the form guard. The site works
+before it's applied (each part fails soft and logs once which file is missing); with it, a failed
+CRM webhook or team email is retried and the forms get their rate limit and resend check. Check:
+`select count(*) from lead_outbox;` answers 0, not an error.
 
 ### 4.4 Confirm the tables
 
@@ -655,6 +663,7 @@ In UptimeRobot, Better Stack or the monitor the team already pays for: two HTTPS
 |---|---|---|
 | Home | `https://jjpremiergroup.com/` | status 200 and the keyword `JJ Premier Group` in the body |
 | Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<urlset` |
+| Leads | `https://jjpremiergroup.com/api/health` | status 200. It answers 503 when production would keep leads only in Postgres, where nobody is told: set `TEAM_NOTIFY_EMAIL` with `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, or `CRM_WEBHOOK_URL`, before launch. This is the first launch gate. |
 
 ### 6.12 Rollback plan
 
