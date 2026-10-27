@@ -124,10 +124,18 @@ export function VisitPlan({
     }
   }
 
-  const askMessage = `Arriving ${longDay(applied.from)}, leaving ${longDay(applied.to)}. Looking in ${marketList(stayMarkets)}.`;
+  // The plan's own link goes in the message, so the team gets the plan and not only the prose (it's known once the page is live).
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+  const askProse = `Arriving ${longDay(applied.from)}, leaving ${longDay(applied.to)}. Looking in ${marketList(stayMarkets)}.`;
+  const askMessage = origin ? `${askProse}\n${origin}${planHref(applied)}` : askProse;
   // The form keeps whatever has been typed across rebuilds; the message only
   // refreshes when asked, the way the net-proceeds sheet does it.
   const [sentMessage, setSentMessage] = useState(askMessage);
+  useEffect(() => {
+    // The first render had no origin yet: add the link to the untouched message.
+    if (origin) setSentMessage((m) => (m === askProse ? `${askProse}\n${origin}${planHref(applied)}` : m));
+  }, [origin, askProse, applied]);
 
   return (
     <div className="encore">
@@ -232,7 +240,6 @@ export function VisitPlan({
             </StepBody>
 
             <StepFooter
-              className="flex-row flex-wrap items-center justify-between"
               back={q > 0 ? { label: "Back", onClick: () => go(q - 1) } : undefined}
               next={q < QUESTION_COUNT - 1 ? { label: "Next", onClick: () => go(q + 1) } : { label: "Build my plan" }}
               submit={q === QUESTION_COUNT - 1}
@@ -390,7 +397,7 @@ export function VisitPlan({
               <LeadForm
                 key={sentMessage}
                 form="buy"
-                fields={["name", "email", "phone", "message"]}
+                fields={["timing", "sellFirst", "name", "email", "phone", "message"]}
                 submitLabel="Line up the showings"
                 defaultMessage={sentMessage}
                 placeholderMessage="Tell us where you’re looking, what you need, and whether there’s a house to sell first."

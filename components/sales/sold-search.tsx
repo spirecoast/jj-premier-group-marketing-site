@@ -116,6 +116,8 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                   onChange={(e) => setStreet(e.target.value)}
                   placeholder={C.form.streetPlaceholder}
                   autoComplete="address-line1"
+                  autoCapitalize="words"
+                  enterKeyHint="next"
                   maxLength={80}
                   required
                   minLength={2}
@@ -126,7 +128,19 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                 <span className="street-sign-label">
                   {C.form.zip} <span>(optional)</span>
                 </span>
-                <input id={`${uid}-zip`} name="zip" value={zip} onChange={(e) => setZip(e.target.value)} placeholder={C.form.zipPlaceholder} autoComplete="postal-code" maxLength={40} className="street-sign-input" />
+                {/* A ZIP gets the number pad; a city typed or pasted in instead switches the box back to letters. */}
+                <input
+                  id={`${uid}-zip`}
+                  name="zip"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                  placeholder={C.form.zipPlaceholder}
+                  autoComplete="postal-code"
+                  inputMode={zip === "" || /^\d+$/.test(zip) ? "numeric" : "text"}
+                  enterKeyHint="search"
+                  maxLength={40}
+                  className="street-sign-input"
+                />
               </label>
               <button type="submit" disabled={state.status === "loading"} className="btn btn-linen min-h-14 self-stretch lg:min-w-[200px]">
                 {state.status === "loading" ? C.form.searching : C.form.submit}

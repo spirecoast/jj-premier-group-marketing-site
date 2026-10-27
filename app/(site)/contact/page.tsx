@@ -52,7 +52,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box, and one of us will write or call back.
         </p>
         <div className="border border-hairline bg-white p-6 sm:p-8">
-          <LeadForm form="contact" fields={["name", "email", "phone", "timing", "message"]} submitLabel="Send" defaultMessage={defaultMessage} hidden={{ market }} />
+          <LeadForm form="contact" fields={["timing", "sellFirst", "name", "email", "phone", "message"]} submitLabel="Send" defaultMessage={defaultMessage} hidden={{ market }} />
         </div>
       </div>
 
