@@ -72,9 +72,13 @@ describe("Atlas Match coverage", () => {
   test("a question under a quarter coverage waits behind More questions; water by default before the index arrives", () => {
     assert.equal(DEFER_BELOW, 0.25);
     assert.deepEqual(deferredIds(null), ["water"]);
-    assert.deepEqual(deferredIds(ENTRIES), ["hoa", "homes", "build", "cdd", "gated", "water"]);
+    // Gated is thin here too, but only water is deferrable; gated keeps its place near the end with its coverage line.
+    assert.deepEqual(deferredIds(ENTRIES), ["water"]);
     const flow = flowOf(deferredIds(ENTRIES));
-    assert.deepEqual(flow, ["market", "county", "evac", "near"]);
+    assert.deepEqual(flow, ["market", "county", "evac", "hoa", "homes", "build", "cdd", "gated", "near"]);
+    // With water known for a quarter of the places, it joins the flow.
+    const wet = ENTRIES.map((e, i) => (i < 3 ? { ...e, w: "lake" as const } : e));
+    assert.deepEqual(deferredIds(wet), []);
     assert.deepEqual(flowOf([]), [...QUESTION_IDS]);
   });
 

@@ -13,6 +13,7 @@ import { LEVEL_LABEL, TYPE_LABEL } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import { QUESTIONS, answeredIds, coverageLine, matchHref, matchListHref, questionIndex, sortMatches, summarize, unknownCount, type AnswerBar, type Answers, type Coverage, type Match, type QuestionId } from "@/lib/neighborhoods/match";
 import { pathOf } from "@/lib/neighborhoods/search";
+import { LIST_FROM_KEY } from "@/lib/neighborhoods/my-places";
 import { LIST_MAX } from "@/lib/neighborhoods/url";
 import { cn } from "@/lib/utils";
 
@@ -119,7 +120,18 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more
             )}
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-4 lg:flex-col lg:items-end">
-            <ButtonLink href={matchListHref(matches) as Route} variant="linen" dash>
+            <ButtonLink
+              href={matchListHref(matches) as Route}
+              variant="linen"
+              dash
+              onClick={() => {
+                try {
+                  window.sessionStorage.setItem(LIST_FROM_KEY, "match");
+                } catch {
+                  /* blocked storage: the explorer falls back to the referrer */
+                }
+              }}
+            >
               See them on the map
             </ButtonLink>
             {matches.length > LIST_MAX ? <p className="t-small text-white/60 lg:text-right">The map holds the first {LIST_MAX.toLocaleString()} of these.</p> : null}

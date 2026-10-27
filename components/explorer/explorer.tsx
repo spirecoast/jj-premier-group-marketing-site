@@ -14,6 +14,7 @@ import type { Bounds, ExplorerMapProps, FitRequest } from "./explorer-map";
 import { ExplorerPanel, type SheetPosition } from "./explorer-panel";
 import { MyPlacesRail, MyPlacesTray } from "./my-places";
 import { useMyPlaces } from "@/components/atlas/use-my-places";
+import { LIST_FROM_KEY } from "@/lib/neighborhoods/my-places";
 import "./explorer.css";
 
 /**
@@ -80,11 +81,20 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
   const listSet = useMemo(() => new Set(list), [list]);
   const [fromMatch, setFromMatch] = useState(false);
   useEffect(() => {
+    if (!initial.list.length) return;
+    let from = false;
     try {
-      setFromMatch(initial.list.length > 0 && new URL(document.referrer).pathname === "/neighborhoods/match");
+      from = window.sessionStorage.getItem(LIST_FROM_KEY) === "match";
+      window.sessionStorage.removeItem(LIST_FROM_KEY);
+    } catch {
+      /* blocked storage */
+    }
+    try {
+      from = from || new URL(document.referrer).pathname === "/neighborhoods/match";
     } catch {
       /* no referrer */
     }
+    if (from) setFromMatch(true);
   }, [initial.list.length]);
   const my = useMyPlaces();
   const [hover, setHover] = useState<string | null>(null);
@@ -120,11 +130,11 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
   /** What the list shows: children of the selected place, else matches, narrowed to the viewport when browsing. */
   const listed = useMemo(() => {
     if (selected && childrenAll.length && !searching) return children;
-    if (searching || !bounds) return results;
+    if (searching || listSet.size || !bounds) return results;
     const [w, s, e, n] = bounds;
     const inView = results.filter((p) => p.x !== null && p.y !== null && p.x >= w && p.x <= e && p.y >= s && p.y <= n);
     return inView;
-  }, [selected, childrenAll.length, children, searching, results, bounds]);
+  }, [selected, childrenAll.length, children, searching, results, bounds, listSet.size]);
 
   /** Points on the map: every match; while drilling, the selected place and its descendants stand out by being the only ones. */
   const mapEntries = useMemo(() => {
@@ -251,7 +261,7 @@ export function Explorer({ initial, datasetVersion, asOf }: { initial: ExplorerS
         listed={listed}
         total={results.length}
         searching={searching}
-        browsingInView={!searching && !(selected && childrenAll.length) && Boolean(bounds)}
+        browsingInView={!searching && !listSet.size && !(selected && childrenAll.length) && Boolean(bounds)}
         hover={hover}
         onHover={setHover}
         onSelect={select}

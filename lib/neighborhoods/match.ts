@@ -232,13 +232,20 @@ export function coverageLine(c: Coverage | null, id: QuestionId): string | null 
   return id === "near" ? `We have a map point for ${n} of ${t} places.` : `We hold this for ${n} of ${t} places.`;
 }
 
-/** A question whose fact we hold for fewer places than this share waits behind "More questions". */
+/** A deferrable question whose fact we hold for fewer places than this share waits behind "More questions". */
 export const DEFER_BELOW = 0.25;
 
-/** The questions held back for thin coverage. Before the index arrives, the one known to be thin (water, 5% in October 2026). */
+/**
+ * The questions that may wait: water (5% coverage in October 2026). Gated is
+ * thin too (14%) but stays in the flow near its end, since it is one of the
+ * first things a buyer asks; its coverage line says how thin it is.
+ */
+export const DEFERRABLE: readonly QuestionId[] = ["water"];
+
+/** The questions held back for thin coverage. Before the index arrives, every deferrable one. */
 export function deferredIds(entries: IndexEntry[] | null, registry = false): QuestionId[] {
-  if (!entries) return ["water"];
-  return QUESTION_IDS.filter((id) => {
+  if (!entries) return [...DEFERRABLE];
+  return DEFERRABLE.filter((id) => {
     const c = coverage(entries, id, registry);
     return c !== null && c.total > 0 && c.known / c.total < DEFER_BELOW;
   });

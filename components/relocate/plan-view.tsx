@@ -263,6 +263,9 @@ export function PlanView() {
   if (mode !== "plan") return null;
   const grouped = PHASES.map((p) => ({ phase: p, items: plan.milestones.filter((m) => m.phase === p) })).filter((g) => g.items.length);
   const keyDates = KEY_IDS.map((id) => plan.milestones.find((m) => m.id === id)).filter((m): m is Milestone => Boolean(m?.date));
+  /* A plan that doesn't fit says so before the dates; the rest of the callouts follow them. */
+  const urgent = plan.callouts.filter((c) => c.id === "past");
+  const callouts = plan.callouts.filter((c) => c.id !== "past");
 
   return (
     <section id="plan" className="scroll-mt-header bg-linen-50 print:bg-white" aria-labelledby="plan-title">
@@ -284,11 +287,19 @@ export function PlanView() {
 
         <p className="hidden text-[9pt] text-graphite-600 print:block">{shareUrl}</p>
 
+        {urgent.length ? (
+          <ul className="grid gap-3">
+            {urgent.map((c) => (
+              <CalloutCard key={c.id} c={c} />
+            ))}
+          </ul>
+        ) : null}
+
         <KeyDates items={keyDates} today={today} />
 
-        {plan.callouts.length ? (
+        {callouts.length ? (
           <ul className="grid gap-3 md:grid-cols-2">
-            {plan.callouts.map((c) => (
+            {callouts.map((c) => (
               <CalloutCard key={c.id} c={c} />
             ))}
           </ul>

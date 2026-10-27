@@ -7,6 +7,9 @@
 
 export const MY_PLACES_KEY = "atlas:places";
 
+/** Set to "match" in sessionStorage as "See them on the map" is followed, so the explorer titles the list "Your Match list". */
+export const LIST_FROM_KEY = "atlas:list-from";
+
 /** How many places the compare page holds side by side. */
 export const COMPARE_MAX = 4;
 
