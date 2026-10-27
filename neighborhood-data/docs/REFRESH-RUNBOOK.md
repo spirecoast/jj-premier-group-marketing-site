@@ -69,6 +69,20 @@ descriptions, and commit data + index together. For every fact you add or change
    ```
 3. **Stale sources.** `validate.mjs` prints how many records cite a source whose own date is more than two years
    old. Pick the selling / full-research ones first and re-check them.
+4. **Dead sources**
+   ```bash
+   node scripts/check-sources.mjs
+   ```
+   Opens every cited URL (about 450 unique ones) and reports the ones that answer 404 or 410 (`dead`), redirect to
+   a different page (`moved`), refuse scripts (`blocked`; open those in a browser) or fail. For each dead page the
+   report carries the closest Wayback Machine snapshot when there is one. Then, per finding:
+   - A snapshot exists → replace the source's `url` with the `web.archive.org/web/<timestamp>/<url>` link and
+     leave `supports` and `checked` as they are. The site shows such links as "archived copy" with the snapshot's
+     date, so the fact stays sourced and the reader knows the page is gone.
+   - No snapshot → re-research the facts that source supported (a builder's community page usually moves to the
+     builder's sold-out list or a developer page). Replace the entry with the new source, or remove the entry and
+     the facts it alone supported. Never keep a link that 404s.
+   - `moved` → open the new URL; if it is the same page, update `url`; if not, treat it as dead.
 
 ## Yearly
 
@@ -94,6 +108,7 @@ descriptions, and commit data + index together. For every fact you add or change
 | `build-search-index.mjs` | no | writes `data/neighborhoods.search.json` |
 | `refresh-gis.mjs` | ArcGIS (Manatee, Sarasota), GuideK12 | only with `--apply`: `zips`, `jurisdiction`, `zonedSchools`, `evacuationZone`, source checked dates, one note line |
 | `check-builders.mjs` | builder sites, Pulte API | no (report only) |
+| `check-sources.mjs` | every cited URL, archive.org | no (report only) |
 | `discover.mjs` | registries, builder lists, LWR API | only `data/discover-baseline.json` (first run or `--update-baseline`) |
 
 ## When a script breaks

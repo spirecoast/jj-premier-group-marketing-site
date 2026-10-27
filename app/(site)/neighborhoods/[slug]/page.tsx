@@ -1,5 +1,4 @@
 import type { Metadata, Route } from "next";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButtonLink, RuleLink } from "@/components/buttons";
@@ -9,6 +8,8 @@ import { FaqAccordion } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { ListingCard } from "@/components/listing-card";
 import { Photo } from "@/components/photo";
+import { PlaceMapIsland } from "@/components/place-map-island";
+import { PlacePoster } from "@/components/place-poster";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { SavePlaceButton } from "@/components/atlas/save-place";
@@ -20,14 +21,11 @@ import { varyStock } from "@/lib/encore/stock";
 import type { MarketSlug } from "@/lib/content/types";
 import { DATASET_VERSION, checkedDate, evacuationSource, getAncestors, getChildren, getRecord, getRecordSlugs } from "@/lib/neighborhoods/data";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, hostOf, monthYear, titleCase } from "@/lib/neighborhoods/format";
+import { sourceLine } from "@/lib/neighborhoods/sources";
 import type { NeighborhoodRecord } from "@/lib/neighborhoods/types";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 import { ExternalLink as NewTabLink } from "@/components/ui/external-link";
-
-const PlaceMap = dynamic(() => import("@/components/place-map").then((m) => m.PlaceMap), {
-  loading: () => <div className="explorer-hero-map" aria-hidden="true" />,
-});
 
 /** Hourly ISR: the calendar row is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -68,9 +66,17 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   });
 }
 
-function Fact({ label, children }: { label: string; children: React.ReactNode }) {
+/** The particulars grid is three across on desktop and two on tablets; a short last row stretches so the panel has no empty cell. */
+const STRETCH_LG = ["", "lg:col-span-3", "lg:col-span-2"] as const; // by cells in the last row: 0 = full, 1 = one cell, 2 = two cells
+const STRETCH_SM = ["", "sm:col-span-2"] as const;
+function stretch(count: number): string {
+  if (!count) return "";
+  return `${STRETCH_SM[count % 2]} ${STRETCH_LG[count % 3]}`.trim();
+}
+
+function Fact({ label, className, children }: { label: string; className?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5 bg-white p-5">
+    <div className={`flex flex-col gap-1.5 bg-white p-5 ${className ?? ""}`}>
       <dt className="t-mono-sm text-graphite-500">{label}</dt>
       <dd className="t-body text-body">{children}</dd>
     </div>
@@ -202,7 +208,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
         </div>
         {mapPoints.length ? (
           <div className="self-start overflow-hidden border border-hairline">
-            <PlaceMap slug={slug} points={mapPoints} />
+            <PlaceMapIsland slug={slug} points={mapPoints} poster={<PlacePoster points={mapPoints} />} />
           </div>
         ) : n?.stat ? (
           <aside className="flex flex-col gap-2 self-start border border-hairline bg-white p-7">
@@ -219,13 +225,15 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             The particulars
           </h2>
           <dl className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-3">
-            {factRows.map((f) => (
-              <Fact key={f.label} label={f.label}>
+            {factRows.map((f, i) => (
+              <Fact key={f.label} label={f.label} className={i === factRows.length - 1 ? stretch(factRows.length) : undefined}>
                 {f.value}
               </Fact>
             ))}
             {record?.amenities.length ? (
-              <Fact label="Amenities per the association or builder">{record.amenities.join(" · ")}</Fact>
+              <Fact label="Amenities per the association or builder" className="sm:col-span-2 lg:col-span-3">
+                {record.amenities.join(" · ")}
+              </Fact>
             ) : null}
           </dl>
         </section>
@@ -284,11 +292,11 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
                 {enclaves.length && communities.length ? <h3 className="t-mono-sm text-graphite-500">{label as string}</h3> : null}
                 <ul className="grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
                   {(list as NeighborhoodRecord[]).map((c) => (
-                    <li key={c.slug} className="flex items-baseline justify-between gap-3 border-b border-hairline py-2.5">
-                      <Link href={`/neighborhoods/${c.slug}`} className="t-h4 text-navy transition-colors hover:text-harbor-700">
-                        {c.name}
+                    <li key={c.slug} className="flex border-b border-hairline">
+                      <Link href={`/neighborhoods/${c.slug}`} className="group flex min-h-11 flex-1 items-baseline justify-between gap-3 py-2.5">
+                        <span className="t-h4 text-navy transition-colors group-hover:text-harbor-700">{c.name}</span>
+                        <span className="t-mono-sm shrink-0 text-graphite-500">{c.type ? TYPE_LABEL[c.type] : LEVEL_LABEL[c.level]}</span>
                       </Link>
-                      <span className="t-mono-sm shrink-0 text-graphite-500">{c.type ? TYPE_LABEL[c.type] : LEVEL_LABEL[c.level]}</span>
                     </li>
                   ))}
                 </ul>
@@ -348,19 +356,22 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
               </span>
             </summary>
             <ul className="flex flex-col border-t border-hairline">
-              {record.sources.map((s, i) => (
+              {record.sources.map(sourceLine).map((s, i) => (
                 <li key={`${s.url}-${i}`} className="grid gap-1 border-b border-hairline px-6 py-3 last:border-b-0 sm:grid-cols-[1fr_auto] sm:items-baseline">
                   <span className="flex flex-col gap-0.5">
-                    <ExternalLink href={s.url}>{hostOf(s.url)}</ExternalLink>
+                    <span className="t-small text-body">
+                      <ExternalLink href={s.url}>{s.publisher}</ExternalLink>
+                      {s.archived ? <span className="text-graphite-500"> · archived copy of {hostOf(s.archived.original)}, saved {s.archived.snapshot}</span> : null}
+                    </span>
                     <span className="t-note">{s.supports}</span>
                   </span>
-                  <span className="t-mono-sm text-graphite-500">checked {s.checked}</span>
+                  <span className="t-note">checked {s.checked}</span>
                 </li>
               ))}
             </ul>
           </details>
           <p className="t-note mt-3">
-            Catalog as of {monthYear(DATASET_VERSION)}. Facts are as the source stated them on the checked date. No ratings, prices or statistics are drawn from them.
+            Catalogue as of {monthYear(DATASET_VERSION)}. Facts are as the source stated them on the checked date. No ratings, prices or statistics are drawn from them.
           </p>
         </section>
       ) : null}

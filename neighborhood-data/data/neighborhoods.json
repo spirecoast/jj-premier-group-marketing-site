@@ -72560,13 +72560,10 @@
     "lat": 27.506457,
     "lng": -82.684287,
     "type": "master-planned community",
-    "developer": "Minto Communities",
+    "developer": null,
     "activeBuilders": [],
     "yearsBuilt": null,
-    "homeTypes": [
-      "condominium",
-      "coach home"
-    ],
+    "homeTypes": [],
     "homeCount": null,
     "gated": null,
     "ageRestricted": null,
@@ -72592,18 +72589,6 @@
     "description": "A Minto Communities island community on Anna Maria Sound in Bradenton with condominiums and coach homes, including the One Particular Harbour marina residences.",
     "research": "full",
     "sources": [
-      {
-        "url": "https://www.minto.com/usa/new-homes/news/New-Deep-Water-Marina-at-One-Particular-Harbour-Opening-to-Public-February-9-with-Celebratory-Event~0_1332.html",
-        "supports": "existence,name,developer,homeTypes",
-        "checked": "2026-09-22",
-        "sourceDate": "2019-02-01"
-      },
-      {
-        "url": "https://www.minto.com/media/news/Minto-releases-Harbour-Isle-coach-home-models-for-sale~756.html",
-        "supports": "existence,homeTypes",
-        "checked": "2026-09-22",
-        "sourceDate": null
-      },
       {
         "url": "https://www.minto.com/usa/new-homes/projects.html",
         "supports": "status",
@@ -151562,12 +151547,12 @@
     },
     "evacuationZone": "none",
     "status": "selling",
-    "officialUrl": "https://www.kbhome.com/new-homes-sarasota-bradenton/sawgrass-lakes-ii",
+    "officialUrl": null,
     "description": "The second KB Home phase of Sawgrass Lakes in Parrish, sharing the beach-entry pool and cabana with Sawgrass Lakes I.",
     "research": "full",
     "sources": [
       {
-        "url": "https://www.kbhome.com/new-homes-sarasota-bradenton/sawgrass-lakes-ii",
+        "url": "http://web.archive.org/web/20260606110332/https://www.kbhome.com/new-homes-sarasota-bradenton/sawgrass-lakes-ii",
         "supports": "existence,name,status,address,county,amenities",
         "checked": "2026-09-22",
         "sourceDate": null
@@ -170381,7 +170366,7 @@
     "zonedSchools": null,
     "evacuationZone": null,
     "status": "built-out",
-    "officialUrl": "https://www.mihomes.com/new-homes/florida/sarasota-metro/lakewood-ranch/sweetwater-at-lakewood-ranch",
+    "officialUrl": null,
     "description": "Sweetwater is a gated Lakewood Ranch village of villas and single-family homes by M/I Homes in Manatee County, with a heated pool, a pool with swim lanes, a fitness room, social hall, pickleball courts and a festival lawn with amphitheater.",
     "research": "full",
     "sources": [
@@ -170416,7 +170401,7 @@
         "sourceDate": "2022-01-06"
       },
       {
-        "url": "https://www.mihomes.com/new-homes/florida/sarasota-metro/lakewood-ranch/sweetwater-at-lakewood-ranch",
+        "url": "http://web.archive.org/web/20260405190600/https://www.mihomes.com/new-homes/florida/sarasota-metro/lakewood-ranch/sweetwater-at-lakewood-ranch",
         "supports": "activeBuilders,address,amenities,county,existence,gated,homeTypes,name,status",
         "checked": "2026-09-22",
         "sourceDate": null
@@ -170434,7 +170419,7 @@
         "sourceDate": "2023-09-30"
       },
       {
-        "url": "https://www.mihomes.com/new-homes/florida/sarasota-metro/lakewood-ranch/sweetwater-at-lakewood-ranch",
+        "url": "http://web.archive.org/web/20260405190600/https://www.mihomes.com/new-homes/florida/sarasota-metro/lakewood-ranch/sweetwater-at-lakewood-ranch",
         "supports": "status (Now Selling; 'Only 9 single family home opportunities remain'),activeBuilders,homeTypes,amenities",
         "checked": "2026-09-23",
         "sourceDate": null

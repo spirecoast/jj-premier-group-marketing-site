@@ -3,12 +3,10 @@
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { MapUnavailable } from "@/components/map-unavailable";
 import { startMap, type MapStatus } from "@/components/map-runtime";
 import { MAP_COLORS } from "@/lib/neighborhoods/map-style";
-import { explorerHref } from "@/lib/neighborhoods/url";
 import "@/components/explorer/explorer.css";
 
 export type PlacePoint = { slug: string; name: string; lng: number; lat: number; kind: "self" | "child" | "parent" };
@@ -54,9 +52,13 @@ function addPointLayers(m: MapLibreMap, points: PlacePoint[]) {
 
 /**
  * The small map on a neighborhood page: the place in amber, its children and
- * its parent as context, zoomed to fit. Pans but does not scroll-zoom, so the
- * page keeps scrolling; the explorer link is the way in. If the map can't be
- * drawn, a quiet note takes its place and the rest of the page carries on.
+ * its parent as context, zoomed to fit. It never takes the page's scroll: no
+ * wheel zoom, and on a phone one finger scrolls the page while two move the
+ * map (MapLibre's cooperative gestures, with its own two-finger note). The
+ * explorer link in the frame is the way in. If the map can't be drawn, a
+ * quiet note takes its place and the rest of the page carries on. Loaded on
+ * demand by PlaceMapIsland, so MapLibre and its stylesheet come with this
+ * chunk and not with the page.
  */
 export function PlaceMap({ slug, points }: { slug: string; points: PlacePoint[] }) {
   const el = useRef<HTMLDivElement>(null);
@@ -77,6 +79,7 @@ export function PlaceMap({ slug, points }: { slug: string; points: PlacePoint[] 
         scrollZoom: false,
         dragRotate: false,
         touchPitch: false,
+        cooperativeGestures: true,
       },
       {
         onStyle: (m) => addPointLayers(m, points),
@@ -103,7 +106,7 @@ export function PlaceMap({ slug, points }: { slug: string; points: PlacePoint[] 
 
   if (!self) return null;
   return (
-    <div className="explorer-hero-map">
+    <>
       <div key={attempt} ref={el} style={{ position: "absolute", inset: 0 }} role="region" aria-label={`Map of ${self.name}`} />
       {status === "failed" ? (
         <MapUnavailable
@@ -114,10 +117,6 @@ export function PlaceMap({ slug, points }: { slug: string; points: PlacePoint[] 
           }}
         />
       ) : null}
-      <Link href={explorerHref({ place: slug })} className="btn btn-navy !min-h-10 !px-4 !text-[11px] absolute bottom-4 left-4 z-10">
-        Open in the explorer
-        <span className="btn-dash" aria-hidden="true" />
-      </Link>
-    </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SavePlaceButton } from "@/components/atlas/save-place";
+import type { RefObject } from "react";
 import { ShareButton } from "@/components/share-button";
 import { marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, titleCase } from "@/lib/neighborhoods/format";
@@ -34,6 +35,7 @@ export function PlaceCard({
   ancestors,
   childCount,
   asOf,
+  headingRef,
   onSelect,
   onClose,
 }: {
@@ -41,6 +43,8 @@ export function PlaceCard({
   ancestors: IndexEntry[];
   childCount: number;
   asOf: string;
+  /** The panel focuses the name when the card opens, so a keyboard or screen reader lands on the place. */
+  headingRef?: RefObject<HTMLHeadingElement | null>;
   onSelect: (slug: string) => void;
   onClose: () => void;
 }) {
@@ -69,14 +73,16 @@ export function PlaceCard({
             </span>
           ))}
         </nav>
-        <div className="-mr-2 -mt-2 flex shrink-0 items-center gap-1">
+        <div className="-mr-3 -mt-3 flex shrink-0 items-center gap-1">
           <SavePlaceButton slug={e.s} name={e.n} className="!border-transparent !bg-transparent" />
-          <button type="button" onClick={onClose} className="grid size-11 place-items-center font-mono text-[13px] text-graphite-500 hover:text-navy" aria-label="Close">
-            ✕
+          <button type="button" onClick={onClose} className="explorer-quiet" aria-label="Close">
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
       </div>
-      <h2 className="t-h1 mt-2 text-navy">{e.n}</h2>
+      <h2 ref={headingRef} tabIndex={-1} className="t-h1 explorer-card-title mt-2 text-navy">
+        {e.n}
+      </h2>
       <p className="t-note mt-1">
         {LEVEL_LABEL[e.l]}
         {e.a.length ? ` · also ${e.a.join(", ")}` : ""}

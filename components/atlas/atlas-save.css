@@ -29,22 +29,24 @@
   }
 
   /* ---- My places on the explorer ---- */
-  /* Desktop: a 280px rail at the top right of the map. */
-  .explorer.is-desktop .my-places-rail {
-    position: absolute;
-    z-index: 10;
-    top: 1.25rem;
-    right: 1.25rem;
-    width: 280px;
-    max-height: calc(100% - 2.5rem);
-    display: flex;
-    flex-direction: column;
-    background: var(--color-paper);
-    border: 1px solid var(--color-hairline);
-    box-shadow: 0 18px 50px -24px rgba(30, 52, 66, 0.35);
-  }
-  .explorer.is-mobile .my-places-rail {
+  /* Desktop: a 280px rail at the top right of the map (rendered only from 1024px; hidden below as a guard). */
+  .my-places-rail {
     display: none;
+  }
+  @media (min-width: 64rem) {
+    .explorer .my-places-rail {
+      position: absolute;
+      z-index: 10;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 280px;
+      max-height: calc(100% - 2.5rem);
+      display: flex;
+      flex-direction: column;
+      background: var(--color-paper);
+      border: 1px solid var(--color-hairline);
+      box-shadow: 0 18px 50px -24px rgba(30, 52, 66, 0.35);
+    }
   }
   .my-places-rail-head {
     display: flex;
@@ -94,17 +96,19 @@
   .my-places-tray {
     display: none;
   }
-  .explorer.is-mobile .my-places-tray {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 2.75rem;
-    padding: 0 1rem;
-    background: var(--color-navy);
-    color: var(--color-linen-100);
-    white-space: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
+  @media (max-width: 63.99rem) {
+    .explorer .my-places-tray {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 2.75rem;
+      padding: 0 1rem;
+      background: var(--color-navy);
+      color: var(--color-linen-100);
+      white-space: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
   }
   .my-places-tray::-webkit-scrollbar {
     display: none;
@@ -166,12 +170,4 @@
   .my-places-tray-spacer {
     flex: 1;
   }
-}
-
-/* With the rail at the top right, the map's zoom and locate buttons move to the bottom right, above the
-   attribution. Outside the layer: MapLibre's own sheet is unlayered, and an unlayered rule beats any layer. */
-.explorer.is-desktop:has(.my-places-rail) .maplibregl-ctrl-top-right {
-  top: auto;
-  bottom: 2.5rem;
-  right: 1rem;
 }

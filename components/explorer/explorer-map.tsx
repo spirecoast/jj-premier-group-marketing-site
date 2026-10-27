@@ -6,23 +6,27 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 import { MapUnavailable } from "@/components/map-unavailable";
 import { startMap, type MapStatus } from "@/components/map-runtime";
+import type { Bounds } from "@/lib/neighborhoods/bounds";
 import { MAP_COLORS } from "@/lib/neighborhoods/map-style";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import type { MapView } from "@/lib/neighborhoods/url";
+import { useReducedMotion } from "@/lib/use-reduced-motion";
 import "./explorer.css";
 
-export type Bounds = [west: number, south: number, east: number, north: number];
+export type { Bounds } from "@/lib/neighborhoods/bounds";
 
-/** A one-shot instruction from the explorer: fit these bounds, or fly to a point. */
+/** A one-shot instruction from the explorer: fit these bounds, or fly to a point. `duration` 0 jumps; unset flies. */
 export type FitRequest =
-  | { id: number; kind: "bounds"; bounds: Bounds; maxZoom?: number }
-  | { id: number; kind: "point"; lng: number; lat: number; zoom?: number };
+  | { id: number; kind: "bounds"; bounds: Bounds; maxZoom?: number; duration?: number }
+  | { id: number; kind: "point"; lng: number; lat: number; zoom?: number; duration?: number };
 
 export type ExplorerMapProps = {
   entries: IndexEntry[];
   selected: string | null;
   hover: string | null;
   initialView: MapView | null;
+  /** The view to open on when there is no `initialView`: the catalog's box, worked out on the server. */
+  initialBounds: Bounds | null;
   fit: FitRequest | null;
   /** Screen padding so the panel or sheet never covers the fitted points. */
   padding: { top: number; right: number; bottom: number; left: number };
@@ -35,6 +39,8 @@ export type ExplorerMapProps = {
 const SOURCE = "places";
 const LEVEL_NUM = { area: 0, community: 1, enclave: 2 } as const;
 const HOME: Bounds = [-82.78, 27.17, -82.25, 27.67];
+const FLY_MS = 900;
+const DESKTOP = "(min-width: 1024px)";
 
 function toGeoJson(entries: IndexEntry[]): GeoJSON.FeatureCollection<GeoJSON.Point> {
   return {
@@ -175,9 +181,11 @@ function addPlaceLayers(m: MapLibreMap, state: { entries: IndexEntry[]; selected
  * The map itself. MapLibre with the brand style; every place is a point in
  * a GeoJSON source, drawn as rings for areas and dots for the rest, with
  * labels that appear as you zoom. Selection and hover are layer filters, so
- * nothing re-renders but the map.
+ * nothing re-renders but the map. It opens on its final view (the bounds the
+ * server worked out) so the first tiles are the only tiles; later moves fly
+ * for 900 ms, or jump for a visitor who asked for reduced motion.
  */
-export function ExplorerMap({ entries, selected, hover, initialView, fit, padding, onSelect, onHover, onMove, onReady }: ExplorerMapProps) {
+export function ExplorerMap({ entries, selected, hover, initialView, initialBounds, fit, padding, onSelect, onHover, onMove, onReady }: ExplorerMapProps) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
   /** The first load has happened and the interactions are bound. */
@@ -188,21 +196,26 @@ export function ExplorerMap({ entries, selected, hover, initialView, fit, paddin
   const [attempt, setAttempt] = useState(0);
   const lastFit = useRef<number>(-1);
   const pulse = useRef<number | null>(null);
+  const reduced = useReducedMotion();
   const cb = useRef({ onSelect, onHover, onMove, onReady });
   cb.current = { onSelect, onHover, onMove, onReady };
   // The index can arrive before the map finishes loading; the load handler reads the latest props.
-  const latest = useRef({ entries, selected, hover });
-  latest.current = { entries, selected, hover };
+  const latest = useRef({ entries, selected, hover, padding, reduced });
+  latest.current = { entries, selected, hover, padding, reduced };
 
   useEffect(() => {
     if (!container.current || map.current) return;
     ready.current = false;
     layers.current = false;
+    const opening = initialView
+      ? { center: [initialView.lng, initialView.lat] as [number, number], zoom: initialView.zoom }
+      : initialBounds
+        ? { bounds: initialBounds as LngLatBoundsLike, fitBoundsOptions: { padding: latest.current.padding, maxZoom: 12.5 } }
+        : { center: [-82.5, 27.42] as [number, number], zoom: 10 };
     const started = startMap(
       container.current,
       {
-        center: initialView ? [initialView.lng, initialView.lat] : [-82.5, 27.42],
-        zoom: initialView ? initialView.zoom : 10,
+        ...opening,
         minZoom: 8,
         maxZoom: 17.5,
         attributionControl: false,
@@ -226,11 +239,13 @@ export function ExplorerMap({ entries, selected, hover, initialView, fit, paddin
     const m = started.map;
     map.current = m;
     if (process.env.NODE_ENV !== "production") (window as unknown as { __jjmap?: MapLibreMap }).__jjmap = m;
+    // Controls: bottom-right on desktop (the panel is on the left); top-right on a phone, above the sheet.
+    const corner = window.matchMedia(DESKTOP).matches ? "bottom-right" : "top-right";
     m.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
-    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), corner);
     m.addControl(
       new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: false }, fitBoundsOptions: { maxZoom: 13 }, showUserLocation: true }),
-      "top-right",
+      corner,
     );
     m.touchPitch.disable();
     m.dragRotate.disable();
@@ -292,7 +307,7 @@ export function ExplorerMap({ entries, selected, hover, initialView, fit, paddin
     src?.setData(toGeoJson(entries));
   }, [entries]);
 
-  // Selection: filter + a soft pulse.
+  // Selection: filter + a soft pulse (a still ring for reduced motion).
   useEffect(() => {
     const m = map.current;
     if (!m || !layers.current) return;
@@ -301,6 +316,11 @@ export function ExplorerMap({ entries, selected, hover, initialView, fit, paddin
     m.setFilter("place-selected-pulse", f);
     if (pulse.current) cancelAnimationFrame(pulse.current);
     if (!selected) return;
+    if (reduced) {
+      m.setPaintProperty("place-selected-pulse", "circle-radius", 16);
+      m.setPaintProperty("place-selected-pulse", "circle-opacity", 0.2);
+      return;
+    }
     const start = performance.now();
     const tick = (t: number) => {
       const k = ((t - start) % 2400) / 2400;
@@ -313,7 +333,7 @@ export function ExplorerMap({ entries, selected, hover, initialView, fit, paddin
     return () => {
       if (pulse.current) cancelAnimationFrame(pulse.current);
     };
-  }, [selected]);
+  }, [selected, reduced]);
 
   useEffect(() => {
     const m = map.current;
@@ -321,19 +341,20 @@ export function ExplorerMap({ entries, selected, hover, initialView, fit, paddin
     m.setFilter("place-hover", ["==", ["get", "slug"], hover ?? ""]);
   }, [hover]);
 
-  // Fit / fly requests
+  // Fit / fly requests. A visitor who asked for reduced motion gets the same view without the flight.
   useEffect(() => {
     const m = map.current;
     if (!m || !fit || fit.id === lastFit.current) return;
     const run = () => {
       lastFit.current = fit.id;
+      const duration = latest.current.reduced ? 0 : (fit.duration ?? FLY_MS);
       if (fit.kind === "bounds") {
         const b = fit.bounds;
         const same = b[0] === b[2] && b[1] === b[3];
-        if (same) m.flyTo({ center: [b[0], b[1]], zoom: Math.max(m.getZoom(), fit.maxZoom ?? 14), padding, duration: 900, essential: true });
-        else m.fitBounds(b as LngLatBoundsLike, { padding, maxZoom: fit.maxZoom ?? 15, duration: 900, essential: true });
+        if (same) m.flyTo({ center: [b[0], b[1]], zoom: Math.max(m.getZoom(), fit.maxZoom ?? 14), padding, duration });
+        else m.fitBounds(b as LngLatBoundsLike, { padding, maxZoom: fit.maxZoom ?? 15, duration });
       } else {
-        m.flyTo({ center: [fit.lng, fit.lat], zoom: fit.zoom ?? Math.max(m.getZoom(), 14), padding, duration: 900, essential: true });
+        m.flyTo({ center: [fit.lng, fit.lat], zoom: fit.zoom ?? Math.max(m.getZoom(), 14), padding, duration });
       }
     };
     if (ready.current) run();
