@@ -1,8 +1,10 @@
 import Script from "next/script";
+import { sideEffectsAllowed } from "@/lib/deploy-env";
 
 /**
- * Plausible, gated on a public env var so a preview deployment never reports
- * into production analytics.
+ * Plausible, gated on a public env var and on the deployment
+ * (lib/deploy-env.ts), so a preview never reports into production analytics
+ * even when the variable is shared.
  *
  * Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to the site's domain as it is registered in
  * Plausible (no protocol). Custom events fire through lib/analytics.ts; the
@@ -16,7 +18,7 @@ import Script from "next/script";
 export function Analytics() {
   const plausible = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   const plausibleHost = process.env.NEXT_PUBLIC_PLAUSIBLE_HOST || "https://plausible.io";
-  if (!plausible) return null;
+  if (!plausible || !sideEffectsAllowed()) return null;
   return (
     <>
       <Script

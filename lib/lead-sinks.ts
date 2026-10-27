@@ -2,12 +2,17 @@
  * Which lead sinks this deployment has configured. Booleans and names only,
  * never values: /api/health returns this verbatim and the boot warning logs it.
  *
- * Kept free of imports so instrumentation.ts and the edge runtime can load it.
+ * Kept free of server imports so instrumentation.ts and the edge runtime can
+ * load it (lib/deploy-env.ts imports nothing).
  */
+
+import { sideEffectsAllowed } from "./deploy-env";
 
 export type CrmProvider = "webhook" | "fub" | "none";
 
 export function getCrmProvider(): CrmProvider {
+  // A preview deployment never sends a lead to the CRM (lib/deploy-env.ts).
+  if (!sideEffectsAllowed()) return "none";
   const explicit = (process.env.CRM_PROVIDER || "").trim().toLowerCase();
   if (explicit === "webhook" || explicit === "fub" || explicit === "none") return explicit;
   if (explicit) console.warn(`[crm] unknown CRM_PROVIDER "${explicit}"; falling back to auto-detect`);

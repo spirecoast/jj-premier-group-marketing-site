@@ -1,10 +1,11 @@
 import "server-only";
+import { sideEffectsAllowed } from "@/lib/deploy-env";
 
 /**
  * Server-side Plausible events (https://plausible.io/docs/events-api), sent
  * from the lead pipeline as an ad-blocker backstop. Gated on
- * NEXT_PUBLIC_PLAUSIBLE_DOMAIN, the same switch as components/analytics.tsx.
- * Never throws.
+ * NEXT_PUBLIC_PLAUSIBLE_DOMAIN, the same switch as components/analytics.tsx,
+ * and off on a preview deployment (lib/deploy-env.ts). Never throws.
  *
  * The browser owns the "Lead" and "Subscribe" goals (the thank-you page and
  * the inline letter form). This sends a separate "Lead server" goal, so the
@@ -29,6 +30,7 @@ export async function sendPlausibleEvent(
 ): Promise<PlausibleServerResult> {
   const domain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   if (!domain) return { ok: false, error: "NEXT_PUBLIC_PLAUSIBLE_DOMAIN not set", skipped: true };
+  if (!sideEffectsAllowed()) return { ok: false, error: "preview deployment", skipped: true };
   const host = (process.env.NEXT_PUBLIC_PLAUSIBLE_HOST || "https://plausible.io").replace(/\/$/, "");
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (event.userAgent) headers["User-Agent"] = event.userAgent;

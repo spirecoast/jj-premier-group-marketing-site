@@ -1,4 +1,5 @@
 import "server-only";
+import { sideEffectsAllowed } from "@/lib/deploy-env";
 import { PlacesCapError, takeCall } from "./budget";
 import { rank, type Period, type Place, type RawPlace } from "./rank";
 import venueGeo from "./venue-geo.json";
@@ -15,10 +16,12 @@ import venueGeo from "./venue-geo.json";
  * inside the free tier.
  *
  * Without GOOGLE_MAPS_API_KEY, or without DATABASE_URL to keep the count,
- * both lists are hidden and the routes 404.
+ * both lists are hidden and the routes 404. The same on a preview
+ * deployment (lib/deploy-env.ts): previews share production's key and its
+ * daily count, so only production spends it.
  */
 
-export const placesEnabled = (): boolean => Boolean(process.env.GOOGLE_MAPS_API_KEY && process.env.DATABASE_URL);
+export const placesEnabled = (): boolean => Boolean(process.env.GOOGLE_MAPS_API_KEY && process.env.DATABASE_URL) && sideEffectsAllowed();
 
 const BASE = "https://places.googleapis.com/v1/places";
 const FIELDS = [
