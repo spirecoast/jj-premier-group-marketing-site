@@ -196,6 +196,15 @@ const nextConfig: NextConfig = {
       { source: "/vendor/maplibre-gl/:version/:file", headers: [{ key: "Cache-Control", value: IMMUTABLE }] },
       // The guide PDFs repeat the guide pages; the pages are the ones to index.
       { source: "/guides/pdf/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
+      // The private cards link: the same rules as the questionnaire's.
+      {
+        source: "/cards/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
       // The private questionnaire links: the token is in the path, so no referrer, no caching, no indexing.
       {
         source: "/q/:path*",

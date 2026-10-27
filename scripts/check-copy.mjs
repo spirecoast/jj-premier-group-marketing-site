@@ -44,6 +44,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkFairHousing } from "../lib/fair-housing.ts";
+import { cardStrings } from "../lib/cards/copy.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
@@ -105,6 +106,8 @@ const all = [
   ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
   ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  // The cards to post and their captions (lib/cards/copy.ts): figures from the data, places never people.
+  ...cardStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...searchStrings().map((s) => ({ ...s, rules: ISSUE_RULES, warn: VOICE })),
 ];
 

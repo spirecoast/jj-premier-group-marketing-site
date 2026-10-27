@@ -31,7 +31,7 @@ export async function toJpeg(res: Response, quality = 82): Promise<Response> {
   return new Response(new Uint8Array(jpg), { status: res.status, headers });
 }
 
-const COLORS = {
+export const COLORS = {
   navy: "#2e4a5c",
   linen: "#e6ddd1",
   mist: "#c7e7ef",
@@ -53,7 +53,7 @@ async function localFont(file: string): Promise<ArrayBuffer | undefined> {
   }
 }
 
-function fonts(): Promise<Fonts> {
+export function fonts(): Promise<Fonts> {
   if (!fontCache) {
     fontCache = Promise.all([
       localFont("newsreader-300.ttf"),
@@ -66,7 +66,7 @@ function fonts(): Promise<Fonts> {
   return fontCache;
 }
 
-function fontList(f: Fonts) {
+export function fontList(f: Fonts) {
   return [
     ...(f.display ? [{ name: "Newsreader", data: f.display, weight: 300 as const, style: "normal" as const }] : []),
     ...(f.displayItalic ? [{ name: "Newsreader", data: f.displayItalic, weight: 300 as const, style: "italic" as const }] : []),

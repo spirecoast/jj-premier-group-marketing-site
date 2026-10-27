@@ -1019,6 +1019,28 @@ team) lives on the site at three private links. Nobody needs an account.
      `https://<site>/q/<token>` link. The old link stops working on deploy; answers stay, since
      they're stored by person, not by token.
 
+## Cards to post: a private link for Joelyn and Jessica
+
+`/cards/<token>` gives the team cards they can post, drawn from the site's own data and
+photographs, at Instagram's feed (1080x1350) and story (1080x1920) sizes, as PNGs to download:
+
+- **Tide**: the latest issue's three median sale prices, on the issue's cover photo.
+- **This week on the coast**: the Monday issue's Encore picks for the week (`pickWeek`).
+- **A neighborhood**: any place Atlas has researched, by name: its kind, jurisdiction, gated, HOA
+  and CDD on record, evacuation zone and ZIPs, each only when the record holds it.
+- **A street**: Tide Street's count and median for one street over the sales window.
+
+Each card carries the JJ lockup, the Coldwell Banker mark (the brand's white file) and the short
+address of the chosen network's landing page (`jjpremiergroup.com/from/instagram`, …), and comes
+with a caption to copy. Every caption and card line runs through `checkFairHousing` before the card
+is offered; a held card says so instead. The words are in `lib/cards/copy.ts` (checked by
+`check:copy`), the data in `lib/cards/data.ts`, the drawing in `lib/cards/render.tsx`, the page in
+`app/(cards)` (bare like the questionnaire: no header, analytics or pixels; `noindex`,
+`X-Robots-Tag`, `Referrer-Policy: no-referrer` and `no-store` on `/cards/:path*`; `Disallow:
+/cards/`; not in the sitemap). The token works like the questionnaire's: only its SHA-256 is in
+`lib/cards/access.ts`, the raw link is kept outside the repo, and `CARDS_TOKEN_SHA256` (optional)
+replaces the hash to rotate it without a code change.
+
 ## Commands
 
 ```bash
