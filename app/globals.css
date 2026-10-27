@@ -3839,59 +3839,58 @@ html:has([data-product-bar]) {
    until opened, their links at a 44px pitch; the contact block, the marks
    and the legal text stay open. From sm the groups are the open columns.
    The legal paragraphs run in two columns from lg, so no line passes about
-   sixty characters at 12px.
+   sixty characters at 12px. Unlayered, so the rows' spacing beats the
+   columns' utilities.
    ----------------------------------------------------------------------------- */
-@layer components {
-  @media (max-width: 39.99rem) {
-    .footer-groups {
-      gap: 0;
-      border-top: 1px solid var(--color-rule);
-      padding-top: 0;
-    }
-    .footer-groups + .footer-groups {
-      border-top: 0;
-    }
-  }
-  .footer-group {
-    border-bottom: 1px solid var(--color-rule);
-  }
-  .footer-group-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 3.5rem;
-    padding-block: 0.75rem;
-    cursor: pointer;
-    list-style: none;
-  }
-  .footer-group-row::-webkit-details-marker {
-    display: none;
-  }
-  .footer-group-chevron {
-    flex-shrink: 0;
-    color: var(--color-harbor-700);
-    transition: transform var(--dur-panel) var(--ease-reveal);
-  }
-  .footer-group[open] .footer-group-chevron {
-    transform: rotate(180deg);
-  }
-  .footer-group-body {
-    padding-bottom: 1rem;
-  }
-  .footer-group .footer-links {
+@media (max-width: 39.99rem) {
+  .footer-groups {
     gap: 0;
+    border-top: 1px solid var(--color-rule);
+    padding-top: 0;
   }
-  .footer-group .footer-link {
-    display: block;
-    margin: 0;
-    padding-block: 0.625rem;
-    line-height: 1.5;
+  .footer-groups + .footer-groups {
+    border-top: 0;
   }
-  .footer-legal > p + p {
-    margin-top: 0.75rem;
-  }
-  .footer-legal > p {
-    break-inside: avoid;
-  }
+}
+.footer-group {
+  border-bottom: 1px solid var(--color-rule);
+}
+.footer-group-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.5rem;
+  padding-block: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+.footer-group-row::-webkit-details-marker {
+  display: none;
+}
+.footer-group-chevron {
+  flex-shrink: 0;
+  color: var(--color-harbor-700);
+  transition: transform var(--dur-panel) var(--ease-reveal);
+}
+.footer-group[open] .footer-group-chevron {
+  transform: rotate(180deg);
+}
+.footer-group-body {
+  padding-bottom: 0.75rem;
+}
+.footer-group .footer-links {
+  gap: 0;
+}
+.footer-group .footer-link {
+  display: block;
+  margin-block: 0;
+  padding-block: 0.625rem;
+  line-height: 1.5;
+}
+.footer-legal > p + p {
+  margin-top: 0.75rem;
+}
+.footer-legal > p {
+  break-inside: avoid;
 }

@@ -88,11 +88,17 @@ export function useMenuRow(pathname: string) {
     [set],
   );
 
+  // A route change closes whatever is open: adjusted during the render that sees the new path, not in an effect.
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (seenPath !== pathname) {
+    setSeenPath(pathname);
+    setSwitching(false);
+    setMenu(null);
+  }
   useEffect(() => {
-    clearTimers();
-    set(null);
-  }, [pathname, set]);
-  useEffect(() => clearTimers, []);
+    current.current = menu;
+  }, [menu]);
+  useEffect(() => clearTimers, [pathname]);
 
   return { menu, switching, enter, leave, toggle, open, close };
 }
