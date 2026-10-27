@@ -65,7 +65,7 @@ export function ChoiceTile({
       type={type}
       aria-pressed={selected}
       className={cn(
-        "flex min-h-16 items-center gap-4 border px-5 text-left text-[16px] transition-[background-color,border-color,color] duration-200",
+        "flex min-h-16 items-center gap-4 border px-5 text-left text-[16px] transition-[background-color,border-color,color] duration-(--dur-state)",
         selected ? "border-navy bg-navy text-linen-100" : "border-hairline bg-white text-navy hover:border-navy",
         className,
       )}

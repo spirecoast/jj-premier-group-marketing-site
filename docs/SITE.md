@@ -123,6 +123,28 @@ search index; Resend sends only team-facing email.
 - Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`
   document, with `permissionOnFile` checked.
 
+## Motion
+
+One vocabulary, defined once in `styles/tokens.css` and driven into Tailwind from
+`app/globals.css` `@theme` (`--default-transition-duration` and `--default-transition-timing-function`),
+so a bare `transition-colors` utility already runs at the state duration in the brand curve. Every
+transition on the site is one duration and one curve from this table; nothing lifts, nothing bounces.
+
+| Token | Value | Used for |
+|---|---|---|
+| `--dur-micro` | 120 ms | colour, border and control opacity (buttons, links, inputs, chips' colour) |
+| `--dur-state` | 200 ms | chips, rows, labels; the default for `transition-*` utilities |
+| `--dur-panel` | 320 ms | menus, sheets, steps, body swaps, the header's tint, the phone menu |
+| `--dur-card` | 600 ms | card rules and tints, the FAQ's height, scroll reveals' settle |
+| `--dur-img` | 1100 ms | a photograph easing on hover |
+| `--ease-brand` | cubic-bezier(0.2, 0.7, 0.2, 1) | state changes |
+| `--ease-reveal` | cubic-bezier(0.2, 0.75, 0.15, 1) | entrances and panels |
+
+In a component write `duration-(--dur-panel)` and `ease-reveal`, never a number. Keyframe entrances
+(`rise`, `draw`, `wipe`, `reveal`) keep their own lengths in `@theme`. Everything is off for anyone
+who asked for reduced motion (`@media (prefers-reduced-motion: reduce)` in the base layer zeroes
+every duration and delay).
+
 ## Movement between pages
 
 The site moves on the View Transitions API, through React's `ViewTransition` and Next's

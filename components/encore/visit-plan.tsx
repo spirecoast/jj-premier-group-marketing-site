@@ -411,7 +411,7 @@ function WhoCard({ on, onClick, title, body, icon }: { on: boolean; onClick: () 
       aria-pressed={on}
       onClick={onClick}
       className={cn(
-        "flex items-start gap-4 border p-4 text-left transition-[background-color,border-color] duration-200 sm:p-5",
+        "flex items-start gap-4 border p-4 text-left transition-[background-color,border-color] duration-(--dur-state) sm:p-5",
         on ? "border-navy bg-navy text-linen-100" : "border-hairline bg-white text-navy hover:border-navy",
       )}
     >

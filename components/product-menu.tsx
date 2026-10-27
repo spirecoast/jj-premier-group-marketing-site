@@ -78,7 +78,7 @@ export function ProductMenu({ family, pathname, open, onOpen, onClose, solid, re
         )}
       >
         <span className="font-display text-[19px] font-light leading-none tracking-[-0.01em]">{family.name}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" className={cn("mt-0.5 transition-transform duration-300", open && "rotate-180")}>
+        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" className={cn("mt-0.5 transition-transform duration-(--dur-panel)", open && "rotate-180")}>
           <path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
         </svg>
         {active ? (

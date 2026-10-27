@@ -110,7 +110,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
     <header
       data-ground="dark"
       className={cn(
-        "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-300 ease-[var(--ease-brand)]",
+        "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-(--dur-panel) ease-brand",
         // No backdrop blur while the menu is open: a backdrop-filter makes the
         // header the containing block for the fixed menu panel, which would
         // then collapse to the header's own height.
