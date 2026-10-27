@@ -1582,6 +1582,9 @@
     font-family: var(--font-mono);
     font-size: 10px;
     color: var(--color-graphite-500);
+    @media (max-width: 47.99rem) {
+      font-size: 0.75rem;
+    }
   }
 
   .encore-nav {
@@ -1720,6 +1723,9 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-amber);
+    @media (max-width: 47.99rem) {
+      font-size: 0.625rem;
+    }
   }
   .encore-day-wd {
     font-family: var(--font-mono);
@@ -1727,6 +1733,10 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-graphite-500);
+    /* The 52px day tile holds a three-letter day at 11px; the phone floor for a tag. */
+    @media (max-width: 47.99rem) {
+      font-size: 0.6875rem;
+    }
   }
   .encore-day-num {
     font-family: var(--font-display);
@@ -1819,6 +1829,10 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-amber);
+    /* The phone floor for mono meta: 12px. */
+    @media (max-width: 47.99rem) {
+      font-size: 0.75rem;
+    }
   }
   .encore-tile-allday {
     font-family: var(--font-mono);
