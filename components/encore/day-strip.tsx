@@ -92,7 +92,7 @@ export function DayStrip({
       <button type="button" className="btn-quiet is-square encore-strip-arrow" aria-label="Earlier days" onClick={() => scrollBy(-1)}>
         <ChevronLeft />
       </button>
-      <div ref={ref} className="encore-strip" role="listbox" aria-label="Pick a day" aria-activedescendant={`day-${selected}`} onKeyDown={onKeyDown} style={{ ["--sel" as string]: selIndex }}>
+      <div ref={ref} className="encore-strip" role="listbox" aria-label="Pick a day" onKeyDown={onKeyDown} style={{ ["--sel" as string]: selIndex }}>
         {days.map((d, i) => {
           const n = counts.get(d) ?? 0;
           const firstOfMonth = dayNumber(d) === 1 || i === 0;

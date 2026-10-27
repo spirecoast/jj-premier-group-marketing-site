@@ -415,7 +415,7 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
 
       <div id="tonight" className="container-site order-3 flex scroll-mt-[calc(var(--header-h)+var(--band-h,0px))] flex-col gap-14 pb-section pt-8 lg:gap-16 lg:pt-12">
         {mode === "browse" && !searching && !when && view === "days" && anchor === today ? <Spotlight index={index} today={today} filter={filter} list={listApi} onTonight={() => shortcut("tonight")} onWeekend={() => shortcut("weekend")} /> : null}
-        <div id="encore-panel" role="tabpanel" aria-label={panelLabel} className="encore-body">
+        <div id="encore-panel" role="tabpanel" aria-label={panelLabel}>
           {mode === "mine" ? (
             <ListView index={index} slugs={my.list} today={today} list={listApi} shared={false} loading={!full} />
           ) : mode === "shared" ? (
