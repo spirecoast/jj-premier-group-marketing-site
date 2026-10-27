@@ -197,6 +197,12 @@ export async function getEventSlugs(opts: { endingAfter?: Date } = {}): Promise<
   return (after == null ? events : events.filter((e) => lastMoment(e) >= after)).map((e) => e.slug);
 }
 
+/** The events behind those addresses, for the sitemap's dates and pictures. */
+export async function getSitemapEvents(opts: { endingAfter: Date }): Promise<Event[]> {
+  const after = opts.endingAfter.getTime();
+  return (await (await source()).events()).filter((e) => lastMoment(e) >= after);
+}
+
 /**
  * An event address: the event, or the event after it closed, or the clean
  * slug a clipped one moved to. Undefined for an address the calendar never had.

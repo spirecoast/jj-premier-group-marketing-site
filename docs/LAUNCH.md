@@ -611,9 +611,9 @@ curl -sS $D/robots.txt
 curl -sS $D/ | grep -o '<meta name="robots"[^>]*>\|<link rel="canonical"[^>]*>\|<meta property="og:url"[^>]*>\|<meta property="og:image"[^>]*>'
 # robots: index, follow · canonical, og:url and og:image all start with https://jjpremiergroup.com
 
-curl -sS $D/sitemap.xml | grep -c 'vercel.app'
+curl -sS $D/sitemap.xml $D/sitemaps/sitemap/pages.xml $D/sitemaps/sitemap/neighborhoods.xml $D/sitemaps/sitemap/calendar.xml | grep -c 'vercel.app'
 # 0
-curl -sS $D/sitemap.xml | grep -c '<loc>https://jjpremiergroup.com/'
+curl -sS $D/sitemaps/sitemap/pages.xml $D/sitemaps/sitemap/neighborhoods.xml $D/sitemaps/sitemap/calendar.xml | grep -c '<loc>https://jjpremiergroup.com/'
 # about 1,500 (the preview answered 1,503 on 2026-10-01: static pages + neighborhoods + events + venues + posts)
 
 curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' http://jjpremiergroup.com/
@@ -687,7 +687,7 @@ In UptimeRobot, Better Stack or the monitor the team already pays for: two HTTPS
 | Monitor | URL | Check |
 |---|---|---|
 | Home | `https://jjpremiergroup.com/` | status 200 and the keyword `JJ Premier Group` in the body |
-| Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<urlset` |
+| Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<sitemapindex` (the index of `/sitemaps/sitemap/pages.xml`, `neighborhoods.xml` and `calendar.xml`) |
 | Leads | `https://jjpremiergroup.com/api/health` | status 200. It answers 503 when production would keep leads only in Postgres, where nobody is told: set `TEAM_NOTIFY_EMAIL` with `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, or `CRM_WEBHOOK_URL`, before launch. This is the first launch gate. |
 
 ### 6.12 Rollback plan
