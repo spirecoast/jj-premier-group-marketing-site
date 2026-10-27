@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { inCounty, isCountyKey, isProKind, placesEnabled } from "@/lib/places/google";
-import { placesFailure, placesJson, placesLimiter } from "@/lib/places/route-helpers";
+import { placesFailure, placesJson, placesLimiter, takeVisitorList } from "@/lib/places/route-helpers";
 import { clientIp } from "@/lib/search/query";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,8 @@ export const runtime = "nodejs";
  * The best-rated movers, painters, handymen or house cleaners in Sarasota
  * County, Manatee County or both, live from Google. 404 when Places is off
  * (no key, or no database for the cap); 429 once today's or this month's cap
- * is used (lib/places/budget.ts).
+ * is used, or this visitor's share of today's (lib/places/budget.ts), with
+ * `capped: true`.
  */
 export async function GET(request: NextRequest) {
   if (!placesEnabled()) return placesJson({ error: "Not available" }, 404);
@@ -25,6 +26,8 @@ export async function GET(request: NextRequest) {
   if (!placesLimiter.take(ip)) return placesJson({ error: "Too many requests. Try again in a minute." }, 429, { "Retry-After": String(placesLimiter.retryAfter(ip)) });
 
   try {
+    // This visitor's share of the day first, then the site-wide cap (lib/places/budget.ts).
+    await takeVisitorList(ip);
     return placesJson({ places: await inCounty(county, kind) });
   } catch (err) {
     return placesFailure(err, "places/pros");

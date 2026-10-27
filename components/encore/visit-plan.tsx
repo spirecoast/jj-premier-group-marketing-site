@@ -516,7 +516,7 @@ function DayCard({ d, n, today, local, has, toggle, near }: { d: PlanDay; n: num
               : undefined
           }
         />
-        {open ? <NightOut o={o} id={`near-${k}`} /> : null}
+        {open ? <NightOut o={o} id={`near-${k}`} askHref={local ? "/contact" : "#ask"} /> : null}
       </Fragment>
     );
   };
