@@ -187,13 +187,15 @@ export function LeadForm({
   const err = (k: string) => (state.errors as Record<string, string[] | undefined> | undefined)?.[k];
   /* The referral form: "About you" and "About them", each a fieldset with its legend, the note in the second. */
   const them = fields.some((f) => REFERRED_FIELDS.includes(f));
-  const optional = <span className="normal-case tracking-normal opacity-70">(optional)</span>;
+  /* "(optional)" in Graphite 500 on the light form (5.4:1), Mist on the dark one; never faded with opacity. */
+  const optionalClass = cn("normal-case tracking-normal", tone === "dark" ? "text-mist" : "text-graphite-500");
+  const optional = <span className={optionalClass}>(optional)</span>;
 
   const message = has("message") ? (
     <div className={cn("field", columns && "sm:col-span-2")}>
       <label htmlFor={`${uid}-message`} className={cn("field-label", labelColor)}>
         {label("message")}
-        {messageRequired ? null : <span className="normal-case tracking-normal opacity-70"> (optional)</span>}
+        {messageRequired ? null : <span className={optionalClass}> (optional)</span>}
       </label>
       <textarea id={`${uid}-message`} name="message" rows={messageRequired ? 6 : 4} required={messageRequired} placeholder={placeholderMessage} defaultValue={defaultMessage} className={cn("field-input resize-y", inputColor)} aria-invalid={Boolean(err("message"))} aria-describedby={err("message") ? `${uid}-message-err` : undefined} />
       <FieldError id={`${uid}-message-err`} messages={err("message")} />
@@ -259,7 +261,7 @@ export function LeadForm({
           <div className={cn("field", columns && "sm:col-span-2")}>
             <label htmlFor={`${uid}-address`} className={cn("field-label", labelColor)}>
               {LABELS.address}
-              {form !== "valuation" ? <span className="normal-case tracking-normal opacity-70"> (optional)</span> : null}
+              {form !== "valuation" ? <span className={optionalClass}> (optional)</span> : null}
             </label>
             <input id={`${uid}-address`} name="address" autoComplete="street-address" required={form === "valuation"} placeholder="Street address, city" defaultValue={defaultAddress} className={cn("field-input", inputColor)} aria-invalid={Boolean(err("address"))} aria-describedby={err("address") ? `${uid}-address-err` : undefined} />
             <FieldError id={`${uid}-address-err`} messages={err("address")} />

@@ -15,6 +15,7 @@ import { getEvent, getEventSlugs, getListings, getUpcomingEvents } from "@/lib/c
 import { EVENT_CATEGORY_LABEL, formatAddress, formatEventWhen, formatRun, weekdayName } from "@/lib/content/format";
 import { isMarketSlug, marketName } from "@/lib/content/markets";
 import { breadcrumbJsonLd, eventJsonLd, pageMetadata } from "@/lib/seo";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -102,12 +103,12 @@ export default async function EventPage({ params }: { params: Params }) {
             </div>
             <RichText value={event.description ?? []} />
             {event.source ? (
-              <p className="t-mono-sm text-graphite-500">
+              <p className="t-note">
                 Source:{" "}
                 {event.sourceUrl ? (
-                  <a href={event.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-navy underline underline-offset-4">
+                  <ExternalLink href={event.sourceUrl} className="text-navy underline underline-offset-4">
                     {event.source}
-                  </a>
+                  </ExternalLink>
                 ) : (
                   event.source
                 )}

@@ -20,6 +20,7 @@ import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, hostOf, monthYear, titleCase } f
 import type { NeighborhoodRecord } from "@/lib/neighborhoods/types";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
+import { ExternalLink as NewTabLink } from "@/components/ui/external-link";
 
 const PlaceMap = dynamic(() => import("@/components/place-map").then((m) => m.PlaceMap), {
   loading: () => <div className="explorer-hero-map" aria-hidden="true" />,
@@ -75,9 +76,9 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
 
 function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="text-harbor-700 underline underline-offset-4 hover:text-navy">
+    <NewTabLink href={href} className="text-harbor-700 underline underline-offset-4 hover:text-navy">
       {children}
-    </a>
+    </NewTabLink>
   );
 }
 
@@ -176,7 +177,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             <h1 id="nb-title" className="t-display max-w-[900px] text-navy">
               {name}
             </h1>
-            {record?.aliases.length ? <p className="t-mono-sm text-graphite-500">Also {record.aliases.join(", ")}</p> : null}
+            {record?.aliases.length ? <p className="t-note">Also {record.aliases.join(", ")}</p> : null}
           </div>
         </section>
       )}
@@ -202,7 +203,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           <aside className="flex flex-col gap-2 self-start border border-hairline bg-white p-7">
             <p className="t-stat text-navy">{n.stat.value}</p>
             <p className="t-label text-linen-700">{n.stat.label}</p>
-            {n.stat.source ? <p className="t-mono-sm text-graphite-500">{n.stat.source}</p> : null}
+            {n.stat.source ? <p className="t-note">{n.stat.source}</p> : null}
           </aside>
         ) : null}
       </section>
@@ -346,14 +347,14 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
                 <li key={`${s.url}-${i}`} className="grid gap-1 border-b border-hairline px-6 py-3 last:border-b-0 sm:grid-cols-[1fr_auto] sm:items-baseline">
                   <span className="flex flex-col gap-0.5">
                     <ExternalLink href={s.url}>{hostOf(s.url)}</ExternalLink>
-                    <span className="t-mono-sm text-graphite-500">{s.supports}</span>
+                    <span className="t-note">{s.supports}</span>
                   </span>
                   <span className="t-mono-sm text-graphite-500">checked {s.checked}</span>
                 </li>
               ))}
             </ul>
           </details>
-          <p className="t-mono-sm mt-3 text-graphite-500">
+          <p className="t-note mt-3">
             Catalog as of {monthYear(DATASET_VERSION)}. Facts are as the source stated them on the checked date. No ratings, prices or statistics are drawn from them.
           </p>
         </section>

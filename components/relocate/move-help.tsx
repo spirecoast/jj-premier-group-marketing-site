@@ -3,13 +3,14 @@
 import { PlaceTabs, type PlaceTab } from "@/components/places/place-tabs";
 import { HELP, QUESTIONS as Q } from "@/lib/relocate/copy";
 import { usePlanner } from "./planner-context";
+import { ExternalLink } from "@/components/ui/external-link";
 
 const KINDS = ["movers", "painters", "handyman", "cleaners"] as const;
 
-const ExternalLink = ({ href, children }: { href: string; children: string }) => (
-  <a href={href} target="_blank" rel="noopener noreferrer" className="text-navy underline underline-offset-4">
+const SourceLink = ({ href, children }: { href: string; children: string }) => (
+  <ExternalLink href={href} className="text-navy underline underline-offset-4">
     {children}
-  </a>
+  </ExternalLink>
 );
 
 /**
@@ -33,10 +34,10 @@ export function MoveHelp({ enabled }: { enabled: boolean }) {
       kind === "movers" ? (
         <>
           <p>
-            {M.interstate} <ExternalLink href={M.interstateLink.url}>{M.interstateLink.label}</ExternalLink>.
+            {M.interstate} <SourceLink href={M.interstateLink.url}>{M.interstateLink.label}</SourceLink>.
           </p>
           <p>
-            {M.intrastate} <ExternalLink href={M.intrastateLink.url}>{M.intrastateLink.label}</ExternalLink>.
+            {M.intrastate} <SourceLink href={M.intrastateLink.url}>{M.intrastateLink.label}</SourceLink>.
           </p>
         </>
       ) : undefined,

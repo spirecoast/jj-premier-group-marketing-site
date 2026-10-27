@@ -89,8 +89,8 @@ export function TwoHousesView({ figure, title }: { figure: TwoHousesFigure; titl
                 </div>
               </dl>
               <p
-                className="self-start px-2.5 py-1 text-[13px] font-medium"
-                style={{ background: above ? "var(--color-success-fill)" : "var(--color-danger-fill)", color: above ? "var(--color-success)" : "var(--color-danger)" }}
+                className="self-start border-l-[3px] bg-white px-2.5 py-1 text-[13px] font-medium"
+                style={{ borderColor: above ? "var(--color-success)" : "var(--color-danger)", color: above ? "var(--color-success)" : "var(--color-danger)" }}
               >
                 {diff} {diff === 1 ? "foot" : "feet"} {above ? "above" : "below"} the flood height
               </p>
