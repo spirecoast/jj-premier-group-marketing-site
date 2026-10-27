@@ -276,7 +276,7 @@ export const footerNav = {
     { href: "/buy", label: "Buyer’s guide" },
     { href: "/sell", label: "Seller’s guide" },
     { href: "/sell/home-value", label: "What’s my home worth" },
-    { href: "/listings", label: "Homes for sale" },
+    { href: "/listings", label: "Find your home" },
   ],
   guides: [
     { href: "/guides/flood-zones-and-elevation-certificates-on-the-suncoast", label: "Flood zones" },

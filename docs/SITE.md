@@ -131,9 +131,15 @@ search index; Resend sends only team-facing email.
   has focus and on very short screens.
 - Nothing hand-typed reaches the page: no market figures, no ticker, no stat band, no sample
   listings. The sample listings stay in the seed for previews and return with
-  `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true` or an MLS feed. `/listings` is a "Find your home" page: a
-  lead form prefilled from the home-page search, plus a link to the team's live listings when
-  `NEXT_PUBLIC_LISTINGS_URL` is set.
+  `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`, never on the production deployment
+  (`showSampleContent` in `lib/content/seed-source.ts`). `/listings` is "Find your home": the team's
+  own listings when Sanity has any (`getListings`, a `ListingCard` grid held to the `?market=&max=`
+  the home page's search sent and narrowed with the same two controls, `components/listing-results.tsx`),
+  then the lead form prefilled from that search, then "Sold by us" (`components/sold-by-us.tsx`, also on
+  `/sell`) when there are sold listings, plus a link to the team's live listings on the brokerage's site
+  when `NEXT_PUBLIC_LISTINGS_URL` is set. Until an agent enters listings in Studio the page is the form
+  alone and the home page's button says "Send my search"; with listings it says "See the homes" and
+  three featured listings sit under the form. No MLS feed is faked.
 - Voice: written to the reader, guide not hero. A mother and daughter team. No slogans, no numbers
   without a source.
 - Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`

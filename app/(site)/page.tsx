@@ -8,7 +8,7 @@ import { Meet } from "@/components/home/meet";
 import { Places } from "@/components/home/places";
 import { Questions } from "@/components/home/questions";
 import { WorkWith } from "@/components/home/work-with";
-import { getSiteSettings, getTeam, getUpcomingEvents } from "@/lib/content";
+import { getFeaturedListings, getSiteSettings, getTeam, getUpcomingEvents } from "@/lib/content";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata } from "@/lib/seo";
@@ -37,10 +37,12 @@ const FRAMES = {
 
 export default async function HomePage() {
   // The Encore pieces below (the season ring, tonight's count) read the snapshot loaded here.
-  const [team, events, settings] = await Promise.all([
+  const [team, events, settings, featured] = await Promise.all([
     getTeam(),
     getUpcomingEvents({ limit: 4, featuredFirst: true, distinctVenues: true, datedFirst: true }),
     getSiteSettings(),
+    // Three of the team's own listings under Find your home; none until an agent has entered some.
+    getFeaturedListings(3),
     loadEncoreSnapshot(),
   ]);
 
@@ -54,7 +56,7 @@ export default async function HomePage() {
       <Meet duo={FRAMES.duo} />
       <Doors />
       <Places />
-      <FindHome image={FRAMES.kitchen} />
+      <FindHome image={FRAMES.kitchen} featured={featured} />
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} />
       <CalendarPreview events={events} />
       <LetterBand image={FRAMES.island} />
