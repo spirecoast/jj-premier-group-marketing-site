@@ -14,6 +14,8 @@ export const REVIEWS = {
   eyebrow: "Reviews",
   heading: "If you bought or sold with us, tell us how it went.",
   lead: "There are two ways to do it, and both are up to you. We don’t put anything about you on the site without asking first.",
+  /** While the Google review link is still to come: one way, not two. */
+  leadOne: "It’s up to you what you say. We don’t put anything about you on the site without asking first.",
   google: {
     title: "A review on Google",
     body: "It’s the one people read before they call. A few sentences about what we did and how it went is plenty.",
@@ -30,6 +32,8 @@ export const REVIEWS = {
     submit: "Send",
   },
   note: "Nothing from this form appears on the site by itself.",
+  /** The quiet link to the other past-client page. */
+  refer: { line: "If you know someone moving here,", label: "refer them" },
   success: {
     title: "Thank you.",
     body: "Your words are with Joelyn and Jessica. Nothing goes on the site until one of us has checked it with you.",
@@ -49,7 +53,9 @@ export function reviewsStrings(): { where: string; text: string }[] {
   add("eyebrow", REVIEWS.eyebrow);
   add("heading", REVIEWS.heading);
   add("lead", REVIEWS.lead);
+  add("lead one", REVIEWS.leadOne);
   for (const [k, v] of Object.entries(REVIEWS.google)) add(`google ${k}`, v);
+  add("refer", `${REVIEWS.refer.line} ${REVIEWS.refer.label}`);
   for (const [k, v] of Object.entries(REVIEWS.permission)) add(`permission ${k}`, v);
   for (const [k, v] of Object.entries(REVIEWS.form)) add(`form ${k}`, v);
   add("note", REVIEWS.note);

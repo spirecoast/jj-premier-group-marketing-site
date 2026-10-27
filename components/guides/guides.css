@@ -150,11 +150,193 @@
     user-select: none;
   }
   /* Contents: the active section carries a drawn rule. */
-  .guide-toc a[aria-current="true"] {
+  .guide-toc a[aria-current] {
     color: var(--color-navy);
   }
-  .guide-toc a[aria-current="true"] .guide-toc-rule {
+  .guide-toc a[aria-current] .guide-toc-rule {
     transform: scaleX(1);
+  }
+
+  /* -----------------------------------------------------------------------
+     The reading companion (components/guides/companion.tsx): a bar under the
+     header with the reader's place, a 2px line along its foot that fills as
+     the page is read, and the list as a sheet. On the ten-step guides the
+     numerals sit in the bar from lg; on the long guides, where a contents
+     rail stands beside the text from lg, the bar folds to the line alone.
+     ----------------------------------------------------------------------- */
+  .companion {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 6;
+    background: color-mix(in srgb, var(--color-paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-hairline);
+    transition: top var(--dur-panel) var(--ease-brand);
+  }
+  @media (max-width: 63.99rem) {
+    html[data-scroll="down"] .companion {
+      top: 0;
+    }
+  }
+  .companion-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3rem;
+  }
+  .companion-where {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .companion-position {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-graphite-500);
+  }
+  .companion-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 1.0625rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+  /* The numerals, from lg: each a 44px target, the current one carrying the Sky rule. */
+  .companion-index {
+    display: none;
+  }
+  @media (min-width: 64rem) {
+    .companion-index {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.25rem;
+      margin-inline: auto;
+    }
+    .companion-index a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+      padding-inline: 0.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      color: var(--color-graphite-500);
+      transition: color var(--dur-micro) var(--ease-brand);
+    }
+    .companion-index a .guide-toc-rule {
+      width: 100%;
+    }
+    .companion-index a:hover,
+    .companion-index a[aria-current] {
+      color: var(--color-navy);
+    }
+    .companion-index a[aria-current] .guide-toc-rule {
+      transform: scaleX(1);
+    }
+    /* Beside a contents rail the bar is only the line: no row. */
+    .companion-line-only .companion-row {
+      display: none;
+    }
+    .companion-line-only {
+      border-bottom: 0;
+      background: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  .companion-button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    margin-right: -0.5rem;
+    padding-inline: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-harbor-700);
+    transition: color var(--dur-micro) var(--ease-brand);
+  }
+  .companion-button:hover {
+    color: var(--color-navy);
+  }
+  .companion-button span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-graphite-500);
+  }
+  .companion-progress {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--color-sky-700);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-state) var(--ease-brand);
+  }
+  /* The list as a sheet: from the foot of the screen on a phone, a panel under the bar from lg. */
+  .companion-sheet {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+  }
+  .companion-sheet::backdrop {
+    background: rgb(20 37 48 / 0.4);
+  }
+  .companion-sheet-panel {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    max-height: 80svh;
+    overflow-y: auto;
+    padding: 1rem var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-hairline);
+  }
+  .companion-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+  }
+  @media (min-width: 64rem) {
+    .companion-sheet-panel {
+      inset-inline: auto;
+      top: calc(var(--header-h) + 3rem);
+      right: var(--gutter);
+      bottom: auto;
+      width: min(26rem, calc(100vw - 2 * var(--gutter)));
+      max-height: calc(100svh - var(--header-h) - 4rem);
+      padding: 1rem 1.25rem 1.25rem;
+      border: 1px solid var(--color-hairline);
+      box-shadow: 0 16px 40px rgb(20 37 48 / 0.12);
+    }
   }
   .guide-toc-rule {
     display: block;

@@ -12,12 +12,6 @@ import { EqualHousingMark } from "./equal-housing";
 import { RealtorMark } from "./realtor-mark";
 import { Wordmark } from "./wordmark";
 
-/** The profiles the footer always shows, linked once their addresses are in lib/site.ts or the CMS. */
-const PROFILES: { network: SocialNetwork; label: string }[] = [
-  { network: "facebook", label: "Facebook" },
-  { network: "instagram", label: "Instagram" },
-];
-
 /** The three market hubs: a click on one counts as Explore {action: "hub"}. */
 const HUB_PATHS = new Set(["/lakewood-ranch", "/sarasota", "/bradenton"]);
 
@@ -32,7 +26,7 @@ function hubGoalClasses(href: string): string | undefined {
   return `plausible-event-name=Explore plausible-event-action=hub plausible-event-where=footer plausible-event-hub=${href.slice(1)}`;
 }
 
-function Column({ title, links, note, mark }: { title: string; links: readonly { href: string; label: string }[]; note?: string; mark?: React.ReactNode }) {
+function Column({ title, links, note, mark }: { title: string; links: readonly { href: string; label: string; plain?: string }[]; note?: string; mark?: React.ReactNode }) {
   return (
     <FooterGroup
       heading={
@@ -50,6 +44,8 @@ function Column({ title, links, note, mark }: { title: string; links: readonly {
           <li key={l.href}>
             <IntentLink href={l.href as Route} className={["footer-link -my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
               {l.label}
+              {/* The task in plain words under a product's name, where the name alone wouldn't say it (lib/site.ts). */}
+              {l.plain ? <span className="block text-[12px] text-linen-700">{l.plain}</span> : null}
             </IntentLink>
           </li>
         ))}
@@ -129,30 +125,25 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               ))}
             </ul>
             <address className="t-small mt-4 not-italic text-linen-700">{office}</address>
-            <ul className="mt-6 flex flex-wrap gap-2.5" aria-label="The team elsewhere">
-              {social.map((s) => (
-                <li key={s.url}>
-                  <a
-                    href={s.url}
-                    rel="me noopener noreferrer"
-                    target="_blank"
-                    aria-label={`${s.label} (opens in a new tab)`}
-                    title={s.label}
-                    className="social-mark"
-                  >
-                    <SocialIcon network={s.network} />
-                  </a>
-                </li>
-              ))}
-              {/* Facebook and Instagram show before their addresses are in; they become links once they are. */}
-              {PROFILES.filter((p) => !social.some((s) => s.network === p.network)).map((p) => (
-                <li key={p.network}>
-                  <span role="img" aria-label={p.label} title={p.label} className="social-mark">
-                    <SocialIcon network={p.network} />
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {/* The team's profiles, once their addresses are in lib/site.ts or the CMS; nothing shows before then (a mark that looks tappable should be). */}
+            {social.length ? (
+              <ul className="mt-6 flex flex-wrap gap-2.5" aria-label="The team elsewhere">
+                {social.map((s) => (
+                  <li key={s.url}>
+                    <a
+                      href={s.url}
+                      rel="me noopener noreferrer"
+                      target="_blank"
+                      aria-label={`${s.label} (opens in a new tab)`}
+                      title={s.label}
+                      className="social-mark"
+                    >
+                      <SocialIcon network={s.network} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
           <div className="flex flex-col gap-12">
             {/* The site: where, what to do, what to read, who. */}

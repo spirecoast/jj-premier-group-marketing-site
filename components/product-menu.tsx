@@ -15,6 +15,8 @@ export type MenuSpec = {
   /** The panel's first line, what the menu is for. */
   title: string;
   items: readonly { href: string; label: string; short: string }[];
+  /** The pages the Sky rule marks under this name. Default: any item's page. A page that belongs to a product family is marked under that family instead. */
+  activeWhen?: readonly string[];
   /** A product family: its emblem on the panel and its name set in the display serif. */
   family?: ProductFamily["key"];
   /** The panel's last row. */
@@ -128,7 +130,7 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const focusFirstWhenOpen = useRef(false);
-  const active = menu.items.some((i) => pathname === i.href || pathname.startsWith(`${i.href}/`));
+  const active = (menu.activeWhen ?? menu.items.map((i) => i.href)).some((href) => pathname === href || pathname.startsWith(`${href}/`));
 
   useEffect(() => {
     if (!open) return;

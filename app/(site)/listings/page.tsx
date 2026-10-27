@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
 import { EqualHousingMark } from "@/components/equal-housing";
+import { ListingResults } from "@/components/listing-results";
 import { UrlLeadForm } from "@/components/url-lead-form";
+import { UrlPending } from "@/components/url-pending";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
-import { getSiteSettings } from "@/lib/content";
+import { SoldByUs } from "@/components/sold-by-us";
+import { getListings, getSiteSettings } from "@/lib/content";
 import { MARKETS } from "@/lib/content/markets";
 import { img } from "@/lib/content/seed/helpers";
 import { listingsOpening, listingsPlaceholder } from "@/lib/lead-prefill";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { ExternalLink } from "@/components/ui/external-link";
+
+/** Hourly ISR, and the Sanity webhook expires it the moment a listing changes (app/api/revalidate). */
+export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata({
   title: "Find your home",
@@ -26,22 +32,28 @@ const FRAMES = {
 };
 
 /**
- * Until an MLS feed is licensed, the search is a conversation: the place and
- * the budget from the home page prefill the note (in the browser: the page is
- * static), and the team does the looking. Their live listings are one link
- * away when the URL is configured.
+ * Find your home. The team's own listings come first when there are any
+ * (from Sanity; the sample set never reaches production), held to the place
+ * and the price the home page's search sent and narrowed with the same two
+ * controls. Under them, or alone until there are listings, the search is a
+ * conversation: the place and the budget prefill the note (in the browser:
+ * the page is static), and the team does the looking. Their live listings on
+ * the brokerage's site are one link away when the URL is configured. No MLS
+ * feed is faked: a listing shows here only when an agent entered it.
  */
 export default async function FindHomePage() {
-  const settings = await getSiteSettings();
+  const [settings, active] = await Promise.all([getSiteSettings(), getListings({ status: "active" })]);
+  const hasListings = active.length > 0;
 
   return (
     <>
+      {hasListings ? <UrlPending keys={["market", "max"]} /> : null}
       <section className="relative -mt-header min-h-[520px] overflow-hidden bg-navy text-white lg:min-h-[600px]" aria-labelledby="find-title">
         <Photo image={FRAMES.pool} priority sizes="100vw" />
         <div className="hero-shade" aria-hidden="true" />
         <div className="container-site relative flex min-h-[inherit] flex-col justify-end gap-5 pb-14 pt-[calc(var(--header-h)+3rem)]">
           <h1 id="find-title" className="t-hero max-w-[900px] text-white text-shadow-photo">
-            Tell us what you&rsquo;re looking for. We&rsquo;ll do the looking.
+            {hasListings ? "Find your home." : "Tell us what you\u2019re looking for. We\u2019ll do the looking."}
           </h1>
           <p className="max-w-[560px] text-[17px] font-medium leading-[1.6] text-white text-shadow-soft">
             Tell us the place, the budget and anything that matters to you. You&rsquo;ll hear back from Joelyn or
@@ -50,7 +62,23 @@ export default async function FindHomePage() {
         </div>
       </section>
 
-      <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:gap-20" aria-label="Your search">
+      {hasListings ? (
+        <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="our-listings-title">
+          <SectionHeading
+            title={<span id="our-listings-title">Our listings.</span>}
+            aside={
+              site.listingsUrl ? (
+                <ExternalLink href={site.listingsUrl} className="link-rule">
+                  All our listings with {settings.brokerageName}
+                </ExternalLink>
+              ) : undefined
+            }
+          />
+          <ListingResults listings={active} />
+        </section>
+      ) : null}
+
+      <section className={`container-site grid gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:gap-20${hasListings ? " border-t border-hairline" : ""}`} aria-label="Your search">
         <div className="flex flex-col gap-8">
           <SectionHeading
             title="Two questions, and then we send the homes worth seeing."
@@ -69,7 +97,7 @@ export default async function FindHomePage() {
               </li>
             ))}
           </ol>
-          {site.listingsUrl ? (
+          {site.listingsUrl && !hasListings ? (
             <ExternalLink href={site.listingsUrl} className="link-rule self-start">
               See our current listings
             </ExternalLink>
@@ -83,16 +111,18 @@ export default async function FindHomePage() {
             prefill="listings"
             form="buy"
             fields={["name", "email", "phone", "message"]}
-            submitLabel="Start my search"
+            submitLabel="Send my search"
             placeholderMessage={listingsPlaceholder(listingsOpening(undefined, undefined))}
           />
         </div>
       </section>
 
-      <div className="container-site pb-section">
+      <SoldByUs limit={6} tone="parchment" />
+
+      <div className="container-site py-section">
         <div className="flex flex-col gap-3 border-y border-hairline py-4 md:flex-row md:items-center md:justify-between md:gap-10">
           <p className="t-note max-w-[820px]">
-            Serving {MARKETS.map((m) => m.name).join(", ")} with {settings.brokerageName}.
+            {hasListings ? settings.mlsAttribution : `Serving ${MARKETS.map((m) => m.name).join(", ")} with ${settings.brokerageName}.`}
           </p>
           <p className="t-mono-sm flex shrink-0 items-center gap-2 text-graphite-500">
             <span aria-hidden="true">

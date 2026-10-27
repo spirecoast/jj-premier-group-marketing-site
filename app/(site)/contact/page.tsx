@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { UrlLeadForm } from "@/components/url-lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { TrackedLink } from "@/components/tracked-link";
+import { OfficeMapIsland } from "@/components/office-map-island";
 import { getSiteSettings, getTeam } from "@/lib/content";
-import { mapEmbedUrl, mapLinkUrl, mapQuery } from "@/lib/map-embed";
+import { hubAtlas } from "@/lib/hubs/data";
+import { mapLinkUrl, mapQuery } from "@/lib/map-embed";
 import { pageMetadata } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
 
@@ -26,9 +28,13 @@ export default async function ContactPage() {
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
     .join(", ");
-  // The pin: the office address once it is filled in, else NEXT_PUBLIC_MAP_QUERY, else the brokerage in Lakewood Ranch.
+  // The Google Maps link searches for the office address once it is filled in, else NEXT_PUBLIC_MAP_QUERY, else the brokerage in Lakewood Ranch.
   const query = mapQuery(settings);
   const mapsUrl = mapLinkUrl(query);
+  // The marker: the office's own point once it is set in the site settings; until then the middle of
+  // Lakewood Ranch, the mean of the catalog's areas there (lib/hubs/data.ts), never a typed number.
+  const center = settings.officeGeo ?? (await hubAtlas("lakewood-ranch")).centroid;
+  const place = settings.officeAddress.street ? `the office, ${settings.officeAddress.city}, ${settings.officeAddress.state}` : `${settings.officeAddress.city}, ${settings.officeAddress.state}`;
 
   return (
     <section className="container-site grid gap-12 py-section lg:grid-cols-[1.3fr_1fr] lg:gap-20" aria-labelledby="contact-title">
@@ -78,18 +84,9 @@ export default async function ContactPage() {
           </address>
           <p className="t-small text-body-muted">By appointment. We’re usually in a house, so call or text first.</p>
         </div>
-        {/* The map: Google's keyless embed, loaded once the frame is near the viewport, with the plain link under it for anyone whose browser blocks the frame. */}
+        {/* The map, in the brand's own style: one marker, loaded once the frame is near the viewport, with the Google Maps link under it for directions. */}
         <div className="flex flex-col gap-3">
-          <div className="relative aspect-[4/3] overflow-hidden border border-hairline bg-linen-100 sm:aspect-[3/2]">
-            <iframe
-              src={mapEmbedUrl(query)}
-              title={`Map · ${query}`}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen={false}
-              className="absolute inset-0 h-full w-full border-0"
-            />
-          </div>
+          {center ? <OfficeMapIsland center={center} label={settings.brokerageName} place={place} /> : null}
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <p className="t-mono-sm text-graphite-500">Map · {settings.officeAddress.city}, {settings.officeAddress.state}</p>
             <ExternalLink href={mapsUrl} className="link-rule">

@@ -30,10 +30,16 @@ export function tidySnippet(snippet: string): string {
   return /[a-z]/.test(first) ? `…${trimmed}` : trimmed;
 }
 
-/** A snippet split into plain and highlighted runs, for <mark>. Unbalanced markers are dropped. */
-export function snippetParts(snippet: string): { text: string; mark: boolean }[] {
+/**
+ * A snippet split into plain and highlighted runs, for <mark>. Unbalanced
+ * markers are dropped. `maxMarks` caps how many runs are highlighted: the
+ * first few say why the result matched, and past that the marks are noise,
+ * so the rest of the snippet reads plain.
+ */
+export function snippetParts(snippet: string, maxMarks = Infinity): { text: string; mark: boolean }[] {
   const parts: { text: string; mark: boolean }[] = [];
   let mark = false;
+  let marks = 0;
   let buf = "";
   const push = () => {
     if (buf) {
@@ -46,7 +52,8 @@ export function snippetParts(snippet: string): { text: string; mark: boolean }[]
   for (const ch of snippet) {
     if (ch === HIGHLIGHT.start) {
       push();
-      mark = true;
+      marks += 1;
+      mark = marks <= maxMarks;
     } else if (ch === HIGHLIGHT.stop) {
       push();
       mark = false;

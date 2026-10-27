@@ -131,9 +131,15 @@ search index; Resend sends only team-facing email.
   has focus and on very short screens.
 - Nothing hand-typed reaches the page: no market figures, no ticker, no stat band, no sample
   listings. The sample listings stay in the seed for previews and return with
-  `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true` or an MLS feed. `/listings` is a "Find your home" page: a
-  lead form prefilled from the home-page search, plus a link to the team's live listings when
-  `NEXT_PUBLIC_LISTINGS_URL` is set.
+  `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`, never on the production deployment
+  (`showSampleContent` in `lib/content/seed-source.ts`). `/listings` is "Find your home": the team's
+  own listings when Sanity has any (`getListings`, a `ListingCard` grid held to the `?market=&max=`
+  the home page's search sent and narrowed with the same two controls, `components/listing-results.tsx`),
+  then the lead form prefilled from that search, then "Sold by us" (`components/sold-by-us.tsx`, also on
+  `/sell`) when there are sold listings, plus a link to the team's live listings on the brokerage's site
+  when `NEXT_PUBLIC_LISTINGS_URL` is set. Until an agent enters listings in Studio the page is the form
+  alone and the home page's button says "Send my search"; with listings it says "See the homes" and
+  three featured listings sit under the form. No MLS feed is faked.
 - Voice: written to the reader, guide not hero. A mother and daughter team. No slogans, no numbers
   without a source.
 - Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`
@@ -322,6 +328,12 @@ builder source with its checked date).
   facts underneath, joined by slug (`lake-club` became `the-lake-club`; the old path redirects).
   County-registry names (`research: "registry-only"`) render with `noindex` and stay out of the
   sitemap until they are researched.
+- **The map on /contact** is the same stack in a small frame (`components/office-map-island.tsx`,
+  `office-map.tsx`): one navy marker with the brokerage's name, zoom 12, plus and minus only, no wheel
+  zoom, loaded when the frame nears the viewport over a still poster, the map-unavailable note when it
+  can't draw. The marker is the office point in the site settings (`officeGeo`) or, until that is set,
+  the middle of Lakewood Ranch from `hubAtlas` (the mean of the catalog's areas there). The "Open in
+  Google Maps" link under it is `lib/map-embed.ts`. No Google embed, no key.
 - **The detail-page map** is an island: the page carries a still SVG of the place's points
   (`components/place-poster.tsx`) and `components/place-map-island.tsx` asks for MapLibre's chunk only
   when the frame comes within 200 px of the viewport. One finger scrolls the page over it; two move the map.

@@ -6,10 +6,10 @@ import "./guides.css";
 type Item = { id: string; number: string; title: string };
 
 /**
- * "Inside this guide": numbered sections. Sticky beside the article on
- * desktop with the section in view highlighted; a folded <details> on
- * phones. The highlight is progressive: without JavaScript the list is a
- * plain list of anchors.
+ * "Inside this guide": numbered sections, sticky beside the article from lg
+ * with the section in view highlighted. The highlight is progressive: without
+ * JavaScript the list is a plain list of anchors. On a phone the reading
+ * companion (companion.tsx) carries the contents instead, as a sheet.
  */
 export function GuideContents({ items, onePageId }: { items: Item[]; onePageId: string }) {
   const [active, setActive] = useState<string | null>(null);
@@ -52,22 +52,9 @@ export function GuideContents({ items, onePageId }: { items: Item[]; onePageId: 
   );
 
   return (
-    <>
-      <nav aria-label="Inside this guide" className="print-hide hidden lg:block">
-        <p className="t-eyebrow mb-3 text-amber">Inside this guide</p>
-        {list}
-      </nav>
-      <details className="print-hide group border-y border-hairline lg:hidden">
-        <summary className="flex cursor-pointer list-none items-center justify-between py-3 [&::-webkit-details-marker]:hidden">
-          <span className="t-eyebrow text-amber">Inside this guide</span>
-          <span className="font-mono text-[12px] text-graphite-500 transition-transform group-open:rotate-45" aria-hidden="true">
-            +
-          </span>
-        </summary>
-        <nav aria-label="Inside this guide" className="pb-2">
-          {list}
-        </nav>
-      </details>
-    </>
+    <nav aria-label="Inside this guide" className="print-hide hidden lg:block">
+      <p className="t-eyebrow mb-3 text-amber">Inside this guide</p>
+      {list}
+    </nav>
   );
 }
