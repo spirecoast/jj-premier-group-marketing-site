@@ -35,7 +35,7 @@
     { "id": "para-carry-tax", "type": "paraphrase", "q": "can I take my tax break with me to a new house", "expect": ["guide:homestead-save-our-homes-and-portability#portability"] },
     { "id": "para-mom-passed", "type": "paraphrase", "q": "selling my mom's house after she passed away", "expect": ["guide:selling-a-home-you-dont-live-in#trusts-and-estates"] },
     { "id": "para-overseas", "type": "paraphrase", "q": "I live abroad and want to sell my condo", "expect": ["guide:selling-a-home-you-dont-live-in*"] },
-    { "id": "para-best-time", "type": "paraphrase", "q": "best time of year to put my house on the market", "expect": ["guide:thinking-about-spring-start-in-october*", "page:/sarasota#selling", "page:/lakewood-ranch#selling", "page:/bradenton#selling", "page:/sell"] },
+    { "id": "para-best-time", "type": "paraphrase", "q": "best time of year to put my house on the market", "expect": ["guide:getting-your-house-ready-to-sell*", "page:/sarasota#selling", "page:/lakewood-ranch#selling", "page:/bradenton#selling", "page:/sell"] },
     { "id": "para-airport", "type": "paraphrase", "q": "which airport should I fly into", "expect": ["guide:getting-here-and-getting-around#four-airports"] },
     { "id": "para-walk-away", "type": "paraphrase", "q": "how much money will I walk away with after I sell", "expect": ["page:/sell/net-proceeds"] },
     { "id": "para-worth", "type": "paraphrase", "q": "what is my house worth", "expect": ["page:/sell/home-value"] },

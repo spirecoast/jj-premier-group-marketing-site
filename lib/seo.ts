@@ -3,6 +3,7 @@ import type { Event, Listing, SiteSettings, TeamMember } from "@/lib/content/typ
 import { formatAddress } from "@/lib/content/format";
 import { marketName } from "@/lib/content/markets";
 import { allSocialLinks, site } from "@/lib/site";
+import { curly } from "@/lib/typography";
 
 export function absoluteUrl(path: string): string {
   return new URL(path, site.url).toString();
@@ -24,21 +25,72 @@ const DEFAULT_OG_IMAGE = {
  * out and the file-based image is used.
  */
 const SUFFIX = ` · ${site.name}`;
-/** Search results show about 60 characters of a title. A long title drops the team's name rather than be cut off. */
-const TITLE_MAX = 60;
+const SEP = " · ";
 /** And about 155 of a description: a longer one ends at its last whole sentence, or word, that fits. */
-const DESCRIPTION_MAX = 158;
+export const DESCRIPTION_MAX = 158;
+/** Under this a description leaves most of a search result's two lines empty; tests hold every sitemap page above it. */
+export const DESCRIPTION_MIN = 110;
+
+/**
+ * Search results cut a title by width, not by count: about 600px of 20px Arial on a desktop. These are
+ * Arial's advance widths (per 1,000 units of the em); anything not listed counts as a lowercase letter.
+ */
+const ARIAL: Record<string, number> = {
+  " ": 278, "!": 278, '"': 355, "'": 191, "’": 191, "‘": 191, "“": 333, "”": 333, "(": 333, ")": 333, ",": 278, "-": 333, ".": 278,
+  "/": 278, ":": 278, ";": 278, "?": 556, "·": 278, "&": 667, "®": 737, "–": 556, "—": 1000, "…": 1000,
+  A: 667, B: 667, C: 722, D: 722, E: 667, F: 611, G: 778, H: 722, I: 278, J: 500, K: 667, L: 556, M: 833, N: 722, O: 778, P: 667,
+  Q: 778, R: 722, S: 667, T: 611, U: 722, V: 667, W: 944, X: 667, Y: 667, Z: 611,
+  a: 556, b: 556, c: 500, d: 556, e: 556, f: 278, g: 556, h: 556, i: 222, j: 222, k: 500, l: 222, m: 833, n: 556, o: 556, p: 556,
+  q: 556, r: 333, s: 500, t: 278, u: 556, v: 500, w: 722, x: 500, y: 500, z: 500,
+};
+/** The width a search result gives a title, in pixels. */
+export const TITLE_PX = 600;
+export function titleWidth(text: string): number {
+  let units = 0;
+  for (const ch of text) units += ARIAL[ch] ?? 556;
+  return (units * 20) / 1000;
+}
+const fits = (text: string) => titleWidth(text) <= TITLE_PX;
+
+/**
+ * One title template for every page: the page's title, its qualifiers (a place's town and kind, an
+ * event's venue), then " · JJ Premier Group", as much of that as fits a search result. Qualifiers go
+ * first, from the last, so "Arboreal · Sarasota · Condominium community" keeps the team's name before
+ * it keeps the kind of community; only a title too long to share the line at all stands alone, and
+ * then it keeps whatever qualifiers fit. Quotes come out curly.
+ */
+export function composeTitle(title: string, qualifiers: string[] = [], absolute = false): string | { absolute: string } {
+  const segs = [title, ...qualifiers].map(curly);
+  if (absolute) return { absolute: segs.join(SEP) };
+  for (let n = segs.length; n >= 1; n -= 1) {
+    const head = segs.slice(0, n).join(SEP);
+    if (fits(head + SUFFIX)) return head;
+  }
+  for (let n = segs.length; n > 1; n -= 1) {
+    const head = segs.slice(0, n).join(SEP);
+    if (fits(head)) return { absolute: head };
+  }
+  return { absolute: segs[0]! };
+}
+
+/** Words a full stop follows without ending the sentence: "St. Armands", "D.R. Horton", "N. Orange Ave." */
+const ABBREVIATION = /(?:^|\s)(?:[A-Z]|[A-Z]\.[A-Z]|St|Dr|Ave|Blvd|Rd|Ln|Mt|Ft|No|Inc|Co|Corp|Jr|Sr|Mr|Mrs|Ms|vs|approx|e\.g|i\.e)$/;
 
 export function clampDescription(text: string, max = DESCRIPTION_MAX): string {
   if (text.length <= max) return text;
   const cut = text.slice(0, max);
-  const sentence = cut.lastIndexOf(". ");
+  let sentence = -1;
+  for (const m of cut.matchAll(/[.!?](?=\s)/g)) {
+    if (m[0] === "." && ABBREVIATION.test(cut.slice(0, m.index))) continue;
+    sentence = m.index;
+  }
   if (sentence > max * 0.55) return cut.slice(0, sentence + 1);
   return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:·–-]+$/, "")}…`;
 }
 
 export function pageMetadata({
   title,
+  titleQualifiers,
   description,
   path,
   image,
@@ -48,6 +100,8 @@ export function pageMetadata({
   absoluteTitle,
 }: {
   title: string;
+  /** Segments after the title that may give way to the team's name in a search result: a place's town and kind, an event's venue. */
+  titleQualifiers?: (string | undefined | null | false)[];
   description: string;
   path: string;
   image?: { src: string; alt: string; width?: number; height?: number };
@@ -58,15 +112,16 @@ export function pageMetadata({
   absoluteTitle?: boolean;
 }): Metadata {
   const url = absoluteUrl(path);
-  const tooLong = !absoluteTitle && title.length + SUFFIX.length > TITLE_MAX;
-  description = clampDescription(description);
+  description = clampDescription(curly(description));
+  const qualifiers = (titleQualifiers ?? []).filter((q): q is string => Boolean(q));
+  const ogTitle = [title, ...qualifiers].map(curly).join(SEP);
   const images = image
     ? [{ url: image.src, alt: image.alt, width: image.width, height: image.height }]
     : fileImage
       ? undefined
       : [DEFAULT_OG_IMAGE];
   return {
-    title: absoluteTitle || tooLong ? { absolute: title } : title,
+    title: composeTitle(title, qualifiers, absoluteTitle),
     description,
     alternates: { canonical: url },
     // Only set when a page opts out; an explicit `undefined` would override the
@@ -75,13 +130,13 @@ export function pageMetadata({
     openGraph: {
       type,
       url,
-      title,
+      title: ogTitle,
       description,
       siteName: site.name,
       locale: site.locale,
       ...(images ? { images } : {}),
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title: ogTitle, description },
   };
 }
 
@@ -285,8 +340,8 @@ export function faqJsonLd(items: { q: string; answer: string }[]) {
     "@type": "FAQPage",
     mainEntity: items.map((i) => ({
       "@type": "Question",
-      name: i.q,
-      acceptedAnswer: { "@type": "Answer", text: i.answer },
+      name: curly(i.q),
+      acceptedAnswer: { "@type": "Answer", text: curly(i.answer) },
     })),
   };
 }

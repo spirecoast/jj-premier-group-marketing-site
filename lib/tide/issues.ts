@@ -152,7 +152,7 @@ export const TIDE_ISSUES: readonly TideIssueEntry[] = [
       {
         move: "Plan your listing around the season.",
         why: "Bradenton had {bradenton.sales.2026-01} sales in January 2026 and {bradenton.sales.2026-06} in June, and Lakewood Ranch had {lakewood-ranch.sales.2026-01} in January and {lakewood-ranch.sales.2026-05} in May. Sales here follow the calendar. A home that’s ready in the fall is in front of buyers when the spring rush starts.",
-        link: { href: "/guides/thinking-about-spring-start-in-october", label: "Why spring starts in October" },
+        link: { href: "/guides/getting-your-house-ready-to-sell", label: "Why spring starts in October" },
       },
     ],
     watch: [

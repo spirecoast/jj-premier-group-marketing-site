@@ -84,7 +84,7 @@ const FAQS: Faq[] = [
   {
     q: "How do you arrive at the number?",
     answer:
-      "We start with recent closed sales near you, adjusted for the things that matter here: the water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a buyer will. You get the number and the sales behind it in writing. A comparative market analysis from a REALTOR is not an appraisal; the buyer's lender orders that later.",
+      "We start with recent closed sales near you, adjusted for the things that matter here: the water, the flood zone, the year of the roof, and which end of the street. Then we walk your house the way a buyer will. You get the number and the sales behind it in writing. A comparative market analysis from a REALTOR® is not an appraisal; the buyer's lender orders that later.",
     a: (
       <>
         <p>

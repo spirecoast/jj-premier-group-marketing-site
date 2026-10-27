@@ -4,8 +4,9 @@ import type { Block, Guide, Source } from "./types";
 /**
  * Getting a house ready to sell, explained.
  *
- * Rebuilt from the post "Thinking about spring? Start in October." The slug
- * is kept so the old link still works. Written plainly on purpose, to the
+ * Rebuilt from the post "Thinking about spring? Start in October." It moved
+ * from that post's seasonal slug to one that says what it is in October 2026;
+ * the old /guides, /blog and PDF addresses redirect (MOVED_GUIDES in slugs.ts). Written plainly on purpose, to the
  * template in docs/GUIDES.md: short sentences, everyday words, one idea at a
  * time, and every official term explained the first time it appears.
  * scripts/check-guides.ts measures the reading grade of the running text and
@@ -78,7 +79,7 @@ const sub = (text: string): Block => ({ kind: "subhead", text });
 /* ---- The guide ------------------------------------------------------------- */
 
 export const READY_TO_SELL_GUIDE: Guide = {
-  slug: "thinking-about-spring-start-in-october",
+  slug: "getting-your-house-ready-to-sell",
   title: "Getting your house ready to sell",
   promise: "What to do before you list, in what order, and how long each step takes.",
   howToUse: [
