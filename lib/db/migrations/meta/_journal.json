@@ -106,6 +106,13 @@
       "when": 1791600000000,
       "tag": "0014_places_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793203200000,
+      "tag": "0016_ops_and_retention",
+      "breakpoints": true
     }
   ]
 }

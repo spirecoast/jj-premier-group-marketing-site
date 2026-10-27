@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
+import { monitoredCron } from "@/lib/ops/cron";
 import { runReindex } from "@/lib/search/run";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,8 @@ export const maxDuration = 300;
  * A run stops starting new work about a minute before maxDuration and says
  * how many chunks are left in `remaining`; call it again until that's 0.
  * `?force=1` lets deletes through even when the run has under half the rows
- * already stored.
+ * already stored. Each run is logged, kept in ops_runs and alerted on when it
+ * fails or a source keeps failing (lib/ops/cron.ts).
  */
 function authorised(request: NextRequest): boolean {
   const header = request.headers.get("authorization") ?? "";
@@ -46,5 +48,6 @@ async function run(request: NextRequest) {
   }
 }
 
-export const GET = run;
-export const POST = run;
+const monitored = monitoredCron(run);
+export const GET = monitored;
+export const POST = monitored;

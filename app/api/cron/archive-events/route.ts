@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { bearerMatches } from "@/lib/bearer";
+import { monitoredCron } from "@/lib/ops/cron";
 import { isSanityConfigured } from "@/sanity/env";
 import { staleEventIdsQuery } from "@/sanity/lib/queries";
 import { getWriteClient } from "@/sanity/lib/write-client";
@@ -11,7 +12,8 @@ export const dynamic = "force-dynamic";
  * Required at launch: the free-tier document cap counts drafts and system
  * records, and an unbounded calendar is what would eventually breach it.
  *
- * Vercel Cron calls this with `Authorization: Bearer ${CRON_SECRET}`.
+ * Vercel Cron calls this with `Authorization: Bearer ${CRON_SECRET}`. Each run
+ * is logged, kept in ops_runs and alerted on when it fails (lib/ops/cron.ts).
  */
 function authorised(request: NextRequest): boolean {
   return bearerMatches(request.headers.get("authorization"), [process.env.CRON_SECRET]);
@@ -55,5 +57,6 @@ async function run(request: NextRequest) {
   }
 }
 
-export const GET = run;
-export const POST = run;
+const monitored = monitoredCron(run);
+export const GET = monitored;
+export const POST = monitored;

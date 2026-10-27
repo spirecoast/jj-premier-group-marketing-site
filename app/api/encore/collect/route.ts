@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { runRoute } from "@/lib/encore/ops";
+import { monitoredCron } from "@/lib/ops/cron";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -16,8 +17,9 @@ export const maxDuration = 300;
  * minute before maxDuration, says what is left in `remaining` and
  * `remainingImages`, and calls itself again (up to eight times) until both
  * are 0. `?only=id,id` runs those sources whether due or not.
+ *
+ * Each run is logged, kept in ops_runs and alerted on when it fails or a
+ * source keeps failing (lib/ops/cron.ts).
  */
-export async function GET(request: NextRequest) {
-  return runRoute(request, "collect", maxDuration);
-}
+export const GET = monitoredCron((request: NextRequest) => runRoute(request, "collect", maxDuration));
 export const POST = GET;
