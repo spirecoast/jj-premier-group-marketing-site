@@ -27,7 +27,9 @@
     "issue:preview": "tsx --conditions=react-server scripts/issue-preview.mjs",
     "guides:pdf": "node scripts/guides-pdf.mjs",
     "predev": "node scripts/copy-maplibre-worker.mjs",
-    "prebuild": "node scripts/copy-maplibre-worker.mjs && node scripts/check-copy.mjs"
+    "prebuild": "node scripts/copy-maplibre-worker.mjs && node scripts/check-copy.mjs",
+    "postbuild": "node scripts/check-client-bundle.mjs",
+    "check:bundle": "node scripts/check-client-bundle.mjs"
   },
   "dependencies": {
     "@sanity/client": "^8.5.0",

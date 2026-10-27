@@ -34,7 +34,7 @@ export function Meet({ duo }: { duo: ImageRef }) {
               you informed every step of the way.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3.5">
+          <div className="btn-row gap-3.5">
             <ButtonLink href="/about" dash>
               Meet Joelyn and Jessica
             </ButtonLink>

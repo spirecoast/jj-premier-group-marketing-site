@@ -18,8 +18,8 @@ jj-premier-brand-system.vercel.app).
 | Content types and data API | `lib/content/` — pages call `getListings()`, `getUpcomingEvents()`, … and never touch a source |
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
-| Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres → CRM → team email → Plausible), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `scripts/test-lead.mjs` |
-| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
+| Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres, then after the response the CRM → team email → Plausible), `lib/lead-outbox.ts` (retries), `lib/lead-guard.ts` (resends, rate limit, honeypot), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads/` (`constants.ts` and `rules.ts` for the browser, `schema.ts` with zod for the server, `pixel.ts`), `lib/phone.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `app/api/cron/lead-redeliver`, `scripts/test-lead.mjs` |
+| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/cron/lead-redeliver`, `app/api/cron/ops-check`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
 | Site search | `lib/search/*` (chunks, indexer, scored hybrid query, fallback, `eval/`), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, `scripts/search-eval.ts`, migrations `0010_search.sql` and `0011_search_score_fusion.sql`; see "Site search" below |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
@@ -656,32 +656,68 @@ Tier notes, cost levers and the archive requirement are in `docs/handoff/integra
 Every form (`components/lead-form.tsx`, `components/letter-form.tsx`) posts to
 `actions/submit-lead.ts`, which validates and hands off to `lib/lead-pipeline.ts`:
 
+0. **Rules and the guard.** `lib/leads/rules.ts` holds the checks (no zod), run by the form before
+   it sends and by the server schema (`lib/leads/schema.ts`) when it arrives. An email or a phone
+   is enough on the enquiry forms; phones are parsed by `lib/phone.ts` and kept as `(941) 555-0100`
+   with E.164 beside them. `lib/lead-guard.ts` then answers a resend of the same attempt (the
+   form's `submissionId`) without sending anything twice, and keeps a honeypot hit or a sender over
+   the rate limit (6 per address per 10 minutes, 4 per email or phone per hour; the keys are
+   hashes) as `suspected_bot`, sent nowhere. Every check fails open.
 1. **Postgres first** (`leads` + `lead_deliveries`, plus `contacts`/`events` for the consent record), when
-   `DATABASE_URL` is set. The lead row exists before anything external is tried.
+   `DATABASE_URL` is set. The lead row exists before anything external is tried, and it's all the
+   visitor waits for: the steps below run after the response (`after()` from `next/server`). A
+   returning email updates its `contacts` row, and the lead carries `priorEnquiries`.
 2. **CRM** through `lib/crm.ts`. `CRM_PROVIDER=webhook` (the default when `CRM_WEBHOOK_URL` is
    set) POSTs the payload to a Zapier Catch Hook, which runs Compass "Create a New Lead" into the
-   Home Platform; 8s timeout, one retry, any 2xx is success. `fub` keeps the old Follow Up Boss
-   client (`lib/fub.ts`); `none` means no CRM. The result lands in `leads.delivery_status`.
+   Home Platform; 8s timeout, one retry, any 2xx is success, `Idempotency-Key` = the lead's id.
+   `fub` keeps the old Follow Up Boss client (`lib/fub.ts`); `none` means no CRM. The result lands
+   in `leads.delivery_status`.
 3. **Team email** with the full payload to `TEAM_NOTIFY_EMAIL` (Resend), reply-to the visitor.
 4. **Alert** to `LEAD_ALERT_EMAIL` (falls back to `TEAM_NOTIFY_EMAIL`) when the CRM step failed.
 5. **Server-side Plausible** `Lead server` event (`form`, `channel: server`), with the visitor's
    User-Agent and IP forwarded, as a backstop for visitors whose ad blocker stops the script.
+
+Steps 2 and 3 go through the outbox (`lib/lead-outbox.ts`, table `lead_outbox`): a failure is
+retried after 1, 5, 15, 60 and 240 minutes, swept after every new lead and daily by
+`/api/cron/lead-redeliver`, and marked `dead` after six tries or three days with a `[lead-alarm]`
+log line (and a Sentry message when it's on). Without a database there's nothing to come back to,
+so the steps run before the answer and decide it. Migration `0015_lead_guard_and_outbox.sql`
+holds the outbox and the guard's tables; until it's applied each sink is tried once, as before,
+and one log line names the file.
+
+The form itself (`components/lead-form.tsx`, Figma "01 Lead form"): the two questions (timing,
+then a house to sell) come first as rows of chips (radios underneath), then name, email and
+phone. With JavaScript it never resets: a failed check focuses the first field to fix, under the
+header, and lists them by Send ("Two things to fix above: name, email"); the Send label and width
+hold while it's sending and the dash runs; a failed or dropped request shows the call-or-text
+line, never the error page. Without JavaScript it posts as a plain form and the page comes back
+with the values. Home Platform's pixel reads named fields as they're typed, so once the page is
+live only the visitor's own name, email and phone and the two questions keep a `name`
+(`lib/leads/pixel.ts`); the message, the address and everything about a referred friend are added
+to the request by the form itself. `scripts/check-client-bundle.mjs` (postbuild) fails the build if
+zod reaches a browser chunk.
 
 Then a `LeadForm` sends the visitor to `/thanks/<form>` (what happens next, both direct numbers,
 "Book 15 minutes" when `NEXT_PUBLIC_BOOKING_URL` is set, one next step; `noindex`; fires the `Lead`
 goal). The `LetterForm` bars stay inline: the success line shows where the bar was and `Subscribe`
 fires there. With JavaScript off the inline success state shows for every form. The visitor sees an error only
 when nothing kept the lead; in production a deployment with no sink at all logs an error at boot
-(`instrumentation.ts`) and `GET /api/health` reports `ok: false`.
+(`instrumentation.ts`) and `GET /api/health` reports `ok: false`. On the live site health also
+needs a sink that tells a person (the CRM webhook or the team email): with Postgres alone it
+answers 503 (`no-human-sink`). The thank-you page says back what was sent ("For 9403 9th Ave NW,
+moving inside three months.", from sessionStorage, never the URL), offers the plan link a tool
+sent for sharing, and puts "Book 15 minutes" first, prefilled with name and email, on the
+contact, buy, sell and valuation pages when the booking URL is set.
 
 **The site emails a visitor only about the newsletters.** A Tide or Encore sign-up, or a ticked
 email box, gets one confirmation email (double opt-in); once confirmed, a short welcome and each
 issue (`docs/ISSUES.md`). Replies to an enquiry come from the agents' own Coldwell Banker mailboxes
 (a Zapier step if they want a template).
 
-Consent: every form with an email field shows an unchecked **email** box; forms with a phone also
-show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in
-`lib/leads.ts`). Neither is required. State, timestamp and `CONSENT_WORDING_VERSION` are stored on
+Consent: every enquiry form with an email field shows an unchecked **email** box; forms with a phone
+also show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in
+`lib/leads/constants.ts`). Neither is required, and the referral and review-permission forms show
+neither. Call/text consent is recorded only with a valid phone number. State, timestamp and `CONSENT_WORDING_VERSION` are stored on
 the lead and travel as `consent:email` / `consent:sms` tags. The Tide and Encore boxes imply email
 consent and record `IMPLIED_CONSENT_VERSION` (`implied:subscribe`) instead, since the visitor saw
 the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTEGRATIONS.md`.
@@ -698,8 +734,10 @@ the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTE
   `utm_medium=social` in the first-touch record (`docs/MEASUREMENT.md` §4).
 - **`/refer`**: "Know someone moving here?" The `referral` form is two labelled groups: "About you"
   (the referrer's first name, last name, email and phone) and "About them" (the person moving: first
-  name, last name, email and/or phone, what they're planning, a note), plus a required box: "They know
-  I'm passing their details along and expect to hear from Joelyn and Jessica." The referred person
+  name, last name, email and/or phone, what they're planning, a note), closed by a required box
+  marked "(required)": "They know I'm passing their details along and expect to hear from Joelyn
+  and Jessica." No marketing boxes for the referrer. Under the form, "Rather send them a link"
+  shares Atlas instead, and the referral thank-you page has the same share. The referred person
   travels under `referral` in the payload with a CRM note naming the referrer (`lib/crm.ts`,
   `docs/INTEGRATIONS.md`). The copy says we write back to the referrer first and reach out to the
   person at their pace. No gifts or rewards are mentioned (anything like that is cleared with the
@@ -839,7 +877,7 @@ The operator's runbook for the cutover itself (client and brokerage checklist, V
   delivered to the CRM (webhook rejected or unreachable; with `CRM_PROVIDER=fub`, also the
   archived-flow 204 case).
 - `CRON_SECRET` protects `GET /api/cron/archive-events` (Bearer token), scheduled weekly in
-  `vercel.json`, and the daily search reindex (`/api/search/reindex`, which also takes
+  `vercel.json`, the daily lead redelivery (`/api/cron/lead-redeliver`), and the daily search reindex (`/api/search/reindex`, which also takes
   `SEARCH_REINDEX_SECRET`).
 
 ## Verification done for this build
@@ -904,7 +942,7 @@ Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:
 3. The Zapier Catch Hook URL (`CRM_WEBHOOK_URL`) and the Zap into the Home Platform. Until it is
    set, leads are mirrored to the database and emailed only, and production logs an alert.
 4. The Sanity project and dataset, then the seed script and webhook in the section above.
-5. Consent wording sign-off from counsel (`CONSENT_WORDING` in `lib/leads.ts`) and 10DLC
+5. Consent wording sign-off from counsel (`CONSENT_WORDING` in `lib/leads/constants.ts`) and 10DLC
    registration before any texting starts.
 6. An IDX licence from Stellar MLS before any MLS data or MLS wording goes on the site. The sample
    listings are placeholders.
@@ -934,7 +972,10 @@ preview (and on `vercel dev`):
 - Plausible is off, the script and the server-side `Lead server` event alike;
 - every lead is saved with `is_test = true` and the tag `preview`, and the team email (to the test
   inbox, if any) says so;
-- scheduled jobs refuse to run (403), whoever calls them, since they write to production's data.
+- scheduled jobs refuse to run (403), whoever calls them, since they write to production's data;
+- the lead outbox's sweep (`redeliverDue`) doesn't run on a preview, and production's sweep skips
+  any lead tagged `preview`, so a preview never settles a production lead and production never
+  retries a preview's lead into a real inbox.
 
 Home Platform's pixel was already production only (`lib/home-platform.ts`). Off Vercel
 (`next dev`, `next start` on a laptop) `VERCEL_ENV` is unset and the keys decide, as before.

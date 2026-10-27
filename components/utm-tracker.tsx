@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { isLeadChannel, type LeadChannel } from "@/lib/leads";
+import { isLeadChannel, type LeadChannel } from "@/lib/leads/constants";
 
 const UTM_KEYS = [
   "utm_source",

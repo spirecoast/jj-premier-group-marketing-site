@@ -1,7 +1,8 @@
 import "server-only";
 import { sendLeadEvent, type FubProperty } from "@/lib/fub";
-import { FUB_TYPE, IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION, type LeadForm } from "@/lib/leads";
 import { isPreviewDeployment } from "@/lib/deploy-env";
+import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION, type LeadForm } from "@/lib/leads/constants";
+import { FUB_TYPE } from "@/lib/leads/schema";
 import { getCrmProvider, type CrmProvider } from "@/lib/lead-sinks";
 import { site } from "@/lib/site";
 
@@ -28,7 +29,7 @@ export type LeadConsent = {
   /** When the email or call/text box was ticked (or email was implied by subscribing); null when neither. Never the review box. */
   timestamp: string | null;
   /**
-   * The marketing-consent wording the visitor saw (lib/leads.ts):
+   * The marketing-consent wording the visitor saw (lib/leads/constants.ts):
    * CONSENT_WORDING_VERSION beside the two boxes, IMPLIED_CONSENT_VERSION
    * (`implied:subscribe`) on the Tide and Encore bars, NOT_SHOWN_CONSENT_VERSION
    * (`none:not-shown`) on a form that shows neither box (review-permission).
@@ -88,7 +89,7 @@ export type LeadProperty = {
  * Referral form only: the person who is moving, as the referrer gave them.
  * The lead's own firstName/lastName/email/phone are the referrer's; these are
  * the person to create in the CRM, with `note` as the contact's note. The
- * referrer ticked REFERRAL_CONSENT_WORDING (lib/leads.ts), so `told` is
+ * referrer ticked REFERRAL_CONSENT_WORDING (lib/leads/constants.ts), so `told` is
  * always true here, with the time and the wording version it was ticked under.
  */
 export type LeadReferral = {
@@ -112,11 +113,19 @@ export type LeadReferral = {
 
 /** The JSON a Zapier Catch Hook receives. Field map: docs/INTEGRATIONS.md. */
 export type CrmLead = {
+  /** The leads.id when the database kept it (null without one). Also sent as the webhook's Idempotency-Key, so a Zap can skip a redelivery it has already seen. */
+  leadId?: string | null;
   form: LeadForm;
   firstName: string;
   lastName: string;
+  /** Lowercased. Empty when the visitor gave only a phone number (every form but the subscribe bars and the review permission allows that). */
   email: string;
+  /** "(941) 555-0100" for a US number, or an international one as typed; null when none was given. */
   phone: string | null;
+  /** The same number in E.164 ("+19415550100"), for the CRM and the consent record. */
+  phoneE164?: string | null;
+  /** How many earlier leads the site has with this email or phone (0 for a first enquiry); null without a database. */
+  priorEnquiries?: number | null;
   message: string | null;
   market: string | null;
   propertyAddress: string | null;
@@ -149,6 +158,8 @@ export function leadTags(input: {
   consentSms: boolean;
   /** Review-permission form: the visitor gave permission to use their words. */
   consentReview?: boolean;
+  /** The call/text box was ticked with no phone number to call: no consent is recorded, and the tag says why. */
+  smsWithoutPhone?: boolean;
   /** The /from/<channel> page this session came through; wins over utm_source. */
   channel?: string | null;
   utmSource?: string | null;
@@ -158,6 +169,7 @@ export function leadTags(input: {
   if (input.market) tags.push(`market:${input.market}`);
   if (input.consentEmail) tags.push("consent:email");
   if (input.consentSms) tags.push("consent:sms");
+  if (input.smsWithoutPhone) tags.push("consent:sms-no-phone");
   if (input.consentReview) tags.push("consent:review");
   tags.push(`source:${(input.channel || input.utmSource || "direct").toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`);
   tags.push("site:jjpremiergroup");
@@ -172,7 +184,7 @@ const WEBHOOK_ATTEMPTS = 2;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** POST to the Zapier Catch Hook. Any 2xx is success; one retry on anything else. */
-async function deliverViaWebhook(lead: CrmLead, fetchImpl: typeof fetch): Promise<CrmResult> {
+async function deliverViaWebhook(lead: CrmLead, fetchImpl: typeof fetch, idempotencyKey?: string): Promise<CrmResult> {
   const url = process.env.CRM_WEBHOOK_URL;
   if (!url) {
     return { ok: false, provider: "webhook", status: 0, attempts: 0, error: "CRM_WEBHOOK_URL is not set", reason: "not_configured" };
@@ -185,7 +197,7 @@ async function deliverViaWebhook(lead: CrmLead, fetchImpl: typeof fetch): Promis
     try {
       const res = await fetchImpl(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json", ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}) },
         body,
         cache: "no-store",
         signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
@@ -248,7 +260,7 @@ async function deliverViaFub(lead: CrmLead): Promise<CrmResult> {
     person: {
       firstName: lead.firstName,
       lastName: lead.lastName,
-      emails: [{ value: lead.email }],
+      emails: lead.email ? [{ value: lead.email }] : undefined,
       phones: lead.phone ? [{ value: lead.phone }] : undefined,
       tags: ["website", ...lead.tags],
     },
@@ -292,10 +304,10 @@ async function deliverViaFub(lead: CrmLead): Promise<CrmResult> {
  */
 export async function deliverLeadToCrm(
   lead: CrmLead,
-  opts: { fetchImpl?: typeof fetch } = {},
+  opts: { fetchImpl?: typeof fetch; idempotencyKey?: string } = {},
 ): Promise<CrmResult> {
   const provider = getCrmProvider();
-  if (provider === "webhook") return deliverViaWebhook(lead, opts.fetchImpl ?? fetch);
+  if (provider === "webhook") return deliverViaWebhook(lead, opts.fetchImpl ?? fetch, opts.idempotencyKey);
   if (provider === "fub") return deliverViaFub(lead);
   return { ok: false, provider: "none", status: 0, attempts: 0, error: "CRM_PROVIDER=none", reason: "not_configured" };
 }

@@ -11,7 +11,7 @@
  *
  * Sources: the market hubs (lib/hubs/copy.ts), the channel landing pages
  * (lib/channels/copy.ts), /refer (lib/refer/copy.ts, plus the referral box
- * and the plans from lib/leads.ts) and /reviews (lib/reviews/copy.ts). A new
+ * and the plans from lib/leads/constants.ts) and /reviews (lib/reviews/copy.ts). A new
  * page with hand-written copy adds its own `<page>Strings()` here.
  *
  * The newsletter templates (lib/issues/copy.ts) get the same checker with
@@ -45,7 +45,7 @@ import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
 import { newsletterStrings } from "../lib/newsletter/copy.ts";
-import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads.ts";
+import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads/constants.ts";
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
 import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
@@ -62,9 +62,9 @@ const SOURCES = [
   ...channelStrings(),
   ...referStrings(),
   ...reviewsStrings(),
-  { where: "lib/leads.ts: REVIEW_CONSENT_WORDING", text: REVIEW_CONSENT_WORDING },
-  { where: "lib/leads.ts: REFERRAL_CONSENT_WORDING", text: REFERRAL_CONSENT_WORDING },
-  ...REFERRAL_PLANS.map((p) => ({ where: `lib/leads.ts: REFERRAL_PLANS ${p}`, text: p })),
+  { where: "lib/leads/constants.ts: REVIEW_CONSENT_WORDING", text: REVIEW_CONSENT_WORDING },
+  { where: "lib/leads/constants.ts: REFERRAL_CONSENT_WORDING", text: REFERRAL_CONSENT_WORDING },
+  ...REFERRAL_PLANS.map((p) => ({ where: `lib/leads/constants.ts: REFERRAL_PLANS ${p}`, text: p })),
 ];
 
 /** Places, never people. */

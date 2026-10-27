@@ -15,10 +15,12 @@ import { sideEffectsAllowed } from "../deploy-env";
  *   DATABASE_URL        the subscriptions and the send records live in Postgres
  *
  * Optional: NEWSLETTER_REPLY_TO (where a reply goes; also the List-Unsubscribe
- * mailto) and NEWSLETTER_DAILY_CAP (default 100, Resend's free daily limit).
+ * mailto) and NEWSLETTER_DAILY_CAP (default 80: Resend's free plan allows
+ * 100 a day across the whole account, and the team's "New lead" emails and
+ * alerts use the same key, so subscriber mail leaves them 20).
  */
 
-export const DEFAULT_DAILY_CAP = 100;
+export const DEFAULT_DAILY_CAP = 80;
 
 export type NewsletterConfig = {
   enabled: boolean;

@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { processLead } from "@/lib/lead-pipeline";
-import { leadSchema } from "@/lib/leads";
+import { parseLead } from "@/lib/leads/schema";
 
 /**
  * JSON entry to the same pipeline the forms use, for the launch rehearsal
@@ -12,7 +12,7 @@ import { leadSchema } from "@/lib/leads";
  *   - Elsewhere: requires `Authorization: Bearer <LEAD_TEST_SECRET>`; without
  *     the secret configured the route does not exist (404).
  *
- * Body: the same fields as the forms (lib/leads.ts leadSchema) plus an
+ * Body: the same fields as the forms (lib/leads/schema.ts) plus an
  * optional `test: true`, which tags the lead "test" everywhere it lands.
  */
 
@@ -45,9 +45,9 @@ export async function POST(request: NextRequest) {
     else if (typeof v === "boolean") raw[k] = v ? "true" : "";
     else if (typeof v === "number") raw[k] = String(v);
   }
-  const parsed = leadSchema.safeParse(raw);
-  if (!parsed.success) {
-    return NextResponse.json({ message: "Invalid lead", errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+  const parsed = parseLead(raw);
+  if (!parsed.ok) {
+    return NextResponse.json({ message: "Invalid lead", errors: parsed.errors, hidden: parsed.hidden }, { status: 400 });
   }
   if (parsed.data.website) return NextResponse.json({ message: "Honeypot" }, { status: 400 });
 

@@ -2,12 +2,13 @@
 
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import { track } from "@/lib/analytics";
 import { submitLead } from "@/actions/submit-lead";
 import { HomePlatformPixelFlag } from "@/components/home-platform-fields";
 import { readChannel, readUtm } from "@/components/utm-tracker";
-import { initialLeadState, type LeadFormState } from "@/lib/leads";
+import { LEAD_FAILURE_MESSAGE, initialLeadState, type LeadFormState } from "@/lib/leads/constants";
+import { validateLead } from "@/lib/leads/rules";
 import { SIGNUP_COPY } from "@/lib/newsletter/copy";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,10 @@ import { cn } from "@/lib/utils";
  * success (`inline`, the default): the inline line shows and the Subscribe goal
  * fires here. `inline={false}` sends the visitor to /thanks/letter or
  * /thanks/calendar instead, which then fires the goal.
+ *
+ * Like the lead form, with JavaScript it checks the address before sending,
+ * never empties the box on a failure, and shows the failure line instead of
+ * the site's error page when the request doesn't come back.
  */
 export function LetterForm({
   form = "letter",
@@ -36,7 +41,12 @@ export function LetterForm({
   /** The /from/<channel> page this bar sits on; otherwise the visit's channel, if any, is sent. */
   source?: string;
 }) {
-  const [state, action, pending] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
+  // The server action as the form's own action: it only runs when JavaScript isn't (yet) running.
+  const [serverState, action] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
+  const [result, setResult] = useState<LeadFormState | null>(null);
+  const state = result ?? serverState;
+  const [pending, startSending] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [utm, setUtm] = useState<Record<string, string>>({});
   const [channel, setChannel] = useState<string | null>(source ?? null);
   const successRef = useRef<HTMLParagraphElement>(null);
@@ -64,6 +74,30 @@ export function LetterForm({
       ? "You’re on the list. The next report comes out at the start of the month."
       : "You’re on the list. Encore comes out every Monday.";
 
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (pending) return;
+    const fd = new FormData(e.currentTarget);
+    const found = validateLead(form, { email: String(fd.get("email") ?? "") });
+    if (found.email) {
+      setResult({ ok: false, errors: { email: found.email } });
+      inputRef.current?.focus();
+      return;
+    }
+    startSending(async () => {
+      let res: LeadFormState;
+      try {
+        res = await submitLead(initialLeadState, fd);
+      } catch {
+        res = { ok: false, formError: LEAD_FAILURE_MESSAGE };
+      }
+      startSending(() => setResult(res));
+      if (!res.ok) inputRef.current?.focus();
+    });
+  }
+
+  const error = state.errors?.email ?? state.formError;
+
   if (state.ok) {
     return (
       <p ref={successRef} tabIndex={-1} className={cn("t-lead outline-none", tone === "dark" ? "text-white text-shadow-soft" : "text-navy", className)}>
@@ -76,7 +110,7 @@ export function LetterForm({
   }
 
   return (
-    <form action={action} noValidate className={cn("flex w-full min-w-0 max-w-[520px] flex-col gap-2", className)}>
+    <form action={action} onSubmit={onSubmit} noValidate aria-busy={pending || undefined} className={cn("flex w-full min-w-0 max-w-[520px] flex-col gap-2", className)}>
       <input type="hidden" name="form" value={form} />
       <HomePlatformPixelFlag />
       {channel ? <input type="hidden" name="source" value={channel} /> : null}
@@ -100,26 +134,39 @@ export function LetterForm({
           Email address
         </label>
         <input
+          ref={inputRef}
           id={`letter-email-${form}`}
           type="email"
           name="email"
-          required
+          aria-required="true"
           autoComplete="email"
+          inputMode="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="send"
+          defaultValue={state.values?.email}
           placeholder="you@example.com"
           className={cn(
             "w-full min-w-0 px-5 py-3 text-base text-ink md:text-[15px] placeholder:text-graphite-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-sky-700 sm:w-0 sm:flex-1 sm:bg-transparent sm:px-0 sm:py-2 sm:focus-visible:outline-0",
             tone === "dark" ? "bg-paper/95" : "border border-rule bg-white sm:border-0",
           )}
           aria-invalid={Boolean(state.errors?.email)}
-          aria-describedby={state.errors?.email?.[0] || state.formError ? `letter-error-${form}` : undefined}
+          aria-describedby={error ? `letter-error-${form}` : undefined}
         />
-        <button type="submit" disabled={pending} className="btn btn-navy w-full shrink-0 px-6 sm:h-[46px] sm:min-h-0 sm:w-auto">
-          {pending ? "Sending…" : label}
+        {/* The label stays put while sending, so the button never changes width. */}
+        <button type="submit" aria-busy={pending || undefined} className="btn btn-navy w-full shrink-0 px-6 aria-busy:cursor-progress aria-busy:opacity-80 sm:h-[46px] sm:min-h-0 sm:w-auto">
+          {label}
         </button>
       </div>
-      {state.errors?.email?.[0] || state.formError ? (
-        <p id={`letter-error-${form}`} className={cn("t-small", tone === "dark" ? "text-white" : "text-danger")} role="alert">
-          {state.errors?.email?.[0] ?? state.formError}
+      {pending ? (
+        <span role="status" className="sr-only">
+          Sending
+        </span>
+      ) : null}
+      {error ? (
+        <p id={`letter-error-${form}`} className={cn("field-error t-small", tone === "dark" ? "text-white" : "text-danger")} role="status">
+          {error}
         </p>
       ) : null}
     </form>

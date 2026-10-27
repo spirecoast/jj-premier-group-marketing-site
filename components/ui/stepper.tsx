@@ -121,11 +121,12 @@ export function StepFooter({ back, skip, next, submit = false, aside, children, 
   return (
     <div className={cn("flex flex-col gap-4 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between", className)}>
       {children ?? (back ? <RuleButton onClick={back.onClick}>{back.label}</RuleButton> : <span />)}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+      {/* Phone: Next is the full width of the card, the last thing under the thumb. */}
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6">
         {aside}
-        {children && back ? <RuleButton onClick={back.onClick}>{back.label}</RuleButton> : null}
-        {skip ? <RuleButton onClick={skip.onClick}>{skip.label}</RuleButton> : null}
-        <Button type={submit ? "submit" : "button"} dash onClick={next.onClick}>
+        {children && back ? <RuleButton onClick={back.onClick} className="self-start sm:self-auto">{back.label}</RuleButton> : null}
+        {skip ? <RuleButton onClick={skip.onClick} className="self-start sm:self-auto">{skip.label}</RuleButton> : null}
+        <Button type={submit ? "submit" : "button"} dash onClick={next.onClick} className="w-full sm:w-auto">
           {next.label}
         </Button>
       </div>
