@@ -23,7 +23,7 @@ export function ToolCard({ tool, sizes, className }: { tool: Tool; sizes: string
           </div>
           <div className="flex flex-col gap-[3cqw]">
             <p className="text-balance font-display text-[10cqw] font-light leading-[1.02] text-white text-shadow-photo">{tool.name}</p>
-            <span className="block h-[2px] w-[18%] bg-sky-300 transition-[width] duration-700 group-hover:w-full" aria-hidden="true" />
+            <span className="block h-[2px] w-[18%] bg-sky-300 transition-[width] duration-(--dur-card) group-hover:w-full" aria-hidden="true" />
           </div>
         </div>
       </div>

@@ -249,7 +249,7 @@ export function QuestionnaireForm({
           </span>
           <span className="order-3 flex items-center gap-2.5 t-small tabular-nums sm:order-2">
             <span className="block h-1 w-[72px] overflow-hidden bg-linen-100/20" aria-hidden="true">
-              <i className="block h-full bg-linen-100 transition-[width] duration-300" style={{ width: `${pct}%` }} />
+              <i className="block h-full bg-linen-100 transition-[width] duration-(--dur-panel)" style={{ width: `${pct}%` }} />
             </span>
             <span>{Q_COPY.answered(counts.total, totalQs)}</span>
           </span>

@@ -34,7 +34,7 @@ export function Doors() {
                   </div>
                   <span
                     aria-hidden="true"
-                    className="mb-1 grid h-11 w-11 shrink-0 place-items-center border border-white/50 text-[18px] transition-colors duration-300 group-hover:border-white group-hover:bg-white group-hover:text-navy"
+                    className="mb-1 grid h-11 w-11 shrink-0 place-items-center border border-white/50 text-[18px] transition-colors duration-(--dur-panel) group-hover:border-white group-hover:bg-white group-hover:text-navy"
                   >
                     →
                   </span>

@@ -43,7 +43,7 @@ export function GuideHero({ title, image }: { title: string; image: ImageRef }) 
           <span className="relative block h-px w-14 bg-sky-300" aria-hidden="true" />
           <a
             href={`#${STEPS_ID}`}
-            className="relative grid h-12 w-12 place-items-center bg-white/90 text-navy transition-[transform,background-color] duration-300 hover:translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+            className="relative grid h-12 w-12 place-items-center bg-white/90 text-navy transition-[transform,background-color] duration-(--dur-panel) hover:translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
           >
             <span className="sr-only">To step 1</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -111,7 +111,7 @@ export function GuideNext({ title, links }: { title: string; links: GuideLink[] 
                 <div className="scrim" aria-hidden="true" />
                 <h3 className="relative flex w-full items-end justify-between gap-5 p-6 font-display text-[clamp(1.75rem,2.6vw,2.5rem)] font-light leading-[1.05] text-white text-shadow-photo lg:p-8">
                   {l.title}
-                  <span aria-hidden="true" className="mb-1 text-[20px] transition-transform duration-300 group-hover:translate-x-1">
+                  <span aria-hidden="true" className="mb-1 text-[20px] transition-transform duration-(--dur-panel) group-hover:translate-x-1">
                     →
                   </span>
                 </h3>

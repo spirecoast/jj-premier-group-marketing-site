@@ -98,6 +98,54 @@ export const primaryNav: readonly NavItem[] = [
   { href: "/guides", label: "Guides" },
 ] as const;
 
+/**
+ * "Joelyn & Jessica" in the desktop header is a small menu in the product
+ * menus' style, so the team is one click away on every page, with the two
+ * numbers in the panel's foot (components/site-header.tsx).
+ */
+export const teamMenu = {
+  key: "team",
+  name: "Joelyn & Jessica",
+  title: "Who you'll work with",
+  items: [
+    { href: "/about", label: "Joelyn & Jessica", short: "A mother and daughter team" },
+    { href: "/contact", label: "Tell us the timing", short: "When you need to be in a new home" },
+    { href: "/refer", label: "Refer someone", short: "Send a friend our way" },
+    { href: "/reviews", label: "Leave a review", short: "Tell others how it went" },
+  ],
+} as const;
+
+export type NextStep = {
+  /** The cell's label: two words at most, it sits between Call and Text. */
+  label: string;
+  /** Where it goes: an anchor on the page, a path, or a function of the pathname. */
+  href: string | ((pathname: string) => string);
+};
+
+/**
+ * The phone action bar's middle cell: each page's own next step, where a
+ * page has one (components/mobile-action-bar.tsx). Call and Text stay on
+ * the outside. The first match wins; a page with no entry keeps two cells.
+ */
+export const nextSteps: readonly { test: RegExp; step: NextStep }[] = [
+  { test: /^\/listings\/[^/]+$/, step: { label: "Showing", href: "#inquire" } },
+  { test: /^\/sell\/net-proceeds$/, step: { label: "Your number", href: "#net-sheet" } },
+  { test: /^\/(sell\/home-value|sell\/sold|valuation)$/, step: { label: "Get the number", href: "#ask" } },
+  { test: /^\/sell$/, step: { label: "Home value", href: "/valuation" } },
+  { test: /^\/guides\/[^/]+$/, step: { label: "PDF", href: (p) => `/guides/pdf/${p.slice("/guides/".length)}.pdf` } },
+  { test: /^\/calendar$/, step: { label: "Tonight", href: "#tonight" } },
+  { test: /^\/calendar\/plan$/, step: { label: "Ask us", href: "#ask" } },
+  { test: /^\/neighborhoods\/(?!match$)[^/]+$/, step: { label: "On the map", href: (p) => `/neighborhoods?place=${p.slice("/neighborhoods/".length)}` } },
+] as const;
+
+/** The next step for a path, if the page has one. */
+export function nextStepFor(pathname: string): { label: string; href: string } | null {
+  const hit = nextSteps.find((n) => n.test.test(pathname));
+  if (!hit) return null;
+  const { label, href } = hit.step;
+  return { label, href: typeof href === "function" ? href(pathname) : href };
+}
+
 export type ProductLink = {
   id: string;
   href: string;

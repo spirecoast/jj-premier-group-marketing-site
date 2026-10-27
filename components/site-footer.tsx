@@ -5,6 +5,7 @@ import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } from "@/lib/site";
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
 import { Emblem } from "./brand/emblem";
+import { FooterGroup } from "./footer-group";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
@@ -32,24 +33,27 @@ function hubGoalClasses(href: string): string | undefined {
 
 function Column({ title, links, note, mark }: { title: string; links: readonly { href: string; label: string }[]; note?: string; mark?: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="flex flex-col gap-1.5">
-        <span className="flex items-center gap-2 font-display text-[19px] font-light leading-none text-navy">
-          {title}
-          {mark}
-        </span>
-        {note ? <span className="text-[12px] text-linen-700">{note}</span> : null}
-      </h2>
-      <ul className="flex flex-col gap-2.5 text-[14px]">
+    <FooterGroup
+      heading={
+        <>
+          <span className="flex items-center gap-2 font-display text-[19px] font-light leading-none text-navy">
+            {title}
+            {mark}
+          </span>
+          {note ? <span className="text-[12px] text-linen-700">{note}</span> : null}
+        </>
+      }
+    >
+      <ul className="footer-links flex flex-col gap-2.5 text-[14px]">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href as Route} className={["-my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
+            <Link href={l.href as Route} className={["footer-link -my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
               {l.label}
             </Link>
           </li>
         ))}
       </ul>
-    </div>
+    </FooterGroup>
   );
 }
 
@@ -151,14 +155,14 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
           </div>
           <div className="flex flex-col gap-12">
             {/* The site: where, what to do, what to read, who. */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4">
+            <div className="footer-groups grid gap-x-8 gap-y-10 sm:grid-cols-4">
               <Column title="Places" links={footerNav.places} />
               <Column title="Buy & sell" links={footerNav.buySell} />
               <Column title="Guides" links={footerNav.guides} />
               <Column title="The team" links={footerNav.team} />
             </div>
             {/* The three data products, each with everything built on it. */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-rule pt-10 sm:grid-cols-4">
+            <div className="footer-groups grid gap-x-8 gap-y-10 border-t border-rule pt-10 sm:grid-cols-4">
               {productFamilies.map((f) => (
                 <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<Emblem family={f.key} ink className="size-[18px]" />} />
               ))}
@@ -168,7 +172,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
         </div>
 
         <div className="flex flex-col gap-8 border-t border-rule pt-8 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
-          <div className="flex max-w-[860px] flex-col gap-3 text-[12px] leading-[1.7] text-linen-700">
+          <div className="footer-legal max-w-[860px] text-[12px] leading-[1.7] text-linen-700 lg:columns-2 lg:gap-10">
             <p>
               {site.name} is a real estate team: Joelyn Nauman and Jessica Garza, licensed Florida real estate agents with{" "}
               {settings.brokerageName}, {office}. Real estate services are provided through {settings.brokerageName}.

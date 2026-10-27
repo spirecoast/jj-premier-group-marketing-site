@@ -129,9 +129,14 @@
   --container-measure: 41.25rem; /* 660px prose measure */
   --container-narrow: 36rem;
 
-  /* Motion vocabulary: rise, draw, fade. */
+  /* Motion vocabulary: rise, draw, fade. The durations are in
+     styles/tokens.css; the two curves are registered here so `ease-brand`
+     and `ease-reveal` are utilities, and every transition-* utility runs at
+     the state duration in the brand curve unless it says otherwise. */
   --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-reveal: cubic-bezier(0.2, 0.75, 0.15, 1);
+  --default-transition-duration: var(--dur-state);
+  --default-transition-timing-function: var(--ease-brand);
 
   --animate-rise: rise 0.9s var(--ease-brand) both;
   --animate-fade: fade 1.4s ease 0.2s both;
@@ -241,8 +246,6 @@
      header, the product bar, the phone menu, the product stages); the class
      sniffing stays for the utility-coloured panels. */
   [data-ground="dark"] :focus-visible,
-  .header-glass :focus-visible,
-  .header-overlay :focus-visible,
   .product-bar :focus-visible,
   .encore-stage :focus-visible,
   [class*="bg-navy"] :focus-visible,
@@ -278,6 +281,7 @@
       animation-delay: 0s !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      transition-delay: 0s !important;
       scroll-behavior: auto !important;
     }
   }
@@ -299,7 +303,7 @@
     opacity: 0.55;
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.35s var(--ease-brand);
+    transition: transform var(--dur-panel) var(--ease-brand);
   }
   .nav-link:hover::after,
   .nav-link:focus-visible::after {
@@ -321,7 +325,7 @@
     /* A transition from a starting style rather than an animation: the reduced
        motion rule zeroes animation delays but leaves transition delays, so the
        150 ms grace holds there too and only the fade goes. */
-    transition: opacity 200ms ease 150ms;
+    transition: opacity var(--dur-state) var(--ease-brand) 150ms;
     @starting-style {
       opacity: 0;
     }
@@ -342,16 +346,38 @@
     --vt-page: 240ms;
     --vt-share: 320ms;
   }
-  /* The page body (components/page-transition.tsx): the old page leaves and
-     the new one arrives as two groups, so nothing morphs between sizes. */
-  ::view-transition-group(.vt-page) {
+  /* The page body (components/page-transition.tsx) is the document root's
+     own snapshot, the size of the viewport: the old page fades out and the
+     new one in, as two layers, so nothing morphs between sizes. */
+  ::view-transition-group(root) {
     animation: none;
   }
-  ::view-transition-old(.vt-page) {
+  ::view-transition-old(root) {
     animation: vt-fade-out var(--vt-page) var(--ease-brand) both;
   }
-  ::view-transition-new(.vt-page) {
+  ::view-transition-new(root) {
     animation: vt-fade-in var(--vt-page) var(--ease-brand) both;
+  }
+  /* The chrome holds still: each piece is its own group, taken out of the
+     root's snapshot, and neither moves nor fades (an identical old and new
+     image, blended plus-lighter, read as one). */
+  .site-header {
+    view-transition-name: site-header;
+  }
+  .product-bar {
+    view-transition-name: product-bar;
+  }
+  .action-bar {
+    view-transition-name: mobile-bar;
+  }
+  .action-pill {
+    view-transition-name: mobile-pill;
+  }
+  ::view-transition-group(site-header),
+  ::view-transition-group(product-bar),
+  ::view-transition-group(mobile-bar),
+  ::view-transition-group(mobile-pill) {
+    animation: none;
   }
   /* The nav rule (components/site-header.tsx): one name, so it slides between items. */
   ::view-transition-group(.vt-underline) {
@@ -381,12 +407,6 @@
     object-fit: cover;
     animation-duration: var(--vt-share);
     animation-timing-function: var(--ease-reveal);
-  }
-  /* The document root is the frame: header, footer, grounds. It holds still. */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
   }
   @keyframes vt-fade-out {
     from { opacity: 1; }
@@ -634,9 +654,9 @@
       }
     }
     transition:
-      background-color var(--dur-ui) ease,
-      color var(--dur-ui) ease,
-      border-color var(--dur-ui) ease;
+      background-color var(--dur-micro) var(--ease-brand),
+      color var(--dur-micro) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand);
   }
   .btn:disabled {
     opacity: 0.6;
@@ -654,8 +674,8 @@
     opacity: 0.6;
     flex-shrink: 0;
     transition:
-      width 0.35s var(--ease-brand),
-      opacity var(--dur-ui) ease;
+      width var(--dur-panel) var(--ease-brand),
+      opacity var(--dur-micro) var(--ease-brand);
   }
   /* The dash reaches on hover: the one small movement a button makes. */
   .btn:hover .btn-dash,
@@ -725,8 +745,8 @@
     padding-top: 0.5rem;
     margin-top: -0.5rem;
     transition:
-      color var(--dur-ui) ease,
-      border-color var(--dur-ui) ease;
+      color var(--dur-micro) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand);
     @media (max-width: 47.99rem) {
       padding-top: 1.25rem;
       margin-top: -1.25rem;
@@ -740,7 +760,7 @@
   /* Cards: image eases 3.5% and a Sky rule draws on hover. Nothing lifts.
      Pressed, the whole card settles a touch under the finger. */
   .card {
-    transition: transform var(--dur-ui) ease;
+    transition: transform var(--dur-micro) var(--ease-brand);
   }
   .card:active {
     transform: scale(0.992);
@@ -766,9 +786,9 @@
   /* Calendar rows slide 16px and reveal an arrow. */
   .row-link {
     transition:
-      padding-left 0.35s var(--ease-brand),
-      background-color 0.35s ease,
-      border-color var(--dur-ui) ease;
+      padding-left var(--dur-panel) var(--ease-brand),
+      background-color var(--dur-panel) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand);
   }
   .row-link:hover,
   .row-link:focus-visible {
@@ -779,8 +799,8 @@
     opacity: 0;
     transform: translateX(-8px);
     transition:
-      opacity 0.35s var(--ease-brand),
-      transform 0.35s var(--ease-brand);
+      opacity var(--dur-panel) var(--ease-brand),
+      transform var(--dur-panel) var(--ease-brand);
   }
   .row-link:hover .row-arrow,
   .row-link:focus-visible .row-arrow {
@@ -801,7 +821,7 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-graphite-500);
-    transition: color var(--dur-ui) ease;
+    transition: color var(--dur-micro) var(--ease-brand);
   }
   .field:focus-within .field-label {
     color: var(--color-sky-700);
@@ -818,7 +838,7 @@
     font-size: 1rem;
     color: var(--color-ink);
     outline: none;
-    transition: border-color var(--dur-ui) ease, box-shadow var(--dur-ui) ease;
+    transition: border-color var(--dur-micro) var(--ease-brand), box-shadow var(--dur-micro) var(--ease-brand);
   }
   .field-input::placeholder {
     color: var(--color-graphite-500);
@@ -856,9 +876,9 @@
     color: var(--color-harbor-900);
     border: 1px solid transparent;
     transition:
-      background-color var(--dur-ui) ease,
-      border-color var(--dur-ui) ease,
-      color var(--dur-ui) ease;
+      background-color var(--dur-micro) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand),
+      color var(--dur-micro) var(--ease-brand);
   }
   .chip:hover {
     border-color: var(--color-harbor-900);
@@ -1056,7 +1076,7 @@
 /* Three places: the photograph breathes on hover, the blurb settles in. */
 @layer components {
   .place-img {
-    transition: transform 1.2s var(--ease-out, ease);
+    transition: transform var(--dur-img) var(--ease-brand);
   }
   .place-card:hover .place-img,
   .place-card:focus-visible .place-img {
@@ -1243,7 +1263,7 @@
     border-left: 0;
     border-right: 0;
     border-bottom: 0;
-    transition: height 0.32s var(--ease-brand);
+    transition: height var(--dur-panel) var(--ease-brand);
     will-change: height;
   }
   .explorer.is-mobile[data-sheet="peek"] .explorer-panel {
@@ -1343,7 +1363,7 @@
     padding: 0.75rem 1.25rem;
     text-align: left;
     border-bottom: 1px solid var(--color-hairline);
-    transition: background-color 0.15s ease;
+    transition: background-color var(--dur-micro) var(--ease-brand);
   }
   .explorer-row.is-hover,
   .explorer-row:hover,
@@ -1401,7 +1421,8 @@
     font-size: 10px;
     background: rgba(250, 248, 245, 0.85);
   }
-  body:has(.explorer) [data-mobile-bar] {
+  body:has(.explorer) [data-mobile-bar],
+  body:has(.explorer) [data-mobile-pill] {
     display: none !important;
   }
 }
@@ -1560,7 +1581,7 @@
     font-weight: 500;
     color: var(--color-graphite-600);
     border-bottom: 2px solid transparent;
-    transition: color var(--dur-ui) ease, border-color var(--dur-ui) ease;
+    transition: color var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand);
   }
   .encore-cat i {
     width: 8px;
@@ -1607,7 +1628,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--color-navy);
-    transition: background-color var(--dur-ui) ease, color var(--dur-ui) ease;
+    transition: background-color var(--dur-micro) var(--ease-brand), color var(--dur-micro) var(--ease-brand);
   }
   .encore-tab:hover {
     background: var(--color-linen-100);
@@ -1631,7 +1652,7 @@
     color: var(--color-navy);
     border: 1px solid var(--color-hairline);
     background: #fff;
-    transition: border-color var(--dur-ui) ease, opacity var(--dur-ui) ease;
+    transition: border-color var(--dur-micro) var(--ease-brand), opacity var(--dur-micro) var(--ease-brand);
   }
   .encore-today {
     font-family: var(--font-body);
@@ -1661,7 +1682,7 @@
     font-family: var(--font-mono);
     font-size: 18px;
     color: var(--color-graphite-500);
-    transition: color var(--dur-ui) ease;
+    transition: color var(--dur-micro) var(--ease-brand);
   }
   .encore-strip-arrow:hover {
     color: var(--color-navy);
@@ -1696,7 +1717,7 @@
     scroll-snap-align: start;
     border: 1px solid transparent;
     border-bottom: 2px solid transparent;
-    transition: background-color var(--dur-ui) ease, border-color var(--dur-ui) ease;
+    transition: background-color var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand);
   }
   .encore-day:hover {
     background: var(--color-linen-100);
@@ -1756,7 +1777,7 @@
     display: block;
     width: 100%;
     background: var(--color-sky-300);
-    transition: height 0.3s var(--ease-brand);
+    transition: height var(--dur-panel) var(--ease-brand);
   }
   .encore-day.is-today .encore-day-bar span {
     background: var(--color-sky-300);
@@ -1788,19 +1809,32 @@
     background: #fff;
     border: 1px solid var(--color-hairline);
     border-top: 3px solid var(--cat, var(--color-navy));
-    transition: border-color var(--dur-ui) ease, transform 0.35s var(--ease-brand), box-shadow 0.35s var(--ease-brand);
+    /* The card grammar, nothing lifts: on hover the border goes to deep
+       harbor, the category rule thickens from 3 to 4px (an inset shadow, so
+       the layout never moves) and the picture eases 3.5%. */
+    transition:
+      border-color var(--dur-micro) var(--ease-brand),
+      box-shadow var(--dur-card) var(--ease-brand),
+      transform var(--dur-micro) var(--ease-brand);
   }
   .encore-tile:hover,
-  .encore-run:hover {
+  .encore-run:hover,
+  .encore-tile:focus-visible,
+  .encore-run:focus-visible {
     border-color: var(--color-deep-harbor);
     border-top-color: var(--cat, var(--color-navy));
-    transform: translateY(-2px);
-    box-shadow: 0 16px 36px -22px rgba(30, 52, 66, 0.35);
+    box-shadow: inset 0 1px 0 0 var(--cat, var(--color-navy));
   }
   .encore-tile:active,
   .encore-run:active {
-    transform: translateY(0) scale(0.992);
-    box-shadow: none;
+    transform: scale(0.992);
+  }
+  .encore-tile-img img {
+    transition: transform var(--dur-img) var(--ease-brand);
+  }
+  .encore-tile:hover .encore-tile-img img,
+  .encore-tile:focus-visible .encore-tile-img img {
+    transform: scale(1.035);
   }
   /* The tile's picture: 3:2 like every other card, so a rail and a grid read as one family. */
   .encore-tile-img {
@@ -1952,7 +1986,7 @@
     color: var(--color-graphite-500);
     border: 1px solid var(--color-hairline);
     background: #fff;
-    transition: color var(--dur-ui) ease, border-color var(--dur-ui) ease, background-color var(--dur-ui) ease;
+    transition: color var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand), background-color var(--dur-micro) var(--ease-brand);
   }
   .encore-save:hover {
     color: var(--color-navy);
@@ -2003,7 +2037,7 @@
     padding: 0.875rem 0.25rem 0.875rem 0;
     border-left: 3px solid var(--cat, var(--color-navy));
     padding-left: 0.875rem;
-    transition: background-color 0.2s ease, padding-left 0.3s var(--ease-brand);
+    transition: background-color var(--dur-state) var(--ease-brand), padding-left var(--dur-panel) var(--ease-brand);
   }
   .encore-agenda-link:hover {
     background: var(--color-linen-100);
@@ -2168,7 +2202,7 @@
     padding: 0.625rem 0.75rem;
     border-bottom: 1px solid var(--color-hairline);
     color: var(--color-graphite-500);
-    transition: background-color var(--dur-ui) ease;
+    transition: background-color var(--dur-micro) var(--ease-brand);
   }
   .encore-week-head:hover {
     background: var(--color-linen-100);
@@ -2194,7 +2228,7 @@
     padding: 0.5rem 0.75rem 0.5rem 0.625rem;
     border-left: 2px solid var(--cat, var(--color-navy));
     border-bottom: 1px solid var(--color-hairline);
-    transition: background-color 0.2s ease;
+    transition: background-color var(--dur-state) var(--ease-brand);
   }
   .encore-week-item:hover {
     background: var(--color-linen-100);
@@ -2232,7 +2266,7 @@
     padding: 0.5rem 0.5rem 0.5rem;
     text-align: left;
     background: #fff;
-    transition: background-color var(--dur-ui) ease, box-shadow var(--dur-ui) ease;
+    transition: background-color var(--dur-micro) var(--ease-brand), box-shadow var(--dur-micro) var(--ease-brand);
   }
   .encore-month-cell.is-blank {
     background: var(--color-paper);
@@ -2567,24 +2601,158 @@
   }
 }
 
-/* Unlayered on purpose: it must beat the header's bg-transparent utility. */
-/* The header starts see-through only over a page that marks its photo hero
-   (data-header-overlay). Over anything else, e.g. an Atlas place without a
-   photo, it stays the solid navy bar so the menu can be read. */
-body:not(:has([data-header-overlay])) .header-overlay,
-.header-glass {
-  border-bottom-color: rgb(137 212 227 / 0.15);
-  /* Navy at 68% over the page, blurred and dimmed behind: it reads as glass,
-     and the 12px linen nav labels measure about 5.3:1 over Paper, the palest
-     ground (at 55% they were 4.4:1). */
+/* -----------------------------------------------------------------------------
+   The site header (components/site-header.tsx). Unlayered, so nothing in a
+   utility can outrank it. The ground is a layer of its own (::before), which
+   keeps a backdrop filter from making the header the containing block for
+   the phone menu's fixed panel. The stylesheet decides the state:
+   - frosted glass by default: navy at 68% over the page, blurred and dimmed
+     behind, so the 12px linen labels measure about 5.3:1 over Paper;
+   - see-through over a page that marks its photographic hero
+     (data-header-overlay) until the page has moved 24px (data-scrolled), the
+     tint, the blur and the dimming easing in together over one duration;
+   - solid navy while the phone menu is open (data-open), one ground with the
+     panel below;
+   - on the home page the hero sits in a paper frame from lg, and while it is
+     under the header (data-cover) the glass follows the frame, so the bar and
+     the photograph share one edge.
+   On a phone it tucks away on a scroll down (html[data-scroll="down"], set by
+   the header's own scroll handler) and returns on the first scroll up; on a
+   very short screen (a phone sideways, or the page at a high zoom) it drops to
+   48px. ------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--header-h);
+  transition: transform var(--dur-panel) var(--ease-brand);
+}
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-bottom: 1px solid rgb(137 212 227 / 0.15);
   background-color: rgb(46 74 92 / 0.68);
   -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(0.5);
   backdrop-filter: blur(20px) saturate(1.3) brightness(0.5);
+  transition:
+    background-color var(--dur-panel) var(--ease-brand),
+    border-color var(--dur-panel) var(--ease-brand),
+    inset var(--dur-panel) var(--ease-brand),
+    -webkit-backdrop-filter var(--dur-panel) var(--ease-brand),
+    backdrop-filter var(--dur-panel) var(--ease-brand);
+}
+body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="false"]::before {
+  border-color: transparent;
+  background-color: transparent;
+  /* The identity filter, so the blur and the dimming have something to ease from. */
+  -webkit-backdrop-filter: blur(0) saturate(1) brightness(1);
+  backdrop-filter: blur(0) saturate(1) brightness(1);
+}
+.site-header[data-open="true"]::before {
+  background-color: var(--color-navy);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (min-width: 64rem) {
+  .site-header[data-home="true"][data-cover="true"]::before {
+    inset-inline: var(--gutter);
+  }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  body:not(:has([data-header-overlay])) .header-overlay,
-  .header-glass {
+  .site-header::before {
     background-color: rgb(46 74 92 / 0.92);
+  }
+  body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="false"]::before {
+    background-color: transparent;
+  }
+}
+@media (max-width: 63.99rem) {
+  html[data-scroll="down"] .site-header[data-open="false"] {
+    transform: translateY(-100%);
+  }
+  @media (max-height: 500px) {
+    :root {
+      --header-h: 3rem;
+    }
+  }
+}
+/* "Menu" and "Close" share one box and cross-fade (components/site-header.tsx). */
+.menu-toggle-word {
+  transition: opacity var(--dur-micro) var(--ease-brand);
+}
+.menu-toggle-word[data-show="false"] {
+  opacity: 0;
+}
+
+/* ---- The phone menu: the one full-navy screen. Kept `hidden` for
+   assistive tech and animated with a discrete display transition and a
+   starting style, so it opens and closes with the site's motion; the rows
+   follow 40ms apart (--i). The foot row is pinned to the bottom of the
+   scrolling panel, so Call, Text and the timing form are in reach at any
+   screen height. Reduced motion zeroes it all to a plain toggle. */
+.site-menu {
+  position: fixed;
+  inset: var(--header-h) 0 0;
+  z-index: 40;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-navy);
+  transition-property: opacity, transform, display;
+  transition-duration: var(--dur-panel);
+  transition-timing-function: var(--ease-reveal);
+  transition-behavior: allow-discrete;
+}
+.site-menu[hidden] {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+@starting-style {
+  .site-menu:not([hidden]) {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.site-menu-item {
+  transition:
+    opacity var(--dur-panel) var(--ease-reveal),
+    transform var(--dur-panel) var(--ease-reveal);
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+.site-menu[hidden] .site-menu-item {
+  opacity: 0;
+  transform: translateY(8px);
+  transition-delay: 0s;
+}
+@starting-style {
+  .site-menu:not([hidden]) .site-menu-item {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.site-menu-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.5rem;
+  margin-top: auto;
+  margin-inline: calc(-1 * var(--gutter));
+  padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--color-navy);
+  border-top: 1px solid rgb(230 221 209 / 0.15);
+}
+.site-menu-foot .btn {
+  min-height: 2.75rem;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+}
+@media (max-width: 22.49rem) {
+  .site-menu-foot .btn {
+    padding-inline: 0.75rem;
+    font-size: 0.6875rem;
   }
 }
 
@@ -2673,41 +2841,96 @@ body:not(:has([data-header-overlay])) .header-overlay,
   }
 }
 
-/* ---- Scroll reveals --------------------------------------------------------
-   Scroll-driven, no script. `.sr` rises and fades in as it enters the view;
-   `--sr-i` staggers items in a row (0, 1, 2…). `.sr-img` lets a large
-   photograph settle from a slight zoom as it crosses the view (not on cards,
-   whose hover zoom would fight it). Browsers without view timelines, and
-   anyone who asks for less motion, see everything in place. */
-@keyframes sr-up {
-  from {
+/* ---- Scroll reveals (components/motion.tsx) ----------------------------
+   `.sr` rises and fades into place once, the first time it comes into view,
+   and stays; `--sr-i` staggers the children of a row 80ms apart, and the
+   stagger is off below lg, where a row has stacked and each card is its own
+   trigger. `.sr-img` lets a large photograph settle from a slight zoom.
+   Nothing is hidden until the script has marked what is already on the
+   screen (html[data-reveals]), so without JavaScript, and for anyone who
+   asked for less motion, everything is simply in place. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-reveals] .sr {
     opacity: 0;
-    transform: translate3d(0, 36px, 0);
+    transform: translate3d(0, 24px, 0);
+    transition:
+      opacity var(--dur-card) var(--ease-reveal),
+      transform calc(var(--dur-card) * 1.5) var(--ease-reveal);
+    transition-delay: calc(var(--sr-i, 0) * var(--sr-step, 80ms));
   }
-  to {
+  html[data-reveals] .sr[data-in] {
     opacity: 1;
     transform: none;
   }
-}
-@keyframes sr-settle {
-  from {
-    transform: scale(1.1);
+  html[data-reveals] .sr-img img {
+    transform: scale(1.06);
+    transition: transform calc(var(--dur-img) * 1.3) var(--ease-reveal);
   }
-  to {
-    transform: scale(1);
+  html[data-reveals] .sr-img[data-in] img {
+    transform: none;
   }
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
+  @media (max-width: 63.99rem) {
     .sr {
-      animation: sr-up linear both;
-      animation-timeline: view();
-      animation-range: entry calc(4% + var(--sr-i, 0) * 9%) entry calc(70% + var(--sr-i, 0) * 9%);
+      --sr-step: 0ms;
     }
-    .sr-img img {
-      animation: sr-settle linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 55%;
+  }
+}
+
+/* ---- Looping motion (components/motion.tsx, lib/motion-pref.ts) --------
+   The drift, the orbit, the scroll cue, Encore's bulbs and the Tide art
+   pause while off the screen, and altogether once the visitor presses the
+   pause in a hero's corner (html[data-motion="paused"]). A paused photograph
+   also gives up its compositing layer. The bulbs' first lighting still runs,
+   only the twinkle after it pauses. */
+.hero-img[data-offscreen],
+.masthead-img[data-offscreen],
+.scroll-cue[data-offscreen],
+.art-drift[data-offscreen],
+.art-breathe[data-offscreen],
+.cameo-orbit[data-offscreen]::after,
+html[data-motion="paused"] .hero-img,
+html[data-motion="paused"] .masthead-img,
+html[data-motion="paused"] .scroll-cue,
+html[data-motion="paused"] .art-drift,
+html[data-motion="paused"] .art-breathe,
+html[data-motion="paused"] .cameo-orbit::after {
+  animation-play-state: paused;
+}
+.hero-img[data-offscreen],
+.masthead-img[data-offscreen],
+.art-drift[data-offscreen],
+html[data-motion="paused"] .hero-img,
+html[data-motion="paused"] .masthead-img,
+html[data-motion="paused"] .art-drift {
+  will-change: auto;
+}
+.encore-marquee[data-offscreen] .encore-marquee-bulb,
+html[data-motion="paused"] .encore-marquee-bulb {
+  animation-play-state: running, paused;
+}
+@layer components {
+  .motion-toggle {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-linen-200);
+    background: rgb(20 37 48 / 0.38);
+    border: 1px solid rgb(230 221 209 / 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    opacity: 0.8;
+    transition: opacity var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand);
+  }
+  .motion-toggle:hover,
+  .motion-toggle:focus-visible {
+    opacity: 1;
+    border-color: var(--color-linen-200);
+  }
+  /* Nothing loops for anyone who asked for reduced motion, so there is nothing to pause. */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-toggle {
+      display: none;
     }
   }
 }
@@ -2723,14 +2946,14 @@ body:not(:has([data-header-overlay])) .header-overlay,
     block-size: 0;
     overflow: clip;
     transition:
-      block-size 0.5s var(--ease-reveal),
-      content-visibility 0.5s allow-discrete;
+      block-size var(--dur-card) var(--ease-reveal),
+      content-visibility var(--dur-card) allow-discrete;
   }
   .faq details[open]::details-content {
     block-size: auto;
   }
   .faq summary .faq-q {
-    transition: color 0.25s ease, transform 0.35s var(--ease-reveal);
+    transition: color var(--dur-state) var(--ease-brand), transform var(--dur-panel) var(--ease-reveal);
   }
   .faq summary:hover .faq-q,
   .faq summary:focus-visible .faq-q {
@@ -2738,7 +2961,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
     transform: translateX(4px);
   }
   .faq .faq-icon {
-    transition: transform 0.45s var(--ease-reveal);
+    transition: transform var(--dur-card) var(--ease-reveal);
   }
   .faq details[open] .faq-icon {
     transform: rotate(180deg);
@@ -2757,21 +2980,21 @@ body:not(:has([data-header-overlay])) .header-overlay,
 @layer components {
   .door-tile .door-tint {
     background: rgb(20 37 48 / 0.32);
-    transition: background-color 0.6s var(--ease-reveal);
+    transition: background-color var(--dur-card) var(--ease-reveal);
   }
   .door-tile:hover .door-tint,
   .door-tile:focus-visible .door-tint {
     background: rgb(20 37 48 / 0.08);
   }
   .door-tile .place-img {
-    transition: transform 1.2s var(--ease-reveal);
+    transition: transform var(--dur-img) var(--ease-reveal);
   }
   .door-tile:hover .place-img,
   .door-tile:focus-visible .place-img {
     transform: scale(1.04);
   }
   .door-tile .door-word {
-    transition: transform 0.6s var(--ease-reveal);
+    transition: transform var(--dur-card) var(--ease-reveal);
   }
   .door-tile:hover .door-word,
   .door-tile:focus-visible .door-word {
@@ -2780,7 +3003,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
   .door-tile .door-rule {
     transform: scaleX(0.25);
     transform-origin: left;
-    transition: transform 0.7s var(--ease-reveal);
+    transition: transform var(--dur-card) var(--ease-reveal);
   }
   .door-tile:hover .door-rule,
   .door-tile:focus-visible .door-rule {
@@ -2813,7 +3036,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
     padding: 0.75rem 0.5rem;
     background: rgb(255 255 255 / 0.06);
     border: 1px solid rgb(255 255 255 / 0.12);
-    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.3s var(--ease-reveal);
+    transition: border-color var(--dur-state) var(--ease-brand), background-color var(--dur-state) var(--ease-brand);
   }
   .plan-strip-day.is-weekend {
     background: rgb(233 196 106 / 0.1);
@@ -2823,7 +3046,6 @@ body:not(:has([data-header-overlay])) .header-overlay,
   .plan-strip-day:focus-visible {
     border-color: var(--color-encore);
     background: rgb(255 255 255 / 0.1);
-    transform: translateY(-2px);
   }
   /* The plan's summary on Encore's plum, lit from above like a stage. */
   .encore-stage {
@@ -2877,13 +3099,21 @@ body:not(:has([data-header-overlay])) .header-overlay,
     opacity: 0;
     visibility: hidden;
     transform: translateY(-6px);
-    transition: opacity 0.22s ease, transform 0.32s var(--ease-reveal), visibility 0s linear 0.32s;
+    transition: opacity var(--dur-panel) var(--ease-reveal), transform var(--dur-panel) var(--ease-reveal), visibility 0s linear var(--dur-panel);
   }
   .product-menu[data-open="true"] {
     opacity: 1;
     visibility: visible;
     transform: none;
-    transition: opacity 0.22s ease, transform 0.32s var(--ease-reveal), visibility 0s;
+    transition: opacity var(--dur-panel) var(--ease-reveal), transform var(--dur-panel) var(--ease-reveal), visibility 0s;
+  }
+  /* Moving along the row from one open menu to the next: the panels cross-fade over the micro duration and neither slides. */
+  .product-menu[data-switch="true"] {
+    transform: none;
+    transition: opacity calc(var(--dur-micro) + 40ms) var(--ease-brand), visibility 0s linear calc(var(--dur-micro) + 40ms);
+  }
+  .product-menu[data-switch="true"][data-open="true"] {
+    transition: opacity calc(var(--dur-micro) + 40ms) var(--ease-brand), visibility 0s;
   }
   /* A bridge over the gap, so the pointer can travel from the name to the panel. */
   .product-menu::before {
@@ -2906,7 +3136,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
     flex-direction: column;
     gap: 0.2rem;
     padding: 0.7rem 1.25rem;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--dur-state) var(--ease-brand);
   }
   .product-menu-item::before {
     content: "";
@@ -2917,7 +3147,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
     width: 2px;
     background: var(--color-sky-300);
     transform: scaleY(0);
-    transition: transform 0.3s var(--ease-reveal);
+    transition: transform var(--dur-panel) var(--ease-reveal);
   }
   .product-menu-item:hover,
   .product-menu-item:focus-visible,
@@ -2932,6 +3162,7 @@ body:not(:has([data-header-overlay])) .header-overlay,
   @media (prefers-reduced-motion: reduce) {
     .product-menu,
     .product-menu[data-open="true"],
+    .product-menu[data-switch="true"],
     .product-menu-item::before { transition: none; }
   }
 }
@@ -2954,11 +3185,23 @@ html:has([data-product-bar]) {
   .product-bar[data-family="encore"] { background: var(--color-encore-deep); --accent: var(--color-encore); }
   .product-bar-tabs {
     scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0.25rem;
+  }
+  /* A fade at an edge only while there is more to scroll to on that side (data-overflow, components/product-bar.tsx), so the current tab is never masked. */
+  .product-bar-tabs[data-overflow="right"] {
     mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+  }
+  .product-bar-tabs[data-overflow="left"] {
+    mask-image: linear-gradient(90deg, transparent, #000 1.5rem);
+  }
+  .product-bar-tabs[data-overflow="both"] {
+    mask-image: linear-gradient(90deg, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
   }
   .product-bar-tabs::-webkit-scrollbar { display: none; }
   .product-tab {
     position: relative;
+    scroll-snap-align: start;
     display: flex;
     height: 100%;
     align-items: center;
@@ -2967,7 +3210,7 @@ html:has([data-product-bar]) {
     font-weight: 500;
     letter-spacing: 0.01em;
     color: rgb(230 221 209 / 0.72);
-    transition: color 0.2s ease;
+    transition: color var(--dur-state) var(--ease-brand);
   }
   .product-tab:hover { color: #fff; }
   .product-tab[aria-current="page"] { color: #fff; }
@@ -2983,7 +3226,7 @@ html:has([data-product-bar]) {
     background: var(--accent);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.35s var(--ease-reveal);
+    transition: transform var(--dur-panel) var(--ease-reveal);
   }
   .product-tab[aria-current="page"]::after,
   .product-tab:hover::after { transform: scaleX(1); }
@@ -3296,7 +3539,7 @@ html:has([data-product-bar]) {
     border-radius: 9999px;
     border: 1px solid var(--color-navy);
     color: var(--color-navy);
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color var(--dur-state) var(--ease-brand), color var(--dur-state) var(--ease-brand);
   }
   a.social-mark:hover,
   a.social-mark:focus-visible {
@@ -3320,7 +3563,7 @@ html:has([data-product-bar]) {
     gap: 0.6rem;
     padding: 1rem 1.1rem 1.1rem;
     border-left: 1px solid rgb(255 255 255 / 0.12);
-    transition: background-color 0.25s ease;
+    transition: background-color var(--dur-state) var(--ease-brand);
   }
   .tide-contents li:first-child .tide-contents-item { border-left: 0; }
   .tide-contents-item:hover,
@@ -3429,7 +3672,7 @@ html:has([data-product-bar]) {
     background: var(--color-tide-ink);
     box-shadow: inset 0 0 0 3px var(--color-tide-ink), inset 0 0 0 4.5px rgb(255 255 255 / 0.85), 0 14px 28px -18px rgb(0 0 0 / 0.7);
     cursor: text;
-    transition: box-shadow 0.2s ease, transform 0.3s var(--ease-reveal);
+    transition: box-shadow var(--dur-state) var(--ease-brand), transform var(--dur-panel) var(--ease-reveal);
   }
   .street-sign:focus-within {
     box-shadow: inset 0 0 0 3px var(--color-tide-ink), inset 0 0 0 4.5px #fff, 0 0 0 3px rgb(137 212 227 / 0.55), 0 14px 28px -18px rgb(0 0 0 / 0.7);
@@ -3536,9 +3779,9 @@ html:has([data-product-bar]) {
     border: 1px solid var(--color-graphite-500);
     cursor: pointer;
     transition:
-      background-color var(--dur-ui) ease,
-      border-color var(--dur-ui) ease,
-      color var(--dur-ui) ease;
+      background-color var(--dur-micro) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand),
+      color var(--dur-micro) var(--ease-brand);
   }
   .choice-chip:hover {
     border-color: var(--color-navy);
@@ -3600,7 +3843,7 @@ html:has([data-product-bar]) {
 
   /* The error under a field, and the summary by Send: they rise 4px into place. */
   .field-error {
-    animation: field-error-in 200ms var(--ease-brand) both;
+    animation: field-error-in var(--dur-state) var(--ease-brand) both;
   }
   @keyframes field-error-in {
     from {
@@ -3640,15 +3883,15 @@ html:has([data-product-bar]) {
   .lead-form[aria-busy="true"] :is(.field, .choice-chip, .consent-line) {
     opacity: 0.6;
     pointer-events: none;
-    transition: opacity var(--dur-ui) ease;
+    transition: opacity var(--dur-micro) var(--ease-brand);
   }
 
   /* The success card replaces the form at the form's height, fading across; the heading rises 8px. */
   .lead-success {
-    animation: lead-success-in 320ms var(--ease-brand) both;
+    animation: lead-success-in var(--dur-panel) var(--ease-reveal) both;
   }
   .lead-success > :first-child {
-    animation: lead-success-rise 320ms var(--ease-brand) both;
+    animation: lead-success-rise var(--dur-panel) var(--ease-reveal) both;
   }
   @keyframes lead-success-in {
     from {
@@ -3671,4 +3914,160 @@ html:has([data-product-bar]) {
       background: currentColor;
     }
   }
+}
+
+/* -----------------------------------------------------------------------------
+   The phone action bar (components/mobile-action-bar.tsx). A cell settles a
+   pixel when pressed, like a button. On a scroll down the bar steps out of
+   the way and a 36px Call · Text chip takes its corner (html[data-scroll],
+   set by the header); both are out of the way while a text field has focus
+   and on a very short screen, where every pixel is for the page.
+   ----------------------------------------------------------------------------- */
+@layer components {
+  .action-bar {
+    transition:
+      transform var(--dur-panel) var(--ease-brand),
+      visibility 0s linear 0s;
+  }
+  .action-cell {
+    transition:
+      background-color var(--dur-micro) var(--ease-brand),
+      transform var(--dur-micro) var(--ease-brand);
+  }
+  .action-cell:active {
+    transform: translateY(1px);
+  }
+  .action-pill {
+    position: fixed;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2.25rem;
+    padding-inline: 0.25rem;
+    color: var(--color-linen-200);
+    background: var(--color-navy);
+    border: 1px solid rgb(137 212 227 / 0.25);
+    box-shadow: 0 10px 30px -14px rgb(20 37 48 / 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition:
+      opacity var(--dur-panel) var(--ease-brand),
+      transform var(--dur-panel) var(--ease-brand),
+      visibility 0s linear var(--dur-panel);
+  }
+  .action-pill-cell {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-inline: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color var(--dur-micro) var(--ease-brand);
+  }
+  .action-pill-cell:hover {
+    color: #fff;
+  }
+  @media (max-width: 47.99rem) {
+    html[data-scroll="down"] .action-bar {
+      transform: translateY(100%);
+      visibility: hidden;
+      transition:
+        transform var(--dur-panel) var(--ease-brand),
+        visibility 0s linear var(--dur-panel);
+    }
+    html[data-scroll="down"] .action-pill {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity var(--dur-panel) var(--ease-brand),
+        transform var(--dur-panel) var(--ease-brand),
+        visibility 0s;
+    }
+    body:has(:is(input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"], [type="range"]), textarea, select):focus) :is(.action-bar, .action-pill) {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100%);
+      transition:
+        opacity var(--dur-micro) var(--ease-brand),
+        transform var(--dur-micro) var(--ease-brand),
+        visibility 0s linear var(--dur-micro);
+    }
+  }
+}
+/* Unlayered: it must beat the bar's own display utility. */
+@media (max-width: 47.99rem) and (max-height: 500px) {
+  .action-bar,
+  .action-pill {
+    display: none;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   The footer (components/site-footer.tsx). On a phone the link groups are
+   disclosure rows (components/footer-group.tsx), 56px with a chevron, closed
+   until opened, their links at a 44px pitch; the contact block, the marks
+   and the legal text stay open. From sm the groups are the open columns.
+   The legal paragraphs run in two columns from lg, so no line passes about
+   sixty characters at 12px. Unlayered, so the rows' spacing beats the
+   columns' utilities.
+   ----------------------------------------------------------------------------- */
+@media (max-width: 39.99rem) {
+  .footer-groups {
+    gap: 0;
+    border-top: 1px solid var(--color-rule);
+    padding-top: 0;
+  }
+  .footer-groups + .footer-groups {
+    border-top: 0;
+  }
+}
+.footer-group {
+  border-bottom: 1px solid var(--color-rule);
+}
+.footer-group-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.5rem;
+  padding-block: 0.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+.footer-group-row::-webkit-details-marker {
+  display: none;
+}
+.footer-group-chevron {
+  flex-shrink: 0;
+  color: var(--color-harbor-700);
+  transition: transform var(--dur-panel) var(--ease-reveal);
+}
+.footer-group[open] .footer-group-chevron {
+  transform: rotate(180deg);
+}
+.footer-group-body {
+  padding-bottom: 0.75rem;
+}
+.footer-group .footer-links {
+  gap: 0;
+}
+.footer-group .footer-link {
+  display: block;
+  margin-block: 0;
+  padding-block: 0.75rem;
+  line-height: 1.5;
+}
+.footer-legal > p + p {
+  margin-top: 0.75rem;
+}
+.footer-legal > p {
+  break-inside: avoid;
 }

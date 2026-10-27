@@ -35,7 +35,7 @@ export function Places() {
                   {m.blurb}
                 </p>
                 <span className="t-label mt-2 inline-flex items-center gap-2 text-mist">
-                  Read about {m.name} <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  Read about {m.name} <span aria-hidden="true" className="transition-transform duration-(--dur-panel) group-hover:translate-x-1">→</span>
                 </span>
               </div>
             </SharedLink>

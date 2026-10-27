@@ -40,7 +40,7 @@ export default function ToolsPage() {
             const family = FAMILIES[f];
             return (
               <li key={f}>
-                <a href={`#${f}`} className="tools-chip group flex h-full items-center gap-4 p-5 text-white transition-transform duration-300 hover:-translate-y-0.5" data-family={f}>
+                <a href={`#${f}`} className="tools-chip group flex h-full items-center gap-4 p-5 text-white transition-transform duration-(--dur-panel) hover:-translate-y-0.5" data-family={f}>
                   <span className="flex min-w-0 flex-col gap-2.5">
                     <ProductLockup family={f} size="bar" byline={false} decorative />
                     <span className="t-small text-white/75">
@@ -48,7 +48,7 @@ export default function ToolsPage() {
                       {family.title}
                     </span>
                   </span>
-                  <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" className="ml-auto shrink-0 text-white/60 transition-transform duration-300 group-hover:translate-y-0.5">
+                  <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" className="ml-auto shrink-0 text-white/60 transition-transform duration-(--dur-panel) group-hover:translate-y-0.5">
                     <path d="M7 2v10M3 8l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.4" />
                   </svg>
                 </a>
@@ -85,7 +85,7 @@ export default function ToolsPage() {
                           <li key={t.id} className="border-b border-white/15">
                             <Link href={t.href} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-1 py-4 transition-colors hover:bg-white/[0.04]">
                               <span className="font-display text-[22px] font-light leading-tight text-white">{t.name}</span>
-                              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="row-span-2 shrink-0 transition-transform duration-300 group-hover:translate-x-1" style={{ color: `var(--color-${f})` }}>
+                              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" className="row-span-2 shrink-0 transition-transform duration-(--dur-panel) group-hover:translate-x-1" style={{ color: `var(--color-${f})` }}>
                                 <path d="M3 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.5" />
                               </svg>
                               <span className="t-small max-w-[44ch] text-white/70">{t.line}</span>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MotionToggle } from "@/components/motion-toggle";
 import { Photo } from "@/components/photo";
 import type { ImageRef, TeamMember } from "@/lib/content/types";
 import { site } from "@/lib/site";
@@ -42,6 +43,9 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
               </div>
             </Link>
           </div>
+
+          {/* The one control for the photograph's drift, in the corner the type leaves free. */}
+          <MotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
 
           {/* Scroll cue: desktop furniture */}
           <div
