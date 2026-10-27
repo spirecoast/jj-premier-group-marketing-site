@@ -4,6 +4,8 @@ import { buildPlan } from "@/lib/relocate/plan";
 import { parseAnswers, planPath } from "@/lib/relocate/url";
 import { absoluteUrl } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { SITE_TIMEZONE } from "@/lib/content/format";
+import { dayIn } from "@/lib/time";
 
 /**
  * GET /api/relocate/plan.ics?in=2027-02-15&path=buying&sell=no&from=NY&work=remote&county=manatee&fin=financed&off=3
@@ -14,7 +16,8 @@ import { site } from "@/lib/site";
  */
 export async function GET(request: NextRequest) {
   const now = new Date();
-  const today = now.toISOString().slice(0, 10);
+  // The site's own day, not the UTC day (the feed has no visitor clock to read; the page's dates use the visitor's).
+  const today = dayIn(SITE_TIMEZONE, now);
   const answers = parseAnswers(Object.fromEntries(request.nextUrl.searchParams), today);
   const plan = buildPlan(answers, today);
   const body = planToIcs(plan, { siteName: site.name, domain: site.domain, pageUrl: absoluteUrl(planPath(answers)), now });

@@ -8,6 +8,7 @@ import { marketName } from "@/lib/content/markets";
 import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import { CATEGORY } from "@/lib/encore/categories";
 import { localDay } from "@/lib/encore/day";
+import { useToday } from "@/lib/time";
 import { FIRST_PAINT_DAYS, SEASON_URL, type EncoreIndex } from "@/lib/encore/index-format";
 import { addDays, countsByCategory, countsByDay, dayNumber, monthEnd, monthLabel, monthStart, occurrences, onView, opensLater, shortDay, weekStart, weekendOf, weekday, type Filter } from "@/lib/encore/select";
 import { ENCORE_KEYS, encoreHref, parseEncoreState, VIEWS, type EncoreState, type EncoreView, type EncoreWhen } from "@/lib/encore/url";
@@ -23,6 +24,7 @@ import { Agenda, ListView, MonthView, OnViewGrid, SEASON_DAYS, SearchResults, Sp
 import "./encore.css";
 
 const STRIP_DAYS = 120;
+const siteDay = (d: Date) => localDay(d.getTime());
 const VIEW_LABEL: Record<EncoreView, string> = { days: "Days", week: "Week", month: "Month", onview: "On view" };
 
 /**
@@ -35,7 +37,7 @@ const VIEW_LABEL: Record<EncoreView, string> = { days: "Days", week: "Week", mon
  */
 export function Encore({
   initial,
-  today,
+  today: todayAtOpen,
   initialIndex,
   sliceRange,
 }: {
@@ -45,10 +47,19 @@ export function Encore({
   /** The days the server's slice covers; a move outside them fetches the full season. */
   sliceRange: [string, string];
 }) {
+  /* The site's day, kept current: a tab left open past midnight stops calling yesterday "Tonight". */
+  const today = useToday(todayAtOpen, siteDay);
   const [index, setIndex] = useState<EncoreIndex>(initialIndex);
   const [full, setFull] = useState(false);
   const [view, setView] = useState<EncoreView>(initial.view);
   const [date, setDate] = useState(initial.date || today);
+  /* At midnight the day on screen follows, when it was today; a day the visitor picked stays. */
+  const dayShown = useRef(today);
+  useEffect(() => {
+    const was = dayShown.current;
+    dayShown.current = today;
+    if (was !== today) setDate((d) => (d === was ? today : d));
+  }, [today]);
   const [category, setCategory] = useState(initial.category);
   const [market, setMarket] = useState(initial.market);
   const [venue, setVenue] = useState(initial.venue);
