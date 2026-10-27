@@ -19,6 +19,7 @@ must supply are written `<like-this>`. Nothing in this file is a real secret.
 | Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /subscribe/ /thanks/ /q/`, plus the sitemap line. |
 | Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. On a production build whose origin is the domain (that is, after launch), the `jj-premier-group-marketing-site.vercel.app` host sends every path to the same path on the domain (`canonicalHostRedirects` in `lib/site-url.ts`); before launch it serves the site. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
 | CRM | The Coldwell Banker Home Platform. Its Lead Flows pixel (client id `bsw9jbac2nu2`) is on every production page and sends each form from the browser (`lib/home-platform.ts`); the "Pixel" lead flow makes each one a contact in Jessica Garza's account, with name, email and phone only. The message, timing, address and consent reach the agents in the "New lead" email, which also names the leads to add by hand (privacy signals, a blocked script, the person a referral names). A Zapier Catch Hook can add those instead (section 3). Env: `CRM_PROVIDER=none` until there's a Zap, then `CRM_PROVIDER=webhook` and `CRM_WEBHOOK_URL`. Follow Up Boss code stays in the repo behind the provider switch and is not used. |
+| Health | `GET /api/health` answers `{ ok }` to anyone. Every check below that reads a field from it (`newsletter`, `places`, `sentry`, `issues`) needs `-H "Authorization: Bearer $CRON_SECRET"`. |
 | Database | Supabase Postgres through Drizzle (`lib/db`). Leads are mirrored into the `contacts` and `events` tables (there is no table called `leads`). |
 | Visitor email | The reply a visitor gets comes from the agent's own Coldwell Banker mailbox through a Zapier step. The only email the site itself sends a visitor is the newsletter confirmation (double opt-in) and, once they confirm, the welcome and the newsletters (next row). The team's internal "New lead" copy and the delivery alert go through Resend when it is configured. |
 | Newsletters | Tide is monthly (sent the 3rd), Encore is weekly on Monday. The site sends both itself through Resend, from `letters@mail.jjpremiergroup.com`, to the people who subscribed and confirmed (decision 1.4; `docs/ISSUES.md`). |
@@ -605,7 +606,9 @@ curl -sSI $D/ | grep -i 'strict-transport-security'
 curl -sS $D/ | grep -o 'data-domain="[^"]*"'
 # data-domain="jjpremiergroup.com"
 
-curl -sS $D/api/health | grep -o '"sentry":[a-z]*'
+curl -sS $D/api/health
+# {"ok":true}: the public answer is the status alone. The detail needs the cron secret:
+curl -sS -H "Authorization: Bearer $CRON_SECRET" $D/api/health | grep -o '"sentry":[a-z]*'
 # "sentry":true. Then, on the live site, open the browser console and run
 #   setTimeout(() => { throw new Error("Sentry test") })
 # It shows in Sentry → Issues within a minute, with the page's address and no query string. Resolve it there.

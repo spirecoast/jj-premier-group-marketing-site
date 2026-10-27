@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
 import { HOME_PLATFORM_ORIGIN, homePlatformPixelId } from "./lib/home-platform";
+import { canonicalHostRedirects } from "./lib/site-url";
 
 /*
  * Security headers. Everything below is derived from the same env vars the
@@ -57,10 +58,23 @@ const VERCEL_PREVIEW = process.env.VERCEL_ENV === "preview" ? ["https://vercel.l
 type Directives = Record<string, string[]>;
 
 /**
- * The base policy, every route. Report-only for now: Next.js emits inline
- * hydration scripts and next/script inlines the Plausible queue, both of
- * which need 'unsafe-inline' until a per-request nonce is issued from
- * a proxy.ts; 'unsafe-eval' is only for the dev server's React refresh.
+ * Report-only, for now. Enforcing means changing this one name to
+ * "Content-Security-Policy"; do it once a week of production traffic has sent
+ * no reports to /api/csp-report (grep the Vercel logs for "[csp-report]").
+ * Checked locally on 2026-10-27 with Plausible and Sentry on: the only report on
+ * every page was zod's `Function("")` probe, now off (instrumentation-client.ts).
+ * Not yet seen under this policy: the Home Platform pixel (production only) and
+ * a configured Sanity Studio, which is why it isn't enforced in the same change.
+ */
+const CSP_HEADER = "Content-Security-Policy-Report-Only";
+
+/**
+ * The base policy, every route. Next.js emits inline hydration scripts and
+ * next/script inlines the Plausible queue, both of which need 'unsafe-inline'
+ * until a per-request nonce is issued from a proxy.ts (which would make every
+ * page dynamic); 'unsafe-eval' is only for the dev server's React refresh.
+ * Even with 'unsafe-inline', an enforced policy holds the host allow-list,
+ * frame-ancestors, object-src, base-uri and form-action.
  */
 function basePolicy(): Directives {
   return {
@@ -91,6 +105,8 @@ function studioPolicy(): Directives {
   const p = basePolicy();
   p["connect-src"] = [...p["connect-src"], "https://*.sanity.io", "wss://*.api.sanity.io"];
   p["img-src"] = [...p["img-src"], "https://*.sanity.io"];
+  // The Studio's own typeface (Inter), served from Sanity's design-system CDN.
+  p["font-src"] = [...p["font-src"], "https://design-system-static.sanity.io"];
   return p;
 }
 
@@ -106,11 +122,24 @@ const COMMON_HEADERS = [
   { key: "Permissions-Policy", value: "geolocation=(self), camera=(), microphone=(), payment=()" },
   // SAMEORIGIN rather than DENY: the Studio's Presentation tool frames the site.
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  // A page this site opens in another window, or one that opens this site, can't reach back into it.
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Reporting-Endpoints", value: `csp-endpoint="${CSP_REPORT_PATH}"` },
 ];
 
+/**
+ * Browser caching for files under /public. Fonts and /_next/static are already immutable.
+ * Photos keep their names when a file is replaced, so they get a week plus a month of
+ * stale-while-revalidate rather than "immutable". The MapLibre worker sits in a folder named
+ * for its version (scripts/copy-maplibre-worker.mjs), so that folder never changes.
+ */
+const PHOTO_CACHE = "public, max-age=604800, stale-while-revalidate=2592000";
+const IMMUTABLE = "public, max-age=31536000, immutable";
+
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  // No "X-Powered-By: Next.js".
+  poweredByHeader: false,
   // Route changes run inside the View Transitions API (components/view-transitions
   // and the ViewTransition boundaries in app/(site)/layout.tsx and site-header.tsx).
   // Since Next 16.4 React's <ViewTransition> works in the App Router without a flag.
@@ -132,6 +161,9 @@ const nextConfig: NextConfig = {
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.
     formats: ["image/avif", "image/webp"],
+    // Optimized images are cached for 31 days (on Vercel's image cache and in the browser);
+    // without this the browser got max-age=0 and re-checked every photo on every visit.
+    minimumCacheTTL: 2678400,
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/public/encore-images/**" },
@@ -143,9 +175,18 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/(.*)",
-        headers: [...COMMON_HEADERS, { key: "Content-Security-Policy-Report-Only", value: serialize(basePolicy()) }],
+        headers: [...COMMON_HEADERS, { key: CSP_HEADER, value: serialize(basePolicy()) }],
       },
-      { source: "/studio/:path*", headers: [{ key: "Content-Security-Policy-Report-Only", value: serialize(studioPolicy()) }] },
+      {
+        source: "/studio/:path*",
+        headers: [
+          { key: CSP_HEADER, value: serialize(studioPolicy()) },
+          // Sanity's sign-in can open a provider window and wait for it to report back.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+        ],
+      },
+      { source: "/images/:path*", headers: [{ key: "Cache-Control", value: PHOTO_CACHE }] },
+      { source: "/vendor/maplibre-gl/:version/:file", headers: [{ key: "Cache-Control", value: IMMUTABLE }] },
       // The guide PDFs repeat the guide pages; the pages are the ones to index.
       { source: "/guides/pdf/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
       // The private questionnaire links: the token is in the path, so no referrer, no caching, no indexing.
@@ -172,25 +213,16 @@ const nextConfig: NextConfig = {
       { source: "/blog", destination: "/tide", permanent: true },
       // Guides rebuilt as long-form pages (lib/guides) moved from Tide to /guides; the old links follow.
       ...REBUILT_GUIDE_SLUGS.map((slug) => ({ source: `/blog/${slug}`, destination: `/guides/${slug}`, permanent: true })),
-      // Once NEXT_PUBLIC_SITE_URL names the real domain, the vercel.app address sends every path there, so
-      // search engines see one site. Until then it's empty and nothing redirects.
-      ...canonicalHostRedirect(),
+      // At launch the vercel.app address sends every path to the domain, so search engines see one
+      // site. Before launch (noindex on) the vercel.app address is the site and nothing redirects.
+      ...canonicalHostRedirects({
+        NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+        NEXT_PUBLIC_ROBOTS_NOINDEX: process.env.NEXT_PUBLIC_ROBOTS_NOINDEX,
+        VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+        VERCEL_ENV: process.env.VERCEL_ENV,
+      }),
     ];
   },
 };
-
-function canonicalHostRedirect() {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL;
-  const alias = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (!raw || !alias) return [];
-  let canonical: URL;
-  try {
-    canonical = new URL(raw);
-  } catch {
-    return [];
-  }
-  if (canonical.host === alias || canonical.host.endsWith(".vercel.app")) return [];
-  return [{ source: "/:path*", has: [{ type: "host" as const, value: alias }], destination: `${canonical.origin}/:path*`, permanent: true }];
-}
 
 export default nextConfig;

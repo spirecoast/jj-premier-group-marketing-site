@@ -209,8 +209,11 @@ async function main() {
   console.log(`  plausible    ${mark(sinks.plausible.status)}${sinks.plausible.status === "failed" ? ` — ${sinks.plausible.detail}` : ""}`);
   console.log("");
   console.log(json.ok ? "Captured: at least one sink kept the lead." : "NOT CAPTURED: no sink kept the lead. Fix the configuration before launch.");
-  const health = await fetch(`${base}/api/health`).then((r) => r.json()).catch(() => null);
-  if (health) console.log(`Health: ok=${health.ok} env=${health.env} crm=${health.sinks.crm.provider} postgres=${health.sinks.postgres} teamEmail=${health.sinks.teamEmail} plausible=${health.sinks.plausible} booking=${health.sinks.booking}`);
+  // The detail needs the same bearer secret (app/api/health/route.ts); without it only `ok` comes back.
+  const health = await fetch(`${base}/api/health`, { headers: secret ? { Authorization: `Bearer ${secret}` } : {} })
+    .then((r) => r.json())
+    .catch(() => null);
+  if (health?.sinks) console.log(`Health: ok=${health.ok} env=${health.env} crm=${health.sinks.crm.provider} postgres=${health.sinks.postgres} teamEmail=${health.sinks.teamEmail} plausible=${health.sinks.plausible} booking=${health.sinks.booking}`);
   process.exit(json.ok ? 0 : 1);
 }
 
