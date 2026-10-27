@@ -247,11 +247,23 @@ builder source with its checked date).
   the filters and the selected place; the search words and the map position stay in the tab
   (Back to the explorer brings them back) and go into the link only through the Share button,
   which uses the phone's share sheet or copies the link. See "The tools and the address bar".
+- **Layout.** `components/explorer/explorer.css` owns the explorer's two layouts by media query: a 400 px
+  column from 1024 px, and below that a bottom sheet moved on `translateY` with three stops (peek, half,
+  full) that follows the finger and works from the keyboard (the handle: Enter, the arrows, Escape). The
+  server HTML is the final layout, so nothing jumps after hydration. The map opens on bounds the server
+  computed (`lib/neighborhoods/bounds.ts`), follows a search once typing settles, and jumps instead of
+  flying for visitors who asked for reduced motion.
 - **Detail pages.** Every record has `/neighborhoods/[slug]`, statically generated. The eight
   editorial neighborhoods keep their hero, overview, highlights and FAQs and gain the dataset
   facts underneath, joined by slug (`lake-club` became `the-lake-club`; the old path redirects).
   County-registry names (`research: "registry-only"`) render with `noindex` and stay out of the
   sitemap until they are researched.
+- **The detail-page map** is an island: the page carries a still SVG of the place's points
+  (`components/place-poster.tsx`) and `components/place-map-island.tsx` asks for MapLibre's chunk only
+  when the frame comes within 200 px of the viewport. One finger scrolls the page over it; two move the map.
+- **Sources panel.** `lib/neighborhoods/sources.ts` turns a source's field keys into labels and its host
+  into a publisher's name. A `web.archive.org` link in the data is shown as an archived copy with its
+  snapshot date; `npm run nbhd:check-sources` finds links that have gone (see the refresh runbook).
 - **Share images.** `opengraph-image.tsx` beside the explorer and the detail pages draws every
   point in the catalog as a constellation on linen with the chosen place in amber. No tiles, no key.
 - **Display rules (brokerage fair-housing compliance, non-negotiable).** Places, never people: no
