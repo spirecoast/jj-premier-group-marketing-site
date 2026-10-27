@@ -82,7 +82,6 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
       setZip(z);
       void run(s, z);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
   useEffect(() => {

@@ -263,7 +263,7 @@ export function ExplorerPanel(p: Props) {
 
         <div className="mt-auto flex flex-col gap-2 border-t border-hairline px-5 py-5">
           <p className="t-small text-body-muted">
-            Facts come from county map services, school-district locators and the builders' own sites, each checked and dated. Nothing here is a rating or a price.
+            Facts come from county map services, school-district locators and the builders’ own sites, each checked and dated. Nothing here is a rating or a price.
           </p>
           <Link href="/contact" className="link-rule self-start">
             Ask us about a street

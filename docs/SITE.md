@@ -734,13 +734,21 @@ team) lives on the site at three private links. Nobody needs an account.
 
 ```bash
 npm run dev          # http://localhost:3000
-npm run typecheck    # tsc --noEmit (run `npx next typegen` first if routes changed)
+npm run typecheck    # next typegen (typed routes), then tsc --noEmit
+npm run test:unit
+npm run check:copy
+npm run lint         # ESLint 9 with eslint-config-next (eslint.config.mjs)
 npm run build
 npm run sanity:typegen
 ```
 
-`npm run lint` still calls `next lint`, which Next 16 removed, and the repo has no ESLint config.
-That predates this build; wire up `eslint` + `eslint-config-next` directly when there is time.
+`.github/workflows/ci.yml` runs typecheck, unit tests, the copy check, lint and
+`npm audit --omit=dev --audit-level=critical` on every pull request and every push to main.
+Make its `checks` job a required status check on main (Settings → Branches) so nothing merges red.
+Dependabot (`.github/dependabot.yml`) opens one grouped minor-and-patch pull request a week;
+majors are upgraded by hand. Lint's React Compiler rules (`set-state-in-effect`, `purity`, `refs`,
+`immutability`) are warnings because the site doesn't use the compiler; see the comment in
+`eslint.config.mjs`.
 
 Useful switches:
 
