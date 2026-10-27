@@ -353,7 +353,7 @@ deliverability.
 - Root directory: `./`
 
 ### Env vars to set (Project Settings → Environment Variables)
-Set all of these for **Production** AND **Preview**:
+Set these for **Production**. Previews: see the note under the list.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL          # from Supabase
@@ -370,6 +370,14 @@ LEAD_ALERT_EMAIL                  # optional; defaults to TEAM_NOTIFY_EMAIL
 LEAD_TEST_SECRET                  # `openssl rand -hex 24` (mark as Secret)
 NEXT_PUBLIC_BOOKING_URL           # optional; the booking page link
 ```
+
+A preview deployment holds back every side effect whatever it's given (`lib/deploy-env.ts`,
+`docs/SITE.md` "Previews"): no CRM webhook, no email, no Places, no Plausible, leads saved as tests.
+If previews share these values they still write their test leads to the production database, so the
+better split is a second Supabase project for Preview (`DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+and the two public Supabase values) and the email and CRM variables on Production only
+(`docs/LAUNCH.md` §2). `PREVIEW_EMAIL_TO`, on Preview only, sends a preview's team emails to one
+test inbox.
 
 `UNSUBSCRIBE_SECRET` is the HMAC key used to sign marketing-email unsubscribe
 links. **Required in production** — `lib/unsubscribe.ts` throws at boot if it's

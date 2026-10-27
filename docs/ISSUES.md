@@ -101,6 +101,15 @@ happens until it's pressed.
   of its week, Tide fourteen days after its date. If the hand-off was run late (by hand after the
   nominal time), the send is pushed to at least a day later for Tide and an hour later for Encore, so
   there's always time to hold it.
+- **Enough days to reach everyone.** An Encore issue has seven daily runs before it expires and Tide
+  fourteen, and every subscriber email of the day (confirmations and welcomes too) counts against
+  `NEWSLETTER_DAILY_CAP`. When the list is bigger than the cap times the days left, less the usual
+  confirmations and welcomes (`lib/newsletter/capacity.ts`), the hand-off's team email says how many
+  would miss it and an alert goes to `LEAD_ALERT_EMAIL` (`docs/SITE.md`, "Scheduled jobs and
+  alerts"); a run the cap cuts short checks again, and so does the daily ops check. The fix is a
+  higher cap on a Resend plan that allows it. A send that expires with people still owed it sends
+  an alert too, with the count. `/api/health?deep=1` shows each list against what one issue can
+  reach (`newsletterSends.perIssue`).
 - If the Monday preview didn't run, there's no send on record and Encore doesn't go that week. Re-run
   the preview (`POST /api/issues/encore`) and it's scheduled an hour out.
 - If an issue's month was already sent (Tide on a month the county data hasn't moved past), the team
@@ -486,7 +495,10 @@ Resend (docs/LAUNCH.md 1.4).
 
 `GET /api/health` (with the cron secret as a Bearer token; without it, only `{ ok }`) reports `issues: { previewSecret, webhook, teamEmail, resend, cronSecret }` as
 booleans and `newsletter: { subscriberEmail, missing, replyTo, dailyCap }` (the names of missing
-variables, never values).
+variables, never values). On a preview deployment `missing` includes "a production deployment":
+previews never record a subscription or email a subscriber. `?deep=1` adds `newsletterSends`: the
+confirmed subscribers per list, how many one issue can reach at the cap, and each open send's
+pending count, shortfall and last run.
 
 ## The webhook payload
 
@@ -616,6 +628,7 @@ Don't do both: with subscriber email on, an issue sent by hand as well reaches p
 | `lib/newsletter/token.ts` | Signed, expiring links: confirm, hold, send (pure). |
 | `lib/newsletter/schedule.ts` | When each issue goes out, and the hold or send decision (pure). |
 | `lib/newsletter/batch.ts` | Who gets the next batch, the daily cap, the idempotency key (pure). |
+| `lib/newsletter/capacity.ts` | Whether an issue can reach everyone before it expires at the daily cap (pure). |
 | `lib/newsletter/headers.ts` | The unsubscribe links and the List-Unsubscribe headers (pure). |
 | `lib/newsletter/emails.ts` | The confirmation and welcome emails, and the per-recipient links (pure). |
 | `lib/newsletter/copy.ts` | Every sentence in the subscriber emails and their pages; checked by `npm run check:copy`. |
