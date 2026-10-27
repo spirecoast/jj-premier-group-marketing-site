@@ -10,13 +10,17 @@
  * import of a zod file from a client component put all of zod (about 90KB
  * gzipped) on every page once; this keeps it from happening again. zod v4
  * names its classes with strings ("$ZodType"), which survive minification.
+ *
+ * It reads every script under .next/static, not only static/chunks: on Vercel
+ * the build adapter turns on immutable assets, and Turbopack then writes the
+ * browser chunks under static/immutable/ instead (Next 16.4).
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const CHUNKS = path.join(ROOT, ".next", "static", "chunks");
+const STATIC = path.join(ROOT, ".next", "static");
 const MARKER = '"$ZodType"';
 
 function walk(dir) {
@@ -31,9 +35,13 @@ function walk(dir) {
 
 let files;
 try {
-  files = walk(CHUNKS);
+  files = walk(STATIC);
 } catch {
-  console.error(`check-client-bundle: no ${path.relative(ROOT, CHUNKS)}; run next build first.`);
+  console.error(`check-client-bundle: no ${path.relative(ROOT, STATIC)}; run next build first.`);
+  process.exit(1);
+}
+if (!files.length) {
+  console.error(`check-client-bundle: no scripts under ${path.relative(ROOT, STATIC)}; the build's output has moved, so this check needs updating.`);
   process.exit(1);
 }
 const hits = files.filter((f) => readFileSync(f, "utf8").includes(MARKER));
