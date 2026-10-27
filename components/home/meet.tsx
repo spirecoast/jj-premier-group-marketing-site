@@ -28,7 +28,7 @@ export function Meet({ duo }: { duo: ImageRef }) {
               people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton.
             </p>
             <p className="t-body max-w-[560px] text-body">
-              Whether you&rsquo;re buying your first home, selling for the best price, or building a portfolio,
+              If you&rsquo;re buying your first home, selling for the best price, or building a portfolio,
               you get the same thing from us: local knowledge, honest guidance, and a strategy tailored to
               your goals. Wherever your move takes you, we know the market, negotiate with purpose, and keep
               you informed every step of the way.

@@ -704,7 +704,7 @@ Don't do both: with subscriber email on, an issue sent by hand as well reaches p
 | `components/tide/cover.tsx`, `market-chapter.tsx`, `moves.tsx`, `sparkline.tsx`, `price-bands.tsx`, `home-mix.tsx` | The web issue's cover, market chapters, buying and selling moves, and the small drawings in each chapter. |
 | `lib/tide/cover.ts` | The three cover photos and which issue month takes which. |
 | `lib/tide/encore.ts`, `lib/tide/encore.test.ts` | "Out this month": the Encore picks for the issue month. |
-| `lib/voice.ts`, `lib/voice.test.ts`, `scripts/copy-literals.mjs` | The phrases that read as machine-written, and the source scan that runs them over the whole site in `npm run check:copy`. |
+| `lib/voice.ts`, `lib/voice.test.ts`, `scripts/copy-literals.mjs`, `scripts/copy-rules.mjs`, `lib/copy-check.test.ts` | The phrases that read as machine-written, the places-not-people rules (with the honest uses they set aside), and the source scan that runs both and the Fair Housing list over the whole site in `npm run check:copy`. The scan reads JSX text as a reader sees it: entities decoded (`&rsquo;` is an apostrophe), and text on either side of an `{expression}`. |
 | `lib/tide/copy.ts` | Every fixed string on the web issue, `/tide` and the archive card, and the "facts to write from" lines. |
 | `lib/tide/chart.ts`, `components/tide/issue-chart.tsx` | Chart geometry and the server-drawn SVG. |
 | `lib/tide/load.ts` | Server: loads the sales, the manifest and the posts for a web issue. |
