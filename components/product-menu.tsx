@@ -1,11 +1,11 @@
 "use client";
 
 import type { Route } from "next";
-import Link from "next/link";
 import { ViewTransition, useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Emblem } from "@/components/brand/emblem";
 import type { ProductFamily } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { IntentLink } from "@/components/intent-link";
 
 /** One menu in the desktop header's row: a product family, or the team. */
 export type MenuSpec = {
@@ -239,7 +239,7 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
               const here = pathname === i.href;
               return (
                 <li key={i.href}>
-                  <Link
+                  <IntentLink
                     href={i.href as Route}
                     aria-current={here ? "page" : undefined}
                     onClick={() => row.close()}
@@ -248,7 +248,7 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
                   >
                     <span className="font-display text-[19px] font-light leading-tight text-white">{i.label}</span>
                     <span className="text-[13px] leading-snug text-linen-200/75">{i.short}</span>
-                  </Link>
+                  </IntentLink>
                 </li>
               );
             })}
@@ -263,7 +263,7 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
 /** The "All tools" row under a product family's panel. */
 export function ProductMenuFoot({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
-    <Link
+    <IntentLink
       href="/tools"
       onClick={onClose}
       tabIndex={open ? undefined : -1}
@@ -271,6 +271,6 @@ export function ProductMenuFoot({ open, onClose }: { open: boolean; onClose: () 
     >
       All tools
       <span aria-hidden="true">→</span>
-    </Link>
+    </IntentLink>
   );
 }

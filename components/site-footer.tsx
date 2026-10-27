@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { Route } from "next";
 import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon } from "lucide-react";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
@@ -6,6 +5,7 @@ import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } 
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
 import { Emblem } from "./brand/emblem";
 import { FooterGroup } from "./footer-group";
+import { IntentLink } from "./intent-link";
 import { TrackedLink } from "./tracked-link";
 import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
@@ -23,8 +23,9 @@ const HUB_PATHS = new Set(["/lakewood-ranch", "/sarasota", "/bradenton"]);
 
 /**
  * Plausible's tagged-events classes, so the hub links stay `next/link` (client
- * navigation and prefetch). The script sees Link's preventDefault and only
- * records the goal; it never takes over the navigation.
+ * navigation, and a prefetch once the pointer or focus is on them: IntentLink).
+ * The script sees Link's preventDefault and only records the goal; it never
+ * takes over the navigation.
  */
 function hubGoalClasses(href: string): string | undefined {
   if (!HUB_PATHS.has(href)) return undefined;
@@ -47,9 +48,9 @@ function Column({ title, links, note, mark }: { title: string; links: readonly {
       <ul className="footer-links flex flex-col gap-2.5 text-[14px]">
         {links.map((l) => (
           <li key={l.href}>
-            <Link href={l.href as Route} className={["footer-link -my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
+            <IntentLink href={l.href as Route} className={["footer-link -my-1 inline-block py-1 text-navy transition-colors hover:text-harbor-700", hubGoalClasses(l.href)].filter(Boolean).join(" ")}>
               {l.label}
-            </Link>
+            </IntentLink>
           </li>
         ))}
       </ul>
@@ -213,9 +214,9 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
           <ul className="flex gap-5">
             {footerNav.legal.map((l) => (
               <li key={l.href}>
-                <Link href={l.href as Route} className="-my-2 inline-block py-2 hover:text-navy">
+                <IntentLink href={l.href as Route} className="-my-2 inline-block py-2 hover:text-navy">
                   {l.label}
-                </Link>
+                </IntentLink>
               </li>
             ))}
           </ul>

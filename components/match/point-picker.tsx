@@ -4,6 +4,7 @@ import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
 import { MAP_COLORS, MAPLIBRE_WORKER_URL, buildMapStyle } from "@/lib/neighborhoods/map-style";
+import "@/components/explorer/explorer.css";
 
 const HOME: [number, number, number, number] = [-82.78, 27.17, -82.25, 27.67];
 

@@ -11,10 +11,11 @@ import { getTeam } from "@/lib/content";
 import { placesEnabled } from "@/lib/places/google";
 import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { SOURCES } from "@/lib/relocate/sources";
-import { hasAnswers, parseAnswers, type QueryParams } from "@/lib/relocate/url";
+import { MOVE_DRAFT, RELOCATE_KEYS } from "@/lib/relocate/url";
 import { breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
 import { IslandBoundary } from "@/components/ui/island-boundary";
+import { UrlPending } from "@/components/url-pending";
 
 export const metadata: Metadata = pageMetadata({
   title: "Atlas Move: your Florida move, to the day",
@@ -71,14 +72,17 @@ const PRINT_CSS = `
 }
 `;
 
-export default async function RelocatePage({ searchParams }: { searchParams: Promise<QueryParams> }) {
-  const [params, team] = await Promise.all([searchParams, getTeam()]);
+/**
+ * Static: the server renders question one; a plan link's answers, the answers
+ * in progress and today's date are applied in the browser
+ * (components/relocate/planner-context.tsx).
+ */
+export default async function RelocatePage() {
+  const team = await getTeam();
   const today = new Date().toISOString().slice(0, 10);
-  const provided = hasAnswers(params);
-  const answers = parseAnswers(params, today);
 
   return (
-    <PlannerProvider today={today} initialAnswers={answers} initialHasAnswers={provided}>
+    <PlannerProvider serverToday={today}>
       <style precedence="default" href="relocate-print">
         {PRINT_CSS}
       </style>
@@ -96,9 +100,12 @@ export default async function RelocatePage({ searchParams }: { searchParams: Pro
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">{HERO.lead}</p>
       </Masthead>
 
+      <UrlPending keys={RELOCATE_KEYS} draftKey={MOVE_DRAFT} />
       <IslandBoundary name="the planner" minHeight="480px">
-        <Questions />
-        <PlanView />
+        <div data-url-island="">
+          <Questions />
+          <PlanView />
+        </div>
       </IslandBoundary>
       <MoveHelp enabled={placesEnabled()} />
 

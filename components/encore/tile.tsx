@@ -13,6 +13,7 @@ import { coversFrame } from "@/lib/photo-fit";
 import { shortDay, through, timeLabel, weekdayShort, type Occ } from "@/lib/encore/select";
 import { cn } from "@/lib/utils";
 import { Bookmark } from "./glyphs";
+import "./encore.css";
 
 /**
  * Save: the 44px quiet square with a bookmark; the word stays in the label

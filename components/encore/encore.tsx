@@ -7,15 +7,20 @@ import { track } from "@/lib/analytics";
 import { marketName } from "@/lib/content/markets";
 import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import { CATEGORY } from "@/lib/encore/categories";
-import { FIRST_PAINT_DAYS, type EncoreIndex } from "@/lib/encore/index-format";
+import { localDay } from "@/lib/encore/day";
+import { FIRST_PAINT_DAYS, SEASON_URL, type EncoreIndex } from "@/lib/encore/index-format";
 import { addDays, countsByCategory, countsByDay, dayNumber, monthEnd, monthLabel, monthStart, occurrences, onView, opensLater, shortDay, weekStart, weekendOf, weekday, type Filter } from "@/lib/encore/select";
-import { encoreHref, VIEWS, type EncoreState, type EncoreView, type EncoreWhen } from "@/lib/encore/url";
+import { ENCORE_KEYS, encoreHref, parseEncoreState, VIEWS, type EncoreState, type EncoreView, type EncoreWhen } from "@/lib/encore/url";
+import { loadJson } from "@/lib/use-json-resource";
+import { scrollBehavior } from "@/lib/scroll";
+import { hasAny, replaceQuery, sessionMemory, useUrlInitial } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { DayStrip } from "./day-strip";
 import { FilterSheet, VenueSelect } from "./filter-sheet";
 import { CalendarPlus, ChevronDown, ChevronLeft, ChevronRight, Cross, Magnifier } from "./glyphs";
 import { useMyList } from "./use-my-list";
 import { Agenda, ListView, MonthView, OnViewGrid, SEASON_DAYS, SearchResults, Spotlight, WeekView } from "./views";
+import "./encore.css";
 
 const STRIP_DAYS = 120;
 const VIEW_LABEL: Record<EncoreView, string> = { days: "Days", week: "Week", month: "Month", onview: "On view" };
@@ -28,7 +33,18 @@ const VIEW_LABEL: Record<EncoreView, string> = { days: "Days", week: "Week", mon
  * otherwise in idle time after the first touch, so the first tap never
  * waits on a re-render of 600 events.
  */
-export function Encore({ initial, today, initialIndex }: { initial: EncoreState; today: string; initialIndex: EncoreIndex }) {
+export function Encore({
+  initial,
+  today,
+  initialIndex,
+  sliceRange,
+}: {
+  initial: EncoreState;
+  today: string;
+  initialIndex: EncoreIndex;
+  /** The days the server's slice covers; a move outside them fetches the full season. */
+  sliceRange: [string, string];
+}) {
   const [index, setIndex] = useState<EncoreIndex>(initialIndex);
   const [full, setFull] = useState(false);
   const [view, setView] = useState<EncoreView>(initial.view);
@@ -40,22 +56,24 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
   const [when, setWhen] = useState<EncoreWhen | undefined>(initial.when);
   const [mode, setMode] = useState<"browse" | "mine" | "shared">(initial.list.length ? "shared" : "browse");
   const [sheet, setSheet] = useState(false);
+  const [seasonError, setSeasonError] = useState(false);
+  const sliceTo = sliceRange[1];
   const [stripTo, setStripTo] = useState(addDays(today, FIRST_PAINT_DAYS - 1));
   const my = useMyList();
   const rootRef = useRef<HTMLDivElement>(null);
   const bandRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const sliceTo = addDays(today, FIRST_PAINT_DAYS - 1);
 
   /* ---- The whole season, once, when something needs it ------------------- */
   const fetching = useRef<"idle" | "loading" | "done">("idle");
   const ensureFull = useCallback(() => {
     if (fetching.current !== "idle") return;
     fetching.current = "loading";
-    fetch("/api/encore/index")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: EncoreIndex) => {
+    setSeasonError(false);
+    // One fetch per visit, shared with the Planner (lib/use-json-resource.ts).
+    loadJson<EncoreIndex>(SEASON_URL)
+      .then((data) => {
         fetching.current = "done";
         startTransition(() => {
           setIndex(data);
@@ -64,10 +82,11 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
       })
       .catch(() => {
         fetching.current = "idle";
+        setSeasonError(true);
       });
   }, []);
   const searching = mode === "browse" && q.trim().length > 0;
-  const needsFull = searching || mode !== "browse" || view === "month" || date > sliceTo || (view === "week" && addDays(weekStart(date), 6) > sliceTo) || stripTo > sliceTo;
+  const needsFull = searching || mode !== "browse" || view === "month" || today < sliceRange[0] || date > sliceTo || (view === "week" && addDays(weekStart(date), 6) > sliceTo) || stripTo > sliceTo;
   useEffect(() => {
     if (needsFull) ensureFull();
   }, [needsFull, ensureFull]);
@@ -119,13 +138,21 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
   }, [index, view, from, to, filter, today]);
 
   /* ---- The URL follows the state ------------------------------------------- */
+  // The address follows the committed choices (view, day, filters, a shortcut, a shared list), once per change.
+  // Not on arrival, so the landing URL (and its utm_* tags) stays as it came. The search words stay
+  // in this tab (lib/url-state.ts) and reach a link only through Share.
+  const firstUrl = useRef(true);
   useEffect(() => {
-    const t = setTimeout(() => {
-      const s: Partial<EncoreState> = { view, date: date === today ? "" : date, category, market, venue, q, when, list: mode === "shared" ? initial.list : [] };
-      window.history.replaceState(window.history.state, "", encoreHref(s));
-    }, 200);
+    if (firstUrl.current) {
+      firstUrl.current = false;
+      return;
+    }
+    replaceQuery(encoreHref({ view, date: date === today ? "" : date, category, market, venue, when, list: mode === "shared" ? initial.list : [] }));
+  }, [view, date, category, market, venue, when, mode, initial.list, today]);
+  useEffect(() => {
+    const t = setTimeout(() => sessionMemory.write(MEMORY, { q }), 300);
     return () => clearTimeout(t);
-  }, [view, date, category, market, venue, q, when, mode, initial.list, today]);
+  }, [q, view, date, category, market, venue, when, mode]);
 
   // The day heads stick under the band; the band's height is read, not assumed.
   useEffect(() => {
@@ -163,7 +190,7 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
   const scrollToDay = useCallback((d: string) => {
     const heads = [...document.querySelectorAll<HTMLElement>('section[id^="d-"]')];
     const target = heads.find((h) => h.id.slice(2) >= d);
-    target?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    target?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
   }, []);
   const onStripPick = useCallback(
     (d: string) => {
@@ -241,7 +268,7 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
         ? "Today"
         : "Tonight"
       : when === "weekend"
-        ? `This weekend · ${shortDay(wkStart)}–${dayNumber(wkEnd)}`
+        ? `This weekend · ${shortDay(wkStart)}–${wkEnd.slice(5, 7) === wkStart.slice(5, 7) ? dayNumber(wkEnd) : shortDay(wkEnd)}`
         : view === "month"
           ? monthLabel(anchor)
           : view === "onview"
@@ -291,7 +318,7 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
   const showNav = mode === "browse" && !searching && view !== "onview";
 
   return (
-    <div className="encore flex flex-col" ref={rootRef}>
+    <div className="encore flex flex-col" ref={rootRef} data-url-island="">
       {/* Share and Subscribe as text, from lg. The phone carries them as glyphs beside the search. */}
       <div className="container-site order-0 hidden items-center justify-end gap-x-6 pb-4 pt-8 lg:flex">
         <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" />
@@ -416,7 +443,9 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
       <div id="tonight" className="container-site order-3 flex scroll-mt-[calc(var(--header-h)+var(--band-h,0px))] flex-col gap-14 pb-section pt-8 lg:gap-16 lg:pt-12">
         {mode === "browse" && !searching && !when && view === "days" && anchor === today ? <Spotlight index={index} today={today} filter={filter} list={listApi} onTonight={() => shortcut("tonight")} onWeekend={() => shortcut("weekend")} /> : null}
         <div id="encore-panel" role="tabpanel" aria-label={panelLabel}>
-          {mode === "mine" ? (
+          {seasonError && windowLoading ? (
+            <SeasonWait onRetry={ensureFull} />
+          ) : mode === "mine" ? (
             <ListView index={index} slugs={my.list} today={today} list={listApi} shared={false} loading={!full} />
           ) : mode === "shared" ? (
             <ListView index={index} slugs={initial.list} today={today} list={listApi} shared loading={!full} onSaveAll={() => my.addAll(initial.list)} />
@@ -480,6 +509,40 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
       </div>
     </div>
   );
+}
+
+/** When the season a move needs didn't come: why, and a retry. (While it is on its way, the views show their own loading rows.) */
+function SeasonWait({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex min-h-[280px] flex-col gap-4" role="status">
+      <p className="t-h3 text-navy">The season didn&rsquo;t load, so these days are empty for now.</p>
+      <button type="button" className="btn-quiet self-start" onClick={onRetry}>
+        Try again
+      </button>
+    </div>
+  );
+}
+
+const MEMORY = "encore";
+
+/**
+ * The calendar as the static page serves it: today and the next three weeks
+ * from the server, then the view the address asks for (and this tab's search
+ * words for it), on the browser's date.
+ */
+export function EncoreIsland({ serverToday, initialIndex, sliceRange }: { serverToday: string; initialIndex: EncoreIndex; sliceRange: [string, string] }) {
+  const { initial, key } = useUrlInitial(
+    (sp): { state: EncoreState; today: string } | null => {
+      const today = localDay(Date.now());
+      const mem = sessionMemory.read<{ q?: unknown }>(MEMORY);
+      const q = typeof mem?.q === "string" ? mem.q.slice(0, 80) : "";
+      if (!hasAny(sp, ENCORE_KEYS) && !q && today === serverToday) return null;
+      const state = parseEncoreState(sp, today);
+      return { state: { ...state, q: state.q || q }, today };
+    },
+    { state: parseEncoreState({}), today: serverToday },
+  );
+  return <Encore key={key} initial={initial.state} today={initial.today} initialIndex={initialIndex} sliceRange={sliceRange} />;
 }
 
 function feedQuery(f: Filter): string {

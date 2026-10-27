@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type ComponentProps, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode, type RefObject } from "react";
+import { revealStep } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
 import { Button, RuleButton } from "./button";
 
@@ -19,12 +20,17 @@ import { Button, RuleButton } from "./button";
  *   </StepCard>
  *
  * The card is white on a hairline with no shadow; the progress is a row of
- * 2px square segments; the step slides in (not under reduced motion); after
- * a move the title takes focus so a screen reader hears the new question.
+ * 2px square segments; the step slides in the way the visitor moved (not
+ * under reduced motion); after a move the title takes focus so a screen
+ * reader hears the new question, and the card comes back into view if it
+ * had scrolled up under the header.
  */
 
 /**
- * Focuses the step's title after Back, Next or a jump, never on first paint.
+ * Focuses the step's title after Back, Next or a jump, never on first paint,
+ * and brings the question back into view when its top has gone up under the
+ * sticky header (a phone, after a tall question): the card stops below the
+ * header (`scroll-mt-header`), smoothly unless reduced motion is asked for.
  * A stepper that remounts its question on every move passes `onMount` once
  * the visitor has moved, so the fresh mount is treated as a move.
  */
@@ -32,25 +38,41 @@ export function useStepFocus<T extends HTMLElement>(step: number | string, onMou
   const ref = useRef<T>(null);
   const moved = useRef(onMount);
   useEffect(() => {
-    if (moved.current) ref.current?.focus({ preventScroll: true });
+    if (moved.current && ref.current) {
+      ref.current.focus({ preventScroll: true });
+      revealStep(ref.current.closest<HTMLElement>("[data-step-card]"));
+    }
     moved.current = true;
   }, [step]);
   return ref;
 }
 
+/** Which way the last move went, so the next question slides in from the right and the one before from the left. */
+export function useStepDirection(step: number): StepDir {
+  const [prev, setPrev] = useState(step);
+  const [dir, setDir] = useState<StepDir>("next");
+  if (step !== prev) {
+    setPrev(step);
+    setDir(step < prev ? "back" : "next");
+  }
+  return dir;
+}
+
+export type StepDir = "next" | "back";
+
 type CardProps = { as?: "div" | "form"; className?: string; children: ReactNode } & Omit<ComponentProps<"form">, "className" | "children">;
 
 export function StepCard({ as = "div", className, children, ...rest }: CardProps) {
-  const cls = cn("mx-auto flex w-full max-w-[960px] flex-col gap-8 border border-hairline bg-white p-5 sm:p-10", className);
+  const cls = cn("mx-auto flex w-full max-w-[960px] scroll-mt-header flex-col gap-8 border border-hairline bg-white p-5 sm:p-10", className);
   if (as === "form") {
     return (
-      <form className={cls} {...rest}>
+      <form data-step-card="" className={cls} {...rest}>
         {children}
       </form>
     );
   }
   return (
-    <div className={cls} {...(rest as ComponentProps<"div">)}>
+    <div data-step-card="" className={cls} {...(rest as ComponentProps<"div">)}>
       {children}
     </div>
   );
@@ -76,10 +98,10 @@ export function StepProgress({ step, total, done = step, tone = "navy", count = 
   );
 }
 
-/** The question's own ground. Keyed on the step so each one slides in fresh. */
-export function StepBody({ stepKey, className, children }: { stepKey: string | number; className?: string; children: ReactNode }) {
+/** The question's own ground. Keyed on the step so each one slides in fresh: from the right after Next, from the left after Back. */
+export function StepBody({ stepKey, dir = "next", className, children }: { stepKey: string | number; dir?: StepDir; className?: string; children: ReactNode }) {
   return (
-    <div key={stepKey} className={cn("move-q-step flex min-h-[240px] flex-col gap-8", className)}>
+    <div key={stepKey} data-dir={dir} className={cn("move-q-step flex min-h-[240px] flex-col gap-8", className)}>
       {children}
     </div>
   );

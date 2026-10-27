@@ -12,6 +12,7 @@ import { img } from "@/lib/content/seed/helpers";
 import { guideHref, isRebuiltGuide } from "@/lib/guides/slugs";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { CONTAINER_SIZES } from "@/lib/image-sizes";
 
 type Params = Promise<{ slug: string }>;
 const RIVER = img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%");
@@ -77,7 +78,7 @@ export default async function PostPage({ params }: { params: Params }) {
           </span>
         </nav>
         <div className="relative aspect-[16/9] overflow-hidden bg-linen-100">
-          <Photo image={post.cover} priority sizes="(min-width: 1024px) 1248px, 100vw" />
+          <Photo image={post.cover} priority sizes={CONTAINER_SIZES} />
         </div>
         <header className="flex max-w-[900px] flex-col gap-4">
           <h1 className="t-display text-navy">{post.title}</h1>

@@ -5,6 +5,8 @@ import type { Block, CalloutBlock, DefinitionBlock, Inline, Source, TableBlock }
 import { TOOLS } from "@/lib/guides";
 import { Figure } from "./figure";
 import { ExternalLink } from "@/components/ui/external-link";
+import { GUIDE_PHOTO_SIZES } from "@/lib/image-sizes";
+import "./guides.css";
 
 export function InlineText({ segs }: { segs: Inline[] }) {
   return (
@@ -180,7 +182,7 @@ export function GuidePhoto({ photo, print }: { photo: { image: ImageRef; caption
           // eslint-disable-next-line @next/next/no-img-element
           <img src={photo.image.src.replace("/images/library/", "/guides/print-photos/")} alt={photo.image.alt} className="absolute inset-0 h-full w-full object-cover" style={photo.image.position ? { objectPosition: photo.image.position } : undefined} />
         ) : (
-          <Photo image={photo.image} sizes="(min-width: 1024px) 860px, 100vw" />
+          <Photo image={photo.image} sizes={GUIDE_PHOTO_SIZES} />
         )}
       </div>
       {photo.caption ? <figcaption className="t-small text-graphite-500">{photo.caption}</figcaption> : null}

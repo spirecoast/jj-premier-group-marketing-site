@@ -4,14 +4,11 @@ import { currentEncoreSnapshot, loadEncoreSnapshot } from "./live";
 import type { EncoreSnapshot } from "./store/types";
 import { SITE_TIMEZONE } from "@/lib/content/format";
 import type { EncoreEvent, EncoreIndex, EncorePerf } from "./index-format";
+import { localDay } from "./day";
 
-const dayFmt = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" });
 const timeFmt = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TIMEZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
-export function localDay(ms: number): string {
-  const p = Object.fromEntries(dayFmt.formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
-  return `${p.year}-${p.month}-${p.day}`;
-}
+export { localDay } from "./day";
 function localTime(ms: number): string {
   const p = Object.fromEntries(timeFmt.formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
   return `${p.hour}:${p.minute}`;

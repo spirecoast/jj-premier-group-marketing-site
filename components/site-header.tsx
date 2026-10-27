@@ -15,6 +15,7 @@ import { LinkPending } from "./link-pending";
 import { ProductMenu, ProductMenuFoot, useMenuRow, type MenuSpec } from "./product-menu";
 import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
+import { IntentLink } from "@/components/intent-link";
 
 type Contact = { name: string; phone: string; phoneE164: string; email: string };
 
@@ -287,12 +288,12 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
                   </Link>
                   {item.secondary ? (
                     // The one quieter line under an item: the planner under Buy.
-                    <Link
+                    <IntentLink
                       href={item.secondary.href as Route}
                       className="t-small -mt-1 self-start pb-4 text-linen-200/80 transition-colors hover:text-white"
                     >
                       {item.secondary.label}
-                    </Link>
+                    </IntentLink>
                   ) : null}
                 </div>
               );
@@ -312,13 +313,13 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
                 <ul className="flex flex-col border-l border-sky-300/30 pl-4">
                   {f.items.map((i) => (
                     <li key={i.href}>
-                      <Link
+                      <IntentLink
                         href={i.href as Route}
                         aria-current={pathname === i.href ? "page" : undefined}
                         className="block py-2 text-[16px] text-linen-200 transition-colors hover:text-white aria-[current=page]:text-sky-300"
                       >
                         {i.label.replace(`${f.name} `, "")}
-                      </Link>
+                      </IntentLink>
                     </li>
                   ))}
                 </ul>

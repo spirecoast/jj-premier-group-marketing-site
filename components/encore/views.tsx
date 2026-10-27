@@ -25,9 +25,11 @@ import {
   type Occ,
 } from "@/lib/encore/select";
 import { varyStock } from "@/lib/encore/stock";
+import { scrollBehavior } from "@/lib/scroll";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "./glyphs";
 import { AgendaRow, EventTile, RunCard } from "./tile";
+import "./encore.css";
 
 type ListProps = { has: (slug: string) => boolean; toggle: (slug: string) => void };
 
@@ -91,7 +93,7 @@ export function Spotlight({ index, today, filter, list, onTonight, onWeekend }: 
   const sun = addDays(fri, 2);
   const wkStart = fri < today ? today : fri;
   const weekend = occurrences(index, wkStart, sun, filter, now).filter((o) => !(tonight.length && o.day === today));
-  const weekendLabel = wd === 5 || wd === 6 || wd === 0 ? "This weekend" : `This weekend · ${shortDay(fri)}–${dayNumber(sun)}`;
+  const weekendLabel = wd === 5 || wd === 6 || wd === 0 ? "This weekend" : `This weekend · ${shortDay(fri)}–${sun.slice(5, 7) === fri.slice(5, 7) ? dayNumber(sun) : shortDay(sun)}`;
   if (!tonight.length && !weekend.length) return null;
   return (
     <div className="flex flex-col gap-10">
@@ -124,8 +126,7 @@ function SpotRow({ title, count, occs, list, showDay, onMore }: { title: string;
     const el = rail.current;
     if (!el) return;
     const card = el.firstElementChild?.getBoundingClientRect().width ?? 300;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollBy({ left: dir * (card + 12), behavior: reduce ? "auto" : "smooth" });
+    el.scrollBy({ left: dir * (card + 12), behavior: scrollBehavior() });
   };
   return (
     <section className="flex flex-col gap-4" aria-label={title}>

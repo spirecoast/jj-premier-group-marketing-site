@@ -1,0 +1,1070 @@
+/* Encore: the calendar, the planner's days, the venue panel.
+   Loaded only by the routes that render them (imported by components/encore/*),
+   not with the site-wide sheet. The tokens, the base layer and the shared
+   utilities stay in app/globals.css; this file adds to its components layer. */
+
+/* ---- Encore Arts Calendar -------------------------------------------------- */
+@layer components {
+  /* The band under the header: the view chips and the day strip on a phone,
+     plus the search row from lg. It stays while the list scrolls, and steps up
+     to the top edge while the phone header is tucked away (html[data-scroll]). */
+  .encore-band {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 6;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-hairline);
+    transition: top var(--dur-panel) var(--ease-brand);
+  }
+  @media (max-width: 63.99rem) {
+    html[data-scroll="down"] .encore-band {
+      top: 0;
+    }
+  }
+  .encore-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-block: 0.75rem 0.375rem;
+  }
+  @media (min-width: 1024px) {
+    .encore-rows {
+      gap: 0.625rem;
+      padding-block: 1rem 0.5rem;
+    }
+  }
+  /* The phone's search row: the field, then Share and Subscribe as two squares; the chips wrap under. */
+  .encore-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  @media (max-width: 63.99rem) {
+    .encore-chips {
+      flex-basis: 100%;
+    }
+  }
+  .encore-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .encore-search {
+    position: relative;
+    flex: 1 1 220px;
+    max-width: 360px;
+  }
+  @media (max-width: 63.99rem) {
+    .encore-search {
+      flex-basis: 0;
+      max-width: none;
+    }
+  }
+  .encore-input {
+    width: 100%;
+    height: 3rem;
+    padding: 0 2.75rem 0 1rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-ink);
+    background: #fff;
+    border: 1px solid var(--color-graphite-400);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .encore-input:focus {
+    border-color: var(--color-navy);
+    box-shadow: inset 0 -2px 0 var(--color-sky-700);
+  }
+  .encore-input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .encore-clear {
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 3rem;
+    color: var(--color-graphite-500);
+    transition: color var(--dur-micro) var(--ease-brand);
+  }
+  .encore-clear svg {
+    width: 18px;
+    height: 18px;
+  }
+  button.encore-clear:hover {
+    color: var(--color-navy);
+  }
+  /* The venue select: the one native control, 48px and 16px type so iOS never zooms. */
+  .encore-select {
+    width: 100%;
+    height: 3rem;
+    padding: 0 2.5rem 0 1rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-ink);
+    background: #fff;
+    border: 1px solid var(--color-graphite-400);
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .encore-select:hover {
+    border-color: var(--color-navy);
+  }
+  .encore-select-wrap {
+    position: relative;
+  }
+  .encore-select-wrap > svg {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    translate: 0 -50%;
+    color: var(--color-navy);
+    pointer-events: none;
+  }
+
+  /* Chips on Encore: the view switcher (a tablist), the filter chip that opens
+     the sheet, the categories with a 6px dot and a count. Same .chip. */
+  .chip[aria-selected="true"] {
+    background: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .chip:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .chip:disabled:hover {
+    border-color: transparent;
+  }
+  .chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .chip-n {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--color-graphite-500);
+  }
+  .chip[aria-pressed="true"] .chip-n,
+  .chip[aria-selected="true"] .chip-n {
+    color: rgb(230 221 209 / 0.7);
+  }
+  .chip-chevron {
+    width: 14px;
+    height: 14px;
+    flex: none;
+    opacity: 0.8;
+  }
+  .encore-tabs {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .encore-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+  @media (max-width: 63.99rem) {
+    .encore-nav {
+      margin-left: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  .encore-range {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-navy);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* The day strip: 52 × 64 cells, one tab stop (roving tabindex), the chosen
+     day marked by a single amber bar that slides between cells. */
+  .encore-strip-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .encore-strip-arrow {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .encore-strip-arrow {
+      display: inline-flex;
+    }
+  }
+  .encore-strip {
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    flex: 1;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    /* Room above the cells for the month tags. */
+    padding: 0.875rem 0 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .encore-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .encore-strip:focus-visible {
+    outline: none;
+  }
+  .encore-day {
+    position: relative;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.125rem;
+    width: 3.25rem;
+    height: 4rem;
+    padding: 0.25rem 0 0.375rem;
+    scroll-snap-align: start;
+    border: 1px solid transparent;
+    transition: background-color var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand);
+  }
+  .encore-day:hover {
+    background: var(--color-linen-100);
+  }
+  /* Focus inside the strip is a navy outline on the cell, not on the scroller. */
+  .encore-strip:focus-visible .encore-day[tabindex="0"],
+  .encore-day:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: -2px;
+  }
+  .encore-day.is-weekend .encore-day-num {
+    color: var(--color-harbor-700);
+  }
+  .encore-day.is-today {
+    background: var(--color-navy);
+  }
+  .encore-day.is-today .encore-day-num,
+  .encore-day.is-today .encore-day-wd {
+    color: var(--color-linen-200);
+  }
+  .encore-day-month {
+    position: absolute;
+    top: -0.8125rem;
+    left: 0.125rem;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+    @media (max-width: 47.99rem) {
+      font-size: 0.625rem;
+    }
+  }
+  /* On the navy of today the amber tag fails; Encore's gold passes. */
+  .encore-day.is-today .encore-day-month {
+    color: var(--color-encore);
+  }
+  .encore-day-wd {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-graphite-500);
+    @media (max-width: 47.99rem) {
+      font-size: 0.6875rem;
+    }
+  }
+  .encore-day-num {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--color-navy);
+  }
+  .encore-day-bar {
+    display: flex;
+    align-items: flex-end;
+    width: 1.5rem;
+    height: 0.75rem;
+    margin-top: 0.125rem;
+  }
+  .encore-day-bar span {
+    display: block;
+    width: 100%;
+    background: var(--color-sky-300);
+    transition: height var(--dur-panel) var(--ease-brand);
+  }
+  /* The selected day's mark: one 2px amber bar, moved by --sel (the cell's index). */
+  .encore-day-mark {
+    position: absolute;
+    left: 0;
+    bottom: 0.25rem;
+    width: 3.25rem;
+    height: 2px;
+    background: var(--color-amber);
+    transform: translateX(calc(var(--sel, 0) * 3.5rem));
+    transition: transform 240ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  /* Spotlight rails: 300px cards; from lg the right edge fades while there
+     is more to scroll to, and the arrows beside the heading step one card. */
+  .encore-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 300px);
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 2px 2px 6px;
+    margin: -2px;
+  }
+  .encore-rail::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .encore-rail[data-more="true"] {
+      mask-image: linear-gradient(90deg, #000 calc(100% - 96px), transparent);
+    }
+  }
+  .encore-tile,
+  .encore-run {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 180px;
+    padding: 1rem 1rem 0.875rem;
+    scroll-snap-align: start;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+    border-top: 3px solid var(--cat, var(--color-navy));
+    /* The card grammar, nothing lifts: on hover the border goes to deep
+       harbor, the category rule thickens from 3 to 4px (an inset shadow, so
+       the layout never moves) and the picture eases 3.5%. */
+    transition:
+      border-color var(--dur-micro) var(--ease-brand),
+      box-shadow var(--dur-card) var(--ease-brand),
+      transform var(--dur-micro) var(--ease-brand);
+  }
+  .encore-tile:hover,
+  .encore-run:hover,
+  .encore-tile:focus-visible,
+  .encore-run:focus-visible {
+    border-color: var(--color-deep-harbor);
+    border-top-color: var(--cat, var(--color-navy));
+    box-shadow: inset 0 1px 0 0 var(--cat, var(--color-navy));
+  }
+  .encore-tile:active,
+  .encore-run:active {
+    transform: scale(0.992);
+  }
+  .encore-tile-img img {
+    transition: transform var(--dur-img) var(--ease-brand);
+  }
+  .encore-tile:hover .encore-tile-img img,
+  .encore-tile:focus-visible .encore-tile-img img {
+    transform: scale(1.035);
+  }
+  /* The tile's picture: 3:2 like every other card, so a rail and a grid read as one family. */
+  .encore-tile-img {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    margin: -1rem -1rem 0.375rem;
+    overflow: hidden;
+    background: var(--color-linen-100);
+  }
+  .encore-tile-time {
+    font-family: var(--font-display);
+    font-size: 1.625rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-navy);
+    font-variant-numeric: tabular-nums;
+  }
+  .encore-tile-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .encore-tile-day {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+    /* The phone floor for mono meta: 12px. */
+    @media (max-width: 47.99rem) {
+      font-size: 0.75rem;
+    }
+  }
+  .encore-tile-allday {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-graphite-600);
+    line-height: 1.625rem;
+  }
+  .encore-tile-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--color-navy);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .encore-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-harbor-700);
+  }
+  .encore-tag.is-closing {
+    color: var(--color-amber);
+  }
+
+  /* "From the venue" (components/encore/venue-panel.tsx) */
+  .venue-date {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .venue-date:last-child {
+    border-bottom: 0;
+  }
+  .venue-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.375rem;
+    padding: 0 0.4375rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .venue-status.is-ok {
+    color: var(--color-success);
+    background: var(--color-success-fill);
+    border-color: transparent;
+  }
+  .venue-status.is-warn {
+    color: var(--color-warning);
+    background: var(--color-warning-fill);
+    border-color: transparent;
+  }
+  .venue-status.is-off {
+    color: var(--color-danger);
+    background: var(--color-danger-fill);
+    border-color: transparent;
+  }
+  .venue-status.is-none {
+    color: var(--color-graphite-600);
+    border-color: var(--color-hairline);
+  }
+
+  /* Save and Nearby: the 44px quiet square. Saved fills the bookmark amber. */
+  .encore-glyph-fill {
+    fill: transparent;
+    transition: fill var(--dur-state) var(--ease-brand);
+  }
+  .btn-quiet[aria-pressed="true"] {
+    color: var(--color-amber);
+    border-color: var(--color-amber);
+  }
+  .btn-quiet[aria-pressed="true"] .encore-glyph-fill {
+    fill: currentColor;
+  }
+  .btn-quiet[aria-expanded="true"] {
+    color: var(--color-linen-200);
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+  }
+
+  /* Agenda: the day head sticks under the header and the band. */
+  .encore-dayhead {
+    position: sticky;
+    top: calc(var(--header-h) + var(--band-h, 0px));
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-graphite-600);
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-hairline);
+    transition: top var(--dur-panel) var(--ease-brand);
+  }
+  @media (max-width: 63.99rem) {
+    html[data-scroll="down"] .encore-dayhead {
+      top: var(--band-h, 0px);
+    }
+  }
+  /* The row: 56px, a 3px category bar, the time in an 84px column, the title, the venue line. */
+  .encore-agenda-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.5rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .encore-agenda-link {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.5rem 0.25rem 0.5rem 0.875rem;
+    border-left: 3px solid var(--cat, var(--color-navy));
+    transition: background-color var(--dur-state) var(--ease-brand), padding-left 300ms var(--ease-brand);
+  }
+  .encore-agenda-link:hover {
+    background: var(--color-linen-100);
+    padding-left: 1.125rem;
+  }
+  .encore-agenda-link:focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: -2px;
+  }
+  .encore-agenda-time {
+    flex: none;
+    width: 5.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--color-navy);
+    font-variant-numeric: tabular-nums;
+  }
+  .encore-agenda-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+  @media (min-width: 1024px) {
+    .encore-agenda-title {
+      font-size: 1.25rem;
+    }
+  }
+  /* The venue line: venue, town, then a dot in the category colour and the kind in ink. */
+  .encore-meta {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-graphite-500);
+  }
+  @media (min-width: 48rem) {
+    .encore-meta {
+      font-size: 0.875rem;
+    }
+  }
+  .encore-meta-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-ink);
+  }
+  .encore-meta-kind i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cat, var(--color-navy));
+    flex: none;
+  }
+  .encore-agenda-save {
+    flex: none;
+  }
+  @media (max-width: 640px) {
+    .encore-agenda-link {
+      flex-direction: column;
+      gap: 0.125rem;
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+    }
+    .encore-agenda-time {
+      width: auto;
+    }
+  }
+
+  /* Loading the season: 56px skeleton rows with a slow shimmer. */
+  .encore-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.5rem 0.25rem 0.5rem 0.875rem;
+    border-left: 3px solid var(--color-linen-200);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .encore-skeleton i {
+    display: block;
+    height: 0.75rem;
+    background: linear-gradient(90deg, var(--color-linen-100) 0%, var(--color-paper) 50%, var(--color-linen-100) 100%);
+    background-size: 200% 100%;
+    animation: encore-shimmer 1.2s linear infinite;
+  }
+  @keyframes encore-shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  /* The filter sheet: "Where and what". A bottom sheet on a phone, a panel
+     under the filter chip from lg. One dialog, so focus is held and Esc closes. */
+  .encore-sheet {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 88dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: var(--color-paper);
+    display: flex;
+    flex-direction: column;
+    overscroll-behavior: contain;
+  }
+  .encore-sheet:not([open]) {
+    display: none;
+  }
+  .encore-sheet::backdrop {
+    background: rgb(20 37 48 / 0.55);
+  }
+  .encore-sheet[open] {
+    animation: encore-sheet-up var(--dur-panel) var(--ease-reveal) both;
+  }
+  @keyframes encore-sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  .encore-sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 0.625rem 0 0.25rem;
+    touch-action: none;
+    cursor: grab;
+  }
+  .encore-sheet-handle span {
+    width: 2.75rem;
+    height: 4px;
+    background: var(--color-rule);
+  }
+  .encore-sheet-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.5rem 1.5rem 1.5rem;
+  }
+  .encore-sheet-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-hairline);
+    background: var(--color-paper);
+  }
+  @media (min-width: 1024px) {
+    .encore-sheet {
+      inset: auto;
+      top: var(--sheet-y, calc(var(--header-h) + 8rem));
+      left: var(--sheet-x, var(--gutter));
+      width: 440px;
+      max-height: calc(100dvh - var(--sheet-y, 10rem) - 2rem);
+      border: 1px solid var(--color-hairline);
+      box-shadow: 0 24px 48px -24px rgb(20 37 48 / 0.35);
+    }
+    .encore-sheet[open] {
+      animation: encore-sheet-in var(--dur-panel) var(--ease-reveal) both;
+    }
+    @keyframes encore-sheet-in {
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+    }
+    .encore-sheet-handle {
+      display: none;
+    }
+    .encore-sheet-body {
+      padding-top: 1.25rem;
+    }
+  }
+
+  /* The visit plan: one day per card, the date sticky under the header */
+  .plan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 640px) {
+    .plan-form {
+      padding: 2rem;
+    }
+  }
+  .plan-days {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .plan-day {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+  }
+  .plan-dayhead {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--color-encore-deep);
+    box-shadow: inset 0 -1px 0 rgb(233 196 106 / 0.35);
+  }
+  .plan-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .plan-block:last-child {
+    border-bottom: 0;
+  }
+  .plan-block.is-showings {
+    background: var(--color-sky-50);
+    box-shadow: inset 3px 0 0 var(--color-sky-500);
+  }
+  .plan-block.is-afternoon {
+    box-shadow: inset 3px 0 0 var(--color-linen-400);
+  }
+  .plan-block.is-evening {
+    box-shadow: inset 3px 0 0 var(--color-encore);
+  }
+  .plan-slot {
+    flex: none;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-sky-700);
+    font-variant-numeric: tabular-nums;
+  }
+  .plan-block.is-evening .plan-slot {
+    color: var(--color-encore-ink);
+  }
+  .plan-block.is-afternoon .plan-slot {
+    color: var(--color-linen-700);
+  }
+  .plan-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.15;
+    color: var(--color-navy);
+  }
+  @media (min-width: 768px) {
+    .plan-block {
+      flex-direction: row;
+      gap: 1.5rem;
+      padding: 1.25rem 1.25rem;
+    }
+    .plan-slot {
+      width: 6.5rem;
+      padding-top: 0.875rem;
+    }
+    .plan-block.is-showings .plan-slot {
+      padding-top: 0.25rem;
+    }
+  }
+
+  /* Week */
+  .encore-week {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+    background: var(--color-hairline);
+    border: 1px solid var(--color-hairline);
+  }
+  .encore-week-col,
+  .encore-week-item {
+    min-width: 0;
+  }
+  @media (min-width: 1024px) {
+    .encore-week {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+  }
+  .encore-week-col {
+    background: #fff;
+    min-height: 160px;
+  }
+  .encore-week-col.is-past {
+    background: var(--color-paper);
+  }
+  .encore-week-head {
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-graphite-500);
+    transition: background-color var(--dur-micro) var(--ease-brand);
+  }
+  .encore-week-head:hover {
+    background: var(--color-linen-100);
+  }
+  .encore-week-col.is-today .encore-week-head {
+    background: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .encore-week-col.is-today .encore-week-num {
+    color: var(--color-linen-200);
+  }
+  .encore-week-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--color-navy);
+  }
+  .encore-week-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.5rem 0.75rem 0.5rem 0.625rem;
+    border-left: 2px solid var(--cat, var(--color-navy));
+    border-bottom: 1px solid var(--color-hairline);
+    transition: background-color var(--dur-state) var(--ease-brand);
+  }
+  .encore-week-item:hover {
+    background: var(--color-linen-100);
+  }
+  .encore-week-title {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+  }
+
+  /* Month */
+  .encore-month {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-hairline);
+    border: 1px solid var(--color-hairline);
+  }
+  .encore-month-wd {
+    padding: 0.5rem 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-graphite-500);
+    background: var(--color-linen-100);
+  }
+  .encore-month-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+    min-height: 5.5rem;
+    padding: 0.5rem 0.5rem 0.5rem;
+    text-align: left;
+    background: #fff;
+    transition: background-color var(--dur-micro) var(--ease-brand), box-shadow var(--dur-micro) var(--ease-brand);
+  }
+  .encore-month-cell.is-blank {
+    background: var(--color-paper);
+  }
+  .encore-month-cell.is-past {
+    background: var(--color-paper);
+  }
+  .encore-month-cell:hover:not(.is-blank) {
+    background: var(--color-linen-100);
+  }
+  .encore-month-cell.is-selected {
+    box-shadow: inset 0 0 0 2px var(--color-amber);
+  }
+  .encore-month-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-graphite-500);
+    font-variant-numeric: tabular-nums;
+  }
+  .encore-month-cell.is-today .encore-month-num {
+    color: var(--color-sky-700);
+    font-weight: 500;
+  }
+  .encore-month-titles {
+    display: none;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .encore-month-title {
+    display: block;
+    padding-left: 0.375rem;
+    border-left: 2px solid var(--cat, var(--color-navy));
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    color: var(--color-navy);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .encore-month-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: auto;
+  }
+  .encore-month-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .encore-month-dots em {
+    margin-left: 0.25rem;
+    font-family: var(--font-mono);
+    font-style: normal;
+    font-size: 10px;
+    color: var(--color-graphite-500);
+  }
+  @media (min-width: 1024px) {
+    .encore-month-cell {
+      min-height: 7.5rem;
+    }
+    .encore-month-titles {
+      display: flex;
+    }
+    .encore-month-dots i {
+      display: none;
+    }
+  }
+
+  /* A new tile or row rises 8px when it arrives; what stays put stays put.
+     Capped at 12 steps of 30ms, so a long list never waits. */
+  .encore-rise {
+    animation: encore-rise 240ms var(--ease-reveal) both;
+    animation-delay: calc(min(var(--i, 0), 12) * 30ms);
+  }
+  @keyframes encore-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .encore-rise,
+    .encore-sheet[open],
+    .encore-skeleton i {
+      animation: none;
+    }
+    .encore-tile,
+    .encore-run,
+    .encore-day-mark,
+    .encore-band,
+    .encore-dayhead {
+      transition: none;
+    }
+  }
+}
+
+/* ---- Encore Planner: the days at a glance. Its choices are the system's chips (components/ui/chip.tsx). */
+@layer components {
+  .plan-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(4.25rem, 1fr);
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+  .plan-strip-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    transition: border-color var(--dur-state) var(--ease-brand), background-color var(--dur-state) var(--ease-brand);
+  }
+  .plan-strip-day.is-weekend {
+    background: rgb(233 196 106 / 0.1);
+    border-color: rgb(233 196 106 / 0.4);
+  }
+  .plan-strip-day:hover,
+  .plan-strip-day:focus-visible {
+    border-color: var(--color-encore);
+    background: rgb(255 255 255 / 0.1);
+  }
+  /* The plan's summary on Encore's plum, lit from above like a stage. */
+  .encore-stage {
+    position: relative;
+    overflow: hidden;
+    color: var(--color-linen-100);
+    background:
+      radial-gradient(ellipse 60% 70% at 50% -10%, rgb(233 196 106 / 0.22), transparent 70%),
+      radial-gradient(ellipse 40% 50% at 8% 0%, rgb(233 196 106 / 0.1), transparent 70%),
+      radial-gradient(ellipse 40% 50% at 92% 0%, rgb(233 196 106 / 0.1), transparent 70%),
+      var(--color-encore-deep);
+    border-top: 2px solid var(--color-encore);
+  }
+  .encore-stage .plan-strip {
+    scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plan-strip-day { transition: none; }
+  }
+}

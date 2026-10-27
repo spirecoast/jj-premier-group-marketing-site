@@ -4,6 +4,7 @@ import type { ImageRef } from "@/lib/content/types";
 import { TrackedLink } from "@/components/tracked-link";
 import { guidePdfHref } from "@/lib/guides";
 import type { Guide } from "@/lib/guides/types";
+import "./guides.css";
 
 /**
  * The cover: the guide's photograph full-bleed under a light harbor wash, and

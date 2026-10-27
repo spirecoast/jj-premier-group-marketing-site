@@ -10,6 +10,7 @@ import { MARKETS } from "@/lib/content/markets";
 import { HomeMix } from "./home-mix";
 import { PriceBands } from "./price-bands";
 import { Sparkline } from "./sparkline";
+import { CONTAINER_SIZES } from "@/lib/image-sizes";
 
 /** "13% fewer than a typical month", from the unrounded change. */
 function againstTypical(now: number, typical: number | null): string {
@@ -62,7 +63,7 @@ export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: st
           </h2>
           {photo ? (
             <div className="relative aspect-[16/7] overflow-hidden bg-navy lg:aspect-[21/7]">
-              <Photo image={photo} sizes="(min-width: 1440px) 1248px, 100vw" />
+              <Photo image={photo} sizes={CONTAINER_SIZES} />
             </div>
           ) : null}
         </header>

@@ -40,7 +40,7 @@ export default async function GuidePrint({ params }: { params: Params }) {
   return (
     <article className="pdf-guide" data-title={guide.title}>
       {/* The running head: the guide's name, on every page but the cover and the back. */}
-      <style>{`@page { @top-left { content: ${JSON.stringify(guide.title)}; font-family: var(--font-newsreader), serif; font-style: italic; font-size: 8.5pt; color: #63666a; } }`}</style>
+      <style>{`@page { @top-left { content: ${JSON.stringify(guide.title)}; font-family: var(--font-newsreader-italic), var(--font-newsreader), serif; font-style: italic; font-size: 8.5pt; color: #63666a; } }`}</style>
       {/* Cover */}
       <section className="pdf-cover">
         <div className="pdf-cover-photo">

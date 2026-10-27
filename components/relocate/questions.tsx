@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useId, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Chip, ChipGroup, ChoiceTile } from "@/components/ui/chip";
 import { Input, Select } from "@/components/ui/field";
 import { RuleButton } from "@/components/ui/button";
-import { StepBody, StepCard, StepFooter, StepNumber, StepProgress, StepTitle, useStepFocus } from "@/components/ui/stepper";
+import { StepBody, StepCard, StepFooter, StepNumber, StepProgress, StepTitle, useStepDirection, useStepFocus } from "@/components/ui/stepper";
 import { QUESTIONS as Q } from "@/lib/relocate/copy";
 import { formatDate } from "@/lib/relocate/plan";
 import { STATE_CODES, STATES } from "@/lib/relocate/states";
@@ -63,34 +63,20 @@ const opts = <K extends string>(o: Record<K, string>) => (Object.keys(o) as K[])
  * bring any one of them back.
  */
 export function Questions() {
-  const { today, answers, setAnswers, mode, setMode, readGeneric, step, setStep, reached, setReached } = usePlanner();
+  const { today, answers, setAnswers, mode, readGeneric, step, reached, goTo, back, finish } = usePlanner();
   const uid = useId();
   const id = (k: string) => `${uid}-${k}`;
-  /* After Back, Next or a rail click, the new question takes focus… */
+  /* After Back, Next or a rail click, the new question takes focus and comes back into view if it had scrolled up under the header. */
   const titleRef = useStepFocus<HTMLHeadingElement>(step);
+  const dir = useStepDirection(step);
 
   const key = STEPS[step]!;
   const last = step === STEPS.length - 1;
   const buying = answers.path !== "renting-first";
 
-  /* …and stays in view. */
-  useEffect(() => {
-    const section = document.getElementById("questions");
-    if (section && section.getBoundingClientRect().top < 0) section.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [step]);
-
   if (mode === "plan") return null;
 
-  const go = (n: number) => {
-    const next = Math.min(STEPS.length - 1, Math.max(0, n));
-    setStep(next);
-    setReached(Math.max(reached, next));
-  };
-  const finish = () => {
-    setReached(STEPS.length);
-    setMode("plan");
-    requestAnimationFrame(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-  };
+  const go = goTo;
 
   const summary: Record<(typeof STEPS)[number], string> = {
     moveIn: formatDate(answers.moveInDate),
@@ -148,7 +134,7 @@ export function Questions() {
           <StepCard className="max-w-none p-6">
             <StepProgress step={step + 1} total={STEPS.length} count={false} />
 
-            <StepBody stepKey={key}>
+            <StepBody stepKey={key} dir={dir}>
               <div className="flex flex-col gap-3">
                 <StepTitle id={id("q")} ref={titleRef} className="max-w-[680px]">
                   {Q[key].label}
@@ -205,7 +191,7 @@ export function Questions() {
             </StepBody>
 
             <StepFooter
-              back={step > 0 ? { label: Q.back, onClick: () => go(step - 1) } : undefined}
+              back={step > 0 ? { label: Q.back, onClick: back } : undefined}
               next={{ label: last ? Q.showPlan : Q.next, onClick: last ? finish : () => go(step + 1) }}
             />
           </StepCard>

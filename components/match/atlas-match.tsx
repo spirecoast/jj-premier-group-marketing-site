@@ -1,74 +1,99 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useStepDirection } from "@/components/ui/stepper";
 import { track } from "@/lib/analytics";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
-import { EMPTY_ANSWERS, QUESTIONS, answeredIds, matchAll, matchHref, type Answers, type MatchState } from "@/lib/neighborhoods/match";
+import { EMPTY_ANSWERS, MATCH_DRAFT, MATCH_KEYS, QUESTIONS, answeredIds, matchAll, matchHref, parseMatch, type Answers, type MatchState } from "@/lib/neighborhoods/match";
+import { revealStep } from "@/lib/scroll";
+import { useJsonResource } from "@/lib/use-json-resource";
+import { draft, hasAny, replaceQuery, useStepHistory, useUrlInitial } from "@/lib/url-state";
 import { MatchQuestion } from "./match-question";
 import { MatchResults } from "./match-results";
 
 /**
- * Atlas Match: the questionnaire and its list, one state (answers, step)
- * that the URL reflects so a result can be shared. The index arrives once
- * from /api/neighborhoods/index, the same 90KB the explorer uses, and every
- * count after that is in memory.
+ * Atlas Match: the questionnaire and its list, one state (answers, step).
+ * Each step is a history entry, so the browser's Back returns to the question
+ * before; the address carries the answers so far, so a list can be shared
+ * mid-flow or at the end (choices only: nothing typed). Answers in progress
+ * are also kept in this browser, so a reload or a swipe away comes back to the
+ * same question. The index arrives once from /api/neighborhoods/index, the
+ * same 90KB the explorer uses (lib/use-json-resource.ts), and every count
+ * after that is in memory.
  */
 export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchState; datasetVersion: string; asOf: string }) {
-  const [entries, setEntries] = useState<IndexEntry[] | null>(null);
-  const [loadError, setLoadError] = useState(false);
-  const [loadAttempt, setLoadAttempt] = useState(0);
+  const index = useJsonResource<{ entries: IndexEntry[] }>(`/api/neighborhoods/index?v=${encodeURIComponent(datasetVersion)}`);
+  const entries = index.data?.entries ?? null;
+  const loadError = index.error;
   const [answers, setAnswers] = useState<Answers>(initial.answers);
   // A shared link without a step opens on the list; a fresh visit opens on question one.
   const [step, setStep] = useState<number | null>(initial.step ?? (answeredIds(initial.answers).length ? null : 1));
   const root = useRef<HTMLDivElement>(null);
   const completed = useRef(false);
   const moved = useRef(false);
-
-  useEffect(() => {
-    const ctrl = new AbortController();
-    setLoadError(false);
-    fetch(`/api/neighborhoods/index?v=${encodeURIComponent(datasetVersion)}`, { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: { entries: IndexEntry[] }) => setEntries(data.entries))
-      .catch((err) => {
-        if (err?.name !== "AbortError") setLoadError(true);
-      });
-    return () => ctrl.abort();
-  }, [datasetVersion, loadAttempt]);
+  const dir = useStepDirection(step ?? QUESTIONS.length + 1);
 
   const by = useMemo(() => new Map((entries ?? []).map((e) => [e.s, e])), [entries]);
   const areas = useMemo(() => (entries ?? []).filter((e) => e.l === "area" && e.x !== null && e.y !== null).sort((a, b) => a.n.localeCompare(b.n)), [entries]);
   const matches = useMemo(() => (entries ? matchAll(entries, answers, by) : null), [entries, answers, by]);
   const count = matches ? { total: matches.length, confirmed: matches.filter((m) => m.confirmed).length } : null;
 
-  // Keep the URL honest, so the list can be shared mid-flow or at the end.
+  // Answers in progress, kept in this browser on every change.
   useEffect(() => {
-    const t = setTimeout(() => {
-      window.history.replaceState(window.history.state, "", matchHref({ answers, step }));
-    }, 200);
-    return () => clearTimeout(t);
+    if (answeredIds(answers).length || step !== 1) draft.write(MATCH_DRAFT, { answers, step } satisfies MatchState);
+    else draft.clear(MATCH_DRAFT);
   }, [answers, step]);
 
-  const go = useCallback((next: number | null) => {
-    moved.current = true;
-    setStep(next);
-    if (next === null && !completed.current) {
+  const showResults = useCallback(() => {
+    if (!completed.current) {
       completed.current = true;
       track("Explore", { action: "match" });
     }
-    requestAnimationFrame(() => root.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    // The list takes focus, so a screen reader hears the count, and comes into view under the header.
+    requestAnimationFrame(() => {
+      const title = root.current?.querySelector<HTMLElement>("[data-results-title]");
+      title?.focus({ preventScroll: true });
+      revealStep(root.current);
+    });
   }, []);
+
+  // Back and Forward move between the questions; the answers given stay as they are.
+  const history = useStepHistory<MatchState>("match", { answers: initial.answers, step }, (entry) => {
+    moved.current = true;
+    setStep(entry.step);
+    if (entry.step === null) showResults();
+  });
+
+  // On the list, a changed answer is a committed choice: the address follows, once per change.
+  const onList = step === null;
+  useEffect(() => {
+    if (onList) replaceQuery(matchHref({ answers, step: null }));
+  }, [answers, onList]);
+
+
+  const go = (next: number | null, nextAnswers: Answers = answers) => {
+    moved.current = true;
+    setStep(next);
+    history.push({ answers: nextAnswers, step: next }, matchHref({ answers: nextAnswers, step: next }));
+    if (next === null) showResults();
+  };
+  const back = (to: number) => {
+    if (history.back((before) => before.step === to)) return;
+    moved.current = true;
+    setStep(to);
+    history.replace({ answers, step: to }, matchHref({ answers, step: to }));
+  };
 
   const total = QUESTIONS.length;
   const question = step !== null ? QUESTIONS[step - 1] : undefined;
 
   return (
-    <div ref={root} className="scroll-mt-header flex flex-col gap-8" aria-busy={!entries && !loadError}>
+    <div ref={root} className="scroll-mt-header flex flex-col gap-8" aria-busy={!entries && !loadError} data-url-island="">
       {loadError ? (
         <div className="mx-auto flex w-full max-w-[960px] flex-col gap-3 border border-hairline bg-white p-6">
           <p className="t-h3 text-navy">The neighborhoods didn’t load.</p>
-          <p className="t-small text-body-muted">Check the connection and try again. Your answers are kept in the address bar.</p>
-          <button type="button" className="link-rule self-start" onClick={() => setLoadAttempt((n) => n + 1)}>
+          <p className="t-small text-body-muted">Check the connection and try again. Your answers are kept.</p>
+          <button type="button" className="link-rule self-start" onClick={index.retry}>
             Try again
           </button>
         </div>
@@ -83,7 +108,8 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
           areas={areas}
           count={count}
           moved={moved.current}
-          onBack={() => go(Math.max(1, step! - 1))}
+          dir={dir}
+          onBack={() => back(Math.max(1, step! - 1))}
           onSkip={() => go(step! < total ? step! + 1 : null)}
           onNext={() => go(step! < total ? step! + 1 : null)}
         />
@@ -97,7 +123,7 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
           onEdit={(s) => go(s)}
           onRestart={() => {
             setAnswers(EMPTY_ANSWERS);
-            go(1);
+            go(1, EMPTY_ANSWERS);
           }}
         />
       ) : (
@@ -109,4 +135,22 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
       )}
     </div>
   );
+}
+
+const FRESH: MatchState = { answers: EMPTY_ANSWERS, step: 1 };
+
+/** A link's answers, or the answers in progress in this browser; null for a fresh start. */
+function stateFromUrl(sp: URLSearchParams): MatchState | null {
+  if (hasAny(sp, MATCH_KEYS)) return parseMatch(sp);
+  const saved = draft.read<MatchState>(MATCH_DRAFT);
+  if (!saved || typeof saved !== "object") return null;
+  // Read back through the URL parser, so a stale or hand-edited record can't carry anything the link couldn't.
+  const s = parseMatch(new URLSearchParams(matchHref(saved as MatchState).split("?")[1] ?? ""));
+  return answeredIds(s.answers).length || (s.step ?? 1) > 1 ? s : null;
+}
+
+/** Atlas Match as the static page serves it: question one on the server, then the link's answers or the ones in progress. */
+export function AtlasMatchIsland({ datasetVersion, asOf }: { datasetVersion: string; asOf: string }) {
+  const { initial, key } = useUrlInitial(stateFromUrl, FRESH);
+  return <AtlasMatch key={key} initial={initial} datasetVersion={datasetVersion} asOf={asOf} />;
 }

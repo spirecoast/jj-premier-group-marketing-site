@@ -1,3 +1,4 @@
+import "./guides.css";
 /**
  * The title in the display face over the ghost numeral, on navy, then the
  * one-line lead under it. The lead is the "why this

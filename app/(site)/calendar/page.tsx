@@ -1,6 +1,6 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
-import { Encore } from "@/components/encore/encore";
+import { EncoreIsland } from "@/components/encore/encore";
 import { LetterForm } from "@/components/letter-form";
 import { Masthead } from "@/components/masthead";
 import { TrackedLink } from "@/components/tracked-link";
@@ -8,10 +8,11 @@ import { getVenues } from "@/lib/content";
 import { MARKETS, marketName } from "@/lib/content/markets";
 import { loadEncoreIndex, localDay, sliceIndex } from "@/lib/encore/data";
 import { FIRST_PAINT_DAYS } from "@/lib/encore/index-format";
-import { addDays, matches, monthEnd, monthStart, tokens, weekStart } from "@/lib/encore/select";
-import { parseEncoreState } from "@/lib/encore/url";
+import { addDays } from "@/lib/encore/select";
+import { ENCORE_KEYS } from "@/lib/encore/url";
 import { pageMetadata } from "@/lib/seo";
 import { IslandBoundary } from "@/components/ui/island-boundary";
+import { UrlPending } from "@/components/url-pending";
 
 export const metadata: Metadata = pageMetadata({
   title: "Encore Arts Calendar",
@@ -23,51 +24,30 @@ export const metadata: Metadata = pageMetadata({
 /** Hourly: "tonight" moves, and the index behind it is regenerated on the same schedule. */
 export const revalidate = 3600;
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
 /**
- * The calendar. The server renders the first view from a slice of the index
- * so the page is complete without JavaScript and for crawlers; the client
- * takes over with the full season.
+ * The calendar. Static and regenerated hourly: the server renders today and
+ * the next three weeks from a slice of the index, so the page is complete
+ * without JavaScript and for crawlers; the view a link asks for is applied in
+ * the browser, which takes over with the full season
+ * (components/encore/encore.tsx, EncoreIsland).
  */
-export default async function CalendarPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const params = await searchParams;
+export default async function CalendarPage() {
   const today = localDay(Date.now());
-  const initial = parseEncoreState(params, today);
-  const anchor = initial.date || today;
   const index = await loadEncoreIndex();
-
-  // The slice covers today's spotlight, the strip's first three weeks, and the requested window.
-  let from = today;
-  let to = addDays(today, FIRST_PAINT_DAYS - 1);
-  if (initial.view === "week") {
-    from = weekStart(anchor) < from ? weekStart(anchor) : from;
-    to = addDays(weekStart(anchor), 6) > to ? addDays(weekStart(anchor), 6) : to;
-  } else if (initial.view === "month") {
-    from = monthStart(anchor) < from ? monthStart(anchor) : from;
-    to = monthEnd(anchor) > to ? monthEnd(anchor) : to;
-  } else {
-    from = anchor < from ? anchor : from;
-    to = addDays(anchor, 6) > to ? addDays(anchor, 6) : to;
-  }
-  // A shared list or a search is rendered over the season, narrowed to what it names.
-  const season = addDays(today, 365);
-  const slice = initial.list.length
-    ? sliceIndex(index, today, season, (e) => initial.list.includes(e.s))
-    : initial.q
-      ? sliceIndex(index, today, season, (e) => matches(e, { q: initial.q }, tokens(initial.q)))
-      : sliceIndex(index, from, to);
+  // The first paint: today and the strip's first three weeks. A search, a far day or a shared list waits for the season.
+  const sliceRange: [string, string] = [today, addDays(today, FIRST_PAINT_DAYS - 1)];
+  const slice = sliceIndex(index, sliceRange[0], sliceRange[1]);
   const venues = await getVenues();
 
   return (
     <>
-      {/* The masthead carries the eyebrow and the heading; the calendar keeps its links and toolbar. */}
       {/* On a phone the masthead is short (the lockup and the byline), so the first show is inside the first screen. */}
       <Masthead route="/calendar" titleId="encore-title" compact>
         <p className="rise d3 t-lead hidden max-w-[600px] text-linen-100 text-shadow-soft md:block">Theater, concerts and cultural events in Lakewood Ranch, Sarasota and Bradenton.</p>
       </Masthead>
+      <UrlPending keys={ENCORE_KEYS} />
       <IslandBoundary name="the calendar" minHeight="480px">
-        <Encore initial={initial} today={today} initialIndex={slice} />
+        <EncoreIsland serverToday={today} initialIndex={slice} sliceRange={sliceRange} />
       </IslandBoundary>
 
       <section id="subscribe" className="scroll-mt-header bg-linen-200">

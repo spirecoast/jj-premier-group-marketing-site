@@ -4,6 +4,8 @@ import { useEffect, useRef, type KeyboardEvent } from "react";
 import { addDays, dayNumber, daysInRange, monthLabel, weekday, weekdayShort } from "@/lib/encore/select";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "./glyphs";
+import { scrollBehavior } from "@/lib/scroll";
+import "./encore.css";
 
 /**
  * A strip of days you flick through. Each day shows how much is on as a
@@ -45,8 +47,7 @@ export function DayStrip({
     const box = strip.getBoundingClientRect();
     const r = el.getBoundingClientRect();
     if (r.left < box.left || r.right > box.right) {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ inline: "center", block: "nearest", behavior: reduce ? "auto" : "smooth" });
+      el.scrollIntoView({ inline: "center", block: "nearest", behavior: scrollBehavior() });
     }
   }, [selected]);
 
@@ -62,9 +63,8 @@ export function DayStrip({
   }, [onReach, to]);
 
   const scrollBy = (dir: number) => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (dir > 0) onReach?.();
-    ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.8, behavior: reduce ? "auto" : "smooth" });
+    ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.8, behavior: scrollBehavior() });
   };
 
   // Roving focus: the arrows move the focus and the selection together.

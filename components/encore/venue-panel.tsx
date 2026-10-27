@@ -7,6 +7,7 @@ import { UNTIMED, isAllDayKind } from "@/lib/encore/when";
 import { cn } from "@/lib/utils";
 import { CheckedAgo } from "./checked-ago";
 import { ExternalLink } from "@/components/ui/external-link";
+import "./encore.css";
 
 /**
  * "From the venue": the event page's side panel. What the venue's or

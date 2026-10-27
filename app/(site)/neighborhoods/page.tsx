@@ -1,13 +1,14 @@
 import type { Metadata, Route } from "next";
 import Link from "next/link";
-import { Explorer } from "@/components/explorer/explorer";
+import { ExplorerIsland } from "@/components/explorer/explorer";
 import { JsonLd } from "@/components/json-ld";
 import { MARKETS } from "@/lib/content/markets";
 import { DATASET_VERSION, getAllRecords } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
-import { parseState } from "@/lib/neighborhoods/url";
+import { EXPLORER_KEYS } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { IslandBoundary } from "@/components/ui/island-boundary";
+import { UrlPending } from "@/components/url-pending";
 
 export const metadata: Metadata = pageMetadata({
   title: "Atlas · Every place in Lakewood Ranch, Sarasota and Bradenton",
@@ -17,15 +18,13 @@ export const metadata: Metadata = pageMetadata({
   fileImage: true, // opengraph-image.tsx beside this page
 });
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
 /**
  * The explorer, with a crawlable index of the areas underneath it so every
  * place has a path in from search engines even though the map is client-side.
+ * Static: the view a link asks for (?market=, ?place=, ?map=…) is applied in
+ * the browser (components/explorer/explorer.tsx, ExplorerIsland).
  */
-export default async function NeighborhoodsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const params = await searchParams;
-  const initial = parseState(params);
+export default async function NeighborhoodsPage() {
   const all = await getAllRecords();
   const areas = all.filter((r) => r.level === "area").sort((a, b) => a.name.localeCompare(b.name));
   const counts = { total: all.length, points: all.filter((r) => r.lat !== null).length };
@@ -59,8 +58,9 @@ export default async function NeighborhoodsPage({ searchParams }: { searchParams
         }}
       />
 
+      <UrlPending keys={EXPLORER_KEYS} />
       <IslandBoundary name="the map and the list" minHeight="560px">
-        <Explorer initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
+        <ExplorerIsland datasetVersion={DATASET_VERSION} asOf={asOf} />
       </IslandBoundary>
 
       <section className="container-site flex flex-col gap-8 py-section" aria-labelledby="areas-title">

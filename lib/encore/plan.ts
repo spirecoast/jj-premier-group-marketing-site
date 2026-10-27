@@ -104,6 +104,24 @@ export function parsePlanState(p: Params, today: string): { state: PlanState; tr
   return { state: { from: dates.from, to: dates.to, markets, categories, eveningsOnly, local }, trimmed: dates.trimmed };
 }
 
+/** Every key a plan link carries. */
+export const PLAN_KEYS = ["from", "to", "market", "cat", "evenings", "who"] as const;
+
+/** Where the planner's answers in progress are kept in the browser. */
+export const PLAN_DRAFT = "encore:plan-draft";
+
+/** The form as it was left: its answers as a plan query, and the question it was on. */
+export type PlanDraft = { search: string; q: number };
+
+/** The stored record, cleaned; null when there's nothing usable. The answers are read back through parsePlanState. */
+export function readPlanDraft(v: unknown): PlanDraft | null {
+  if (!v || typeof v !== "object") return null;
+  const r = v as Partial<PlanDraft>;
+  if (typeof r.search !== "string" || !r.search.startsWith("?")) return null;
+  const q = Math.trunc(Number(r.q));
+  return { search: r.search, q: Number.isFinite(q) ? Math.min(3, Math.max(0, q)) : 0 };
+}
+
 export function planSearch(s: PlanState): string {
   const sp = new URLSearchParams();
   sp.set("from", s.from);

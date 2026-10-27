@@ -3,6 +3,7 @@ import { Photo } from "@/components/photo";
 import type { ImageRef } from "@/lib/content/types";
 import type { Guide } from "@/lib/guides/types";
 import { guideHref, guideReadingMinutes } from "@/lib/guides";
+import "./guide-card.css";
 
 /**
  * A guide as a cover: its photograph fills the card, and the title sits on a
