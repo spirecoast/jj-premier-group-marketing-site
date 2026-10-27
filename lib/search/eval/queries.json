@@ -38,7 +38,7 @@
     { "id": "para-best-time", "type": "paraphrase", "q": "best time of year to put my house on the market", "expect": ["guide:thinking-about-spring-start-in-october*", "page:/sarasota#selling", "page:/lakewood-ranch#selling", "page:/bradenton#selling", "page:/sell"] },
     { "id": "para-airport", "type": "paraphrase", "q": "which airport should I fly into", "expect": ["guide:getting-here-and-getting-around#four-airports"] },
     { "id": "para-walk-away", "type": "paraphrase", "q": "how much money will I walk away with after I sell", "expect": ["page:/sell/net-proceeds"] },
-    { "id": "para-worth", "type": "paraphrase", "q": "what is my house worth", "expect": ["page:/valuation", "page:/sell/home-value"] },
+    { "id": "para-worth", "type": "paraphrase", "q": "what is my house worth", "expect": ["page:/sell/home-value"] },
     { "id": "para-license", "type": "paraphrase", "q": "how soon do I have to switch my driver's license after moving", "expect": ["page:/relocate#faq"] },
     { "id": "para-hoa-rent", "type": "paraphrase", "q": "can the association stop me from renting my place out", "expect": ["guide:what-to-ask-before-you-buy-in-a-gated-community#the-rules", "guide:barrier-island-rules-island-by-island#the-shortest-stay"] },
     { "id": "para-weekend", "type": "paraphrase", "q": "things to do this weekend", "expect": ["page:/calendar", "page:/calendar/plan"] },

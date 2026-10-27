@@ -78,14 +78,6 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     ],
   },
   {
-    url: "/valuation",
-    title: "What is my home worth",
-    summary: [
-      "You get a real number from two people who have stood in the house. Send the address and the timing, and Joelyn or Jessica pulls the comparable sales, drives the street and calls with the number and the reason for it.",
-      "No algorithm guess and no listing agreement attached. The county record is open too: what sold on your street, and the public record for your own address.",
-    ],
-  },
-  {
     url: "/relocate",
     title: "Atlas Move, the moving planner",
     summary: [

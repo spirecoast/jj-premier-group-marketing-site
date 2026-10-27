@@ -72,11 +72,15 @@ export const SOLD_COPY = {
     perSqftNote: (sample: number) => `Median of ${sample} ${sample === 1 ? "home" : "homes"} with a recorded size`,
     perSqftNone: "Too few homes with a recorded size",
     range: "Dates",
+    /** A hand-off to the Sale Calculator at the street's median price. */
+    startSheet: "Start a sale sheet at this price",
   },
   ask: {
     title: "Get a price for your home",
     body: "Give us the address. We’ll walk the house, compare it with the sales that match it, and call you with a number and the reason for it. No listing agreement needed.",
-    submit: "Get the number",
-    placeholder: "The year of the roof, anything you already know needs doing, and whether there's a house to buy next.",
+    /** The link to the ask on /sell/home-value, with the street searched when there is one. */
+    link: "Get the number",
+    linkFor: (street: string) => `Ask for the number for ${street}`,
+    linkNote: "One short form: the address, the timing, and anything you already know about the house.",
   },
 } as const;

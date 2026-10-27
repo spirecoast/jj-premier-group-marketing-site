@@ -462,7 +462,7 @@ from the old placeholder site and make sure each one exists in the dataset, othe
 
 With the Zap on (pointing at the test connection) and a test inbox: submit each of the seven forms on
 the preview with a distinctive name (`Test <form> <date>`) and the test email. Forms and where they
-live: `contact` (`/contact`), `buy` (`/buy`), `sell` (`/sell`), `valuation` (`/valuation`, address required),
+live: `contact` (`/contact`), `buy` (`/buy`), `sell` (`/sell`), `valuation` (`/sell/home-value`, address required),
 `listing` (a listing page, only visible with `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true`, so skip unless a real
 listing exists), `letter` (the Tide box), `calendar` (the Encore box). For each:
 
@@ -654,7 +654,7 @@ Any line that differs: do not continue; fix the variable or the record and redep
   page it is glass at the top.
 - `/neighborhoods`: tiles draw (the MapTiler origin from 5.6 is working; no 403 in the Network tab), search finds "Lake Club", a detail page opens.
 - `/calendar`: today's view, Week and Month render; "+ Cal" on one event downloads an `.ics`.
-- `/blog`, `/about`, `/buy`, `/sell`, `/valuation`, `/contact`, `/privacy`, `/terms`: 200, one `h1`, footer shows the brokerage name under the phone and emails, the office address from 1.1, the Equal Housing and CB marks.
+- `/blog`, `/about`, `/buy`, `/sell`, `/sell/home-value`, `/contact`, `/privacy`, `/terms`: 200, one `h1`, footer shows the brokerage name under the phone and emails, the office address from 1.1, the Equal Housing and CB marks.
 - Footer "Editor" link: `/studio` says Sanity is not configured; acceptable, it is disallowed in robots.
 - Share the home URL in a chat app: the card shows the team photograph.
 

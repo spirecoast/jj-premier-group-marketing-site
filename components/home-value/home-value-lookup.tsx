@@ -4,6 +4,8 @@ import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { LeadForm } from "@/components/lead-form";
 import { SalesTable, fmtDate, int, saleFlagged, titleCase, typeLabel, usd, type SaleRow, type SalesSummary } from "@/components/sales/sales-table";
 import { SectionHeading } from "@/components/section-heading";
+import { RuleLink } from "@/components/ui/button";
+import { startSheetPath } from "@/lib/net-proceeds-url";
 import { useSalesLookup } from "@/components/sales/use-sales-lookup";
 import { parseHouseNumber } from "@/lib/sales/parcel";
 import { HOME_VALUE_COPY as C } from "./copy";
@@ -76,8 +78,11 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
   const [sent, setSent] = useState<{ address: string; message: string } | null>(null);
   const { state, run: lookup, resultsRef } = useSalesLookup<Api, Searched>({
     action: "home-value",
-    // A link that carries an address (/sell/home-value?address=…&zip=…) runs it on arrival.
+    // A link that carries an address (/sell/home-value?address=…&zip=…) runs it on arrival;
+    // one from Tide Street (?ask=<street>) only carries the street into the ask.
     fromLink: (p) => {
+      const ask = p.get("ask")?.trim().slice(0, 90);
+      if (ask) setSent({ address: ask, message: "" });
       if (!loaded) return null;
       const a = p.get("address") ?? "";
       if (!a) return null;
@@ -256,6 +261,9 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
                         </div>
                       ) : null}
                       {saleFlagged(last) || earlier.some(saleFlagged) ? <p className="t-small max-w-measure text-graphite-500">† {C.parcel.dagger}</p> : null}
+                      <p className="t-small pt-2 text-graphite-500">
+                        <RuleLink href={startSheetPath(last.salePrice, last.county)}>{C.parcel.startSheet}</RuleLink>
+                      </p>
                     </div>
                     <div className="flex flex-col gap-3 lg:pt-1">
                       <p className="t-body max-w-[440px] text-body">{C.parcel.rollNote}</p>
@@ -296,7 +304,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
                 submitLabel={C.ask.submit}
                 placeholderMessage={C.ask.placeholder}
                 defaultAddress={sent?.address}
-                defaultMessage={sent?.message}
+                defaultMessage={sent?.message || undefined}
                 hidden={{ pageTitle: C.title }}
               />
             </div>
