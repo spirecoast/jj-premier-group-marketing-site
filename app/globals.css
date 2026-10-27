@@ -2692,41 +2692,96 @@ body:not(:has([data-header-overlay])) .header-overlay,
   }
 }
 
-/* ---- Scroll reveals --------------------------------------------------------
-   Scroll-driven, no script. `.sr` rises and fades in as it enters the view;
-   `--sr-i` staggers items in a row (0, 1, 2…). `.sr-img` lets a large
-   photograph settle from a slight zoom as it crosses the view (not on cards,
-   whose hover zoom would fight it). Browsers without view timelines, and
-   anyone who asks for less motion, see everything in place. */
-@keyframes sr-up {
-  from {
+/* ---- Scroll reveals (components/motion.tsx) ----------------------------
+   `.sr` rises and fades into place once, the first time it comes into view,
+   and stays; `--sr-i` staggers the children of a row 80ms apart, and the
+   stagger is off below lg, where a row has stacked and each card is its own
+   trigger. `.sr-img` lets a large photograph settle from a slight zoom.
+   Nothing is hidden until the script has marked what is already on the
+   screen (html[data-reveals]), so without JavaScript, and for anyone who
+   asked for less motion, everything is simply in place. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-reveals] .sr {
     opacity: 0;
-    transform: translate3d(0, 36px, 0);
+    transform: translate3d(0, 24px, 0);
+    transition:
+      opacity var(--dur-card) var(--ease-reveal),
+      transform calc(var(--dur-card) * 1.5) var(--ease-reveal);
+    transition-delay: calc(var(--sr-i, 0) * var(--sr-step, 80ms));
   }
-  to {
+  html[data-reveals] .sr[data-in] {
     opacity: 1;
     transform: none;
   }
-}
-@keyframes sr-settle {
-  from {
-    transform: scale(1.1);
+  html[data-reveals] .sr-img img {
+    transform: scale(1.06);
+    transition: transform calc(var(--dur-img) * 1.3) var(--ease-reveal);
   }
-  to {
-    transform: scale(1);
+  html[data-reveals] .sr-img[data-in] img {
+    transform: none;
   }
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
+  @media (max-width: 63.99rem) {
     .sr {
-      animation: sr-up linear both;
-      animation-timeline: view();
-      animation-range: entry calc(4% + var(--sr-i, 0) * 9%) entry calc(70% + var(--sr-i, 0) * 9%);
+      --sr-step: 0ms;
     }
-    .sr-img img {
-      animation: sr-settle linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 55%;
+  }
+}
+
+/* ---- Looping motion (components/motion.tsx, lib/motion-pref.ts) --------
+   The drift, the orbit, the scroll cue, Encore's bulbs and the Tide art
+   pause while off the screen, and altogether once the visitor presses the
+   pause in a hero's corner (html[data-motion="paused"]). A paused photograph
+   also gives up its compositing layer. The bulbs' first lighting still runs,
+   only the twinkle after it pauses. */
+.hero-img[data-offscreen],
+.masthead-img[data-offscreen],
+.scroll-cue[data-offscreen],
+.art-drift[data-offscreen],
+.art-breathe[data-offscreen],
+.cameo-orbit[data-offscreen]::after,
+html[data-motion="paused"] .hero-img,
+html[data-motion="paused"] .masthead-img,
+html[data-motion="paused"] .scroll-cue,
+html[data-motion="paused"] .art-drift,
+html[data-motion="paused"] .art-breathe,
+html[data-motion="paused"] .cameo-orbit::after {
+  animation-play-state: paused;
+}
+.hero-img[data-offscreen],
+.masthead-img[data-offscreen],
+.art-drift[data-offscreen],
+html[data-motion="paused"] .hero-img,
+html[data-motion="paused"] .masthead-img,
+html[data-motion="paused"] .art-drift {
+  will-change: auto;
+}
+.encore-marquee[data-offscreen] .encore-marquee-bulb,
+html[data-motion="paused"] .encore-marquee-bulb {
+  animation-play-state: running, paused;
+}
+@layer components {
+  .motion-toggle {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-linen-200);
+    background: rgb(20 37 48 / 0.38);
+    border: 1px solid rgb(230 221 209 / 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    opacity: 0.8;
+    transition: opacity var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand);
+  }
+  .motion-toggle:hover,
+  .motion-toggle:focus-visible {
+    opacity: 1;
+    border-color: var(--color-linen-200);
+  }
+  /* Nothing loops for anyone who asked for reduced motion, so there is nothing to pause. */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-toggle {
+      display: none;
     }
   }
 }
