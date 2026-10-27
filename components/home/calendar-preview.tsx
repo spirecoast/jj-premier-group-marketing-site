@@ -31,11 +31,12 @@ export function CalendarPreview({ events }: { events: Event[] }) {
         <Link href="/calendar" aria-label={`${encore.name}, ${encore.tag}: the full calendar`} className="sr-img card group relative block min-h-[120px] overflow-hidden bg-navy text-white lg:min-h-[140px]">
           <Photo image={HOUSE} sizes="(min-width: 1280px) 1200px, 100vw" className="card-img" />
           <div className="scrim" aria-hidden="true" />
-          <div className="relative flex min-h-[inherit] flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center lg:px-8">
+          {/* The lockup and the link share one row at the foot of the strip, where the scrim is deepest; the descriptor joins from sm. */}
+          <div className="relative flex min-h-[inherit] items-end justify-between gap-4 p-5 sm:items-center sm:p-6 lg:px-8">
             <span className="flex items-baseline gap-3">
               <Emblem family="encore" className="size-7 self-center" />
-              <span className="font-display text-[32px] font-light italic leading-none text-white text-shadow-photo lg:text-[36px]">{encore.name}</span>
-              <span className="t-mono-sm text-sky-300" aria-hidden="true">
+              <span className="font-display text-[30px] font-light italic leading-none text-white text-shadow-photo lg:text-[36px]">{encore.name}</span>
+              <span className="t-mono-sm hidden text-sky-300 sm:inline" aria-hidden="true">
                 {encore.tag}
               </span>
             </span>

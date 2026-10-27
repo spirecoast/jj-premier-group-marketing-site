@@ -41,7 +41,7 @@ export default function ReviewsPage() {
         <p className="t-lead max-w-measure text-body">{google ? REVIEWS.lead : REVIEWS.leadOne}</p>
       </div>
 
-      <div className={google ? "grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-20" : "grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.45fr)] lg:gap-20"}>
+      <div className={google ? "grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-20" : "grid max-w-[860px] gap-12"}>
         {google ? (
           <div className="relative flex flex-col gap-4 self-start border-t border-rule pt-7">
             <span className="absolute -top-px left-0 h-px w-12 bg-amber" aria-hidden="true" />
@@ -69,15 +69,14 @@ export default function ReviewsPage() {
             />
           </div>
           <p className="t-small text-graphite-500">{REVIEWS.note}</p>
+          {/* The other past-client page, one quiet line under the form. */}
+          <p className="t-body border-t border-hairline pt-6 text-body">
+            {REVIEWS.refer.line}{" "}
+            <Link href="/refer" className="link-rule">
+              {REVIEWS.refer.label}
+            </Link>
+          </p>
         </div>
-
-        {/* The other past-client page, one quiet line. Beside the form once the Google column is gone; under both while it is there. */}
-        <p className={`t-body text-body ${google ? "lg:col-span-2" : "self-end"}`}>
-          {REVIEWS.refer.line}{" "}
-          <Link href="/refer" className="link-rule">
-            {REVIEWS.refer.label}
-          </Link>
-        </p>
       </div>
     </section>
   );
