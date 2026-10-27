@@ -314,7 +314,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             ))}
             <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
               <RuleLink href="/sell">How selling with us goes</RuleLink>
-              <RuleLink href="/valuation">What is my home worth</RuleLink>
+              <RuleLink href="/sell/home-value">What is my home worth</RuleLink>
             </div>
           </div>
         </div>

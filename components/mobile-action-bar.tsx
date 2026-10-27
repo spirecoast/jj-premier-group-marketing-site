@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { track } from "@/lib/analytics";
-import { nextStepFor } from "@/lib/site";
+import { hasOwnPhoneBar, nextStepFor } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const cell = "t-label action-cell flex h-12 items-center justify-center text-linen-200";
@@ -14,11 +14,13 @@ const cell = "t-label action-cell flex h-12 items-center justify-center text-lin
  * a guide, tonight on the calendar. On a scroll down the bar steps aside
  * into a small Call · Text chip in the corner (html[data-scroll], set by
  * the header), and it hides while a text field has focus and on very short
- * screens (app/globals.css, "The phone action bar").
+ * screens (app/globals.css, "The phone action bar"). A page with a bar of
+ * its own (lib/site.ts, ownPhoneBars) renders none of this.
  */
 export function MobileActionBar({ phoneE164 }: { phoneE164: string }) {
   const pathname = usePathname();
   const step = nextStepFor(pathname);
+  if (hasOwnPhoneBar(pathname)) return null;
   const call = () => track("Phone tap", { where: "action-bar" });
   const text = () => track("Phone tap", { where: "action-bar-text" });
   const pdf = step ? /\.pdf$/.test(step.href) : false;

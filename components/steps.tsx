@@ -7,7 +7,7 @@ export type Step = { when: string; title: string; body: string };
 /**
  * The "how it goes" sequence. A hairline with an amber tick, a large display
  * numeral, the moment it happens, and one plain paragraph. Each step is an
- * h2: on /refer and /valuation the sequence sits straight under the h1. Order carries
+ * h2: on /refer and /sell/home-value the sequence sits straight under the h1. Order carries
  * information here: these are the steps in the order they happen.
  *
  * `tiles` lets a photograph of the moment into a step, keyed by the step's

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { checkFairHousing } from "./fair-housing";
 import {
+  NEGATIVE_NET_NOTE,
   CHECKED,
   ESTOPPEL_CAP,
   SOURCES,
@@ -214,6 +215,31 @@ describe("the sheet", () => {
     assert.equal(formatUsd(4550), "$4,550");
     assert.equal(formatUsd(4550.7), "$4,550.70");
     assert.equal(formatUsd(-12.5), "-$12.50");
+  });
+});
+
+describe("sanity notes for unusual inputs", () => {
+  test("a commission above 10% gets a note, in the words of the figure typed", () => {
+    const s = computeSheet({ price: 50_000_000, county: "sarasota", listingCommissionPct: 250 });
+    assert.ok(s.notes.includes("Check the commission: 250% of price is unusual."));
+    const b = computeSheet({ price: 650_000, county: "sarasota", buyerBrokerPct: 25 });
+    assert.ok(b.notes.includes("Check the buyer-broker compensation: 25% of price is unusual."));
+    const fine = computeSheet({ price: 650_000, county: "sarasota", listingCommissionPct: 3, buyerBrokerPct: 2.5 });
+    assert.ok(!fine.notes.some((n) => /unusual/.test(n)));
+  });
+  test("a price under $25,000 gets a note; a blank price does not", () => {
+    const s = computeSheet({ price: 12_000, county: "manatee" });
+    assert.ok(s.notes.includes("Check the sale price: $12,000 is under $25,000."));
+    assert.ok(!computeSheet({ price: 0, county: "manatee" }).notes.some((n) => /sale price/.test(n)));
+    assert.ok(!computeSheet({ price: 25_000, county: "manatee" }).notes.some((n) => /sale price/.test(n)));
+  });
+  test("a negative net is the first note, ahead of the sanity and the missing-date notes", () => {
+    const s = computeSheet({ price: 1, county: "sarasota", mortgagePayoff: 300_000, annualTax: 7300, listingCommissionPct: 25 });
+    assert.equal(s.notes[0], NEGATIVE_NET_NOTE);
+    assert.match(s.notes[1] ?? "", /^Check the sale price/);
+    assert.match(s.notes[2] ?? "", /^Check the commission/);
+    assert.match(s.notes[3] ?? "", /closing date/);
+    assert.match(summaryText(s), /bring the difference to closing/);
   });
 });
 
