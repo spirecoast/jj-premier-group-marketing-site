@@ -42,6 +42,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # drizzle-kit generate writes nothing when lib/db/schema.ts matches the latest snapshot.
+      - name: Migrations match the schema
+        run: npm run db:check
+
       # A new critical advisory in anything the site ships blocks the merge. The known
       # high and moderate ones sit in the Sanity CLI tool chain, which needs a Sanity major.
       - name: Audit production dependencies

@@ -12,6 +12,7 @@
     "test:unit": "tsx --test \"lib/**/*.test.ts\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:check": "drizzle-kit check && drizzle-kit generate && git diff --exit-code --stat -- lib/db/migrations && test -z \"$(git status --porcelain -- lib/db/migrations)\"",
     "db:studio": "drizzle-kit studio",
     "sanity:typegen": "sanity schema extract --path=sanity/schema.json && sanity typegen generate",
     "sanity:dev": "sanity dev",
