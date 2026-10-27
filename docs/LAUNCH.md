@@ -338,6 +338,12 @@ on the existing tables; if the SQL Editor path is used, every future migration m
 way, or the journal rows must be inserted by hand first. Prefer `db:migrate` from a network that can reach
 the pooler.
 
+`0015_lead_guard_and_outbox.sql` (additive: `lead_outbox`, `lead_rate_limits`, `lead_submissions` and
+an index on `lower(contacts.email)`) turns on the lead retries and the form guard. The site works
+before it's applied (each part fails soft and logs once which file is missing); with it, a failed
+CRM webhook or team email is retried and the forms get their rate limit and resend check. Check:
+`select count(*) from lead_outbox;` answers 0, not an error.
+
 ### 4.4 Confirm the tables
 
 The lead mirror writes to `leads` and `lead_deliveries`, with the person and their consent in
@@ -639,6 +645,7 @@ In UptimeRobot, Better Stack or the monitor the team already pays for: two HTTPS
 |---|---|---|
 | Home | `https://jjpremiergroup.com/` | status 200 and the keyword `JJ Premier Group` in the body |
 | Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<urlset` |
+| Leads | `https://jjpremiergroup.com/api/health` | status 200. It answers 503 when production would keep leads only in Postgres, where nobody is told: set `TEAM_NOTIFY_EMAIL` with `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, or `CRM_WEBHOOK_URL`, before launch. This is the first launch gate. |
 
 ### 6.12 Rollback plan
 
