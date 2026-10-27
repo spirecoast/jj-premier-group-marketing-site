@@ -50,7 +50,7 @@ export default async function ValuationPage() {
   return (
     <>
       {/* One question, one form. */}
-      <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-20">
+      <section id="ask" className="container-site grid scroll-mt-header gap-12 py-section lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-20">
         <div className="flex flex-col gap-7 lg:sticky lg:top-header lg:self-start">
           <div className="flex flex-col gap-3.5">
             <h1 className="t-display max-w-[600px] text-navy">You get a real number from two people who have stood in the house.</h1>

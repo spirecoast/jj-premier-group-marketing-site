@@ -19,9 +19,9 @@ export function GuideCard({ guide, author, priority }: { guide: Guide; author?: 
       <div className="@container relative aspect-[4/5] overflow-hidden bg-navy">
         <Photo image={guide.cover} priority={priority} sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw" className="card-img" />
         <div className="absolute inset-0 bg-linear-to-b from-harbor-950/15 via-transparent to-harbor-950/55" aria-hidden="true" />
-        <div className="guide-tile-glass absolute inset-x-[3.5cqw] bottom-[3.5cqw] flex h-[46cqw] flex-col justify-between px-[5.5cqw] pb-[4.2cqw] pt-[5cqw] text-white transition-transform duration-500 group-hover:-translate-y-[1cqw]">
+        <div className="guide-tile-glass absolute inset-x-[3.5cqw] bottom-[3.5cqw] flex h-[46cqw] flex-col justify-between px-[5.5cqw] pb-[4.2cqw] pt-[5cqw] text-white transition-transform duration-(--dur-card) group-hover:-translate-y-[1cqw]">
           <div className="flex flex-col gap-[3.2cqw]">
-            <span className="block h-px w-[14%] bg-sky-300 transition-[width] duration-700 group-hover:w-[34%]" aria-hidden="true" />
+            <span className="block h-px w-[14%] bg-sky-300 transition-[width] duration-(--dur-card) group-hover:w-[34%]" aria-hidden="true" />
             <p className="line-clamp-3 text-balance font-display text-[6.6cqw] font-light leading-[1.08]">{guide.title}</p>
           </div>
           <div className="flex items-center justify-between gap-3 border-t border-white/20 pt-[2.8cqw] text-white/80">

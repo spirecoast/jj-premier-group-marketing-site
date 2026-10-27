@@ -69,7 +69,7 @@ export function StepProgress({ step, total, done = step, tone = "navy", count = 
       ) : null}
       <span className="flex flex-1 gap-1" aria-hidden="true">
         {Array.from({ length: total }, (_, i) => (
-          <span key={i} className={cn("h-0.5 flex-1 transition-colors duration-300", i < done ? TONE[tone] : "bg-hairline")} />
+          <span key={i} className={cn("h-0.5 flex-1 transition-colors duration-(--dur-panel)", i < done ? TONE[tone] : "bg-hairline")} />
         ))}
       </span>
     </div>

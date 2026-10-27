@@ -5,6 +5,7 @@ import { Byline } from "@/components/byline";
 import { getTeam } from "@/lib/content";
 import { FamilyMotif } from "@/components/brand/marks";
 import { productFamilies, site } from "@/lib/site";
+import { MotionToggle } from "@/components/motion-toggle";
 import { Photo } from "@/components/photo";
 import { mastheadPhoto, mastheadSlot, type MastheadRoute } from "@/lib/content/mastheads";
 import { cn } from "@/lib/utils";
@@ -95,6 +96,8 @@ export async function Masthead({ route, title, titleId, as: Tag = "h1", crumbs, 
           ) : null}
         </div>
       </div>
+      {/* The one control for the band's drift, in the gutter below the words. */}
+      <MotionToggle className="absolute bottom-3 right-3 z-10 sm:bottom-4 sm:right-4" />
     </section>
   );
 }

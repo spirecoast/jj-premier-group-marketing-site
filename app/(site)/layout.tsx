@@ -4,6 +4,7 @@ import { Analytics } from "@/components/analytics";
 import { HomePlatformPixel } from "@/components/home-platform-pixel";
 import { JsonLd } from "@/components/json-ld";
 import { MobileActionBar } from "@/components/mobile-action-bar";
+import { Motion } from "@/components/motion";
 import { PageTransition } from "@/components/page-transition";
 import { ProductBar } from "@/components/product-bar";
 import { SiteFooter } from "@/components/site-footer";
@@ -32,6 +33,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         Skip to content
       </a>
       <UtmTracker />
+      <Motion />
       <SiteHeader
         contacts={team.map((m) => ({
           name: m.name,
@@ -39,6 +41,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           phoneE164: m.phoneE164,
           email: m.email,
         }))}
+        phoneE164={settings.primaryPhoneE164}
       />
       <ProductBar />
       <main id="main">

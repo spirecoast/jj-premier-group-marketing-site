@@ -32,12 +32,27 @@
   --input-h: 3rem; /* 48px inputs */
   --header-h: 4.375rem; /* 70px sticky header */
 
-  /* ---- Motion ("rise, draw, fade" — nothing bounces, nothing parallaxes) -- */
-  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* ---- Motion ("rise, draw, fade" — nothing bounces, nothing parallaxes).
+         One vocabulary: five durations and two curves, and every transition on
+         the site is one of each (the table is in docs/SITE.md, "Motion").
+           --dur-micro  colour, border and control opacity
+           --dur-state  chips, rows, labels; the default for Tailwind's
+                        transition utilities (app/globals.css @theme)
+           --dur-panel  menus, sheets, steps and body swaps
+           --dur-card   card rules and tints
+           --dur-img    a photograph easing
+         --ease-brand is the curve for a state change, --ease-reveal for an
+         entrance or a panel. ------------------------------------------------ */
+  --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-reveal: cubic-bezier(0.2, 0.75, 0.15, 1);
-  --dur-ui: 120ms;
+  --ease-out: var(--ease-brand);
+  --dur-micro: 120ms;
+  --dur-state: 200ms;
+  --dur-panel: 320ms;
   --dur-card: 600ms;
   --dur-img: 1100ms;
+  /* The old name for --dur-micro; still read by a few rules. */
+  --dur-ui: var(--dur-micro);
 
   /* ---- Radii — the system has square corners. Kept as tokens so nothing
          reaches for an arbitrary value. Only the cameo/seal is round. ------- */

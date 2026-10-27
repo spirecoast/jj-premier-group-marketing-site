@@ -15,7 +15,7 @@ export default async function RootNotFound() {
   const [settings, team] = await Promise.all([getSiteSettings(), getTeam()]);
   return (
     <>
-      <SiteHeader contacts={team.map((m) => ({ name: m.name, phone: m.phone, phoneE164: m.phoneE164, email: m.email }))} />
+      <SiteHeader contacts={team.map((m) => ({ name: m.name, phone: m.phone, phoneE164: m.phoneE164, email: m.email }))} phoneE164={settings.primaryPhoneE164} />
       <main id="main">
         <NotFoundContent />
       </main>

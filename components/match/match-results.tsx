@@ -71,7 +71,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
             {matches.length && ids.length ? (
               <div className="flex max-w-[560px] flex-col gap-3">
                 <span className="flex h-2 overflow-hidden bg-white/12" aria-hidden="true">
-                  <span className="bg-atlas transition-[width] duration-700" style={{ width: `${(confirmed / matches.length) * 100}%` }} />
+                  <span className="bg-atlas transition-[width] duration-(--dur-card)" style={{ width: `${(confirmed / matches.length) * 100}%` }} />
                 </span>
                 <p className="t-small flex flex-wrap gap-x-6 gap-y-1 text-white/75">
                   <span className="inline-flex items-center gap-2">
@@ -216,7 +216,7 @@ function MatchCard({ match: m, by, asOf }: { match: Match; by: Map<string, Index
   const known = total - unknown;
   return (
     <article
-      className="group relative flex w-full flex-col gap-5 border border-hairline bg-white p-5 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-atlas-ink/40 hover:shadow-[0_22px_48px_-28px_rgba(16,48,47,0.45)] sm:p-6"
+      className="group relative flex w-full flex-col gap-5 border border-hairline bg-white p-5 transition-[border-color,box-shadow,transform] duration-(--dur-panel) hover:-translate-y-0.5 hover:border-atlas-ink/40 hover:shadow-[0_22px_48px_-28px_rgba(16,48,47,0.45)] sm:p-6"
       aria-label={e.n}
     >
       <span className={cn("absolute inset-x-0 top-0 h-[3px]", unknown ? "bg-linen-300" : "bg-atlas")} aria-hidden="true" />
@@ -259,7 +259,7 @@ function MatchCard({ match: m, by, asOf }: { match: Match; by: Map<string, Index
       ) : null}
       <div className="mt-auto flex items-center justify-between gap-4 pt-1">
         {!e.r ? <p className="t-small text-graphite-400">Known from the county record</p> : <span />}
-        <span className="t-small inline-flex items-center gap-1.5 text-atlas-ink transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden="true">
+        <span className="t-small inline-flex items-center gap-1.5 text-atlas-ink transition-transform duration-(--dur-panel) group-hover:translate-x-0.5" aria-hidden="true">
           See the neighborhood
           <svg width="12" height="12" viewBox="0 0 12 12">
             <path d="M2 6h8M7 3l3 3-3 3" fill="none" stroke="currentColor" strokeWidth="1.4" />

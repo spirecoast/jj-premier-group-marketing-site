@@ -4,46 +4,58 @@ import { Search } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ViewTransition, useCallback, useEffect, useState } from "react";
+import { ViewTransition, useEffect, useState } from "react";
 import { SEARCH_COPY } from "@/lib/search/copy";
-import { primaryNav, productFamilies, site } from "@/lib/site";
+import { primaryNav, productFamilies, site, teamMenu } from "@/lib/site";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import { Emblem } from "./brand/emblem";
 import { CbMark } from "./cb-mark";
 import { LinkPending } from "./link-pending";
-import { ProductMenu } from "./product-menu";
+import { ProductMenu, ProductMenuFoot, useMenuRow, type MenuSpec } from "./product-menu";
 import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
 
-/** Routes whose first screen is a photograph the header sits over. */
-const OVERLAY_ROUTES = [/^\/$/, /^\/(buy|sell)$/, /^\/guides\/[^/]+$/, /^\/neighborhoods\/[^/]+$/, /^\/venues\/[^/]+$/, /^\/tide\/\d{4}-\d{2}$/];
-
 type Contact = { name: string; phone: string; phoneE164: string; email: string };
 
+/** How far the page must move before the header tucks away on a phone, and the dead band a trackpad's tremor stays inside. */
+const TUCK_AFTER = 160;
+const DEAD_BAND = 6;
+
 /**
- * The header stays at the top of every page, however far it scrolls. Over a
- * photographic hero it starts transparent and turns to frosted glass once the
- * page scrolls (only if the page marks its hero with data-header-overlay);
- * everywhere else it is glass from the first pixel (.header-glass in
- * globals.css). The wordmark always returns to the very top of the home page.
- * Collapses to a full-navy menu below `lg`.
+ * The header stays at the top of every page. Its ground is decided by the
+ * stylesheet (app/globals.css, ".site-header") from what the page says and
+ * what this component measures: transparent over a page that marks its
+ * photographic hero (data-header-overlay) until the page has moved 24px,
+ * frosted glass everywhere else, solid navy while the phone menu is open.
+ * On a phone it tucks away on a scroll down past the first screen and comes
+ * back on the first scroll up, a route change, focus, or the menu
+ * (html[data-scroll], which the action bar reads too). The wordmark always
+ * returns to the very top of the home page.
  */
-export function SiteHeader({ contacts }: { contacts: Contact[] }) {
+export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phoneE164: string }) {
   const pathname = usePathname();
   const router = useRouter();
-  const overlay = OVERLAY_ROUTES.some((r) => r.test(pathname));
   const [scrolled, setScrolled] = useState(false);
+  // On the home page the hero photograph sits inside a paper frame; while it is under the header the glass follows the frame.
+  const [cover, setCover] = useState(false);
   const [open, setOpen] = useState(false);
-  // Which product menu is open on the desktop, if any; one at a time.
-  const [menu, setMenu] = useState<string | null>(null);
-  const closeMenu = useCallback(() => setMenu(null), []);
+  const row = useMenuRow(pathname);
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    const root = document.documentElement;
+    let last = window.scrollY;
     let ticking = false;
     const read = () => {
-      setScrolled(window.scrollY > 24);
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      const hero = document.querySelector("[data-header-overlay]");
+      setCover(hero ? hero.getBoundingClientRect().bottom > (root.querySelector("header")?.offsetHeight ?? 70) : false);
+      const delta = y - last;
+      if (delta > DEAD_BAND && y > TUCK_AFTER) root.setAttribute("data-scroll", "down");
+      else if (delta < -DEAD_BAND || y <= 24) root.setAttribute("data-scroll", "up");
+      last = y;
       ticking = false;
     };
     const onScroll = () => {
@@ -54,18 +66,21 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
     };
     read();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      root.removeAttribute("data-scroll");
+    };
+  }, [pathname]);
 
   useEffect(() => {
     setOpen(false);
-    setMenu(null);
   }, [pathname]);
 
   useEffect(() => {
     document.documentElement.style.overflow = open ? "hidden" : "";
+    if (open) document.documentElement.setAttribute("data-scroll", "up");
     // Everything behind the panel leaves the tab order while it is open.
-    const behind = document.querySelectorAll<HTMLElement>("main, footer, [data-mobile-bar]");
+    const behind = document.querySelectorAll<HTMLElement>("main, footer, [data-mobile-bar], [data-mobile-pill]");
     behind.forEach((el) => el.toggleAttribute("inert", open));
     return () => {
       document.documentElement.style.overflow = "";
@@ -97,35 +112,60 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [router]);
 
-  const solid = !overlay || scrolled || open;
+  // The menus' labels get a faint shadow while the header is see-through over a photograph.
+  const solid = scrolled || open;
   // On the home page the hero content is inset 56px inside the framed
   // photograph, and from xl the header follows; between lg and xl the full
   // inset would push the brokerage mark past the frame, so the home header is
   // inset 16px there.
-  const homeInset = pathname === "/";
+  const home = pathname === "/";
   // One underline at a time: a page that belongs to a product (Tide Street under /sell) underlines its family, not the plain page.
   const inFamily = productFamilies.some((f) => f.items.some((i) => pathname === i.href || pathname.startsWith(`${i.href}/`)));
+  const menus: MenuSpec[] = productFamilies.map((f) => ({
+    key: f.key,
+    name: f.name,
+    title: f.title,
+    items: f.items,
+    family: f.key,
+    foot: <ProductMenuFoot open={row.menu === f.key} onClose={() => row.close()} />,
+  }));
+  const team: MenuSpec = {
+    ...teamMenu,
+    foot: (
+      <ul className="flex flex-col gap-1 border-t border-white/10 px-5 py-3">
+        {contacts.map((c) => (
+          <li key={c.name} className="flex items-baseline justify-between gap-4 text-[13px]">
+            <span className="text-linen-200/75">{c.name.split(" ")[0]}</span>
+            <TrackedLink
+              event="Phone tap"
+              props={{ where: "header" }}
+              href={`tel:${c.phoneE164}`}
+              tabIndex={row.menu === "team" ? undefined : -1}
+              className="font-mono text-linen-200 transition-colors hover:text-white"
+            >
+              {c.phone}
+            </TrackedLink>
+          </li>
+        ))}
+      </ul>
+    ),
+  };
 
   return (
     <header
       data-ground="dark"
-      className={cn(
-        "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-300 ease-[var(--ease-brand)]",
-        // No backdrop blur while the menu is open: a backdrop-filter makes the
-        // header the containing block for the fixed menu panel, which would
-        // then collapse to the header's own height.
-        open
-          ? "border-b border-sky-300/15 bg-navy"
-          : solid
-            ? "header-glass border-b border-sky-300/15"
-            : // header-overlay: CSS keeps it solid unless the page really has a hero under it (data-header-overlay).
-              "header-overlay border-b border-transparent bg-transparent",
-      )}
+      data-scrolled={scrolled ? "true" : "false"}
+      data-open={open ? "true" : "false"}
+      data-home={home ? "true" : undefined}
+      data-cover={cover ? "true" : undefined}
+      className="site-header"
+      // Keyboard users tabbing into a tucked header get it back.
+      onFocusCapture={() => document.documentElement.setAttribute("data-scroll", "up")}
     >
       <div
         className={cn(
           "container-site flex h-full items-center justify-between gap-8",
-          homeInset && "lg:gap-6 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
+          home && "lg:gap-6 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
         )}
       >
         <Link
@@ -143,8 +183,23 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-7">
+        <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-6">
           {primaryNav.map((item) => {
+            // The team is a small menu in the product menus' style: About, the timing form, referrals, reviews, and the two numbers.
+            if (item.href === "/about") {
+              return (
+                <ProductMenu
+                  key={item.href}
+                  menu={team}
+                  pathname={pathname}
+                  open={row.menu === "team"}
+                  switching={row.switching}
+                  row={row}
+                  solid={solid}
+                  reducedMotion={reducedMotion}
+                />
+              );
+            }
             const active = !inFamily && (pathname === item.href || pathname.startsWith(`${item.href}/`));
             return (
               <Link
@@ -168,14 +223,14 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
           })}
           {/* The hairline between the pages and the product families. */}
           <span aria-hidden="true" className="h-5 w-px shrink-0 self-center bg-linen-200/25" />
-          {productFamilies.map((f) => (
+          {menus.map((m) => (
             <ProductMenu
-              key={f.key}
-              family={f}
+              key={m.key}
+              menu={m}
               pathname={pathname}
-              open={menu === f.key}
-              onOpen={() => setMenu(f.key)}
-              onClose={closeMenu}
+              open={row.menu === m.key}
+              switching={row.switching}
+              row={row}
               solid={solid}
               reducedMotion={reducedMotion}
             />
@@ -199,79 +254,82 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
             className="t-label flex h-11 items-center px-2 text-linen-200 transition-colors hover:text-white lg:hidden"
             aria-expanded={open}
             aria-controls="site-menu"
+            aria-label={open ? "Close the menu" : "Menu"}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? "Close" : "Menu"}
+            {/* The two words share one box and cross-fade, so the button never changes width. */}
+            <span className="grid" aria-hidden="true">
+              <span className="menu-toggle-word col-start-1 row-start-1" data-show={open ? "false" : "true"}>
+                Menu
+              </span>
+              <span className="menu-toggle-word col-start-1 row-start-1 text-center" data-show={open ? "true" : "false"}>
+                Close
+              </span>
+            </span>
           </button>
         </div>
       </div>
 
       {/* The one full-navy screen: the contact overlay from the web design. */}
-      <div
-        id="site-menu"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Site menu"
-        hidden={!open}
-        className="fixed inset-x-0 bottom-0 top-header z-40 overflow-y-auto bg-navy lg:hidden"
-      >
-        <div className="container-site flex min-h-full flex-col justify-between gap-12 py-10">
-          <div className="flex flex-col gap-10">
-            <nav aria-label="Primary, mobile" className="flex flex-col">
-              {primaryNav.map((item) => {
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <div key={item.href} className="flex flex-col border-b border-linen-200/15">
+      <div id="site-menu" role="dialog" aria-modal="true" aria-label="Site menu" hidden={!open} className="site-menu lg:hidden">
+        <div className="container-site flex min-h-full flex-col gap-9 pt-6">
+          <nav aria-label="Primary, mobile" className="flex flex-col">
+            {primaryNav.map((item, i) => {
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <div key={item.href} className="site-menu-item flex flex-col border-b border-linen-200/15" style={{ ["--i" as string]: i }}>
+                  <Link
+                    href={item.href as Route}
+                    aria-current={active ? "page" : undefined}
+                    className="py-4 text-linen-200 transition-colors hover:text-white"
+                  >
+                    <span className="t-display">{item.label}</span>
+                  </Link>
+                  {item.secondary ? (
+                    // The one quieter line under an item: the planner under Buy.
                     <Link
-                      href={item.href as Route}
-                      aria-current={active ? "page" : undefined}
-                      className="py-4 text-linen-200 transition-colors hover:text-white"
+                      href={item.secondary.href as Route}
+                      className="t-small -mt-1 self-start pb-4 text-linen-200/80 transition-colors hover:text-white"
                     >
-                      <span className="t-display">{item.label}</span>
+                      {item.secondary.label}
                     </Link>
-                    {item.secondary ? (
-                      // The one quieter line under an item: the planner under Buy.
-                      <Link
-                        href={item.secondary.href as Route}
-                        className="t-small -mt-1 self-start pb-4 text-linen-200/80 transition-colors hover:text-white"
-                      >
-                        {item.secondary.label}
-                      </Link>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </nav>
-            <nav aria-label="Products, mobile" className="grid gap-8 sm:grid-cols-3">
-              {productFamilies.map((f) => (
-                <div key={f.key} className="flex flex-col gap-3">
-                  <p className="flex items-center gap-3">
+                  ) : null}
+                </div>
+              );
+            })}
+          </nav>
+          {/* The three families side by side from 360px, so the menu fits about one screen. */}
+          <nav aria-label="Products, mobile" className="grid gap-x-6 gap-y-7 min-[360px]:grid-cols-2 sm:grid-cols-3">
+            {productFamilies.map((f, i) => (
+              <div key={f.key} className="site-menu-item flex flex-col gap-3" style={{ ["--i" as string]: primaryNav.length + i }}>
+                <p className="flex flex-col gap-1">
+                  <span className="flex items-center gap-3">
                     <Emblem family={f.key} className="size-7" />
                     <span className={`font-display text-[28px] font-light leading-none text-white ${f.key === "encore" ? "italic" : ""}`}>{f.name}</span>
-                    <span className="text-[12px] text-linen-200/60">{f.title}</span>
-                  </p>
-                  <ul className="flex flex-col border-l border-sky-300/30 pl-4">
-                    {f.items.map((i) => (
-                      <li key={i.href}>
-                        <Link
-                          href={i.href as Route}
-                          aria-current={pathname === i.href ? "page" : undefined}
-                          className="block py-2 text-[16px] text-linen-200 transition-colors hover:text-white aria-[current=page]:text-sky-300"
-                        >
-                          {i.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </nav>
-          </div>
-          <div className="flex flex-col gap-8">
-            <div className="grid gap-6 sm:grid-cols-2">
+                  </span>
+                  <span className="text-[12px] text-linen-200/60">{f.title}</span>
+                </p>
+                <ul className="flex flex-col border-l border-sky-300/30 pl-4">
+                  {f.items.map((i) => (
+                    <li key={i.href}>
+                      <Link
+                        href={i.href as Route}
+                        aria-current={pathname === i.href ? "page" : undefined}
+                        className="block py-2 text-[16px] text-linen-200 transition-colors hover:text-white aria-[current=page]:text-sky-300"
+                      >
+                        {i.label.replace(`${f.name} `, "")}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
+          <div className="site-menu-item flex flex-col gap-6" style={{ ["--i" as string]: primaryNav.length + productFamilies.length }}>
+            <div className="grid gap-5 sm:grid-cols-2">
               {contacts.map((c) => (
-                <div key={c.name} className="flex flex-col gap-1.5">
-                  <p className="t-eyebrow text-mist">{c.name}</p>
+                <div key={c.name} className="flex flex-col gap-1">
+                  <p className="text-[14px] font-medium text-white">{c.name}</p>
                   <TrackedLink
                     event="Phone tap"
                     props={{ where: "header" }}
@@ -286,13 +344,22 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
                 </div>
               ))}
             </div>
-            <p className="t-small text-linen-200/80">{site.brokerage}</p>
-            <div className="flex items-center justify-between gap-6 border-t border-linen-200/15 pt-6">
-              <Link href="/contact" className="btn btn-linen">
-                Tell us the timing
-              </Link>
-              <CbMark tone="white" width={200} className="hidden sm:block opacity-90" />
+            <div className="flex items-center justify-between gap-6">
+              <p className="t-small text-linen-200/80">{site.brokerage}</p>
+              <CbMark tone="white" width={160} className="hidden shrink-0 opacity-90 sm:block" />
             </div>
+          </div>
+          {/* Pinned to the foot of the panel whatever the screen's height: the warmest part of the menu, always in reach. */}
+          <div className="site-menu-foot">
+            <TrackedLink event="Phone tap" props={{ where: "header" }} href={`tel:${phoneE164}`} className="btn btn-outline-light">
+              Call
+            </TrackedLink>
+            <TrackedLink event="Phone tap" props={{ where: "header-text" }} href={`sms:${phoneE164}`} className="btn btn-outline-light">
+              Text
+            </TrackedLink>
+            <Link href="/contact" className="btn btn-linen">
+              Tell us the timing
+            </Link>
           </div>
         </div>
       </div>

@@ -76,7 +76,7 @@ function KeyDates({ items, today }: { items: Milestone[]; today: string }) {
               <div
                 data-print="key"
                 className={cn(
-                  "grid flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-4 border p-5 transition-transform duration-300 hover:-translate-y-0.5 lg:flex lg:flex-col lg:gap-1",
+                  "grid flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-4 border p-5 transition-transform duration-(--dur-panel) hover:-translate-y-0.5 lg:flex lg:flex-col lg:gap-1",
                   goal ? "border-atlas bg-atlas text-atlas-deep" : "border-white/12 bg-white/[0.06] backdrop-blur-sm",
                 )}
               >
