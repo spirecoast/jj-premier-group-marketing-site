@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { VITALS_SAMPLE_RATE } from "@/lib/web-vitals";
 
 /**
@@ -13,8 +13,12 @@ import { VITALS_SAMPLE_RATE } from "@/lib/web-vitals";
  */
 const Reporter = dynamic(() => import("./web-vitals-reporter"), { ssr: false });
 
+// Decided once per page load, in the browser.
+const sampledHere = typeof window !== "undefined" && Math.random() < VITALS_SAMPLE_RATE;
+const noSubscription = () => () => undefined;
+
 export function WebVitals({ domain, host }: { domain: string; host: string }) {
-  // Decided once per page load, in the browser. Renders nothing either way.
-  const [sampled] = useState(() => typeof window !== "undefined" && Math.random() < VITALS_SAMPLE_RATE);
+  // The server's answer (false) during hydration, so its HTML and the first client render agree; the browser's after.
+  const sampled = useSyncExternalStore(noSubscription, () => sampledHere, () => false);
   return sampled ? <Reporter domain={domain} host={host} /> : null;
 }

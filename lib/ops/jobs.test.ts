@@ -74,6 +74,8 @@ describe("judge", () => {
     assert.match(v.headline, /HTTP 500: DATABASE_URL is not set/);
     assert.equal(judge(503, { ok: false, message: "No county sales data" }).outcome, "failed");
     assert.equal(judge(502, null).headline, "failed with HTTP 502");
+    assert.equal(judge(502, { ok: false, teamEmail: { status: "failed", detail: "Resend 403" }, webhook: { status: "skipped" } }).headline, "failed with HTTP 502: teamEmail failed (Resend 403)");
+    assert.equal(judge(502, { ok: false, teamEmail: { status: "skipped", detail: "TEAM_NOTIFY_EMAIL not set" } }).headline, "failed with HTTP 502: teamEmail skipped (TEAM_NOTIFY_EMAIL not set)");
   });
 });
 

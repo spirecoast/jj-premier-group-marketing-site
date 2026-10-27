@@ -144,7 +144,14 @@ export function judge(status: number, body: Body): Verdict {
   }
   if (status === 422 && body?.held) return { outcome: "held", problems: [], headline: `held: ${String(body.held)}` };
   if (status >= 200 && status < 300) return { outcome: "ok", problems: [], headline: "ok" };
-  const message = typeof body?.message === "string" ? body.message : typeof body?.error === "string" ? body.error : "";
+  // A step result that says it failed (the newsletter hand-off's teamEmail and webhook) names itself.
+  const stepsWith = (status: string) =>
+    Object.entries(body ?? {})
+      .filter(([, v]) => v && typeof v === "object" && (v as { status?: unknown }).status === status)
+      .map(([k, v]) => `${k} ${status}${typeof (v as { detail?: unknown }).detail === "string" ? ` (${(v as { detail: string }).detail})` : ""}`);
+  const failedSteps = stepsWith("failed");
+  const steps = failedSteps.length ? failedSteps : stepsWith("skipped");
+  const message = typeof body?.message === "string" ? body.message : typeof body?.error === "string" ? body.error : steps.join("; ");
   return { outcome: "failed", problems: [`http-${status}`], headline: `failed with HTTP ${status}${message ? `: ${message.slice(0, 200)}` : ""}` };
 }
 
