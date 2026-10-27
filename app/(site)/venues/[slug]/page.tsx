@@ -153,10 +153,10 @@ export default async function VenuePage({ params }: { params: Params }) {
             <h2 id="venue-nb-title" className="t-h3 text-navy">
               Living near here
             </h2>
-            <ul className="flex flex-wrap gap-x-8 gap-y-3">
+            <ul className="flex flex-wrap gap-x-8 gap-y-1">
               {neighborhoods.map((n) => (
-                <li key={n.slug}>
-                  <Link href={`/neighborhoods/${n.slug}`} className="t-h4 text-navy transition-colors hover:text-harbor-700">
+                <li key={n.slug} className="flex">
+                  <Link href={`/neighborhoods/${n.slug}`} className="t-h4 flex min-h-11 items-center text-navy transition-colors hover:text-harbor-700">
                     {n.name}
                   </Link>
                 </li>
