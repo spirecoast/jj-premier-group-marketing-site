@@ -92,7 +92,7 @@ export type NavItem = {
  * until there are live listings to search.
  */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Moving here? Plan it with Atlas Move" } },
+  { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Moving here: plan it with Atlas Move" } },
   { href: "/sell", label: "Sell" },
   { href: "/about", label: "Joelyn & Jessica" },
   { href: "/guides", label: "Guides" },

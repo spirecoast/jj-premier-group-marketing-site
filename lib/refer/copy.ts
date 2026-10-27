@@ -43,6 +43,8 @@ export const REFER = {
     submit: "Send",
   },
   privacy: "We hold their details the same way we hold yours, and we only use them to get in touch about the move.",
+  /** The quiet link to the other past-client page. */
+  reviews: { line: "If you bought or sold with us,", label: "tell us how it went" },
   success: {
     title: "Thank you.",
     body: "We’ll write back to you first, and we’ll reach out to them at their pace.",
@@ -66,6 +68,7 @@ export function referStrings(): { where: string; text: string }[] {
   REFER.steps.forEach((s, i) => add(`step ${i + 1}`, `${s.when}. ${s.title}. ${s.body}`));
   for (const [k, v] of Object.entries(REFER.form)) add(`form ${k}`, v);
   add("privacy", REFER.privacy);
+  add("reviews", `${REFER.reviews.line} ${REFER.reviews.label}`);
   add("success", `${REFER.success.title} ${REFER.success.body}`);
   add("thanks", `${REFER.thanks.title} ${REFER.thanks.body} ${REFER.thanks.line}`);
   return out;

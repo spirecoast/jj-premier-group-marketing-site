@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { ShareButton } from "@/components/share-button";
@@ -31,6 +32,13 @@ export default function ReferPage() {
           <SectionHeading as="h1" size="display" title={<span id="refer-title">{REFER.heading}</span>} />
           <p className="t-lead max-w-measure text-navy">{REFER.lead}</p>
           <p className="t-body max-w-measure text-body">{REFER.body}</p>
+          {/* The other past-client page, one quiet line. */}
+          <p className="t-body border-t border-hairline pt-6 text-body">
+            {REFER.reviews.line}{" "}
+            <Link href="/reviews" className="link-rule">
+              {REFER.reviews.label}
+            </Link>
+          </p>
         </div>
         <div className="flex flex-col gap-4 lg:pt-6">
           <div className="border border-hairline bg-white p-6 sm:p-8">
