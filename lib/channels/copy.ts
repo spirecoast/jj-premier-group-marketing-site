@@ -26,12 +26,20 @@ export type ChannelCopy = {
   line: string;
   /** The one primary action. */
   cta: { href: "/relocate" | "/sell/sold"; label: string; note: string };
+  /**
+   * A second door beside the first, for the follower who already lives here
+   * (Instagram and YouTube reach locals as well as people planning a move):
+   * the Facebook page's own action, so no page takes one bet for everyone.
+   */
+  second?: { href: "/relocate" | "/sell/sold"; label: string; note: string };
   /** A photograph from the seed library (lib/content/seed), by name. */
   image: { name: string; alt: string; position?: string };
 };
 
 const RELOCATE_NOTE = "Five questions, no email, and every rule in the plan comes with its source.";
 const SOLD_NOTE = "From the county property appraisers’ records. No sign-up, and no algorithm guessing.";
+/** The local follower's door on Instagram and YouTube: what Facebook and Nextdoor lead with. */
+const SOLD_DOOR = { href: "/sell/sold", label: "See what sold on your street", note: SOLD_NOTE } as const;
 
 export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
   youtube: {
@@ -44,6 +52,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     heading: "You’ve seen the coast. Now plan the move.",
     line: "We’re Joelyn and Jessica. If one of our videos has you thinking about Lakewood Ranch, Sarasota or Bradenton, start here: tell the planner when you’re coming and it puts the whole move on a calendar, from the contract deadlines to the week the insurance has to be bound.",
     cta: { href: "/relocate", label: "Plan the move", note: RELOCATE_NOTE },
+    second: SOLD_DOOR,
     image: { name: "library/place-skyway-bridge", alt: "The Sunshine Skyway Bridge over Tampa Bay, from above", position: "50% 55%" },
   },
   instagram: {
@@ -56,6 +65,7 @@ export const CHANNELS: Record<ChannelSlug, ChannelCopy> = {
     heading: "Thanks for following along. Here’s where to start.",
     line: "If you’re moving here from somewhere else, the relocation planner asks five questions and gives you the move on a calendar: the contract deadlines, the week insurance has to be bound, and when homestead comes into it.",
     cta: { href: "/relocate", label: "Plan the move", note: RELOCATE_NOTE },
+    second: SOLD_DOOR,
     image: { name: "library/lakes-aerial-sunset", alt: "Lakefront streets from the air at sunset" },
   },
   facebook: {
@@ -119,6 +129,10 @@ export function channelStrings(): { where: string; text: string }[] {
     add("line", c.line);
     add("cta label", c.cta.label);
     add("cta note", c.cta.note);
+    if (c.second) {
+      add("second label", c.second.label);
+      add("second note", c.second.note);
+    }
     add("image alt", c.image.alt);
   }
   const add = (where: string, text: string) => out.push({ where: `from/*: ${where}`, text });
