@@ -19,7 +19,7 @@ jj-premier-brand-system.vercel.app).
 | Sample content | `lib/content/seed/` (used until Sanity is configured; also the seed for `scripts/seed-sanity.ts`) |
 | Sanity | `sanity/` (schemas, clients, queries, fetch helper), `sanity.config.ts`, Studio at `/studio` |
 | Lead capture | `actions/submit-lead.ts` (the one server action), `lib/lead-pipeline.ts` (Postgres, then after the response the CRM → team email → Plausible), `lib/lead-outbox.ts` (retries), `lib/lead-guard.ts` (resends, rate limit, honeypot), `lib/crm.ts` (provider switch: Zapier webhook, Follow Up Boss, none), `lib/leads/` (`constants.ts` and `rules.ts` for the browser, `schema.ts` with zod for the server, `pixel.ts`), `lib/phone.ts`, `lib/lead-alert.ts`, `lib/lead-sinks.ts`, `app/(site)/thanks/[form]`, `app/api/leads`, `app/api/health`, `app/api/cron/lead-redeliver`, `scripts/test-lead.mjs` |
-| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/cron/lead-redeliver`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
+| Platform routes | `app/api/revalidate` (Sanity webhook), `app/api/draft-mode/*`, `app/api/calendar.ics`, `app/api/cron/archive-events`, `app/api/cron/lead-redeliver`, `app/api/cron/ops-check`, `app/api/search/reindex`, `app/sitemap.ts`, `app/robots.ts` |
 | Site search | `lib/search/*` (chunks, indexer, scored hybrid query, fallback, `eval/`), `app/(site)/search`, `app/api/search`, `components/search/*`, `supabase/functions/embed`, `scripts/search-eval.ts`, migrations `0010_search.sql` and `0011_search_score_fusion.sql`; see "Site search" below |
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
@@ -845,6 +845,7 @@ Useful switches:
   | `Share` | `ShareButton` | `what`: calendar-view, my-list, … |
   | `Explore` | the tools, the footer's hub links, the `/from/*` buttons | `action`: select, filter, match, calendar-day, visit-plan, relocate-plan, sold-search, home-value, net-proceeds, hub, channel-cta, channel-more |
   | `Search` | `/search`, once per query shown | `results`: 0, 1-3, 4-9 or 10+. Never the query text (people type names and addresses) |
+  | `Web Vitals` | `components/web-vitals.tsx`, 10% of page loads, once per metric | `metric`: LCP, INP, CLS · `rating` · `value`: a bucket · `template`: the landing route · `device` · `pixel`: on, off (`docs/MEASUREMENT.md` §5) |
 
   The full list of props, the funnel each goal answers and the exact Plausible setup are in
   `docs/MEASUREMENT.md`.
@@ -916,9 +917,10 @@ Deliberate keeps from the review passes:
   names the script (`source=`). Also set: `Cross-Origin-Opener-Policy: same-origin`
   (`same-origin-allow-popups` on `/studio` for Sanity's sign-in window), and no `X-Powered-By`.
 - `GET /api/health` answers `{ ok }` (200, or 503 when production would drop a lead) to anyone; the
-  detail (sinks, newsletter, Places, Sentry) needs `Authorization: Bearer` with `CRON_SECRET`,
-  `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`. Bearer checks go through `lib/bearer.ts`
-  (constant-time).
+  detail (sinks, newsletter, Places, Sentry, which deployment) needs `Authorization: Bearer` with
+  `CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, and `?deep=1` with the same secret
+  adds what the database knows ("Scheduled jobs and alerts" below). Bearer checks go through
+  `lib/bearer.ts` (constant-time).
 - Caching: photos under `/images` are `max-age=604800, stale-while-revalidate=2592000` (names are
   reused when a file is replaced, so not immutable); optimized images keep 31 days
   (`images.minimumCacheTTL`); the MapLibre worker lives in `/vendor/maplibre-gl/<version>/`
@@ -954,6 +956,69 @@ Also worth knowing:
 - Every statistic on the site carries its source and date in the seed content. When the numbers
   are replaced in Sanity, keep the source field filled.
 
+## Previews
+
+Preview deployments share production's database and keys (`docs/LAUNCH.md` §2), so
+`lib/deploy-env.ts` reads `VERCEL_ENV` and only production does anything outside the site. On a
+preview (and on `vercel dev`):
+
+- the CRM provider is `none` (`lib/lead-sinks.ts`): no Zapier webhook, no Follow Up Boss;
+- `sendEmail` (`lib/email`) sends nothing, or, with `PREVIEW_EMAIL_TO` set, sends to that one test
+  inbox with "[Preview]" in front of the subject; it answers ok with id `preview-noop`, so nothing is
+  queued for production to retry;
+- subscriber email is off (`lib/newsletter/config.ts` lists "a production deployment" as missing):
+  no subscription is recorded and no confirmation goes;
+- Google Places is off (`placesEnabled()`), so previews never spend production's daily allowance;
+- Plausible is off, the script and the server-side `Lead server` event alike;
+- every lead is saved with `is_test = true` and the tag `preview`, and the team email (to the test
+  inbox, if any) says so;
+- scheduled jobs refuse to run (403), whoever calls them, since they write to production's data;
+- the lead outbox's sweep (`redeliverDue`) doesn't run on a preview, and production's sweep skips
+  any lead tagged `preview`, so a preview never settles a production lead and production never
+  retries a preview's lead into a real inbox.
+
+Home Platform's pixel was already production only (`lib/home-platform.ts`). Off Vercel
+(`next dev`, `next start` on a laptop) `VERCEL_ENV` is unset and the keys decide, as before.
+`/api/health` shows `deployment` and, on a preview, what it holds back.
+
+## Scheduled jobs and alerts
+
+Every cron in `vercel.json` is a route wrapped in `monitoredCron` (`lib/ops/cron.ts`); a unit test
+fails if one isn't. A call with a job secret (`CRON_SECRET`, `ENCORE_COLLECT_SECRET`,
+`SEARCH_REINDEX_SECRET`) is a run, and every run:
+
+1. writes one log line, `[cron] {"job":"encore-check","outcome":"ok","http":200,"ms":…}`, at error
+   level when it didn't go well;
+2. is kept in `ops_runs` (migration 0016) with its outcome (`ok`, `held`, `partial`, `failed`), the
+   HTTP status and a short summary;
+3. when it failed, sends an alert (`lib/ops/alert.ts`): an email to `LEAD_ALERT_EMAIL` (falling back
+   to `TEAM_NOTIFY_EMAIL`) through Resend, an `[ops-alert]` log line, and a Sentry issue when
+   `NEXT_PUBLIC_SENTRY_DSN` is set. A run where only some parts failed (an Encore venue's page, a
+   search source; HTTP 207) is emailed once the same part fails on two runs in a row. A held
+   newsletter hand-off (422) isn't a failure: the team email already says why. Each problem is
+   emailed once, then weekly while it lasts; a good run clears it, so a relapse is emailed again.
+
+`/api/cron/ops-check` runs daily at 07:53 UTC and emails what fails without a sound: a job whose
+last run is older than its schedule allows (a daily job after 26 hours, a weekly one after 7 days
+and 2 hours, a monthly one after 31 days and 2 hours), or that never ran; the nightly
+`retention_purge()` not having run (it writes its own `ops_runs` row; the email includes pg_cron's
+error when there is one); the database not answering; a newsletter send that has stopped, or that
+won't reach everyone before it expires at the daily cap. With a Sentry DSN, the ops check is also
+the one Sentry Crons monitor (`site-crons`): if the check itself stops, Sentry says so. Sentry's free
+plan includes one cron monitor and charges for more, so the jobs don't each get one
+(`monitorEveryJob` in `lib/ops/jobs.ts` turns that on once the plan allows).
+
+`GET /api/health?deep=1` (the health secret) shows the same picture: the database ping, each job's
+last run and state (`ok`, `held`, `partial`, `failed`, `stale`, `never`, `waiting` before the first
+run), the purge, the newsletter sends against the cap (`newsletterSends`: confirmed subscribers per
+list, how many one issue can reach, each open send's pending count and shortfall), the Encore review
+queue and today's Google Places calls. Counts and times only.
+
+To run a job by hand: `curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/encore/check`
+(Encore's routes and the reindex also take their own secrets). The run is logged and kept like a
+scheduled one. Before migration 0016 is applied everything above still runs except the record:
+one log line names the file, and alerts go out on every failure instead of once a week.
+
 ## Personal data retention
 
 `lib/db/migrations/0009_retention.sql` installs `public.retention_purge()` and a pg_cron job
@@ -967,3 +1032,30 @@ entries. Five years covers the 4-year window for TCPA claims. IP addresses are n
 Questionnaire answers are deleted by hand once the site copy is final. The privacy page states
 the same periods; change both together. Check runs with
 `select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'retention-purge') order by start_time desc limit 5;`.
+
+`0016_ops_and_retention.sql` replaces the function with one that keeps every rule above and adds the
+newsletter tables: a sign-up never confirmed is deleted 30 days after it was asked for (the confirm
+link lasts 7), with the record of its confirmation email; a confirmed subscription with no email
+sent to it and no change for 5 years is deleted; an unsubscribed one stays, as the do-not-email
+record the privacy page promises; `newsletter_deliveries` (who was sent which email) go after 2
+years. It also clears `ops_runs` and `ops_alerts` after 180 days, and writes each run's counts to
+`ops_runs`, so `/api/cron/ops-check` emails when a night is missed.
+
+**Erasing one person.** For a request under the privacy page's "To see, correct or delete …":
+
+```bash
+DATABASE_URL="<pooler URL>" npx tsx scripts/forget.ts --email jane@example.com --phone "(941) 555-0100"
+DATABASE_URL="<pooler URL>" npx tsx scripts/forget.ts --email jane@example.com --phone "(941) 555-0100" --confirm
+```
+
+The first is a dry run that changes nothing and prints what it found; the second does it in one
+transaction: their leads (with `lead_deliveries` and anything else that hangs off a lead), their
+`contacts` rows (with their events), their newsletter subscriptions and the record of every
+newsletter email sent to them. Where someone referred them, their name, email, phone and the note
+about them are scrubbed from the referrer's lead and event, and the referrer's own record stays. A
+phone matches on its last ten digits however it was typed. One row goes into `erasures` with the
+date, the counts and a SHA-256 of the address and number (never the address), and the receipt
+lists what's held elsewhere and has to be deleted by hand: the contact in Home Platform, the Zap's
+task history in Zapier, the "New lead" emails in the team's inboxes. The site keeps no contact list
+at Resend. An erasure also removes a do-not-contact flag, which is what the person asked for; a new
+sign-up later starts over with double opt-in.

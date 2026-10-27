@@ -1,5 +1,6 @@
 import "server-only";
 import type { CrmFailure, CrmLead } from "@/lib/crm";
+import { isPreviewDeployment } from "@/lib/deploy-env";
 import { escapeHtml, sendEmail } from "@/lib/email";
 import { emailList } from "@/lib/email/recipients";
 import { homePlatformNote, homePlatformPixelId } from "@/lib/home-platform";
@@ -65,7 +66,7 @@ function leadHtml(lead: CrmLead): string {
     ["Page", lead.source.page],
     ["Referrer", lead.source.referrer],
     ["Submitted", lead.submittedAt],
-    ["Test lead", lead.test ? "YES — from scripts/test-lead.mjs, ignore" : null],
+    ["Test lead", lead.test ? (lead.tags.includes("preview") ? "YES, sent from a preview deployment, ignore" : "YES — from scripts/test-lead.mjs, ignore") : null],
   ];
   const table = `<table cellpadding="6" style="font-family:Helvetica,Arial,sans-serif;font-size:14px;border-collapse:collapse">${rows
     .filter(([, v]) => v)
@@ -120,6 +121,9 @@ export async function alertLeadDelivery(
   context: { provider: string; detail?: string; leadId?: string | null; mirrored: boolean; notified: boolean; retrying?: boolean },
 ): Promise<void> {
   console.error(`[lead-alert] ${reason}`, { form: lead.form, leadId: context.leadId, provider: context.provider, detail: context.detail });
+
+  // A preview holds the CRM back on purpose (lib/deploy-env.ts): nothing for anyone to fix.
+  if (reason === "not_configured" && isPreviewDeployment()) return;
   const to = alertRecipients();
   if (!to.length) return;
   const kept = [

@@ -7,6 +7,7 @@ import { leadDeliveries, leads } from "@/lib/db/schema";
 import { alertLeadDelivery, notifyTeamOfLead } from "@/lib/lead-alert";
 import { afterFailure, alarmOnFailure, type FailureStep, type OutboxSink } from "@/lib/lead-outbox-policy";
 import { getCrmProvider } from "@/lib/lead-sinks";
+import { sideEffectsAllowed } from "@/lib/deploy-env";
 
 /**
  * The lead outbox. The leads row is written while the visitor waits; the
@@ -254,12 +255,17 @@ async function crmAlreadyDelivered(leadId: string): Promise<boolean> {
  */
 export async function redeliverDue(limit = 10): Promise<{ tried: number; skipped?: string }> {
   if (!process.env.DATABASE_URL) return { tried: 0, skipped: "DATABASE_URL not set" };
+  // The outbox is production's: a preview shares the database but sends nowhere (lib/deploy-env.ts), so a
+  // sweep from a preview would settle production's leads without delivering them.
+  if (!sideEffectsAllowed()) return { tried: 0, skipped: "preview deployment" };
   let rows: { lead_id: string; payload: CrmLead | null; submitted_at: string | Date }[];
   try {
     rows = await getDb().execute(sql`
       SELECT DISTINCT ON (o.lead_id) o.lead_id, l.payload, l.submitted_at
         FROM lead_outbox o JOIN leads l ON l.id = o.lead_id
        WHERE o.status = 'pending' AND o.next_attempt_at <= now() AND (o.locked_until IS NULL OR o.locked_until < now())
+         -- A preview's leads are tests (tag "preview"): production never retries them into real inboxes.
+         AND NOT coalesce(l.payload->'tags' ? 'preview', false)
        ORDER BY o.lead_id, o.next_attempt_at
        LIMIT ${limit}
     `);

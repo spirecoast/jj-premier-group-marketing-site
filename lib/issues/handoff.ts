@@ -163,6 +163,9 @@ export function subscriberLines(issue: Pick<Issue, "kind">, info: TeamSendInfo):
     lines.push(
       `<strong>${esc(info.recipients ? fill(TEAM_SEND_COPY.scheduled, { count: info.recipients, subscribers: plural(info.recipients), when }) : fill(TEAM_SEND_COPY.scheduledNone, { when }))}</strong>`,
     );
+  if (info.capacity && !info.capacity.fits) {
+    lines.push(esc(fill(TEAM_SEND_COPY.capacity, { cap: info.capacity.cap, canSend: info.capacity.emails, when: easternWhen(info.capacity.expiresAt), short: info.capacity.short })));
+  }
   if (issue.kind === "tide") lines.push(esc(TEAM_SEND_COPY.tideBoxes));
   if (info.fairHousingFlagged) lines.push(esc(TEAM_SEND_COPY.heldFairHousing));
   // The address line, unless the hold above already says it.

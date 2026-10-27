@@ -15,6 +15,7 @@ import { getCrmProvider } from "@/lib/lead-sinks";
 import { requestSubscriptions, type SubscribeOutcome } from "@/lib/newsletter/service";
 import { sendPlausibleEvent } from "@/lib/plausible-server";
 import { site } from "@/lib/site";
+import { isPreviewDeployment } from "@/lib/deploy-env";
 
 /**
  * One lead, start to finish.
@@ -212,7 +213,7 @@ export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmL
     submittedAt: now.toISOString(),
     tags,
     site: LEAD_SITE,
-    test: Boolean(ctx.test),
+    test: Boolean(ctx.test) || isPreviewDeployment(),
   };
 }
 

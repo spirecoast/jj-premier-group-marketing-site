@@ -1,5 +1,6 @@
 import "server-only";
 import { sendLeadEvent, type FubProperty } from "@/lib/fub";
+import { isPreviewDeployment } from "@/lib/deploy-env";
 import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION, type LeadForm } from "@/lib/leads/constants";
 import { FUB_TYPE } from "@/lib/leads/schema";
 import { getCrmProvider, type CrmProvider } from "@/lib/lead-sinks";
@@ -173,6 +174,8 @@ export function leadTags(input: {
   tags.push(`source:${(input.channel || input.utmSource || "direct").toLowerCase().replace(/\s+/g, "-").slice(0, 60)}`);
   tags.push("site:jjpremiergroup");
   if (input.test) tags.push("test");
+  // Sent from a preview deployment: kept in the shared database as a test (lib/deploy-env.ts).
+  if (isPreviewDeployment()) tags.push("preview");
   return tags;
 }
 

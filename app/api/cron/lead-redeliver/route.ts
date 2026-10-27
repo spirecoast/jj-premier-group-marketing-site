@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { pruneGuard } from "@/lib/lead-guard";
 import { redeliverDue } from "@/lib/lead-outbox";
+import { monitoredCron } from "@/lib/ops/cron";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -14,7 +15,8 @@ export const maxDuration = 60;
  * one cron run a day; on Pro, `*\/10 * * * *` in vercel.json makes it every
  * ten minutes.
  *
- * Vercel Cron calls this with `Authorization: Bearer ${CRON_SECRET}`.
+ * Vercel Cron calls this with `Authorization: Bearer ${CRON_SECRET}`. Each run
+ * is logged, kept in ops_runs and alerted on when it fails (lib/ops/cron.ts).
  */
 function authorised(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -38,5 +40,6 @@ async function run(request: NextRequest) {
   return NextResponse.json({ tried, ...(skipped ? { skipped } : {}) });
 }
 
-export const GET = run;
-export const POST = run;
+const monitored = monitoredCron(run);
+export const GET = monitored;
+export const POST = monitored;
