@@ -8,7 +8,7 @@ import { plausiblePayload, routeTemplate, vitalEvent, type VitalMetric } from "@
 
 /**
  * Loaded for the sampled page loads only (components/web-vitals.tsx). The
- * page is read once, when the visit lands: the route template and the
+ * page is read once, when the visit arrives: the route template and the
  * viewport's width. Whether Home Platform's pixel is running is read as each
  * metric goes (it starts at the window's load, and stays off for visitors
  * with Global Privacy Control or Do Not Track), so `pixel` splits the same
