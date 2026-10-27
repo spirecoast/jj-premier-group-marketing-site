@@ -25,7 +25,8 @@ export function UrlLeadForm({ prefill, hidden, placeholderMessage, ...rest }: Pr
   useLayoutEffect(() => {
     const p = READ[prefill](new URLSearchParams(window.location.search));
     if (p.market || p.placeholder) setLink(p);
-    const field = box.current?.querySelector<HTMLTextAreaElement>('textarea[name="message"]');
+    // The message keeps its name only until the page is live (lib/leads/pixel.ts), so look for either.
+    const field = box.current?.querySelector<HTMLTextAreaElement>('textarea[name="message"], textarea[data-private-name="message"]');
     if (p.message && field && !field.value) field.value = p.message;
   }, [prefill]);
 
