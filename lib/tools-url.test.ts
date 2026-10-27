@@ -29,10 +29,14 @@ test("explorer: a view round-trips, and the address bar leaves out the search wo
 });
 
 test("encore: a view round-trips, and every key it writes is one the page waits for", () => {
-  const s = { view: "month" as const, date: "2026-11-14", category: "music" as const, market: "sarasota" as const, venue: "van-wezel", q: "jazz", list: ["a", "b"] };
+  const s = { view: "month" as const, date: "2026-11-14", category: "music" as const, market: "sarasota" as const, venue: "van-wezel", q: "jazz", when: undefined, list: ["a", "b"] };
   assert.deepEqual(parseEncoreState(sp(encoreSearch(s))), s);
   assert.equal(encoreHref({}), "/calendar");
   for (const k of sp(encoreSearch(s)).keys()) assert.ok((ENCORE_KEYS as readonly string[]).includes(k), k);
+  // A shortcut is a Days view on today, and its key is one the page waits for too.
+  const w = { view: "days" as const, date: "", category: undefined, market: undefined, venue: undefined, q: "", when: "weekend" as const, list: [] };
+  assert.deepEqual(parseEncoreState(sp(encoreSearch(w))), w);
+  for (const k of sp(encoreSearch(w)).keys()) assert.ok((ENCORE_KEYS as readonly string[]).includes(k), k);
 });
 
 test("encore planner: a plan round-trips and a stored draft is read back safely", () => {

@@ -281,25 +281,58 @@ builder source with its checked date).
 `/calendar` is a calendar product built on the events dataset the client supplied
 (`lib/content/encore/`), the way `/neighborhoods` is built on the neighborhood dataset.
 
-- **The page.** `components/encore/encore.tsx` holds one state (view, day, category, market,
-  venue, search) that the URL, the day strip and the body reflect. Views: Days (agenda with sticky
+- **The page.** `components/encore/encore.tsx` holds one state (view, day, filters, search, a
+  shortcut) that the URL, the day strip and the body reflect. Views: Days (agenda with sticky
   day headers), Week (seven columns on desktop), Month (grid plus the chosen day's agenda) and
   On view (exhibitions, closing soonest first, then opening later). On today, the Days view opens
-  with Tonight and This weekend rails. Categories are the dataset's eight (music, theater,
-  galleries, talks, film, festivals, family, markets), each with a muted accent from
-  `lib/encore/categories.ts`.
+  with Tonight and This weekend rails (from lg the rail's right edge fades while there is more and
+  Prev/Next step one card); "All N" on a rail opens that list as its own view (`?when=tonight`,
+  `?when=weekend`), which the home page's Encore band links to as well. Categories are the
+  dataset's eight (music, theater, galleries, talks, film, festivals, family, markets), each with
+  a muted accent from `lib/encore/categories.ts`.
+- **Controls, exactly three.** `.btn` (52px) for a primary action, `.chip` (44px) for the view
+  switcher (a tablist with arrow keys; the body is its tabpanel), the filter chip and the
+  categories, and `.btn-quiet` (36px; a 44px square with a glyph) for Today, Prev/Next, Clear,
+  Close, Save (a bookmark, filled amber when saved) and the Planner's Nearby (a pin). The glyphs
+  are `components/encore/glyphs.tsx`. The filter chip ("Everywhere · Any venue") opens the sheet
+  "Where and what" (`components/encore/filter-sheet.tsx`, a native dialog: market chips, the
+  venue select grouped by town, category chips with the window's counts; a bottom sheet on a
+  phone, a panel under the chip from lg). An active category sits beside the chip as its own
+  chip; tapping it clears it.
+- **The band.** The view chips and the day strip sit in one band that sticks under the header
+  (`.encore-band`; it rises to the top edge while the phone header is tucked away) so the first
+  show on a phone is inside the first screen: the masthead is short there (`Masthead compact`),
+  and the search row scrolls with the page. The day heads stick under the band, whose height the
+  component measures into `--band-h`. The strip is one tab stop (roving tabindex): ← → a day,
+  PageUp/PageDown a week, Home today, End the last day loaded; the chosen day is one amber bar
+  that slides between cells; it opens with three weeks of cells and grows four at a time as it is
+  scrolled.
+- **Search.** A query is a list over the season (`SearchResults` in `views.tsx`): every date,
+  grouped by day, then the matching runs; the strip scrubs it. No match says "Nothing by that
+  name this season" and offers the venue select. A filtered week with nothing on names the next
+  day with a match (`nextMatchDay` in `select.ts`, over the season) instead of a generic "next
+  week"; a date in the past on a pasted link is dropped (`parseEncoreState(params, today)`).
+- **Times.** A listing with no published time is "All day" only when it is that kind of thing (an
+  exhibition, a festival, a market, an art walk: `lib/encore/when.ts`); a play or a concert
+  without one says "Time not listed" and its page points at the venue's listing for the time
+  ("Time on the venue's site ↗"). The Planner never picks an untimed listing.
 - **Data to the browser.** The server renders the first view from a slice of the index
-  (`sliceIndex` in `lib/encore/data.ts`) so the page is complete for crawlers and without
-  JavaScript; the client then fetches `/api/encore/index` once (about 90KB gzipped, regenerated
-  hourly) and every move after that is instant. Local days and times are precomputed in the site
-  timezone, so the client does no timezone math (`lib/encore/select.ts`).
-- **URL state.** `view`, `date` (YYYY-MM-DD), `category`, `market`, `venue`, `q`, and `list`
-  (comma-separated slugs of a shared list). `lib/encore/url.ts` parses and prints it. The address
-  bar follows the view, the day and the filters; the search words reach a link only through
-  "Share this view".
-- **Static.** The page is prerendered hourly with today and the next two weeks; a link to another
-  window shows "Loading the season…" until the full index arrives, and says so with a Try again if
-  it doesn't.
+  (`sliceIndex` in `lib/encore/data.ts`: the first `FIRST_PAINT_DAYS` (21) days and the current
+  runs, without the one-line summaries) so the page is complete for crawlers and without
+  JavaScript. The client fetches `/api/encore/index` (about 90KB gzipped, regenerated hourly, one
+  fetch per visit shared with the Planner through `lib/use-json-resource.ts`) the moment a move
+  needs it (a search, a day past the slice, the month view, a list) and otherwise in idle time
+  after the first touch, inside a transition, so the first tap never waits on it. Local days and
+  times are precomputed in the site timezone, so the client does no timezone math
+  (`lib/encore/select.ts`). Tiles and rows are keyed by event and rise in on arrival
+  (`.encore-rise`, staggered, capped at 12); nothing remounts the whole body on a filter change.
+- **URL state.** `view`, `date` (YYYY-MM-DD; a past date is dropped), `category`, `market`,
+  `venue`, `q`, `when` (tonight or weekend) and `list` (comma-separated slugs of a shared list).
+  `lib/encore/url.ts` parses and prints it. The address bar follows the view, the day, the
+  filters and the shortcut; the search words reach a link only through "Share this view".
+- **Static.** The page is prerendered hourly with today and the next three weeks; the view a link
+  asks for (a search, another window, a shared list) is applied in the browser, with the views'
+  loading rows until the season arrives, and a Try again if it doesn't.
 - **My list.** Save keeps slugs in `localStorage` (`encore:list`); "Share my list" turns it into a
   `?list=` link, and a visitor who opens one can save it all to their own list. Every Save
   button and count reads one store (`components/encore/use-my-list.ts`), and a save in another
@@ -367,8 +400,10 @@ builder source with its checked date).
   Adobe connector on October 3, 2026, none flagged AI-generated. They're in
   `public/images/encore-stock/`, listed with their Adobe Stock IDs and alt text in
   `lib/content/encore/stock-photos.json`. `lib/encore/stock.ts` maps the subcategory, then the
-  category, to a theme and picks one of its three by the event slug, so neighbouring cards
-  differ. They show no faces, logos, readable signs or recognisable local venues, and the event
+  category, to a theme and picks one of its three by the event slug; in a list (`varyStock`,
+  used by the rails, the On view grid, the venue and neighborhood pages) a card whose slug names
+  the photo a card just before it has takes the next one, so a stand-in never sits beside itself.
+  The event's own page keeps the slug's pick. They show no faces, logos, readable signs or recognisable local venues, and the event
   page captions them "Stock photo · Adobe Stock" so nobody takes one for the production. The
   share image uses the same photo. Only if no theme fits does `components/key-art.tsx` fall back
   to the art drawn in code by `lib/encore/key-art.ts` (one motif per category, varied by slug).

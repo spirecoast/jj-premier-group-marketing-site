@@ -59,11 +59,45 @@ function hash(s: string): number {
   return h >>> 0;
 }
 
-/** The stock photo for an event without its own image, or undefined when no theme fits. */
-export function stockPhoto(o: { category: EventCategory; subcategory?: string; seed: string }): (ImageRef & { credit: string }) | undefined {
+type Art = { category: EventCategory; subcategory?: string; seed: string };
+
+function poolFor(o: Art): Entry[] | undefined {
   const themes = [...(o.subcategory ? (SUBCATEGORY[o.subcategory] ?? []) : []), ...CATEGORY[o.category]];
-  const pool = themes.map((t) => BY_THEME.get(t)).find((p) => p?.length);
+  return themes.map((t) => BY_THEME.get(t)).find((p) => p?.length);
+}
+
+/**
+ * The stock photo for an event without its own image, or undefined when no
+ * theme fits. `pick` names one of the theme's photos outright (from
+ * varyStock, for a card in a list); otherwise the slug chooses.
+ */
+export function stockPhoto(o: Art & { pick?: number }): (ImageRef & { credit: string }) | undefined {
+  const pool = poolFor(o);
   if (!pool) return undefined;
-  const e = pool[hash(o.seed) % pool.length]!;
+  const e = pool[(o.pick ?? hash(o.seed)) % pool.length]!;
   return { src: `/images/encore-stock/${e.file}`, alt: e.alt, width: e.width, height: e.height, credit: "Adobe Stock" };
+}
+
+/**
+ * Picks for a list of cards so the same stand-in never sits beside itself.
+ * Each theme has a few photos; a card takes the one its slug names unless a
+ * card just before it (within the pool's size) already has it, in which
+ * case it takes the next. The result is one pick per item, or undefined for
+ * an item with no theme (it draws key art). The event's own page keeps the
+ * slug's pick, so the rule only ever moves a card in a grid.
+ */
+export function varyStock(items: Art[]): (number | undefined)[] {
+  const recent = new Map<Entry[], number[]>();
+  return items.map((it) => {
+    const pool = poolFor(it);
+    if (!pool) return undefined;
+    const n = pool.length;
+    const last = recent.get(pool) ?? [];
+    let k = hash(it.seed) % n;
+    for (let step = 0; step < n && last.includes(k); step++) k = (k + 1) % n;
+    last.push(k);
+    while (last.length > n - 1) last.shift();
+    recent.set(pool, last);
+    return k;
+  });
 }

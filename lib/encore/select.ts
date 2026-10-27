@@ -1,5 +1,6 @@
 import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import type { EncoreEvent, EncoreIndex, EncorePerf } from "./index-format";
+import { untimedLabel } from "./when";
 
 /**
  * Pure selectors over the client index. Everything here works on local
@@ -62,6 +63,23 @@ export function countsByDay(index: EncoreIndex, from: string, to: string, f: Fil
   const m = new Map<string, number>();
   for (const o of occurrences(index, from, to, f)) m.set(o.day, (m.get(o.day) ?? 0) + 1);
   return m;
+}
+
+/**
+ * The first day on or after `from` (up to `to`) with a filtered performance
+ * still ahead, for an empty state that names where to go next.
+ */
+export function nextMatchDay(index: EncoreIndex, from: string, to: string, f: Filter, nowMs = 0): string | undefined {
+  const q = tokens(f.q);
+  let best: string | undefined;
+  for (const p of index.perfs) {
+    if (p[1] < from || p[1] > to) continue;
+    if (nowMs && p[4] < nowMs) continue;
+    if (best && p[1] >= best) continue;
+    if (!matches(index.events[p[0]]!, f, q)) continue;
+    best = p[1];
+  }
+  return best;
 }
 
 /** Counts per category among the filtered performances of a window (for the chips). */
@@ -142,6 +160,11 @@ export function monthLabel(day: string): string {
 }
 export function dayNumber(day: string): number {
   return Number(day.slice(8, 10));
+}
+
+/** "7:30 PM" from "19:30"; the kind's own words when the listing has no time. */
+export function timeLabel(o: Pick<Occ, "time" | "e">): string {
+  return o.time ? clock(o.time) : untimedLabel(o.e.c, o.e.sc);
 }
 
 /** "7:30 PM" from "19:30". */

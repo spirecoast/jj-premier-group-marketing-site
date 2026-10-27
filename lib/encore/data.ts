@@ -76,8 +76,14 @@ export async function loadEncoreIndex(): Promise<EncoreIndex> {
   return getEncoreIndex(await loadEncoreSnapshot());
 }
 
-/** The part of the index a first paint needs: performances inside [from, to] and current runs, with their events. */
-export function sliceIndex(index: EncoreIndex, fromDay: string, toDay: string): EncoreIndex {
+/**
+ * The part of the index a first paint needs: performances inside [from, to]
+ * and current runs, with their events. The one-line summaries stay out (a
+ * tile never shows one; they are only searched, and a search fetches the
+ * full index), which halves the page's props. `only` narrows it further to
+ * the events a filter matches, for a search rendered on the server.
+ */
+export function sliceIndex(index: EncoreIndex, fromDay: string, toDay: string, only?: (e: EncoreEvent) => boolean): EncoreIndex {
   const keep = new Map<number, number>();
   const events: EncoreEvent[] = [];
   const perfs: EncorePerf[] = [];
@@ -86,16 +92,19 @@ export function sliceIndex(index: EncoreIndex, fromDay: string, toDay: string): 
     if (j === undefined) {
       j = events.length;
       keep.set(i, j);
-      events.push(index.events[i]!);
+      const slim: EncoreEvent = { ...index.events[i]! };
+      delete slim.sum;
+      events.push(slim);
     }
     return j;
   };
   for (const p of index.perfs) {
     if (p[1] < fromDay || p[1] > toDay) continue;
+    if (only && !only(index.events[p[0]]!)) continue;
     perfs.push([remap(p[0]), p[1], p[2], p[3], p[4]]);
   }
   index.events.forEach((e, i) => {
-    if (e.x && (e.r ?? "") >= fromDay) remap(i);
+    if (e.x && (e.r ?? "") >= fromDay && (!only || only(e))) remap(i);
   });
   return { generated: index.generated, events, perfs, venues: index.venues };
 }
