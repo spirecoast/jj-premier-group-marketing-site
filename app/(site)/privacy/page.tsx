@@ -14,7 +14,8 @@ const UPDATED = "October 27, 2026";
 
 /** Named from the same switch the explorer uses, so the page is true under either configuration. */
 // MapTiler when a key is set, with OpenFreeMap as the fallback (components/map-runtime.ts); OpenFreeMap alone otherwise.
-const MAP_PROVIDER_NAME = MAP_PROVIDER === "maptiler" ? "MapTiler, with OpenFreeMap as a backup," : "OpenFreeMap";
+// No punctuation of its own: each sentence that uses it ends or continues with its own.
+const MAP_PROVIDER_NAME = MAP_PROVIDER === "maptiler" ? "MapTiler (OpenFreeMap as a backup)" : "OpenFreeMap";
 
 export default async function PrivacyPage() {
   const settings = await getSiteSettings();
