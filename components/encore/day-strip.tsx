@@ -55,15 +55,15 @@ export function DayStrip({
     const strip = ref.current;
     if (!strip || !onReach) return;
     const check = () => {
-      if (strip.scrollLeft + strip.clientWidth > strip.scrollWidth - 240) onReach();
+      if (strip.scrollLeft > 0 && strip.scrollLeft + strip.clientWidth > strip.scrollWidth - 240) onReach();
     };
-    check();
     strip.addEventListener("scroll", check, { passive: true });
     return () => strip.removeEventListener("scroll", check);
   }, [onReach, to]);
 
   const scrollBy = (dir: number) => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (dir > 0) onReach?.();
     ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.8, behavior: reduce ? "auto" : "smooth" });
   };
 

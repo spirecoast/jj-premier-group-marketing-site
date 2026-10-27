@@ -175,8 +175,13 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
     },
     [searching, pickDay, scrollToDay, stripTo, today],
   );
+  // The strip grows four weeks at a time as it is scrolled, up to the season's 120 days.
   const extendStrip = useCallback(() => {
-    setStripTo((t) => (t >= addDays(today, STRIP_DAYS) ? t : addDays(today, STRIP_DAYS)));
+    setStripTo((t) => {
+      const max = addDays(today, STRIP_DAYS);
+      const next = addDays(t, 28);
+      return t >= max ? t : next > max ? max : next;
+    });
   }, [today]);
   const chooseView = (v: EncoreView) => {
     startTransition(() => {
@@ -267,58 +272,82 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
     />
   );
 
-  return (
-    <div className="encore" ref={rootRef}>
-      <div className="flex flex-col">
-        {/* Share and Subscribe as text, from lg. The phone carries them as glyphs beside the search. */}
-        <div className="container-site hidden items-center justify-end gap-x-6 pb-4 pt-8 lg:flex">
-          <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" />
-          <a href={feed} className="link-rule" onClick={onFeed}>
-            Subscribe{activeFilters ? " to this filter" : ""}
-          </a>
-        </div>
+  const nav = (
+    <div className="encore-nav">
+      <button type="button" className="btn-quiet is-square" aria-label={view === "month" ? "Previous month" : "Previous week"} onClick={() => step(-1)} disabled={when !== undefined || (view === "month" ? anchor.slice(0, 7) <= today.slice(0, 7) : from <= today)}>
+        <ChevronLeft />
+      </button>
+      <button type="button" className="btn-quiet" onClick={() => pickDay(today)} disabled={anchor === today && !when}>
+        Today
+      </button>
+      <span className="encore-range px-1" aria-live="polite">
+        {rangeLabel}
+      </span>
+      <button type="button" className="btn-quiet is-square" aria-label={view === "month" ? "Next month" : "Next week"} onClick={() => step(1)} disabled={when !== undefined}>
+        <ChevronRight />
+      </button>
+    </div>
+  );
+  const showNav = mode === "browse" && !searching && view !== "onview";
 
-        {/* The search row: search, the filter chip (and the category it holds), My list. On a phone it sits under the sticky band. */}
-        <div className="container-site order-2 pb-2 pt-4 lg:order-1 lg:pb-3 lg:pt-0">
-          <div className="encore-toolbar">
-            <div className="encore-search">
-              <label htmlFor="encore-q" className="sr-only">
-                Search shows, venues and presenters
-              </label>
-              <input
-                id="encore-q"
-                ref={searchRef}
-                type="search"
-                value={q}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setQ(v);
-                  startTransition(() => {
-                    setMode("browse");
-                    setWhen(undefined);
-                  });
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape" && q) {
-                    e.preventDefault();
-                    setQ("");
-                  }
-                }}
-                placeholder="A show, a venue, a presenter"
-                autoComplete="off"
-                enterKeyHint="search"
-                className="encore-input"
-              />
-              {q ? (
-                <button type="button" className="encore-clear" onClick={() => setQ("")} aria-label="Clear search">
-                  <Cross />
-                </button>
-              ) : (
-                <span className="encore-clear" aria-hidden="true">
-                  <Magnifier />
-                </span>
-              )}
-            </div>
+  return (
+    <div className="encore flex flex-col" ref={rootRef}>
+      {/* Share and Subscribe as text, from lg. The phone carries them as glyphs beside the search. */}
+      <div className="container-site order-0 hidden items-center justify-end gap-x-6 pb-4 pt-8 lg:flex">
+        <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" />
+        <a href={feed} className="link-rule" onClick={onFeed}>
+          Subscribe{activeFilters ? " to this filter" : ""}
+        </a>
+      </div>
+
+      {/* The search row: search, the filter chip (and the category it holds), My list. On a phone it sits under the sticky band, with the week's nav. */}
+      <div className="container-site order-2 flex flex-col gap-3 pb-2 pt-4 lg:order-1 lg:pb-3 lg:pt-0">
+        <div className="encore-toolbar">
+          <div className="encore-search">
+            <label htmlFor="encore-q" className="sr-only">
+              Search shows, venues and presenters
+            </label>
+            <input
+              id="encore-q"
+              ref={searchRef}
+              type="search"
+              value={q}
+              onChange={(e) => {
+                const v = e.target.value;
+                setQ(v);
+                startTransition(() => {
+                  setMode("browse");
+                  setWhen(undefined);
+                });
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && q) {
+                  e.preventDefault();
+                  setQ("");
+                }
+              }}
+              placeholder="A show, a venue, a presenter"
+              autoComplete="off"
+              enterKeyHint="search"
+              className="encore-input"
+            />
+            {q ? (
+              <button type="button" className="encore-clear" onClick={() => setQ("")} aria-label="Clear search">
+                <Cross />
+              </button>
+            ) : (
+              <span className="encore-clear" aria-hidden="true">
+                <Magnifier />
+              </span>
+            )}
+          </div>
+          <span className="flex items-center gap-2 lg:hidden">
+            <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" variant="quiet" />
+            <a href={feed} className="btn-quiet is-square" aria-label={`Subscribe${activeFilters ? " to this filter" : ""} in your calendar app`} title="Subscribe" onClick={onFeed}>
+              <CalendarPlus />
+            </a>
+          </span>
+          <div className="encore-chips">
             <button ref={chipRef} type="button" className="chip" aria-haspopup="dialog" aria-expanded={sheet} onClick={() => setSheet(true)}>
               {chipLabel}
               <ChevronDown className="chip-chevron" />
@@ -342,50 +371,28 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
             >
               My list{my.list.length ? ` · ${my.list.length}` : ""}
             </button>
-            <span className="ml-auto flex items-center gap-2 lg:hidden">
-              <ShareButton title="Encore Arts Calendar" url={encoreHref(shareState)} what="calendar-view" label="Share this view" variant="quiet" />
-              <a href={feed} className="btn-quiet is-square" aria-label={`Subscribe${activeFilters ? " to this filter" : ""} in your calendar app`} title="Subscribe" onClick={onFeed}>
-                <CalendarPlus />
-              </a>
-            </span>
           </div>
         </div>
+        {showNav ? <div className="lg:hidden">{nav}</div> : null}
+      </div>
 
-        {/* The sticky band: the view switcher with the range, then the day strip. */}
-        <div ref={bandRef} className="encore-band order-1 lg:order-2">
-          <div className="container-site encore-rows">
-            <div className="encore-toolbar">
-              <div className="encore-tabs" role="tablist" aria-label="View" onKeyDown={onTabKey}>
-                {VIEWS.map((v) => {
-                  const on = mode === "browse" && !searching && view === v;
-                  return (
-                    <button key={v} id={`tab-${v}`} type="button" role="tab" aria-selected={on} aria-controls="encore-panel" tabIndex={on || (view === v && !VIEWS.some((x) => mode === "browse" && !searching && view === x)) ? 0 : -1} className="chip" onClick={() => chooseView(v)}>
-                      {VIEW_LABEL[v]}
-                    </button>
-                  );
-                })}
-              </div>
-              {mode === "browse" && !searching && view !== "onview" ? (
-                <div className="encore-nav">
-                  <button type="button" className="btn-quiet is-square" aria-label={view === "month" ? "Previous month" : "Previous week"} onClick={() => step(-1)} disabled={when !== undefined || (view === "month" ? anchor.slice(0, 7) <= today.slice(0, 7) : from <= today)}>
-                    <ChevronLeft />
+      {/* The sticky band: the view switcher (with the range from lg), then the day strip. */}
+      <div ref={bandRef} className="encore-band order-1 lg:order-2">
+        <div className="container-site encore-rows">
+          <div className="encore-toolbar">
+            <div className="encore-tabs" role="tablist" aria-label="View" onKeyDown={onTabKey}>
+              {VIEWS.map((v) => {
+                const on = mode === "browse" && !searching && view === v;
+                return (
+                  <button key={v} id={`tab-${v}`} type="button" role="tab" aria-selected={on} aria-controls="encore-panel" tabIndex={on || (view === v && !VIEWS.some((x) => mode === "browse" && !searching && view === x)) ? 0 : -1} className="chip" onClick={() => chooseView(v)}>
+                    {VIEW_LABEL[v]}
                   </button>
-                  <button type="button" className="btn-quiet" onClick={() => pickDay(today)} disabled={anchor === today && !when}>
-                    Today
-                  </button>
-                  <span className="encore-range px-1" aria-live="polite">
-                    {rangeLabel}
-                  </span>
-                  <button type="button" className="btn-quiet is-square" aria-label={view === "month" ? "Next month" : "Next week"} onClick={() => step(1)} disabled={when !== undefined}>
-                    <ChevronRight />
-                  </button>
-                </div>
-              ) : (
-                <span className="encore-range encore-nav">{panelLabel}</span>
-              )}
+                );
+              })}
             </div>
-            {showStrip ? <DayStrip from={today} to={stripTo} selected={anchor} today={today} counts={dayCounts} max={maxCount} onPick={onStripPick} onReach={extendStrip} /> : null}
+            {showNav ? <div className="hidden lg:contents">{nav}</div> : <span className="encore-range encore-nav hidden lg:flex">{panelLabel}</span>}
           </div>
+          {showStrip ? <DayStrip from={today} to={stripTo} selected={when === "weekend" ? wkStart : anchor} today={today} counts={dayCounts} max={maxCount} onPick={onStripPick} onReach={extendStrip} /> : null}
         </div>
       </div>
 
@@ -406,7 +413,7 @@ export function Encore({ initial, today, initialIndex }: { initial: EncoreState;
         allowEmptyCategories={view === "onview"}
       />
 
-      <div id="tonight" className="container-site flex scroll-mt-[calc(var(--header-h)+var(--band-h,0px))] flex-col gap-14 pb-section pt-8 lg:gap-16 lg:pt-12">
+      <div id="tonight" className="container-site order-3 flex scroll-mt-[calc(var(--header-h)+var(--band-h,0px))] flex-col gap-14 pb-section pt-8 lg:gap-16 lg:pt-12">
         {mode === "browse" && !searching && !when && view === "days" && anchor === today ? <Spotlight index={index} today={today} filter={filter} list={listApi} onTonight={() => shortcut("tonight")} onWeekend={() => shortcut("weekend")} /> : null}
         <div id="encore-panel" role="tabpanel" aria-label={panelLabel} className="encore-body">
           {mode === "mine" ? (

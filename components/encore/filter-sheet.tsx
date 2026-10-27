@@ -60,8 +60,10 @@ export function FilterSheet({
     if (open && !el.open) {
       const a = anchor.current?.getBoundingClientRect();
       if (a) {
-        el.style.setProperty("--sheet-x", `${Math.round(a.left)}px`);
-        el.style.setProperty("--sheet-y", `${Math.round(a.bottom + 8)}px`);
+        // Under the chip, unless that leaves the panel no room: then high enough for 600px of it.
+        const top = Math.max(136, Math.min(a.bottom + 8, window.innerHeight - 640));
+        el.style.setProperty("--sheet-x", `${Math.round(Math.min(a.left, window.innerWidth - 464))}px`);
+        el.style.setProperty("--sheet-y", `${Math.round(top)}px`);
       }
       el.showModal();
       document.documentElement.style.overflow = "hidden";
