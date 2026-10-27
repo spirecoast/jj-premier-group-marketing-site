@@ -892,3 +892,18 @@
     .plan-strip-day { transition: none; }
   }
 }
+
+/* On a phone every search control is 16px, so iOS Safari never zooms the
+   page on focus and leaves it offset; the select is also a 44px target.
+   (After the rules it overrides, so it stays last in this file.) */
+@layer components {
+  @media (max-width: 47.99rem) {
+    .encore-input,
+    .encore-select {
+      font-size: 1rem;
+    }
+    .encore-select {
+      height: 2.75rem;
+    }
+  }
+}

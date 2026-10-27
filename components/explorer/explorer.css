@@ -311,3 +311,13 @@
   }
   .explorer.is-mobile .atlas-frame { display: none; }
 }
+
+/* On a phone the search box is 16px, so iOS Safari never zooms the page on
+   focus and leaves it offset. (After the rule it overrides: keep it last.) */
+@layer components {
+  @media (max-width: 47.99rem) {
+    .explorer-input {
+      font-size: 1rem;
+    }
+  }
+}

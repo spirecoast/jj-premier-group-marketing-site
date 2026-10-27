@@ -1214,18 +1214,6 @@
     color: inherit;
     padding: 0 0.1em;
   }
-  /* On a phone every search control is 16px, so iOS Safari never zooms the
-     page on focus and leaves it offset; the select is also a 44px target. */
-  @media (max-width: 47.99rem) {
-    .explorer-input,
-    .encore-input,
-    .encore-select {
-      font-size: 1rem;
-    }
-    .encore-select {
-      height: 2.75rem;
-    }
-  }
   /* The presenter's image credit: `image-credit` under a photo, `image-credit-on`
      as the small chip in a card's corner, one face for both. */
   .image-credit-on {
