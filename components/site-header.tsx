@@ -108,6 +108,7 @@ export function SiteHeader({ contacts }: { contacts: Contact[] }) {
 
   return (
     <header
+      data-ground="dark"
       className={cn(
         "sticky top-0 z-50 h-header transition-[background-color,border-color] duration-300 ease-[var(--ease-brand)]",
         // No backdrop blur while the menu is open: a backdrop-filter makes the

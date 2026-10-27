@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getSiteSettings } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
   title: "Terms of use",
@@ -94,13 +95,13 @@ export default async function TermsPage() {
         <h2>Photo credits</h2>
         <p>
           The photograph of the Bradenton Riverwalk is by Sanibel sun, from{" "}
-          <a href="https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk.jpg" target="_blank" rel="noopener noreferrer">
+          <ExternalLink href="https://commons.wikimedia.org/wiki/File:Bradenton_Riverwalk.jpg">
             Wikimedia Commons
-          </a>
+          </ExternalLink>
           , under the{" "}
-          <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">
+          <ExternalLink href="https://creativecommons.org/licenses/by-sa/4.0/">
             Creative Commons Attribution-ShareAlike 4.0
-          </a>{" "}
+          </ExternalLink>{" "}
           license. We resized it and changed nothing else. That photograph stays under its license, so you may reuse it on the license&rsquo;s terms.
         </p>
 

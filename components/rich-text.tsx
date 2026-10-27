@@ -1,5 +1,6 @@
 import { PortableText, type PortableTextComponents } from "next-sanity";
 import type { RichText as RichTextValue } from "@/lib/content/types";
+import { NewTabCue } from "@/components/ui/external-link";
 import { cn } from "@/lib/utils";
 
 const components: PortableTextComponents = {
@@ -10,6 +11,7 @@ const components: PortableTextComponents = {
       return (
         <a href={href} rel={external ? "noopener noreferrer" : undefined} target={external ? "_blank" : undefined}>
           {children}
+          {external ? <NewTabCue /> : null}
         </a>
       );
     },

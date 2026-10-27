@@ -132,7 +132,7 @@ export function WeekView({ index, anchor, today, filter, list, onDay }: { index:
                   <Link href={`/calendar/${o.e.s}`} className="encore-week-item" style={{ ["--cat" as string]: CATEGORY[o.e.c].color }}>
                     <span className="t-mono-sm text-graphite-500">{o.time ? clock(o.time) : "All day"}</span>
                     <span className="encore-week-title">{o.e.t}</span>
-                    <span className="t-mono-sm truncate text-graphite-500">{o.e.vn}</span>
+                    <span className="t-note truncate">{o.e.vn}</span>
                   </Link>
                 </li>
               ))}
@@ -307,7 +307,7 @@ export function ListView({ index, slugs, today, list, shared, onSaveAll }: { ind
           </div>
         </section>
       ) : null}
-      {missing > 0 ? <p className="t-mono-sm text-graphite-500">{missing} saved {missing === 1 ? "show has" : "shows have"} passed.</p> : null}
+      {missing > 0 ? <p className="t-note">{missing} saved {missing === 1 ? "show has" : "shows have"} passed.</p> : null}
     </div>
   );
 }

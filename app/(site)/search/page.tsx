@@ -125,7 +125,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <p className="t-body text-body">{C.tooShort}</p>
       ) : results.length ? (
         <div className="flex flex-col gap-4" data-search-source={source}>
-          <p className="t-mono-sm text-graphite-500" aria-live="polite">
+          <p className="t-note" aria-live="polite">
             {results.length === 1 ? C.oneResult : C.manyResults.replace("{n}", String(results.length))} {C.resultsFor} “{q}”
           </p>
           <ol className="flex flex-col border-b border-hairline">

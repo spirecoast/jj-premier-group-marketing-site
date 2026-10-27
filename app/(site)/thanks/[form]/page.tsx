@@ -12,6 +12,7 @@ import { REFER } from "@/lib/refer/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { pageMetadata } from "@/lib/seo";
 import { products } from "@/lib/site";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /**
  * /thanks/[form] — where every form lands after a successful send. What
@@ -153,7 +154,7 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
         </div>
       </div>
 
-      <aside className="flex flex-col gap-10 lg:pt-24">
+      <div className="flex flex-col gap-10 lg:pt-24">
         <div className="flex flex-col gap-6">
           <p className="t-body max-w-[380px] text-body">Call or text either of us directly. We’re usually in a house, so a text gets the quickest answer.</p>
           <ul className="flex flex-col gap-6">
@@ -173,12 +174,12 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
         {bookingUrl ? (
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">
             <p className="t-body max-w-[380px] text-body">It’s fifteen minutes on the phone, at a time that suits you.</p>
-            <a href={bookingUrl} target="_blank" rel="noopener noreferrer" className="link-rule self-start">
+            <ExternalLink href={bookingUrl} className="link-rule self-start">
               Book 15 minutes ↗
-            </a>
+            </ExternalLink>
           </div>
         ) : null}
-      </aside>
+      </div>
     </section>
   );
 }

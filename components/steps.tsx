@@ -6,7 +6,8 @@ export type Step = { when: string; title: string; body: string };
 
 /**
  * The "how it goes" sequence. A hairline with an amber tick, a large display
- * numeral, the moment it happens, and one plain paragraph. Order carries
+ * numeral, the moment it happens, and one plain paragraph. Each step is an
+ * h2: on /refer and /valuation the sequence sits straight under the h1. Order carries
  * information here: these are the steps in the order they happen.
  *
  * `tiles` lets a photograph of the moment into a step, keyed by the step's
@@ -27,7 +28,7 @@ export function Steps({ items, columns = 4, tiles, className }: { items: Step[];
               {String(i + 1).padStart(2, "0")}
             </span>
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-sky-700">{s.when}</p>
-            <h3 className="t-h3 text-navy">{s.title}</h3>
+            <h2 className="t-h3 text-navy">{s.title}</h2>
             <p className="t-body max-w-[40ch] text-body">{s.body}</p>
             {tile ? (
               <div className="mt-auto pt-3" aria-hidden="true">

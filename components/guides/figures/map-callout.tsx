@@ -1,4 +1,5 @@
 import type { MapCalloutFigure } from "@/lib/guides/types";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /** The portals and offices a reader goes to, one card each with a drawn mark. */
 export function MapCalloutView({ figure }: { figure: MapCalloutFigure }) {
@@ -19,9 +20,9 @@ export function MapCalloutView({ figure }: { figure: MapCalloutFigure }) {
             <span className="t-h4 text-navy">{p.name}</span>
           </div>
           <p className="text-[14px] leading-snug text-body">{p.body}</p>
-          <a href={p.href} target="_blank" rel="noopener noreferrer" className="link-rule mt-auto self-start break-all">
+          <ExternalLink href={p.href} className="link-rule mt-auto self-start break-all">
             {p.cta}
-          </a>
+          </ExternalLink>
         </li>
       ))}
     </ol>

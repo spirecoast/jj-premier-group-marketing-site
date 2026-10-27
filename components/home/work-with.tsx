@@ -11,10 +11,12 @@ import { img } from "@/lib/content/seed/helpers";
 const DUO = img("photos/duo-whitenavy-wide", "Joelyn Nauman and Jessica Garza", "22% 8%");
 
 /**
- * Work with Joelyn and Jessica: the two of them on the left, and on the plain
- * backdrop to their right the promise, the name, one line on what they do and
- * two ways in: the contact page, or the phone. On a phone the photograph sits
- * above the words, on the backdrop's own grey.
+ * Work with Joelyn and Jessica: the two of them on the left, and to their
+ * right the promise, the name, one line on what they do and two ways in: the
+ * contact page, or the phone. The band is Linen 200, in the palette; the
+ * portrait's studio grey runs into it through a long gradient on the right,
+ * where the words sit, and at the photograph's foot on a phone, where the
+ * words sit under it. No literal colour.
  */
 export function WorkWith({
   phoneDisplay,
@@ -27,9 +29,12 @@ export function WorkWith({
   where?: string;
 }) {
   return (
-    <section className="relative overflow-hidden bg-[#c3c3bc]" aria-labelledby="work-with-title">
+    <section className="relative overflow-hidden bg-linen-200" aria-labelledby="work-with-title">
       <div className="relative aspect-[16/10] w-full sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
         <Photo image={DUO} sizes="100vw" />
+        {/* The studio grey gives way to the band: along the foot under lg, across the right half from lg. */}
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-linen-200 to-transparent lg:hidden" aria-hidden="true" />
+        <div className="absolute inset-y-0 right-0 hidden w-[62%] bg-linear-to-r from-transparent via-linen-200/85 to-linen-200 lg:block" aria-hidden="true" />
       </div>
       <div className="container-site relative flex pt-12 pb-16 lg:min-h-[640px] lg:items-center lg:justify-end lg:py-24 xl:min-h-[720px]">
         <div className="sr flex max-w-[520px] flex-col items-start gap-6 lg:w-[42%]">

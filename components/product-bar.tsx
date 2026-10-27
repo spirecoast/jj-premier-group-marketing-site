@@ -33,7 +33,7 @@ export function ProductBar() {
     .sort((a, b) => b.href.length - a.href.length)[0];
 
   return (
-    <nav data-product-bar data-family={family.key} aria-label={`${family.name} products`} className="product-bar">
+    <nav data-product-bar data-ground="dark" data-family={family.key} aria-label={`${family.name} products`} className="product-bar">
       <div className="container-site flex h-full items-center gap-5 sm:gap-7">
         <Link href={family.items[0]!.href as Route} className="flex shrink-0 items-center transition-opacity hover:opacity-85">
           <ProductLockup family={family.key} size="bar" byline={false} decorative />

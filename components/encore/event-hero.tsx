@@ -3,6 +3,7 @@ import { Photo } from "@/components/photo";
 import { SharedFrame } from "@/components/shared-frame";
 import { stockPhoto } from "@/lib/encore/stock";
 import type { Event } from "@/lib/content/types";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /**
  * The event page's picture. The presenter's own image when the collector
@@ -43,9 +44,9 @@ export function ImageCredit({ credit, className }: { credit: NonNullable<Event["
     <figcaption className={["image-credit", className].filter(Boolean).join(" ")}>
       {"Image: "}
       {credit.url ? (
-        <a href={credit.url} target="_blank" rel="noopener noreferrer">
+        <ExternalLink href={credit.url}>
           {credit.name}
-        </a>
+        </ExternalLink>
       ) : (
         credit.name
       )}

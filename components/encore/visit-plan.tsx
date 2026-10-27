@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
-import { Button, ButtonLink } from "@/components/buttons";
+import { ButtonLink, RuleButton } from "@/components/ui/button";
+import { Chip, ChipGroup } from "@/components/ui/chip";
+import { Checkbox, Field, Input } from "@/components/ui/field";
+import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepFocus } from "@/components/ui/stepper";
 import { LeadForm } from "@/components/lead-form";
 import { ShareButton } from "@/components/share-button";
 import { track } from "@/lib/analytics";
@@ -56,17 +59,10 @@ export function VisitPlan({
   const nearbyVenues = useMemo(() => new Set(nearby ?? []), [nearby]);
   // One pick's Nearby panel open at a time.
   const [openNear, setOpenNear] = useState<string | null>(null);
-  // The form asks one question at a time.
+  // The form asks one question at a time; after a move the question takes focus.
   const [q, setQ] = useState(0);
-  const qTitle = useRef<HTMLHeadingElement>(null);
-  const moved = useRef(false);
-  useEffect(() => {
-    if (moved.current) qTitle.current?.focus({ preventScroll: true });
-  }, [q]);
-  const go = (n: number) => {
-    moved.current = true;
-    setQ(Math.max(0, Math.min(QUESTION_COUNT - 1, n)));
-  };
+  const qTitle = useStepFocus<HTMLHeadingElement>(q);
+  const go = (n: number) => setQ(Math.max(0, Math.min(QUESTION_COUNT - 1, n)));
 
   useEffect(() => {
     setNowMs(Date.now());
@@ -138,27 +134,14 @@ export function VisitPlan({
       {/* The form: who, when, where, what. */}
       <section className="bg-parchment py-8 sm:py-section" aria-labelledby="plan-inputs-title">
         <div className="container-site">
-          <form
-            onSubmit={build}
-            className="mx-auto flex w-full max-w-[960px] flex-col gap-8 border border-hairline bg-white p-6 shadow-[0_24px_60px_-40px_rgba(16,37,66,0.4)] sm:p-10"
-            aria-labelledby="plan-inputs-title"
-          >
-            <div className="flex items-center gap-4">
-              <span className="t-small shrink-0 text-graphite-500 tabular-nums">
-                {q + 1} of {QUESTION_COUNT}
-              </span>
-              <span className="flex flex-1 gap-1" aria-hidden="true">
-                {Array.from({ length: QUESTION_COUNT }, (_, i) => (
-                  <span key={i} className={cn("h-1 flex-1 rounded-full transition-colors duration-300", i <= q ? "bg-encore-ink" : "bg-hairline")} />
-                ))}
-              </span>
-            </div>
+          <StepCard as="form" onSubmit={build} className="p-6" aria-labelledby="plan-inputs-title">
+            <StepProgress step={q + 1} total={QUESTION_COUNT} tone="encore" />
 
-            <div key={q} className="move-q-step flex min-h-[260px] flex-col gap-7">
+            <StepBody stepKey={q} className="min-h-[260px] gap-7">
               <div className="flex flex-col gap-3">
-                <h2 id="plan-inputs-title" ref={qTitle} tabIndex={-1} className="t-h1 max-w-[720px] text-navy outline-none">
+                <StepTitle id="plan-inputs-title" ref={qTitle}>
                   {q === 0 ? "Who’s it for?" : q === 1 ? (visiting ? "When are you visiting?" : "Which days?") : q === 2 ? (visiting ? "Where do you want to look?" : "Where would you go?") : "What do you like?"}
-                </h2>
+                </StepTitle>
                 {q === 1 ? <p className="t-body text-body">Up to {MAX_DAYS} days.</p> : null}
                 {q === 2 ? <p className="t-body text-body">Pick any. Leave them all off and you get all three.</p> : null}
                 {q === 3 ? <p className="t-body text-body">Optional. We lean the picks toward these.</p> : null}
@@ -185,31 +168,25 @@ export function VisitPlan({
 
               {q === 1 ? (
                 <div className="flex flex-col gap-6">
-                  <div className="plan-pills flex flex-wrap gap-2" role="group" aria-label="Quick dates">
+                  <ChipGroup aria-label="Quick dates">
                     {PRESETS.map((p) => (
-                      <button
+                      <Chip
                         key={p.id}
-                        type="button"
-                        className="chip"
-                        aria-pressed={preset === p.id}
+                        size="lg"
+                        selected={preset === p.id}
                         onClick={() => {
                           const [from, to] = presetDates(p.id, today);
                           setDraft((d) => ({ ...d, from, to }));
                         }}
                       >
                         {p.label}
-                      </button>
+                      </Chip>
                     ))}
-                  </div>
+                  </ChipGroup>
                   <div className="grid gap-5 sm:grid-cols-2 lg:max-w-[560px]">
-                    <div className="field">
-                      <label htmlFor="plan-from" className="field-label">
-                        {visiting ? "Arriving" : "From"}
-                      </label>
-                      <input
-                        id="plan-from"
+                    <Field id="plan-from" label={visiting ? "Arriving" : "From"}>
+                      <Input
                         type="date"
-                        className="field-input"
                         value={draft.from}
                         min={today}
                         max={addDays(today, 365)}
@@ -219,34 +196,22 @@ export function VisitPlan({
                           setDraft((d) => ({ ...d, from, to: d.to < from ? from : d.to > addDays(from, MAX_DAYS - 1) ? addDays(from, MAX_DAYS - 1) : d.to }));
                         }}
                       />
-                    </div>
-                    <div className="field">
-                      <label htmlFor="plan-to" className="field-label">
-                        {visiting ? "Leaving" : "To"}
-                      </label>
-                      <input
-                        id="plan-to"
-                        type="date"
-                        className="field-input"
-                        value={draft.to}
-                        min={draft.from}
-                        max={addDays(draft.from, MAX_DAYS - 1)}
-                        required
-                        onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value || d.from }))}
-                      />
-                    </div>
+                    </Field>
+                    <Field id="plan-to" label={visiting ? "Leaving" : "To"}>
+                      <Input type="date" value={draft.to} min={draft.from} max={addDays(draft.from, MAX_DAYS - 1)} required onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value || d.from }))} />
+                    </Field>
                   </div>
                 </div>
               ) : null}
 
               {q === 2 ? (
-                <div className="plan-pills flex flex-wrap gap-2" role="group" aria-labelledby="plan-inputs-title">
+                <ChipGroup aria-labelledby="plan-inputs-title">
                   {MARKETS.map((m) => (
-                    <button key={m.slug} type="button" className="chip" aria-pressed={draft.markets.includes(m.slug)} onClick={() => toggleMarket(m.slug)}>
+                    <Chip key={m.slug} size="lg" selected={draft.markets.includes(m.slug)} onClick={() => toggleMarket(m.slug)}>
                       {m.name}
-                    </button>
+                    </Chip>
                   ))}
-                </div>
+                </ChipGroup>
               ) : null}
 
               {q === 3 ? (
@@ -259,40 +224,27 @@ export function VisitPlan({
                       </button>
                     ))}
                   </div>
-                  <label className="t-small flex cursor-pointer items-start gap-3 text-body">
-                    <input type="checkbox" className="mt-1 size-4 shrink-0 accent-sky-700" checked={draft.eveningsOnly} onChange={(e) => setDraft((d) => ({ ...d, eveningsOnly: e.target.checked }))} />
-                    <span>{visiting ? "Evenings only. Keep the weekend afternoons for houses." : "Evenings only"}</span>
-                  </label>
+                  <Checkbox checked={draft.eveningsOnly} onChange={(e) => setDraft((d) => ({ ...d, eveningsOnly: e.target.checked }))}>
+                    {visiting ? "Evenings only. Keep the weekend afternoons for houses." : "Evenings only"}
+                  </Checkbox>
                 </div>
               ) : null}
-            </div>
+            </StepBody>
 
-            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-hairline pt-6">
-              {q > 0 ? (
-                <button type="button" className="link-rule" onClick={() => go(q - 1)}>
-                  Back
-                </button>
-              ) : (
-                <span />
-              )}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-                {trimmed ? (
+            <StepFooter
+              className="flex-row flex-wrap items-center justify-between"
+              back={q > 0 ? { label: "Back", onClick: () => go(q - 1) } : undefined}
+              next={q < QUESTION_COUNT - 1 ? { label: "Next", onClick: () => go(q + 1) } : { label: "Build my plan" }}
+              submit={q === QUESTION_COUNT - 1}
+              aside={
+                trimmed ? (
                   <p id="plan-form-note" className="t-small text-graphite-500">
                     We trimmed the end to fit {MAX_DAYS} days.
                   </p>
-                ) : null}
-                {q < QUESTION_COUNT - 1 ? (
-                  <Button key="next" type="button" dash onClick={() => go(q + 1)}>
-                    Next
-                  </Button>
-                ) : (
-                  <Button key="build" type="submit" dash>
-                    Build my plan
-                  </Button>
-                )}
-              </div>
-            </div>
-          </form>
+                ) : null
+              }
+            />
+          </StepCard>
         </div>
       </section>
 
@@ -316,15 +268,15 @@ export function VisitPlan({
             </div>
             {mix.length ? (
               <div className="flex flex-col gap-3">
-                <div className="flex h-3 w-full gap-0.5 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+                <div className="flex h-3 w-full gap-0.5 overflow-hidden bg-white/10" aria-hidden="true">
                   {mix.map(({ c, n }) => (
-                    <span key={c} className="h-full first:rounded-l-full last:rounded-r-full" style={{ width: `${(n / picked) * 100}%`, background: CATEGORY[c].color }} />
+                    <span key={c} className="h-full" style={{ width: `${(n / picked) * 100}%`, background: CATEGORY[c].color }} />
                   ))}
                 </div>
                 <ul className="flex flex-wrap gap-x-5 gap-y-2" aria-label="What’s in the plan">
                   {mix.map(({ c, n }) => (
                     <li key={c} className="t-small inline-flex items-center gap-2 text-white/85">
-                      <span className="size-2.5 rounded-full" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
+                      <span className="size-2.5" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
                       {CATEGORY[c].label} <span className="tabular-nums text-white/55">{n}</span>
                     </li>
                   ))}
@@ -349,7 +301,7 @@ export function VisitPlan({
                             {picks.length} {picks.length === 1 ? "pick" : "picks"}
                           </span>
                           {picks.map((o) => (
-                            <span key={`${o.e.s}-${o.start}`} className="size-2 rounded-full" style={{ background: CATEGORY[o.e.c].color }} aria-hidden="true" />
+                            <span key={`${o.e.s}-${o.start}`} className="size-2" style={{ background: CATEGORY[o.e.c].color }} aria-hidden="true" />
                           ))}
                         </span>
                       </a>
@@ -380,7 +332,7 @@ export function VisitPlan({
             Loading the full season
           </p>
         ) : null}
-        <p className="t-small text-graphite-500">Times and prices come from each venue’s own listing. Check with the venue before you go.</p>
+        <p className="t-note">Times and prices come from each venue’s own listing. Check with the venue before you go.</p>
       </section>
 
       {/* Take it with you */}
@@ -402,9 +354,9 @@ export function VisitPlan({
               <span className="btn-dash" aria-hidden="true" />
             </a>
             <ShareButton title="Encore Planner" url={planHref(applied)} what="visit-plan" label="Share" />
-            <button type="button" className="link-rule" onClick={copyLink} aria-live="polite">
+            <RuleButton onClick={copyLink} aria-live="polite">
               {copied ? "Link copied" : "Copy the link"}
-            </button>
+            </RuleButton>
           </div>
         </div>
       </section>
@@ -429,9 +381,9 @@ export function VisitPlan({
                 write back.
               </p>
               {sentMessage !== askMessage ? (
-                <button type="button" onClick={() => setSentMessage(askMessage)} className="link-rule self-start">
+                <RuleButton onClick={() => setSentMessage(askMessage)} className="self-start">
                   Use the dates in this plan
-                </button>
+                </RuleButton>
               ) : null}
             </div>
             <div className="border border-hairline bg-white p-6 sm:p-8">
@@ -535,7 +487,7 @@ function DayCard({ d, n, today, local, has, toggle, near }: { d: PlanDay; n: num
             <span className="t-small text-white/55">Day {n}</span>
           </span>
         </span>
-        {d.weekend ? <span className="rounded-full border border-encore/50 px-2.5 py-0.5 text-[12px] text-encore">Weekend</span> : null}
+        {d.weekend ? <span className="t-label border border-encore/50 px-2.5 py-1.5 text-encore">Weekend</span> : null}
       </h3>
 
       {local ? null : (
@@ -581,8 +533,12 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
         <span className="encore-agenda-time">{clock(o.time)}</span>
         <span className="min-w-0 flex-1">
           <span className="encore-agenda-title">{e.t}</span>
-          <span className="t-small block text-graphite-500">
-            {[e.vn, marketName(e.m)].join(" · ")} · <span style={{ color: CATEGORY[e.c].color }}>{CATEGORY[e.c].label}</span>
+          <span className="t-note block">
+            {[e.vn, marketName(e.m)].join(" · ")} ·{" "}
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block size-2" style={{ background: CATEGORY[e.c].color }} aria-hidden="true" />
+              {CATEGORY[e.c].label}
+            </span>
           </span>
         </span>
         <span className="t-small hidden shrink-0 text-graphite-500 sm:block">{e.pr ?? ""}</span>

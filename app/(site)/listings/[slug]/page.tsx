@@ -33,6 +33,7 @@ import { getMarket, marketName } from "@/lib/content/markets";
 import type { Listing, RichText as RichTextValue, SiteSettings, Stat } from "@/lib/content/types";
 import { breadcrumbJsonLd, listingJsonLd, pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /** Hourly ISR: the sample calendar is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -123,7 +124,7 @@ function inquiryCopy(l: Listing) {
 function ComplianceStrip({ settings }: { settings: SiteSettings }) {
   return (
     <div className="flex flex-col gap-3 border-y border-hairline py-4 md:flex-row md:items-center md:justify-between md:gap-10">
-      <p className="t-mono-sm max-w-[820px] text-graphite-500">{settings.mlsAttribution}</p>
+      <p className="t-note max-w-[820px]">{settings.mlsAttribution}</p>
       <p className="t-mono-sm flex shrink-0 items-center gap-2 text-graphite-500">
         <span aria-hidden="true">
           <EqualHousingMark />
@@ -303,7 +304,7 @@ export default async function ListingPage({ params }: { params: Params }) {
             >
               <dt className="t-mono-sm text-graphite-500">{f.label}</dt>
               <dd className="font-mono text-[15px] font-medium tabular-nums text-navy">{f.value}</dd>
-              {f.note ? <dd className="t-mono-sm text-graphite-500">{f.note}</dd> : null}
+              {f.note ? <dd className="t-note">{f.note}</dd> : null}
             </div>
           ))}
         </dl>
@@ -368,9 +369,9 @@ export default async function ListingPage({ params }: { params: Params }) {
                     {listing.geo.lat.toFixed(4)}, {listing.geo.lng.toFixed(4)}
                   </p>
                 ) : null}
-                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="link-rule">
+                <ExternalLink href={mapsUrl} className="link-rule">
                   Open in Google Maps ↗
-                </a>
+                </ExternalLink>
               </div>
             </div>
           </section>

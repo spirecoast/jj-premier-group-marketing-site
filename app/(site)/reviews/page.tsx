@@ -3,6 +3,7 @@ import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { pageMetadata } from "@/lib/seo";
 import { REVIEWS } from "@/lib/reviews/copy";
+import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
   title: REVIEWS.title,
@@ -44,9 +45,9 @@ export default function ReviewsPage() {
           <h2 className="t-h2 text-navy">{REVIEWS.google.title}</h2>
           <p className="t-body max-w-[44ch] text-body">{REVIEWS.google.body}</p>
           {google ? (
-            <a href={google} target="_blank" rel="noopener noreferrer" className="btn btn-navy self-start">
+            <ExternalLink href={google} className="btn btn-navy self-start">
               {REVIEWS.google.label} ↗
-            </a>
+            </ExternalLink>
           ) : (
             <p className="t-small max-w-[44ch] text-graphite-500">{REVIEWS.google.soon}</p>
           )}

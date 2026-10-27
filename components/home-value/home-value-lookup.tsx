@@ -211,7 +211,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
                   <div className="flex flex-col gap-3">
                     <p className="t-lead max-w-measure text-navy">{C.street.empty(months)}</p>
                     <p className="t-body max-w-measure text-body">{C.street.emptyHelp}</p>
-                    <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
+                    <p className="t-note">{sourceLine}</p>
                   </div>
                 ) : (
                   <>
@@ -229,7 +229,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
                     <div className="flex flex-col gap-2">
                       {data.truncated ? <p className="t-small text-graphite-500">{C.street.truncated(data.rows.length, data.total)}</p> : null}
                       {data.rows.some(saleFlagged) ? <p className="t-small max-w-measure text-graphite-500">† {C.street.rollChanged}</p> : null}
-                      <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
+                      <p className="t-note">{sourceLine}</p>
                       <p className="t-small max-w-measure text-graphite-500">{C.street.note}</p>
                     </div>
                   </>
@@ -273,7 +273,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
                     </div>
                     <div className="flex flex-col gap-3 lg:pt-1">
                       <p className="t-body max-w-[440px] text-body">{C.parcel.rollNote}</p>
-                      <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
+                      <p className="t-note">{sourceLine}</p>
                     </div>
                   </div>
                 ) : (
@@ -281,7 +281,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, children }: Pr
                     <p className="t-lead max-w-measure text-navy">{C.parcel.none(shownAddress, months)}</p>
                     <div className="flex flex-col gap-3 lg:pt-1">
                       <p className="t-body max-w-[440px] text-body">{C.parcel.noneHelp}</p>
-                      <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
+                      <p className="t-note">{sourceLine}</p>
                     </div>
                   </div>
                 )}

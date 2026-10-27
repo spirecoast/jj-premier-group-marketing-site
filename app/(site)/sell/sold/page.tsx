@@ -5,6 +5,7 @@ import { SOLD_COPY as C } from "@/components/sales/copy";
 import { SoldSearch } from "@/components/sales/sold-search";
 import { getSalesManifest } from "@/lib/sales";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+import { IslandBoundary } from "@/components/ui/island-boundary";
 
 export async function generateMetadata(): Promise<Metadata> {
   const months = (await getSalesManifest())?.windowMonths ?? 24;
@@ -39,7 +40,9 @@ export default async function SoldPage() {
         <p className="rise d3 t-lead max-w-[600px] text-linen-100 text-shadow-soft">{C.lead(months)}</p>
       </Masthead>
       <div className="pt-section" />
-      <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} />
+      <IslandBoundary name="the search" minHeight="480px">
+        <SoldSearch loaded={Boolean(manifest)} asOf={asOf} counties={counties} months={months} />
+      </IslandBoundary>
     </>
   );
 }

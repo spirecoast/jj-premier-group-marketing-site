@@ -6,6 +6,7 @@ import { getSiteSettings, getTeam } from "@/lib/content";
 import { isMarketSlug } from "@/lib/content/markets";
 import { mapEmbedUrl, mapLinkUrl, mapQuery } from "@/lib/map-embed";
 import { pageMetadata } from "@/lib/seo";
+import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact · Tell us the timing",
@@ -55,7 +56,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
         </div>
       </div>
 
-      <aside className="flex flex-col gap-10 lg:pt-24">
+      <div className="flex flex-col gap-10 lg:pt-24">
         <div className="flex flex-col gap-6">
           <p className="t-h4 text-navy">Direct</p>
           <ul className="flex flex-col gap-6">
@@ -101,12 +102,12 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </div>
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <p className="t-mono-sm text-graphite-500">Map · {settings.officeAddress.city}, {settings.officeAddress.state}</p>
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="link-rule">
+            <ExternalLink href={mapsUrl} className="link-rule">
               Open in Google Maps ↗
-            </a>
+            </ExternalLink>
           </div>
         </div>
-      </aside>
+      </div>
     </section>
   );
 }

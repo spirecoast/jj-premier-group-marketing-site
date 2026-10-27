@@ -2,6 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useId } from "react";
+import { Chip, ChipGroup } from "@/components/ui/chip";
+import { Checkbox, Field, Select } from "@/components/ui/field";
+import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepFocus } from "@/components/ui/stepper";
 import { MARKETS } from "@/lib/content/markets";
 import { titleCase } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
@@ -19,7 +22,6 @@ import {
   type Question,
   type QuestionId,
 } from "@/lib/neighborhoods/match";
-import { cn } from "@/lib/utils";
 
 const PointPicker = dynamic(() => import("./point-picker").then((m) => m.PointPicker), {
   ssr: false,
@@ -38,10 +40,12 @@ type Props = {
   onBack: () => void;
   onSkip: () => void;
   count: { total: number; confirmed: number } | null;
+  /** True once the visitor has moved between questions, so the new one takes focus. */
+  moved?: boolean;
 };
 
 /** One question, one screen. The count at the bottom moves as the answer changes. */
-export function MatchQuestion({ question: q, number, total, answers, onAnswers, areas, onNext, onBack, onSkip, count }: Props) {
+export function MatchQuestion({ question: q, number, total, answers, onAnswers, areas, onNext, onBack, onSkip, count, moved = false }: Props) {
   const uid = useId();
   const isAnswered = answered(answers, q.id);
   const strict = answers.strict.includes(q.id);
@@ -49,23 +53,16 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
     onAnswers({ ...answers, strict: on ? answers.strict.filter((s) => s !== q.id) : [...new Set([...answers.strict, q.id])] });
   const set = (patch: Partial<Answers>) => onAnswers({ ...answers, ...patch });
   const toggle = <T,>(xs: T[], x: T) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
+  const titleRef = useStepFocus<HTMLHeadingElement>(number, moved);
 
   return (
-    <div className="match-q mx-auto flex w-full max-w-[960px] flex-col gap-8 border border-hairline bg-white p-5 shadow-[0_24px_60px_-40px_rgba(16,37,66,0.4)] sm:p-10"  aria-labelledby={`${uid}-title`}>
+    <StepCard aria-labelledby={`${uid}-title`}>
+      <StepProgress step={number} total={total} />
+      <StepBody stepKey={q.id} className="min-h-0 gap-8">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-4">
-          <span className="t-small shrink-0 text-graphite-500 tabular-nums">
-            {number} of {total}
-          </span>
-          <span className="flex flex-1 gap-1" aria-hidden="true">
-            {Array.from({ length: total }, (_, i) => (
-              <span key={i} className={cn("h-1 flex-1 rounded-full transition-colors duration-300", i < number ? "bg-navy" : "bg-hairline")} />
-            ))}
-          </span>
-        </div>
-        <h2 id={`${uid}-title`} className="t-h1 max-w-[720px] text-navy">
+        <StepTitle id={`${uid}-title`} ref={titleRef}>
           {q.title}
-        </h2>
+        </StepTitle>
         <p className="t-body max-w-measure text-body">{q.help}</p>
       </div>
 
@@ -113,26 +110,30 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
         ) : null}
         {q.id === "near" ? <Near answers={answers} areas={areas} set={set} /> : null}
 
-        <button
-          type="button"
-          className="chip self-start"
-          aria-pressed={!isAnswered}
+        <Chip
+          size="lg"
+          className="self-start"
+          selected={!isAnswered}
           onClick={() => {
             clearAnswer(q.id, answers, onAnswers);
           }}
         >
           {q.any}
-        </button>
+        </Chip>
       </div>
 
       {isAnswered ? (
-        <label className="flex max-w-measure cursor-pointer items-start gap-3 t-small text-body">
-          <input type="checkbox" checked={!strict} onChange={(e) => setStrict(e.target.checked)} className="mt-1 size-4 shrink-0 accent-[var(--color-navy)]" />
-          <span>Keep places we don’t have this detail for</span>
-        </label>
+        <Checkbox className="max-w-measure" checked={!strict} onChange={(e) => setStrict(e.target.checked)}>
+          Keep places we don’t have this detail for
+        </Checkbox>
       ) : null}
+      </StepBody>
 
-      <div className="flex flex-col gap-4 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <StepFooter
+        back={number > 1 ? { label: "Back", onClick: onBack } : undefined}
+        skip={!isAnswered ? { label: "Skip", onClick: onSkip } : undefined}
+        next={{ label: number === total ? "See my matches" : "Next", onClick: onNext }}
+      >
         <p className="flex items-baseline gap-3" aria-live="polite">
           {count ? (
             <>
@@ -146,24 +147,8 @@ export function MatchQuestion({ question: q, number, total, answers, onAnswers, 
             <span className="t-small text-graphite-500">Loading the neighborhoods…</span>
           )}
         </p>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          {number > 1 ? (
-            <button type="button" className="link-rule" onClick={onBack}>
-              Back
-            </button>
-          ) : null}
-          {!isAnswered ? (
-            <button type="button" className="link-rule" onClick={onSkip}>
-              Skip
-            </button>
-          ) : null}
-          <button type="button" className="btn btn-navy" onClick={onNext}>
-            {number === total ? "See my matches" : "Next"}
-            <span className="btn-dash" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-    </div>
+      </StepFooter>
+    </StepCard>
   );
 }
 
@@ -192,18 +177,15 @@ function clearAnswer(id: QuestionId, a: Answers, onAnswers: (a: Answers) => void
   }
 }
 
-function Choices<T extends string>({ items, selected, onToggle, multi }: { items: readonly (readonly [T, string])[]; selected: T[]; onToggle: (v: T) => void; multi?: boolean }) {
+function Choices<T extends string>({ items, selected, onToggle }: { items: readonly (readonly [T, string])[]; selected: T[]; onToggle: (v: T) => void; multi?: boolean }) {
   return (
-    <div className="flex flex-wrap gap-2" role="group">
-      {items.map(([v, label]) => {
-        const on = selected.includes(v);
-        return (
-          <button key={v} type="button" className="chip" data-active={on ? "true" : undefined} aria-pressed={on} onClick={() => onToggle(v)}>
-            {label}
-          </button>
-        );
-      })}
-    </div>
+    <ChipGroup>
+      {items.map(([v, label]) => (
+        <Chip key={v} size="lg" selected={selected.includes(v)} onClick={() => onToggle(v)}>
+          {label}
+        </Chip>
+      ))}
+    </ChipGroup>
   );
 }
 
@@ -229,11 +211,8 @@ function Near({ answers, areas, set }: { answers: Answers; areas: IndexEntry[]; 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr] lg:gap-10">
       <div className="flex flex-col gap-6">
-        <div className="field">
-          <label htmlFor={`${uid}-area`} className="field-label">
-            Start from an Atlas area
-          </label>
-          <select id={`${uid}-area`} value={areaSlug} onChange={(e) => set({ near: e.target.value ? { kind: "area", slug: e.target.value } : null })} className="field-input">
+        <Field id={`${uid}-area`} label="Start from an Atlas area">
+          <Select value={areaSlug} onChange={(e) => set({ near: e.target.value ? { kind: "area", slug: e.target.value } : null })}>
             <option value="">Choose an area</option>
             {byMarket.map((g) => (
               <optgroup key={g.market.slug} label={g.market.name}>
@@ -244,17 +223,19 @@ function Near({ answers, areas, set }: { answers: Answers; areas: IndexEntry[]; 
                 ))}
               </optgroup>
             ))}
-          </select>
-        </div>
+          </Select>
+        </Field>
         <div className="flex flex-col gap-2">
-          <p className="field-label">How far is close enough?</p>
-          <div className="flex flex-wrap gap-2">
+          <p id={`${uid}-within`} className="field-label">
+            How far is close enough?
+          </p>
+          <ChipGroup aria-labelledby={`${uid}-within`}>
             {RADII.map((r) => (
-              <button key={r} type="button" className="chip !min-h-9 !px-3 !text-[12px]" data-active={answers.within === r ? "true" : undefined} aria-pressed={answers.within === r} onClick={() => set({ within: r })}>
+              <Chip key={r} size="sm" tick={false} selected={answers.within === r} onClick={() => set({ within: r })}>
                 {r} miles
-              </button>
+              </Chip>
             ))}
-          </div>
+          </ChipGroup>
         </div>
         <p className="t-small text-body-muted" aria-live="polite">
           {point ? `Point set at ${point.lat.toFixed(3)}, ${point.lng.toFixed(3)}. Tap the map again to move it.` : areaSlug ? "Or tap the map to use a point instead." : "Or tap the map to drop a point."}

@@ -124,7 +124,7 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
               </label>
               <label htmlFor={`${uid}-zip`} className="street-sign street-sign-sm">
                 <span className="street-sign-label">
-                  {C.form.zip} <span className="opacity-70">(optional)</span>
+                  {C.form.zip} <span>(optional)</span>
                 </span>
                 <input id={`${uid}-zip`} name="zip" value={zip} onChange={(e) => setZip(e.target.value)} placeholder={C.form.zipPlaceholder} autoComplete="postal-code" maxLength={40} className="street-sign-input" />
               </label>
@@ -171,7 +171,7 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
             <div className="flex flex-col gap-3 border-t border-hairline pt-6">
               <p className="t-h3 text-navy">{C.results.empty(months)}</p>
               <p className="t-body max-w-measure text-body">{C.results.emptyHelp}</p>
-              <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
+              <p className="t-note">{sourceLine}</p>
             </div>
           ) : null}
 
@@ -204,7 +204,7 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                 {data.truncated ? <p className="t-small text-graphite-500">{C.results.truncated(data.rows.length, data.total, Boolean(data.query.zip))}</p> : null}
                 {data.rows.some((r) => r.propertyUse === "vacant") ? <p className="t-small max-w-measure text-graphite-500">{C.results.newBuildNote}</p> : null}
                 {data.rows.some(saleFlagged) ? <p className="t-small max-w-measure text-graphite-500">† {C.results.rollChanged}</p> : null}
-                <p className="t-mono-sm text-graphite-500">{sourceLine}</p>
+                <p className="t-note">{sourceLine}</p>
                 <p className="t-small max-w-measure text-graphite-500">{C.results.note}</p>
               </div>
             </div>

@@ -23,6 +23,7 @@ import { explorerHref } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 import { guideHref } from "@/lib/guides/slugs";
 import { site } from "@/lib/site";
+import { ExternalLink } from "@/components/ui/external-link";
 
 /**
  * The market hub, shared by the three explicit routes (app/(site)/lakewood-ranch,
@@ -66,7 +67,7 @@ function WeekRow({ item }: { item: HubEncoreItem }) {
         <span className="t-mono-sm shrink-0 text-navy tabular-nums sm:w-[12rem]">{when}</span>
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="t-h4 text-navy">{e.t}</span>
-          <span className="t-mono-sm text-graphite-500">
+          <span className="t-note">
             {e.vn} · {CATEGORY[e.c].label}
             {e.so ? " · Sold out" : e.pr ? ` · ${e.pr}` : ""}
           </span>
@@ -86,9 +87,9 @@ function SourceLink({ href, children }: { href: string; children: React.ReactNod
       {children}
     </Link>
   ) : (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+    <ExternalLink href={href} className={cls}>
       {children}
-    </a>
+    </ExternalLink>
   );
 }
 
@@ -222,7 +223,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             </dd>
           </div>
         </dl>
-        <p className="t-mono-sm text-graphite-500">
+        <p className="t-note">
           Catalog as of {asOf}. Counts are places on the Atlas, not homes or sales. Nothing here is a rating, a price, or a description of who lives where.
         </p>
       </section>
@@ -254,7 +255,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
                 .
               </p>
             )}
-            <p className="t-mono-sm text-graphite-500">
+            <p className="t-note">
               {week.performances
                 ? `${week.performances} ${week.performances === 1 ? "performance" : "performances"} in ${m.name} from ${shortDay(week.today)} to ${shortDay(week.to)}, one row per production. `
                 : ""}
@@ -317,7 +318,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             </div>
           </div>
         </div>
-        <p className="t-mono-sm text-graphite-500">
+        <p className="t-note">
           Nothing above is a figure. The county customs and the Florida rules are as the pages linked at the foot state them; confirm the particulars of a house with the title company, the association and your insurer.
         </p>
       </section>
