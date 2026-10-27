@@ -129,14 +129,24 @@ export type NextStep = {
  */
 export const nextSteps: readonly { test: RegExp; step: NextStep }[] = [
   { test: /^\/listings\/[^/]+$/, step: { label: "Showing", href: "#inquire" } },
-  { test: /^\/sell\/net-proceeds$/, step: { label: "Your number", href: "#net-sheet" } },
-  { test: /^\/(sell\/home-value|sell\/sold|valuation)$/, step: { label: "Get the number", href: "#ask" } },
-  { test: /^\/sell$/, step: { label: "Home value", href: "/valuation" } },
+  { test: /^\/(sell\/home-value|sell\/sold)$/, step: { label: "Get the number", href: "#ask" } },
+  { test: /^\/sell$/, step: { label: "Home value", href: "/sell/home-value" } },
   { test: /^\/guides\/[^/]+$/, step: { label: "PDF", href: (p) => `/guides/pdf/${p.slice("/guides/".length)}.pdf` } },
   { test: /^\/calendar$/, step: { label: "Tonight", href: "#tonight" } },
   { test: /^\/calendar\/plan$/, step: { label: "Ask us", href: "#ask" } },
   { test: /^\/neighborhoods\/(?!match$)[^/]+$/, step: { label: "On the map", href: (p) => `/neighborhoods?place=${p.slice("/neighborhoods/".length)}` } },
 ] as const;
+
+/**
+ * Pages with a bar of their own pinned to the phone's bottom edge, in place
+ * of Call · Text: the Sale Calculator's result bar (components/net-proceeds),
+ * which carries the Call cell itself.
+ */
+export const ownPhoneBars: readonly RegExp[] = [/^\/sell\/net-proceeds$/];
+
+export function hasOwnPhoneBar(pathname: string): boolean {
+  return ownPhoneBars.some((t) => t.test(pathname));
+}
 
 /** The next step for a path, if the page has one. */
 export function nextStepFor(pathname: string): { label: string; href: string } | null {
@@ -265,7 +275,7 @@ export const footerNav = {
   buySell: [
     { href: "/buy", label: "Buyer’s guide" },
     { href: "/sell", label: "Seller’s guide" },
-    { href: "/valuation", label: "What’s my home worth" },
+    { href: "/sell/home-value", label: "What’s my home worth" },
     { href: "/listings", label: "Homes for sale" },
   ],
   guides: [
