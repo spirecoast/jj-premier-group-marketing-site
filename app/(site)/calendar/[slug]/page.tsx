@@ -209,10 +209,11 @@ export default async function EventPage({ params }: { params: Params }) {
  */
 async function ClosedEvent({ event }: { event: Event }) {
   const venueNamed = !event.venue.unlisted;
-  const upcoming = venueNamed
-    ? await getUpcomingEvents({ venue: event.venue.slug, limit: 4, datedFirst: true })
-    : await getUpcomingEvents({ market: event.venue.market, limit: 4, datedFirst: true, distinctVenues: true });
-  const next = upcoming.filter((e) => e.slug !== event.slug).slice(0, 3);
+  const atVenue = venueNamed ? (await getUpcomingEvents({ venue: event.venue.slug, limit: 4, datedFirst: true })).filter((e) => e.slug !== event.slug) : [];
+  // Nothing more at the venue (or no venue to name): the next shows in the same town.
+  const inTown = atVenue.length ? [] : await getUpcomingEvents({ market: event.venue.market, limit: 4, datedFirst: true, distinctVenues: true });
+  const next = (atVenue.length ? atVenue : inTown.filter((e) => e.slug !== event.slug)).slice(0, 3);
+  const nextAtVenue = atVenue.length > 0;
   const art = varyStock(next.map((e) => ({ category: e.category, subcategory: e.subcategory, seed: e.slug })));
   const isRun = Boolean(event.runsThrough) && !event.performances?.length;
   const lastDay = formatDateLong(event.startsAt);
@@ -250,7 +251,7 @@ async function ClosedEvent({ event }: { event: Event }) {
 
       {next.length ? (
         <section className="container-site flex flex-col gap-10 pb-section" aria-labelledby="next-title">
-          <SectionHeading title={<span id="next-title">{venueNamed ? `Next at ${event.venue.name}.` : `Next in ${place}.`}</span>} />
+          <SectionHeading title={<span id="next-title">{nextAtVenue ? `Next at ${event.venue.name}.` : `Next in ${marketName(event.venue.market)}.`}</span>} />
           <FreshList ends={next.map(cardEndsAt)} className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {next.map((e, i) => (
               <li key={e.slug} className="flex">

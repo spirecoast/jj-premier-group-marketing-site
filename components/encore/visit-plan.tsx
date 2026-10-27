@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { ButtonLink, RuleButton } from "@/components/ui/button";
 import { Chip, ChipGroup } from "@/components/ui/chip";
 import { Checkbox, Field, Input } from "@/components/ui/field";
@@ -76,6 +76,8 @@ export function VisitPlan({
   const nearbyVenues = useMemo(() => new Set(nearby ?? []), [nearby]);
   // One pick's Nearby panel open at a time.
   const [openNear, setOpenNear] = useState<string | null>(null);
+  // The days strip in the stage; once it scrolls away a long plan gets the compact jumper (DayJumper).
+  const stripRef = useRef<HTMLElement>(null);
   // The form asks one question at a time. Each is a history entry, so the browser's Back returns to
   // the one before; after a move the question takes focus and comes back into view under the header.
   const [q, setQ] = useState(initialQuestion);
@@ -332,7 +334,7 @@ export function VisitPlan({
               </div>
 
               {nights > 1 ? (
-                <nav aria-label="Days in the plan" className="relative">
+                <nav ref={stripRef} aria-label="Days in the plan" className="relative">
                   <ol className="plan-strip">
                     {plan.days.map((d) => {
                       const picks = [...(d.matinee ? [d.matinee] : []), ...d.picks];
@@ -359,7 +361,8 @@ export function VisitPlan({
               ) : null}
             </div>
 
-            <div className="plan-days">
+            {plan.days.length >= JUMP_MIN_DAYS ? <DayJumper days={plan.days} stripRef={stripRef} /> : null}
+            <div className={cn("plan-days", plan.days.length >= JUMP_MIN_DAYS && "has-jump")}>
               {plan.days.map((d, i) => (
                 <DayCard
                   key={d.day}
@@ -590,6 +593,9 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
           </span>
         </span>
         <span className="t-mono-sm hidden shrink-0 text-graphite-500 sm:block">{e.pr ?? ""}</span>
+        <span className="encore-agenda-arrow" aria-hidden="true">
+          →
+        </span>
       </Link>
       {nearby ? (
         <button
@@ -606,6 +612,107 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
       ) : null}
       <SaveButton saved={saved} onToggle={onSave} title={e.t} className="encore-agenda-save" />
     </li>
+  );
+}
+
+/** A plan this long gets the day jumper: past a week, the days strip is a long scroll away. */
+const JUMP_MIN_DAYS = 5;
+
+/**
+ * The days of a long plan in one compact row that sticks under the header
+ * once the stage's strip has scrolled away, so any day is one tap from
+ * anywhere in the plan. The day being read is marked; ← → move between
+ * days (one tab stop for the row), and Enter jumps there.
+ */
+function DayJumper({ days, stripRef }: { days: PlanDay[]; stripRef: RefObject<HTMLElement | null> }) {
+  const [shown, setShown] = useState(false);
+  const [current, setCurrent] = useState(days[0]!.day);
+  const [focusDay, setFocusDay] = useState<string | null>(null);
+  const rowRef = useRef<HTMLOListElement>(null);
+
+  // Shown once the stage's strip is above the header, until the last day ends.
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+    const root = document.documentElement;
+    const phone = window.matchMedia("(max-width: 63.99rem)");
+    // Where the header ends: nothing while a phone's header is tucked away (site-header.tsx).
+    const header = () => (phone.matches && root.dataset.scroll === "down" ? 0 : Math.max(0, document.querySelector(".site-header")?.getBoundingClientRect().bottom ?? 0));
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const top = header();
+      const pastStrip = strip.getBoundingClientRect().bottom < top;
+      const last = document.getElementById(`day-${days[days.length - 1]!.day}`);
+      const beforeEnd = !last || last.getBoundingClientRect().bottom > top + 120;
+      setShown(pastStrip && beforeEnd);
+      // The day being read: the last one whose top has come up to where a jump lands it (its scroll margin), with a little to spare.
+      const first = document.getElementById(`day-${days[0]!.day}`);
+      // A jump lands a day at the page's scroll padding plus the day's scroll margin.
+      const landing = first ? (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0) + (parseFloat(getComputedStyle(first).scrollMarginTop) || 0) : 0;
+      const lands = Math.max(top + 52, landing);
+      let at = days[0]!.day;
+      for (const d of days) {
+        const el = document.getElementById(`day-${d.day}`);
+        if (el && el.getBoundingClientRect().top <= lands + 40) at = d.day;
+      }
+      setCurrent(at);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    raf = requestAnimationFrame(measure);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [days, stripRef]);
+
+  // Keep the current day in sight inside the row, without moving the page.
+  useEffect(() => {
+    const row = rowRef.current;
+    const el = row?.querySelector<HTMLElement>(`[data-day="${current}"]`);
+    if (!row || !el) return;
+    const left = el.offsetLeft - row.clientWidth / 2 + el.offsetWidth / 2;
+    row.scrollTo({ left, behavior: "auto" });
+  }, [current]);
+
+  const tabDay = focusDay ?? current;
+  const onKeyDown = (e: KeyboardEvent<HTMLOListElement>) => {
+    const i = days.findIndex((d) => d.day === tabDay);
+    const next = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? days.length - 1 : -1;
+    if (next < 0 || next >= days.length || next === i && e.key !== "Home" && e.key !== "End") return;
+    e.preventDefault();
+    const day = days[next]!.day;
+    setFocusDay(day);
+    rowRef.current?.querySelector<HTMLElement>(`[data-day="${day}"]`)?.focus();
+  };
+
+  return (
+    <div className="plan-jump" data-shown={shown || undefined} inert={!shown}>
+      <nav aria-label="Jump to a day" className="plan-jump-bar">
+        <ol ref={rowRef} className="plan-jump-row" onKeyDown={onKeyDown} onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && setFocusDay(null)}>
+          {days.map((d) => (
+            <li key={d.day}>
+              <a
+                href={`#day-${d.day}`}
+                data-day={d.day}
+                tabIndex={d.day === tabDay ? 0 : -1}
+                aria-current={d.day === current ? "true" : undefined}
+                className={cn("plan-jump-day", d.weekend && "is-weekend")}
+                onClick={() => setFocusDay(null)}
+              >
+                <span className="plan-jump-wd">{weekdayShort(d.day)}</span>
+                <span className="plan-jump-num">{dayNum(d.day)}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </div>
   );
 }
 
