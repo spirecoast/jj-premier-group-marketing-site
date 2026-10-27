@@ -8,7 +8,7 @@ import { GUIDES } from "../guides";
 import { ATLAS_LINE, placeDescription } from "./describe";
 import type { NeighborhoodRecord } from "./types";
 
-const base = { jurisdiction: null, county: null, gated: null, hoa: null, cdd: null, evacuationZone: null, zips: [] } as const;
+const base: Parameters<typeof placeDescription>[1] & object = { jurisdiction: null, county: null, gated: null, hoa: null, cdd: null, evacuationZone: null, zips: [] };
 
 describe("a place page's search description", () => {
   test("a long description is left alone", () => {
@@ -48,7 +48,7 @@ describe("every page in the sitemap fills its search result", () => {
       .filter(([, d]) => d.length < DESCRIPTION_MIN);
     assert.deepEqual(short, []);
     for (const n of NEIGHBORHOODS) {
-      const d = clampDescription(placeDescription(n.tagline, records.find((r) => r.slug === n.slug)));
+      const d = clampDescription(placeDescription(n.tagline ?? n.name, records.find((r) => r.slug === n.slug)));
       assert.ok(d.length >= DESCRIPTION_MIN, `${n.slug}: ${d}`);
     }
   });
