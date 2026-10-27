@@ -78,7 +78,7 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
               <span className="btn-dash" aria-hidden="true" />
             </Link>
             <Link
-              href="/valuation"
+              href="/sell/home-value"
               className="btn border-navy bg-transparent text-navy hover:bg-navy hover:text-linen-200 lg:border-linen-200/60 lg:text-linen-200 lg:hover:border-linen-200 lg:hover:bg-linen-200/10 lg:hover:text-linen-200"
             >
               What is my home worth

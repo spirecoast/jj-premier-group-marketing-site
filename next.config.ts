@@ -216,6 +216,8 @@ const nextConfig: NextConfig = {
       // /relocate is the relocation planner now; its old redirect to /buy is gone.
       // The editorial slug before the neighborhood dataset arrived.
       { source: "/neighborhoods/lake-club", destination: "/neighborhoods/the-lake-club", permanent: true },
+      // One "what's my home worth" page: the record lookup and the ask live at /sell/home-value (October 2026).
+      { source: "/valuation", destination: "/sell/home-value", permanent: true },
       // Tide's home was /blog; it's /tide now, issues only. Guides live at /guides.
       { source: "/blog", destination: "/tide", permanent: true },
       // Guides rebuilt as long-form pages (lib/guides) moved from Tide to /guides; the old links follow.

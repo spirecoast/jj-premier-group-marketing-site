@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
-import { LeadForm } from "@/components/lead-form";
+import { RuleLink } from "@/components/ui/button";
+import { startSheetPath } from "@/lib/net-proceeds-url";
 import { SectionHeading } from "@/components/section-heading";
 import { ShareButton } from "@/components/share-button";
 import { parseHouseNumber } from "@/lib/sales/parcel";
@@ -75,6 +76,12 @@ type Props = {
   /** How far each county's file reaches. */
   through: Through[];
 };
+
+/** The county the street's sales are in, when they are all in one; a hand-off carries it to the Sale Calculator. */
+function streetCounty(rows: Row[]): Row["county"] | null {
+  const first = rows[0]?.county ?? null;
+  return first && rows.every((r) => r.county === first) ? first : null;
+}
 
 type Group = "resales" | "newer" | "like";
 
@@ -449,6 +456,11 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                   <Stat label={C.summary.range} value={summary.from && summary.to ? `${fmtDate(summary.from)} – ${fmtDate(summary.to)}` : "—"} small />
                 </dl>
               ) : null}
+              {medianValue ? (
+                <p className="t-small text-graphite-500">
+                  <RuleLink href={startSheetPath(medianValue, streetCounty(rows))}>{C.summary.startSheet}</RuleLink>
+                </p>
+              ) : null}
 
               {/* Every sale on the street, in time. An area's rows are the newest few hundred, so it has no timeline. */}
               {summary && timelineWindow && !data.truncated ? (
@@ -509,16 +521,12 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
             <SectionHeading title={C.ask.title} />
             <p className="t-body max-w-[440px] text-body">{C.ask.body}</p>
           </div>
-          <div className="border border-hairline bg-white p-6 sm:p-8">
-            <LeadForm
-              key={askAddress}
-              form="sell"
-              fields={["name", "email", "phone", "address", "timing", "message"]}
-              submitLabel={C.ask.submit}
-              placeholderMessage={C.ask.placeholder}
-              defaultAddress={askAddress ? titleCase(askAddress) : undefined}
-              hidden={{ pageTitle: C.title }}
-            />
+          {/* The form itself lives on /sell/home-value; the street searched goes with the link. */}
+          <div className="flex flex-col items-start gap-3 lg:pt-2">
+            <RuleLink href={askAddress ? `/sell/home-value?ask=${encodeURIComponent(titleCase(askAddress))}#ask` : "/sell/home-value#ask"}>
+              {askAddress ? C.ask.linkFor(titleCase(askAddress)) : C.ask.link}
+            </RuleLink>
+            <p className="t-note">{C.ask.linkNote}</p>
           </div>
         </div>
       </section>

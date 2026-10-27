@@ -3,7 +3,7 @@ import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from "@/components/guide";
 import { WorkWith } from "@/components/home/work-with";
 import { JsonLd } from "@/components/json-ld";
-import { LeadForm } from "@/components/lead-form";
+import { ButtonLink } from "@/components/ui/button";
 import { getSiteSettings } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { faqJsonLd, pageMetadata } from "@/lib/seo";
@@ -235,13 +235,12 @@ export default async function SellPage() {
             A comp-based answer from Joelyn or Jessica soon after · no algorithm guess
           </p>
         </div>
-        <div className="border border-hairline bg-white p-6 sm:p-8">
-          <LeadForm
-            form="sell"
-            fields={["name", "email", "phone", "address", "timing", "message"]}
-            submitLabel="Get the number"
-            placeholderMessage="Tell us the year of the roof, anything you already know needs doing, and whether there’s a house to buy next."
-          />
+        {/* The ask itself lives on /sell/home-value, so a seller never meets the same form twice. */}
+        <div className="flex flex-col items-start gap-4 lg:pt-2">
+          <ButtonLink href="/sell/home-value#ask" dash>
+            Get the number
+          </ButtonLink>
+          <p className="t-note">The address, the timing, and anything you already know about the house.</p>
         </div>
       </section>
     </>

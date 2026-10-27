@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import { RuleLink } from "@/components/buttons";
+import { Photo } from "@/components/photo";
+import { Steps, type Step } from "@/components/steps";
+import { TestimonialSlider } from "@/components/testimonial-slider";
+import { getTestimonials } from "@/lib/content";
+import { img } from "@/lib/content/seed/helpers";
 import { HOME_VALUE_COPY as C } from "@/components/home-value/copy";
 import { HomeValueLookup } from "@/components/home-value/home-value-lookup";
 import { JsonLd } from "@/components/json-ld";
@@ -7,6 +12,32 @@ import { Masthead } from "@/components/masthead";
 import { SectionHeading } from "@/components/section-heading";
 import { getSalesManifest, type County } from "@/lib/sales";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
+
+const FRAMES = {
+  duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 30%"),
+};
+
+/** Three steps, one phone call. */
+const STEPS: Step[] = [
+  {
+    when: "Today",
+    title: "You send the address",
+    body:
+      "Street address and timing are enough. If you know the year of the roof or what the house two doors down sold for, put it in the message; if not, we'll find out.",
+  },
+  {
+    when: "Soon after",
+    title: "We pull the comps and drive the street",
+    body:
+      "We pull recent closed sales nearby, adjusted for the water, the flood zone, and which end of the street. One of us drives it. Nobody prices a house right from a satellite picture.",
+  },
+  {
+    when: "The call",
+    title: "You get the number, and the reason for it",
+    body:
+      "You get a range in writing with the four addresses behind it, what we'd change before the photos, and what we wouldn't spend a dollar on. No listing agreement attached. The number is yours either way.",
+  },
+];
 
 export async function generateMetadata(): Promise<Metadata> {
   const months = (await getSalesManifest())?.windowMonths ?? 24;
@@ -31,6 +62,8 @@ export default async function HomeValuePage() {
   const counties = manifest ? Object.values(manifest.counties).map((c) => c.label) : [];
   const months = manifest?.windowMonths ?? 24;
   const through = manifest ? (Object.entries(manifest.counties) as [County, { label: string; to: string | null }][]).map(([county, c]) => ({ county, label: c.label, to: c.to })) : [];
+  const testimonials = await getTestimonials();
+  const seller = testimonials.find((t) => /seller/i.test(t.attribution)) ?? testimonials[0];
 
   return (
     <>
@@ -51,7 +84,7 @@ export default async function HomeValuePage() {
             <RuleLink href="/sell/sold">{C.links.sold}</RuleLink>
           </li>
           <li>
-            <RuleLink href="/valuation">{C.links.valuation}</RuleLink>
+            <RuleLink href="#ask">{C.links.valuation}</RuleLink>
           </li>
         </ul>
       </section>
@@ -78,6 +111,28 @@ export default async function HomeValuePage() {
           </div>
         </section>
       </HomeValueLookup>
+
+      {/* 05 · Three steps, one phone call. */}
+      <section className="container-site flex flex-col gap-10 py-section">
+        <SectionHeading title={C.steps.title} aside={<RuleLink href="/sell">{C.steps.aside}</RuleLink>} />
+        <Steps items={STEPS} columns={3} />
+      </section>
+
+      {/* 06 · One seller, in their words, and the two people who will call. */}
+      {seller ? (
+        <section className="bg-parchment">
+          <div className="container-site grid items-center gap-12 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+            <div className="relative aspect-[4/5] overflow-hidden bg-linen-100 sm:aspect-[4/3] lg:aspect-[4/5]">
+              <Photo image={FRAMES.duo} sizes="(min-width: 1024px) 460px, 100vw" />
+            </div>
+            <div className="flex flex-col gap-8">
+              <SectionHeading title={C.quote.title} />
+              <TestimonialSlider testimonials={[seller]} />
+              <p className="t-body max-w-[520px] text-body">{C.quote.body}</p>
+            </div>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

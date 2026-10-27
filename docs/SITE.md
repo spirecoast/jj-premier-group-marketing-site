@@ -11,7 +11,7 @@ jj-premier-brand-system.vercel.app).
 |---|---|
 | Brand tokens (the single definition) | `app/globals.css` `@theme`, `styles/tokens.css`, `docs/handoff/design/BRAND-TOKENS.md` |
 | Fonts | `app/layout.tsx` (Newsreader, Cormorant Garamond, Jost, IBM Plex Mono via `next/font`). Only what the first screen draws is preloaded: Newsreader roman (with its optical-size axis, which the display sizes need), Jost and Cormorant, about 180 KB. Newsreader italic is a separate family without the axis, not preloaded, reached through `--font-display-italic` (`.font-display.italic`, `t-quote`, the guide quotes and PDF leads); Plex Mono loads with the page |
-| Stylesheets | `app/globals.css` holds the tokens, the base layer, the type and shared components and every utility, and loads on every page. A product's own CSS sits beside it and loads only on the routes that render it: `components/encore/encore.css`, `components/explorer/explorer.css`, `components/guides/guides.css` and `guide-card.css`, `components/sales/street.css`, and `app/(print)/print.css` for the guide PDFs. New feature CSS goes in its feature's file, imported by the components that use it |
+| Stylesheets | `app/globals.css` holds the tokens, the base layer, the type and shared components and every utility, and loads on every page. A product's own CSS sits beside it and loads only on the routes that render it: `components/encore/encore.css`, `components/explorer/explorer.css`, `components/guides/guides.css` and `guide-card.css`, `components/sales/street.css`, `components/net-proceeds/net-proceeds.css`, and `app/(print)/print.css` for the guide PDFs. New feature CSS goes in its feature's file, imported by the components that use it |
 | Tool state | `lib/url-state.ts` (the rules below, "The tools and the address bar"), `components/url-pending.tsx`, `lib/use-json-resource.ts`, `lib/scroll.ts` |
 | Site chrome | `components/site-header.tsx`, `site-footer.tsx`, `mobile-action-bar.tsx`, `app/(site)/layout.tsx` |
 | Home page sections | `components/home/*`, in page order: 01 `hero`, 02 `meet`, 03 `doors`, 04 `what-we-do`, 05 `three`, 06 `places`, 07 `find-home`, 08 `questions`, 09 `calendar-preview` (Encore), 10 `letter-band` (Tide); composed in `app/(site)/page.tsx`. The design treatments for 03, 04 and 05 live in `components/home/variants/` and are chosen by the `variant` default in `doors.tsx`, `what-we-do.tsx` and `three.tsx`; the gallery is `docs/screenshots/home-design/index.html` |
@@ -199,7 +199,7 @@ off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
 ## The tools and the address bar
 
 The tool pages (`/neighborhoods`, `/neighborhoods/match`, `/calendar`, `/calendar/plan`,
-`/relocate`, and the forms on `/contact` and `/listings`) are static: the server renders each in
+`/relocate`, `/sell/net-proceeds`, and the forms on `/contact` and `/listings`) are static: the server renders each in
 its default state, fast from the CDN and complete for crawlers, and the browser applies what the
 address asks for once, right after hydration (`lib/url-state.ts`, `useUrlInitial`). When a link
 carries a tool's keys (or a returning visitor has answers in progress),
@@ -220,6 +220,20 @@ every tool, in `lib/url-state.ts`:
 - **Answers in progress are kept.** Move, Match and the Planner save their answers in
   localStorage on every change (`relocate:answers`, `atlas:match`, `encore:plan-draft`), so a
   reload or an accidental exit comes back to the same question.
+- **The Sale Calculator is a link.** Every input on `/sell/net-proceeds` is in the query
+  (`lib/net-proceeds-url.ts`: `price`, `county`, `close`, `title`, `mortgage`, `second`, `list`,
+  `buyer`, `tax`, `paid`, `hoa`, `dues`, `per`, `estoppel`, `settle`, `rec`, `repairs`, `staging`,
+  `other`, `firpta`), written when a field loses focus or a tile, select or box changes, never per
+  keystroke, and mirrored to localStorage (`net-proceeds`) so a return visit resumes. It writes
+  with the native `replaceState` rather than Next's patched one: the router's dispatch runs in a
+  transition that starts a view transition, which swallowed the digits typed right after a tile
+  tap and moved focus back; nothing on the page reads the router's search params. Nothing is
+  chosen until the seller taps a county; a county that arrived from a link, the saved sheet or a
+  Tide Street or Home Value hand-off (`?price=&county=`) is flagged on the sheet until a tile is
+  tapped. On a phone the net sits in a bar pinned to the bottom edge in place of Call · Text
+  (`lib/site.ts`, `ownPhoneBars`), and tapping it opens the same sheet as a three-stop bottom
+  sheet; the in-flow sheet at the foot of the page is what prints. One live region reads
+  "Estimated net, $X" once typing has settled.
 - **Today is a calendar day, never the UTC day** (`lib/time.ts`). Atlas Move counts from the
   visitor's own day (`dayHere`, from the browser's clock; the static page's server render uses the
   site's day, `dayIn(SITE_TIMEZONE)`, until the browser replaces it), Encore from the site's day,

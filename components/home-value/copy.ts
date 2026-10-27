@@ -63,6 +63,8 @@ export const HOME_VALUE_COPY = {
     noNumber: "Type a house number and we'll look up the address itself, not only the street.",
     units: (count: number) => `That address has ${count} units. The newest sale among them is below; add the unit number to see one.`,
     dagger: "The roll's building facts changed after this sale, so the area and year are today's, not the day it sold.",
+    /** A hand-off to the Sale Calculator at the parcel's last price, in its county. */
+    startSheet: "Start a sale sheet from this sale",
   },
   cant: {
     eyebrow: "03 · What the record can't tell you",
@@ -120,6 +122,14 @@ export const HOME_VALUE_COPY = {
   links: {
     sold: "Just the street, without the house: what sold on your street",
     valuation: "Skip the record and ask for the number",
+  },
+  steps: {
+    title: "It takes three steps and one phone call.",
+    aside: "How selling with us goes",
+  },
+  quote: {
+    title: "What one seller said about the number.",
+    body: "The number is the easy part. The page that comes with it, what we’d change and what we’d leave alone, is the part clients keep. The whole thing takes ninety minutes at your kitchen island and a day at ours.",
   },
 } as const;
 

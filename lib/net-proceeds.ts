@@ -104,6 +104,13 @@ export const DOC_STAMP_RATE_PER_100 = 0.7;
 /** DBPR's adjusted estoppel cap, in force until the next update by July 1, 2027. */
 export const ESTOPPEL_CAP = 299;
 
+/** Sanity notes: a commission above this, or a price under this, gets a note on the sheet (the inputs stay free). */
+export const COMMISSION_SANITY_PCT = 10;
+export const PRICE_SANITY = 25_000;
+
+/** The note a negative net carries; the sheet shows it above the figure. */
+export const NEGATIVE_NET_NOTE = "Payoffs and costs are more than the price; you'd bring the difference to closing.";
+
 /** The clerks' per-page recording fees under F.S. 28.24. */
 export const RECORDING_FIRST_PAGE = 10;
 export const RECORDING_ADDITIONAL_PAGE = 8.5;
@@ -305,7 +312,7 @@ export type Sheet = {
   costs: number;
   credits: number;
   net: number;
-  /** Things the visitor should know about this particular sheet. */
+  /** Things the visitor should know about this particular sheet, the most important first. */
   notes: string[];
 };
 
@@ -411,9 +418,15 @@ export function computeSheet(input: NetProceedsInput): Sheet {
   const costs = sum("cost");
   const credits = sum("credit");
   const net = cents(price - payoffs - costs + credits);
-  if (net < 0) notes.push("Payoffs and costs are more than the price; you'd bring the difference to closing.");
 
-  return { price, county, closing, lines, payoffs, costs, credits, net, notes };
+  // What to check first: a net below zero, then an input that looks mistyped, then what's missing.
+  const first: string[] = [];
+  if (net < 0) first.push(NEGATIVE_NET_NOTE);
+  if (price > 0 && price < PRICE_SANITY) first.push(`Check the sale price: ${formatUsd(price)} is under ${formatUsd(PRICE_SANITY)}.`);
+  if (listingPct > COMMISSION_SANITY_PCT) first.push(`Check the commission: ${trimPct(listingPct)}% of price is unusual.`);
+  if (buyerPct > COMMISSION_SANITY_PCT) first.push(`Check the buyer-broker compensation: ${trimPct(buyerPct)}% of price is unusual.`);
+
+  return { price, county, closing, lines, payoffs, costs, credits, net, notes: [...first, ...notes] };
 }
 
 /** A percent entered by hand, kept to three decimals so the basis string and the math agree. */
