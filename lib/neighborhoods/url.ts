@@ -63,6 +63,18 @@ export function stateToSearch(s: ExplorerState): string {
   return qs ? `?${qs}` : "";
 }
 
+/** Every key the explorer reads from a link. */
+export const EXPLORER_KEYS = ["q", "market", "level", "type", "status", "gated", "all", "place", "map"] as const;
+
+/**
+ * The address bar's URL for a view: the committed choices (filters, the
+ * selected place) only. The search words and the map's position stay out of
+ * it (lib/url-state.ts) and go into the link only when the view is shared.
+ */
+export function explorerAddress(s: Pick<ExplorerState, "filters" | "place">): Route {
+  return explorerHref({ filters: s.filters, place: s.place });
+}
+
 export function explorerHref(s: Partial<ExplorerState>): Route {
   return `/neighborhoods${stateToSearch({ q: "", filters: {}, place: null, map: null, ...s })}` as Route;
 }

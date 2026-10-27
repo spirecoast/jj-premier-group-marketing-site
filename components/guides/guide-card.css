@@ -1,0 +1,15 @@
+/* The guide tile's frosted glass (components/guides/guide-card.tsx). */
+
+/* ---- Guide tiles: the title on frosted glass across the photograph's foot. */
+@layer components {
+  .guide-tile-glass {
+    background: linear-gradient(180deg, rgb(16 37 52 / 0.38) 0%, rgb(16 37 52 / 0.58) 100%);
+    border: 1px solid rgb(255 255 255 / 0.22);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 24px 40px -28px rgb(10 24 34 / 0.7);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    backdrop-filter: blur(16px) saturate(1.3);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .guide-tile-glass { background: rgb(16 37 52 / 0.82); }
+  }
+}

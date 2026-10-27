@@ -13,6 +13,7 @@ import { TrackedLink } from "@/components/tracked-link";
 import { getGuide, getGuideSlugs, guidePdfHref, guideReadingMinutes, guideWordCount } from "@/lib/guides";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, personJsonLd, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
+import "@/components/guides/guides.css";
 
 type Params = Promise<{ slug: string }>;
 const noon = (d: string) => `${d}T12:00:00`;

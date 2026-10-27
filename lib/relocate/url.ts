@@ -66,3 +66,40 @@ export function planPath(a: Answers): string {
 export function icsPath(a: Answers): string {
   return `/api/relocate/plan.ics?${answersToQuery(a)}`;
 }
+
+/** Every key a plan link carries. */
+export const RELOCATE_KEYS = Object.values(KEYS);
+
+/** The number of questions (components/relocate/questions.tsx). */
+export const MOVE_STEPS = 5;
+
+/** Where the answers in progress are kept in the browser. */
+export const MOVE_DRAFT = "relocate:answers";
+
+/** What's kept: the answers as a plan query, and where the visitor was. */
+export type MoveDraft = { query: string; mode: "questions" | "plan"; step: number; reached: number };
+
+/**
+ * The stored record, cleaned: the JSON this version writes, or the bare
+ * query string earlier versions kept (which only ever held a finished plan).
+ * Null when there's nothing usable.
+ */
+export function readMoveDraft(raw: string | null): MoveDraft | null {
+  if (!raw) return null;
+  const clampStep = (n: unknown) => Math.min(MOVE_STEPS - 1, Math.max(0, Math.trunc(Number(n)) || 0));
+  try {
+    const v = JSON.parse(raw) as Partial<MoveDraft> | null;
+    if (v && typeof v === "object" && typeof v.query === "string") {
+      return {
+        query: v.query,
+        mode: v.mode === "plan" ? "plan" : "questions",
+        step: clampStep(v.step),
+        reached: Math.min(MOVE_STEPS, Math.max(0, Math.trunc(Number(v.reached)) || 0)),
+      };
+    }
+    return null;
+  } catch {
+    // Not JSON: the bare query string.
+  }
+  return hasAnswers(Object.fromEntries(new URLSearchParams(raw))) ? { query: raw, mode: "plan", step: 0, reached: MOVE_STEPS } : null;
+}

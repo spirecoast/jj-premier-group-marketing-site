@@ -9,6 +9,7 @@ import { startMap, type MapStatus } from "@/components/map-runtime";
 import { MAP_COLORS } from "@/lib/neighborhoods/map-style";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import type { MapView } from "@/lib/neighborhoods/url";
+import "./explorer.css";
 
 export type Bounds = [west: number, south: number, east: number, north: number];
 

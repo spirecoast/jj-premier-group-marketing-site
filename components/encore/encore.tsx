@@ -8,11 +8,16 @@ import { MARKETS, marketName } from "@/lib/content/markets";
 import { CATEGORY, CATEGORY_ORDER } from "@/lib/encore/categories";
 import type { EncoreIndex } from "@/lib/encore/index-format";
 import { addDays, countsByCategory, countsByDay, longDay, monthEnd, monthLabel, monthStart, shortDay, weekStart, type Filter } from "@/lib/encore/select";
-import { encoreHref, type EncoreState, type EncoreView } from "@/lib/encore/url";
+import { localDay } from "@/lib/encore/day";
+import { SEASON_URL } from "@/lib/encore/index-format";
+import { ENCORE_KEYS, encoreHref, parseEncoreState, type EncoreState, type EncoreView } from "@/lib/encore/url";
+import { useJsonResource } from "@/lib/use-json-resource";
+import { hasAny, replaceQuery, sessionMemory, useUrlInitial } from "@/lib/url-state";
 import { cn } from "@/lib/utils";
 import { DayStrip } from "./day-strip";
 import { useMyList } from "./use-my-list";
 import { Agenda, ListView, MonthView, OnViewGrid, Spotlight, WeekView } from "./views";
+import "./encore.css";
 
 const STRIP_DAYS = 120;
 const VIEW_LABEL: Record<EncoreView, string> = { days: "Days", week: "Week", month: "Month", onview: "On view" };
@@ -26,16 +31,20 @@ export function Encore({
   initial,
   today,
   initialIndex,
+  sliceRange,
   masthead = false,
 }: {
   initial: EncoreState;
   today: string;
   initialIndex: EncoreIndex;
+  /** The days the server's slice covers; a view outside them waits for the full season. */
+  sliceRange: [string, string];
   /** The page opens with a masthead carrying the eyebrow and heading (components/masthead.tsx), so this leaves them out and keeps the links. */
   masthead?: boolean;
 }) {
-  const [index, setIndex] = useState<EncoreIndex>(initialIndex);
-  const [full, setFull] = useState(false);
+  const season = useJsonResource<EncoreIndex>(SEASON_URL);
+  const full = season.data !== null;
+  const index = season.data ?? initialIndex;
   const [view, setView] = useState<EncoreView>(initial.view);
   const [date, setDate] = useState(initial.date || today);
   const [category, setCategory] = useState(initial.category);
@@ -45,18 +54,6 @@ export function Encore({
   const [mode, setMode] = useState<"browse" | "mine" | "shared">(initial.list.length ? "shared" : "browse");
   const my = useMyList();
   const bodyRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctrl = new AbortController();
-    fetch("/api/encore/index", { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((data: EncoreIndex) => {
-        setIndex(data);
-        setFull(true);
-      })
-      .catch(() => {});
-    return () => ctrl.abort();
-  }, []);
 
   const filter: Filter = useMemo(() => ({ category, market, venue, q }), [category, market, venue, q]);
   const anchor = date;
@@ -75,14 +72,21 @@ export function Encore({
   const catCounts = useMemo(() => countsByCategory(index, from, to, filter), [index, from, to, filter]);
   const venueOptions = useMemo(() => [...index.venues].sort((a, b) => a.n.localeCompare(b.n)), [index.venues]);
 
-  // The URL follows the state.
+  // The address follows the committed choices (view, day, filters, a shared list), once per change.
+  // Not on arrival, so the landing URL (and its utm_* tags) stays as it came. The search words stay
+  // in this tab (lib/url-state.ts) and reach a link only through Share.
+  const firstUrl = useRef(true);
   useEffect(() => {
-    const t = setTimeout(() => {
-      const s: Partial<EncoreState> = { view, date: date === today ? "" : date, category, market, venue, q, list: mode === "shared" ? initial.list : [] };
-      window.history.replaceState(window.history.state, "", encoreHref(s));
-    }, 200);
+    if (firstUrl.current) {
+      firstUrl.current = false;
+      return;
+    }
+    replaceQuery(encoreHref({ view, date: date === today ? "" : date, category, market, venue, list: mode === "shared" ? initial.list : [] }));
+  }, [view, date, category, market, venue, mode, initial.list, today]);
+  useEffect(() => {
+    const t = setTimeout(() => sessionMemory.write(MEMORY, { q }), 300);
     return () => clearTimeout(t);
-  }, [view, date, category, market, venue, q, mode, initial.list, today]);
+  }, [q, view, date, category, market, venue, mode]);
 
   const go = useCallback((d: string) => {
     setDate(d);
@@ -109,11 +113,13 @@ export function Encore({
     view === "month" ? monthLabel(anchor) : view === "onview" ? "Exhibitions and runs" : `${shortDay(from)} – ${shortDay(to)}${to.slice(0, 4) !== today.slice(0, 4) ? `, ${to.slice(0, 4)}` : ""}`;
   const activeFilters = [category, market, venue, q].filter(Boolean).length;
   const bodyKey = `${mode}-${view}-${anchor}-${category ?? ""}-${market ?? ""}-${venue ?? ""}-${q}`;
+  // The server's slice covers two weeks from today and the runs on view; anything else waits for the full season.
+  const covered = full || (mode !== "shared" && (view === "onview" || (from >= sliceRange[0] && to <= sliceRange[1])));
   const listApi = { has: my.has, toggle: my.toggle };
   const shareState: Partial<EncoreState> = { view, date: date === today ? "" : date, category, market, venue, q };
 
   return (
-    <div className="encore">
+    <div className="encore" data-url-island="">
       <div className={cn("container-site flex flex-col gap-8", masthead ? "pt-8 md:pt-10" : "pt-10 md:pt-14")}>
         <div className={cn("flex flex-wrap items-end gap-6", masthead ? "justify-end" : "justify-between")}>
           {masthead ? null : (
@@ -262,8 +268,10 @@ export function Encore({
         {mode === "browse" && view === "days" && anchor === today ? (
           <Spotlight index={index} today={today} filter={filter} list={listApi} onDay={go} />
         ) : null}
-        <div key={bodyKey} className="encore-body">
-          {mode === "mine" ? (
+        <div key={bodyKey} className="encore-body" aria-busy={!covered}>
+          {!covered ? (
+            <SeasonWait error={season.error} onRetry={season.retry} />
+          ) : mode === "mine" ? (
             <ListView index={index} slugs={my.list} today={today} list={listApi} shared={false} />
           ) : mode === "shared" ? (
             <ListView index={index} slugs={initial.list} today={today} list={listApi} shared onSaveAll={() => my.addAll(initial.list)} />
@@ -300,6 +308,50 @@ export function Encore({
       </div>
     </div>
   );
+}
+
+/** The body's place while the season it needs is on its way, or, if it didn't come, why and a retry. */
+function SeasonWait({ error, onRetry }: { error: boolean; onRetry: () => void }) {
+  return (
+    <div className="flex min-h-[280px] flex-col gap-4" role="status">
+      {error ? (
+        <>
+          <p className="t-h3 text-navy">The season didn’t load, so these days are empty for now.</p>
+          <button type="button" className="link-rule self-start" onClick={onRetry}>
+            Try again
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="t-body text-graphite-500">Loading the season…</p>
+          <span className="block h-24 w-full animate-pulse bg-linen-100" aria-hidden="true" />
+          <span className="block h-24 w-full animate-pulse bg-linen-100" aria-hidden="true" />
+        </>
+      )}
+    </div>
+  );
+}
+
+const MEMORY = "encore";
+
+/**
+ * The calendar as the static page serves it: today and the next two weeks
+ * from the server, then the view the address asks for (and this tab's search
+ * words for it), on the browser's date.
+ */
+export function EncoreIsland({ serverToday, initialIndex, sliceRange }: { serverToday: string; initialIndex: EncoreIndex; sliceRange: [string, string] }) {
+  const { initial, key } = useUrlInitial(
+    (sp): { state: EncoreState; today: string } | null => {
+      const today = localDay(Date.now());
+      const mem = sessionMemory.read<{ q?: unknown }>(MEMORY);
+      const q = typeof mem?.q === "string" ? mem.q.slice(0, 80) : "";
+      if (!hasAny(sp, ENCORE_KEYS) && !q && today === serverToday) return null;
+      const state = parseEncoreState(sp);
+      return { state: { ...state, q: state.q || q }, today };
+    },
+    { state: parseEncoreState({}), today: serverToday },
+  );
+  return <Encore key={key} initial={initial.state} today={initial.today} initialIndex={initialIndex} sliceRange={sliceRange} masthead />;
 }
 
 function feedQuery(f: Filter): string {

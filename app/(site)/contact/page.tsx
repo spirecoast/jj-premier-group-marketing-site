@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { LeadForm } from "@/components/lead-form";
+import { UrlLeadForm } from "@/components/url-lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { TrackedLink } from "@/components/tracked-link";
 import { getSiteSettings, getTeam } from "@/lib/content";
-import { isMarketSlug } from "@/lib/content/markets";
 import { mapEmbedUrl, mapLinkUrl, mapQuery } from "@/lib/map-embed";
 import { pageMetadata } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
@@ -15,24 +14,14 @@ export const metadata: Metadata = pageMetadata({
   path: "/contact",
 });
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
-function first(v: string | string[] | undefined): string | undefined {
-  const s = Array.isArray(v) ? v[0] : v;
-  return s?.trim() ? s.trim().slice(0, 1000) : undefined;
-}
-
 /**
  * Accepts `?message=`, `?place=` and `?market=` so the Atlas's "ask us about
  * it" link and any neighborhood page can hand the visitor over with the
- * place already in the box and the market attached to the lead.
+ * place already in the box and the market attached to the lead. The page is
+ * static; the browser puts them in the form (components/url-lead-form.tsx).
  */
-export default async function ContactPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const [team, settings, params] = await Promise.all([getTeam(), getSiteSettings(), searchParams]);
-  const place = first(params.place);
-  const defaultMessage = first(params.message) ?? (place ? `Asking about ${place}.` : undefined);
-  const marketParam = first(params.market);
-  const market = isMarketSlug(marketParam) ? marketParam : undefined;
+export default async function ContactPage() {
+  const [team, settings] = await Promise.all([getTeam(), getSiteSettings()]);
   const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
     .filter(Boolean)
     .join(", ");
@@ -52,7 +41,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box, and one of us will write or call back.
         </p>
         <div className="border border-hairline bg-white p-6 sm:p-8">
-          <LeadForm form="contact" fields={["name", "email", "phone", "timing", "message"]} submitLabel="Send" defaultMessage={defaultMessage} hidden={{ market }} />
+          <UrlLeadForm prefill="contact" form="contact" fields={["name", "email", "phone", "timing", "message"]} submitLabel="Send" />
         </div>
       </div>
 

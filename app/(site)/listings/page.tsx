@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { EqualHousingMark } from "@/components/equal-housing";
-import { LeadForm } from "@/components/lead-form";
+import { UrlLeadForm } from "@/components/url-lead-form";
 import { Photo } from "@/components/photo";
 import { SectionHeading } from "@/components/section-heading";
 import { getSiteSettings } from "@/lib/content";
-import { PRICE_OPTIONS } from "@/lib/content/filters";
-import { MARKETS, isMarketSlug, marketName } from "@/lib/content/markets";
+import { MARKETS } from "@/lib/content/markets";
 import { img } from "@/lib/content/seed/helpers";
-import { formatPriceShort } from "@/lib/content/format";
+import { listingsOpening, listingsPlaceholder } from "@/lib/lead-prefill";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { ExternalLink } from "@/components/ui/external-link";
@@ -19,8 +18,6 @@ export const metadata: Metadata = pageMetadata({
   path: "/listings",
 });
 
-type SearchParams = Record<string, string | string[] | undefined>;
-const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 const FRAMES = {
   pool: img("library/modern-home-pool-dusk", "A modern home lit at dusk, the pool still", "50% 45%"),
@@ -29,23 +26,12 @@ const FRAMES = {
 
 /**
  * Until an MLS feed is licensed, the search is a conversation: the place and
- * the budget from the home page prefill the note, and the team does the
- * looking. Their live listings are one link away when the URL is configured.
+ * the budget from the home page prefill the note (in the browser: the page is
+ * static), and the team does the looking. Their live listings are one link
+ * away when the URL is configured.
  */
-export default async function FindHomePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const params = await searchParams;
+export default async function FindHomePage() {
   const settings = await getSiteSettings();
-  const marketRaw = one(params.market);
-  const market = isMarketSlug(marketRaw) ? marketRaw : undefined;
-  const maxRaw = Number(one(params.max));
-  const max = Number.isFinite(maxRaw) && maxRaw > 0 ? maxRaw : undefined;
-  const maxLabel = max ? (PRICE_OPTIONS.find((p) => Number(p.value) === max)?.label ?? formatPriceShort(max)) : undefined;
-  const opening = [
-    market ? `Looking in ${marketName(market)}` : "Looking on the coast",
-    maxLabel ? `up to ${maxLabel}` : undefined,
-  ]
-    .filter(Boolean)
-    .join(", ");
 
   return (
     <>
@@ -92,13 +78,12 @@ export default async function FindHomePage({ searchParams }: { searchParams: Pro
           </div>
         </div>
         <div className="border border-hairline bg-white p-8 md:p-10">
-          <LeadForm
+          <UrlLeadForm
+            prefill="listings"
             form="buy"
             fields={["name", "email", "phone", "message"]}
             submitLabel="Start my search"
-            placeholderMessage={`${opening}. Two or three bedrooms, near the water if we can, and we\u2019d like to be in by spring.`}
-            hidden={{ market }}
-            defaultMessage={market || maxLabel ? `${opening}. ` : undefined}
+            placeholderMessage={listingsPlaceholder(listingsOpening(undefined, undefined))}
           />
         </div>
       </section>

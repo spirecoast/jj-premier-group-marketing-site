@@ -25,6 +25,7 @@ import { TIDE_ISSUES, isIssueMonth } from "@/lib/tide/issues";
 import { loadIssueModel } from "@/lib/tide/load";
 import { absoluteUrl, breadcrumbJsonLd, pageMetadata, publisherRef } from "@/lib/seo";
 import { site } from "@/lib/site";
+import "@/components/guides/guides.css";
 
 /**
  * /tide/<issue>: one Tide issue, the monthly letter, rendered from the model

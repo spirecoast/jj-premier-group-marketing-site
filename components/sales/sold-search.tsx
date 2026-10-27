@@ -1,11 +1,24 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
-import { track } from "@/lib/analytics";
+import { ShareButton } from "@/components/share-button";
 import { SOLD_COPY as C } from "./copy";
 import { SalesTable, fmtDate, saleFlagged, titleCase, usd, type SaleRow as Row, type SalesSummary as Summary } from "./sales-table";
+import { useSalesLookup } from "./use-sales-lookup";
+import "./street.css";
+
+/** The search as /api/sales takes it: the street, and a five-digit ZIP or else a city. Null when the street is too short to search. */
+function toQuery(s: string, z: string): { query: URLSearchParams; searched: { street: string; zip: string } } | null {
+  const street = s.trim().slice(0, 80);
+  const zip = z.trim().slice(0, 40);
+  if (street.length < 2) return null;
+  const query = new URLSearchParams({ street });
+  if (/^\d{5}$/.test(zip)) query.set("zip", zip);
+  else if (zip) query.set("city", zip);
+  return { query, searched: { street, zip } };
+}
 
 type Api =
   | {
@@ -37,63 +50,36 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
   const uid = useId();
   const [street, setStreet] = useState("");
   const [zip, setZip] = useState("");
-  const [state, setState] = useState<{ status: "idle" | "loading" | "done" | "error"; data?: Api; searched?: string }>({ status: "idle" });
   // The ask form's address is a snapshot of the last completed search, so typing in the search box never remounts it.
   const [sent, setSent] = useState<{ street: string; zip: string } | null>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const abort = useRef<AbortController | null>(null);
-
-  async function run(s: string, z: string) {
-    const streetValue = s.trim().slice(0, 80);
-    const zipValue = z.trim().slice(0, 40);
-    if (streetValue.length < 2) return;
-    abort.current?.abort();
-    const controller = new AbortController();
-    abort.current = controller;
-    setState({ status: "loading", searched: streetValue });
-    track("Explore", { action: "sold-search" });
-    const params = new URLSearchParams({ street: streetValue });
-    if (/^\d{5}$/.test(zipValue)) params.set("zip", zipValue);
-    else if (zipValue) params.set("city", zipValue);
-    try {
-      const res = await fetch(`/api/sales?${params}`, { signal: controller.signal });
-      const data = (await res.json()) as Api;
-      setState({ status: data.ok || res.status === 400 ? "done" : "error", data, searched: streetValue });
-      if (data.ok || res.status === 400) setSent({ street: streetValue, zip: zipValue });
-      const url = new URL(window.location.href);
-      url.searchParams.set("street", streetValue);
-      if (zipValue) url.searchParams.set("zip", zipValue);
-      else url.searchParams.delete("zip");
-      window.history.replaceState(null, "", url);
-    } catch (e) {
-      if ((e as Error).name === "AbortError") return;
-      setState({ status: "error", searched: streetValue });
-    }
-  }
-
-  // A shared link carries the street in the URL; run it once on load.
-  useEffect(() => {
-    if (!loaded) return;
-    const p = new URLSearchParams(window.location.search);
-    const s = p.get("street") ?? "";
-    const z = p.get("zip") ?? "";
-    if (s) {
+  const { state, run: lookup, resultsRef } = useSalesLookup<Api, { street: string; zip: string }>({
+    action: "sold-search",
+    // A link that carries a street (/sell/sold?street=…&zip=…) runs it on arrival.
+    fromLink: (p) => {
+      if (!loaded) return null;
+      const s = (p.get("street") ?? "").trim();
+      if (s.length < 2) return null;
+      const z = p.get("zip") ?? "";
       setStreet(s);
       setZip(z);
-      void run(s, z);
-    }
-  }, [loaded]);
+      return toQuery(s, z);
+    },
+    onAsk: (_data, searched) => setSent(searched),
+  });
 
-  useEffect(() => {
-    if (state.status === "done" || state.status === "error") resultsRef.current?.focus();
-  }, [state.status]);
+  function run(s: string, z: string) {
+    const q = toQuery(s, z);
+    if (q) void lookup(q.query, q.searched);
+  }
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    void run(street, zip);
+    run(street, zip);
   }
 
   const data = state.status === "done" && state.data?.ok ? state.data : null;
+  // The street goes into a link only when the visitor shares it, never into the address bar.
+  const shareUrl = state.searched ? `/sell/sold?${new URLSearchParams(state.searched.zip ? { street: state.searched.street, zip: state.searched.zip } : { street: state.searched.street })}` : undefined;
   const failed = state.status === "done" && state.data && !state.data.ok ? state.data : null;
   const sourceLine = C.results.source(counties.length ? counties.join(" / ") : C.results.sourceDefault, asOf ?? "—");
   const askAddress = sent ? [sent.street, sent.zip].filter(Boolean).join(", ") : "";
@@ -182,9 +168,12 @@ export function SoldSearch({ loaded, asOf, counties, months }: Props) {
                     {data.match === "fuzzy" ? C.results.fuzzyMatch : C.results.partialMatch} {data.streets.map(titleCase).join(", ")}
                   </p>
                 ) : null}
-                <h2 className="street-sign street-sign-title self-start">
-                  <span className="street-sign-input">{C.summary.heading(data.streets.map(titleCase))}</span>
-                </h2>
+                <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                  <h2 className="street-sign street-sign-title self-start">
+                    <span className="street-sign-input">{C.summary.heading(data.streets.map(titleCase))}</span>
+                  </h2>
+                  <ShareButton title={C.title} url={shareUrl} what="sold-street" label={C.share} />
+                </div>
                 <dl className="grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-4">
                   <Stat label={C.summary.sales} value={String(data.summary.count)} note={C.summary.salesNote(data.summary.homes, data.summary.lots, months)} />
                   <Stat label={C.summary.medianPrice} value={data.summary.medianPrice ? usd.format(data.summary.medianPrice) : "—"} />

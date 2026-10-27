@@ -36,3 +36,6 @@ export type EncoreIndex = {
   perfs: EncorePerf[];
   venues: EncoreVenue[];
 };
+
+/** The full season for the browser (app/api/encore/index), fetched once per visit (lib/use-json-resource.ts). */
+export const SEASON_URL = "/api/encore/index";

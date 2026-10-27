@@ -3,12 +3,13 @@ import Link from "next/link";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { Masthead } from "@/components/masthead";
-import { AtlasMatch } from "@/components/match/atlas-match";
+import { AtlasMatchIsland } from "@/components/match/atlas-match";
 import { DATASET_VERSION, getIndexEntries } from "@/lib/neighborhoods/data";
 import { monthYear } from "@/lib/neighborhoods/format";
-import { parseMatch } from "@/lib/neighborhoods/match";
+import { MATCH_DRAFT, MATCH_KEYS } from "@/lib/neighborhoods/match";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { IslandBoundary } from "@/components/ui/island-boundary";
+import { UrlPending } from "@/components/url-pending";
 
 export async function generateMetadata(): Promise<Metadata> {
   const count = (await getIndexEntries()).length;
@@ -20,16 +21,12 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-type SearchParams = Record<string, string | string[] | undefined>;
-
 /**
  * Atlas Match. Each question checks one sourced fact about a neighborhood and
  * the answer is an unranked list. The questions run client-side so the count
- * moves as answers change.
+ * moves as answers change. Static: a link's answers are applied in the browser.
  */
-export default async function MatchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const params = await searchParams;
-  const initial = parseMatch(params);
+export default async function MatchPage() {
   const count = (await getIndexEntries()).length;
   const asOf = monthYear(DATASET_VERSION) ?? DATASET_VERSION;
   const how = [
@@ -57,8 +54,9 @@ export default async function MatchPage({ searchParams }: { searchParams: Promis
 
       <section className="bg-parchment py-8 sm:py-section" aria-label="The questions">
         <div className="container-site">
+          <UrlPending keys={MATCH_KEYS} draftKey={MATCH_DRAFT} />
           <IslandBoundary name="the questions" className="px-0 py-0">
-            <AtlasMatch initial={initial} datasetVersion={DATASET_VERSION} asOf={asOf} />
+            <AtlasMatchIsland datasetVersion={DATASET_VERSION} asOf={asOf} />
           </IslandBoundary>
         </div>
       </section>

@@ -6,6 +6,7 @@ import { marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, titleCase } from "@/lib/neighborhoods/format";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import { explorerHref } from "@/lib/neighborhoods/url";
+import "./explorer.css";
 
 /** The selected place, in the panel: the short facts and the ways out. */
 export function PlaceCard({
