@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
+import { ShareButton } from "@/components/share-button";
 import { Steps } from "@/components/steps";
 import { REFER } from "@/lib/refer/copy";
 import { pageMetadata } from "@/lib/seo";
+import { products } from "@/lib/site";
+
+const atlas = products.find((p) => p.key === "atlas")!;
 
 export const metadata: Metadata = pageMetadata({
   title: REFER.title,
@@ -13,7 +17,7 @@ export const metadata: Metadata = pageMetadata({
 
 /**
  * /refer — for past clients and friends of the team. The form is the
- * `referral` kind (lib/leads.ts) in two groups: about you (the referrer's
+ * `referral` kind (lib/leads/constants.ts) in two groups: about you (the referrer's
  * name, email and phone) and about them (the person moving: name, an email
  * or a phone, what they're planning, a note), plus the required box saying
  * they know their details are being passed along. The team writes back to
@@ -36,9 +40,12 @@ export default function ReferPage() {
               labels={{ name: REFER.form.name, lastName: REFER.form.lastName, email: REFER.form.email, phone: REFER.form.phone, message: REFER.form.message }}
               placeholderMessage={REFER.form.placeholder}
               submitLabel={REFER.form.submit}
+              marketingConsent={false}
             />
           </div>
           <p className="t-small text-graphite-500">{REFER.privacy}</p>
+          {/* For anyone who'd rather not hand over a friend's details: send them Atlas instead. */}
+          <ShareButton title={atlas.name} url={atlas.href} label="Rather send them a link" what="refer-link" className="self-start" />
         </div>
       </section>
       <section className="bg-linen-200" aria-label="How a referral works">
