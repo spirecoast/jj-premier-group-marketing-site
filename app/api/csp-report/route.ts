@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 /** Bodies above this are dropped unread; a real report is a few hundred bytes. */
 const MAX_BODY_BYTES = 16 * 1024;
 
-type Summary = { directive?: string; blocked?: string; document?: string; line?: number; sample?: string };
+type Summary = { directive?: string; blocked?: string; document?: string; source?: string; line?: number; sample?: string };
 
 /** Legacy `application/csp-report` shape: `{ "csp-report": { ... } }`. */
 function fromLegacy(report: Record<string, unknown>): Summary {
@@ -13,6 +13,7 @@ function fromLegacy(report: Record<string, unknown>): Summary {
     directive: str(report["effective-directive"] ?? report["violated-directive"]),
     blocked: str(report["blocked-uri"]),
     document: str(report["document-uri"]),
+    source: str(report["source-file"]),
     line: num(report["line-number"]),
     sample: str(report["script-sample"]),
   };
@@ -24,6 +25,7 @@ function fromReportingApi(body: Record<string, unknown>): Summary {
     directive: str(body["effectiveDirective"]),
     blocked: str(body["blockedURL"]),
     document: str(body["documentURL"]),
+    source: str(body["sourceFile"]),
     line: num(body["lineNumber"]),
     sample: str(body["sample"]),
   };
@@ -81,6 +83,8 @@ export async function POST(request: Request) {
       `directive=${s.directive ?? "?"}`,
       `blocked=${s.blocked ?? "?"}`,
       `document=${s.document ?? "?"}`,
+      // The script that tripped it, so a third party can be told apart from the site's own code.
+      s.source ? `source=${s.source}` : null,
       s.line !== undefined ? `line=${s.line}` : null,
       s.sample ? `sample=${JSON.stringify(s.sample.slice(0, 80))}` : null,
     ].filter(Boolean);

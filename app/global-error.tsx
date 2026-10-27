@@ -24,6 +24,8 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
     <html lang="en">
       <body className="min-h-screen bg-linen-200 text-ink antialiased">
         <main id="main" className="container-site flex min-h-screen flex-col justify-between gap-16 py-10">
+          {/* A full page load on purpose: the root layout is what failed, so start it fresh. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- see above */}
           <a href="/" aria-label={`${site.name} home`} className="self-start">
             <Wordmark tone="dark" ground="bg-linen-200" />
           </a>
@@ -41,6 +43,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
                 Try again
                 <span className="btn-dash" aria-hidden="true" />
               </button>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load, as above */}
               <a href="/" className="btn btn-outline">
                 Back to the start
               </a>

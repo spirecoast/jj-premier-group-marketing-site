@@ -1,0 +1,59 @@
+# The quality gate for every pull request (including Dependabot's and the
+# Sunday sales refresh) and every push to main. Make the "checks" job a
+# required status check on main in Settings → Branches so nothing merges red.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        id: install
+        run: npm ci --no-audit --no-fund
+
+      # Every check runs even when an earlier one fails, so one red step doesn't hide another.
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run test:unit
+
+      - name: Copy check (Fair Housing, house style)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run check:copy
+
+      - name: Lint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint
+
+      # drizzle-kit generate writes nothing when lib/db/schema.ts matches the latest snapshot.
+      - name: Migrations match the schema
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run db:check
+
+      # A new critical advisory in anything the site ships blocks the merge. The known
+      # high and moderate ones sit in the Sanity CLI tool chain, which needs a Sanity major.
+      - name: Audit production dependencies
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm audit --omit=dev --audit-level=critical

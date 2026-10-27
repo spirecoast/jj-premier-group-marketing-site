@@ -1,6 +1,7 @@
 import "server-only";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
+import { isMissingTable, warnMissingTable } from "@/lib/db/missing-table";
 
 /**
  * The cap on calls to Google Places, kept in Postgres (table places_usage,
@@ -14,40 +15,14 @@ import { getDb } from "@/lib/db";
  * room to spare. Days and months are Pacific time, as Google bills.
  *
  * If the count can't be read, the call isn't made: the lists go quiet before
- * anything can be billed.
+ * anything can be billed. That includes a database where migration 0014
+ * hasn't been applied: the table is never created from a request.
  */
 
 export const PLACES_CAP = { day: 30, month: 900 } as const;
 
 export type Sku = "nearby" | "text";
 export type Take = { ok: true } | { ok: false; reason: "day" | "month" | "error" };
-
-const DDL = [
-  `CREATE TABLE IF NOT EXISTS "places_usage" (
-    "day" date NOT NULL,
-    "sku" text NOT NULL,
-    "calls" integer DEFAULT 0 NOT NULL,
-    CONSTRAINT "places_usage_day_sku_pk" PRIMARY KEY("day","sku")
-  )`,
-  `ALTER TABLE "places_usage" ENABLE ROW LEVEL SECURITY`,
-];
-
-let ready: Promise<void> | null = null;
-
-async function db() {
-  const database = getDb();
-  if (!ready) {
-    ready = (async () => {
-      for (const statement of DDL) await database.execute(sql.raw(statement));
-    })();
-    // A failure (database asleep, a race with another process) is retried on the next call.
-    ready.catch(() => {
-      ready = null;
-    });
-  }
-  await ready;
-  return database;
-}
 
 /** "2026-10-12", the calendar day in Pacific time. */
 export function pacificDay(now: Date): string {
@@ -65,7 +40,7 @@ export async function takeCall(sku: Sku, now: Date = new Date()): Promise<Take> 
   const day = pacificDay(now);
   const monthStart = `${day.slice(0, 7)}-01`;
   try {
-    const database = await db();
+    const database = getDb();
     const rows = await database.execute(sql`
       INSERT INTO places_usage (day, sku, calls)
       SELECT ${day}::date, ${sku}, 1
@@ -78,7 +53,8 @@ export async function takeCall(sku: Sku, now: Date = new Date()): Promise<Take> 
     const [today] = await database.execute<{ calls: number }>(sql`SELECT calls FROM places_usage WHERE day = ${day}::date AND sku = ${sku}`);
     return { ok: false, reason: (today?.calls ?? 0) >= PLACES_CAP.day ? "day" : "month" };
   } catch (err) {
-    console.error("[places/budget]", err instanceof Error ? err.message : err);
+    if (isMissingTable(err)) warnMissingTable("places_usage", "0014_places_usage.sql");
+    else console.error("[places/budget]", err instanceof Error ? err.message : err);
     return { ok: false, reason: "error" };
   }
 }

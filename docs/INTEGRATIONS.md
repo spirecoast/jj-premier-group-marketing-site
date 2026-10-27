@@ -128,8 +128,9 @@ be configured. With no CRM at all, set `CRM_PROVIDER=none` explicitly: an unset
 or invalid `CRM_PROVIDER` in production sends the "not configured" alert on
 every lead, an explicit `none` does not. That's the setting while the Pixel is
 the only path into Home Platform (no Zap yet). The server logs an error at boot if none is (`instrumentation.ts`),
-and `GET /api/health` returns `{ ok, sinks }` — booleans and the provider name
-only, never values.
+and `GET /api/health` returns `{ ok }` to anyone and, with `Authorization: Bearer` set to
+`CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, the detail including `sinks`: booleans
+and the provider name only, never values.
 
 ### The webhook payload
 
