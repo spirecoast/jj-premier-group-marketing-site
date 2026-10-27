@@ -13,13 +13,23 @@ beyond the statute; the manifest records that note.
 
 | County | Page | Files the script reads |
 | --- | --- | --- |
-| Manatee | https://www.manateepao.gov/cama-reports/ | `/data/Manateesales.csv` (all sales from Jan 1 of the previous year, rebuilt nightly), `/data/manateesales<YYYY>.csv` for any earlier year the 24-month window reaches into, `/data/manatee_situs_addresses.zip` (parsed situs addresses) |
-| Sarasota | https://www.sarasotapropertyappraiser.gov/downloads/download-data/ | `/downloads/SCPA_Parcels_Sales_CSV.zip`, entries `Parcel_Sales_CSV/ParcelSales.csv` (every transfer since 2000 with its FDOR qualification code) and `Parcel_Sales_CSV/Sarasota.csv` (parcel characteristics from the last certified roll) |
+| Manatee | https://www.manateepao.gov/cama-reports/ | `/data/Manateesales.csv` (all sales from Jan 1 of the previous year, rebuilt nightly), `/data/manateesales<YYYY>.csv` for any earlier year the 24-month window reaches into, `/data/manatee_situs_addresses.zip` (parsed situs addresses), and from https://www.manateepao.gov/gis-shape-files/ `/data/shape_files/Parcels.zip` (parcel polygons) and `/data/shape_files/Condominium_Unit_Points.zip` (a point per condominium unit) for coordinates |
+| Sarasota | https://www.sarasotapropertyappraiser.gov/downloads/download-data/ | `/downloads/SCPA_Parcels_Sales_CSV.zip`, entries `Parcel_Sales_CSV/ParcelSales.csv` (every transfer since 2000 with its FDOR qualification code), `Parcel_Sales_CSV/Sarasota.csv` (parcel characteristics from the last certified roll), and its code tables `SubdivisionCodes.csv` and `NeighborhoodCodes.csv` |
 
 The Manatee sales file carries the situs address, use code, living area,
 acreage and year built on each sale row; the situs zip supplies the parsed
 number, street, suffix and unit. Sarasota keeps sales and parcel facts in
 two files joined on the account number.
+
+Coordinates come from Manatee's GIS layers, joined on the parcel number every
+sales row carries: the centroid of the parcel polygon (area-weighted, in
+`scripts/sales/geo.mjs`, projected from Florida West State Plane feet to
+latitude and longitude and rounded to five decimals, about a metre), or the
+unit's point for a condominium. About 97% of Manatee rows get one. Sarasota's
+appraiser publishes no parcel geometry in its downloads (the state's GIS roll
+is by request), so Sarasota rows carry none; the pages fall back to the
+subdivision and the ZIP there. A GIS download that fails leaves the rows
+without coordinates and the run goes on (the verify step warns).
 
 ## Running it
 
@@ -31,17 +41,50 @@ node scripts/sales/ingest.mjs --county manatee --months 24 --dry-run
 
 The script needs only Node 22 (fetch, zlib, streams; the zips are read with
 a small central-directory reader, no dependency). Source files are cached
-in `.cache/sales/` (gitignored). A full run downloads about 100MB and takes
-under a minute; the output is about 1.7MB gzipped and must stay under 8MB.
+in `.cache/sales/` (gitignored). A full run downloads about 150MB and takes
+under a minute; the output is about 3MB gzipped and must stay under 8MB.
 
 ### Refresh cadence
 
 The county files change nightly (Manatee) and after each roll update
 (Sarasota). `.github/workflows/sales-refresh.yml` runs the script every
 Sunday at 09:00 UTC (and on demand from the Actions tab) and opens a pull
-request with the new files. Review the PR's manifest diff (row counts, date
-range) before merging; a county file that fails to download fails the run
-rather than writing an empty county. Merge one in the last week of each month:
+request with the new files. A county file that fails to download fails the
+run rather than writing an empty county.
+
+### The regression gate
+
+Two checks stand between a county file and a merge-ready pull request:
+
+- **The header.** The ingest names every column it reads from each file
+  (`REQUIRED` in `scripts/sales/ingest.mjs`). A renamed or dropped column
+  fails the run with the missing names, instead of reading as empty values
+  on every row.
+- **The comparison.** `scripts/sales/verify.mjs` (rules in
+  `scripts/sales/verify-lib.mjs`, tests in `lib/sales/verify.test.ts`)
+  compares the new files with the ones the site serves now. Any of these
+  fails the job and no pull request opens: a county's rows fall more than
+  10%; its newest sale moves backwards; a property type it had is gone; the
+  share of rows with a living area falls more than 5 points; more than 1% of
+  rows carry a ZIP outside the county's known set (`KNOWN_ZIPS`). It warns,
+  at the top of the pull request, when a county's newest sale hasn't moved
+  for three refreshes in a row (`toUnchangedRuns` in the manifest) or is
+  more than 21 days old, and when the share of rows with coordinates or a
+  subdivision falls more than 5 points.
+
+The pull request body carries the delta table (rows ±, the newest sale and
+how far it moved, the new sales by Tide market). The same step writes
+`data/sales/new-sales.json.gz`: the sales the county recorded since the
+last refresh (a parcel and sale date that weren't in the old file), which
+Street Watch emails once the refresh is merged and deployed (below).
+
+Set the repository variable `SALES_AUTO_MERGE` to `true` and a refresh with
+no failures and no warnings is set to merge itself (`gh pr merge --auto`)
+once the branch's required checks pass; it needs "Allow auto-merge" on in
+the repository settings. A pull request opened by the workflow's own token
+doesn't start other workflows, so if `main` requires the CI check, that
+check never reports and the auto-merge waits for a person. Unset, a person
+merges as before. Merge one in the last week of each month:
 the Tide issue built on the 1st reads whatever data is deployed, and without a
 refresh it covers the same month as the run before (docs/ISSUES.md).
 
@@ -49,8 +92,11 @@ refresh it covers the same month as the run before (docs/ISSUES.md).
 
 `data/sales/<county>.json.gz`: a gzipped JSON array of records, newest first.
 `data/sales/manifest.json`: generated date, window, row counts by property
-type, date range, source URLs, checksum, the licence note and
-`namesStripped: true`.
+type, date range, `toUnchangedRuns`, the shares of rows with a living area,
+coordinates and a subdivision, source URLs, checksum, the licence note and
+`namesStripped: true` (`schema: 2`).
+`data/sales/new-sales.json.gz`: `{ generatedAt, since, through, rows }`, the
+sales new since the previous refresh (see the regression gate).
 
 ### Field map
 
@@ -60,7 +106,9 @@ type, date range, source URLs, checksum, the licence note and
 | `parcelId` | `PARID` | `Account` / `ACCOUNT` | the appraiser's parcel number |
 | `number`, `predir`, `street`, `suffix`, `postdir`, `unit` | situs file `SITUS_ADDRESS_NUM`, `SITUS_PREDIR`, `SITUS_STREET_NAME`, `SITUS_STREET_SUF`, `SITUS_POSTDIR`, `SITUS_SECADDUNIT`; falls back to parsing `SITUS_ADDRESS` | `LOCN`, `LOCS` (split into name and suffix), `LOCD`, `UNIT` | situs (property) address only, never a mailing address |
 | `city`, `zip` | `SITUS_POSTAL_CITY`, `SITUS_POSTAL_ZIP` | `LOCCITY`, `LOCZIP` | postal city as the county gives it |
-| `lat`, `lng` | not published | not published | omitted; `manifest.hasCoordinates` is false. `nearby()` in `lib/sales` returns nothing until a source adds them |
+| `lat`, `lng` | `Parcels.zip` polygon centroid, else `Condominium_Unit_Points.zip`, on `PARCELNO` | not published | five decimals; absent when the parcel has no shape. `nearby()` in `lib/sales` reads them |
+| `subdivision` | `SUBDIVISION_NAME` | `SUBD` → `SubdivisionCodes.csv` | as the county spells it, minus Manatee's plat-book reference ("PB35/198"); "" for "not in a subdivision" |
+| `nbhd` | `NEIGHBORHOOD_NAME` | `NGHB` → `NeighborhoodCodes.csv` | the appraiser's valuation neighborhood, same cleaning |
 | `saleDate` | `SALE_DATE` | `SaleDate` | ISO `YYYY-MM-DD` |
 | `salePrice` | `SALE_PRICE` | `SalePrice` | whole dollars; rows under $1,000 dropped |
 | `qualified`, `qualCode` | `SALE_TRANSFER_CODE` | `QualCode` | FDOR codes 01–04 kept (see below) |
@@ -170,8 +218,10 @@ record should be a fact about the property or the transaction.
 - **Unqualified sales excluded.** Transfers the appraiser did not qualify
   as arm's-length are not shown, so a street's count here is lower than a
   title search would give.
-- **No coordinates.** Neither public file carries lat/lng, so the nearby
-  search is a stub until a geocoded source is added.
+- **Coordinates in Manatee only.** Sarasota's appraiser doesn't publish
+  parcel geometry in its downloads; geocoding its situs addresses once (the
+  Census geocoder is free) is the way to add them if the nearby panel
+  should reach Sarasota.
 - **Manatee beds and baths** are null; they live in the larger CAMA file.
 - **Window.** Only the last 24 months are kept; the window moves with each
   ingest run, so a stale file quietly loses its oldest months.
