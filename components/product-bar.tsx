@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { ProductLockup } from "@/components/brand/emblem";
 import { productFamilies, type ProductFamily } from "@/lib/site";
 
@@ -26,11 +27,40 @@ export function familyFor(pathname: string): ProductFamily | undefined {
 export function ProductBar() {
   const pathname = usePathname();
   const family = familyFor(pathname);
-  if (!family) return null;
+  const tabs = useRef<HTMLUListElement>(null);
   // The current product: the longest href the path is, or sits under.
-  const current = [...family.items]
-    .filter((i) => pathname === i.href || pathname.startsWith(`${i.href}/`))
-    .sort((a, b) => b.href.length - a.href.length)[0];
+  const current = family
+    ? [...family.items].filter((i) => pathname === i.href || pathname.startsWith(`${i.href}/`)).sort((a, b) => b.href.length - a.href.length)[0]
+    : undefined;
+
+  // On a phone the tabs scroll: the current one is brought into view, and
+  // the fade at the right edge is only drawn while there is more to scroll to.
+  useEffect(() => {
+    const el = tabs.current;
+    if (!el) return;
+    const overflow = () => {
+      const left = el.scrollLeft > 1;
+      const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+      if (left || right) el.setAttribute("data-overflow", left && right ? "both" : left ? "left" : "right");
+      else el.removeAttribute("data-overflow");
+    };
+    overflow();
+    const ro = new ResizeObserver(overflow);
+    ro.observe(el);
+    el.addEventListener("scroll", overflow, { passive: true });
+    const here = el.querySelector<HTMLElement>('[aria-current="page"]');
+    if (here) {
+      const box = el.getBoundingClientRect();
+      const r = here.getBoundingClientRect();
+      if (r.left < box.left || r.right > box.right) here.scrollIntoView({ inline: "center", block: "nearest" });
+    }
+    return () => {
+      ro.disconnect();
+      el.removeEventListener("scroll", overflow);
+    };
+  }, [pathname, current?.href]);
+
+  if (!family) return null;
 
   return (
     <nav data-product-bar data-ground="dark" data-family={family.key} aria-label={`${family.name} products`} className="product-bar">
@@ -40,7 +70,7 @@ export function ProductBar() {
           <span className="sr-only">{family.name}</span>
         </Link>
         <span aria-hidden="true" className="hidden h-5 w-px shrink-0 bg-white/20 sm:block" />
-        <ul className="product-bar-tabs flex h-full min-w-0 flex-1 items-stretch gap-5 overflow-x-auto sm:gap-8">
+        <ul ref={tabs} className="product-bar-tabs flex h-full min-w-0 flex-1 items-stretch gap-5 overflow-x-auto sm:gap-8">
           {family.items.map((i) => (
             <li key={i.href} className="flex">
               <Link href={i.href as Route} aria-current={current?.href === i.href ? "page" : undefined} className="product-tab">

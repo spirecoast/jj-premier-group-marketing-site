@@ -109,10 +109,24 @@ search index; Resend sends only team-facing email.
   until there are live listings to search. The home page carries the three products as section
   05 with a live fact from each, and page eyebrows use the long form ("Tide · The Coast real
   estate newsletter"). To rename one, change it there; the pages read the value.
-- The phone menu is a fixed panel inside the header, so the header must not carry a
-  `backdrop-filter` while the menu is open (a backdrop filter would make the header the panel's
-  containing block and collapse it to the header's height). `SiteHeader` swaps to a solid navy
-  while `open` for that reason.
+- The header's ground is decided by the stylesheet (`app/globals.css`, ".site-header"), never by a
+  class the script picks: see-through over a page that marks its photographic hero with
+  `data-header-overlay` until the page has moved 24px, frosted glass everywhere else, solid navy while
+  the phone menu is open; the tint, the blur and the dimming ease together over the panel duration.
+  The ground is the header's `::before`, a layer of its own, so a backdrop filter never makes the
+  header the containing block for the phone menu's fixed panel. On the home page the glass follows
+  the hero's paper frame while the hero is under it (`data-cover`), so the bar and the photograph
+  share one edge. `SiteHeader` only measures (`data-scrolled`, `data-open`, `data-home`, `data-cover`).
+- "Joelyn & Jessica" in the desktop header is a small menu in the product menus' style (`teamMenu` in
+  `lib/site.ts`): About, the timing form, referrals, reviews, and the two numbers in its foot, so the
+  team is one click away on every page. The menus open on hover intent (120 ms), switch at once once
+  one is open, close 200 ms after the pointer leaves the row, and close when focus leaves them; ArrowDown
+  opens one and the arrow keys walk its panel (`components/product-menu.tsx`).
+- The phone menu keeps `hidden` for assistive technology and opens with a discrete display transition
+  and a starting style, the rows 40 ms apart; Call, Text and "Tell us the timing" are pinned to its foot.
+  The phone action bar's middle cell is each page's own next step (`nextSteps` in `lib/site.ts`); on a
+  scroll down the bar steps aside into a Call · Text chip in the corner, and it hides while a text field
+  has focus and on very short screens.
 - Nothing hand-typed reaches the page: no market figures, no ticker, no stat band, no sample
   listings. The sample listings stay in the seed for previews and return with
   `NEXT_PUBLIC_SHOW_SAMPLE_LISTINGS=true` or an MLS feed. `/listings` is a "Find your home" page: a
@@ -165,9 +179,11 @@ off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
   calendar can show one event twice and two boxes with one name cancel the browser's transition.
   The link prefetches on hover, focus and touch so the page is ready when the change happens; a
   loading state has no hero to pair with.
-- **The header.** Past the first screen it tucks away on a scroll down and returns on the first
-  scroll up, a route change, keyboard focus, or while the phone menu is open
-  (`components/site-header.tsx`).
+- **The header.** On phones (below `lg`) it tucks away on a scroll down past the first 160 px and
+  returns on the first scroll up, a route change, keyboard focus, or while the phone menu is open
+  (`components/site-header.tsx` sets `html[data-scroll]`; the stylesheet moves the header and the
+  action bar). On a desktop it stays. On a very short screen (a phone sideways, the page at a high
+  zoom) the header drops to 48 px and the action bar is hidden.
 - **Waiting.** The route loading bar (`app/(site)/loading.tsx`) and the veil a clicked link shows
   (`components/link-pending.tsx`, Next's `useLinkStatus`) both wait 150 ms, so a prefetched route
   never flashes them.

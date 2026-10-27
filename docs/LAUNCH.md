@@ -621,6 +621,10 @@ Any line that differs: do not continue; fix the variable or the record and redep
 
 - `/` loads with the hero photograph and the cameo; no mixed-content warning; the padlock shows a Vercel-issued certificate.
 - Header: Coldwell Banker mark visible at desktop width; the phone menu opens and closes.
+- Header over the heroes: on `/`, `/buy`, `/sell`, a guide, a neighborhood, a venue and a Tide issue the
+  header is see-through at the top (`getComputedStyle(document.querySelector("header"), "::before").backgroundColor`
+  is `rgba(0, 0, 0, 0)` at scrollY 0) and glass after `scrollTo(0, 200)` (navy at 68%). On every other
+  page it is glass at the top.
 - `/neighborhoods`: tiles draw (the MapTiler origin from 5.6 is working; no 403 in the Network tab), search finds "Lake Club", a detail page opens.
 - `/calendar`: today's view, Week and Month render; "+ Cal" on one event downloads an `.ics`.
 - `/blog`, `/about`, `/buy`, `/sell`, `/valuation`, `/contact`, `/privacy`, `/terms`: 200, one `h1`, footer shows the brokerage name under the phone and emails, the office address from 1.1, the Equal Housing and CB marks.

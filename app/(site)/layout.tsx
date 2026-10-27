@@ -41,6 +41,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           phoneE164: m.phoneE164,
           email: m.email,
         }))}
+        phoneE164={settings.primaryPhoneE164}
       />
       <ProductBar />
       <main id="main">

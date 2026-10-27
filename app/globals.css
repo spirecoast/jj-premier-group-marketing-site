@@ -246,8 +246,6 @@
      header, the product bar, the phone menu, the product stages); the class
      sniffing stays for the utility-coloured panels. */
   [data-ground="dark"] :focus-visible,
-  .header-glass :focus-visible,
-  .header-overlay :focus-visible,
   .product-bar :focus-visible,
   .encore-stage :focus-visible,
   [class*="bg-navy"] :focus-visible,
@@ -1407,7 +1405,8 @@
     font-size: 10px;
     background: rgba(250, 248, 245, 0.85);
   }
-  body:has(.explorer) [data-mobile-bar] {
+  body:has(.explorer) [data-mobile-bar],
+  body:has(.explorer) [data-mobile-pill] {
     display: none !important;
   }
 }
@@ -2586,24 +2585,158 @@
   }
 }
 
-/* Unlayered on purpose: it must beat the header's bg-transparent utility. */
-/* The header starts see-through only over a page that marks its photo hero
-   (data-header-overlay). Over anything else, e.g. an Atlas place without a
-   photo, it stays the solid navy bar so the menu can be read. */
-body:not(:has([data-header-overlay])) .header-overlay,
-.header-glass {
-  border-bottom-color: rgb(137 212 227 / 0.15);
-  /* Navy at 68% over the page, blurred and dimmed behind: it reads as glass,
-     and the 12px linen nav labels measure about 5.3:1 over Paper, the palest
-     ground (at 55% they were 4.4:1). */
+/* -----------------------------------------------------------------------------
+   The site header (components/site-header.tsx). Unlayered, so nothing in a
+   utility can outrank it. The ground is a layer of its own (::before), which
+   keeps a backdrop filter from making the header the containing block for
+   the phone menu's fixed panel. The stylesheet decides the state:
+   - frosted glass by default: navy at 68% over the page, blurred and dimmed
+     behind, so the 12px linen labels measure about 5.3:1 over Paper;
+   - see-through over a page that marks its photographic hero
+     (data-header-overlay) until the page has moved 24px (data-scrolled), the
+     tint, the blur and the dimming easing in together over one duration;
+   - solid navy while the phone menu is open (data-open), one ground with the
+     panel below;
+   - on the home page the hero sits in a paper frame from lg, and while it is
+     under the header (data-cover) the glass follows the frame, so the bar and
+     the photograph share one edge.
+   On a phone it tucks away on a scroll down (html[data-scroll="down"], set by
+   the header's own scroll handler) and returns on the first scroll up; on a
+   very short screen (a phone sideways, or the page at a high zoom) it drops to
+   48px. ------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--header-h);
+  transition: transform var(--dur-panel) var(--ease-brand);
+}
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-bottom: 1px solid rgb(137 212 227 / 0.15);
   background-color: rgb(46 74 92 / 0.68);
   -webkit-backdrop-filter: blur(20px) saturate(1.3) brightness(0.5);
   backdrop-filter: blur(20px) saturate(1.3) brightness(0.5);
+  transition:
+    background-color var(--dur-panel) var(--ease-brand),
+    border-color var(--dur-panel) var(--ease-brand),
+    inset var(--dur-panel) var(--ease-brand),
+    -webkit-backdrop-filter var(--dur-panel) var(--ease-brand),
+    backdrop-filter var(--dur-panel) var(--ease-brand);
+}
+body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="false"]::before {
+  border-color: transparent;
+  background-color: transparent;
+  /* The identity filter, so the blur and the dimming have something to ease from. */
+  -webkit-backdrop-filter: blur(0) saturate(1) brightness(1);
+  backdrop-filter: blur(0) saturate(1) brightness(1);
+}
+.site-header[data-open="true"]::before {
+  background-color: var(--color-navy);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (min-width: 64rem) {
+  .site-header[data-home="true"][data-cover="true"]::before {
+    inset-inline: var(--gutter);
+  }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  body:not(:has([data-header-overlay])) .header-overlay,
-  .header-glass {
+  .site-header::before {
     background-color: rgb(46 74 92 / 0.92);
+  }
+  body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="false"]::before {
+    background-color: transparent;
+  }
+}
+@media (max-width: 63.99rem) {
+  html[data-scroll="down"] .site-header[data-open="false"] {
+    transform: translateY(-100%);
+  }
+  @media (max-height: 500px) {
+    :root {
+      --header-h: 3rem;
+    }
+  }
+}
+/* "Menu" and "Close" share one box and cross-fade (components/site-header.tsx). */
+.menu-toggle-word {
+  transition: opacity var(--dur-micro) var(--ease-brand);
+}
+.menu-toggle-word[data-show="false"] {
+  opacity: 0;
+}
+
+/* ---- The phone menu: the one full-navy screen. Kept `hidden` for
+   assistive tech and animated with a discrete display transition and a
+   starting style, so it opens and closes with the site's motion; the rows
+   follow 40ms apart (--i). The foot row is pinned to the bottom of the
+   scrolling panel, so Call, Text and the timing form are in reach at any
+   screen height. Reduced motion zeroes it all to a plain toggle. */
+.site-menu {
+  position: fixed;
+  inset: var(--header-h) 0 0;
+  z-index: 40;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-navy);
+  transition-property: opacity, transform, display;
+  transition-duration: var(--dur-panel);
+  transition-timing-function: var(--ease-reveal);
+  transition-behavior: allow-discrete;
+}
+.site-menu[hidden] {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+@starting-style {
+  .site-menu:not([hidden]) {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.site-menu-item {
+  transition:
+    opacity var(--dur-panel) var(--ease-reveal),
+    transform var(--dur-panel) var(--ease-reveal);
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+.site-menu[hidden] .site-menu-item {
+  opacity: 0;
+  transform: translateY(8px);
+  transition-delay: 0s;
+}
+@starting-style {
+  .site-menu:not([hidden]) .site-menu-item {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.site-menu-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 0.5rem;
+  margin-top: auto;
+  margin-inline: calc(-1 * var(--gutter));
+  padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom));
+  background: var(--color-navy);
+  border-top: 1px solid rgb(230 221 209 / 0.15);
+}
+.site-menu-foot .btn {
+  min-height: 2.75rem;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+}
+@media (max-width: 22.49rem) {
+  .site-menu-foot .btn {
+    padding-inline: 0.75rem;
+    font-size: 0.6875rem;
   }
 }
 
@@ -2958,6 +3091,14 @@ html[data-motion="paused"] .encore-marquee-bulb {
     transform: none;
     transition: opacity var(--dur-panel) var(--ease-reveal), transform var(--dur-panel) var(--ease-reveal), visibility 0s;
   }
+  /* Moving along the row from one open menu to the next: the panels cross-fade over the micro duration and neither slides. */
+  .product-menu[data-switch="true"] {
+    transform: none;
+    transition: opacity calc(var(--dur-micro) + 40ms) var(--ease-brand), visibility 0s linear calc(var(--dur-micro) + 40ms);
+  }
+  .product-menu[data-switch="true"][data-open="true"] {
+    transition: opacity calc(var(--dur-micro) + 40ms) var(--ease-brand), visibility 0s;
+  }
   /* A bridge over the gap, so the pointer can travel from the name to the panel. */
   .product-menu::before {
     content: "";
@@ -3005,6 +3146,7 @@ html[data-motion="paused"] .encore-marquee-bulb {
   @media (prefers-reduced-motion: reduce) {
     .product-menu,
     .product-menu[data-open="true"],
+    .product-menu[data-switch="true"],
     .product-menu-item::before { transition: none; }
   }
 }
@@ -3027,11 +3169,23 @@ html:has([data-product-bar]) {
   .product-bar[data-family="encore"] { background: var(--color-encore-deep); --accent: var(--color-encore); }
   .product-bar-tabs {
     scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0.25rem;
+  }
+  /* A fade at an edge only while there is more to scroll to on that side (data-overflow, components/product-bar.tsx), so the current tab is never masked. */
+  .product-bar-tabs[data-overflow="right"] {
     mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+  }
+  .product-bar-tabs[data-overflow="left"] {
+    mask-image: linear-gradient(90deg, transparent, #000 1.5rem);
+  }
+  .product-bar-tabs[data-overflow="both"] {
+    mask-image: linear-gradient(90deg, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent);
   }
   .product-bar-tabs::-webkit-scrollbar { display: none; }
   .product-tab {
     position: relative;
+    scroll-snap-align: start;
     display: flex;
     height: 100%;
     align-items: center;
@@ -3566,5 +3720,99 @@ html:has([data-product-bar]) {
     font-style: normal;
     letter-spacing: normal;
     color: #5e5e5e;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   The phone action bar (components/mobile-action-bar.tsx). A cell settles a
+   pixel when pressed, like a button. On a scroll down the bar steps out of
+   the way and a 36px Call · Text chip takes its corner (html[data-scroll],
+   set by the header); both are out of the way while a text field has focus
+   and on a very short screen, where every pixel is for the page.
+   ----------------------------------------------------------------------------- */
+@layer components {
+  .action-bar {
+    transition:
+      transform var(--dur-panel) var(--ease-brand),
+      visibility 0s linear 0s;
+  }
+  .action-cell {
+    transition:
+      background-color var(--dur-micro) var(--ease-brand),
+      transform var(--dur-micro) var(--ease-brand);
+  }
+  .action-cell:active {
+    transform: translateY(1px);
+  }
+  .action-pill {
+    position: fixed;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2.25rem;
+    padding-inline: 0.25rem;
+    color: var(--color-linen-200);
+    background: var(--color-navy);
+    border: 1px solid rgb(137 212 227 / 0.25);
+    box-shadow: 0 10px 30px -14px rgb(20 37 48 / 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition:
+      opacity var(--dur-panel) var(--ease-brand),
+      transform var(--dur-panel) var(--ease-brand),
+      visibility 0s linear var(--dur-panel);
+  }
+  .action-pill-cell {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-inline: 0.5rem;
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color var(--dur-micro) var(--ease-brand);
+  }
+  .action-pill-cell:hover {
+    color: #fff;
+  }
+  @media (max-width: 47.99rem) {
+    html[data-scroll="down"] .action-bar {
+      transform: translateY(100%);
+      visibility: hidden;
+      transition:
+        transform var(--dur-panel) var(--ease-brand),
+        visibility 0s linear var(--dur-panel);
+    }
+    html[data-scroll="down"] .action-pill {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      transition:
+        opacity var(--dur-panel) var(--ease-brand),
+        transform var(--dur-panel) var(--ease-brand),
+        visibility 0s;
+    }
+    body:has(:is(input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"], [type="range"]), textarea, select):focus) :is(.action-bar, .action-pill) {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100%);
+      transition:
+        opacity var(--dur-micro) var(--ease-brand),
+        transform var(--dur-micro) var(--ease-brand),
+        visibility 0s linear var(--dur-micro);
+    }
+  }
+}
+/* Unlayered: it must beat the bar's own display utility. */
+@media (max-width: 47.99rem) and (max-height: 500px) {
+  .action-bar,
+  .action-pill {
+    display: none;
   }
 }
