@@ -287,90 +287,90 @@ export function VisitPlan({
         {!covered ? (
           <SeasonWait error={season.error} onRetry={season.retry} />
         ) : (
-        <>
-        <div className="encore-stage flex flex-col gap-8 px-5 py-8 sm:p-10">
-          <div className="relative grid items-end gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
-            <div className="flex flex-col gap-3">
-              <p className="t-body text-encore">{nights === 1 ? longDay(applied.from) : `${longDay(applied.from)} to ${longDay(applied.to)}`}</p>
-              <h2 id="plan-days-title" className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white" aria-live="polite">
-                <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] font-light leading-none tabular-nums">{picked}</span>
-                <span className="t-h1">
-                  {picked === 1 ? "pick" : "picks"} over {nights === 1 ? "one day" : `${nights} days`}
-                </span>
-              </h2>
-              <p className="t-body text-white/75">
-                {picked
-                  ? `At ${venues} ${venues === 1 ? "venue" : "venues"}, with no show twice.${applied.local ? "" : " Ten to four is held for showings."}`
-                  : "Encore has nothing timed on these dates yet. Venues add dates through the season, so check back closer to the day."}
-              </p>
-            </div>
-            {mix.length ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex h-3 w-full gap-0.5 overflow-hidden bg-white/10" aria-hidden="true">
-                  {mix.map(({ c, n }) => (
-                    <span key={c} className="h-full" style={{ width: `${(n / picked) * 100}%`, background: CATEGORY[c].color }} />
-                  ))}
+          <>
+            <div className="encore-stage flex flex-col gap-8 px-5 py-8 sm:p-10">
+              <div className="relative grid items-end gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+                <div className="flex flex-col gap-3">
+                  <p className="t-body text-encore">{nights === 1 ? longDay(applied.from) : `${longDay(applied.from)} to ${longDay(applied.to)}`}</p>
+                  <h2 id="plan-days-title" className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-white" aria-live="polite">
+                    <span className="font-display text-[clamp(3.5rem,7vw,5.5rem)] font-light leading-none tabular-nums">{picked}</span>
+                    <span className="t-h1">
+                      {picked === 1 ? "pick" : "picks"} over {nights === 1 ? "one day" : `${nights} days`}
+                    </span>
+                  </h2>
+                  <p className="t-body text-white/75">
+                    {picked
+                      ? `At ${venues} ${venues === 1 ? "venue" : "venues"}, with no show twice.${applied.local ? "" : " Ten to four is held for showings."}`
+                      : "Encore has nothing timed on these dates yet. Venues add dates through the season, so check back closer to the day."}
+                  </p>
                 </div>
-                <ul className="flex flex-wrap gap-x-5 gap-y-2" aria-label="What’s in the plan">
-                  {mix.map(({ c, n }) => (
-                    <li key={c} className="t-small inline-flex items-center gap-2 text-white/85">
-                      <span className="size-2.5" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
-                      {CATEGORY[c].label} <span className="tabular-nums text-white/55">{n}</span>
-                    </li>
-                  ))}
-                </ul>
+                {mix.length ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex h-3 w-full gap-0.5 overflow-hidden bg-white/10" aria-hidden="true">
+                      {mix.map(({ c, n }) => (
+                        <span key={c} className="h-full" style={{ width: `${(n / picked) * 100}%`, background: CATEGORY[c].color }} />
+                      ))}
+                    </div>
+                    <ul className="flex flex-wrap gap-x-5 gap-y-2" aria-label="What’s in the plan">
+                      {mix.map(({ c, n }) => (
+                        <li key={c} className="t-small inline-flex items-center gap-2 text-white/85">
+                          <span className="size-2.5" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
+                          {CATEGORY[c].label} <span className="tabular-nums text-white/55">{n}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
+
+              {nights > 1 ? (
+                <nav aria-label="Days in the plan" className="relative">
+                  <ol className="plan-strip">
+                    {plan.days.map((d) => {
+                      const picks = [...(d.matinee ? [d.matinee] : []), ...d.picks];
+                      return (
+                        <li key={d.day}>
+                          <a href={`#day-${d.day}`} className={cn("plan-strip-day", d.weekend && "is-weekend")}>
+                            <span className="t-small text-white/60">{weekdayShort(d.day)}</span>
+                            <span className="font-display text-[1.75rem] font-light leading-none text-white tabular-nums">{dayNum(d.day)}</span>
+                            <span className="text-[11px] uppercase tracking-[0.12em] text-encore">{monthShort(d.day)}</span>
+                            <span className="mt-1 flex h-2 gap-1">
+                              <span className="sr-only">
+                                {picks.length} {picks.length === 1 ? "pick" : "picks"}
+                              </span>
+                              {picks.map((o) => (
+                                <span key={`${o.e.s}-${o.start}`} className="size-2" style={{ background: CATEGORY[o.e.c].color }} aria-hidden="true" />
+                              ))}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </nav>
+              ) : null}
+            </div>
+
+            <div className="plan-days">
+              {plan.days.map((d, i) => (
+                <DayCard
+                  key={d.day}
+                  d={d}
+                  n={i + 1}
+                  today={today}
+                  local={applied.local}
+                  has={my.has}
+                  toggle={my.toggle}
+                  near={{ venues: nearbyVenues, open: openNear, setOpen: setOpenNear }}
+                />
+              ))}
+            </div>
+            {!full ? (
+              <p className="sr-only" aria-live="polite">
+                Loading the full season
+              </p>
             ) : null}
-          </div>
-
-          {nights > 1 ? (
-            <nav aria-label="Days in the plan" className="relative">
-              <ol className="plan-strip">
-                {plan.days.map((d) => {
-                  const picks = [...(d.matinee ? [d.matinee] : []), ...d.picks];
-                  return (
-                    <li key={d.day}>
-                      <a href={`#day-${d.day}`} className={cn("plan-strip-day", d.weekend && "is-weekend")}>
-                        <span className="t-small text-white/60">{weekdayShort(d.day)}</span>
-                        <span className="font-display text-[1.75rem] font-light leading-none text-white tabular-nums">{dayNum(d.day)}</span>
-                        <span className="text-[11px] uppercase tracking-[0.12em] text-encore">{monthShort(d.day)}</span>
-                        <span className="mt-1 flex h-2 gap-1">
-                          <span className="sr-only">
-                            {picks.length} {picks.length === 1 ? "pick" : "picks"}
-                          </span>
-                          {picks.map((o) => (
-                            <span key={`${o.e.s}-${o.start}`} className="size-2" style={{ background: CATEGORY[o.e.c].color }} aria-hidden="true" />
-                          ))}
-                        </span>
-                      </a>
-                    </li>
-                  );
-                })}
-              </ol>
-            </nav>
-          ) : null}
-        </div>
-
-        <div className="plan-days">
-          {plan.days.map((d, i) => (
-            <DayCard
-              key={d.day}
-              d={d}
-              n={i + 1}
-              today={today}
-              local={applied.local}
-              has={my.has}
-              toggle={my.toggle}
-              near={{ venues: nearbyVenues, open: openNear, setOpen: setOpenNear }}
-            />
-          ))}
-        </div>
-        {!full ? (
-          <p className="sr-only" aria-live="polite">
-            Loading the full season
-          </p>
-        ) : null}
-        </>
+          </>
         )}
         <p className="t-note">Times and prices come from each venue’s own listing. Check with the venue before you go.</p>
       </section>
