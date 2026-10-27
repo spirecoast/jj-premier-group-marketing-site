@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
 import { Blocks, GuidePhoto } from "@/components/guides/blocks";
+import { ReadingCompanion } from "@/components/guides/companion";
 import { GuideContents } from "@/components/guides/contents";
 import { GuideCover } from "@/components/guides/cover";
 import { GuideNext, OnOnePage } from "@/components/guides/one-page";
@@ -83,8 +84,11 @@ export default async function GuidePage({ params }: { params: Params }) {
         ])}
       />
 
-      <article id="guide-article">
+      <article id="guide-article" className="relative">
         <GuideCover guide={guide} minutes={minutes} updated={updated} author={author ? { name: author.name, headshot: author.headshot } : undefined} />
+
+        {/* The reading companion: on a phone the place in the guide, the line that fills, and the contents as a sheet; from lg the line alone, beside the rail. */}
+        <ReadingCompanion items={contents} articleId="guide-article" label="Inside this guide" button="Contents" desktop="line" />
 
         {/* The sections, with the contents beside them */}
         <div className="container-site grid grid-cols-1 gap-10 pt-14 pb-section md:pt-20 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-16 xl:grid-cols-[260px_minmax(0,1fr)] print:block print:pb-0">
@@ -93,7 +97,7 @@ export default async function GuidePage({ params }: { params: Params }) {
           </div>
           <div className="flex min-w-0 max-w-[860px] flex-col gap-16 md:gap-20 print:max-w-none print:gap-10">
             {guide.sections.map((s, i) => (
-              <section key={s.id} id={s.id} className="guide-section flex scroll-mt-header flex-col gap-8" aria-labelledby={`${s.id}-title`}>
+              <section key={s.id} id={s.id} className="guide-section flex scroll-mt-[calc(var(--header-h)+3rem)] flex-col gap-8 lg:scroll-mt-header" aria-labelledby={`${s.id}-title`}>
                 <div id={`${s.id}-title`}>
                   <GuideSectionHeader number={i + 1} of={of} title={s.title} lead={s.lead} />
                 </div>

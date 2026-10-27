@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { ReadingCompanion } from "@/components/guides/companion";
 import { Photo } from "@/components/photo";
 import type { ImageRef } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
@@ -56,19 +57,27 @@ export function GuideHero({ title, image }: { title: string; image: ImageRef }) 
   );
 }
 
+/** The id of step n (1-based) on the page: the companion's list and the address bar both use it. */
+export const stepId = (n: number) => `step-${n}`;
+
 /**
  * Step 1 has its photograph on the left and its words on the right, step 2
  * the other way round, and so on down the page. On a phone every step is the
- * photograph, then the words.
+ * photograph, then the words. The reading companion sticks under the header
+ * for the length of the list: "Step 3 of 10 · Get prequalified", the ten
+ * numerals from lg, the line that fills as the page is read, and the list
+ * as a sheet, so a reader can skim the guide or return to a step.
  */
 export function GuideSteps({ steps, label }: { steps: GuideStep[]; label: string }) {
+  const items = steps.map((s, i) => ({ id: stepId(i + 1), number: String(i + 1).padStart(2, "0"), title: s.title }));
   return (
-    <section id={STEPS_ID} aria-label={label} className="scroll-mt-header">
+    <section id={STEPS_ID} aria-label={label} className="relative scroll-mt-header">
+      <ReadingCompanion items={items} articleId={STEPS_ID} label={label} word="Step" button="All steps" />
       <ol>
         {steps.map((s, i) => {
           const wordsFirst = i % 2 === 1;
           return (
-            <li key={s.title} className="grid lg:grid-cols-2">
+            <li key={s.title} id={stepId(i + 1)} className="grid scroll-mt-[calc(var(--header-h)+3rem)] lg:grid-cols-2">
               <div className={cn("relative aspect-[4/3] overflow-hidden bg-navy lg:aspect-auto lg:min-h-[620px]", wordsFirst && "lg:order-2")}>
                 <Photo image={s.image} sizes="(min-width: 1024px) 50vw, 100vw" />
               </div>
