@@ -12,14 +12,32 @@ import { site } from "@/lib/site";
  * Four voices, loaded through next/font so nothing render-blocking leaves the
  * origin. The licensed faces (IvyPresto Headline, Contralto) lead each CSS
  * stack in styles/tokens.css and take over automatically once self-hosted.
+ *
+ * Only what the first screen draws is preloaded: Newsreader roman (headings),
+ * Jost (body and nav) and Cormorant (the wordmark in the header), about 180 KB.
+ * Newsreader roman keeps its optical-size axis: at hero sizes the display cut is
+ * visibly tighter and finer than the text cut, and that is the brand's look.
+ * The italic is its own family, not preloaded and without the axis (at the
+ * 22px it's mostly set at the two cuts can't be told apart): 65 KB fetched only
+ * on a page that shows italic display type, through --font-display-italic.
+ * IBM Plex Mono sets small labels and loads with the page, not ahead of it.
  */
 const newsreader = Newsreader({
   subsets: ["latin"],
   weight: "variable",
-  style: ["normal", "italic"],
+  style: "normal",
   axes: ["opsz"],
   variable: "--font-newsreader",
   display: "swap",
+});
+
+const newsreaderItalic = Newsreader({
+  subsets: ["latin"],
+  weight: "variable",
+  style: "italic",
+  variable: "--font-newsreader-italic",
+  display: "swap",
+  preload: false,
 });
 
 const cormorant = Cormorant_Garamond({
@@ -41,6 +59,7 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--font-plex-mono",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -89,7 +108,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${cormorant.variable} ${jost.variable} ${plexMono.variable}`}
+      className={`${newsreader.variable} ${newsreaderItalic.variable} ${cormorant.variable} ${jost.variable} ${plexMono.variable}`}
       // globals.css sets scroll-behavior: smooth for in-page anchors. This tells the
       // router, so a route change still jumps to the top at once instead of gliding
       // there through the page transition.

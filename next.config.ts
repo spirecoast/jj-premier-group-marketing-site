@@ -164,6 +164,12 @@ const nextConfig: NextConfig = {
     // Optimized images are cached for 31 days (on Vercel's image cache and in the browser);
     // without this the browser got max-age=0 and re-checked every photo on every visit.
     minimumCacheTTL: 2678400,
+    // The widths the browser can pick from. Next's defaults jump from 1200 to 1920
+    // and end at 3840, so a 1248px hero fetched the 1920 file and a Retina desktop
+    // the 3840 one. The source photos are at most 2560px wide, so nothing larger
+    // is ever sharper, and the steps between 1080 and 1920 fit the real hero slots
+    // (lib/image-sizes.ts).
+    deviceSizes: [640, 750, 828, 1080, 1280, 1440, 1600, 1920, 2560],
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/public/encore-images/**" },
