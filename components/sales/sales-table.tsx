@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { SOLD_COPY as C } from "./copy";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +35,8 @@ export type SalesSummary = {
   medianPricePerSqft: number | null;
   sqftSampleSize: number;
   medianPrice: number | null;
+  medianResalePrice: number | null;
+  medianNewerPrice: number | null;
   from: string | null;
   to: string | null;
 };
@@ -79,17 +84,26 @@ type Props = {
   rows: SaleRow[];
   /** The footnote behind the dagger; the sold page's by default. */
   rollChangedNote?: string;
+  /** After "Show more": the index of the first new row, which takes focus so a keyboard or screen reader lands on it. */
+  focusRow?: number | null;
 };
 
-export function SalesTable({ rows, rollChangedNote = C.results.rollChanged }: Props) {
+export function SalesTable({ rows, rollChangedNote = C.results.rollChanged, focusRow = null }: Props) {
+  const list = useRef<HTMLUListElement>(null);
+  const body = useRef<HTMLTableSectionElement>(null);
+  useEffect(() => {
+    if (focusRow === null || focusRow < 0) return;
+    const target = [list.current?.children[focusRow], body.current?.children[focusRow]].find((el) => el instanceof HTMLElement && el.offsetParent !== null) as HTMLElement | undefined;
+    target?.focus();
+  }, [focusRow]);
   return (
     <>
       {/* Phones: a stacked list. From md up: the table. */}
-      <ul className="flex flex-col divide-y divide-hairline border-y border-hairline md:hidden">
+      <ul ref={list} className="flex flex-col divide-y divide-hairline border-y border-hairline md:hidden">
         {rows.map((r, i) => {
           const changed = saleFlagged(r);
           return (
-            <li key={`${r.address}-${r.saleDate}-${i}`} className="flex flex-col gap-1.5 py-4">
+            <li key={`${r.address}-${r.saleDate}-${i}`} tabIndex={-1} className="flex flex-col gap-1.5 py-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700">
               <div className="flex items-baseline justify-between gap-4">
                 <span className="t-body text-navy">{titleCase(r.address)}</span>
                 <span className="t-record shrink-0 text-navy">{usd.format(r.salePrice)}</span>
@@ -125,11 +139,11 @@ export function SalesTable({ rows, rollChangedNote = C.results.rollChanged }: Pr
               <Th>{C.results.columns.type}</Th>
             </tr>
           </thead>
-          <tbody>
+          <tbody ref={body}>
             {rows.map((r, i) => {
               const changed = saleFlagged(r);
               return (
-                <tr key={`${r.address}-${r.saleDate}-${i}`} className="border-b border-hairline align-baseline">
+                <tr key={`${r.address}-${r.saleDate}-${i}`} tabIndex={-1} className="border-b border-hairline align-baseline outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700">
                   <td className="py-3 pr-4">
                     <span className="t-body text-navy">{titleCase(r.address)}</span>
                     <span className="block t-mono-sm text-graphite-500">
@@ -141,7 +155,7 @@ export function SalesTable({ rows, rollChangedNote = C.results.rollChanged }: Pr
                   <Td align="right" className="t-record text-navy">
                     {usd.format(r.salePrice)}
                   </Td>
-                  <Td align="right">{r.livingArea ? int.format(r.livingArea) : <span className="t-small italic text-graphite-500">{missingSize(r)}</span>}</Td>
+                  <Td align="right">{r.livingArea ? int.format(r.livingArea) : <span className="t-small text-graphite-500">{missingSize(r)}</span>}</Td>
                   <Td align="right">{r.pricePerSqft ? usd.format(r.pricePerSqft) : <span className="t-small text-graphite-400">—</span>}</Td>
                   <Td align="right">{r.yearBuilt ?? "—"}</Td>
                   <Td>{typeLabel(r)}</Td>

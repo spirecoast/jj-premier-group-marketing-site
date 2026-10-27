@@ -84,3 +84,70 @@
     .street-sign { transition: none; }
   }
 }
+
+/* ---- Tide Street: the results. Chips for an ambiguous street and the median's
+   group, the timeline's draw-on, the table behind its disclosure. */
+@layer components {
+  /* A choice under the sign: square, 44px, white on a hairline, parchment on
+     hover, navy when it is the one in force. Same shape in the ambiguous row
+     and the median's toggle. */
+  .street-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-navy);
+    background: #fff;
+    border: 1px solid var(--color-hairline);
+    transition:
+      background-color var(--dur-micro) var(--ease-brand),
+      border-color var(--dur-micro) var(--ease-brand),
+      color var(--dur-micro) var(--ease-brand);
+  }
+  .street-chip:hover { background: var(--color-parchment); }
+  .street-chip:focus-visible { outline: 2px solid var(--color-tide-ink); outline-offset: 2px; }
+  .street-chip[aria-checked="true"],
+  .street-chip[data-active="true"] {
+    background: var(--color-navy);
+    border-color: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .street-chip .street-chip-count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+  }
+  /* The timeline: the marks draw on from the left over an image's beat, then the median rule. */
+  .sales-timeline-reveal {
+    transition: width var(--dur-img) var(--ease-reveal);
+  }
+  .sales-timeline-median {
+    transition: stroke-dashoffset 400ms var(--ease-reveal) var(--dur-img);
+  }
+  /* The table's disclosure: a chevron that turns in a beat. */
+  .street-table > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .street-table > summary::-webkit-details-marker { display: none; }
+  .street-table-chevron {
+    transition: transform var(--dur-micro) var(--ease-brand);
+  }
+  .street-table[open] .street-table-chevron { transform: rotate(90deg); }
+  /* The figures settle on a new value over a card's beat (the number itself is tweened in JS). */
+  .street-stat {
+    transition: color var(--dur-micro) var(--ease-brand);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .street-chip,
+    .sales-timeline-reveal,
+    .sales-timeline-median,
+    .street-table-chevron { transition: none; }
+  }
+}
