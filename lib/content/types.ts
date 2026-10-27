@@ -271,6 +271,8 @@ export type SiteSettings = {
   brokerageName: string;
   brokerageLogo: ImageRef;
   officeAddress: Address;
+  /** Where the office is on the map on /contact. Until it is set, the map centres on Lakewood Ranch. */
+  officeGeo?: Geo;
   licenses: License[];
   socialLinks: { label: string; url: string }[];
   defaultOgImage: ImageRef;

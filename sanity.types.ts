@@ -816,6 +816,7 @@ export type TestimonialsQueryResult = Array<{
 export type SiteSettingsQueryResult = {
   brokerageName: string | null;
   officeAddress: Address | null;
+  officeGeo: Geopoint | null;
   licenses: Array<
     {
       _key: string;

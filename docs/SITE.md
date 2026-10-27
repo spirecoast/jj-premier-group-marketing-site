@@ -321,6 +321,12 @@ builder source with its checked date).
   facts underneath, joined by slug (`lake-club` became `the-lake-club`; the old path redirects).
   County-registry names (`research: "registry-only"`) render with `noindex` and stay out of the
   sitemap until they are researched.
+- **The map on /contact** is the same stack in a small frame (`components/office-map-island.tsx`,
+  `office-map.tsx`): one navy marker with the brokerage's name, zoom 12, plus and minus only, no wheel
+  zoom, loaded when the frame nears the viewport over a still poster, the map-unavailable note when it
+  can't draw. The marker is the office point in the site settings (`officeGeo`) or, until that is set,
+  the middle of Lakewood Ranch from `hubAtlas` (the mean of the catalog's areas there). The "Open in
+  Google Maps" link under it is `lib/map-embed.ts`. No Google embed, no key.
 - **The detail-page map** is an island: the page carries a still SVG of the place's points
   (`components/place-poster.tsx`) and `components/place-map-island.tsx` asks for MapLibre's chunk only
   when the frame comes within 200 px of the viewport. One finger scrolls the page over it; two move the map.
