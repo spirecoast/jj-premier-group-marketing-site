@@ -43,7 +43,7 @@ export function GuideHero({ title, image }: { title: string; image: ImageRef }) 
           <span className="relative block h-px w-14 bg-sky-300" aria-hidden="true" />
           <a
             href={`#${STEPS_ID}`}
-            className="relative grid h-12 w-12 place-items-center rounded-full bg-white/90 text-navy transition-[transform,background-color] duration-300 hover:translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+            className="relative grid h-12 w-12 place-items-center bg-white/90 text-navy transition-[transform,background-color] duration-300 hover:translate-y-0.5 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
           >
             <span className="sr-only">To step 1</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">

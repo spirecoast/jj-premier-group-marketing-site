@@ -43,7 +43,7 @@ export default async function TideIndexPage() {
       {latest ? (
         <section className="container-site grid items-center gap-12 py-section lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:gap-20" aria-labelledby="latest-title">
           <Link href={latest.href as Route} className="card group sr block w-full max-w-[540px]" aria-label={`${latest.title}: ${latest.headline ?? ""}`}>
-            <TideCover card={latest} priority sizes="(min-width: 1024px) 540px, 100vw" className="shadow-[0_40px_80px_-40px_rgb(20_37_48/0.6)]" />
+            <TideCover card={latest} priority sizes="(min-width: 1024px) 540px, 100vw" />
           </Link>
           <div className="sr flex flex-col gap-7 [--sr-i:1]">
             <h2 id="latest-title" className="t-display text-balance text-navy">

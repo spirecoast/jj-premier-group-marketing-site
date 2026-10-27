@@ -70,17 +70,17 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
             </h2>
             {matches.length && ids.length ? (
               <div className="flex max-w-[560px] flex-col gap-3">
-                <span className="flex h-2 overflow-hidden rounded-full bg-white/12" aria-hidden="true">
-                  <span className="rounded-full bg-atlas transition-[width] duration-700" style={{ width: `${(confirmed / matches.length) * 100}%` }} />
+                <span className="flex h-2 overflow-hidden bg-white/12" aria-hidden="true">
+                  <span className="bg-atlas transition-[width] duration-700" style={{ width: `${(confirmed / matches.length) * 100}%` }} />
                 </span>
                 <p className="t-small flex flex-wrap gap-x-6 gap-y-1 text-white/75">
                   <span className="inline-flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-atlas" aria-hidden="true" />
+                    <span className="size-2 bg-atlas" aria-hidden="true" />
                     {confirmed.toLocaleString()} confirmed on every answer
                   </span>
                   {confirmed !== matches.length ? (
                     <span className="inline-flex items-center gap-2">
-                      <span className="size-2 rounded-full bg-white/30" aria-hidden="true" />
+                      <span className="size-2 bg-white/30" aria-hidden="true" />
                       {(matches.length - confirmed).toLocaleString()} missing a detail
                     </span>
                   ) : null}
@@ -120,7 +120,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, onEdit, on
                   <li key={id}>
                     <button
                       type="button"
-                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 text-[14px] text-white transition-colors hover:border-atlas hover:bg-white/10"
+                      className="inline-flex min-h-10 items-center gap-2 border border-white/20 bg-white/[0.06] px-4 text-[14px] text-white transition-colors hover:border-atlas hover:bg-white/10"
                       onClick={() => onEdit(questionIndex(id) + 1)}
                       aria-label={`Change: ${q.title}`}
                     >
@@ -232,7 +232,7 @@ function MatchCard({ match: m, by, asOf }: { match: Match; by: Map<string, Index
         <div className="flex items-center gap-3">
           <span className="flex flex-1 gap-1" aria-hidden="true">
             {m.facts.map((f) => (
-              <span key={f.id} className={cn("h-1.5 flex-1 rounded-full", f.state === "unknown" ? "bg-linen-200" : "bg-atlas")} />
+              <span key={f.id} className={cn("h-1.5 flex-1", f.state === "unknown" ? "bg-linen-200" : "bg-atlas")} />
             ))}
           </span>
           <span className={cn("shrink-0 text-[12px] tabular-nums", unknown ? "text-graphite-500" : "font-medium text-atlas-ink")}>

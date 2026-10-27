@@ -13,7 +13,7 @@ export function ToolCard({ tool, sizes, className }: { tool: Tool; sizes: string
   const family = FAMILIES[tool.family];
   return (
     <Link href={tool.href} className={cn("card group flex w-full flex-col gap-4", className)}>
-      <div className="@container relative aspect-[5/4] overflow-hidden bg-navy shadow-[0_24px_48px_-28px_rgb(20_37_48/0.45)]">
+      <div className="@container relative aspect-[5/4] overflow-hidden bg-navy">
         <Photo image={tool.image} sizes={sizes} className="card-img" />
         <div className="absolute inset-0 bg-linear-to-b from-harbor-950/70 via-harbor-950/10 to-harbor-950/85" aria-hidden="true" />
         <div className="relative flex h-full flex-col justify-between p-[6cqw]">

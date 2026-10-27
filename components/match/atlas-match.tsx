@@ -22,6 +22,7 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
   const [step, setStep] = useState<number | null>(initial.step ?? (answeredIds(initial.answers).length ? null : 1));
   const root = useRef<HTMLDivElement>(null);
   const completed = useRef(false);
+  const moved = useRef(false);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -49,6 +50,7 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
   }, [answers, step]);
 
   const go = useCallback((next: number | null) => {
+    moved.current = true;
     setStep(next);
     if (next === null && !completed.current) {
       completed.current = true;
@@ -80,6 +82,7 @@ export function AtlasMatch({ initial, datasetVersion, asOf }: { initial: MatchSt
           onAnswers={setAnswers}
           areas={areas}
           count={count}
+          moved={moved.current}
           onBack={() => go(Math.max(1, step! - 1))}
           onSkip={() => go(step! < total ? step! + 1 : null)}
           onNext={() => go(step! < total ? step! + 1 : null)}
