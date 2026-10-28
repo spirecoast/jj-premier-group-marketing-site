@@ -2,11 +2,6 @@ import type { Route } from "next";
 import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon } from "lucide-react";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } from "@/lib/site";
-
-/** "See all nine": counted from the families, so a new tool changes it. */
-const COUNT_WORDS = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
-const toolCount = productFamilies.reduce((n, f) => n + f.items.length, 0);
-const TOOL_COUNT = COUNT_WORDS[toolCount] ?? String(toolCount);
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
 import { Emblem } from "./brand/emblem";
 import { FooterGroup } from "./footer-group";
@@ -16,6 +11,11 @@ import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
 import { RealtorMark } from "./realtor-mark";
 import { Wordmark } from "./wordmark";
+
+/** "See all nine": counted from the families, so a new tool changes it. */
+const COUNT_WORDS = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const toolCount = productFamilies.reduce((n, f) => n + f.items.length, 0);
+const TOOL_COUNT = COUNT_WORDS[toolCount] ?? String(toolCount);
 
 /** The three market hubs: a click on one counts as Explore {action: "hub"}. */
 const HUB_PATHS = new Set(["/lakewood-ranch", "/sarasota", "/bradenton"]);

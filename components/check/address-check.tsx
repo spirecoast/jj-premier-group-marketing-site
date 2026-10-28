@@ -241,6 +241,14 @@ function Result({ data }: { data: Ok }) {
   const flood = r.flood.status === "ok" ? r.flood.value : null;
   const fg = data.guides.flood;
   const eg = data.guides.evacuation;
+  // The roll's headline: the year built, else the living area, else what the parcel is (a vacant lot has neither).
+  const rollHeadline = !r.roll
+    ? "—"
+    : r.roll.yearBuilt
+      ? fill(R.built, { year: String(r.roll.yearBuilt) })
+      : r.roll.livingArea
+        ? `${int.format(r.roll.livingArea)} sq ft`
+        : (r.roll.use ?? R.noBuilding);
   const valueHref = `/sell/home-value?${new URLSearchParams({ address: `${data.query.number} ${street || data.query.display.split(",")[0]!.replace(/^\d+\s+/, "")}`, zip: r.zip })}`;
 
   return (
@@ -279,7 +287,7 @@ function Result({ data }: { data: Ok }) {
         </Fact>
         <Fact
           label={R.label}
-          value={r.roll?.yearBuilt ? fill(R.built, { year: String(r.roll.yearBuilt) }) : r.roll?.livingArea ? `${int.format(r.roll.livingArea)} sq ft` : r.roll ? R.blank : "—"}
+          value={rollHeadline}
           source={
             r.sources.roll ? (
               <SourceLine label={R.source[county]} date={r.checked} href={r.sources.roll.page} cta={R.page} />
@@ -294,7 +302,7 @@ function Result({ data }: { data: Ok }) {
                 [
                   [R.livingArea, r.roll.livingArea ? `${int.format(r.roll.livingArea)} sq ft` : R.blank],
                   [R.lot, r.roll.lotSqft ? `${int.format(r.roll.lotSqft)} sq ft` : R.blank],
-                  ...(r.roll.use ? [[R.use, r.roll.use] as const] : []),
+                  ...(r.roll.use && rollHeadline !== r.roll.use ? [[R.use, r.roll.use] as const] : []),
                   [R.lastSale, data.sale ? `${usd.format(data.sale.price)}, ${fmtDate(data.sale.date)}` : data.saleWindowStart ? fill(R.noSale, { date: fmtDate(data.saleWindowStart) }) : R.noSaleUndated],
                 ] as const
               ).map(([k, v]) => (
