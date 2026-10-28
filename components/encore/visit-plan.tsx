@@ -609,11 +609,11 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
           onClick={nearby.onToggle}
           aria-expanded={nearby.open}
           aria-controls={nearby.open ? nearby.controls : undefined}
-          aria-label={`Dinner, drinks and hotels near ${e.vn}`}
-          title="Nearby"
-          className="btn-quiet is-square encore-agenda-save"
+          aria-label={`Nearby: dinner, drinks and hotels near ${e.vn}`}
+          className={cn("btn-quiet encore-agenda-save encore-near", nearby.open && "is-open")}
         >
           <Pin />
+          <span className="encore-near-label">Nearby</span>
         </button>
       ) : null}
       <SaveButton saved={saved} onToggle={onSave} title={e.t} className="encore-agenda-save" />
