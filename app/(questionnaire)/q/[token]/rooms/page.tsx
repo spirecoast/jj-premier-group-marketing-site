@@ -56,7 +56,7 @@ export default async function RoomsPage({ params }: { params: Promise<{ token: s
                     <span className="t-mono-sm text-graphite-500">{KIND_LABEL[r.kind]}</span>
                     {r.status === "closed" ? <span className="t-mono-sm text-graphite-500">{T.closedMark}</span> : null}
                     <span className="t-mono-sm ml-auto text-graphite-500">{T.updatedAgo(updatedLabel(r.updatedAt))}</span>
-                    <span className="t-mono-sm text-harbor-700">{T.open}</span>
+                    <span className="t-mono-sm hidden text-harbor-700 sm:inline">{T.open}</span>
                   </Link>
                 </li>
               ))}

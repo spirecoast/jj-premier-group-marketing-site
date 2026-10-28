@@ -29,13 +29,16 @@ export function PlacePicker({ initial, datasetVersion }: { initial: PickedPlace[
     const needle = norm(q);
     if (!entries || needle.length < 2) return [];
     const have = new Set(picked.map((p) => p.s));
-    const out: IndexEntry[] = [];
+    // A name that starts with the words first, then a name that contains them, then the rest of the record.
+    const tiers: IndexEntry[][] = [[], [], []];
     for (const e of entries) {
       if (have.has(e.s) || e.r !== 1) continue;
-      if (e.q.includes(needle)) out.push(e);
-      if (out.length >= 8) break;
+      const name = norm(e.n);
+      if (name.startsWith(needle)) tiers[0]!.push(e);
+      else if (name.includes(needle)) tiers[1]!.push(e);
+      else if (e.q.includes(needle)) tiers[2]!.push(e);
     }
-    return out;
+    return tiers.flat().slice(0, 8);
   }, [index.data, q, picked]);
 
   function add(e: IndexEntry) {

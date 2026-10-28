@@ -123,7 +123,7 @@ export function RoomForm({
       <fieldset className="grid gap-4">
         <legend className="t-h3 mb-4 text-navy">{T.notesHeading}</legend>
         <div className="field">
-          <label htmlFor={id("notes")} className="field-label">
+          <label htmlFor={id("notes")} className="sr-only">
             {T.notesHeading}
           </label>
           <textarea id={id("notes")} name="notes" rows={10} maxLength={8000} defaultValue={room.content.notes} className="field-input min-h-[12rem] leading-relaxed" aria-describedby={id("notes-hint")} />

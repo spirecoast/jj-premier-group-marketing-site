@@ -45,10 +45,12 @@ export function Sparkline({ m }: { m: IssueMarket }) {
         <svg viewBox={`0 0 ${W_} ${H_}`} preserveAspectRatio="none" className="absolute inset-0 block h-full w-full overflow-visible" focusable="false">
           <line x1={0} x2={W_} y1={base} y2={base} stroke="#d2c6b4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
           {g.typicalY !== null ? <line x1={0} x2={W_} y1={g.typicalY} y2={g.typicalY} stroke="#a3927a" strokeWidth={1} strokeDasharray="3 4" vectorEffect="non-scaling-stroke" /> : null}
-          <path className="tide-spark-area" d={area} fill={color} opacity={0.07} />
+          {/* The fade is on the group, so the fill keeps its own faint opacity once it has arrived. */}
+          <g className="tide-spark-area">
+            <path d={area} fill={color} opacity={0.07} />
+          </g>
           <polyline
             className="tide-spark-line"
-            pathLength={1}
             points={g.points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}
             fill="none"
             stroke={color}

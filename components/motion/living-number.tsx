@@ -59,7 +59,7 @@ export function LivingNumber({ text, className }: { text: string; className?: st
   }, [text, reduced]);
 
   return (
-    <span ref={ref} className={className}>
+    <span ref={ref} className={className} data-living-number="">
       {shown}
     </span>
   );

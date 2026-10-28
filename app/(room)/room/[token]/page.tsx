@@ -20,8 +20,8 @@ export default async function RoomPage({ params }: { params: Promise<{ token: st
     <>
       <header className="bg-navy text-linen-100 print:hidden">
         <div className="mx-auto flex max-w-[44rem] items-center gap-x-4 px-5 py-3 sm:px-8">
-          <span className="font-wordmark text-[13px] font-semibold leading-none tracking-[0.3em]">{ROOM_COPY.bar.toUpperCase()}</span>
-          <span className="t-mono-sm ml-auto text-linen-100/70">{ROOM_COPY.privateMark}</span>
+          <span className="whitespace-nowrap font-wordmark text-[13px] font-semibold leading-none tracking-[0.3em]">{ROOM_COPY.bar.toUpperCase()}</span>
+          <span className="t-mono-sm ml-auto hidden whitespace-nowrap text-linen-100/70 sm:inline">{ROOM_COPY.privateMark}</span>
           <PrintButton label={ROOM_COPY.print} className="t-label border border-linen-100/45 px-3 py-1.5 text-linen-100 transition-colors hover:bg-linen-100/10" />
         </div>
       </header>
