@@ -723,6 +723,37 @@ model (384 dimensions) built into Supabase Edge Functions. No other vendor.
    over the same chunks (`lib/search/fallback.ts`). An embedded query that nothing reaches the
    threshold for is answered with no results, not sent to the fallback. The page never breaks.
 
+**The answer card** (`lib/answers/*`, `components/search/answer-card.tsx`). Above the results, a
+question the site already answers gets the answer, with the page it comes from. No model writes it:
+`lib/answers/bank.ts` gathers what the pages already say (each hub's questions, the questions on the
+editorial Atlas pages, Atlas Move's and the home page's, the terms the guides define, and the sourced
+fields of every researched Atlas place) and `lib/answers/match.ts` picks at most one. It errs toward
+silence, since a wrong answer above the results is worse than none:
+
+- Only a query shaped like a question (a question word first, or a question mark) gets a written
+  question's answer. The words of the query and the question must cover each other, weighted by how
+  rare each word is in the bank (`THRESHOLDS`: 0.75 of the query, 0.34 of the question, 0.62 mean),
+  and the places must agree: a question that names a place needs the query to name it (unless it
+  names all three markets), a question on an Atlas page needs the query to name that place, and a
+  hub's unnamed question stands for its market. The place's own question wins over its market's.
+- "What is …" with a term a guide defines gets the guide's definition, whole term only.
+- A query that names one researched place and asks one fact ("is Camargo in a CDD", "Belleisle
+  evacuation level") gets that field of the record with the source it cites and the day it was
+  opened; a field the record doesn't hold, or doesn't cite, is no answer. An evacuation level points
+  on to the address check (`/check`). A fact about the place named beats a general answer from its
+  market's page.
+- School ratings, safety and who lives where get a plain decline instead (Fair Housing): what we
+  don't answer and where the real source is (the two districts' locators; the address check; Atlas
+  Match). "Safe" counts only beside a place's name, and "safe from flooding" is about the land. The
+  decline words are in `lib/answers/copy.ts`, which `scripts/copy-rules.mjs` sets aside from the
+  places-not-people list for that reason only.
+
+Street, address and ZIP queries never get a card (they get the Tide Street lead). The bank is built
+once an hour per server from the same content layer the pages read; a source that fails costs only
+its own answers. The `Search` goal carries `answer` (faq, definition, fact or decline) when the
+card showed. Tests: `lib/answers/answers.test.ts`, on the real content, including the review's
+example ("is Lakewood Ranch in Manatee or Sarasota County").
+
 **Why not reciprocal rank fusion.** The first version (`search_hybrid()`, 0010) fused the two
 lists with RRF, the pattern in Supabase's hybrid search guide. RRF looks only at each list's
 order: the nearest neighbour gets the same boost whether its cosine is 0.95 or 0.80, a chunk that

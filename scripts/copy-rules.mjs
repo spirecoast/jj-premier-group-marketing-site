@@ -35,7 +35,13 @@ const HONEST_USES = [
 /** Atlas states each place's zoned schools as a fact with the district's link: the one part of the site where the word belongs. */
 const ATLAS = /^(?:app\/\(site\)\/neighborhoods\/|components\/explorer\/|lib\/neighborhoods\/)/;
 const SCHOOLS = PEOPLE_RULES[0];
+/**
+ * The answer card's three declines (lib/answers/copy.ts) name schools, safety and people only to say the site
+ * doesn't answer them and where the real source is. The Fair Housing list and the voice rules still run there.
+ */
+const DECLINES = /^lib\/answers\/copy\.ts\b/;
 export const peopleHits = (where, text) => {
+  if (DECLINES.test(where)) return [];
   const plain = HONEST_USES.reduce((t, re) => t.replace(re, " "), text);
   return PEOPLE_RULES.filter((r) => !(r === SCHOOLS && ATLAS.test(where)) && r.pattern.test(plain));
 };
