@@ -366,6 +366,56 @@ builder source with its checked date).
   Boundaries are not drawn: the dataset has points only. If polygons are wanted, source them from the
   county layers listed in `neighborhood-data/docs/DATA-SOURCES.md` rather than drawing them.
 
+## Atlas Check (/check)
+
+The fourth Atlas piece: one address in Manatee or Sarasota County, and what the public maps say about
+it, each fact with the layer it came from, a page to check it on and the day it was read. The page
+is static (`app/(site)/check`); the island (`components/check/address-check.tsx`) asks
+`GET /api/check?address=&zip=`. The address never goes into the address bar; a link that carries
+one (from an address search, `checkHref` in `lib/search/intent.ts`) runs it once on arrival. The
+place pages' evacuation card links here ("Check an exact address") beside the county's lookup.
+
+**How an address is found** (`lib/check/check.ts`, `locate`). The house number, street and ZIP are
+parsed (`lib/check/parse.ts`, `parseAddress`; the street's parts by `streetParts` in
+`lib/sales/street.ts`), then looked up on the county's own parcel layer, in the county the ZIP belongs
+to (both for a ZIP on the line): Manatee `GIS_PARCELS`, Sarasota `Hosted/Parcels`, by number, street
+name and ZIP, the exact name first and the name as a prefix second. A typed suffix or directional
+picks among streets that share a name, a typed unit picks the unit; a building's units without a
+unit typed share the location and the roll's facts are held back. When neither roll has the address
+(a house too new for the roll, a typo), the Census geocoder (`geographies/onelineaddress`, free, no
+key) places it along its street and the page says the point can be a few lots off. A Census match
+outside FIPS 12081 and 12115 is "outside the two counties".
+
+**What is read at the parcel.** Each layer is asked with the parcel's polygon (POST), so a lot that
+touches two zones names both; only then is the parcel's middle asked too, to say which comes first.
+A geocoded point is asked as a point.
+
+| Fact | Layer | Field |
+| --- | --- | --- |
+| Evacuation level (Manatee) | `services1.arcgis.com/t03WDvnSR7gSDOB2/.../Evacuation Levels Feature Service/FeatureServer/0` | `EVAC_ZONE` (A–E, `N/A` = outside) |
+| Evacuation zone (Sarasota) | `services3.arcgis.com/icrWMv7eBkctFu1f/.../StormEvacuationZoneWM/FeatureServer/0` | `EvacuationZone` (no feature = outside) |
+| FEMA flood zone | `hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28` | `FLD_ZONE`, `ZONE_SUBTY`, `SFHA_TF`, `STATIC_BFE` (−9999 = none), `V_DATUM` |
+| FIRM panel | `.../NFHL/MapServer/3` | `FIRM_PAN`, `EFF_DATE`; the panel from the county's own map (`DFIRM_ID` 12081C or 12115C) wins at a county line |
+| Year built, living area, lot, use | the parcel layer above | Manatee `YRBLT_RES`/`YRBLT_COM`, `SFLA`, `ACRES`, `LUC_DESCRIPTION`; Sarasota `yrbl`, `living`, `lsqft`, `stcd` |
+| Last qualified sale | `data/sales` (`findParcelSales`, matched on the parcel number) | the county sales file's 24-month window |
+
+The same layers the dataset's evacuation zones come from (`neighborhood-data/docs/DATA-SOURCES.md`).
+Owner and mailing columns exist in both parcel layers and are never requested (`PARCEL_FIELDS`;
+`lib/check/check.test.ts` holds that). The guides speak beside the result from their own data:
+the flood guide's zone card for VE, AE or X (its figure note for A, AH, AO and shaded X) and the
+hurricane guide's "An evacuation zone is not a flood zone" lead (`lib/check/guide.ts`). Then a plain
+"Check before you count on it", and the next steps: Home Value with the address, Tide Street for the
+street, Street Watch, and the contact page.
+
+**Cost, caching and limits** (`lib/check/server.ts`). Every source is public and free. Each layer's
+answer is kept 30 days in Next's data cache (`unstable_cache`, shared across instances, tag
+`atlas-check`) with the day it was read, and the page shows the oldest such day; a failed read is
+never cached. A whole result is kept an hour in memory, the response an hour at the edge. Ten checks
+a minute per visitor and 3,000 a day per instance, then 429. A source that fails leaves its own fact
+out with a link to look it up by hand; the others still show. Measured uncached: five to six calls and
+0.6 to 1.2 s per address. The `Explore` goal fires with `action` = address-check; Street Watch from
+here carries `source` = atlas-check.
+
 ## The Encore Arts Calendar
 
 `/calendar` is a calendar product built on the events dataset the client supplied

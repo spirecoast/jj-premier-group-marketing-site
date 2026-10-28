@@ -2,6 +2,11 @@ import type { Route } from "next";
 import { Briefcase, Globe, House, Mailbox, MapPin, SquarePlay, type LucideIcon } from "lucide-react";
 import type { SiteSettings, TeamMember } from "@/lib/content/types";
 import { allSocialLinks, footerNav, productFamilies, site, type SocialNetwork } from "@/lib/site";
+
+/** "See all nine": counted from the families, so a new tool changes it. */
+const COUNT_WORDS = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const toolCount = productFamilies.reduce((n, f) => n + f.items.length, 0);
+const TOOL_COUNT = COUNT_WORDS[toolCount] ?? String(toolCount);
 import { FACEBOOK_PATH, INSTAGRAM_PATH } from "@/lib/brand-marks";
 import { Emblem } from "./brand/emblem";
 import { FooterGroup } from "./footer-group";
@@ -158,7 +163,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               {productFamilies.map((f) => (
                 <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<Emblem family={f.key} ink className="size-[18px]" />} />
               ))}
-              <Column title="All tools" note="Atlas, Encore and Tide" links={[{ href: "/tools", label: "See all eight" }]} />
+              <Column title="All tools" note="Atlas, Encore and Tide" links={[{ href: "/tools", label: `See all ${TOOL_COUNT}` }]} />
             </div>
           </div>
         </div>

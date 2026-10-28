@@ -438,6 +438,19 @@ Settings → Domains → Add. Vercel auto-provisions SSL.
 
 ---
 
+## 4) Public map services (no account, no key)
+
+Atlas Check (`/check`, docs/SITE.md "Atlas Check") reads public ArcGIS layers and one geocoder, all
+free and keyless, from the server only: Manatee County GIS (parcels, evacuation levels), Sarasota
+County GIS (parcels, evacuation zones), FEMA's National Flood Hazard Layer (flood zones, map panels)
+and the U.S. Census geocoder (only when an address isn't on either roll). Nothing to provision and no
+environment variable. Each answer is cached 30 days (Next's data cache, tag `atlas-check`) and the
+route is capped per visitor and per instance. If a county moves a layer, `LAYERS` in
+`lib/check/parse.ts` is the one place to change it (and `neighborhood-data/scripts/refresh-gis.mjs`
+for the dataset).
+
+---
+
 ## Order of operations
 
 1. Provision Supabase → grab 4 env vars → run the migrations (`0000`–`0008`)

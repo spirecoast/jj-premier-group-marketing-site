@@ -23,6 +23,7 @@ export const IMAGES: Record<string, ImageRef> = {
   atlas: img("library/golf-course-lakes-aerial", "Fairways and lakes between houses, from above", "50% 50%"),
   "atlas-match": img("library/lwr-fairways-bay-aerial", "Fairways, lakes and rooftops from the air", "50% 55%"),
   "atlas-move": img("library/lakes-aerial-sunset", "Lakefront streets from the air at sunset", "50% 50%"),
+  "atlas-check": img("library/palm-lined-street", "A street lined with palms", "50% 55%"),
   encore: img("library/culture-opera-house-red-seats", "Rows of red velvet seats in an opera house, empty before the show", "50% 58%"),
   "encore-planner": img("library/sarasota-bayfront-blue-hour", "The Sarasota bayfront lit up at dusk", "50% 55%"),
   tide: img("library/venice-pier-sunrise", "A fishing pier reaching into the Gulf at sunrise", "62% 55%"),

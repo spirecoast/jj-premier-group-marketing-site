@@ -24,7 +24,7 @@ import "./watch.css";
 
 export type WatchFor = { kind: "street"; street: string; zip: string; label: string } | { kind: "place"; slug: string; name: string };
 
-type Props = { target: WatchFor; className?: string; source?: "tide-street" | "home-value" | "atlas" };
+type Props = { target: WatchFor; className?: string; source?: "tide-street" | "home-value" | "atlas" | "atlas-check" };
 
 /** A new street or place starts the button over. */
 export function WatchButton(props: Props) {

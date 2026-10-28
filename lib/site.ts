@@ -233,6 +233,14 @@ export const productFamilies: readonly ProductFamily[] = [
         line: "Every date and deadline for your move on one page, from the contract to homestead.",
         plain: "Moving here",
       },
+      {
+        id: "atlas-check",
+        href: "/check",
+        label: "Atlas Check",
+        short: "The flood and evacuation zone for an address",
+        line: "Type an address and see its evacuation zone, its FEMA flood zone and what the county’s roll says about the house.",
+        plain: "Check an address",
+      },
     ],
   },
   {
