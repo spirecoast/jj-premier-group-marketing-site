@@ -62,6 +62,10 @@ const PRINT_CSS = `
   #plan .t-small, #plan .t-record { font-size: 8pt; }
   #plan [data-print="key"] { padding: 6pt 8pt; }
   #plan [data-print="key"] .font-display { font-size: 15pt; }
+  /* Five across a letter page: each card is the date over its name, not the phone's two columns. */
+  #plan [data-print="key"] { display: flex !important; flex-direction: column; gap: 4pt; }
+  #plan [data-print="key"] > div:last-child { justify-content: flex-start; }
+  #plan [data-print="key"] > div:last-child * { font-size: 9pt; line-height: 1.25; }
   #plan [data-print="row"] { break-inside: avoid; }
   #plan [data-print="row"] > div:last-child { padding-bottom: 8pt; }
   #plan [data-print="phase"] { gap: 6pt; }

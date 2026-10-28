@@ -109,7 +109,7 @@ export function KeepEmail({ tool, url, buttonClassName }: { tool: KeepToolId; ur
       <button
         ref={button}
         type="button"
-        className={cn("link-rule self-center", buttonClassName)}
+        className={cn("link-rule self-center whitespace-nowrap", buttonClassName)}
         aria-expanded={open}
         aria-controls={`${id}-form`}
         onClick={() => {
@@ -121,6 +121,7 @@ export function KeepEmail({ tool, url, buttonClassName }: { tool: KeepToolId; ur
         Email me this
       </button>
       {open ? (
+        <div className="col-span-full basis-full print:hidden">
         <form
           id={`${id}-form`}
           noValidate
@@ -128,7 +129,7 @@ export function KeepEmail({ tool, url, buttonClassName }: { tool: KeepToolId; ur
           onKeyDown={(e) => {
             if (e.key === "Escape") close();
           }}
-          className="keep-email col-span-full flex basis-full flex-col gap-3 border border-hairline bg-white p-5 print:hidden"
+          className="keep-email flex w-full max-w-[520px] flex-col gap-3 border border-hairline bg-white p-5"
           aria-label="Email me this"
         >
           {state === "sent" ? null : (
@@ -180,6 +181,7 @@ export function KeepEmail({ tool, url, buttonClassName }: { tool: KeepToolId; ur
             </button>
           ) : null}
         </form>
+        </div>
       ) : null}
     </>
   );

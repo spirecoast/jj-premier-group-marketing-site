@@ -210,7 +210,7 @@ function Exports() {
   }
 
   return (
-    <div role="group" aria-label={EXPORTS.label} className="grid shrink-0 grid-cols-2 gap-2 print:hidden sm:flex sm:flex-wrap lg:flex-nowrap">
+    <div role="group" aria-label={EXPORTS.label} className="grid shrink-0 grid-cols-2 gap-2 print:hidden sm:flex sm:flex-wrap lg:max-w-[600px] lg:justify-end">
       <a href={icsPath(answers)} download="move-plan.ics" className="btn btn-navy col-span-2" onClick={() => track("Calendar feed", { kind: "relocate" })}>
         {EXPORTS.calendar}
       </a>

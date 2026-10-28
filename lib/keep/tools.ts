@@ -36,7 +36,7 @@ export const KEEP_TOOLS: Record<KeepToolId, KeepTool> = {
     noun: "your moving plan",
     subject: "Your Atlas Move plan",
     path: "/relocate",
-    source: "These dates are an estimate. Your contract, your lender or your county can move them, so we’ll check each one with you.",
+    source: "Each date’s reason and its source are on the plan on our site: scan the code to open it.",
   },
   "atlas-match": {
     family: "atlas",
@@ -52,7 +52,7 @@ export const KEEP_TOOLS: Record<KeepToolId, KeepTool> = {
     noun: "your Encore plan",
     subject: "Your Encore plan",
     path: "/calendar/plan",
-    source: "Times and prices come from each venue’s own listing; confirm before you go.",
+    source: "From Encore, the arts calendar for Lakewood Ranch, Sarasota and Bradenton, built from each venue’s own listing.",
   },
   "tide-street": {
     family: "tide",

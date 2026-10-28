@@ -138,7 +138,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more
               See them on the map
             </ButtonLink>
             {matches.length > LIST_MAX ? <p className="t-small text-white/60 lg:text-right">The map holds the first {LIST_MAX.toLocaleString()} of these.</p> : null}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 lg:max-w-[400px] lg:justify-end">
               <button type="button" className="link-rule" onClick={() => my.addAll(slugs)} disabled={allSaved} aria-disabled={allSaved}>
                 {allSaved ? "All saved" : "Save them all"}
               </button>
