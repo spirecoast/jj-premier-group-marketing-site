@@ -134,6 +134,13 @@
       "when": 1793376000000,
       "tag": "0018_street_watch",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793462400000,
+      "tag": "0019_client_rooms",
+      "breakpoints": true
     }
   ]
 }

@@ -739,7 +739,22 @@ the pictures are never grainy and never out of date; the raw data stays on the s
 
 All three share the deep ground and the luminous set in `lib/art/palette.ts`. The masthead version
 drifts slowly and its horizon breathes; both stop under `prefers-reduced-motion` and neither moves
-layout. A masthead slot in `lib/content/mastheads.ts` is either a photograph (at least 2000px
+layout.
+
+**Arrival.** Each portrait draws itself once (`draw` on the component; `app/globals.css`,
+"Arrival"): the Tide ridges draw left to right over 1.1 s (every ridge path has `pathLength={1}`,
+so the dash is "1" and the stroke runs on `stroke-dashoffset` while the fills are wiped in beneath),
+the Atlas sky settles in from the back one group of places at a time (web, figures, halos, then
+the stars by level and market, 60 ms apart), and the Encore hand sweeps the season once and rests
+at today while the categories light up behind it. The masthead plays on the page's first paint;
+the cards play when they are reached, through `components/motion/in-view.tsx`, which adds
+`.draw-on` to its box the first time it scrolls into view. Without JavaScript nothing is added and
+the finished drawing shows; reduced motion runs each at 0.01 ms, so it shows finished too. Tide's
+issue charts arrive the same way (`components/tide/sparkline.tsx`, `price-bands.tsx`,
+`home-mix.tsx`), and the figures beside them count up to themselves over 600 ms on the brand curve
+in their own shape (`components/motion/living-number.tsx`, `lib/motion/number.ts`), only when
+scrolled to and never for a figure already on screen. On the Atlas map, hovering a row pulses the
+place's marker once (a ring to 1.6×, fading over 600 ms); hovering a marker raises the row. A masthead slot in `lib/content/mastheads.ts` is either a photograph (at least 2000px
 wide, held to it by `lib/content/mastheads.test.ts`) or an art piece.
 
 ## Site search
@@ -1104,6 +1119,36 @@ team) lives on the site at three private links. Nobody needs an account.
   3. Replace that role's `sha256` in `TOKEN_HASHES`, deploy, and send the new
      `https://<site>/q/<token>` link. The old link stops working on deploy; answers stay, since
      they're stored by person, not by token.
+
+## Client rooms: a private page per client, without a login
+
+Once someone is working with the team, `/room/<token>` is their page: the neighborhoods the team
+has picked with them, their Atlas Move plan and Encore visit plan, where they are in the buyer's or
+seller's guide, the team's notes, and how to reach Joelyn and Jessica. Nobody signs in; the link is
+the only way in, as with the questionnaire.
+
+- **Making and keeping one.** The console is `/q/<token>/rooms` behind each person's own
+  questionnaire link (Joelyn's, Jessica's or the admin's, `lib/questionnaire/access.ts`): a first
+  name and what they're doing makes a room and shows its link once; `/q/<token>/rooms/<id>` edits
+  it (the guide step, neighborhoods from the Atlas index, the two plan links pasted from the
+  planners, notes), makes a new link (the old one stops working at once) and closes or reopens it
+  (a closed room's link is a 404 and nothing is deleted). The client's page is rendered underneath,
+  as it stands.
+- **What is stored.** `client_rooms` (migration `0019_client_rooms.sql`, also created on first
+  use by `lib/room/store.ts`): the SHA-256 of the token, the first name as typed, the kind, the
+  status and the room as JSON (`lib/room/model.ts` reads it back tolerantly). A pasted plan link is
+  reduced to the planner's own canonical query (`planQuery`): another path or a key the planner
+  doesn't define never survives, so a room never carries anything personal beyond the name. The raw
+  token is shown to the agent once and never kept.
+- **Kept private.** `app/(room)` is bare like the questionnaire (no header, footer, analytics or
+  pixel; nothing from another origin); `noindex`, `X-Robots-Tag`, `Referrer-Policy: no-referrer`
+  and `Cache-Control: no-store` on `/room/:path*` (`next.config.ts`); `Disallow: /room/` in
+  `app/robots.ts`; not in the sitemap. The title carries no name. Without `DATABASE_URL` the
+  console says so and a client's link is a plain 404.
+- **Code.** `lib/room/{model,validate,store,copy}.ts` (copy checked by `check:copy`), the pages
+  in `app/(room)/room/[token]` and `app/(questionnaire)/q/[token]/rooms`, the pieces in
+  `components/room/*`. Tests: `lib/room/room.test.ts`, which also holds the guide-step list to the
+  titles on `/buy` and `/sell`.
 
 ## Cards to post: a private link for Joelyn and Jessica
 
