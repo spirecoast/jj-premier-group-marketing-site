@@ -5,6 +5,8 @@ import { gunzipSync } from "node:zlib";
 import { getIndexEntries } from "../neighborhoods/data";
 import { cityZipTable, cityZips, matchPlace, placeBySlug, streetOptions, type CityZipTable, type PlaceMatch, type PlaceRow } from "./area";
 import { matchParcel, stripTypedUnit, type ParcelQuery } from "./parcel";
+import { joinPlaces, normPlaceName, placeSales, subdivisionNames, type PlaceJoin } from "./places";
+import { similarSales, type SimilarResult } from "./similar";
 import { parseTypedStreet, streetKey } from "./street";
 import { fullStreet, summarize, type SalesSummary } from "./stats";
 import type { County, PropertyUse, Sale } from "./types";
@@ -14,6 +16,8 @@ export { parseTypedStreet, streetKey } from "./street";
 export type { County, PropertyUse, Sale } from "./types";
 export { fullStreet, groupSummary, isResale, median, rollChanged, sizeBand, summarize, type GroupSummary, type SalesSummary } from "./stats";
 export { normalizeCity, type PlaceMatch } from "./area";
+export { plainSubdivision, subdivisionNames, titleSubdivision } from "./places";
+export type { SimilarBasis, SimilarResult } from "./similar";
 
 /**
  * County sales data: the qualified, arm's-length sales from the last 24
@@ -43,6 +47,7 @@ export type Manifest = {
         from: string | null;
         to: string | null;
         hasCoordinates: boolean;
+        toUnchangedRuns?: number;
         file: string;
       }
     >
@@ -66,6 +71,8 @@ type Index = {
   keys: string[];
   /** Which ZIPs each postal city reaches, from the rows (lib/sales/area.ts). */
   cities: CityZipTable;
+  /** Rows by the county's subdivision name, for "other sales in {subdivision}". */
+  bySubdivision: Map<string, Sale[]>;
 };
 
 let cache: Promise<Index> | null = null;
@@ -105,7 +112,14 @@ async function build(): Promise<Index> {
     if (list) list.push(r);
     else byStreet.set(k, [r]);
   }
-  return { manifest, rows, byStreet, keys: [...byStreet.keys()], cities: cityZipTable(rows) };
+  const bySubdivision = new Map<string, Sale[]>();
+  for (const r of rows) {
+    if (!r.subdivision) continue;
+    const list = bySubdivision.get(r.subdivision);
+    if (list) list.push(r);
+    else bySubdivision.set(r.subdivision, [r]);
+  }
+  return { manifest, rows, byStreet, keys: [...byStreet.keys()], cities: cityZipTable(rows), bySubdivision };
 }
 
 function index(): Promise<Index> {
@@ -253,6 +267,8 @@ export async function zipsForCity(city: string): Promise<string[] | null> {
 
 export type AreaResult = {
   place: PlaceMatch;
+  /** "subdivision": the sales the county files under the place's own subdivisions (lib/sales/places.ts); "zip": every sale in its ZIPs. */
+  basis: "subdivision" | "zip";
   rows: Sale[];
   total: number;
   /** Over every sale in the area, not only the rows returned. */
@@ -324,10 +340,12 @@ export async function searchByArea({ place: slug, limit = 200 }: { place: string
     }
   }
   if (!place) return null;
+  // A place the county files subdivisions under reads its own sales; otherwise (and for a postal city) its ZIPs.
+  const own = city ? [] : await placeSales((await placeJoin()).join, place.slug);
   const set = new Set(place.zips);
-  const hit = rows.filter((r) => set.has(r.zip));
+  const hit = own.length ? own : rows.filter((r) => set.has(r.zip));
   const streets = [...new Set(hit.map(fullStreet))];
-  return { place, rows: hit.slice(0, Math.min(Math.max(limit, 1), MAX_ROWS)), total: hit.length, summary: summarize(hit), streets };
+  return { place, basis: own.length ? "subdivision" : "zip", rows: hit.slice(0, Math.min(Math.max(limit, 1), MAX_ROWS)), total: hit.length, summary: summarize(hit), streets };
 }
 
 /**
@@ -378,4 +396,175 @@ export async function nearby({ lat, lng, radiusMiles, limit = 50 }: { lat: numbe
 export async function salesBetween(from: string, to: string): Promise<Sale[]> {
   const { rows } = await index();
   return rows.filter((r) => r.saleDate >= from && r.saleDate <= to);
+}
+
+/* ---- Sales joined to places (lib/sales/places.ts) --------------------------- */
+
+let joined: Promise<{ join: PlaceJoin; places: PlaceRow[] }> | null = null;
+/** The county rows joined to Atlas places by subdivision name. Built once per process. */
+function placeJoin(): Promise<{ join: PlaceJoin; places: PlaceRow[] }> {
+  if (!joined) {
+    joined = Promise.all([index(), placeRows()])
+      // The postal cities the county files sales under are read by ZIP, never by a plat name.
+      .then(([{ rows, cities }, places]) => ({ join: joinPlaces(rows, places, new Set([...cities.keys()].map(normPlaceName))), places }))
+      .catch((e) => {
+        joined = null;
+        throw e;
+      });
+  }
+  return joined;
+}
+
+export type PlaceSales = {
+  place: { slug: string; name: string; zips: string[] };
+  /**
+   * The sales the county files under the place's own subdivisions (its
+   * enclaves included), when the join finds any: the count and summary over
+   * all of them, the newest few, and the plain subdivision names.
+   */
+  joined: { total: number; summary: SalesSummary; newest: Sale[]; names: { name: string; count: number }[] } | null;
+  /** Every sale in the place's ZIPs, when it lists any. */
+  zipArea: { zips: string[]; total: number; summary: SalesSummary } | null;
+  /** The counties the figures come from, for the source line. */
+  counties: County[];
+};
+
+/**
+ * What sold in and around an Atlas place, for its page and the compare
+ * table: the sales the county files under the place's subdivisions, and
+ * every sale in its ZIPs. Null when there's no sales data or no such place;
+ * either half is null when the record has nothing for it. Never throws.
+ */
+export async function salesForPlace(slug: string, { newest = 5 }: { newest?: number } = {}): Promise<PlaceSales | null> {
+  try {
+    const [{ rows }, { join, places }] = await Promise.all([index(), placeJoin()]);
+    if (!rows.length) return null;
+    const row = places.find((p) => p.slug === slug);
+    if (!row) return null;
+    const zips = placeBySlug(places, slug)?.zips ?? [];
+    const own = placeSales(join, slug);
+    const zipSet = new Set(zips);
+    const zipRows = zips.length ? rows.filter((r) => zipSet.has(r.zip)) : [];
+    const counties = [...new Set([...own, ...zipRows].map((r) => r.county))];
+    return {
+      place: { slug, name: row.name, zips },
+      joined: own.length ? { total: own.length, summary: summarize(own), newest: own.slice(0, newest), names: subdivisionNames(own) } : null,
+      zipArea: zipRows.length ? { zips, total: zipRows.length, summary: summarize(zipRows) } : null,
+      counties,
+    };
+  } catch (e) {
+    console.error("[sales] place join failed", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
+/**
+ * The Atlas places a street's sales belong to (by subdivision), most sales
+ * first; when the join finds none, the areas that list its ZIP instead,
+ * marked `basis: "zip"` so the page says so. At most `max`.
+ */
+/** Whether a place's sales come from its own subdivisions or its ZIP area (what searchByArea will answer with). */
+export async function placeBasis(slug: string): Promise<"subdivision" | "zip"> {
+  if (slug.startsWith("city:")) return "zip";
+  try {
+    return placeSales((await placeJoin()).join, slug).length ? "subdivision" : "zip";
+  } catch {
+    return "zip";
+  }
+}
+
+export async function placesForRows(rows: Sale[], { max = 4 }: { max?: number } = {}): Promise<{ slug: string; name: string; level: string; basis: "subdivision" | "zip" }[]> {
+  try {
+    const { join, places } = await placeJoin();
+    const bySlug = new Map(places.map((p) => [p.slug, p]));
+    const counts = new Map<string, number>();
+    for (const r of rows) {
+      const s = join.slugOf.get(r);
+      if (s) counts.set(s, (counts.get(s) ?? 0) + 1);
+    }
+    const joinedPlaces = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([s]) => bySlug.get(s)!).filter(Boolean);
+    if (joinedPlaces.length) return joinedPlaces.slice(0, max).map((p) => ({ slug: p.slug, name: p.name, level: p.level, basis: "subdivision" as const }));
+    const zips = new Set(rows.map((r) => r.zip));
+    return places
+      .filter((p) => p.level === "area" && p.zips.some((z) => zips.has(z)))
+      .slice(0, max)
+      .map((p) => ({ slug: p.slug, name: p.name, level: p.level, basis: "zip" as const }));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * "Other sales in {subdivision}": for a street with fewer than three sales,
+ * the rest of the subdivision most of its rows are in. Null when the street
+ * has three or more, or no subdivision on record.
+ */
+export async function alsoInSubdivision(streetRows: Sale[], { limit = 10, below = 3 }: { limit?: number; below?: number } = {}): Promise<{ subdivision: string; total: number; summary: SalesSummary; rows: Sale[] } | null> {
+  if (!streetRows.length || streetRows.length >= below) return null;
+  const counts = new Map<string, number>();
+  for (const r of streetRows) if (r.subdivision) counts.set(r.subdivision, (counts.get(r.subdivision) ?? 0) + 1);
+  const [top] = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  if (!top) return null;
+  const { bySubdivision } = await index();
+  const onStreet = new Set(streetRows);
+  const rest = (bySubdivision.get(top[0]) ?? []).filter((r) => !onStreet.has(r));
+  if (!rest.length) return null;
+  return { subdivision: top[0], total: rest.length, summary: summarize(rest), rows: rest.slice(0, limit) };
+}
+
+/** Similar sales near one house (lib/sales/similar.ts), read against its county's newest sale. */
+export async function similarForParcel(house: Sale): Promise<SimilarResult | null> {
+  const { rows, manifest } = await index();
+  const newest = manifest.counties[house.county]?.to ?? rows[0]?.saleDate;
+  return newest ? similarSales(house, rows, newest) : null;
+}
+
+/* ---- Street Watch's inputs (lib/watch) ------------------------------------- */
+
+export type NewSalesFile = { generatedAt: string; since: string | null; through: Partial<Record<County, string | null>>; rows: Sale[] };
+
+/**
+ * data/sales/new-sales.json.gz, written by the refresh's verify step
+ * (scripts/sales/verify.mjs): the sales the county recorded since the
+ * refresh before. Null when the file isn't there.
+ */
+export async function getNewSales(): Promise<NewSalesFile | null> {
+  const file = await readJson<NewSalesFile>("new-sales.json.gz");
+  return file && typeof file.generatedAt === "string" && Array.isArray(file.rows) ? file : null;
+}
+
+/** The key a sale keeps across refreshes (scripts/sales/verify-lib.mjs `saleKey`). */
+export const saleKey = (r: Pick<Sale, "county" | "parcelId" | "saleDate">) => `${r.county}|${r.parcelId}|${r.saleDate}`;
+
+/**
+ * Which sales count as a place's for Street Watch: the ones the county files
+ * under its subdivisions (by key), or, for a place the join finds nothing
+ * for, every sale in its ZIPs. Null for an unknown place.
+ */
+export async function placeMatcher(slug: string): Promise<{ basis: "joined"; keys: Set<string>; rows: Sale[] } | { basis: "zip"; zips: string[]; rows: Sale[] } | null> {
+  const [{ rows }, { join, places }] = await Promise.all([index(), placeJoin()]);
+  if (!places.some((p) => p.slug === slug)) return null;
+  const own = placeSales(join, slug);
+  if (own.length) return { basis: "joined", keys: new Set(own.map(saleKey)), rows: own };
+  const zips = placeBySlug(places, slug)?.zips ?? [];
+  if (!zips.length) return null;
+  const set = new Set(zips);
+  return { basis: "zip", zips, rows: rows.filter((r) => set.has(r.zip)) };
+}
+
+/** Every sale on one street as the county spells it ("LILAC SKY TER") in one ZIP, newest first. */
+export async function streetSales(street: string, zip: string): Promise<Sale[]> {
+  const { byStreet } = await index();
+  const want = street.toUpperCase().replace(/\s+/g, " ").trim();
+  const out: Sale[] = [];
+  for (const k of new Set([streetKey(street, { stripSuffix: false }), streetKey(street)])) {
+    for (const r of byStreet.get(k) ?? []) if (r.zip === zip && fullStreet(r) === want && !out.includes(r)) out.push(r);
+  }
+  return out;
+}
+
+/** The record's newest sale date per county, for "records through …". */
+export async function throughDates(): Promise<Partial<Record<County, string | null>>> {
+  const { manifest } = await index();
+  return Object.fromEntries(Object.entries(manifest.counties).map(([k, c]) => [k, c?.to ?? null]));
 }

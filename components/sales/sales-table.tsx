@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { SOLD_COPY as C } from "./copy";
+import { fmtDate, int, titleCase, usd } from "./format";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,23 +42,7 @@ export type SalesSummary = {
   to: string | null;
 };
 
-export const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-export const int = new Intl.NumberFormat("en-US");
-const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
-
-export function fmtDate(iso: string) {
-  const d = new Date(`${iso}T00:00:00Z`);
-  return Number.isNaN(d.getTime()) ? iso : dateFmt.format(d);
-}
-
-/** "LILAC SKY DR" → "Lilac Sky Dr"; ordinals and directionals keep their case. */
-export function titleCase(s: string) {
-  return s
-    .toLowerCase()
-    .split(" ")
-    .map((w) => (/^(n|s|e|w|ne|nw|se|sw)$/.test(w) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1)))
-    .join(" ");
-}
+export { fmtDate, int, titleCase, usd };
 
 /** The roll has not caught up with this row: vacant on the roll, a 03/04 code, or built after the sale year. */
 export function saleFlagged(r: SaleRow) {

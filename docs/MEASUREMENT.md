@@ -18,7 +18,7 @@ Grepped from `track(`, `TrackedLink event=`, `ShareButton what=` and `sendPlausi
 | Goal | Fired from | Props and their values |
 | --- | --- | --- |
 | `Lead` | `components/thanks-goal.tsx` on `/thanks/<form>`, once per page view, for contact, buy, sell, listing, valuation and referral (`letter` and `calendar` count as `Subscribe`, `review-permission` as `Review permission`) | `form`: contact, buy, sell, listing, valuation, referral · `market`: lakewood-ranch, sarasota, bradenton or none · `source`: youtube, instagram, facebook, nextdoor or none (the `/from/<channel>` page the visit came through) |
-| `Subscribe` | `components/letter-form.tsx` inline on success (the Tide band, the blog, the calendar's Encore row, the `/from/*` Tide bar); `/thanks/letter` and `/thanks/calendar` when a bar is set to redirect | `form`: letter (Tide) or calendar (Encore) · `source`: the channel, only when there is one (the thank-you page sends `none` and `market` as well) |
+| `Subscribe` | `components/letter-form.tsx` inline on success (the Tide band, the blog, the calendar's Encore row, the `/from/*` Tide bar); `/thanks/letter` and `/thanks/calendar` when a bar is set to redirect; `components/watch/watch-button.tsx` inline on success (Street Watch) | `form`: letter (Tide), calendar (Encore) or watch (Street Watch) · `source`: the channel, only when there is one (the thank-you page sends `none` and `market` as well); for `watch`, where the button was: tide-street, home-value or atlas |
 | `Review permission` | `/thanks/review-permission` after the `/reviews` form | `form`: review-permission · `market`: none · `source` |
 | `Lead server` | `lib/lead-pipeline.ts` step 5, from the server, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script. Never add it to `Lead`: the two count the same submission |
 | `Calendar feed` | the ICS links: `/calendar` (the Encore row and the header's Subscribe), the event page, the visit plan, the relocation plan | `kind`: feed, list, event, performance, plan, relocate · `filter`: all, the feed query (`category=music&market=sarasota`), the event slug, or `<n> events` for a saved list |
@@ -51,6 +51,7 @@ through `track()` or `TrackedLink`.
 | Capture | Guide leads | Not built: there are no guide pages (the site emails no one, so guides are read on the page, ungated, and capture nothing) |
 | Capture | Encore subscribers | `Subscribe` with `form` = calendar |
 | Capture | Tide subscribers | `Subscribe` with `form` = letter |
+| Capture | Street Watch requests | `Subscribe` with `form` = watch, by `source` (tide-street, home-value, atlas) |
 | Capture | ICS subscriptions | `Calendar feed` with `kind` = feed (clicks on the subscribe link; fetches by calendar apps aren't counted and the feed URL carries no token) |
 | Capture | Valuation requests | `Lead` with `form` = valuation (and `Explore` `action` = home-value for the lookup before it) |
 | Capture | Phone and text taps | `Phone tap`, by `where` |

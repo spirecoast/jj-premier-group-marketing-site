@@ -26,7 +26,7 @@ import { parseLead } from "@/lib/leads/schema";
  */
 
 /** Hidden fields the forms add themselves; never echoed back. */
-const NOT_ECHOED = new Set(["website", "form", "pageUrl", "pageTitle", "homePlatformPixel", "submissionId", "source", "market"]);
+const NOT_ECHOED = new Set(["website", "form", "pageUrl", "pageTitle", "homePlatformPixel", "submissionId", "source", "market", "watchStreet", "watchZip", "watchPlace", "watchName"]);
 
 function extractUtm(formData: FormData): Record<string, string> {
   const utm: Record<string, string> = {};
@@ -98,7 +98,7 @@ export async function submitLead(_prev: LeadFormState, formData: FormData): Prom
     const outcome = await processLead(data, ctx, { defer: (task) => after(task) });
     await settleSubmission(data.submissionId, outcome.leadId, outcome.captured);
     if (!outcome.captured) return { ok: false, form: data.form, values, formError: LEAD_FAILURE_MESSAGE };
-    const confirmEmail = outcome.newsletter.some((n) => n.confirmationSent);
+    const confirmEmail = outcome.newsletter.some((n) => n.confirmationSent) || Boolean(outcome.watch?.confirmationSent);
     return { ...success, ...(confirmEmail ? { confirmEmail } : {}) };
   } catch (err) {
     // Nothing above should throw; if something does, the visitor keeps their words and gets the numbers, never the error page.

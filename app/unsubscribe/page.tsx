@@ -3,6 +3,8 @@ import Link from "next/link";
 import { UNSUBSCRIBE_PAGE_COPY as COPY } from "@/lib/newsletter/copy";
 import { isNewsletterList } from "@/lib/newsletter/lists";
 import { verifyUnsubscribeTarget } from "@/lib/newsletter/service";
+import { WATCH_UNSUBSCRIBE_COPY } from "@/lib/watch/copy";
+import { watchLabel } from "@/lib/watch/service";
 import { UnsubscribeForm } from "./unsubscribe-form";
 
 export const metadata: Metadata = {
@@ -14,7 +16,8 @@ const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-
 
 /**
  * /unsubscribe?s=<subscription id>&sig=<HMAC>&list=tide|encore|all (the links
- * in the site's own emails), or ?id=<contact id>&sig=<HMAC> (older links that
+ * in the site's own emails), ?w=<watch id>&sig=<HMAC>&list=watch|watches|all
+ * (a Street Watch email), or ?id=<contact id>&sig=<HMAC> (older links that
  * stop everything). A GET only shows the buttons; the POST from one does it.
  */
 export default async function UnsubscribePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -22,12 +25,15 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
   const str = (k: string) => (typeof params[k] === "string" ? (params[k] as string) : "");
   const sig = str("sig");
   const s = str("s");
+  const w = str("w");
   const id = str("id");
-  const kind = s ? ("subscription" as const) : ("contact" as const);
-  const target = s || id;
+  const kind = s ? ("subscription" as const) : w ? ("watch" as const) : ("contact" as const);
+  const target = s || w || id;
   const valid = isUuid(target) && Boolean(sig) && verifyUnsubscribeTarget({ kind, id: target, sig });
   const listParam = str("list");
   const list = kind === "subscription" && isNewsletterList(listParam) ? listParam : null;
+  // A Street Watch link offers that watch (or every watch) first, by its name.
+  const watch = kind === "watch" && valid ? { scope: listParam === "watches" ? ("watches" as const) : ("watch" as const), label: (await watchLabel(target)) ?? WATCH_UNSUBSCRIBE_COPY.fallbackLabel } : null;
 
   return (
     <section className="px-6 lg:px-12 py-24">
@@ -43,7 +49,7 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
             </Link>
           </div>
         ) : (
-          <UnsubscribeForm kind={kind} id={target} sig={sig} list={list} />
+          <UnsubscribeForm kind={kind} id={target} sig={sig} list={list} watch={watch} />
         )}
       </div>
     </section>

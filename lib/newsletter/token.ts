@@ -13,11 +13,13 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * secret and the clock come in.
  */
 
-export type TokenPurpose = "confirm" | "issue";
+export type TokenPurpose = "confirm" | "issue" | "watch";
 
 export type ConfirmPayload = { p: "confirm"; s: string; exp: number };
 export type IssueActionPayload = { p: "issue"; a: "send" | "hold"; k: "tide" | "encore"; per: string; exp: number };
-type Payload = ConfirmPayload | IssueActionPayload;
+/** A Street Watch confirm link (lib/watch): the watch's id. */
+export type WatchConfirmPayload = { p: "watch"; w: string; exp: number };
+type Payload = ConfirmPayload | IssueActionPayload | WatchConfirmPayload;
 
 export type VerifyResult<T> = { ok: true; data: T } | { ok: false; reason: "malformed" | "signature" | "expired" | "purpose" };
 
@@ -32,7 +34,7 @@ function mac(body: string, secret: string): string {
   return createHmac("sha256", secret).update(PREFIX + body).digest("base64url");
 }
 
-export function signToken(payload: Omit<ConfirmPayload, "exp"> | Omit<IssueActionPayload, "exp">, secret: string, ttlSeconds: number, now: Date = new Date()): string {
+export function signToken(payload: Omit<ConfirmPayload, "exp"> | Omit<IssueActionPayload, "exp"> | Omit<WatchConfirmPayload, "exp">, secret: string, ttlSeconds: number, now: Date = new Date()): string {
   if (!secret) throw new Error("signToken: no secret");
   const exp = Math.floor(now.getTime() / 1000) + ttlSeconds;
   const body = Buffer.from(JSON.stringify({ ...payload, exp }), "utf8").toString("base64url");

@@ -300,9 +300,10 @@ builder source with its checked date).
 - **Compare.** `/neighborhoods/compare?places=a,b,c` holds two to four places side by side
   (`lib/neighborhoods/compare.ts` reads the rows from the full records on the server): one row per
   fact the schema holds, the value as the source stated it with the source's host and checked date
-  beneath, "Not known yet" where the record is empty, then Encore's month in each place's market.
-  No figures are invented: the "Sales · ZIP area · 24 months" row is a marked slot in the page for
-  the street-watch work to fill from `lib/sales`. The label column is sticky on a phone and the
+  beneath, "Not known yet" where the record is empty, then "Sales · 24 months" (the county's
+  qualified sales for each place: count, median resale and price per square foot, read from the
+  place's own subdivisions or, failing that, its ZIP area, and labelled which, with the through-date
+  and a link into Tide Street) and Encore's month in each place's market. The label column is sticky on a phone and the
   place columns scroll under it. The page is `noindex` (a view of one visitor's list) and the ask
   under the table is the buy form with the page's link in the message.
 - **Atlas Match** (`lib/neighborhoods/match.ts`, `components/match/*`). Each question reads one
@@ -323,6 +324,18 @@ builder source with its checked date).
   server HTML is the final layout, so nothing jumps after hydration. The map opens on bounds the server
   computed (`lib/neighborhoods/bounds.ts`), follows a search once typing settles, and jumps instead of
   flying for visitors who asked for reduced motion.
+- **What sold here.** Under the particulars on a place page, `components/sales/place-sales.tsx`
+  shows the county's qualified sales for the place over the sales window: the ones the county files
+  under the place's subdivisions (`lib/sales/places.ts` joins the subdivision and appraiser
+  neighborhood names on each sales row to Atlas names and aliases: the longest whole-word match,
+  guarded by the place's ZIPs, enclaves rolled up into their parent, postal-city names left out),
+  or, when the county files none under that name, every sale in the place's ZIPs, titled "What sold
+  nearby" and labelled as the ZIP area. Count, median resale, median price per square foot, the
+  newest five, the ZIP area for scale, the source line with each county's through-date, "Every sale
+  on Tide Street" (`/sell/sold?place=<slug>`) and "Watch this place" (Street Watch, docs/ISSUES.md).
+  These are county public-record figures, not the Atlas dataset's (the display rule below still
+  holds for the dataset). The brokerage's compliance contact should confirm county sales figures on
+  community pages; until then they're shown as the public record they are, labelled and sourced.
 - **Detail pages.** Every record has `/neighborhoods/[slug]`, statically generated. The eight
   editorial neighborhoods keep their hero, overview, highlights and FAQs and gain the dataset
   facts underneath, joined by slug (`lake-club` became `the-lake-club`; the old path redirects).
@@ -345,7 +358,8 @@ builder source with its checked date).
 - **Display rules (brokerage fair-housing compliance, non-negotiable).** Places, never people: no
   demographic, income, crime or safety layers; no rankings or scores; school names exactly as
   stored with the district locator link and the zoning note, never on `area` records; nothing
-  age-related; no prices or statistics from the dataset; `notes` is never rendered. Run
+  age-related; no prices or statistics from the dataset (county sales figures, labelled and sourced,
+  are the exception above); `notes` is never rendered. Run
   `checkFairHousing` over new copy. The dataset's own rules are in `neighborhood-data/docs/RESEARCH-RULES.md`.
 - **Keeping it current.** `npm run nbhd:validate` (must exit 0) and `npm run nbhd:index` after any
   edit; the monthly and quarterly refresh scripts are in `neighborhood-data/docs/REFRESH-RUNBOOK.md`.

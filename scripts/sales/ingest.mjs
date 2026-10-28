@@ -36,6 +36,8 @@ import path from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { createGzip, createInflateRaw } from "node:zlib";
+import { parcelPoints } from "./geo.mjs";
+import { cleanPlaceName, codeTable, neighborhoodCode, subdivisionCode } from "./names.mjs";
 
 // ---------------------------------------------------------------------------
 // Arguments
@@ -222,7 +224,7 @@ async function zipEntryStream(zipPath, entryName) {
 // ---------------------------------------------------------------------------
 // Streaming CSV (RFC 4180: quotes, doubled quotes, CR/LF inside quotes)
 
-function csvRows(stream, { encoding = "latin1" } = {}) {
+function csvRows(stream, { encoding = "latin1", required = [], label = "csv" } = {}) {
   let field = "";
   let row = [];
   let inQuotes = false;
@@ -258,8 +260,15 @@ function csvRows(stream, { encoding = "latin1" } = {}) {
           field = "";
           afterQuote = false;
           if (row.length > 1 || row[0] !== "") {
-            if (!header) header = row.map((h) => h.trim().replace(/^﻿/, ""));
-            else {
+            if (!header) {
+              header = row.map((h) => h.trim().replace(/^\uFEFF/, ""));
+              // A renamed or dropped column would otherwise read as empty values on every row and slip through.
+              const missing = required.filter((c) => !header.includes(c));
+              if (missing.length) {
+                cb(new Error(`${label}: required column(s) missing from the header: ${missing.join(", ")} (have ${header.join(", ")})`));
+                return;
+              }
+            } else {
               const obj = {};
               for (let k = 0; k < header.length; k++) obj[header[k]] = row[k] ?? "";
               this.push(obj);
@@ -286,8 +295,24 @@ function csvRows(stream, { encoding = "latin1" } = {}) {
   return stream.pipe(out);
 }
 
-async function eachRow(stream, fn) {
-  for await (const row of csvRows(stream)) fn(row);
+async function eachRow(stream, fn, opts = {}) {
+  for await (const row of csvRows(stream, opts)) fn(row);
+}
+
+/** Every column the ingest reads from each source file. A missing one fails the run (no PR) instead of writing empty fields. */
+const REQUIRED = {
+  manateeSales: ["PARID", "SALE_DATE", "SALE_PRICE", "SALE_TRANSFER_CODE", "SALE_INSTR_TYPE", "SITUS_ADDRESS", "SITUS_POSTAL_CITY", "SITUS_POSTAL_ZIP", "LAND_USE_CODE", "LAND_ACREAGE", "BLDG1_YEAR_BUILT", "BLDGS_SQFT_LIVING", "SUBDIVISION_NAME", "NEIGHBORHOOD_NAME"],
+  manateeSitus: ["PARID", "SITUS_TYPE", "SITUS_ADDRESS_NUM", "SITUS_PREDIR", "SITUS_STREET_NAME", "SITUS_STREET_SUF", "SITUS_POSTDIR", "SITUS_SECADDUNIT"],
+  sarasotaSales: ["Account", "SaleDate", "SalePrice", "QualCode", "DeedType"],
+  sarasotaParcels: ["ACCOUNT", "LOCN", "LOCS", "LOCD", "UNIT", "LOCCITY", "LOCZIP", "LIVING", "LSQFT", "YRBL", "BEDR", "BATH", "HALFBATH", "STCD", "SUBD", "NGHB"],
+  sarasotaCodes: ["Code", "Description"],
+};
+
+/** A whole zip entry in memory (the GIS layers need random access to pair a shape with its row). */
+async function zipEntryBuffer(zipPath, entryName) {
+  const chunks = [];
+  for await (const c of await zipEntryStream(zipPath, entryName)) chunks.push(c);
+  return Buffer.concat(chunks);
 }
 
 // ---------------------------------------------------------------------------
@@ -358,6 +383,9 @@ function record(county, r) {
     beds: r.beds ?? null,
     baths: r.baths ?? null,
     propertyUse: r.propertyUse,
+    // The county's own subdivision and appraiser-neighborhood names: facts about the parcel, never about who lives there.
+    subdivision: r.subdivision || "",
+    nbhd: r.nbhd || "",
   };
   if (typeof r.lat === "number" && typeof r.lng === "number") {
     out.lat = r.lat;
@@ -400,7 +428,7 @@ async function ingestManatee() {
       const price = int(row.SALE_PRICE);
       if (!price || price < 1000) return;
       const [mm, dd, yyyy] = (row.SALE_DATE ?? "").split("/");
-      if (!yyyy) return;
+      if (!yyyy || !mm || !dd) return;
       const iso = `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
       if (!inWindow(iso)) return;
       const parcelId = (row.PARID ?? "").trim();
@@ -420,8 +448,10 @@ async function ingestManatee() {
         lotSqft: num(row.LAND_ACREAGE) ? Math.round(num(row.LAND_ACREAGE) * 43560) : null,
         yearBuilt: int(row.BLDG1_YEAR_BUILT),
         propertyUse: propertyUse(row.LAND_USE_CODE, "manatee"),
+        subdivision: cleanPlaceName(row.SUBDIVISION_NAME),
+        nbhd: cleanPlaceName(row.NEIGHBORHOOD_NAME),
       });
-    });
+    }, { required: REQUIRED.manateeSales, label: path.basename(f) });
   }
   log(`manatee: ${seen} sale rows read, ${sales.size} qualified in window`);
 
@@ -440,8 +470,26 @@ async function ingestManatee() {
       postdir: clean(row.SITUS_POSTDIR),
       unit: clean(row.SITUS_SECADDUNIT),
     });
-  });
+  }, { required: REQUIRED.manateeSitus, label: "manatee_situs_addresses.csv" });
   log(`manatee: situs parts matched for ${situs.size} of ${wanted.size} parcels`);
+
+  // Pass 3: a point for each parcel from the appraiser's GIS layers: the parcel polygons, then the condominium
+  // unit points for the units the polygons don't carry. Optional: without them the rows simply have no lat/lng.
+  const points = new Map();
+  const sources = [];
+  for (const layer of ["Parcels", "Condominium_Unit_Points"]) {
+    try {
+      const zip = await download(`${src.base}shape_files/${layer}.zip`, `${layer}.zip`);
+      const [shp, dbf] = await Promise.all([zipEntryBuffer(zip, `${layer}.shp`), zipEntryBuffer(zip, `${layer}.dbf`)]);
+      const missing = new Set([...wanted].filter((id) => !points.has(id)));
+      const found = parcelPoints(shp, dbf, "PARCELNO", missing);
+      for (const [id, p] of found) points.set(id, p);
+      sources.push(`${src.base}shape_files/${layer}.zip`);
+      log(`manatee: ${layer} placed ${found.size} more parcels (${points.size} of ${wanted.size})`);
+    } catch (e) {
+      log(`warn: ${layer}: ${e.message}; those parcels go without coordinates`);
+    }
+  }
 
   const out = [];
   let dropped = 0;
@@ -454,12 +502,12 @@ async function ingestManatee() {
       dropped++;
       continue;
     }
-    const rec = record("manatee", { ...s, ...parts });
+    const rec = record("manatee", { ...s, ...parts, ...(points.get(s.parcelId) ?? {}) });
     if (rec) out.push(rec);
     else dropped++;
   }
   log(`manatee: ${out.length} records, ${dropped} without a usable situs address`);
-  return { records: out, sources: [`${src.base}Manateesales.csv`, ...files.slice(1).map((f) => `${src.base}${path.basename(f)}`), `${src.base}manatee_situs_addresses.zip`] };
+  return { records: out, sources: [`${src.base}Manateesales.csv`, ...files.slice(1).map((f) => `${src.base}${path.basename(f)}`), `${src.base}manatee_situs_addresses.zip`, ...sources] };
 }
 
 // ---------------------------------------------------------------------------
@@ -485,8 +533,16 @@ async function ingestSarasota() {
     if (sales.has(key)) return;
     // row.Grantor is on this row and is not read. (No-names rule.)
     sales.set(key, { parcelId, saleDate: iso, salePrice: price, qualCode: code, instrument: (row.DeedType ?? "").trim() });
-  });
+  }, { required: REQUIRED.sarasotaSales, label: "ParcelSales.csv" });
   log(`sarasota: ${seen} transfer rows read, ${sales.size} qualified in window`);
+
+  // The code tables that name each subdivision and appraiser neighborhood.
+  const subdivisions = [];
+  await eachRow(await zipEntryStream(zip, "SubdivisionCodes.csv"), (r) => subdivisions.push(r), { required: REQUIRED.sarasotaCodes, label: "SubdivisionCodes.csv" });
+  const neighborhoods = [];
+  await eachRow(await zipEntryStream(zip, "NeighborhoodCodes.csv"), (r) => neighborhoods.push(r), { required: REQUIRED.sarasotaCodes, label: "NeighborhoodCodes.csv" });
+  const subdName = codeTable(subdivisions);
+  const nbhdName = codeTable(neighborhoods);
 
   // Pass 2: the parcel record for each of those accounts.
   const wanted = new Set([...sales.values()].map((s) => s.parcelId));
@@ -512,8 +568,10 @@ async function ingestSarasota() {
       beds: int(row.BEDR),
       baths: baths > 0 ? baths : null,
       propertyUse: propertyUse(row.STCD, "sarasota"),
+      subdivision: subdName.get(subdivisionCode(row.SUBD)) ?? "",
+      nbhd: nbhdName.get(neighborhoodCode(row.NGHB)) ?? "",
     });
-  });
+  }, { required: REQUIRED.sarasotaParcels, label: "Sarasota.csv" });
   log(`sarasota: parcel records matched for ${parcels.size} of ${wanted.size} accounts`);
 
   const out = [];
@@ -575,14 +633,24 @@ async function main() {
     }
     const file = path.join(OUT_DIR, `${name}.json.gz`);
     const { bytes, sha256 } = await writeGz(file, records);
+    const prev = manifest.counties[name];
+    const range = dateRange(records);
+    const share = (pred) => (records.length ? Math.round((records.filter(pred).length / records.length) * 10000) / 10000 : 0);
     manifest.counties[name] = {
       label: SOURCES[name].label,
       page: SOURCES[name].page,
       sources,
       rows: records.length,
       byUse,
-      ...dateRange(records),
+      ...range,
+      // How many refreshes in a row the newest sale date has not moved (the county stalls; scripts/sales/verify.mjs warns at 3).
+      toUnchangedRuns: prev && prev.to && prev.to === range.to ? (prev.toUnchangedRuns ?? 0) + 1 : 0,
       hasCoordinates: records.some((r) => typeof r.lat === "number"),
+      shares: {
+        livingArea: share((r) => r.livingArea !== null),
+        coordinates: share((r) => typeof r.lat === "number"),
+        subdivision: share((r) => Boolean(r.subdivision)),
+      },
       file: path.basename(file),
       bytes,
       sha256,
@@ -597,7 +665,7 @@ async function main() {
   manifest.namesStripped = true;
   manifest.licence =
     "Public record under Florida Statutes chapter 119, published by the Manatee County and Sarasota County Property Appraisers. Not MLS data. Owner, grantor and grantee names are removed at ingest.";
-  manifest.schema = 1;
+  manifest.schema = 2;
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   const total = Object.values(manifest.counties).reduce((n, c) => n + c.bytes, 0);
   log(`manifest written; ${mb(total)} MB of gzipped data`);

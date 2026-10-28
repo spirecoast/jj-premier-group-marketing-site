@@ -33,4 +33,8 @@ export type Sale = {
   beds: number | null;
   baths: number | null;
   propertyUse: PropertyUse;
+  /** The subdivision as the county spells it (upper case, plat-book reference dropped); "" when none. Absent in files before schema 2. */
+  subdivision?: string;
+  /** The appraiser's valuation neighborhood, same spelling rules. */
+  nbhd?: string;
 };

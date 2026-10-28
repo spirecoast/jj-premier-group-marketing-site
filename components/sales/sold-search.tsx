@@ -14,6 +14,7 @@ import { SalesTimeline } from "./sales-timeline";
 import { useRoving } from "./use-roving";
 import { useSalesLookup } from "./use-sales-lookup";
 import { useTween } from "./use-tween";
+import { WatchButton } from "@/components/watch/watch-button";
 import "./street.css";
 
 /**
@@ -32,7 +33,7 @@ type Searched = { street: string; zip: string; place?: string };
 
 type Through = { county: "manatee" | "sarasota"; label: string; to: string | null };
 
-type Place = { slug: string; name: string; zips: string[] };
+type Place = { slug: string; name: string; zips: string[]; basis?: "subdivision" | "zip" };
 
 /** The search as /api/sales takes it: the street (a house number split off and sent apart), and a five-digit ZIP or else a city. Null when the street is too short to search. */
 function toQuery(s: string, z: string): { query: URLSearchParams; searched: Searched } | null {
@@ -59,6 +60,10 @@ type Ok = {
   truncated: boolean;
   parcel?: { number: string; unit: string | null; parcels: number; rows: Row[] };
   place?: Place;
+  /** The Atlas places the street's sales belong to, and the areas its ZIP is in. */
+  places?: { slug: string; name: string; level: string; basis: "subdivision" | "zip" }[];
+  /** A street with fewer than three sales: the rest of its subdivision. */
+  alsoIn?: { subdivision: string; total: number; summary: Summary; rows: Row[] };
   source: { asOf: string; windowStart: string; counties: string[]; through: Through[] } | null;
 };
 type Api = Ok | { ok: false; error: "zip-required"; streets: string[]; zips: string[]; options: { street: string; zip: string; count: number }[]; total: number; place?: Place } | { ok: false; error: "no-data" | "street" | "zip" | "number" | "place" };
@@ -119,6 +124,9 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
     // A link that carries a street (/sell/sold?street=…&zip=…) runs it on arrival; a ZIP alone is set in the sign.
     fromLink: (p) => {
       if (!loaded) return null;
+      // An Atlas page's "Every sale on Tide Street" (and a shared place view) carries the place.
+      const placeSlug = (p.get("place") ?? "").trim();
+      if (/^[a-z0-9:-]{2,80}$/.test(placeSlug)) return { query: new URLSearchParams({ place: placeSlug }), searched: { street: "", zip: "", place: placeSlug } };
       const s = (p.get("street") ?? "").trim();
       const z = p.get("zip") ?? "";
       if (z) setZip(z);
@@ -226,7 +234,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
   const cities = data ? [...new Set(data.rows.map((r) => titleCase(r.city)))].filter(Boolean) : [];
   const headerParts = data
     ? data.match === "area" && data.place
-      ? [C.results.areaHeading(data.place.name), `${C.results.areaLabel} ${data.place.zips.join(", ")}`]
+      ? [C.results.areaHeading(data.place.name), data.place.basis === "subdivision" ? C.results.areaOwnLabel : `${C.results.areaLabel} ${data.place.zips.join(", ")}`]
       : [C.summary.heading(data.streets.map(titleCase)), ...(data.zips.length <= 3 ? data.zips : []), ...(cities.length <= 2 ? cities : [])]
     : [];
   const timelineWindow = windowStart ? { from: windowStart, to: [...sourceThrough.map((t) => t.to ?? ""), asOf ?? ""].filter(Boolean).sort().pop() ?? windowStart } : null;
@@ -418,7 +426,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                     <h2 className="t-h3 text-navy" data-street-heading="">
                       {C.summary.headingLine(headerParts)}
                     </h2>
-                    <p className="t-note max-w-none">{data.match === "area" && data.place ? C.results.areaNote(data.place.zips) : headerThrough}</p>
+                    <p className="t-note max-w-none">{data.match === "area" && data.place ? (data.place.basis === "subdivision" ? C.results.areaOwnNote(data.place.name) : C.results.areaNote(data.place.zips)) : headerThrough}</p>
                   </div>
                   <ShareButton title={C.title} url={shareUrl} what="sold-street" label={C.share} />
                 </div>
@@ -502,6 +510,19 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                 </div>
               </details>
 
+              {/* A street with few sales of its own: the rest of its subdivision, as the county names it. */}
+              {data.alsoIn ? (
+                <div className="flex flex-col gap-4 border-t border-hairline pt-6" data-also-in="">
+                  <h3 className="t-h3 text-navy">{C.results.alsoInTitle(data.alsoIn.subdivision)}</h3>
+                  <p className="t-body max-w-measure text-body">
+                    {C.results.alsoInNote(data.alsoIn.total, months)}
+                    {data.alsoIn.summary.medianResalePrice ? ` ${C.results.alsoInMedian(usd.format(data.alsoIn.summary.medianResalePrice))}` : ""}
+                  </p>
+                  <SalesTable rows={data.alsoIn.rows} />
+                  {data.alsoIn.total > data.alsoIn.rows.length ? <p className="t-note">{C.results.truncated(data.alsoIn.rows.length, data.alsoIn.total)}</p> : null}
+                </div>
+              ) : null}
+
               <div className="flex flex-col gap-2">
                 {rows.some((r) => r.propertyUse === "vacant") ? <p className="t-note">{C.results.newBuildNote}</p> : null}
                 {rows.some(saleFlagged) ? <p className="t-note">† {C.results.rollChanged}</p> : null}
@@ -509,6 +530,25 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                   {sourceLine} {C.results.note}
                 </p>
               </div>
+
+              {/* The Atlas places this street's sales belong to, and the areas its ZIP is in. */}
+              {data.places?.length ? (
+                <nav aria-label={C.results.atlasLabel} className="flex flex-wrap items-baseline gap-x-6 gap-y-2" data-street-atlas="">
+                  <span className="t-label text-linen-700">{data.places[0]!.basis === "zip" ? C.results.atlasLabelZip(data.zips.join(", ")) : C.results.atlasLabel}</span>
+                  {data.places.map((p) => (
+                    <a key={p.slug} href={`/neighborhoods/${p.slug}`} className="link-rule">
+                      {p.name}
+                    </a>
+                  ))}
+                </nav>
+              ) : null}
+
+              {/* Street Watch: one street in one ZIP, or the Atlas place an area search read. */}
+              {data.match === "area" && data.place && !data.place.slug.startsWith("city:") ? (
+                <WatchButton target={{ kind: "place", slug: data.place.slug, name: data.place.name }} source="tide-street" className="border-t border-hairline pt-8" />
+              ) : data.match !== "area" && data.streets.length === 1 && data.zips.length === 1 ? (
+                <WatchButton target={{ kind: "street", street: data.streets[0]!, zip: data.zips[0]!, label: `${titleCase(data.streets[0]!)} · ${data.zips[0]}` }} source="tide-street" className="border-t border-hairline pt-8" />
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -542,9 +582,11 @@ function PlaceChip({ place, onPick }: { place: Place; onPick: (p: Place) => void
       <div>
         <button type="button" className="street-chip" onClick={() => onPick(place)}>
           {C.results.placeChip(place.name)}
-          <span className="street-chip-count" aria-hidden="true">
-            {C.results.areaLabel}
-          </span>
+          {place.basis !== "subdivision" ? (
+            <span className="street-chip-count" aria-hidden="true">
+              {C.results.areaLabel}
+            </span>
+          ) : null}
         </button>
       </div>
     </div>

@@ -3,6 +3,18 @@
 # demand from the Actions tab. Merge the PR in the last week of each month so
 # the Tide run on the 1st can move on to the next complete month
 # (docs/ISSUES.md). See docs/SALES-DATA.md.
+#
+# The verify step is the regression gate: a broken or truncated county file
+# (rows down more than 10%, the newest sale moving backwards, a property type
+# gone, living areas missing, ZIPs that aren't the county's) fails the run and
+# no pull request opens. It also writes data/sales/new-sales.json.gz, the
+# sales recorded since the last refresh, for Street Watch.
+#
+# Optional: set the repository variable SALES_AUTO_MERGE to "true" (Settings →
+# Secrets and variables → Actions → Variables) and a refresh with no failures
+# and no warnings is set to merge itself once the branch's required checks
+# pass. Needs "Allow auto-merge" on in the repository settings. Unset, a
+# person merges as before.
 name: Refresh county sales data
 
 on:
@@ -25,28 +37,30 @@ jobs:
         with:
           node-version: 22
 
+      - name: Keep a copy of the files the site serves now
+        run: mkdir -p "$RUNNER_TEMP/before" && cp data/sales/* "$RUNNER_TEMP/before/"
+
       - name: Download and normalize the county files
         run: node scripts/sales/ingest.mjs
 
-      - name: Summarize
-        run: |
-          echo "## Sales data refresh" >> "$GITHUB_STEP_SUMMARY"
-          node -e '
-            const m = require("./data/sales/manifest.json");
-            for (const [k, c] of Object.entries(m.counties)) console.log(`- ${c.label}: ${c.rows} qualified sales, ${c.from} to ${c.to}`);
-            console.log(`- window from ${m.windowStart}, generated ${m.generatedAt}`);
-          ' >> "$GITHUB_STEP_SUMMARY"
+      - name: Check the new files against the old ones
+        id: verify
+        run: node scripts/sales/verify.mjs --before "$RUNNER_TEMP/before" --after data/sales --summary "$GITHUB_STEP_SUMMARY" --body "$RUNNER_TEMP/pr-body.md" --output "$GITHUB_OUTPUT"
 
       - name: Open a pull request
+        id: pr
         uses: peter-evans/create-pull-request@v7
         with:
           branch: chore/sales-refresh
           title: "Sales data: refresh county records"
           commit-message: "Sales data: refresh county records"
-          body: |
-            Automated refresh of `data/sales/` from the Manatee and Sarasota County Property Appraisers (public record, Florida Statutes ch. 119; names stripped at ingest).
-
-            Check the manifest diff for row counts and the date range before merging. See `docs/SALES-DATA.md`.
+          body-path: ${{ runner.temp }}/pr-body.md
           labels: data
           add-paths: data/sales
           delete-branch: true
+
+      - name: Merge it when its checks pass (only with SALES_AUTO_MERGE and a clean verify)
+        if: vars.SALES_AUTO_MERGE == 'true' && steps.verify.outputs.clean == 'true' && steps.pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge --auto --squash "${{ steps.pr.outputs.pull-request-number }}"

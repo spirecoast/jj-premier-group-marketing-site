@@ -641,6 +641,68 @@ update contacts set unsubscribed_email = false where lower(email) = lower('<addr
 The older links signed over a contacts row (`/unsubscribe?id=<contact id>&sig=`) still work and stop
 everything.
 
+## Street Watch
+
+An email when the county records a sale on a street or in a place someone asked to watch, built on
+the newsletter's machinery above (Figma 05 Tide, "Watch").
+
+- **Where people ask.** "Watch this street" under a Tide Street result for one street in one ZIP
+  (`/sell/sold`) and under the street section of Home Value (`/sell/home-value`); "Watch this place"
+  under "What sold in {place}" on an Atlas place page and under a Tide Street area result
+  (`components/watch/watch-button.tsx`). The button opens a small box in place: the email, a
+  submit, and "You can stop any time, and we never share the list."
+- **The form.** It posts the `watch` lead form (`lib/leads`) with the street as the county spells
+  it and the ZIP (`watchStreet`, `watchZip`) or the Atlas place (`watchPlace`, `watchName`). Like
+  the Tide box it's email only and the request is the consent to that email (`implied:subscribe`);
+  it never signs anyone up for Tide. The lead goes to Postgres, the CRM and the team's "New lead"
+  email like any other, with a **Watching** line: a warm signal that someone is following sales on
+  that street or in that place (`lib/lead-alert.ts`, the CRM payload's `watch`).
+- **Double opt-in.** With subscriber email on, the watch is recorded as `pending` and one
+  confirmation goes out (the same state machine, resend limit and hourly cap as the newsletter);
+  `/watch/confirm?t=` shows one button that confirms it. No welcome email: the first digest is the
+  next email. With subscriber email off (previews, before launch), the lead and the team's email
+  still carry the request and nothing is recorded or sent; the button says "we'll be in touch".
+- **The digest.** `/api/cron/street-watch` runs daily at 14:11 UTC (`vercel.json`). Once a sales
+  refresh is merged and deployed, it reads `data/sales/new-sales.json.gz` (the sales new since the
+  refresh before, written by the refresh's verify step, docs/SALES-DATA.md) and sends one email per
+  address covering every confirmed watch with something new: each sale's address, date, price and
+  price per square foot (or "new build or lot"), the 12-month median resale for that street or
+  place, how far each county's record reaches, a link into Tide Street, and the way to ask for a
+  home's value. A place's sales are the ones the county files under its subdivisions
+  (`lib/sales/places.ts`); a place the join finds nothing for reads its ZIP area, and the digest
+  says so. At most one digest a week per address; a watch confirmed after the refresh was generated
+  waits for the next one; nothing new means no email. Every digest goes through the Fair Housing
+  checker first and is held (with an ops alert) if it's flagged.
+- **The cap.** Each confirmation and digest is a `newsletter_deliveries` row with `list = 'watch'`,
+  so it counts against `NEWSLETTER_DAILY_CAP` with Tide and Encore. A day's cap that runs out
+  leaves the rest for the next day's run.
+- **Lag.** Manatee's newest qualified sale sat at the same date for several weekly refreshes in
+  October 2026 (the county's file, not the ingest; the refresh PR warns when it happens), so a
+  Manatee digest can come a month or two after a closing. Sarasota moves weekly. The digest says
+  the county records a sale a few weeks after it closes, and gives each county's through-date.
+- **Stopping.** Each section has its own "Stop watching {street}" link; the footer has "Stop every
+  Street Watch" and "stop all email from us"; the one-click header stops every Street Watch on the
+  address. The links are signed over `watch:<id>` with `UNSUBSCRIBE_SECRET`
+  (`/unsubscribe?w=…&list=watch|watches|all`, `/api/newsletter/unsubscribe?w=…`). Stopping
+  everything from any newsletter link also stops every watch. `contacts.unsubscribed_email` stops
+  watches as it stops everything else.
+- **Tables** (migration `0018_street_watch.sql`, raw SQL in `lib/watch/store.ts`):
+  `street_watches` (one address on one `target_key`: `street:<STREET>|<ZIP>` or `place:<slug>`;
+  `status`, `requested_at`, `confirmation_sent_at`, `confirmed_at`, `unsubscribed_at`,
+  `last_digest_at`) and `street_watch_digests` (one per address per data version; the claim that
+  makes a re-run never send twice). The daily run deletes a watch never confirmed 30 days after it
+  was asked for, an unsubscribed one 30 days after it stopped, and a digest record after two
+  years. `scripts/forget.ts` erases both. Before 0018 is applied the buttons still record the lead
+  and the logs say once which file to apply.
+
+```sql
+-- Who watches what
+select email, kind, label, status, confirmed_at, last_digest_at from street_watches order by created_at desc limit 50;
+
+-- How the last refresh's digests went
+select data_version, status, count(*), sum(sales) from street_watch_digests group by 1, 2 order by 1 desc;
+```
+
 ## Sending by hand (subscriber email off)
 
 Until the variables above are set, or if the site's sending is ever switched off (unset

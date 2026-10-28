@@ -61,6 +61,17 @@ export const SOLD_COPY = {
     areaLabel: "ZIP area",
     areaHeading: (place: string) => `Sales in ${place}`,
     areaNote: (zips: string[]) => `Every qualified sale in ZIP ${zips.length === 1 ? zips[0] : zips.join(", ")}, newest first.`,
+    /** A place the county files subdivisions under: its own sales, not its ZIP's. */
+    areaOwnLabel: "Its subdivisions",
+    areaOwnNote: (place: string) => `Every qualified sale the county files under ${place}’s subdivisions, newest first.`,
+    /** The Atlas places the street's sales belong to (by the county's subdivision names), and the areas its ZIP is in. */
+    atlasLabel: "On Atlas",
+    atlasLabelZip: (zips: string) => `On Atlas, in ZIP ${zips}`,
+    /** A street with fewer than three sales: the rest of its subdivision. */
+    alsoInTitle: (subdivision: string) => `Other sales in ${subdivision}`,
+    alsoInNote: (n: number, months: number) =>
+      `The street has few sales of its own, so here ${n === 1 ? "is the other sale" : `are the other ${n}`} in its subdivision, as the county names it, from the last ${months} months.`,
+    alsoInMedian: (price: string) => `Median resale ${price}.`,
     recentHeading: "Recent searches",
     recentClear: "Clear",
     /** "Manatee records through Sep 24, 2026 · Sarasota through Oct 20, 2026": how far each county's file reaches. */
@@ -132,4 +143,39 @@ export const SOLD_COPY = {
     linkFor: (street: string) => `Ask for the number for ${street}`,
     linkNote: "One short form: the address, the timing, and anything you already know about the house.",
   },
+} as const;
+
+/**
+ * "What sold here" on an Atlas place page and the compare table's sales row
+ * (components/sales/place-sales.tsx). Figures come from the county record
+ * through lib/sales; nothing here is a number. Places and sales, never people.
+ */
+export const PLACE_SALES_COPY = {
+  titleOwn: (place: string) => `What sold in ${place}`,
+  titleZip: "What sold nearby",
+  introOwn: (months: number, names: string) => `Qualified sales the county recorded in the last ${months} months under the subdivisions it names ${names}.`,
+  introZip: (months: number, zips: string) => `The county files no subdivision under this name, so these are every qualified sale in ZIP ${zips} in the last ${months} months.`,
+  /** "Lake Club, Lake View Estates at the Lake Club and 2 more" */
+  names: (list: string[], more: number) => {
+    const shown = more ? [...list, `${more} more`] : list;
+    return shown.length <= 1 ? (shown[0] ?? "") : `${shown.slice(0, -1).join(", ")} and ${shown.at(-1)}`;
+  },
+  sales: (months: number) => `Sales · ${months} months`,
+  salesNote: (homes: number, lots: number) => (lots ? `${homes} ${homes === 1 ? "resale" : "resales"}, ${lots} new ${lots === 1 ? "build" : "builds"} or lots` : `${homes} ${homes === 1 ? "resale" : "resales"}`),
+  median: "Median resale",
+  medianNote: (n: number) => `Of ${n} ${n === 1 ? "resale" : "resales"}`,
+  medianNone: "Too few resales for a median",
+  perSqft: "Price per sq ft",
+  perSqftNote: (n: number) => `Median of ${n} ${n === 1 ? "home" : "homes"} with a recorded size`,
+  perSqftNone: "Too few homes with a recorded size",
+  latest: "Latest on the record",
+  zipLine: (zips: string, count: string, median: string | null) => `Across ZIP ${zips}: ${count} qualified sales${median ? `, median resale ${median}` : ""}.`,
+  source: (counties: string, through: string) => `Source: ${counties}, public record. ${through}. Not MLS data; the county records a sale a few weeks after it closes.`,
+  tideStreet: "Every sale on Tide Street",
+  /** The compare table's row. */
+  compareLabel: (months: number) => `Sales · ${months} months`,
+  compareOwn: "In its subdivisions",
+  compareZip: (zips: string) => `ZIP ${zips} area`,
+  compareCell: (count: string, median: string | null, perSqft: string | null) => [`${count} sales`, median ? `median resale ${median}` : null, perSqft ? `${perSqft} per sq ft` : null].filter(Boolean).join(" · "),
+  compareNone: "No qualified sales on the record",
 } as const;

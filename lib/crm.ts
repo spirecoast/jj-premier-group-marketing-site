@@ -111,6 +111,24 @@ export type LeadReferral = {
   note: string;
 };
 
+/**
+ * Street Watch form only (the Watch buttons, lib/watch): what the visitor asked
+ * to watch. A warm signal: they're following sales on that street or in that
+ * place.
+ */
+export type LeadWatch = {
+  kind: "street" | "place";
+  /** "Lilac Sky Ter · 34211", or the place's name. */
+  label: string;
+  /** The street as the county spells it, and its ZIP (kind "street"). */
+  street: string | null;
+  zip: string | null;
+  /** The Atlas place's slug (kind "place"). */
+  place: string | null;
+  /** Tide Street on that street or place. */
+  url: string;
+};
+
 /** The JSON a Zapier Catch Hook receives. Field map: docs/INTEGRATIONS.md. */
 export type CrmLead = {
   /** The leads.id when the database kept it (null without one). Also sent as the webhook's Idempotency-Key, so a Zap can skip a redelivery it has already seen. */
@@ -135,6 +153,8 @@ export type CrmLead = {
   property: LeadProperty | null;
   /** Referral form only: the person who's moving and the note for the CRM (LeadReferral). */
   referral: LeadReferral | null;
+  /** Street Watch form only: the street or place they asked to watch. */
+  watch?: LeadWatch | null;
   consent: LeadConsent;
   source: LeadSource;
   submittedAt: string;
@@ -232,6 +252,7 @@ async function deliverViaFub(lead: CrmLead): Promise<CrmResult> {
     lead.propertyAddress ? `Address to value: ${lead.propertyAddress}` : undefined,
     lead.property?.title ? `Property: ${lead.property.title}` : undefined,
     lead.referral ? lead.referral.note : undefined,
+    lead.watch ? `Watching: ${lead.watch.label} (Street Watch) ${lead.watch.url}` : undefined,
     lead.consent.review ? `Review permission: YES at ${lead.consent.reviewAt} (wording ${lead.consent.reviewWordingVersion})` : undefined,
     lead.source.channel ? `Came through: /from/${lead.source.channel}` : undefined,
     "",

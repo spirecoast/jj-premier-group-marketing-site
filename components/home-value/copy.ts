@@ -66,6 +66,20 @@ export const HOME_VALUE_COPY = {
     /** A hand-off to the Sale Calculator at the parcel's last price, in its county. */
     startSheet: "Start a sale sheet from this sale",
   },
+  /** Similar homes sold nearby (lib/sales/similar.ts): evidence beside the house's own record, never a number for it. */
+  similar: {
+    title: "Similar homes sold nearby.",
+    /** What "similar" and "nearby" mean for this house, in one line above the list. */
+    criteria: (kind: string, from: string, to: string, since: string) => `${kind}, ${from} to ${to} sq ft, sold since ${since}, `,
+    basisDistance: (miles: string) => `within ${miles} of the house.`,
+    basisSubdivision: (name: string) => `in ${name}, as the county names the subdivision.`,
+    basisZip: (zip: string) => `in ${zip}. The county record has no coordinates for this house, so the ZIP stands in for distance.`,
+    count: (n: number) => `${n} ${n === 1 ? "sale" : "sales"}, nearest first.`,
+    countByDate: (n: number) => `${n} ${n === 1 ? "sale" : "sales"}, newest first.`,
+    note: "These are the record's closest matches by kind, size and distance, shown as evidence. The walk-through is what turns them into a number for your house.",
+    none: "The record has no recorded size for this house, or no close match nearby in the last 12 months, so there's nothing honest to line up beside it.",
+    miles: (m: number) => (m <= 0.5 ? "half a mile" : m === 1 ? "a mile" : `${m} miles`),
+  },
   cant: {
     eyebrow: "03 · What the record can't tell you",
     title: "What moves the number here that isn't in any file.",

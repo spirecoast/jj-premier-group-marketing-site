@@ -1,5 +1,25 @@
 import { NextResponse } from "next/server";
-import { MAX_ROWS, findParcelSales, formatSaleAddress, fullStreet, getSalesManifest, parcelCount, parseTypedUnit, placeFor, rollChanged, searchByArea, searchByStreet, stripTypedUnit, type County, type Sale } from "@/lib/sales";
+import {
+  MAX_ROWS,
+  alsoInSubdivision,
+  findParcelSales,
+  formatSaleAddress,
+  fullStreet,
+  getSalesManifest,
+  parcelCount,
+  parseTypedUnit,
+  placeBasis,
+  placeFor,
+  placesForRows,
+  rollChanged,
+  searchByArea,
+  searchByStreet,
+  similarForParcel,
+  titleSubdivision,
+  stripTypedUnit,
+  type County,
+  type Sale,
+} from "@/lib/sales";
 
 /**
  * GET /api/sales?street=Lilac+Sky&zip=34211[&city=][&county=manatee|sarasota][&number=5133]
@@ -18,8 +38,16 @@ import { MAX_ROWS, findParcelSales, formatSaleAddress, fullStreet, getSalesManif
  * pair, for the page to offer. When the typed street is a place name
  * instead (an Atlas area or a postal city), `place` names it so the page can
  * offer "Sales in {place}"; `?place=<slug>` then answers with every sale in
- * that place's ZIPs (newest 200) and the summary over all of them. Inputs
- * are length-capped; responses cache for a minute at the edge.
+ * that place's ZIPs (newest 200) and the summary over all of them.
+ *
+ * Joined to places (lib/sales/places.ts): a street result carries `places`,
+ * the Atlas places its sales belong to by subdivision and the areas that
+ * list its ZIP; a street with fewer than three sales carries `alsoIn`, the
+ * other sales in its subdivision; a house the record knows carries
+ * `similar`, the same kind of home within 20% of its size sold nearby in
+ * the last twelve months (lib/sales/similar.ts). Coordinates never leave
+ * the server; a similar row says how far it is, rounded to a tenth of a
+ * mile. Inputs are length-capped; responses cache for a minute at the edge.
  */
 
 export const dynamic = "force-dynamic";
@@ -98,7 +126,7 @@ export async function GET(request: Request) {
         ok: true,
         query: { street: null, zip: null, city: null, county: null, number: null, place: placeSlug },
         match: "area" as const,
-        place: { slug: area.place.slug, name: area.place.name, zips: area.place.zips },
+        place: { slug: area.place.slug, name: area.place.name, zips: area.place.zips, basis: area.basis },
         streets: area.streets,
         zips: area.place.zips,
         options: [],
@@ -157,12 +185,16 @@ export async function GET(request: Request) {
         zips: result.zips,
         options: result.options,
         total: result.total,
-        ...(named ? { place: { slug: named.slug, name: named.name, zips: named.zips } } : {}),
+        ...(named ? { place: { slug: named.slug, name: named.name, zips: named.zips, basis: await placeBasis(named.slug) } } : {}),
         source,
       },
       { status: 400, headers: { "Cache-Control": CACHE } },
     );
   }
+  // Similar homes nearby, as evidence beside the house's own record.
+  const similar = parcelRows?.length ? await similarForParcel(parcelRows[0]!) : null;
+  // The Atlas places the street belongs to, and the rest of its subdivision when it has few sales of its own.
+  const [places, alsoIn] = result.rows.length ? await Promise.all([placesForRows(result.rows), alsoInSubdivision(result.rows)]) : [[], null];
   // The parcel's own sales: exact number, street and ZIP, or an empty list the page states plainly.
   const parcel = parcelRows
     ? {
@@ -189,7 +221,21 @@ export async function GET(request: Request) {
       summary: result.summary,
       truncated: result.total > result.rows.length,
       ...(parcel ? { parcel } : {}),
-      ...(place ? { place: { slug: place.slug, name: place.name, zips: place.zips } } : {}),
+      ...(similar
+        ? {
+            similar: {
+              basis: similar.basis.kind === "subdivision" ? { kind: "subdivision", name: titleSubdivision(similar.basis.name) } : similar.basis,
+              sizeFrom: similar.sizeFrom,
+              sizeTo: similar.sizeTo,
+              since: similar.since,
+              summary: similar.summary,
+              rows: similar.rows.map((r) => ({ ...publicRow(r), ...(typeof r.miles === "number" ? { miles: Math.round(r.miles * 10) / 10 } : {}) })),
+            },
+          }
+        : {}),
+      ...(places.length ? { places } : {}),
+      ...(alsoIn ? { alsoIn: { subdivision: titleSubdivision(alsoIn.subdivision), total: alsoIn.total, summary: alsoIn.summary, rows: alsoIn.rows.map(publicRow) } } : {}),
+      ...(place ? { place: { slug: place.slug, name: place.name, zips: place.zips, basis: await placeBasis(place.slug) } } : {}),
       source,
     },
     { headers: { "Cache-Control": CACHE } },
