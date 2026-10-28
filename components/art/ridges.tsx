@@ -19,6 +19,13 @@ type Fade = {
  * drawing is transparent, so cropping at another aspect leaves no seam.
  * `live` adds the masthead's slow drift and the horizon's breathing, both
  * off under prefers-reduced-motion (app/globals.css).
+ *
+ * `draw` is Tide's arrival: the ridges draw themselves left to right over
+ * 1.1 s, the lines running over a unit path length (stroke-dashoffset, the
+ * pattern the Encore marquee uses) as the fills are wiped in beneath them,
+ * while the horizon comes up behind. It plays on the first paint when `draw`
+ * is set, or when an enclosing InView box (components/motion/in-view.tsx)
+ * reaches the screen. Reduced motion shows the finished drawing at once.
  */
 export function Ridges({
   g,
@@ -27,6 +34,7 @@ export function Ridges({
   className,
   fade,
   live,
+  draw,
 }: {
   g: Ridgeline;
   /** A prefix for the ids inside: unique per drawing on the page. */
@@ -35,6 +43,7 @@ export function Ridges({
   className?: string;
   fade?: Fade;
   live?: boolean;
+  draw?: boolean;
 }) {
   const W = g.width;
   const H = g.height;
@@ -43,7 +52,7 @@ export function Ridges({
     <svg
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio={preserve}
-      className={cn("absolute inset-0 h-full w-full", live && "art-drift", className)}
+      className={cn("absolute inset-0 h-full w-full", live && "art-drift", draw && "draw-on", className)}
       aria-hidden="true"
       focusable="false"
     >
@@ -60,7 +69,8 @@ export function Ridges({
           </linearGradient>
         ))}
         {g.ridges.map((r, i) => (
-          <path key={r.month} id={`${id}-r${i}`} d={r.d} />
+          /* A unit path length, so the draw-on dash is the same "1" on every ridge. */
+          <path key={r.month} id={`${id}-r${i}`} d={r.d} pathLength={1} />
         ))}
         {fade ? (
           <>
@@ -83,12 +93,14 @@ export function Ridges({
           </>
         ) : null}
       </defs>
-      <ellipse className={live ? "art-breathe" : undefined} cx={g.horizon.cx} cy={g.horizon.cy} rx={g.horizon.rx} ry={g.horizon.ry} fill={`url(#${id}-h)`} />
-      <g mask={maskId ? `url(#${maskId})` : undefined} strokeLinejoin="round" strokeLinecap="round">
+      <g className="art-glow">
+        <ellipse className={live ? "art-breathe" : undefined} cx={g.horizon.cx} cy={g.horizon.cy} rx={g.horizon.rx} ry={g.horizon.ry} fill={`url(#${id}-h)`} />
+      </g>
+      <g className="art-wipe" mask={maskId ? `url(#${maskId})` : undefined} strokeLinejoin="round" strokeLinecap="round">
         {g.ridges.map((r, i) => (
           <Fragment key={r.month}>
-            <use href={`#${id}-r${i}`} fill="none" stroke={r.color} strokeWidth={r.stroke * 4.5} strokeOpacity={0.14 * r.opacity} />
-            <use href={`#${id}-r${i}`} fill={`url(#${id}-f${i})`} stroke={r.color} strokeWidth={r.stroke} strokeOpacity={r.opacity} />
+            <use className="art-line" href={`#${id}-r${i}`} fill="none" stroke={r.color} strokeWidth={r.stroke * 4.5} strokeOpacity={0.14 * r.opacity} />
+            <use className="art-line" href={`#${id}-r${i}`} fill={`url(#${id}-f${i})`} stroke={r.color} strokeWidth={r.stroke} strokeOpacity={r.opacity} />
           </Fragment>
         ))}
       </g>

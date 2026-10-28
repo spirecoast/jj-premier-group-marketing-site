@@ -1211,6 +1211,58 @@
   .art-breathe { animation: none; }
 }
 
+/* Arrival. Each product's picture draws itself once, from its own data: the
+   Tide ridges draw left to right (a unit path length, so the dash is "1" on
+   every ridge, the way the Encore marquee draws), the Atlas sky settles in
+   from the back, and the Encore hand sweeps the season once and rests at
+   today. The same classes carry Tide's charts: the twelve-month line draws,
+   the price bands and the home-mix bars grow from the left. `.draw-on` is
+   the trigger: on the drawing itself for the page's first paint, or added
+   by components/motion/in-view.tsx when the box reaches the screen; without
+   it, and without JavaScript, the finished drawing simply shows. Reduced
+   motion runs every one of these at 0.01 ms (the global rule above), so the
+   finished state is what appears. Nothing here changes layout. */
+.draw-on .art-wipe { animation: art-wipe 1.1s var(--ease-brand) both; }
+.draw-on .art-line { stroke-dasharray: 1; animation: art-line 1.1s var(--ease-brand) both; }
+.draw-on .art-glow { animation: art-fade 1.6s ease-out both; }
+.draw-on .art-settle { animation: art-settle 0.7s var(--ease-brand) both; }
+.draw-on .art-sweep { transform-box: view-box; animation: art-sweep 1.1s var(--ease-brand) both; }
+.draw-on .art-bloom { animation: art-fade 0.8s ease-out both; }
+/* The sparkline keeps its stroke width while it stretches (non-scaling-stroke), which puts dashes in
+   screen space, so its line is wiped on rather than dashed on. */
+.draw-on .tide-spark-line { animation: art-wipe 1.1s var(--ease-brand) both; }
+.draw-on .tide-spark-area { animation: art-fade 0.8s ease-out 0.45s both; }
+.draw-on .tide-spark-dot { animation: tide-pop 0.35s var(--ease-brand) 0.95s both; }
+.draw-on .tide-grow { transform-box: fill-box; transform-origin: left center; animation: tide-grow 0.9s var(--ease-brand) both; }
+@keyframes art-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes art-line {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes art-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes art-settle {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes art-sweep {
+  from { transform: rotate(-360deg); }
+  to { transform: rotate(0deg); }
+}
+@keyframes tide-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes tide-pop {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* Home · 02 Buy or sell. The door's rule draws under the copy on hover; the card never lifts. */
 .door .card-line {
   background: var(--color-sky-700);

@@ -300,6 +300,8 @@ Supabase is the site's database, not its CRM and not its auth. It holds:
   under which wording version; unsubscribes from `/unsubscribe`).
 - **The website questionnaire:** `questionnaire_answers` behind the private
   `/q/<token>` links (`docs/SITE.md`).
+- **Client rooms:** `client_rooms`, one row per private `/room/<token>` page the
+  team makes for a client (`docs/SITE.md`, "Client rooms").
 - **Search** (coming): the listings/neighborhood search will live here too.
 
 Nobody signs in to the site; Supabase Auth is not used.
@@ -341,6 +343,9 @@ Migrations in `lib/db/migrations/` (apply all, in order):
   two drip tables, the routing rules), the agent foreign keys and the contacts
   columns only the dashboard used. `IF EXISTS` throughout, so it is safe on
   any database state.
+- `0019_client_rooms.sql` — `client_rooms` for the private `/room/<token>` pages
+  the team makes for clients, RLS enabled. `IF NOT EXISTS`, because the server
+  also creates the table on first use.
 
 Apply via either:
 ```bash

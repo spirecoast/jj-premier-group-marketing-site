@@ -1,3 +1,4 @@
+import { InView } from "@/components/motion/in-view";
 import { fill } from "@/lib/issues/copy";
 import { stackGeometry } from "@/lib/tide/chart";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
@@ -25,14 +26,17 @@ export function PriceBands({ bands, market }: { bands: Bands; market: string }) 
         <span className="t-record text-graphite-500">{fill(W.bandsNote, { n: num(bands.sample) })}</span>
       </figcaption>
       {g.length ? (
-        <svg viewBox="0 0 320 14" preserveAspectRatio="none" className="block h-3.5 w-full" role="img" aria-label={`${market}: ${shares.map((b) => `${b.label} ${b.share}%`).join(", ")}`}>
-          {bands.bands
-            .map((b, i) => ({ b, i }))
-            .filter(({ b }) => b.share)
-            .map(({ b, i }, k) => (
-              <rect key={b.key} x={g[k]!.x} y={0} width={g[k]!.w} height={14} fill={BAND_FILL[i]} />
-            ))}
-        </svg>
+        /* The bands grow from the left, one after another, when the bar is reached (app/globals.css, "Arrival"). */
+        <InView>
+          <svg viewBox="0 0 320 14" preserveAspectRatio="none" className="block h-3.5 w-full" role="img" aria-label={`${market}: ${shares.map((b) => `${b.label} ${b.share}%`).join(", ")}`}>
+            {bands.bands
+              .map((b, i) => ({ b, i }))
+              .filter(({ b }) => b.share)
+              .map(({ b, i }, k) => (
+                <rect key={b.key} className="tide-grow" style={{ animationDelay: `${k * 90}ms` }} x={g[k]!.x} y={0} width={g[k]!.w} height={14} fill={BAND_FILL[i]} />
+              ))}
+          </svg>
+        </InView>
       ) : null}
       <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 md:grid-cols-2 xl:grid-cols-4">
         {bands.bands.map((b, i) => (

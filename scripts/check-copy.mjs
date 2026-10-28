@@ -52,6 +52,7 @@ import { newsletterStrings } from "../lib/newsletter/copy.ts";
 import { watchStrings } from "../lib/watch/copy.ts";
 import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads/constants.ts";
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
+import { roomStrings } from "../lib/room/copy.ts";
 import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
 import { searchStrings } from "../lib/search/copy.ts";
@@ -108,6 +109,7 @@ const all = [
   ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
   ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  ...roomStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   // The cards to post and their captions (lib/cards/copy.ts): figures from the data, places never people.
   ...cardStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...searchStrings().map((s) => ({ ...s, rules: ISSUE_RULES, warn: VOICE })),

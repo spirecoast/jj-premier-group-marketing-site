@@ -1,3 +1,4 @@
+import { InView } from "@/components/motion/in-view";
 import { fill } from "@/lib/issues/copy";
 import { monthLabel } from "@/lib/issues/render";
 import { SERIES_STYLE, sparkGeometry } from "@/lib/tide/chart";
@@ -39,12 +40,17 @@ export function Sparkline({ m }: { m: IssueMarket }) {
           </span>
         ) : null}
       </div>
-      <div className="relative h-20 w-full" aria-hidden="true">
+      {/* When the chart is reached the line draws itself left to right, the fill comes up under it and the end mark lands last (app/globals.css, "Arrival"). */}
+      <InView className="relative h-20 w-full" ariaHidden>
         <svg viewBox={`0 0 ${W_} ${H_}`} preserveAspectRatio="none" className="absolute inset-0 block h-full w-full overflow-visible" focusable="false">
           <line x1={0} x2={W_} y1={base} y2={base} stroke="#d2c6b4" strokeWidth={1} vectorEffect="non-scaling-stroke" />
           {g.typicalY !== null ? <line x1={0} x2={W_} y1={g.typicalY} y2={g.typicalY} stroke="#a3927a" strokeWidth={1} strokeDasharray="3 4" vectorEffect="non-scaling-stroke" /> : null}
-          <path d={area} fill={color} opacity={0.07} />
+          {/* The fade is on the group, so the fill keeps its own faint opacity once it has arrived. */}
+          <g className="tide-spark-area">
+            <path d={area} fill={color} opacity={0.07} />
+          </g>
           <polyline
+            className="tide-spark-line"
             points={g.points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}
             fill="none"
             stroke={color}
@@ -55,12 +61,11 @@ export function Sparkline({ m }: { m: IssueMarket }) {
           />
         </svg>
         {last ? (
-          <span
-            className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-paper"
-            style={{ left: `${(100 * last.x) / W_}%`, top: `${(100 * last.y) / H_}%`, background: color }}
-          />
+          <span className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2" style={{ left: `${(100 * last.x) / W_}%`, top: `${(100 * last.y) / H_}%` }}>
+            <span className="tide-spark-dot block size-full rounded-full ring-2 ring-paper" style={{ background: color }} />
+          </span>
         ) : null}
-      </div>
+      </InView>
       <div className="t-record flex justify-between gap-4 text-graphite-600" aria-hidden="true">
         <span>{first ? shortMonth(first.month, true) : ""}</span>
         <span className="text-navy">{last ? `${shortMonth(last.month, true)} · ${num(last.value)}` : ""}</span>

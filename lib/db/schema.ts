@@ -191,6 +191,31 @@ export const questionnaireAnswers = pgTable(
 );
 
 /**
+ * client_rooms — a private page per client at /room/<token> (lib/room). One
+ * row per room: the SHA-256 of its token (the raw link is never kept), the
+ * client's first name as the agent typed it, what they're doing (buying,
+ * selling, both), open or closed, and the room itself as JSON (saved places,
+ * plan links, the guide step, notes; read back through lib/room/model.ts).
+ * Made and kept by the team from their own private /q links.
+ */
+export const clientRooms = pgTable(
+  "client_rooms",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tokenHash: text("token_hash").notNull(),
+    name: text("name").notNull(),
+    kind: text("kind").default("buying").notNull(),
+    status: text("status").default("open").notNull(),
+    content: jsonb("content").default({}).notNull(),
+    createdBy: text("created_by"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+  },
+  (table) => [uniqueIndex("client_rooms_token_hash_idx").on(table.tokenHash)],
+);
+
+/**
  * search_documents — the site search index (lib/search). One row per chunk of
  * the site's own content: a guide section, a neighborhood, a Tide issue part,
  * an Encore event or venue, a main page. id is stable and readable

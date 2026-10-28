@@ -1,3 +1,4 @@
+import { InView } from "@/components/motion/in-view";
 import { loadRidgeMonths } from "@/lib/art/load";
 import { ridgeline } from "@/lib/art/tide";
 import { Ridges } from "./ridges";
@@ -24,13 +25,18 @@ export async function TideMasthead({ alt }: { alt: string }) {
   const months = await loadRidgeMonths();
   return (
     <div className="art-ground absolute inset-0 overflow-hidden" role="img" aria-label={alt}>
-      <Ridges g={ridgeline(months, TIDE_BOXES.wide)} id="tm-w" className="hidden sm:block" fade={{ left: 0.32 }} live />
-      <Ridges g={ridgeline(months, TIDE_BOXES.tall)} id="tm-t" className="sm:hidden" fade={{ bottom: 0.42 }} live />
+      {/* The masthead is the page's first paint, so the ridges draw on arrival; the card draws when it is reached. */}
+      <Ridges g={ridgeline(months, TIDE_BOXES.wide)} id="tm-w" className="hidden sm:block" fade={{ left: 0.32 }} live draw />
+      <Ridges g={ridgeline(months, TIDE_BOXES.tall)} id="tm-t" className="sm:hidden" fade={{ bottom: 0.42 }} live draw />
     </div>
   );
 }
 
 export async function TideCard() {
   const months = await loadRidgeMonths();
-  return <Ridges g={ridgeline(months, TIDE_BOXES.card)} id="tc" className="card-img" />;
+  return (
+    <InView className="absolute inset-0" ariaHidden>
+      <Ridges g={ridgeline(months, TIDE_BOXES.card)} id="tc" className="card-img" />
+    </InView>
+  );
 }

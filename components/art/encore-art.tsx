@@ -1,3 +1,4 @@
+import { InView } from "@/components/motion/in-view";
 import { seasonClock, type Perf, type Run } from "@/lib/art/encore";
 import { getEncoreIndex, localDay } from "@/lib/encore/data";
 import { addDays, occurrences } from "@/lib/encore/select";
@@ -26,5 +27,9 @@ export function EncoreCard() {
   const last = found.reduce((m, o) => (o.day > m ? o.day : m), today);
   const days = Math.min(365, Math.max(90, dayNumber(last) - dayNumber(today) + 1));
   const runs = index.events.flatMap((e): Run[] => (e.x && e.f && e.r ? [{ from: e.f, to: e.r, category: e.c }] : []));
-  return <SeasonRing g={seasonClock(perfs, runs, { ...ENCORE_BOX, today, days })} id="ec" className="card-img" />;
+  return (
+    <InView className="absolute inset-0" ariaHidden>
+      <SeasonRing g={seasonClock(perfs, runs, { ...ENCORE_BOX, today, days })} id="ec" className="card-img" />
+    </InView>
+  );
 }

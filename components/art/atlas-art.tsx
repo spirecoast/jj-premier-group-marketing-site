@@ -1,3 +1,4 @@
+import { InView } from "@/components/motion/in-view";
 import { starChart, type Place, type StarChartOptions } from "@/lib/art/atlas";
 import { getIndexEntries } from "@/lib/neighborhoods/data";
 import { StarField } from "./star-field";
@@ -14,5 +15,9 @@ export const ATLAS_BOX: StarChartOptions = { width: 600, height: 400, zoom: 1.12
 export async function AtlasCard() {
   const entries = await getIndexEntries();
   const places = entries.flatMap((e): Place[] => (e.x === null || e.y === null ? [] : [{ lng: e.x, lat: e.y, level: e.l, market: e.m }]));
-  return <StarField g={starChart(places, ATLAS_BOX)} className="card-img" />;
+  return (
+    <InView className="absolute inset-0" ariaHidden>
+      <StarField g={starChart(places, ATLAS_BOX)} className="card-img" />
+    </InView>
+  );
 }
