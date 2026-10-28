@@ -36,6 +36,8 @@ export const SEARCH_COPY = {
   streetBody: "Tide Street has every qualified sale on that street from the county record.",
   streetCta: "See what sold on {street}",
   addressCta: "What’s my home worth",
+  /** An address with its ZIP: Atlas Check. */
+  checkCta: "Its flood and evacuation zone",
   zipLead: "Looking for sales in {zip}?",
   zipBody: "Tide Street shows every qualified sale on a street from the county record. Type the street and it narrows to {zip}.",
   zipCta: "Open Tide Street",
@@ -118,7 +120,7 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     url: "/tools",
     title: "Atlas, Encore and Tide",
     summary: [
-      "Eight free tools for Lakewood Ranch, Sarasota and Bradenton, with no sign-up. Atlas, Atlas Match and Atlas Move help you find a neighborhood and plan the move. Encore and Encore Planner show the theater, music and art. Tide, Tide Street and Tide Sale Calculator show what homes sold for and what you'd keep after selling.",
+      "Nine free tools for Lakewood Ranch, Sarasota and Bradenton, with no sign-up. Atlas, Atlas Match and Atlas Move help you find a neighborhood and plan the move, and Atlas Check gives the flood and evacuation zone for an address. Encore and Encore Planner show the theater, music and art. Tide, Tide Street and Tide Sale Calculator show what homes sold for and what you'd keep after selling.",
     ],
   },
   {
@@ -134,6 +136,13 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     title: "Atlas Match: find the neighborhoods that fit",
     summary: [
       "Answer up to ten quick questions about the home and the place you want: the area and county, the kind of home, new or resale, a gate, an HOA or a CDD, the water, the evacuation zone and how close to somewhere. Atlas Match narrows every neighborhood in Lakewood Ranch, Sarasota and Bradenton to the ones that fit.",
+    ],
+  },
+  {
+    url: "/check",
+    title: "Atlas Check: the flood zone and evacuation zone for an address",
+    summary: [
+      "Type an address in Manatee or Sarasota County and see its evacuation zone from the county’s map, its FEMA flood zone and map panel, and the year built, living area and last qualified sale from the county’s roll, each with where it comes from and the day it was read.",
     ],
   },
   {

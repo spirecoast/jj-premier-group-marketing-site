@@ -149,6 +149,8 @@ const nextConfig: NextConfig = {
     "/api/sales": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.search.json", "./neighborhood-data/data/neighborhoods.json"],
     "/sell/sold": ["./data/sales/**"],
     "/sell/home-value": ["./data/sales/**"],
+    // Atlas Check reads the last qualified sale for the parcel it found.
+    "/api/check": ["./data/sales/**"],
     // The Tide issue pages are prerendered; the share image is drawn on request and reads the data.
     "/tide/**": ["./data/sales/**"],
     // The monthly email engine reads the same county data at request time.

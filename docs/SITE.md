@@ -426,6 +426,56 @@ builder source with its checked date).
   Boundaries are not drawn: the dataset has points only. If polygons are wanted, source them from the
   county layers listed in `neighborhood-data/docs/DATA-SOURCES.md` rather than drawing them.
 
+## Atlas Check (/check)
+
+The fourth Atlas piece: one address in Manatee or Sarasota County, and what the public maps say about
+it, each fact with the layer it came from, a page to check it on and the day it was read. The page
+is static (`app/(site)/check`); the island (`components/check/address-check.tsx`) asks
+`GET /api/check?address=&zip=`. The address never goes into the address bar; a link that carries
+one (from an address search, `checkHref` in `lib/search/intent.ts`) runs it once on arrival. The
+place pages' evacuation card links here ("Check an exact address") beside the county's lookup.
+
+**How an address is found** (`lib/check/check.ts`, `locate`). The house number, street and ZIP are
+parsed (`lib/check/parse.ts`, `parseAddress`; the street's parts by `streetParts` in
+`lib/sales/street.ts`), then looked up on the county's own parcel layer, in the county the ZIP belongs
+to (both for a ZIP on the line): Manatee `GIS_PARCELS`, Sarasota `Hosted/Parcels`, by number, street
+name and ZIP, the exact name first and the name as a prefix second. A typed suffix or directional
+picks among streets that share a name, a typed unit picks the unit; a building's units without a
+unit typed share the location and the roll's facts are held back. When neither roll has the address
+(a house too new for the roll, a typo), the Census geocoder (`geographies/onelineaddress`, free, no
+key) places it along its street and the page says the point can be a few lots off. A Census match
+outside FIPS 12081 and 12115 is "outside the two counties".
+
+**What is read at the parcel.** Each layer is asked with the parcel's polygon (POST), so a lot that
+touches two zones names both; only then is the parcel's middle asked too, to say which comes first.
+A geocoded point is asked as a point.
+
+| Fact | Layer | Field |
+| --- | --- | --- |
+| Evacuation level (Manatee) | `services1.arcgis.com/t03WDvnSR7gSDOB2/.../Evacuation Levels Feature Service/FeatureServer/0` | `EVAC_ZONE` (A–E, `N/A` = outside) |
+| Evacuation zone (Sarasota) | `services3.arcgis.com/icrWMv7eBkctFu1f/.../StormEvacuationZoneWM/FeatureServer/0` | `EvacuationZone` (no feature = outside) |
+| FEMA flood zone | `hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28` | `FLD_ZONE`, `ZONE_SUBTY`, `SFHA_TF`, `STATIC_BFE` (−9999 = none), `V_DATUM` |
+| FIRM panel | `.../NFHL/MapServer/3` | `FIRM_PAN`, `EFF_DATE`; the panel from the county's own map (`DFIRM_ID` 12081C or 12115C) wins at a county line |
+| Year built, living area, lot, use | the parcel layer above | Manatee `YRBLT_RES`/`YRBLT_COM`, `SFLA`, `ACRES`, `LUC_DESCRIPTION`; Sarasota `yrbl`, `living`, `lsqft`, `stcd` |
+| Last qualified sale | `data/sales` (`findParcelSales`, matched on the parcel number) | the county sales file's 24-month window |
+
+The same layers the dataset's evacuation zones come from (`neighborhood-data/docs/DATA-SOURCES.md`).
+Owner and mailing columns exist in both parcel layers and are never requested (`PARCEL_FIELDS`;
+`lib/check/check.test.ts` holds that). The guides speak beside the result from their own data:
+the flood guide's zone card for VE, AE or X (its figure note for A, AH, AO and shaded X) and the
+hurricane guide's "An evacuation zone is not a flood zone" lead (`lib/check/guide.ts`). Then a plain
+"Check before you count on it", and the next steps: Home Value with the address, Tide Street for the
+street, Street Watch, and the contact page.
+
+**Cost, caching and limits** (`lib/check/server.ts`). Every source is public and free. Each layer's
+answer is kept 30 days in Next's data cache (`unstable_cache`, shared across instances, tag
+`atlas-check`) with the day it was read, and the page shows the oldest such day; a failed read is
+never cached. A whole result is kept an hour in memory, the response an hour at the edge. Ten checks
+a minute per visitor and 3,000 a day per instance, then 429. A source that fails leaves its own fact
+out with a link to look it up by hand; the others still show. Measured uncached: five to six calls and
+0.6 to 1.2 s per address. The `Explore` goal fires with `action` = address-check; Street Watch from
+here carries `source` = atlas-check.
+
 ## The Encore Arts Calendar
 
 `/calendar` is a calendar product built on the events dataset the client supplied
@@ -797,6 +847,37 @@ model (384 dimensions) built into Supabase Edge Functions. No other vendor.
    keyword-only search found nothing, the page answers from an in-memory BM25 keyword search
    over the same chunks (`lib/search/fallback.ts`). An embedded query that nothing reaches the
    threshold for is answered with no results, not sent to the fallback. The page never breaks.
+
+**The answer card** (`lib/answers/*`, `components/search/answer-card.tsx`). Above the results, a
+question the site already answers gets the answer, with the page it comes from. No model writes it:
+`lib/answers/bank.ts` gathers what the pages already say (each hub's questions, the questions on the
+editorial Atlas pages, Atlas Move's and the home page's, the terms the guides define, and the sourced
+fields of every researched Atlas place) and `lib/answers/match.ts` picks at most one. It errs toward
+silence, since a wrong answer above the results is worse than none:
+
+- Only a query shaped like a question (a question word first, or a question mark) gets a written
+  question's answer. The words of the query and the question must cover each other, weighted by how
+  rare each word is in the bank (`THRESHOLDS`: 0.75 of the query, 0.34 of the question, 0.62 mean),
+  and the places must agree: a question that names a place needs the query to name it (unless it
+  names all three markets), a question on an Atlas page needs the query to name that place, and a
+  hub's unnamed question stands for its market. The place's own question wins over its market's.
+- "What is …" with a term a guide defines gets the guide's definition, whole term only.
+- A query that names one researched place and asks one fact ("is Camargo in a CDD", "Belleisle
+  evacuation level") gets that field of the record with the source it cites and the day it was
+  opened; a field the record doesn't hold, or doesn't cite, is no answer. An evacuation level points
+  on to the address check (`/check`). A fact about the place named beats a general answer from its
+  market's page.
+- School ratings, safety and who lives where get a plain decline instead (Fair Housing): what we
+  don't answer and where the real source is (the two districts' locators; the address check; Atlas
+  Match). "Safe" counts only beside a place's name, and "safe from flooding" is about the land. The
+  decline words are in `lib/answers/copy.ts`, which `scripts/copy-rules.mjs` sets aside from the
+  places-not-people list for that reason only.
+
+Street, address and ZIP queries never get a card (they get the Tide Street lead). The bank is built
+once an hour per server from the same content layer the pages read; a source that fails costs only
+its own answers. The `Search` goal carries `answer` (faq, definition, fact or decline) when the
+card showed. Tests: `lib/answers/answers.test.ts`, on the real content, including the review's
+example ("is Lakewood Ranch in Manatee or Sarasota County").
 
 **Why not reciprocal rank fusion.** The first version (`search_hybrid()`, 0010) fused the two
 lists with RRF, the pattern in Supabase's hybrid search guide. RRF looks only at each list's

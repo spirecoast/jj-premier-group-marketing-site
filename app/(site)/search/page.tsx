@@ -1,11 +1,14 @@
 import type { Metadata, Route } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { AnswerCard } from "@/components/search/answer-card";
 import { SearchBox } from "@/components/search/search-box";
 import { SearchGoal } from "@/components/search/search-goal";
+import { answerForSearch } from "@/lib/answers/load";
+import type { Answer } from "@/lib/answers/types";
 import { GUIDES } from "@/lib/guides";
 import { SEARCH_COPY as C, SUGGESTED_SEARCHES } from "@/lib/search/copy";
-import { homeValueHref, searchIntent, tideStreetHref, titleStreet, type SearchIntent } from "@/lib/search/intent";
+import { checkHref, homeValueHref, searchIntent, tideStreetHref, titleStreet, type SearchIntent } from "@/lib/search/intent";
 import { clientIp, normalizeQuery } from "@/lib/search/query";
 import { searchSite, searchSiteKeywordOnly, pageLimiter } from "@/lib/search/search";
 import { snippetParts } from "@/lib/search/snippet";
@@ -66,6 +69,7 @@ function Result({ hit }: { hit: SearchHit }) {
 function StreetLead({ intent }: { intent: NonNullable<SearchIntent> }) {
   const fill = (t: string) => t.replace("{street}", intent.kind === "street" ? titleStreet(intent.street) : "").replace("{zip}", intent.kind === "zip" ? intent.zip : "");
   const home = intent.kind === "street" ? homeValueHref(intent) : null;
+  const check = intent.kind === "street" ? checkHref(intent) : null;
   return (
     <aside className="flex flex-col gap-4 border border-hairline bg-white p-6 sm:p-8" aria-label={intent.kind === "zip" ? fill(C.zipLead) : fill(C.streetLead)} data-search-lead={intent.kind}>
       <div className="flex flex-col gap-2">
@@ -80,6 +84,11 @@ function StreetLead({ intent }: { intent: NonNullable<SearchIntent> }) {
         {home ? (
           <Link href={home as Route} className="link-rule">
             {C.addressCta}
+          </Link>
+        ) : null}
+        {check ? (
+          <Link href={check as Route} className="link-rule">
+            {C.checkCta}
           </Link>
         ) : null}
       </div>
@@ -127,12 +136,15 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const intent = check.ok ? searchIntent(q) : null;
   let results: SearchHit[] = [];
   let source = "";
+  // A question the site already answers gets the answer above the results (lib/answers). A street or an address never does.
+  let answer: Answer | null = null;
   if (check.ok) {
     // Past the per-IP limit the page still answers, from the in-memory keyword index.
     const ip = clientIp(await headers());
-    const res = pageLimiter.take(ip) ? await searchSite(q) : await searchSiteKeywordOnly(q);
+    const [res, a] = await Promise.all([pageLimiter.take(ip) ? searchSite(q) : searchSiteKeywordOnly(q), intent ? null : answerForSearch(q)]);
     results = res.results;
     source = res.source;
+    answer = a;
   }
 
   return (
@@ -152,6 +164,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <p className="t-body text-body">{C.tooShort}</p>
       ) : results.length ? (
         <div className="flex flex-col gap-6" data-search-source={source}>
+          {answer ? <AnswerCard answer={answer} /> : null}
           {intent ? <StreetLead intent={intent} /> : null}
           <p className="t-note" aria-live="polite">
             {results.length === 1 ? C.oneResult : C.manyResults.replace("{n}", String(results.length))} {C.resultsFor} “{q}”
@@ -164,6 +177,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         </div>
       ) : (
         <div className="flex flex-col gap-8" data-search-source={source}>
+          {answer ? <AnswerCard answer={answer} /> : null}
           {intent ? <StreetLead intent={intent} /> : null}
           <div className="flex max-w-measure flex-col gap-4">
             <p className="t-h3 text-navy" aria-live="polite">
@@ -176,7 +190,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
           </div>
         </div>
       )}
-      {check.ok ? <SearchGoal q={q} count={results.length} intent={intent ? (intent.kind === "zip" ? "zip" : intent.number ? "address" : "street") : undefined} /> : null}
+      {check.ok ? <SearchGoal q={q} count={results.length} intent={intent ? (intent.kind === "zip" ? "zip" : intent.number ? "address" : "street") : undefined} answer={answer?.kind} /> : null}
     </section>
   );
 }
