@@ -16,6 +16,7 @@ export const LEAD_FORMS = [
   "calendar",
   "referral",
   "review-permission",
+  "watch",
 ] as const;
 export type LeadForm = (typeof LEAD_FORMS)[number];
 
@@ -37,9 +38,10 @@ export function isLeadChannel(value: unknown): value is LeadChannel {
 
 /**
  * Forms that only ask for an email address. Subscribing to the report or the
- * calendar is itself the request for email, so these imply email consent.
+ * calendar, or asking to watch a street (Street Watch), is itself the request
+ * for that email, so these imply consent to it.
  */
-export const EMAIL_ONLY_FORMS: readonly LeadForm[] = ["letter", "calendar"];
+export const EMAIL_ONLY_FORMS: readonly LeadForm[] = ["letter", "calendar", "watch"];
 
 /**
  * Forms where the visitor's email is required whatever else they give: the
@@ -47,7 +49,7 @@ export const EMAIL_ONLY_FORMS: readonly LeadForm[] = ["letter", "calendar"];
  * permission (the words are matched to a person later). Everywhere else an
  * email or a phone number is enough (lib/leads/rules.ts).
  */
-export const EMAIL_REQUIRED_FORMS: readonly LeadForm[] = ["letter", "calendar", "review-permission"];
+export const EMAIL_REQUIRED_FORMS: readonly LeadForm[] = ["letter", "calendar", "watch", "review-permission"];
 
 /**
  * The Plausible goal each form counts toward. A referral is a lead (the
@@ -63,6 +65,7 @@ export const LEAD_GOAL: Record<LeadForm, "Lead" | "Subscribe" | "Review permissi
   calendar: "Subscribe",
   referral: "Lead",
   "review-permission": "Review permission",
+  watch: "Subscribe",
 };
 
 /**

@@ -1,5 +1,5 @@
 import "server-only";
-import { LEAD_SITE, leadTags, type CrmLead, type LeadReferral } from "@/lib/crm";
+import { LEAD_SITE, leadTags, type CrmLead, type LeadReferral, type LeadWatch } from "@/lib/crm";
 import {
   CONSENT_WORDING_VERSION,
   EMAIL_ONLY_FORMS,
@@ -9,10 +9,12 @@ import {
   REFERRAL_CONSENT_VERSION,
   REVIEW_CONSENT_VERSION,
 } from "@/lib/leads/constants";
-import type { LeadInput } from "@/lib/leads/schema";
+import { watchTargetFrom, type LeadInput } from "@/lib/leads/schema";
+import { tideStreetPath } from "@/lib/watch/target";
 import { crmOutcome, deliver, enqueue, owedSinks, recordDelivery, redeliverDue, type SinkOutcome } from "@/lib/lead-outbox";
 import { getCrmProvider } from "@/lib/lead-sinks";
 import { requestSubscriptions, type SubscribeOutcome } from "@/lib/newsletter/service";
+import { requestWatch, type WatchOutcome } from "@/lib/watch/service";
 import { sendPlausibleEvent } from "@/lib/plausible-server";
 import { site } from "@/lib/site";
 import { isPreviewDeployment } from "@/lib/deploy-env";
@@ -26,11 +28,11 @@ import { isPreviewDeployment } from "@/lib/deploy-env";
  *      rather than duplicated, and the lead says how many enquiries came
  *      before it.
  *   2. Newsletter sign-up (lib/newsletter), for the Tide and Encore bars or
- *      the email box ticked on another form: the subscription is recorded
- *      and one confirmation goes out (double opt-in). Off unless subscriber
- *      email is configured; never affects whether the lead counts. It runs
- *      before the response because the success line says whether to look for
- *      the confirmation.
+ *      the email box ticked on another form, and the Street Watch the Watch
+ *      buttons ask for (lib/watch): recorded, and one confirmation goes out
+ *      (double opt-in). Off unless subscriber email is configured; never
+ *      affects whether the lead counts. It runs before the response because
+ *      the success line says whether to look for the confirmation.
  *   3. The visitor gets their answer. Once the row is saved, the rest runs
  *      after the response (`defer`, next/server `after`), so nobody waits on
  *      Zapier or Resend:
@@ -71,6 +73,8 @@ export type LeadOutcome = {
   };
   /** What happened with each newsletter the form asked for (empty when none, or when subscriber email is off). */
   newsletter: SubscribeOutcome[];
+  /** The Street Watch the form asked for; null when none, or when subscriber email is off. */
+  watch: WatchOutcome | null;
 };
 
 export type ProcessOptions = {
@@ -129,6 +133,21 @@ function buildReferral(data: LeadInput, referrer: { firstName: string; lastName:
   };
 }
 
+/** The Street Watch form's target, as the CRM and the team email see it. */
+function buildWatch(data: LeadInput): LeadWatch | null {
+  if (data.form !== "watch") return null;
+  const t = watchTargetFrom(data);
+  if (!t) return null;
+  return {
+    kind: t.kind,
+    label: t.label,
+    street: t.kind === "street" ? t.street : null,
+    zip: t.kind === "street" ? t.zip : null,
+    place: t.kind === "place" ? t.slug : null,
+    url: `${site.url}${tideStreetPath(t)}`,
+  };
+}
+
 /** Shape the validated form input into the payload every sink receives. */
 export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmLead {
   const { firstName, lastName } = splitName(data.firstName || "", data.lastName || "");
@@ -182,6 +201,7 @@ export function buildCrmLead(data: LeadInput, ctx: LeadContext, now: Date): CrmL
           }
         : null,
     referral: buildReferral(data, { firstName, lastName }, now),
+    watch: buildWatch(data),
     consent: {
       email: consentEmail,
       sms: consentSms,
@@ -429,6 +449,7 @@ export async function processLead(data: LeadInput, ctx: LeadContext, opts: Proce
       lead,
       sinks: { postgres: mirror.outcome, crm: { status: "skipped", provider, detail: opts.suspect }, teamEmail: { status: "skipped", detail: opts.suspect }, plausible: { status: "skipped", detail: opts.suspect } },
       newsletter: [],
+      watch: null,
     };
   }
 
@@ -436,6 +457,12 @@ export async function processLead(data: LeadInput, ctx: LeadContext, opts: Proce
   const newsletter = saved
     ? await requestSubscriptions({ contactId: mirror.contactId, email: lead.email, form: lead.form, consentEmail: lead.consent.email, test: lead.test })
     : [];
+  // The Street Watch the Watch buttons ask for, the same way (lib/watch). Never throws.
+  const target = data.form === "watch" ? watchTargetFrom(data) : null;
+  const watch =
+    saved && target && lead.email
+      ? await requestWatch({ contactId: mirror.contactId, email: lead.email, target, source: lead.source.page, consentVersion: lead.consent.wordingVersion, test: lead.test })
+      : null;
 
   // 3-6. Saved and able to defer: answer the visitor now, deliver afterwards.
   if (saved && leadId && opts.defer) {
@@ -451,6 +478,7 @@ export async function processLead(data: LeadInput, ctx: LeadContext, opts: Proce
       lead,
       sinks: { postgres: mirror.outcome, crm: { status: "deferred", provider }, teamEmail: { status: "deferred" }, plausible: { status: "deferred" } },
       newsletter,
+      watch,
     };
   }
 
@@ -468,6 +496,7 @@ export async function processLead(data: LeadInput, ctx: LeadContext, opts: Proce
     lead,
     sinks: { postgres: mirror.outcome, crm: report.crm, teamEmail: report.teamEmail, plausible },
     newsletter,
+    watch,
   };
 }
 

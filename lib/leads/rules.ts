@@ -73,7 +73,7 @@ export type LeadValues = Record<string, string | undefined>;
 /** Every problem with a form's values, one message per field. Empty when it can be sent. */
 export function validateLead(form: LeadForm, values: LeadValues): Partial<Record<LeadErrorField, string>> {
   const errors: Partial<Record<LeadErrorField, string>> = {};
-  const emailOnly = form === "letter" || form === "calendar";
+  const emailOnly = form === "letter" || form === "calendar" || form === "watch";
   const email = text(values.email);
   const phone = text(values.phone);
   const showsPhone = "phone" in values;

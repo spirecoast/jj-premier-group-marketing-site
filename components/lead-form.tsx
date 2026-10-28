@@ -29,6 +29,7 @@ import { fieldName } from "@/lib/leads/pixel";
 import { FIELD_SHORT_NAMES, orderedErrorFields, summaryLead, validateLead } from "@/lib/leads/rules";
 import { parsePhone } from "@/lib/phone";
 import { REFER } from "@/lib/refer/copy";
+import { WATCH_BUTTON_COPY } from "@/lib/watch/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,7 @@ const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   calendar: { title: "You’re on the list.", body: "The full calendar comes every Monday." },
   referral: REFER.success,
   "review-permission": REVIEWS.success,
+  watch: { title: "Street Watch is set.", body: WATCH_BUTTON_COPY.done },
 };
 
 const LABELS: Record<LeadField, string> = {

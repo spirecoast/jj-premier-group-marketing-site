@@ -13,6 +13,9 @@ import { DATASET_VERSION, getAncestors, getRecord } from "@/lib/neighborhoods/da
 import { monthYear } from "@/lib/neighborhoods/format";
 import { COMPARE_MAX } from "@/lib/neighborhoods/my-places";
 import { parseList } from "@/lib/neighborhoods/url";
+import { PLACE_SALES_COPY } from "@/components/sales/copy";
+import { fmtDate, int, usd } from "@/components/sales/format";
+import { getSalesManifest, salesForPlace } from "@/lib/sales";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 import { dayIn } from "@/lib/time";
 
@@ -110,13 +113,40 @@ export default async function ComparePage({ searchParams }: { searchParams: Sear
       </span>
     );
   });
-  const extra = [{ id: "encore", label: "Encore · this month", cells: encoreCells }];
-  /*
-   * Slot: "Sales · ZIP area · 24 months", the count and median of qualified
-   * sales in each place's ZIP from lib/sales. The street-watch package adds
-   * the join and pushes its row here; until then the row is left off rather
-   * than drawn with placeholder figures.
-   */
+  // Sales: the county's qualified sales in each place's own subdivisions (lib/sales/places.ts), or its ZIP area, labelled which.
+  const [salesByPlace, manifest] = await Promise.all([Promise.all(found.map(({ record: r }) => salesForPlace(r.slug))), getSalesManifest().catch(() => null)]);
+  const salesCells: ReactNode[] = found.map(({ record: r }, i) => {
+    const s = salesByPlace[i];
+    const own = s?.joined ?? null;
+    const figures = own?.summary ?? s?.zipArea?.summary ?? null;
+    const through = s?.counties
+      .map((c) => manifest?.counties[c]?.to)
+      .filter((t): t is string => Boolean(t))
+      .sort()
+      .pop();
+    if (!s || !figures || !figures.count) {
+      return (
+        <span key={r.slug} className="t-small text-graphite-500">
+          {PLACE_SALES_COPY.compareNone}
+        </span>
+      );
+    }
+    return (
+      <span key={r.slug} className="compare-cell">
+        <span className="t-small text-body">
+          {PLACE_SALES_COPY.compareCell(int.format(figures.count), figures.medianResalePrice ? usd.format(figures.medianResalePrice) : null, figures.medianPricePerSqft ? usd.format(figures.medianPricePerSqft) : null)}
+        </span>
+        <Link href={`/sell/sold?${new URLSearchParams({ place: r.slug })}` as Route} className="t-note">
+          {own ? PLACE_SALES_COPY.compareOwn : PLACE_SALES_COPY.compareZip(s.place.zips.join(", "))}
+          {through ? ` · through ${fmtDate(through)}` : ""}
+        </Link>
+      </span>
+    );
+  });
+  const extra = [
+    ...(manifest ? [{ id: "sales", label: PLACE_SALES_COPY.compareLabel(manifest.windowMonths), cells: salesCells }] : []),
+    { id: "encore", label: "Encore · this month", cells: encoreCells },
+  ];
 
   const names = found.map((p) => p.record.name);
   const market = markets.length === 1 ? markets[0] : undefined;
@@ -146,7 +176,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Sear
         </p>
         <CompareTable places={found} rows={rows} extra={extra} />
         <p className="t-note">
-          “Not known yet” means the record has no checked source for it. Catalog as of {asOf}. Nothing here is a rating, a price or a description of who lives where.
+          “Not known yet” means the record has no checked source for it. Catalog as of {asOf}. The sales row is the county’s public record, not MLS data. Nothing here is a rating or a description of who lives where.
         </p>
 
         <CompareAsk names={names} slugs={found.map((p) => p.record.slug)} market={market} />

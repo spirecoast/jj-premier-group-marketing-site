@@ -16,7 +16,8 @@ import { capacityBeforeExpiry, checkCapacity, type CapacityCheck } from "./capac
 import { disabledLine, newsletterConfig, type NewsletterConfig } from "./config";
 import { ISSUE_ACTION_COPY } from "./copy";
 import { UNSUBSCRIBE_PLACEHOLDERS, confirmationEmail, personalize, unsentable, welcomeEmail, type FooterFacts } from "./emails";
-import { listUnsubscribeHeaders, subscriptionSigningId, unsubscribeLinks } from "./headers";
+import { stopWatches, watchById } from "@/lib/watch/store";
+import { listUnsubscribeHeaders, subscriptionSigningId, unsubscribeLinks, watchSigningId } from "./headers";
 import { LIST_NAME, listsForLead, type NewsletterList } from "./lists";
 import { sendBatch, sendOne, type OutgoingEmail } from "./resend";
 import { easternWhen, holdDecision, initialHold, scheduledSendTime, sendDecision, sendExpiry, type IssueKindName, type IssueSendStatus } from "./schedule";
@@ -56,8 +57,8 @@ export function subscriberEmailOn(): boolean {
 
 const lower = (e: string) => e.trim().toLowerCase();
 
-/** contacts.unsubscribed_email on any row for the address. */
-async function isSuppressed(email: string): Promise<boolean> {
+/** contacts.unsubscribed_email on any row for the address. Street Watch (lib/watch) reads it too. */
+export async function isSuppressed(email: string): Promise<boolean> {
   const db = getDb();
   const rows = await db
     .select({ id: contacts.id })
@@ -67,7 +68,7 @@ async function isSuppressed(email: string): Promise<boolean> {
   return rows.length > 0;
 }
 
-async function logEvent(eventType: string, contactId: string | null, payload: Record<string, unknown>): Promise<void> {
+export async function logEvent(eventType: string, contactId: string | null, payload: Record<string, unknown>): Promise<void> {
   try {
     await getDb().insert(events).values({ eventType, contactId, payload });
   } catch (err) {
@@ -79,8 +80,8 @@ function stateOf(row: { status: string; confirmationSentAt: Date | null; welcome
   return row ? { status: row.status as SubscriptionStatus, confirmationSentAt: row.confirmationSentAt, welcomeSentAt: row.welcomeSentAt } : null;
 }
 
-/** Today's subscriber emails so far (UTC day): anything sent, claimed or of unknown outcome. */
-async function usedToday(now: Date): Promise<number> {
+/** Today's subscriber emails so far (UTC day): anything sent, claimed or of unknown outcome. Street Watch's count here too. */
+export async function usedToday(now: Date): Promise<number> {
   const db = getDb();
   const [row] = await db
     .select({ n: sql<number>`count(*)::int` })
@@ -117,7 +118,7 @@ function tags(list: NewsletterList, kind: string, campaign?: string): { name: st
   return [{ name: "list", value: list }, { name: "kind", value: kind }, ...(campaign ? [{ name: "campaign", value: campaign }] : [])];
 }
 
-async function footerForEmail(): Promise<FooterFacts> {
+export async function footerForEmail(): Promise<FooterFacts> {
   const f = await footerFacts();
   return { siteUrl: f.siteUrl, domain: f.domain, teamName: f.teamName, brokerageName: f.brokerageName, officeAddress: f.officeAddress, phoneDisplay: f.phoneDisplay };
 }
@@ -134,7 +135,14 @@ async function footerForEmail(): Promise<FooterFacts> {
 export const CONFIRMATIONS_PER_HOUR = 50;
 let capLoggedAt = 0;
 
-async function confirmationsLastHour(now: Date): Promise<number> {
+/** The once-an-hour log line when confirmations hit the cap; Street Watch shares it. */
+export function logConfirmationCap(now: Date): void {
+  if (now.getTime() - capLoggedAt <= 3_600_000) return;
+  capLoggedAt = now.getTime();
+  console.error(`[lead-alarm] newsletter confirmations hit ${CONFIRMATIONS_PER_HOUR} in an hour; holding the rest (a form flood?)`);
+}
+
+export async function confirmationsLastHour(now: Date): Promise<number> {
   const [row] = await getDb()
     .select({ n: sql<number>`count(*)::int` })
     .from(newsletterDeliveries)
@@ -186,10 +194,7 @@ export async function requestSubscriptions(lead: { contactId: string | null; ema
       }
       let sent = false;
       const overCap = t.send === "confirmation" && (await confirmationsLastHour(now)) >= CONFIRMATIONS_PER_HOUR;
-      if (overCap && now.getTime() - capLoggedAt > 3_600_000) {
-        capLoggedAt = now.getTime();
-        console.error(`[lead-alarm] newsletter confirmations hit ${CONFIRMATIONS_PER_HOUR} in an hour; holding the rest (a form flood?)`);
-      }
+      if (overCap) logConfirmationCap(now);
       if (t.send === "confirmation" && id && !overCap) {
         const token = signToken({ p: "confirm", s: id }, config.secret, CONFIRM_TTL_SECONDS, now);
         const content = confirmationEmail({
@@ -314,10 +319,13 @@ export async function confirmSubscription(token: string | null | undefined): Pro
 
 /* ---- Unsubscribing ---------------------------------------------------------- */
 
-export type UnsubscribeTarget = { kind: "subscription"; id: string; sig: string } | { kind: "contact"; id: string; sig: string };
+export type UnsubscribeTarget = { kind: "subscription"; id: string; sig: string } | { kind: "contact"; id: string; sig: string } | { kind: "watch"; id: string; sig: string };
+
+/** What a link can stop: one list, one Street Watch, every Street Watch on the address, or everything. */
+export type UnsubscribeScope = NewsletterList | "watch" | "watches" | "all";
 
 export function verifyUnsubscribeTarget(t: UnsubscribeTarget): boolean {
-  return verifyUnsubscribe(t.kind === "subscription" ? subscriptionSigningId(t.id) : t.id, t.sig);
+  return verifyUnsubscribe(t.kind === "subscription" ? subscriptionSigningId(t.id) : t.kind === "watch" ? watchSigningId(t.id) : t.id, t.sig);
 }
 
 /**
@@ -326,12 +334,25 @@ export function verifyUnsubscribeTarget(t: UnsubscribeTarget): boolean {
  * nothing more goes to it. Unknown ids succeed quietly (never confirm or deny
  * an address). Throws on a database error, for the caller to report.
  */
-export async function applyUnsubscribe(target: UnsubscribeTarget, scope: NewsletterList | "all", method: "link" | "one-click"): Promise<{ list: NewsletterList | "all" }> {
+export async function applyUnsubscribe(target: UnsubscribeTarget, scope: UnsubscribeScope, method: "link" | "one-click"): Promise<{ list: UnsubscribeScope }> {
   const db = getDb();
   const now = new Date();
   let email: string | null = null;
   let contactId: string | null = null;
-  if (target.kind === "subscription") {
+  if (target.kind === "watch") {
+    const row = await watchById(target.id);
+    email = row?.email ?? null;
+    contactId = row?.contactId ?? null;
+    // A Street Watch link stops that watch, every watch on the address, or everything; never one newsletter alone.
+    if (scope !== "watch" && scope !== "watches") scope = "all";
+    if (!email) return { list: scope };
+    if (scope === "watch" || scope === "watches") {
+      await stopWatches(scope === "watch" ? { id: target.id } : { email }, method);
+      await logEvent("unsubscribed_street_watch", contactId, { method, scope });
+      log(`unsubscribe: ${scope} (${method})`);
+      return { list: scope };
+    }
+  } else if (target.kind === "subscription") {
     const [row] = await db.select().from(newsletterSubscriptions).where(eq(newsletterSubscriptions.id, target.id)).limit(1);
     email = row?.email ?? null;
     contactId = row?.contactId ?? null;
@@ -342,6 +363,7 @@ export async function applyUnsubscribe(target: UnsubscribeTarget, scope: Newslet
     // The old contact links stop everything, as they always did.
     scope = "all";
   }
+  if (scope === "watch" || scope === "watches") scope = "all";
   if (!email) {
     if (target.kind === "contact") {
       // A contact row without an email: flag the row itself, as before.
@@ -353,6 +375,8 @@ export async function applyUnsubscribe(target: UnsubscribeTarget, scope: Newslet
   if (scope === "all") {
     await db.update(newsletterSubscriptions).set(setUnsub).where(and(eq(newsletterSubscriptions.email, email), sql`${newsletterSubscriptions.status} <> 'unsubscribed'`));
     await db.update(contacts).set({ unsubscribedEmail: true, consentEmail: false, lastTouchAt: now }).where(sql`lower(${contacts.email}) = ${email}`);
+    // Every Street Watch on the address stops too (fails soft before migration 0018).
+    await stopWatches({ email }, "all");
     await logEvent("unsubscribed_email", contactId, { method, scope: "all" });
   } else {
     await db.update(newsletterSubscriptions).set(setUnsub).where(and(eq(newsletterSubscriptions.email, email), eq(newsletterSubscriptions.list, scope), sql`${newsletterSubscriptions.status} <> 'unsubscribed'`));

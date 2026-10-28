@@ -6,23 +6,31 @@
       "sources": [
         "https://www.manateepao.gov/data/Manateesales.csv",
         "https://www.manateepao.gov/data/manateesales2024.csv",
-        "https://www.manateepao.gov/data/manatee_situs_addresses.zip"
+        "https://www.manateepao.gov/data/manatee_situs_addresses.zip",
+        "https://www.manateepao.gov/data/shape_files/Parcels.zip",
+        "https://www.manateepao.gov/data/shape_files/Condominium_Unit_Points.zip"
       ],
-      "rows": 25992,
+      "rows": 25995,
       "byUse": {
-        "single-family": 10863,
-        "vacant": 8531,
-        "other": 1739,
+        "single-family": 10871,
+        "vacant": 8529,
+        "other": 1738,
         "condo": 3657,
-        "villa": 553,
+        "villa": 551,
         "townhome": 649
       },
-      "from": "2024-10-25",
+      "from": "2024-10-27",
       "to": "2026-09-24",
-      "hasCoordinates": false,
+      "toUnchangedRuns": 1,
+      "hasCoordinates": true,
+      "shares": {
+        "livingArea": 0.6671,
+        "coordinates": 0.9735,
+        "subdivision": 0.9788
+      },
       "file": "manatee.json.gz",
-      "bytes": 824191,
-      "sha256": "1b75a385ccd43576"
+      "bytes": 1480892,
+      "sha256": "90e702c3a42b6ce7"
     },
     "sarasota": {
       "label": "Sarasota County Property Appraiser",
@@ -30,24 +38,30 @@
       "sources": [
         "https://www.sarasotapropertyappraiser.gov/downloads/SCPA_Parcels_Sales_CSV.zip"
       ],
-      "rows": 29570,
+      "rows": 29588,
       "byUse": {
-        "other": 2509,
-        "condo": 5874,
-        "single-family": 17340,
-        "vacant": 1191,
-        "townhome": 2656
+        "vacant": 1146,
+        "single-family": 17395,
+        "condo": 5875,
+        "other": 2512,
+        "townhome": 2660
       },
-      "from": "2024-10-25",
-      "to": "2026-10-20",
+      "from": "2024-10-27",
+      "to": "2026-10-22",
+      "toUnchangedRuns": 0,
       "hasCoordinates": false,
+      "shares": {
+        "livingArea": 0.9535,
+        "coordinates": 0,
+        "subdivision": 0.9887
+      },
       "file": "sarasota.json.gz",
-      "bytes": 1031828,
-      "sha256": "a96e4070b08b96cb"
+      "bytes": 1538734,
+      "sha256": "315470c9d955df41"
     }
   },
-  "generatedAt": "2026-10-25T11:24:05.490Z",
-  "windowStart": "2024-10-25",
+  "generatedAt": "2026-10-27T23:49:26.175Z",
+  "windowStart": "2024-10-27",
   "windowMonths": 24,
   "qualifiedCodes": [
     "01",
@@ -57,5 +71,5 @@
   ],
   "namesStripped": true,
   "licence": "Public record under Florida Statutes chapter 119, published by the Manatee County and Sarasota County Property Appraisers. Not MLS data. Owner, grantor and grantee names are removed at ingest.",
-  "schema": 1
+  "schema": 2
 }

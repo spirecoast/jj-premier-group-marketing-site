@@ -24,5 +24,7 @@ export const LIST_NAME: Record<NewsletterList, string> = { tide: "Tide", encore:
 export function listsForLead(form: LeadForm, consentEmail: boolean): NewsletterList[] {
   if (form === "letter") return ["tide"];
   if (form === "calendar") return ["encore"];
+  // A Street Watch asks for that email only (lib/watch), never for Tide.
+  if (form === "watch") return [];
   return consentEmail ? ["tide"] : [];
 }

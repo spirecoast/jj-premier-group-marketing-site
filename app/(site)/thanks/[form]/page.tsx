@@ -12,6 +12,7 @@ import { newsletterConfig } from "@/lib/newsletter/config";
 import { SIGNUP_COPY } from "@/lib/newsletter/copy";
 import { REFER } from "@/lib/refer/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
+import { WATCH_BUTTON_COPY } from "@/lib/watch/copy";
 import { pageMetadata } from "@/lib/seo";
 import { products } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -91,6 +92,14 @@ const COPY: Record<LeadForm, Next> = {
     href: encore.href,
     label: "Open the Encore calendar",
   },
+  watch: {
+    eyebrow: "Received",
+    title: "Street Watch is set.",
+    body: `${WATCH_BUTTON_COPY.done} We send at most one email a week, and you can stop any time.`,
+    line: "In the meantime, Tide Street has every sale on any street in Manatee and Sarasota counties from the last two years.",
+    href: "/sell/sold",
+    label: "Open Tide Street",
+  },
   calendar: {
     eyebrow: "You’re on the list",
     title: "Encore comes out every Monday.",
@@ -127,7 +136,7 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
   if (!isLeadForm(form)) notFound();
   const copy = COPY[form];
   // The Tide and Encore pages, when the site sends a confirmation email (read at build: the page is static).
-  const confirming = (form === "letter" || form === "calendar") && newsletterConfig().enabled;
+  const confirming = (form === "letter" || form === "calendar" || form === "watch") && newsletterConfig().enabled;
   const team = await getTeam();
   const bookingUrl = process.env.NEXT_PUBLIC_BOOKING_URL;
 
@@ -143,7 +152,7 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
           </h1>
         </div>
         <ThanksEcho form={form} />
-        {confirming ? <p className="t-lead max-w-[560px] text-navy">{form === "letter" ? SIGNUP_COPY.thanksTide : SIGNUP_COPY.thanksEncore}</p> : null}
+        {confirming ? <p className="t-lead max-w-[560px] text-navy">{form === "letter" ? SIGNUP_COPY.thanksTide : form === "watch" ? WATCH_BUTTON_COPY.doneConfirm : SIGNUP_COPY.thanksEncore}</p> : null}
         <p className="t-lead max-w-[560px] text-body">{copy.body}</p>
         <div className="flex flex-col gap-5 border-t border-hairline pt-6">
           <p className="t-body max-w-[520px] text-body">{copy.line}</p>

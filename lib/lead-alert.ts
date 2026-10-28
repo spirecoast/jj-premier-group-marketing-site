@@ -4,7 +4,9 @@ import { isPreviewDeployment } from "@/lib/deploy-env";
 import { escapeHtml, sendEmail } from "@/lib/email";
 import { emailList } from "@/lib/email/recipients";
 import { homePlatformNote, homePlatformPixelId } from "@/lib/home-platform";
+import { fill } from "@/lib/issues/copy";
 import { IMPLIED_CONSENT_VERSION, NOT_SHOWN_CONSENT_VERSION } from "@/lib/leads/constants";
+import { WATCH_TEAM_COPY } from "@/lib/watch/copy";
 
 /**
  * Internal email for the lead pipeline. Two jobs, both addressed to the team,
@@ -59,6 +61,8 @@ function leadHtml(lead: CrmLead): string {
     ["Property", lead.property?.title ?? lead.property?.street],
     ["Referring", lead.referral ? `${[lead.referral.firstName, lead.referral.lastName].filter(Boolean).join(" ")} · ${[lead.referral.email, lead.referral.phone].filter(Boolean).join(" · ")}${lead.referral.plan ? ` · ${lead.referral.plan}` : ""}` : null],
     ["Referral note", lead.referral?.note],
+    ["Watching", lead.watch ? fill(WATCH_TEAM_COPY.line, { label: lead.watch.label }) : null],
+    ["Tide Street", lead.watch?.url],
     ["Consent", consentLine(lead)],
     ["Tags", lead.tags.join(", ")],
     ["Came through", lead.source.channel ? `/from/${lead.source.channel}` : null],

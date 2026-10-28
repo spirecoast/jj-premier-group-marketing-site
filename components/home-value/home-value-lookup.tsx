@@ -10,6 +10,7 @@ import { RuleLink } from "@/components/ui/button";
 import { startSheetPath } from "@/lib/net-proceeds-url";
 import { useSalesLookup } from "@/components/sales/use-sales-lookup";
 import { parseHouseNumber } from "@/lib/sales/parcel";
+import { WatchButton } from "@/components/watch/watch-button";
 import { HOME_VALUE_COPY as C } from "./copy";
 
 type Api =
@@ -25,6 +26,14 @@ type Api =
       truncated: boolean;
       /** Present when a house number was sent: that parcel's own qualified sales, newest first. */
       parcel?: { number: string; unit: string | null; parcels: number; rows: SaleRow[] };
+      /** Similar homes sold nearby (lib/sales/similar.ts), when the house has a recorded size. */
+      similar?: {
+        basis: { kind: "distance"; miles: number } | { kind: "subdivision"; name: string } | { kind: "zip"; zip: string };
+        sizeFrom: number;
+        sizeTo: number;
+        since: string;
+        rows: (SaleRow & { miles?: number })[];
+      };
       source: { asOf: string; counties: string[] } | null;
     }
   | { ok: false; error: "zip-required"; streets: string[]; zips: string[]; total: number }
@@ -241,6 +250,10 @@ export function HomeValueLookup({ loaded, asOf, counties, months, through = [], 
                       <p className="t-note">{sourceLine}</p>
                       <p className="t-small max-w-measure text-graphite-500">{C.street.note}</p>
                     </div>
+                    {/* Street Watch: the same button as Tide Street, for one street in one ZIP. */}
+                    {data.streets.length === 1 && data.zips.length === 1 ? (
+                      <WatchButton target={{ kind: "street", street: data.streets[0]!, zip: data.zips[0]!, label: `${titleCase(data.streets[0]!)} · ${data.zips[0]}` }} source="home-value" className="pt-2" />
+                    ) : null}
                   </>
                 )}
               </div>
@@ -300,6 +313,33 @@ export function HomeValueLookup({ loaded, asOf, counties, months, through = [], 
               </div>
               <KeepRow tool="tide-home-value" url={keepUrl} className="border-t border-hairline pt-8" />
             </KeepSheet>
+          ) : null}
+
+          {/* Similar homes sold nearby: evidence beside the house, never a number for it. */}
+          {data?.parcel && last ? (
+            <div className="flex flex-col gap-6 border-t border-hairline pt-8" data-similar="">
+              <SectionHeading title={C.similar.title} />
+              {data.similar && data.similar.rows.length ? (
+                <>
+                  <p className="t-body max-w-measure text-body">
+                    {C.similar.criteria(typeLabel(last), int.format(data.similar.sizeFrom), int.format(data.similar.sizeTo), fmtDate(data.similar.since))}
+                    {data.similar.basis.kind === "distance"
+                      ? C.similar.basisDistance(C.similar.miles(data.similar.basis.miles))
+                      : data.similar.basis.kind === "subdivision"
+                        ? C.similar.basisSubdivision(data.similar.basis.name)
+                        : C.similar.basisZip(data.similar.basis.zip)}{" "}
+                    <span className="text-graphite-600">{data.similar.basis.kind === "distance" ? C.similar.count(data.similar.rows.length) : C.similar.countByDate(data.similar.rows.length)}</span>
+                  </p>
+                  <SalesTable rows={data.similar.rows} rollChangedNote={C.street.rollChanged} />
+                  <div className="flex flex-col gap-2">
+                    <p className="t-small max-w-measure text-graphite-500">{C.similar.note}</p>
+                    <p className="t-note">{sourceLine}</p>
+                  </div>
+                </>
+              ) : (
+                <p className="t-body max-w-measure text-body">{C.similar.none}</p>
+              )}
+            </div>
           ) : null}
         </div>
       </section>

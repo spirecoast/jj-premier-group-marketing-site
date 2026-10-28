@@ -3,6 +3,14 @@ import type { FubEventType } from "@/lib/fub";
 import { parsePhone } from "@/lib/phone";
 import { LEAD_CHANNELS, LEAD_FORMS, REFERRAL_PLANS, type LeadErrorField, type LeadForm } from "./constants";
 import { validateLead } from "./rules";
+import { placeTarget, streetTarget, type WatchTarget } from "../watch/target";
+
+/** The street or place a Watch form asks for, or null. */
+export function watchTargetFrom(d: { watchStreet?: string; watchZip?: string; watchPlace?: string; watchName?: string }): WatchTarget | null {
+  if (d.watchPlace) return placeTarget(d.watchPlace, d.watchName ?? "");
+  if (d.watchStreet) return streetTarget(d.watchStreet, d.watchZip ?? "");
+  return null;
+}
 
 /**
  * The server's view of a lead form: zod, which never reaches the browser.
@@ -23,6 +31,7 @@ export const FUB_TYPE: Record<LeadForm, FubEventType> = {
   calendar: "Registration",
   referral: "General Inquiry",
   "review-permission": "General Inquiry",
+  watch: "Registration",
 };
 
 const optionalText = (max: number) =>
@@ -74,6 +83,11 @@ const fields = z.object({
   referralConsent: checkbox,
   /** Review-permission form: the box under the words. */
   reviewConsent: checkbox,
+  /** Street Watch (the Watch buttons): a street as the county spells it with its ZIP, or an Atlas place's slug and name. */
+  watchStreet: optionalText(80),
+  watchZip: optionalText(10),
+  watchPlace: optionalText(80),
+  watchName: optionalText(120),
   /** Calls and texts. */
   consent: checkbox,
   /** Email. */
@@ -106,6 +120,8 @@ export const leadSchema = fields
       reviewConsent: d.reviewConsent ? "on" : "",
     });
     for (const [path, message] of Object.entries(errors)) ctx.addIssue({ code: "custom", path: [path], message });
+    // A watch needs something to watch; the buttons always send it, so a miss is a tampered form.
+    if (d.form === "watch" && !watchTargetFrom(d)) ctx.addIssue({ code: "custom", path: ["watchStreet"], message: "Nothing to watch" });
   })
   .transform((d) => {
     // Phones leave here tidy: "(941) 555-0100" for a US number, with the E.164 form beside it.
