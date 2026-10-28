@@ -146,6 +146,21 @@ export function plainSubdivision(name: string): string {
     .trim();
 }
 
+/** The county's full name, phase and all, title-cased: "LAKE CLUB PHASE II" → "Lake Club Phase II". */
+export function titleSubdivision(name: string): string {
+  return (name || "")
+    .toUpperCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w, i) => {
+      if (ROMAN.test(w) && i > 0) return w;
+      if (/\d/.test(w) || !/[AEIOUY]/.test(w)) return w;
+      if (i > 0 && SMALL.has(w)) return w.toLowerCase();
+      return w.charAt(0) + w.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
 /** The distinct plain names among a set of sales, most sales first: "Aurora, Star Farms and 2 more". */
 export function subdivisionNames(rows: Pick<Sale, "subdivision">[]): { name: string; count: number }[] {
   const m = new Map<string, number>();

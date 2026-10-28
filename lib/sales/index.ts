@@ -16,7 +16,7 @@ export { parseTypedStreet, streetKey } from "./street";
 export type { County, PropertyUse, Sale } from "./types";
 export { fullStreet, groupSummary, isResale, median, rollChanged, sizeBand, summarize, type GroupSummary, type SalesSummary } from "./stats";
 export { normalizeCity, type PlaceMatch } from "./area";
-export { plainSubdivision, subdivisionNames } from "./places";
+export { plainSubdivision, subdivisionNames, titleSubdivision } from "./places";
 export type { SimilarBasis, SimilarResult } from "./similar";
 
 /**
@@ -267,6 +267,8 @@ export async function zipsForCity(city: string): Promise<string[] | null> {
 
 export type AreaResult = {
   place: PlaceMatch;
+  /** "subdivision": the sales the county files under the place's own subdivisions (lib/sales/places.ts); "zip": every sale in its ZIPs. */
+  basis: "subdivision" | "zip";
   rows: Sale[];
   total: number;
   /** Over every sale in the area, not only the rows returned. */
@@ -338,10 +340,12 @@ export async function searchByArea({ place: slug, limit = 200 }: { place: string
     }
   }
   if (!place) return null;
+  // A place the county files subdivisions under reads its own sales; otherwise (and for a postal city) its ZIPs.
+  const own = city ? [] : await placeSales((await placeJoin()).join, place.slug);
   const set = new Set(place.zips);
-  const hit = rows.filter((r) => set.has(r.zip));
+  const hit = own.length ? own : rows.filter((r) => set.has(r.zip));
   const streets = [...new Set(hit.map(fullStreet))];
-  return { place, rows: hit.slice(0, Math.min(Math.max(limit, 1), MAX_ROWS)), total: hit.length, summary: summarize(hit), streets };
+  return { place, basis: own.length ? "subdivision" : "zip", rows: hit.slice(0, Math.min(Math.max(limit, 1), MAX_ROWS)), total: hit.length, summary: summarize(hit), streets };
 }
 
 /**
@@ -454,8 +458,22 @@ export async function salesForPlace(slug: string, { newest = 5 }: { newest?: num
   }
 }
 
-/** The Atlas places a street's sales belong to (by subdivision), most sales first, then the areas that list its ZIP. At most `max`. */
-export async function placesForRows(rows: Sale[], { max = 4 }: { max?: number } = {}): Promise<{ slug: string; name: string; level: string }[]> {
+/**
+ * The Atlas places a street's sales belong to (by subdivision), most sales
+ * first; when the join finds none, the areas that list its ZIP instead,
+ * marked `basis: "zip"` so the page says so. At most `max`.
+ */
+/** Whether a place's sales come from its own subdivisions or its ZIP area (what searchByArea will answer with). */
+export async function placeBasis(slug: string): Promise<"subdivision" | "zip"> {
+  if (slug.startsWith("city:")) return "zip";
+  try {
+    return placeSales((await placeJoin()).join, slug).length ? "subdivision" : "zip";
+  } catch {
+    return "zip";
+  }
+}
+
+export async function placesForRows(rows: Sale[], { max = 4 }: { max?: number } = {}): Promise<{ slug: string; name: string; level: string; basis: "subdivision" | "zip" }[]> {
   try {
     const { join, places } = await placeJoin();
     const bySlug = new Map(places.map((p) => [p.slug, p]));
@@ -464,13 +482,13 @@ export async function placesForRows(rows: Sale[], { max = 4 }: { max?: number } 
       const s = join.slugOf.get(r);
       if (s) counts.set(s, (counts.get(s) ?? 0) + 1);
     }
-    const out = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([s]) => bySlug.get(s)!).filter(Boolean);
+    const joinedPlaces = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([s]) => bySlug.get(s)!).filter(Boolean);
+    if (joinedPlaces.length) return joinedPlaces.slice(0, max).map((p) => ({ slug: p.slug, name: p.name, level: p.level, basis: "subdivision" as const }));
     const zips = new Set(rows.map((r) => r.zip));
-    for (const p of places) {
-      if (out.length >= max) break;
-      if (p.level === "area" && p.zips.some((z) => zips.has(z)) && !out.includes(p)) out.push(p);
-    }
-    return out.slice(0, max).map((p) => ({ slug: p.slug, name: p.name, level: p.level }));
+    return places
+      .filter((p) => p.level === "area" && p.zips.some((z) => zips.has(z)))
+      .slice(0, max)
+      .map((p) => ({ slug: p.slug, name: p.name, level: p.level, basis: "zip" as const }));
   } catch {
     return [];
   }

@@ -396,7 +396,10 @@ export async function runWatchDigests(now = new Date()): Promise<DigestRun> {
     if (res.ok) {
       run.sent += 1;
       const ids = sections.map((s) => s.watchId);
-      await db.execute(sql`UPDATE street_watches SET last_digest_at = ${at.toISOString()}::timestamptz, updated_at = now() WHERE id = ANY(${ids}::uuid[])`);
+      await db.execute(sql`UPDATE street_watches SET last_digest_at = ${at.toISOString()}::timestamptz, updated_at = now() WHERE id IN (${sql.join(
+        ids.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      )})`);
     } else {
       run.failed += 1;
       warn(`digest ${outcome} (${res.httpStatus ?? "no answer"}): ${res.error}`);

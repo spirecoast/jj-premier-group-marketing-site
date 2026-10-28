@@ -61,8 +61,12 @@ export const SOLD_COPY = {
     areaLabel: "ZIP area",
     areaHeading: (place: string) => `Sales in ${place}`,
     areaNote: (zips: string[]) => `Every qualified sale in ZIP ${zips.length === 1 ? zips[0] : zips.join(", ")}, newest first.`,
+    /** A place the county files subdivisions under: its own sales, not its ZIP's. */
+    areaOwnLabel: "Its subdivisions",
+    areaOwnNote: (place: string) => `Every qualified sale the county files under ${place}’s subdivisions, newest first.`,
     /** The Atlas places the street's sales belong to (by the county's subdivision names), and the areas its ZIP is in. */
     atlasLabel: "On Atlas",
+    atlasLabelZip: (zips: string) => `On Atlas, in ZIP ${zips}`,
     /** A street with fewer than three sales: the rest of its subdivision. */
     alsoInTitle: (subdivision: string) => `Other sales in ${subdivision}`,
     alsoInNote: (n: number, months: number) =>

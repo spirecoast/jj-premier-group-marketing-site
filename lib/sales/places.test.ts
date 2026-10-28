@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { PlaceRow } from "./area";
-import { assignPlace, joinPlaces, normPlaceName, placeNameIndex, placeSales, plainSubdivision, subdivisionNames } from "./places";
+import { assignPlace, joinPlaces, normPlaceName, placeNameIndex, placeSales, plainSubdivision, subdivisionNames, titleSubdivision } from "./places";
 import { milesBetween, monthsBefore, similarSales } from "./similar";
 import type { Sale } from "./types";
 
@@ -97,6 +97,8 @@ describe("joining county subdivisions to Atlas places", () => {
     assert.equal(plainSubdivision("BAYSHORE GARDENS SEC NO 14"), "Bayshore Gardens");
     assert.equal(plainSubdivision("AURORA"), "Aurora");
     assert.equal(plainSubdivision("ANCIENT OAKS UNIT ONE"), "Ancient Oaks");
+    assert.equal(titleSubdivision("LAKE CLUB PHASE II"), "Lake Club Phase II");
+    assert.equal(titleSubdivision("COUNTRY CLUB EAST AT LWR SP VV"), "Country Club East at LWR SP VV");
     assert.deepEqual(subdivisionNames([{ subdivision: "AURORA" }, { subdivision: "AZARIO ESPLANADE PH II" }, { subdivision: "AZARIO ESPLANADE PH IX" }, { subdivision: "" }]), [
       { name: "Azario Esplanade", count: 2 },
       { name: "Aurora", count: 1 },

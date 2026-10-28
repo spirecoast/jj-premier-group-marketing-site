@@ -42,6 +42,9 @@ function WatchBox({ target, className, source }: Props) {
   const [channel, setChannel] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLButtonElement>(null);
+  // Escape closes the box and puts focus back on the button that opened it.
+  const closedByKey = useRef(false);
   const label = target.kind === "street" ? C.street : C.place;
   const shown = target.kind === "street" ? target.label : target.name;
 
@@ -51,6 +54,10 @@ function WatchBox({ target, className, source }: Props) {
   }, []);
   useEffect(() => {
     if (open) inputRef.current?.focus();
+    else if (closedByKey.current) {
+      closedByKey.current = false;
+      openerRef.current?.focus();
+    }
   }, [open]);
   useEffect(() => {
     if (!state.ok) return;
@@ -100,6 +107,7 @@ function WatchBox({ target, className, source }: Props) {
     return (
       <div className={cn("watch flex flex-col items-stretch gap-4 sm:items-start", className)} data-watch="idle">
         <button
+          ref={openerRef}
           type="button"
           className="btn btn-navy w-full sm:w-auto"
           aria-expanded={false}
@@ -129,7 +137,10 @@ function WatchBox({ target, className, source }: Props) {
       data-entering={entering || undefined}
       onAnimationEnd={() => setEntering(false)}
       onKeyDown={(e) => {
-        if (e.key === "Escape" && !pending) setOpen(false);
+        if (e.key === "Escape" && !pending) {
+          closedByKey.current = true;
+          setOpen(false);
+        }
       }}
     >
       <p className="t-h3 text-navy" aria-hidden="true">

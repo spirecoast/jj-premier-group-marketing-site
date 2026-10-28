@@ -33,7 +33,7 @@ type Searched = { street: string; zip: string; place?: string };
 
 type Through = { county: "manatee" | "sarasota"; label: string; to: string | null };
 
-type Place = { slug: string; name: string; zips: string[] };
+type Place = { slug: string; name: string; zips: string[]; basis?: "subdivision" | "zip" };
 
 /** The search as /api/sales takes it: the street (a house number split off and sent apart), and a five-digit ZIP or else a city. Null when the street is too short to search. */
 function toQuery(s: string, z: string): { query: URLSearchParams; searched: Searched } | null {
@@ -61,7 +61,7 @@ type Ok = {
   parcel?: { number: string; unit: string | null; parcels: number; rows: Row[] };
   place?: Place;
   /** The Atlas places the street's sales belong to, and the areas its ZIP is in. */
-  places?: { slug: string; name: string; level: string }[];
+  places?: { slug: string; name: string; level: string; basis: "subdivision" | "zip" }[];
   /** A street with fewer than three sales: the rest of its subdivision. */
   alsoIn?: { subdivision: string; total: number; summary: Summary; rows: Row[] };
   source: { asOf: string; windowStart: string; counties: string[]; through: Through[] } | null;
@@ -234,7 +234,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
   const cities = data ? [...new Set(data.rows.map((r) => titleCase(r.city)))].filter(Boolean) : [];
   const headerParts = data
     ? data.match === "area" && data.place
-      ? [C.results.areaHeading(data.place.name), `${C.results.areaLabel} ${data.place.zips.join(", ")}`]
+      ? [C.results.areaHeading(data.place.name), data.place.basis === "subdivision" ? C.results.areaOwnLabel : `${C.results.areaLabel} ${data.place.zips.join(", ")}`]
       : [C.summary.heading(data.streets.map(titleCase)), ...(data.zips.length <= 3 ? data.zips : []), ...(cities.length <= 2 ? cities : [])]
     : [];
   const timelineWindow = windowStart ? { from: windowStart, to: [...sourceThrough.map((t) => t.to ?? ""), asOf ?? ""].filter(Boolean).sort().pop() ?? windowStart } : null;
@@ -426,7 +426,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                     <h2 className="t-h3 text-navy" data-street-heading="">
                       {C.summary.headingLine(headerParts)}
                     </h2>
-                    <p className="t-note max-w-none">{data.match === "area" && data.place ? C.results.areaNote(data.place.zips) : headerThrough}</p>
+                    <p className="t-note max-w-none">{data.match === "area" && data.place ? (data.place.basis === "subdivision" ? C.results.areaOwnNote(data.place.name) : C.results.areaNote(data.place.zips)) : headerThrough}</p>
                   </div>
                   <ShareButton title={C.title} url={shareUrl} what="sold-street" label={C.share} />
                 </div>
@@ -534,7 +534,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
               {/* The Atlas places this street's sales belong to, and the areas its ZIP is in. */}
               {data.places?.length ? (
                 <nav aria-label={C.results.atlasLabel} className="flex flex-wrap items-baseline gap-x-6 gap-y-2" data-street-atlas="">
-                  <span className="t-label text-linen-700">{C.results.atlasLabel}</span>
+                  <span className="t-label text-linen-700">{data.places[0]!.basis === "zip" ? C.results.atlasLabelZip(data.zips.join(", ")) : C.results.atlasLabel}</span>
                   {data.places.map((p) => (
                     <a key={p.slug} href={`/neighborhoods/${p.slug}`} className="link-rule">
                       {p.name}
@@ -582,9 +582,11 @@ function PlaceChip({ place, onPick }: { place: Place; onPick: (p: Place) => void
       <div>
         <button type="button" className="street-chip" onClick={() => onPick(place)}>
           {C.results.placeChip(place.name)}
-          <span className="street-chip-count" aria-hidden="true">
-            {C.results.areaLabel}
-          </span>
+          {place.basis !== "subdivision" ? (
+            <span className="street-chip-count" aria-hidden="true">
+              {C.results.areaLabel}
+            </span>
+          ) : null}
         </button>
       </div>
     </div>

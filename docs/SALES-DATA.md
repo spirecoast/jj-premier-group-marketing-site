@@ -183,10 +183,14 @@ record should be a fact about the property or the transaction.
   `lib/sales/street.ts` so `lib/sales/parcel.test.ts` runs on a fixture.
 - When the typed street names a place instead (an Atlas area, community or
   enclave by name or alias, or a postal city), a non-exact answer carries
-  `place: { slug, name, zips }` and Tide Street offers "Sales in {place}".
-  `GET /api/sales?place=<slug>` then answers `match: "area"` with every
-  qualified sale in the place's ZIPs (its own and its descendants'; newest
-  200 rows, the summary over all of them). A postal city's set is the slug
+  `place: { slug, name, zips, basis }` and Tide Street offers "Sales in {place}".
+  `GET /api/sales?place=<slug>` then answers `match: "area"`: when the county
+  files subdivisions under the place's name (`basis: "subdivision"`,
+  lib/sales/places.ts), every qualified sale in them; otherwise
+  (`basis: "zip"`) every qualified sale in the place's ZIPs (its own and its
+  descendants'). Newest 200 rows, the summary over all of them; the page
+  labels which. An Atlas page's "Every sale on Tide Street" links here
+  (`/sell/sold?place=<slug>` runs it on arrival). A postal city's set is the slug
   `city:<zip>-<zip>`. The matcher is `lib/sales/area.ts`; the route reads the
   Atlas search index through `lib/neighborhoods/data.ts`, so `next.config.ts`
   traces it for `/api/sales`.
