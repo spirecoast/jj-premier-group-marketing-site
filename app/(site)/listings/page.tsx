@@ -22,6 +22,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "Tell Joelyn and Jessica what you’re looking for in Lakewood Ranch, Sarasota or Bradenton, and they will bring you the homes worth seeing, with a straight read on each one.",
   path: "/listings",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 

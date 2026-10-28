@@ -415,6 +415,7 @@ CRM_WEBHOOK_URL                   # the Zapier Catch Hook (mark as Secret)
 LEAD_ALERT_EMAIL                  # optional; defaults to TEAM_NOTIFY_EMAIL
 LEAD_TEST_SECRET                  # `openssl rand -hex 24` (mark as Secret)
 NEXT_PUBLIC_BOOKING_URL           # optional; the booking page link
+CARDS_TOKEN_SHA256                # optional; rotates the private /cards link (docs/SITE.md, "Cards to post")
 ```
 
 A preview deployment holds back every side effect whatever it's given (`lib/deploy-env.ts`,

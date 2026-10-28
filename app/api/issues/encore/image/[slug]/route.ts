@@ -7,7 +7,7 @@ import { absoluteUrl } from "@/lib/seo";
 
 /**
  * GET /api/issues/encore/image/<slug>: the lead pick's picture for the Monday
- * issue, as a PNG (email clients don't render SVG). The same composition as
+ * issue, as a JPEG (email clients don't render SVG). The same composition as
  * the event's share image (app/(site)/calendar/[slug]/opengraph-image.tsx):
  * the venue's photo or the Encore key art, with the title and the date. A
  * stable URL, unlike the share image's build-hashed one, so an issue sent

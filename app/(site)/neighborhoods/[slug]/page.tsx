@@ -21,6 +21,7 @@ import { cardEndsAt } from "@/lib/encore/fresh";
 import { getMarket, marketName } from "@/lib/content/markets";
 import { varyStock } from "@/lib/encore/stock";
 import type { MarketSlug } from "@/lib/content/types";
+import { placeDescription, placeFactProperties } from "@/lib/neighborhoods/describe";
 import { DATASET_VERSION, checkedDate, evacuationSource, getAncestors, getChildren, getRecord, getRecordSlugs } from "@/lib/neighborhoods/data";
 import { LEVEL_LABEL, STATUS_LABEL, TYPE_LABEL, hostOf, monthYear, titleCase } from "@/lib/neighborhoods/format";
 import { sourceLine } from "@/lib/neighborhoods/sources";
@@ -54,12 +55,15 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const name = editorial?.neighborhood.name ?? record!.name;
   const market = (editorial?.neighborhood.market ?? record!.market) as MarketSlug;
   const where = ancestors.length ? ancestors.map((a) => a.name).join(" › ") : marketName(market);
-  const description =
+  const description = placeDescription(
     editorial?.neighborhood.tagline ??
-    record?.description ??
-    `${name} is in ${marketName(market)}. This page carries its jurisdiction, ZIPs, zoned schools, evacuation zone, builders and association, from county and district sources.`;
+      record?.description ??
+      `${name} is in ${marketName(market)}. This page carries its jurisdiction, ZIPs, zoned schools, evacuation zone, builders and association, from county and district sources.`,
+    record,
+  );
   return pageMetadata({
-    title: `${name} · ${where}${record?.type ? ` · ${TYPE_LABEL[record.type]}` : ""}`,
+    title: name,
+    titleQualifiers: [where, record?.type && TYPE_LABEL[record.type]],
     description,
     path: `/neighborhoods/${slug}`,
     fileImage: true, // opengraph-image.tsx beside this page
@@ -166,6 +170,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             ...(record.lat !== null && record.lng !== null ? { geo: { "@type": "GeoCoordinates", latitude: record.lat, longitude: record.lng } } : {}),
             ...(parent ? { containedInPlace: { "@type": "Place", name: parent.name, url: absoluteUrl(`/neighborhoods/${parent.slug}`) } } : {}),
             ...(record.officialUrl ? { sameAs: record.officialUrl } : {}),
+            ...(placeFactProperties(record).length ? { additionalProperty: placeFactProperties(record) } : {}),
           }}
         />
       ) : null}

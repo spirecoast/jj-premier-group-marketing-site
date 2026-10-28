@@ -16,7 +16,7 @@ must supply are written `<like-this>`. Nothing in this file is a real secret.
 | Vercel project | `jj-premier-group-marketing-site` (team `jj-premier-group`, "JJ Premier Group"), Node 24, framework Next.js. Production alias `https://jj-premier-group-marketing-site.vercel.app`. |
 | Repo | `spirecoast/jj-premier-group-marketing-site`, branch `main`; a merge to `main` deploys production. Pull requests get a Vercel preview and run `.github/workflows/ci.yml`. |
 | Site URL resolution | `lib/site-url.ts` (tested in `site-url.test.ts`): `NEXT_PUBLIC_SITE_URL` if it is a valid absolute URL; else, while `NEXT_PUBLIC_ROBOTS_NOINDEX=true`, `https://jj-premier-group-marketing-site.vercel.app`; else `https://` + `VERCEL_PROJECT_PRODUCTION_URL`; else `https://jjpremiergroup.com`. The noindex rule matters because Vercel reports the attached custom domain as `VERCEL_PROJECT_PRODUCTION_URL` whether or not its DNS resolves, so without it a merge would point every canonical at a domain that doesn't answer. Canonicals, `og:url`, sitemap `<loc>`, `robots.txt` host, `llms.txt` and ICS UIDs all use it. |
-| Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /subscribe/ /thanks/ /q/`, plus the sitemap line. |
+| Index gate | `NEXT_PUBLIC_ROBOTS_NOINDEX=true` → `robots.txt` is `Disallow: /` (`app/robots.ts`) and every page gets `<meta name="robots" content="noindex, nofollow">` (`app/layout.tsx`). Any other value → allow all except `/studio /api/ /unsubscribe /subscribe/ /thanks/ /q/ /cards/`, plus the sitemap line. |
 | Redirects | `next.config.ts`: `/lakewood-ranch/:slug` → `/neighborhoods/:slug` (except the hub's own `opengraph-image` route), `/neighborhoods/lake-club` → `/neighborhoods/the-lake-club`. On a production build whose origin is the domain (that is, after launch), the `jj-premier-group-marketing-site.vercel.app` host sends every path to the same path on the domain (`canonicalHostRedirects` in `lib/site-url.ts`); before launch it serves the site. All permanent (308). `/lakewood-ranch` itself is the market hub (`app/(site)/lakewood-ranch`), alongside `/sarasota` and `/bradenton`; it no longer redirects. `/relocate` is the relocation planner and no longer redirects to `/buy`. |
 | CRM | The Coldwell Banker Home Platform. Its Lead Flows pixel (client id `bsw9jbac2nu2`) is on every production page and sends each form from the browser (`lib/home-platform.ts`); the "Pixel" lead flow makes each one a contact in Jessica Garza's account, with name, email and phone only. The message, timing, address and consent reach the agents in the "New lead" email, which also names the leads to add by hand (privacy signals, a blocked script, the person a referral names). A Zapier Catch Hook can add those instead (section 3). Env: `CRM_PROVIDER=none` until there's a Zap, then `CRM_PROVIDER=webhook` and `CRM_WEBHOOK_URL`. Follow Up Boss code stays in the repo behind the provider switch and is not used. |
 | Health | `GET /api/health` answers `{ ok }` to anyone. Every check below that reads a field from it (`newsletter`, `places`, `sentry`, `issues`) needs `-H "Authorization: Bearer $CRON_SECRET"`. |
@@ -616,9 +616,9 @@ curl -sS $D/robots.txt
 curl -sS $D/ | grep -o '<meta name="robots"[^>]*>\|<link rel="canonical"[^>]*>\|<meta property="og:url"[^>]*>\|<meta property="og:image"[^>]*>'
 # robots: index, follow · canonical, og:url and og:image all start with https://jjpremiergroup.com
 
-curl -sS $D/sitemap.xml | grep -c 'vercel.app'
+curl -sS $D/sitemap.xml $D/sitemaps/sitemap/pages.xml $D/sitemaps/sitemap/neighborhoods.xml $D/sitemaps/sitemap/calendar.xml | grep -c 'vercel.app'
 # 0
-curl -sS $D/sitemap.xml | grep -c '<loc>https://jjpremiergroup.com/'
+curl -sS $D/sitemaps/sitemap/pages.xml $D/sitemaps/sitemap/neighborhoods.xml $D/sitemaps/sitemap/calendar.xml | grep -c '<loc>https://jjpremiergroup.com/'
 # about 1,500 (the preview answered 1,503 on 2026-10-01: static pages + neighborhoods + events + venues + posts)
 
 curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' http://jjpremiergroup.com/
@@ -692,7 +692,7 @@ In UptimeRobot, Better Stack or the monitor the team already pays for: two HTTPS
 | Monitor | URL | Check |
 |---|---|---|
 | Home | `https://jjpremiergroup.com/` | status 200 and the keyword `JJ Premier Group` in the body |
-| Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<urlset` |
+| Sitemap | `https://jjpremiergroup.com/sitemap.xml` | status 200 and the keyword `<sitemapindex` (the index of `/sitemaps/sitemap/pages.xml`, `neighborhoods.xml` and `calendar.xml`) |
 | Leads | `https://jjpremiergroup.com/api/health` | status 200. It answers 503 when production would keep leads only in Postgres, where nobody is told: set `TEAM_NOTIFY_EMAIL` with `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, or `CRM_WEBHOOK_URL`, before launch. This is the first launch gate. |
 
 ### 6.12 Rollback plan

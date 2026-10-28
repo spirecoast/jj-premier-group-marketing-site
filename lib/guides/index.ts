@@ -5,7 +5,7 @@ import { WIND_AND_FLOOD_GUIDE } from "./homeowners-wind-and-flood-insurance-on-t
 import { HOMESTEAD_GUIDE } from "./homestead-save-our-homes-and-portability";
 import { HURRICANE_GUIDE } from "./hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton";
 import { SELLING_FROM_AWAY_GUIDE } from "./selling-a-home-you-dont-live-in";
-import { READY_TO_SELL_GUIDE } from "./thinking-about-spring-start-in-october";
+import { READY_TO_SELL_GUIDE } from "./getting-your-house-ready-to-sell";
 import { GATED_GUIDE } from "./what-to-ask-before-you-buy-in-a-gated-community";
 import { BARRIER_ISLANDS_GUIDE } from "./barrier-island-rules-island-by-island";
 import { GETTING_HERE_GUIDE } from "./getting-here-and-getting-around";

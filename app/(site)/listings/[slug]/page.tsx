@@ -74,7 +74,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!listing) return { title: "Nothing on that street", robots: { index: false, follow: false } };
   const lead = plainText(listing.description);
   return pageMetadata({
-    title: `${listing.title}, ${listing.address.city} · ${formatPrice(listing.price)}`,
+    title: `${listing.title}, ${listing.address.city}`,
+    titleQualifiers: [formatPrice(listing.price)],
     description: truncate(`${factsLine(listing)} in ${place(listing)}. ${lead}`, 200),
     path: `/listings/${listing.slug}`,
     fileImage: true, // opengraph-image.tsx beside this page

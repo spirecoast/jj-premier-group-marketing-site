@@ -10,6 +10,7 @@ export const metadata: Metadata = pageMetadata({
   title: REVIEWS.title,
   description: REVIEWS.description,
   path: "/reviews",
+  fileImage: true, // opengraph-image.tsx beside this page
 });
 
 /** The Google Business Profile review link (Business Profile → Get more reviews). Empty until the profile is live. */

@@ -34,13 +34,17 @@
  * "whether you're", a hook question answered straight after, …) run over all
  * of it, and over every other string a reader can see in app/, components/
  * and lib/ (scripts/copy-literals.mjs pulls them out of the source without
- * running it). lib/search is checked through its copy file, and its voice
+ * running it, JSX text with its entities decoded). Those strings also get the
+ * Fair Housing list and the places-not-people rules, with a short list of
+ * honest uses set aside (single-family homes, school taxes, the state's My
+ * Safe Florida Home program, zoned schools on Atlas's own pages). lib/search is checked through its copy file, and its voice
  * flags are printed as warnings only: that directory belongs to the search
  * work, which fixes them there.
  */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { checkFairHousing } from "../lib/fair-housing.ts";
+import { cardStrings } from "../lib/cards/copy.ts";
 import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
@@ -55,6 +59,7 @@ import { tideWebStrings } from "../lib/tide/copy.ts";
 import { tideNarrativeStrings } from "../lib/tide/issues.ts";
 import { AI_TELLS } from "../lib/voice.ts";
 import { siteLiterals } from "./copy-literals.mjs";
+import { PEOPLE_RULES, peopleHits } from "./copy-rules.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -66,18 +71,6 @@ const SOURCES = [
   { where: "lib/leads/constants.ts: REVIEW_CONSENT_WORDING", text: REVIEW_CONSENT_WORDING },
   { where: "lib/leads/constants.ts: REFERRAL_CONSENT_WORDING", text: REFERRAL_CONSENT_WORDING },
   ...REFERRAL_PLANS.map((p) => ({ where: `lib/leads/constants.ts: REFERRAL_PLANS ${p}`, text: p })),
-];
-
-/** Places, never people. */
-const PEOPLE_RULES = [
-  { pattern: /\bschools?\b/i, reason: "school reference (zoned schools live on Atlas pages only, with the district link)" },
-  { pattern: /\b(safe|safety|unsafe|crime|low[- ]crime)\b/i, reason: "safety or crime reference" },
-  { pattern: /\bfamil(y|ies)\b/i, reason: "familial-status reference" },
-  { pattern: /\b(kids?|children)\b/i, reason: "familial-status reference" },
-  { pattern: /\b(retire(e|es|d|ment)?|seniors?|55\s?\+|active adult|age[- ]restricted)\b/i, reason: "age reference" },
-  { pattern: /\b(young professionals?|millennials|boomers|snowbirds?|empty nesters?)\b/i, reason: "people as a target, not places" },
-  { pattern: /\b(best|perfect|ideal) for\b/i, reason: "steering (\"best for\")" },
-  { pattern: /\b(demographics?|household income|income level|affluent|wealthy|upscale|luxury buyers?)\b/i, reason: "income or demographic reference" },
 ];
 
 /** Hub-specific rules on top of the brokerage list. Places, never people; no figures. */
@@ -115,6 +108,8 @@ const all = [
   ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
   ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
+  // The cards to post and their captions (lib/cards/copy.ts): figures from the data, places never people.
+  ...cardStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...searchStrings().map((s) => ({ ...s, rules: ISSUE_RULES, warn: VOICE })),
 ];
 
@@ -139,11 +134,13 @@ for (const { where, text, rules, warn } of all) {
   show("✗", where, text, flags);
 }
 
-// Every other string a reader can see, through the voice rules only (the Fair Housing pass over pages is the strings above and the guides' own check).
+// Every other string a reader can see in app/, components/ and lib/: the voice rules, the brokerage's Fair Housing
+// list and places, never people (with the honest uses above set aside).
 const literals = siteLiterals(ROOT);
 for (const { where, text } of literals) {
   checked += 1;
-  const flags = hits(VOICE, text);
+  const fair = checkFairHousing(text);
+  const flags = [...(fair.passed ? [] : fair.flags), ...peopleHits(where, text), ...hits(VOICE, text)];
   if (!flags.length) continue;
   flagged += 1;
   show("✗", where, text, flags);

@@ -30,8 +30,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const venue = await getVenue(slug);
   if (!venue) return { title: "Venue not found", robots: { index: false, follow: false } };
   return pageMetadata({
-    title: `${venue.name} · ${marketName(venue.market)}`,
-    description: `${venue.name}, ${formatAddress(venue.address)}. The next shows there, and how to get there.`,
+    title: venue.name,
+    titleQualifiers: [marketName(venue.market)],
+    description: `${venue.name}, ${formatAddress(venue.address)}. The next shows there on the Encore Arts Calendar, with the dates and times the venue lists, and how to get there.`,
     path: `/venues/${venue.slug}`,
     fileImage: true, // opengraph-image.tsx beside this page
   });

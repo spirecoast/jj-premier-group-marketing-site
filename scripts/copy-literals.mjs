@@ -78,6 +78,23 @@ export function looksLikeCopy(s) {
   return true;
 }
 
+/** HTML entities as JSX text writes them (&rsquo;, &amp;, &#8217;), turned into the characters a reader sees. */
+const ENTITIES = {
+  amp: "&", apos: "'", quot: '"', lt: "<", gt: ">", nbsp: " ", rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“",
+  mdash: "—", ndash: "–", hellip: "…", middot: "·", reg: "®", copy: "©", trade: "™", times: "×", deg: "°", thinsp: " ",
+};
+export function decodeEntities(s) {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, name) => {
+    if (name[0] === "#") {
+      const code = name[1] === "x" || name[1] === "X" ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+    }
+    return ENTITIES[name.toLowerCase()] ?? whole;
+  });
+}
+
+const CODE_RUN = /[=(){}"`]|;\s*$|\?\s+[\w.$]+\s+:|^[;,:]|\b(?:import|export|const|let|return|from|type|interface|extends|keyof)\b/;
+
 /** Every string literal and JSX text run in a file, with its line. */
 export function literals(src) {
   const code = stripComments(src);
@@ -89,11 +106,21 @@ export function literals(src) {
     const text = (m[1] ?? m[2] ?? m[3] ?? "").replace(/\$\{[^}]*\}/g, "X").replace(/\\u2019/g, "’").replace(/\\(.)/g, "$1");
     if (looksLikeCopy(text)) out.push({ line: lineAt(m.index), text });
   }
-  // JSX text: between a closing > and the next <, outside braces.
+  // JSX text: between a closing > and the next <, outside braces. Entities are decoded first, so
+  // "Whether you&rsquo;re" is read as the reader sees it; a semicolon is ordinary punctuation once
+  // they're gone, and only code characters (= ( ) { }) mark a run as code.
   const jsx = />([^<>{}]*[A-Za-z][^<>{}]*)</g;
   while ((m = jsx.exec(code))) {
-    const text = m[1].replace(/\s+/g, " ").trim();
-    if (looksLikeCopy(text) && !/[=;(){}]/.test(text)) out.push({ line: lineAt(m.index), text });
+    const text = decodeEntities(m[1]).replace(/\s+/g, " ").trim();
+    if (looksLikeCopy(text) && !/[=(){}]|;\s*$/.test(text)) out.push({ line: lineAt(m.index), text });
+  }
+  // JSX text that meets an expression on either side ("a team with {site.brokerage}. We help…"). The
+  // same gaps also match code between braces (an import list, a type), so quotes, keywords and a
+  // leading semicolon or comma mark a run as code here.
+  const around = /\}([^<>{}]*[A-Za-z][^<>{}]*)(?=[<{])|>([^<>{}]*[A-Za-z][^<>{}]*)(?=\{)/g;
+  while ((m = around.exec(code))) {
+    const text = decodeEntities(m[1] ?? m[2]).replace(/\s+/g, " ").trim();
+    if (looksLikeCopy(text) && !CODE_RUN.test(text)) out.push({ line: lineAt(m.index + 1), text });
   }
   return out;
 }
