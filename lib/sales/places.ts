@@ -69,8 +69,8 @@ export function assignPlace(name: string, zips: Iterable<string>, index: PlaceNa
 export type PlaceJoin = {
   /** Each place's own sales (not its descendants'), newest first as the rows came. */
   bySlug: Map<string, Sale[]>;
-  /** Every slug's children, for the roll-up. */
-  children: Map<string, string[]>;
+  /** The places directly inside each place, for the roll-up. */
+  inside: Map<string, string[]>;
   /** The place each joined row went to. */
   slugOf: Map<Sale, string>;
 };
@@ -99,12 +99,12 @@ export function joinPlaces(rows: Sale[], places: PlaceRow[], skip: ReadonlySet<s
     bySlug.set(slug, list);
     slugOf.set(r, slug);
   }
-  const children = new Map<string, string[]>();
+  const inside = new Map<string, string[]>();
   for (const p of places) {
     if (!p.parentSlug) continue;
-    children.set(p.parentSlug, [...(children.get(p.parentSlug) ?? []), p.slug]);
+    inside.set(p.parentSlug, [...(inside.get(p.parentSlug) ?? []), p.slug]);
   }
-  return { bySlug, children, slugOf };
+  return { bySlug, inside, slugOf };
 }
 
 /** A place's sales with its descendants', newest first, each once. */
@@ -117,7 +117,7 @@ export function placeSales(join: PlaceJoin, slug: string): Sale[] {
     if (seen.has(s)) continue;
     seen.add(s);
     for (const r of join.bySlug.get(s) ?? []) out.add(r);
-    queue.push(...(join.children.get(s) ?? []));
+    queue.push(...(join.inside.get(s) ?? []));
   }
   return [...out].sort((a, b) => (a.saleDate < b.saleDate ? 1 : a.saleDate > b.saleDate ? -1 : 0));
 }
