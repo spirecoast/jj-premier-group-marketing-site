@@ -47,6 +47,33 @@ export function parseTypedStreet(input: string): { predir: string; suffix: strin
   return { predir, suffix, postdir };
 }
 const UNIT_WORDS = new Set(["unit", "apt", "ste", "suite", "bldg", "lot"]);
+/**
+ * The street as its parts, the way the county stores them: "N Tamiami Trl"
+ * → { predir: "N", name: "TAMIAMI", suffix: "TRL", postdir: "" }; "9th Ave
+ * NW" → name "9TH". The same folding as parseTypedStreet, keeping the name's
+ * words (upper-case, apostrophes and periods dropped) for a lookup in a
+ * county's parcel layer.
+ */
+export function streetParts(input: string): { predir: string; name: string; suffix: string; postdir: string } {
+  const words = input
+    .toLowerCase()
+    .replace(/[.,#]/g, " ")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length > 1 && /^\d+[a-z]?$/.test(words[0]) && !ORDINAL.test(words[0])) words.shift();
+  const unitAt = words.findIndex((w) => UNIT_WORDS.has(w));
+  if (unitAt > 0) words.splice(unitAt);
+  let postdir = "";
+  let suffix = "";
+  let predir = "";
+  if (words.length > 1 && DIR_WORDS.has(words[words.length - 1])) postdir = DIR_ABBR[words.pop() as string];
+  if (words.length > 1 && SUFFIX_WORDS.has(words[words.length - 1])) suffix = SUFFIX_ABBR[words.pop() as string] ?? "";
+  if (!postdir && words.length > 1 && DIR_WORDS.has(words[words.length - 1])) postdir = DIR_ABBR[words.pop() as string];
+  if (words.length > 1 && DIR_WORDS.has(words[0])) predir = DIR_ABBR[words.shift() as string];
+  return { predir, name: words.join(" ").toUpperCase(), suffix, postdir };
+}
+
 const ORDINAL = /^(\d+)(st|nd|rd|th)$/;
 
 /**

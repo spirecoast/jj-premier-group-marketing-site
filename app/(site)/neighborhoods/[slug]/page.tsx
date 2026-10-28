@@ -281,7 +281,12 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
                 {record.county === "Manatee" ? "Manatee County evacuation level" : "Sarasota County evacuation zone"} at the address point we checked. Zones follow property lines, so
                 confirm a specific address with the county before you count on it.
               </p>
-              {evacUrl ? <ExternalLink href={evacUrl}>Look up an address with the county ↗</ExternalLink> : null}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <Link href={"/check" as Route} className="link-rule">
+                  Check an exact address
+                </Link>
+                {evacUrl ? <ExternalLink href={evacUrl}>Look up an address with the county ↗</ExternalLink> : null}
+              </div>
             </div>
           ) : null}
         </section>

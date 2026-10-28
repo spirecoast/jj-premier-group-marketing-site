@@ -22,6 +22,7 @@ export type MastheadRoute =
   | "/tide"
   | "/tide/[issue]"
   | "/neighborhoods/match"
+  | "/check"
   | "/relocate"
   | "/sell/sold"
   | "/sell/home-value"
@@ -96,6 +97,14 @@ export const MASTHEADS: Record<MastheadRoute, MastheadSlot> = {
     photo: "library/lwr-fairways-bay-aerial",
     position: "50% 55%",
     alt: "Fairways, lakes and rooftops from the air",
+  },
+  "/check": {
+    kind: "photo",
+    family: "atlas",
+    product: "atlas-check",
+    photo: "library/palm-lined-street",
+    position: "50% 55%",
+    alt: "A street lined with palms",
   },
   "/relocate": {
     kind: "photo",

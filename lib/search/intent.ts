@@ -92,3 +92,9 @@ export function homeValueHref(i: StreetIntent): string | null {
   if (i.zip) p.set("zip", i.zip);
   return `/sell/home-value?${p}`;
 }
+
+/** The Atlas Check link for an address with its ZIP: the flood and evacuation zone for that house. */
+export function checkHref(i: StreetIntent): string | null {
+  if (!i.number || !i.zip) return null;
+  return `/check?${new URLSearchParams({ address: `${i.number} ${i.street}`, zip: i.zip })}`;
+}

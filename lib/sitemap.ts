@@ -55,6 +55,7 @@ async function pages(): Promise<Entry[]> {
     s("/tools", 0.7, "monthly"),
     s("/neighborhoods", 0.8, "weekly", DATASET_VERSION),
     s("/neighborhoods/match", 0.6, "monthly", DATASET_VERSION),
+    s("/check", 0.6, "monthly"),
     s("/buy", 0.7, "monthly"),
     s("/relocate", 0.7, "monthly"),
     s("/sell", 0.7, "monthly"),

@@ -12,6 +12,11 @@ import { EqualHousingMark } from "./equal-housing";
 import { RealtorMark } from "./realtor-mark";
 import { Wordmark } from "./wordmark";
 
+/** "See all nine": counted from the families, so a new tool changes it. */
+const COUNT_WORDS = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const toolCount = productFamilies.reduce((n, f) => n + f.items.length, 0);
+const TOOL_COUNT = COUNT_WORDS[toolCount] ?? String(toolCount);
+
 /** The three market hubs: a click on one counts as Explore {action: "hub"}. */
 const HUB_PATHS = new Set(["/lakewood-ranch", "/sarasota", "/bradenton"]);
 
@@ -158,7 +163,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
               {productFamilies.map((f) => (
                 <Column key={f.key} title={f.name} note={f.title} links={f.items} mark={<Emblem family={f.key} ink className="size-[18px]" />} />
               ))}
-              <Column title="All tools" note="Atlas, Encore and Tide" links={[{ href: "/tools", label: "See all eight" }]} />
+              <Column title="All tools" note="Atlas, Encore and Tide" links={[{ href: "/tools", label: `See all ${TOOL_COUNT}` }]} />
             </div>
           </div>
         </div>
