@@ -7,6 +7,8 @@ import { Chip, ChipGroup } from "@/components/ui/chip";
 import { Checkbox, Field, Input } from "@/components/ui/field";
 import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepDirection, useStepFocus } from "@/components/ui/stepper";
 import { LeadForm } from "@/components/lead-form";
+import { KeepEmail, KeepPrintButton } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 import { ShareButton } from "@/components/share-button";
 import { track } from "@/lib/analytics";
 import { MARKETS, marketName } from "@/lib/content/markets";
@@ -293,6 +295,7 @@ export function VisitPlan({
       </section>
 
       {/* The plan: a summary, the days at a glance, then each day. */}
+      <KeepSheet tool="encore-planner" url={planHref(applied)}>
       <section id="plan" className="container-site flex scroll-mt-header flex-col gap-10 py-section" aria-labelledby="plan-days-title" aria-busy={!covered}>
         {!covered ? (
           <SeasonWait error={season.error} onRetry={season.retry} />
@@ -385,6 +388,7 @@ export function VisitPlan({
         )}
         <p className="t-note">Times and prices come from each venue’s own listing. Check with the venue before you go.</p>
       </section>
+      </KeepSheet>
 
       {/* Take it with you */}
       <section className="border-y border-hairline bg-sky-50" aria-labelledby="plan-export-title">
@@ -408,6 +412,8 @@ export function VisitPlan({
             <RuleButton onClick={copyLink} aria-live="polite">
               {copied ? "Link copied" : "Copy the link"}
             </RuleButton>
+            <KeepPrintButton tool="encore-planner" variant="rule" />
+            <KeepEmail tool="encore-planner" url={planHref(applied)} />
           </div>
         </div>
       </section>

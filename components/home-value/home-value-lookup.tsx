@@ -1,6 +1,8 @@
 "use client";
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { KeepRow } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 import { LeadForm } from "@/components/lead-form";
 import { SalesTable, fmtDate, int, saleFlagged, titleCase, typeLabel, usd, type SaleRow, type SalesSummary } from "@/components/sales/sales-table";
 import { SectionHeading } from "@/components/section-heading";
@@ -140,6 +142,8 @@ export function HomeValueLookup({ loaded, asOf, counties, months, through = [], 
   const shownAddress = state.searched ? displayAddress(state.searched.address, state.searched.zip) : "";
   const last = data?.parcel?.rows[0] ?? null;
   const earlier = data?.parcel?.rows.slice(1) ?? [];
+  // The address goes into a link only to keep the result (print, email), never into the address bar.
+  const keepUrl = state.searched ? `/sell/home-value?${new URLSearchParams(state.searched.zip ? { address: state.searched.address, zip: state.searched.zip } : { address: state.searched.address })}` : undefined;
 
   return (
     <>
@@ -208,7 +212,7 @@ export function HomeValueLookup({ loaded, asOf, counties, months, through = [], 
           ) : null}
 
           {data ? (
-            <>
+            <KeepSheet tool="tide-home-value" url={keepUrl} className="flex flex-col gap-14">
               {/* 01 · The street. */}
               <div className="flex flex-col gap-6 border-t border-hairline pt-8">
                 <SectionHeading title={C.street.title(months)} />
@@ -294,7 +298,8 @@ export function HomeValueLookup({ loaded, asOf, counties, months, through = [], 
                   </div>
                 )}
               </div>
-            </>
+              <KeepRow tool="tide-home-value" url={keepUrl} className="border-t border-hairline pt-8" />
+            </KeepSheet>
           ) : null}
         </div>
       </section>

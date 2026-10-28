@@ -230,6 +230,28 @@ sideways; the phone action bar, its chip, the bottom sheets and the explorer's s
 inset, and the explorer's sheet and map controls the side insets. Check a change to any fixed or
 full-bleed element in landscape on a notched phone.
 
+## Keeping a result: print, PDF, email
+
+Every tool's result can be kept (`components/keep/*`, `lib/keep/*`): Atlas Move's plan, Atlas
+Match's list, the Encore Planner's plan, Tide Street's sales, the home value record, the Sale
+Calculator's sheet and a Tide issue. The result sits in `KeepSheet`, which on screen is nothing and
+in print is the whole page (`components/keep/keep.css` hides everything that neither holds the sheet
+nor sits inside it): headed with the product's lockup, the day it was made and the site, footed with
+the tool's own source line (`KEEP_TOOLS` in `lib/keep/tools.ts`, sentences the tools already say),
+the two of us by name and number, and a QR code of the link that opens the same result. A fold
+marked `data-keep-open` (Tide Street's table) prints open. "Save as PDF" is the browser's print
+dialog, so the PDF is exactly the screen's result, on US Letter. Each tool keeps its own buttons and
+gains Print where it had none (`KeepPrintButton`, `KeepRow`) and "Email me this" (`KeepEmail`),
+which shows only when `/api/keep/status` says the email path is on (docs/INTEGRATIONS.md, "Email
+me this").
+
+Why not separate `/print/<tool>` routes taking the query string: the tools compute in the browser,
+and two of them (Tide Street, the home value record) deliberately keep the typed street and
+address out of the address bar, so a server route couldn't rebuild them without putting the address
+in a URL the CRM pixel reads; and a second renderer per tool would drift from the screen. A
+server-side PDF would need a headless browser on Vercel. The guides' PDFs stay as they are
+(`app/(print)`).
+
 ## The buyer's and seller's guides as a checklist
 
 `/buy` and `/sell` keep their long editorial form (`components/guide.tsx`); the steps' words are

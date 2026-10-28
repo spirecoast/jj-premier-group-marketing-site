@@ -4,6 +4,8 @@ import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { RuleLink } from "@/components/ui/button";
 import { startSheetPath } from "@/lib/net-proceeds-url";
 import { SectionHeading } from "@/components/section-heading";
+import { KeepEmail, KeepPrintButton } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 import { ShareButton } from "@/components/share-button";
 import { parseHouseNumber } from "@/lib/sales/parcel";
 import { pushRecent, readRecent, recentEntry, writeRecent, type RecentSearch } from "@/lib/sales/recent";
@@ -371,7 +373,8 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
           ) : null}
 
           {data && data.rows.length > 0 ? (
-            <div className="flex flex-col gap-8 border-t border-hairline pt-6">
+            <KeepSheet tool="tide-street" url={shareUrl}>
+            <div className="flex flex-col gap-8 border-t border-hairline pt-6 print:border-0 print:pt-0">
               {/* The house, when a number was typed and the roll has it. */}
               {data.parcel ? (
                 parcelLast ? (
@@ -420,7 +423,11 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                     </h2>
                     <p className="t-note max-w-none">{data.match === "area" && data.place ? C.results.areaNote(data.place.zips) : headerThrough}</p>
                   </div>
-                  <ShareButton title={C.title} url={shareUrl} what="sold-street" label={C.share} />
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-3 print:hidden">
+                    <ShareButton title={C.title} url={shareUrl} what="sold-street" label={C.share} />
+                    <KeepPrintButton tool="tide-street" variant="rule" label="Print" />
+                    <KeepEmail tool="tide-street" url={shareUrl} />
+                  </div>
                 </div>
                 {data.place && data.match !== "area" ? <PlaceChip place={data.place} onPick={runPlace} /> : null}
               </div>
@@ -475,7 +482,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
               ) : null}
 
               {/* The whole table, behind its disclosure, 25 rows at a time. */}
-              <details className="street-table flex flex-col gap-5 border-t border-hairline" open={tableOpen} onToggle={(e) => setTableOpen((e.currentTarget as HTMLDetailsElement).open)} data-street-table="">
+              <details className="street-table flex flex-col gap-5 border-t border-hairline" data-keep-open="" open={tableOpen} onToggle={(e) => setTableOpen((e.currentTarget as HTMLDetailsElement).open)} data-street-table="">
                 <summary className="flex min-h-14 items-center justify-between gap-4 py-3">
                   <span className="t-h3 text-navy">{C.results.allSales(int.format(data.total))}</span>
                   <svg className="street-table-chevron shrink-0 text-navy" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
@@ -510,6 +517,7 @@ export function SoldSearch({ loaded, asOf, counties, months, windowStart, throug
                 </p>
               </div>
             </div>
+            </KeepSheet>
           ) : null}
         </div>
       </section>

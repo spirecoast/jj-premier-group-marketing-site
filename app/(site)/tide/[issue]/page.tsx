@@ -12,6 +12,8 @@ import { MarketChapter } from "@/components/tide/market-chapter";
 import { Moves } from "@/components/tide/moves";
 import { SinceThen } from "@/components/tide/since-then";
 import { ReaderClose } from "@/components/tide/reader-close";
+import { KeepRow } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 import { TeamNotes } from "@/components/tide/team-notes";
 import { ArrivedFrom } from "@/components/arrived-from";
 import { getEvent, getTeam } from "@/lib/content";
@@ -134,6 +136,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         ])}
       />
 
+      <KeepSheet tool="tide-issue" title={model.issueLabel}>
       <article id="tide-issue" className="flex flex-col">
         {/* 1. The cover */}
         <TideCover model={model} contents={contents} team={team.map((m) => ({ name: m.name, headshot: m.headshot }))} />
@@ -261,7 +264,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
 
         {/* 9. Out this month, from the Encore calendar */}
         {events.length ? (
-          <section className="bg-parchment" aria-labelledby="encore-title">
+          <section className="bg-parchment print:hidden" aria-labelledby="encore-title">
             <div className="container-site flex flex-col gap-10 py-section">
               <SectionHeading
                 title={<span id="encore-title">{W.encoreHeading}</span>}
@@ -285,7 +288,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         ) : null}
 
         {/* 10. Read next: the guides published that month */}
-        <section className="container-site flex flex-col gap-10 py-section" aria-labelledby="guides-title">
+        <section className="container-site flex flex-col gap-10 py-section print:hidden" aria-labelledby="guides-title">
           <SectionHeading
             title={<span id="guides-title">{W.guidesHeading}</span>}
             titleClassName="t-h2"
@@ -312,7 +315,13 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           )}
         </section>
 
+        {/* Keep the issue: print it, save it as a PDF, or have the link emailed. */}
+        <div className="container-site pb-14 print:hidden">
+          <KeepRow tool="tide-issue" className="border-t border-rule pt-8" />
+        </div>
+
         {/* The ask; for a reader who came from the email, their own street instead. */}
+        <div className="print:hidden">
         <ArrivedFrom
           list="tide"
           reader={<ReaderClose title={model.title} />}
@@ -330,6 +339,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
             </section>
           }
         />
+        </div>
 
         {/* 11. Method and sources */}
         <section className="container-site py-14 lg:py-16" aria-labelledby="method-title">
@@ -348,6 +358,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
           </div>
         </section>
       </article>
+      </KeepSheet>
     </>
   );
 }

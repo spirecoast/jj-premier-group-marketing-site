@@ -9,8 +9,21 @@ import { createContext, useContext, type ReactNode } from "react";
  */
 const Ctx = createContext<string | null>(null);
 
-export function SiteContactProvider({ phoneE164, children }: { phoneE164: string; children: ReactNode }) {
-  return <Ctx.Provider value={phoneE164}>{children}</Ctx.Provider>;
+/** The two of us by name and number, for the foot of a printed result (components/keep). */
+export type TeamContact = { name: string; phone: string };
+const TeamCtx = createContext<TeamContact[]>([]);
+
+export function SiteContactProvider({ phoneE164, team = [], children }: { phoneE164: string; team?: TeamContact[]; children: ReactNode }) {
+  return (
+    <Ctx.Provider value={phoneE164}>
+      <TeamCtx.Provider value={team}>{children}</TeamCtx.Provider>
+    </Ctx.Provider>
+  );
+}
+
+/** The team's names and numbers, or none outside the site layout. */
+export function useSiteTeam(): TeamContact[] {
+  return useContext(TeamCtx);
 }
 
 /** The main number in E.164, or null outside the site layout. */

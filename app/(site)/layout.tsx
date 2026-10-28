@@ -49,7 +49,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main id="main">
         {/* A route change cross-fades the old page into the new one. The header,
             footer and action bar sit outside the boundary and stay put. */}
-        <SiteContactProvider phoneE164={settings.primaryPhoneE164}>
+        <SiteContactProvider phoneE164={settings.primaryPhoneE164} team={team.map((m) => ({ name: m.name, phone: m.phone }))}>
           <PageTransition>{children}</PageTransition>
         </SiteContactProvider>
       </main>
