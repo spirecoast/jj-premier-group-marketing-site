@@ -10,6 +10,7 @@ import type { Bounds } from "@/lib/neighborhoods/bounds";
 import { MAP_COLORS } from "@/lib/neighborhoods/map-style";
 import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import type { MapView } from "@/lib/neighborhoods/url";
+import { easeBrand } from "@/lib/motion/number";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import "./explorer.css";
 
@@ -98,6 +99,14 @@ function addPlaceLayers(m: MapLibreMap, state: { entries: IndexEntry[]; selected
       "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 9, 1.5, 14, 2.5],
     },
   });
+  // The hover pulse: a ring that grows out of the hovered place once (hoverPulse below) and fades. Still until then.
+  m.addLayer({
+    id: "place-hover-pulse",
+    type: "circle",
+    source: SOURCE,
+    filter: ["==", ["get", "slug"], ""],
+    paint: { "circle-color": c.sky, "circle-radius": 0, "circle-opacity": 0 },
+  });
   m.addLayer({
     id: "place-hover",
     type: "circle",
@@ -175,6 +184,13 @@ function addPlaceLayers(m: MapLibreMap, state: { entries: IndexEntry[]; selected
   m.setFilter("place-selected", ["==", ["get", "slug"], state.selected ?? ""]);
   m.setFilter("place-selected-pulse", ["==", ["get", "slug"], state.selected ?? ""]);
   m.setFilter("place-hover", ["==", ["get", "slug"], state.hover ?? ""]);
+  m.setFilter("place-hover-pulse", ["==", ["get", "slug"], state.hover ?? ""]);
+}
+
+/** The hover disc's radius at this zoom (the place-hover layer's own ramp), so the pulse starts from its edge. */
+function hoverRadius(zoom: number): number {
+  const k = Math.min(1, Math.max(0, (zoom - 9) / 6));
+  return 6 + k * 5;
 }
 
 /**
@@ -335,11 +351,34 @@ export function ExplorerMap({ entries, selected, hover, initialView, initialBoun
     };
   }, [selected, reduced]);
 
+  // Hover: the still disc, and once, a ring that grows from it to 1.6× and fades over 600 ms on the brand
+  // curve, so a row under the pointer finds its place on the map (the row itself raises through .is-hover
+  // when the pointer is on the marker). No ring for a visitor who asked for reduced motion.
   useEffect(() => {
     const m = map.current;
     if (!m || !layers.current) return;
-    m.setFilter("place-hover", ["==", ["get", "slug"], hover ?? ""]);
-  }, [hover]);
+    const f: maplibregl.FilterSpecification = ["==", ["get", "slug"], hover ?? ""];
+    m.setFilter("place-hover", f);
+    m.setFilter("place-hover-pulse", f);
+    if (!hover || reduced) {
+      m.setPaintProperty("place-hover-pulse", "circle-opacity", 0);
+      return;
+    }
+    const r0 = hoverRadius(m.getZoom());
+    const start = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - start) / 600);
+      const e = easeBrand(k);
+      if (layers.current) {
+        m.setPaintProperty("place-hover-pulse", "circle-radius", r0 * (1 + 0.6 * e));
+        m.setPaintProperty("place-hover-pulse", "circle-opacity", 0.4 * (1 - e));
+      }
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [hover, reduced]);
 
   // Fit / fly requests. A visitor who asked for reduced motion gets the same view without the flight.
   useEffect(() => {

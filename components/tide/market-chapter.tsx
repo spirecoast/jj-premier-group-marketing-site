@@ -5,6 +5,7 @@ import { monthLabel } from "@/lib/issues/render";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { TIDE_WEB_COPY as W } from "@/lib/tide/copy";
 import { num, usd, type IssueMarket } from "@/lib/tide/issue";
+import { LivingNumber } from "@/components/motion/living-number";
 import { Photo } from "@/components/photo";
 import { MARKETS } from "@/lib/content/markets";
 import { HomeMix } from "./home-mix";
@@ -24,7 +25,9 @@ function Stat({ label, value, lines }: { label: string; value: string; lines: st
   return (
     <div className="flex flex-col gap-2 border-t border-hairline pt-4 sm:pt-5">
       <dt className="t-label text-linen-700">{label}</dt>
-      <dd className="font-mono text-[clamp(1.625rem,1.2rem+1.2vw,2.25rem)] leading-none font-medium tracking-[-0.01em] text-navy tabular-nums">{value}</dd>
+      <dd className="font-mono text-[clamp(1.625rem,1.2rem+1.2vw,2.25rem)] leading-none font-medium tracking-[-0.01em] text-navy tabular-nums">
+        <LivingNumber text={value} />
+      </dd>
       {lines.map((l) => (
         <dd key={l} className="t-record text-graphite-600">
           {l}
