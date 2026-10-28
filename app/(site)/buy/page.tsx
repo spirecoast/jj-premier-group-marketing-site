@@ -223,7 +223,7 @@ export default async function BuyPage() {
       {/* The first screen offers a choice: the listings, the move, the neighborhoods. The ten steps follow for anyone who scrolls. */}
       <GuideNext title="Where to start" links={NEXT} />
 
-      <GuideSteps steps={STEPS} label="Buying, step by step" />
+      <GuideSteps steps={STEPS} label="Buying, step by step" checklist="buy" tools={{ 1: "atlas-match", 2: "tide-sale-calculator", 7: "tide-street", 10: "atlas-move" }} />
 
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
 

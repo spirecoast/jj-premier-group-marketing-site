@@ -230,6 +230,23 @@ sideways; the phone action bar, its chip, the bottom sheets and the explorer's s
 inset, and the explorer's sheet and map controls the side insets. Check a change to any fixed or
 full-bleed element in landscape on a notched phone.
 
+## The buyer's and seller's guides as a checklist
+
+`/buy` and `/sell` keep their long editorial form (`components/guide.tsx`); the steps' words are
+the owners' and nothing here changes them. Under each step's words sit two things:
+
+- **The tool for that step**, where one does its work (`tools` on `GuideSteps`, by product id from
+  `lib/site.ts`, named with the product's own label and short line). Buy: 1 Atlas Match, 2 the
+  Sale Calculator, 7 Tide Street, 10 Atlas Move. Sell: 2 Tide Street, 8 the Sale Calculator.
+- **The reader's checklist** (`components/guide-checklist.tsx`, pure logic in
+  `lib/guide-checklist.ts` with its tests): "Mark this step done" records the day it was marked,
+  "Add a date" sets the day they mean to have it done by. Kept in this browser only
+  (`guide:buy`, `guide:sell`), keyed by step number so a rewrite of a step's words keeps everyone's
+  place. Once anything is marked, "Your checklist" after the steps says how many are done and
+  which is next, offers "Add the dates to my calendar" (an ICS of the dated steps not yet done,
+  built in the browser with `lib/ics.ts`'s rules, one all-day event per step linking back to it)
+  and "Clear my checklist". Nothing is collapsed or hidden; nothing leaves the device.
+
 ## The tools and the address bar
 
 The tool pages (`/neighborhoods`, `/neighborhoods/match`, `/calendar`, `/calendar/plan`,

@@ -202,7 +202,7 @@ export default async function SellPage() {
       <JsonLd data={faqJsonLd(FAQS)} />
       <GuideHero title="Seller’s guide" image={FRAMES.hero} />
 
-      <GuideSteps steps={STEPS} label="Selling, step by step" />
+      <GuideSteps steps={STEPS} label="Selling, step by step" checklist="sell" tools={{ 2: "tide-street", 8: "tide-sale-calculator" }} />
 
       <GuideNext title="The public record first" links={NEXT} />
 
