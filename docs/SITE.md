@@ -209,6 +209,27 @@ off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
 - During a route change React waits up to 500 ms (its own cap) for the new page's in-view images
   and fonts, so a page never fades in with holes. Initial loads are untouched.
 
+## On the home screen
+
+`app/manifest.ts` is the web app manifest (`/manifest.webmanifest`, linked from every page): name
+JJ Premier Group, short name "JJ Premier", standalone, navy ground, the brand seal as the icon (the
+`favicon-192`/`favicon-512` seal, and `icon-maskable-192`/`-512`, the same seal on a full navy square
+inside Android's safe zone). It opens on Encore (`/calendar?source=pwa`, so Plausible shows the
+home screen as a source), with Encore, Atlas, Tide and "Call or text us" (the contact page) as
+long-press shortcuts. No service worker: nothing claims to work offline. `appleWebApp` in
+`app/layout.tsx` names it for iOS. Once someone has saved two shows, Encore's My list shows a quiet
+"Keep Encore on your phone" row (`components/encore/keep-on-phone.tsx`): the browser's own install
+prompt on Android and desktop Chromium, one line about Share → Add to Home Screen on an iPhone or
+iPad; never inside the installed app, and not again once dismissed on that device
+(`encore:keep-on-phone`).
+
+The viewport is `viewport-fit=cover`, so the page runs under a notch and the home indicator and the
+`env(safe-area-inset-*)` terms are real: `--gutter` (`styles/tokens.css`) is never narrower than
+the side insets, so every container, the header and the phone menu clear a notch on a phone held
+sideways; the phone action bar, its chip, the bottom sheets and the explorer's sheet pad the bottom
+inset, and the explorer's sheet and map controls the side insets. Check a change to any fixed or
+full-bleed element in landscape on a notched phone.
+
 ## The tools and the address bar
 
 The tool pages (`/neighborhoods`, `/neighborhoods/match`, `/calendar`, `/calendar/plan`,

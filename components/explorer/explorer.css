@@ -73,6 +73,16 @@
     border-bottom: 0;
     box-shadow: 0 -18px 50px -24px rgba(30, 52, 66, 0.35);
   }
+  /* Edge to edge (viewport-fit=cover): on a phone held sideways the sheet's
+     words stay clear of the notch, and its last row clears the home
+     indicator when the site runs from the home screen. 0 everywhere else. */
+  @media (max-width: 63.99rem) {
+    .explorer-panel {
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+  }
   .explorer[data-sheet="peek"] .explorer-panel { --sheet-y: 58%; }
   .explorer[data-sheet="half"] .explorer-panel { --sheet-y: 36%; }
   .explorer[data-sheet="full"] .explorer-panel { --sheet-y: 12px; }
@@ -398,7 +408,13 @@
 }
 .explorer .maplibregl-ctrl-top-right {
   top: 0.75rem;
-  right: 0.75rem;
+  right: calc(0.75rem + env(safe-area-inset-right, 0px));
+}
+.explorer .maplibregl-ctrl-bottom-right {
+  right: env(safe-area-inset-right, 0px);
+}
+.explorer .maplibregl-ctrl-bottom-left {
+  left: env(safe-area-inset-left, 0px);
 }
 .explorer .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group {
   margin-right: 1rem;
