@@ -11,7 +11,7 @@
  * Removes their form submissions (leads, with lead_deliveries and anything
  * else that hangs off a lead), their contacts rows (with their events), their
  * newsletter subscriptions and the record of every newsletter email sent to
- * them. Where someone else referred them, their name, email, phone and the
+ * them, and their Street Watch watches and digest records. Where someone else referred them, their name, email, phone and the
  * note about them are scrubbed from the referrer's lead and event, and the
  * referrer's own record stays. One row goes into `erasures` (migration 0016)
  * with the date, the counts and a SHA-256 of the address and number, never
@@ -75,6 +75,19 @@ async function main() {
       counts.deliveries = deliveries.length;
       const subscriptions = await tx`delete from newsletter_subscriptions where ${byEmail("email")} returning id`;
       counts.subscriptions = subscriptions.length;
+
+      // Street Watch (migration 0018): in a savepoint, so a database without those tables yet still erases the rest.
+      try {
+        await tx.savepoint(async (sp) => {
+          const digests = await sp`delete from street_watch_digests where ${byEmail("email")} returning id`;
+          const watches = await sp`delete from street_watches where ${byEmail("email")} returning id`;
+          counts.watchDigests = digests.length;
+          counts.watches = watches.length;
+        });
+      } catch {
+        counts.watches = 0;
+        counts.watchDigests = 0;
+      }
 
       if (contactIds.length) {
         const removed = await tx`delete from contacts where id = any(${contactIds}::uuid[]) returning id`;

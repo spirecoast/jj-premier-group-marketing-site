@@ -193,7 +193,14 @@ without a database), and the team email's subject starts "Returning lead" when
 it isn't 0. A ticked call/text box with no phone number records no consent and
 is tagged `consent:sms-no-phone`.
 `form` is one of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`,
-`calendar`, `referral` (`/refer`) and `review-permission` (`/reviews`).
+`calendar`, `referral` (`/refer`), `review-permission` (`/reviews`) and `watch`
+(Street Watch, the "Watch this street" and "Watch this place" buttons; email
+only, like the Tide bar). A `watch` lead carries `watch`: `kind` (`street` or
+`place`), `label` ("Lilac Sky Ter · 34211" or the place's name), `street` and
+`zip` (the street as the county spells it) or `place` (the Atlas slug), and
+`url` (Tide Street on it). It's a warm signal: the person is following sales
+there. The field is absent on every other form. Tag a Zap's contact with it if
+the CRM allows (docs/ISSUES.md, "Street Watch").
 `referral` is set on a referral from `/refer` and `null` otherwise. The lead's
 own `firstName`, `lastName`, `email` and `phone` are the **referrer's**; the
 person who is moving is under `referral`: `firstName`, `lastName`, `email`,

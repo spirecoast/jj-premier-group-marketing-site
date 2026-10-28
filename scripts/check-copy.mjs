@@ -45,6 +45,7 @@ import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
 import { newsletterStrings } from "../lib/newsletter/copy.ts";
+import { watchStrings } from "../lib/watch/copy.ts";
 import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads/constants.ts";
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
 import { referStrings } from "../lib/refer/copy.ts";
@@ -110,6 +111,7 @@ const all = [
   ...issueStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   // The subscriber emails and their pages: the issue rules and places, never people.
   ...newsletterStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
+  ...watchStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
   ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),

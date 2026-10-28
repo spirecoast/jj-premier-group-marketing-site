@@ -43,6 +43,10 @@
     {
       "path": "/api/cron/lead-redeliver",
       "schedule": "37 15 * * *"
+    },
+    {
+      "path": "/api/cron/street-watch",
+      "schedule": "11 14 * * *"
     }
   ]
 }

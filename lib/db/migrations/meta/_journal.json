@@ -127,6 +127,13 @@
       "when": 1793289600000,
       "tag": "0017_places_visitors",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793376000000,
+      "tag": "0018_street_watch",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,7 @@ import { PlacePoster } from "@/components/place-poster";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { SavePlaceButton } from "@/components/atlas/save-place";
+import { PlaceSales } from "@/components/sales/place-sales";
 import { ShareButton } from "@/components/share-button";
 import { getNeighborhood, getNeighborhoodSlugs, getUpcomingEvents } from "@/lib/content";
 import { cardEndsAt } from "@/lib/encore/fresh";
@@ -240,6 +241,9 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
           </dl>
         </section>
       ) : null}
+
+      {/* What sold here: county figures joined by subdivision, or the ZIP area, with Street Watch. */}
+      {record ? <PlaceSales slug={slug} name={name} /> : null}
 
       {record && (record.zonedSchools || record.evacuationZone) && record.level !== "area" ? (
         <section className="container-site grid gap-8 pb-section lg:grid-cols-2 lg:gap-12" aria-label="Schools and evacuation zone">

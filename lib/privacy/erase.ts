@@ -49,6 +49,8 @@ export const ERASE_TABLES: [key: string, label: string][] = [
   ["events", "other events naming this person, scrubbed"],
   ["subscriptions", "newsletter subscriptions"],
   ["deliveries", "newsletter email records"],
+  ["watches", "Street Watch watches"],
+  ["watchDigests", "Street Watch digest records"],
 ];
 
 /** The text a person can be sent: what was done, when, and what is held elsewhere. */

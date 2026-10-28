@@ -367,6 +367,11 @@ Places cap (section 6, `GOOGLE_MAPS_API_KEY`). Before it's applied the site logs
 missing and only the site-wide cap applies. Check: `select count(*) from places_visitors;` answers a
 number, not an error.
 
+`0018_street_watch.sql` (additive: `street_watches`, `street_watch_digests`) turns on Street Watch
+(docs/ISSUES.md, "Street Watch"). Before it's applied the Watch buttons still record the lead and the
+team email, and the logs say once that the table is missing. Check: `select count(*) from
+street_watches;` answers a number, not an error.
+
 ### 4.4 Confirm the tables
 
 The lead mirror writes to `leads` and `lead_deliveries`, with the person and their consent in

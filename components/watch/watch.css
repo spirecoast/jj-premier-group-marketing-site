@@ -1,0 +1,45 @@
+/* Street Watch: the Watch button and its box (components/watch/watch-button.tsx). Figma 05 Tide, "Watch". */
+@layer components {
+  .watch-box {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 520px;
+    padding: 1.5rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 48rem) {
+    .watch-box { padding: 2rem; }
+  }
+  /* The 48px underline field with a navy rule; the rule thickens in Tide's ink on focus. */
+  .watch-input.field-input {
+    min-height: 3rem;
+    border-bottom-color: var(--color-navy);
+  }
+  .watch-input.field-input:focus {
+    border-bottom-color: var(--color-tide-ink);
+    box-shadow: 0 1px 0 0 var(--color-tide-ink);
+  }
+  .watch-input.field-input[aria-invalid="true"] {
+    border-bottom-color: var(--color-danger);
+  }
+  .watch .field:focus-within .field-label {
+    color: var(--color-tide-ink);
+  }
+  .watch-btn[aria-busy="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  /* The box opens in place: a short rise, nothing for anyone who asked for less motion. */
+  .watch-box[data-entering] {
+    animation: watch-rise var(--dur-card) var(--ease-reveal) both;
+  }
+  @keyframes watch-rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .watch-box[data-entering] { animation: none; }
+  }
+}

@@ -157,6 +157,11 @@ const nextConfig: NextConfig = {
     "/search": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.json"],
     "/api/search": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.json"],
     "/api/search/reindex": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.json"],
+    // "What sold nearby" on a place page and the compare table's sales row join the county data to Atlas places.
+    "/neighborhoods/[slug]": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.search.json", "./neighborhood-data/data/neighborhoods.json"],
+    "/neighborhoods/compare": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.search.json", "./neighborhood-data/data/neighborhoods.json"],
+    // Street Watch's daily digest reads the new sales and the place join.
+    "/api/cron/street-watch": ["./data/sales/**", "./neighborhood-data/data/neighborhoods.search.json", "./neighborhood-data/data/neighborhoods.json"],
   },
   images: {
     // AVIF first, WebP for browsers without it; sources stay JPEG in public/images.

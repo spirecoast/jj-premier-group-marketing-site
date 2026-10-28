@@ -190,6 +190,18 @@ record should be a fact about the property or the transaction.
   `city:<zip>-<zip>`. The matcher is `lib/sales/area.ts`; the route reads the
   Atlas search index through `lib/neighborhoods/data.ts`, so `next.config.ts`
   traces it for `/api/sales`.
+- **Joined to places** (`lib/sales/places.ts`, `lib/sales/similar.ts`, tests in
+  `lib/sales/places.test.ts`). Each row's `subdivision` and `nbhd` are matched to Atlas places by
+  name (docs/SITE.md, "What sold here"); `salesForPlace(slug)` gives a place's own sales and its
+  ZIP area, for its page and the compare table. On a street result `/api/sales` adds `places` (the
+  Atlas places the street's sales belong to, then the areas its ZIP is in; Tide Street links them
+  under the result) and, for a street with fewer than three sales, `alsoIn` (the other sales in its
+  subdivision). With a house number and a parcel on the record it adds `similar`: the same kind of
+  home within 20% of its living area, roll facts as paid for, sold in the twelve months before the
+  county's newest sale, nearest first within half a mile (widening to one and two miles until there
+  are three) when the parcel has coordinates, else in the same subdivision, else the same ZIP. Home
+  Value shows them as evidence beside the house, never as a number for it. Coordinates never leave
+  the server; a similar row carries its distance to a tenth of a mile.
 - Tide Street draws every row on a timeline (`lib/sales/timeline.ts`,
   `components/sales/sales-timeline.tsx`): date across, price up, resales
   filled and new builds and lots hollow, the chosen group's median as a
@@ -203,6 +215,13 @@ record should be a fact about the property or the transaction.
 - `next.config.ts` lists `data/sales/**` in `outputFileTracingIncludes`
   for the route and the page so the files ship with the serverless
   functions.
+
+## Street Watch
+
+`new-sales.json.gz` feeds Street Watch (docs/ISSUES.md, "Street Watch"): after a refresh is merged
+and deployed, the daily `/api/cron/street-watch` run emails each confirmed watcher the new sales on
+their street or in their place. `getNewSales`, `placeMatcher`, `streetSales` and `throughDates` in
+`lib/sales` are its inputs.
 
 ## Limitations
 

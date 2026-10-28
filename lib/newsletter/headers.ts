@@ -21,6 +21,25 @@ export type UnsubscribeLinks = { list: string; all: string; oneClick: string };
 /** The value the subscription id is signed as, so a subscription link and a contact link can't stand in for each other. */
 export const subscriptionSigningId = (subscriptionId: string) => `sub:${subscriptionId}`;
 
+/** The same for a Street Watch (lib/watch), so its link can't stand in for a subscription's. */
+export const watchSigningId = (watchId: string) => `watch:${watchId}`;
+
+/**
+ * A Street Watch's links: `w=<watch id>`, `list=watch` stops that watch,
+ * `list=watches` every watch on the address (the one-click header, since a
+ * digest can cover several), `list=all` everything.
+ */
+export function watchUnsubscribeLinks(siteUrl: string, watchId: string, sig: string): { one: string; watches: string; all: string; oneClick: string } {
+  const base = siteUrl.replace(/\/$/, "");
+  const q = (l: string) => `w=${encodeURIComponent(watchId)}&sig=${encodeURIComponent(sig)}&list=${l}`;
+  return {
+    one: `${base}/unsubscribe?${q("watch")}`,
+    watches: `${base}/unsubscribe?${q("watches")}`,
+    all: `${base}/unsubscribe?${q("all")}`,
+    oneClick: `${base}/api/newsletter/unsubscribe?${q("watches")}`,
+  };
+}
+
 export function unsubscribeLinks(siteUrl: string, subscriptionId: string, sig: string, list: NewsletterList): UnsubscribeLinks {
   const base = siteUrl.replace(/\/$/, "");
   const q = (l: string) => `s=${encodeURIComponent(subscriptionId)}&sig=${encodeURIComponent(sig)}&list=${l}`;
