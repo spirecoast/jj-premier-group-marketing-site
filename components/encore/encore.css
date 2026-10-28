@@ -657,6 +657,23 @@
   .encore-agenda-save {
     flex: none;
   }
+  /* Nearby on a Planner pick: the pin and its word, so dinner, drinks and hotels are easy to find. */
+  .encore-near {
+    min-height: 2.75rem;
+  }
+  .encore-near.is-open {
+    border-color: var(--color-navy);
+    background: var(--color-linen-100);
+  }
+  @media (max-width: 640px) {
+    .encore-near {
+      width: 2.75rem;
+      padding: 0;
+    }
+    .encore-near-label {
+      display: none;
+    }
+  }
   @media (max-width: 640px) {
     .encore-agenda-link {
       flex-direction: column;
