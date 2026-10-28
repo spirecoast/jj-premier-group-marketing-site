@@ -209,6 +209,66 @@ off for anyone who asked for reduced motion (`lib/use-reduced-motion.ts`):
 - During a route change React waits up to 500 ms (its own cap) for the new page's in-view images
   and fonts, so a page never fades in with holes. Initial loads are untouched.
 
+## On the home screen
+
+`app/manifest.ts` is the web app manifest (`/manifest.webmanifest`, linked from every page): name
+JJ Premier Group, short name "JJ Premier", standalone, navy ground, the brand seal as the icon (the
+`favicon-192`/`favicon-512` seal, and `icon-maskable-192`/`-512`, the same seal on a full navy square
+inside Android's safe zone). It opens on Encore (`/calendar?source=pwa`, so Plausible shows the
+home screen as a source), with Encore, Atlas, Tide and "Call or text us" (the contact page) as
+long-press shortcuts. No service worker: nothing claims to work offline. `appleWebApp` in
+`app/layout.tsx` names it for iOS. Once someone has saved two shows, Encore's My list shows a quiet
+"Keep Encore on your phone" row (`components/encore/keep-on-phone.tsx`): the browser's own install
+prompt on Android and desktop Chromium, one line about Share → Add to Home Screen on an iPhone or
+iPad; never inside the installed app, and not again once dismissed on that device
+(`encore:keep-on-phone`).
+
+The viewport is `viewport-fit=cover`, so the page runs under a notch and the home indicator and the
+`env(safe-area-inset-*)` terms are real: `--gutter` (`styles/tokens.css`) is never narrower than
+the side insets, so every container, the header and the phone menu clear a notch on a phone held
+sideways; the phone action bar, its chip, the bottom sheets and the explorer's sheet pad the bottom
+inset, and the explorer's sheet and map controls the side insets. Check a change to any fixed or
+full-bleed element in landscape on a notched phone.
+
+## Keeping a result: print, PDF, email
+
+Every tool's result can be kept (`components/keep/*`, `lib/keep/*`): Atlas Move's plan, Atlas
+Match's list, the Encore Planner's plan, Tide Street's sales, the home value record, the Sale
+Calculator's sheet and a Tide issue. The result sits in `KeepSheet`, which on screen is nothing and
+in print is the whole page (`components/keep/keep.css` hides everything that neither holds the sheet
+nor sits inside it): headed with the product's lockup, the day it was made and the site, footed with
+the tool's own source line (`KEEP_TOOLS` in `lib/keep/tools.ts`, sentences the tools already say),
+the two of us by name and number, and a QR code of the link that opens the same result. A fold
+marked `data-keep-open` (Tide Street's table) prints open. "Save as PDF" is the browser's print
+dialog, so the PDF is exactly the screen's result, on US Letter. Each tool keeps its own buttons and
+gains Print where it had none (`KeepPrintButton`, `KeepRow`) and "Email me this" (`KeepEmail`),
+which shows only when `/api/keep/status` says the email path is on (docs/INTEGRATIONS.md, "Email
+me this").
+
+Why not separate `/print/<tool>` routes taking the query string: the tools compute in the browser,
+and two of them (Tide Street, the home value record) deliberately keep the typed street and
+address out of the address bar, so a server route couldn't rebuild them without putting the address
+in a URL the CRM pixel reads; and a second renderer per tool would drift from the screen. A
+server-side PDF would need a headless browser on Vercel. The guides' PDFs stay as they are
+(`app/(print)`).
+
+## The buyer's and seller's guides as a checklist
+
+`/buy` and `/sell` keep their long editorial form (`components/guide.tsx`); the steps' words are
+the owners' and nothing here changes them. Under each step's words sit two things:
+
+- **The tool for that step**, where one does its work (`tools` on `GuideSteps`, by product id from
+  `lib/site.ts`, named with the product's own label and short line). Buy: 1 Atlas Match, 2 the
+  Sale Calculator, 7 Tide Street, 10 Atlas Move. Sell: 2 Tide Street, 8 the Sale Calculator.
+- **The reader's checklist** (`components/guide-checklist.tsx`, pure logic in
+  `lib/guide-checklist.ts` with its tests): "Mark this step done" records the day it was marked,
+  "Add a date" sets the day they mean to have it done by. Kept in this browser only
+  (`guide:buy`, `guide:sell`), keyed by step number so a rewrite of a step's words keeps everyone's
+  place. Once anything is marked, "Your checklist" after the steps says how many are done and
+  which is next, offers "Add the dates to my calendar" (an ICS of the dated steps not yet done,
+  built in the browser with `lib/ics.ts`'s rules, one all-day event per step linking back to it)
+  and "Clear my checklist". Nothing is collapsed or hidden; nothing leaves the device.
+
 ## The tools and the address bar
 
 The tool pages (`/neighborhoods`, `/neighborhoods/match`, `/calendar`, `/calendar/plan`,

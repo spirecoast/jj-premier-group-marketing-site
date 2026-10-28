@@ -27,6 +27,8 @@ import { URL_PENDING_STYLE_ID } from "@/lib/url-island";
 import { draft } from "@/lib/url-state";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
+import { KeepEmail, keepPrint } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 import "./net-proceeds.css";
 
 const COUNTIES: readonly { value: County; label: string }[] = [
@@ -624,12 +626,14 @@ export function NetProceedsCalculator() {
 
       {/* The sheet, in the flow of the page: the column beside the form on a desktop, the foot of the page on a phone, and what prints. */}
       <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-        <section id="net-sheet" aria-label="Estimated net proceeds" className="scroll-mt-header border border-hairline bg-white p-6 sm:p-8">
-          <SheetView {...sheetProps} onPrice={(p) => setPrice(p, false)} />
-          <p className="sr-only" aria-live="polite">
-            {announce}
-          </p>
-        </section>
+        <KeepSheet tool="tide-sale-calculator">
+          <section id="net-sheet" aria-label="Estimated net proceeds" className="scroll-mt-header border border-hairline bg-white p-6 sm:p-8 print:border-0 print:p-0">
+            <SheetView {...sheetProps} onPrice={(p) => setPrice(p, false)} />
+            <p className="sr-only" aria-live="polite">
+              {announce}
+            </p>
+          </section>
+        </KeepSheet>
 
         {hasSheet ? (
           <div className="flex flex-col gap-5 print:hidden">
@@ -637,7 +641,7 @@ export function NetProceedsCalculator() {
               <button type="button" onClick={openSend} className="btn btn-navy" aria-expanded={sendOpen} aria-controls={id("send")}>
                 Send it to us
               </button>
-              <button type="button" onClick={() => window.print()} className="btn btn-outline">
+              <button type="button" onClick={() => keepPrint("tide-sale-calculator")} className="btn btn-outline">
                 Print
               </button>
               <button type="button" onClick={() => void copyText(summary, "numbers")} className="btn btn-outline min-w-[150px]">
@@ -649,6 +653,7 @@ export function NetProceedsCalculator() {
                 <span aria-live="polite">{copied === "link" ? "Link copied" : "Copy link to this sheet"}</span>
               </button>
               <p className="t-note">The link carries every figure on this sheet.</p>
+              <KeepEmail tool="tide-sale-calculator" />
             </div>
             {sendOpen ? (
               <div id={id("send")} className="flex flex-col gap-4 border border-hairline bg-white p-6 sm:p-8">

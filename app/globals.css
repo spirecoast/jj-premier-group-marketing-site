@@ -2307,7 +2307,7 @@ html:has([data-product-bar]) {
   }
   .action-pill {
     position: fixed;
-    right: 0.75rem;
+    right: calc(0.75rem + env(safe-area-inset-right, 0px));
     bottom: calc(0.75rem + env(safe-area-inset-bottom));
     z-index: 40;
     display: flex;

@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { DayStrip } from "./day-strip";
 import { FilterSheet, VenueSelect } from "./filter-sheet";
 import { CalendarPlus, ChevronDown, ChevronLeft, ChevronRight, Cross, Magnifier } from "./glyphs";
+import { KeepOnPhone } from "./keep-on-phone";
 import { useMyList } from "./use-my-list";
 import { Agenda, ListView, MonthView, OnViewGrid, SEASON_DAYS, SearchResults, Spotlight, WeekView } from "./views";
 import "./encore.css";
@@ -504,6 +505,7 @@ export function Encore({
             </button>
           </div>
         ) : null}
+        {mode === "mine" ? <KeepOnPhone saved={my.list.length} /> : null}
         {!full ? (
           <p className="sr-only" aria-live="polite">
             Loading the full season
