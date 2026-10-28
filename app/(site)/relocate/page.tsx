@@ -44,15 +44,15 @@ const FAQ_ITEMS: Faq[] = FAQS.map((f) => ({
 }));
 
 /**
- * Print: the plan alone, on letter paper. The site's chrome and every other
- * section are hidden; the plan keeps its key dates, warnings, timeline,
- * documents and who-pays-what, with the reasoning folds and links left off.
+ * Print: the plan alone, on letter paper, with Atlas Move's lockup and the
+ * day at its head and the sources, the two of us and a QR code of the plan's
+ * link at its foot (components/keep). The plan keeps its key dates,
+ * warnings, timeline, documents and who-pays-what, with the reasoning folds
+ * and links left off.
  */
 const PRINT_CSS = `
 @media print {
-  header, footer, .fixed, [data-mobile-action-bar] { display: none !important; }
-  /* The page sits inside the route-transition wrapper, so hide everything in main that neither holds the plan nor is part of it. */
-  main *:not(#plan):not(:has(#plan)):not(#plan *) { display: none !important; }
+  /* The page is the plan alone, headed and footed by components/keep/keep-sheet.tsx (keep.css hides the rest). */
   @page { size: letter; margin: 11mm 12mm; }
   #plan > div { padding: 0 !important; gap: 14pt !important; }
   #plan .t-display { font-size: 22pt; line-height: 1.05; }
@@ -62,6 +62,10 @@ const PRINT_CSS = `
   #plan .t-small, #plan .t-record { font-size: 8pt; }
   #plan [data-print="key"] { padding: 6pt 8pt; }
   #plan [data-print="key"] .font-display { font-size: 15pt; }
+  /* Five across a letter page: each card is the date over its name, not the phone's two columns. */
+  #plan [data-print="key"] { display: flex !important; flex-direction: column; gap: 4pt; }
+  #plan [data-print="key"] > div:last-child { justify-content: flex-start; }
+  #plan [data-print="key"] > div:last-child * { font-size: 9pt; line-height: 1.25; }
   #plan [data-print="row"] { break-inside: avoid; }
   #plan [data-print="row"] > div:last-child { padding-bottom: 8pt; }
   #plan [data-print="phase"] { gap: 6pt; }

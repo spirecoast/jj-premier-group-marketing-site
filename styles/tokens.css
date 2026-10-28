@@ -31,7 +31,12 @@
   /* ---- Layout (website mockup: 1440 canvas, 96 gutter; sections opened from
          the mockup's 120 to 136 so the long pages breathe) ---------------- */
   --site-max: 90rem; /* 1440 */
-  --gutter: 1.5rem; /* phone 24 */
+  /* The gutter never runs narrower than a notch or a rounded corner: with
+     viewport-fit=cover (app/layout.tsx) a phone held sideways reports its
+     side insets here, and every container, the header and the phone menu
+     keep their words clear of them. Everywhere else the insets are 0. */
+  --safe-x: max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  --gutter: max(1.5rem, var(--safe-x)); /* phone 24 */
   --section-y: 5rem; /* phone 80 */
   --measure: 41.25rem; /* 660px prose measure */
   --btn-h: 3.25rem; /* 52px buttons, 48px minimum hit target */
@@ -68,14 +73,14 @@
 
 @media (min-width: 48rem) {
   :root {
-    --gutter: 3rem; /* tablet 48 */
+    --gutter: max(3rem, var(--safe-x)); /* tablet 48 */
     --section-y: 7rem; /* tablet 112 */
   }
 }
 
 @media (min-width: 64rem) {
   :root {
-    --gutter: 6rem; /* desktop 96 */
+    --gutter: max(6rem, var(--safe-x)); /* desktop 96 */
     --section-y: 8.5rem; /* desktop 136 */
   }
 }

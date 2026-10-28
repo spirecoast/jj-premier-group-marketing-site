@@ -7,6 +7,8 @@ import { SavePlaceButton } from "@/components/atlas/save-place";
 import { useMyPlaces } from "@/components/atlas/use-my-places";
 import { ButtonLink } from "@/components/buttons";
 import { LeadForm } from "@/components/lead-form";
+import { KeepEmail, KeepPrintButton } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 import { ShareButton } from "@/components/share-button";
 import { marketName } from "@/lib/content/markets";
 import { LEVEL_LABEL, TYPE_LABEL } from "@/lib/neighborhoods/format";
@@ -71,6 +73,7 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more
 
   return (
     <div className="flex flex-col gap-12">
+      <KeepSheet tool="atlas-match" url={matchHref({ answers, step: null })} className="flex flex-col gap-12">
       <div className="atlas-panel relative flex flex-col gap-8 overflow-hidden bg-atlas-deep px-5 py-8 text-linen-100 sm:p-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="flex flex-col gap-6" aria-live="polite">
@@ -135,11 +138,13 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more
               See them on the map
             </ButtonLink>
             {matches.length > LIST_MAX ? <p className="t-small text-white/60 lg:text-right">The map holds the first {LIST_MAX.toLocaleString()} of these.</p> : null}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 lg:max-w-[400px] lg:justify-end">
               <button type="button" className="link-rule" onClick={() => my.addAll(slugs)} disabled={allSaved} aria-disabled={allSaved}>
                 {allSaved ? "All saved" : "Save them all"}
               </button>
               <ShareButton title="Atlas Match · JJ Premier Group" url={matchHref({ answers, step: null })} what="match" label="Share this list" />
+              <KeepPrintButton tool="atlas-match" variant="rule" />
+              <KeepEmail tool="atlas-match" url={matchHref({ answers, step: null })} />
             </div>
           </div>
         </div>
@@ -240,8 +245,9 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more
           Updated {asOf}. Facts come from county, district, association and builder sources.
         </p>
       </div>
+      </KeepSheet>
 
-      <section className="grid gap-10 border-t border-hairline pt-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20" aria-labelledby="match-ask-title">
+      <section className="grid gap-10 border-t border-hairline pt-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20 print:hidden" aria-labelledby="match-ask-title">
         <div className="flex flex-col gap-3.5">
           <h2 id="match-ask-title" className="t-h1 text-navy">
             Want us to walk you through three of these?

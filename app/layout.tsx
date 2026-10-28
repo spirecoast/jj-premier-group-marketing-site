@@ -92,6 +92,8 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
+  // Kept on an iPhone's home screen (app/manifest.ts is the rest of it): its own window, under the short name.
+  appleWebApp: { capable: true, title: "JJ Premier", statusBarStyle: "default" },
   // NEXT_PUBLIC_ROBOTS_NOINDEX=true keeps previews and the pre-launch site out of search engines.
   robots: process.env.NEXT_PUBLIC_ROBOTS_NOINDEX === "true" ? { index: false, follow: false } : { index: true, follow: true },
 };
@@ -100,6 +102,11 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#1e3442",
+  // The page runs edge to edge, under a notch and the home indicator, so the
+  // env(safe-area-inset-*) paddings mean something: the gutter token
+  // (styles/tokens.css), the phone action bar and the bottom sheets read them.
+  // Without this iOS reports every inset as 0.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

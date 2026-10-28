@@ -1,8 +1,11 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { ChecklistSummary, StepCheck } from "@/components/guide-checklist";
 import { ReadingCompanion } from "@/components/guides/companion";
 import { Photo } from "@/components/photo";
 import type { ImageRef } from "@/lib/content/types";
+import type { GuideKey } from "@/lib/guide-checklist";
+import { productFamilies } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,6 +21,17 @@ export type GuideStep = {
   body: string;
   image: ImageRef;
 };
+
+/** A product's id in lib/site.ts (productFamilies), for the tool link under a step. */
+export type StepTool = "atlas" | "atlas-match" | "atlas-move" | "encore" | "encore-planner" | "tide" | "tide-street" | "tide-sale-calculator";
+
+function product(id: StepTool) {
+  for (const f of productFamilies) {
+    const item = f.items.find((i) => i.id === id);
+    if (item) return item;
+  }
+  return null;
+}
 
 const STEPS_ID = "steps";
 
@@ -68,7 +82,19 @@ export const stepId = (n: number) => `step-${n}`;
  * numerals from lg, the line that fills as the page is read, and the list
  * as a sheet, so a reader can skim the guide or return to a step.
  */
-export function GuideSteps({ steps, label }: { steps: GuideStep[]; label: string }) {
+export function GuideSteps({
+  steps,
+  label,
+  checklist,
+  tools = {},
+}: {
+  steps: GuideStep[];
+  label: string;
+  /** Which guide's checklist the steps keep (components/guide-checklist.tsx). */
+  checklist?: GuideKey;
+  /** Step number (1-based) to the tool that does that step's work, linked under its words. */
+  tools?: Partial<Record<number, StepTool>>;
+}) {
   const items = steps.map((s, i) => ({ id: stepId(i + 1), number: String(i + 1).padStart(2, "0"), title: s.title }));
   return (
     <section id={STEPS_ID} aria-label={label} className="relative scroll-mt-header">
@@ -89,13 +115,33 @@ export function GuideSteps({ steps, label }: { steps: GuideStep[]; label: string
                   </p>
                   <h2 className="t-h1 text-balance text-navy">{s.title}</h2>
                   <p className="t-body text-body lg:text-[18px] lg:leading-[1.75]">{s.body}</p>
+                  <StepToolLink id={tools[i + 1]} />
+                  {checklist ? <StepCheck guide={checklist} step={i + 1} title={s.title} /> : null}
                 </div>
               </div>
             </li>
           );
         })}
       </ol>
+      {checklist ? <ChecklistSummary guide={checklist} titles={steps.map((s) => s.title)} /> : null}
     </section>
+  );
+}
+
+/** The tool for a step, by its product name and the short line it carries in the menus. */
+function StepToolLink({ id }: { id?: StepTool }) {
+  const item = id ? product(id) : null;
+  if (!item) return null;
+  return (
+    <Link href={item.href as Route} className="group t-small flex items-baseline gap-2 self-start text-sky-700 transition-colors hover:text-navy">
+      <span>
+        <span className="font-medium">{item.label}</span>
+        <span className="text-body"> · {item.short}</span>
+      </span>
+      <span aria-hidden="true" className="transition-transform duration-(--dur-panel) group-hover:translate-x-1 motion-reduce:transition-none">
+        →
+      </span>
+    </Link>
   );
 }
 

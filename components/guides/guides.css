@@ -409,3 +409,13 @@
     margin: 0.6in 0.7in;
   }
 }
+
+/* The buyer's and seller's checklist (components/guide-checklist.tsx): the
+   date field sits inline in the step's row, as wide as a date and no wider. */
+@layer components {
+  .guide-check-date {
+    width: auto;
+    min-width: 10.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+}

@@ -372,10 +372,34 @@ Leave Storage alone for now.
 | `RESEND_FROM_EMAIL` | Pick any address on the verified domain (e.g., `website@mail.jjpremiergroup.com`) |
 | `TEAM_NOTIFY_EMAIL` | The inboxes for new-lead notifications: one address or several, comma-separated (e.g., both agents' Coldwell Banker addresses) |
 
+### "Email me this"
+
+The tools' results (Atlas Move, Atlas Match, the Encore Planner, Tide Street, the home value
+record, the Sale Calculator and a Tide issue) offer "Email me this" next to Print
+(`components/keep/keep-row.tsx`, `POST /api/keep`, `lib/keep/*`). It is the only email the site
+sends a visitor outside the newsletter: one message with the link to their own result on this
+site, how to print it, the two of you by name and number, and a line for anyone who didn't ask
+for it. Replies go to the first `TEAM_NOTIFY_EMAIL` address (without one, the email doesn't invite
+a reply). Nothing is kept: no lead, no list.
+
+It's on by itself once `RESEND_API_KEY`, `RESEND_FROM_EMAIL` and `DATABASE_URL` are set, and off
+(the button isn't shown) otherwise. The limits live in Postgres (`lead_rate_limits`, migration
+`0015`) as one-way hashes, pruned daily, and every check fails closed: 4 requests an hour from one
+network address, 2 emails a day to one address, and `KEEP_EMAIL_DAILY_CAP` a day for the whole site
+(default 10, `0` turns it off), because the Resend free allowance of 100 a day is shared with the
+lead emails and the newsletter's `NEWSLETTER_DAILY_CAP`. The link can only be the tool's own page on
+this site; the request can't put any other words or links in the email. On a preview nothing is
+sent (or it goes to `PREVIEW_EMAIL_TO`), as with every email.
+
+| Var | What |
+|---|---|
+| `KEEP_EMAIL_DAILY_CAP` | Optional. "Email me this" sends a day, all tools together (default 10, `0` = off) |
+
 ### Where these are consumed
 - `lib/email/index.ts` — Resend client + from-address resolution
 - `lib/lead-alert.ts` — the team notification (`TEAM_NOTIFY_EMAIL`) and the
   CRM failure alert (`LEAD_ALERT_EMAIL`)
+- `lib/keep/send.ts` — "Email me this" (`KEEP_EMAIL_DAILY_CAP`)
 
 ### Verify
 After deploy, submit the contact form. You should receive one email, a

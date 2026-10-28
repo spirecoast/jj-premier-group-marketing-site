@@ -12,6 +12,8 @@ import { icsPath } from "@/lib/relocate/url";
 import { cn } from "@/lib/utils";
 import { usePlanner } from "./planner-context";
 import { ExternalLink } from "@/components/ui/external-link";
+import { KeepEmail, keepPrint } from "@/components/keep/keep-row";
+import { KeepSheet } from "@/components/keep/keep-sheet";
 
 const PHASES: Phase[] = ["before", "contract", "closing", "after"];
 
@@ -208,16 +210,17 @@ function Exports() {
   }
 
   return (
-    <div role="group" aria-label={EXPORTS.label} className="grid shrink-0 grid-cols-2 gap-2 print:hidden sm:flex sm:flex-wrap lg:flex-nowrap">
+    <div role="group" aria-label={EXPORTS.label} className="grid shrink-0 grid-cols-2 gap-2 print:hidden sm:flex sm:flex-wrap lg:max-w-[600px] lg:justify-end">
       <a href={icsPath(answers)} download="move-plan.ics" className="btn btn-navy col-span-2" onClick={() => track("Calendar feed", { kind: "relocate" })}>
         {EXPORTS.calendar}
       </a>
-      <button type="button" className="btn btn-outline" onClick={() => window.print()}>
+      <button type="button" className="btn btn-outline" onClick={() => keepPrint("atlas-move")}>
         {EXPORTS.print}
       </button>
       <button type="button" className="btn btn-outline sm:min-w-[132px]" onClick={copy}>
         <span aria-live="polite">{copied ? EXPORTS.copied : EXPORTS.copy}</span>
       </button>
+      <KeepEmail tool="atlas-move" url={shareUrl} buttonClassName="col-span-2 justify-self-start sm:ml-2" />
     </div>
   );
 }
@@ -276,6 +279,7 @@ export function PlanView() {
   const callouts = plan.callouts.filter((c) => c.id !== "past");
 
   return (
+    <KeepSheet tool="atlas-move" url={shareUrl}>
     <section id="plan" className="scroll-mt-header bg-linen-50 print:bg-white" aria-labelledby="plan-title">
       <div className="container-site flex flex-col gap-12 py-section">
         <div className="flex flex-col gap-6 border-b border-hairline pb-10 lg:flex-row lg:items-end lg:justify-between">
@@ -388,5 +392,6 @@ export function PlanView() {
         </details>
       </div>
     </section>
+    </KeepSheet>
   );
 }
