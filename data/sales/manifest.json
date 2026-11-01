@@ -10,27 +10,27 @@
         "https://www.manateepao.gov/data/shape_files/Parcels.zip",
         "https://www.manateepao.gov/data/shape_files/Condominium_Unit_Points.zip"
       ],
-      "rows": 25995,
+      "rows": 25968,
       "byUse": {
-        "single-family": 10871,
-        "vacant": 8529,
-        "other": 1738,
-        "condo": 3657,
-        "villa": 551,
+        "single-family": 10861,
+        "other": 1742,
+        "vacant": 8496,
+        "condo": 3667,
+        "villa": 553,
         "townhome": 649
       },
-      "from": "2024-10-27",
+      "from": "2024-11-01",
       "to": "2026-09-24",
-      "toUnchangedRuns": 1,
+      "toUnchangedRuns": 2,
       "hasCoordinates": true,
       "shares": {
-        "livingArea": 0.6671,
+        "livingArea": 0.6679,
         "coordinates": 0.9735,
-        "subdivision": 0.9788
+        "subdivision": 0.9787
       },
       "file": "manatee.json.gz",
-      "bytes": 1480892,
-      "sha256": "90e702c3a42b6ce7"
+      "bytes": 1480283,
+      "sha256": "061610a2211623cb"
     },
     "sarasota": {
       "label": "Sarasota County Property Appraiser",
@@ -38,30 +38,30 @@
       "sources": [
         "https://www.sarasotapropertyappraiser.gov/downloads/SCPA_Parcels_Sales_CSV.zip"
       ],
-      "rows": 29588,
+      "rows": 29421,
       "byUse": {
-        "vacant": 1146,
-        "single-family": 17395,
-        "condo": 5875,
-        "other": 2512,
-        "townhome": 2660
+        "single-family": 17344,
+        "condo": 5833,
+        "vacant": 1069,
+        "other": 2507,
+        "townhome": 2668
       },
-      "from": "2024-10-27",
-      "to": "2026-10-22",
+      "from": "2024-11-01",
+      "to": "2026-10-26",
       "toUnchangedRuns": 0,
       "hasCoordinates": false,
       "shares": {
-        "livingArea": 0.9535,
+        "livingArea": 0.9558,
         "coordinates": 0,
         "subdivision": 0.9887
       },
       "file": "sarasota.json.gz",
-      "bytes": 1538734,
-      "sha256": "315470c9d955df41"
+      "bytes": 1531560,
+      "sha256": "309e5e85e9b62234"
     }
   },
-  "generatedAt": "2026-10-27T23:49:26.175Z",
-  "windowStart": "2024-10-27",
+  "generatedAt": "2026-11-01T15:34:26.304Z",
+  "windowStart": "2024-11-01",
   "windowMonths": 24,
   "qualifiedCodes": [
     "01",
