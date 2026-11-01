@@ -1,0 +1,742 @@
+{
+  "schema": 1,
+  "issue": "2026-11",
+  "dataMonth": "2026-08",
+  "latestComplete": "2026-08",
+  "frozenAt": "2026-11-01T15:34:26.304Z",
+  "manifest": {
+    "generatedAt": "2026-11-01T15:34:26.304Z",
+    "counties": {
+      "manatee": {
+        "label": "Manatee County Property Appraiser",
+        "to": "2026-09-24",
+        "from": "2024-11-01"
+      },
+      "sarasota": {
+        "label": "Sarasota County Property Appraiser",
+        "to": "2026-10-26",
+        "from": "2024-11-01"
+      }
+    }
+  },
+  "markets": [
+    {
+      "market": "lakewood-ranch",
+      "stats": {
+        "market": "lakewood-ranch",
+        "name": "Lakewood Ranch",
+        "count": 233,
+        "medianPrice": 625000,
+        "priceSample": 140,
+        "medianPpsf": 277,
+        "ppsfSample": 140,
+        "newBuild": 93,
+        "newBuildPct": 40,
+        "streets": [
+          {
+            "label": "Gander Ter",
+            "count": 8
+          },
+          {
+            "label": "Lilac Sky Ter",
+            "count": 8
+          },
+          {
+            "label": "Cherrystone Way",
+            "count": 6
+          }
+        ],
+        "zips": [
+          "34202",
+          "34211"
+        ],
+        "typical": 277,
+        "complete": true
+      },
+      "baseline": {
+        "count": 277,
+        "medianPrice": 619125,
+        "medianPpsf": 279,
+        "newBuildPct": 46,
+        "months": 12
+      },
+      "streets": [
+        {
+          "label": "Gander Ter",
+          "count": 8
+        },
+        {
+          "label": "Lilac Sky Ter",
+          "count": 8
+        },
+        {
+          "label": "Cherrystone Way",
+          "count": 6
+        },
+        {
+          "label": "Fence Row Ct",
+          "count": 6
+        },
+        {
+          "label": "Vardon Ter",
+          "count": 6
+        }
+      ],
+      "series": [
+        {
+          "month": "2025-09",
+          "count": 279,
+          "medianPrice": 525000,
+          "medianPpsf": 267,
+          "newBuildPct": 51
+        },
+        {
+          "month": "2025-10",
+          "count": 230,
+          "medianPrice": 620000,
+          "medianPpsf": 278,
+          "newBuildPct": 53
+        },
+        {
+          "month": "2025-11",
+          "count": 228,
+          "medianPrice": 618750,
+          "medianPpsf": 276,
+          "newBuildPct": 50
+        },
+        {
+          "month": "2025-12",
+          "count": 253,
+          "medianPrice": 555000,
+          "medianPpsf": 273,
+          "newBuildPct": 48
+        },
+        {
+          "month": "2026-01",
+          "count": 199,
+          "medianPrice": 540000,
+          "medianPpsf": 272,
+          "newBuildPct": 23
+        },
+        {
+          "month": "2026-02",
+          "count": 284,
+          "medianPrice": 562500,
+          "medianPpsf": 284,
+          "newBuildPct": 39
+        },
+        {
+          "month": "2026-03",
+          "count": 333,
+          "medianPrice": 656700,
+          "medianPpsf": 288,
+          "newBuildPct": 35
+        },
+        {
+          "month": "2026-04",
+          "count": 305,
+          "medianPrice": 586000,
+          "medianPpsf": 285,
+          "newBuildPct": 39
+        },
+        {
+          "month": "2026-05",
+          "count": 354,
+          "medianPrice": 619500,
+          "medianPpsf": 282,
+          "newBuildPct": 46
+        },
+        {
+          "month": "2026-06",
+          "count": 274,
+          "medianPrice": 675000,
+          "medianPpsf": 292,
+          "newBuildPct": 36
+        },
+        {
+          "month": "2026-07",
+          "count": 251,
+          "medianPrice": 625000,
+          "medianPpsf": 279,
+          "newBuildPct": 46
+        },
+        {
+          "month": "2026-08",
+          "count": 233,
+          "medianPrice": 625000,
+          "medianPpsf": 277,
+          "newBuildPct": 40
+        }
+      ],
+      "lastYear": {
+        "month": "2025-08",
+        "count": 282,
+        "medianPrice": 632500,
+        "medianPpsf": 277,
+        "countPct": -17.375886524822697,
+        "pricePct": -1.1857707509881423,
+        "ppsfPct": 0
+      },
+      "mix": [
+        {
+          "key": "single-family",
+          "label": "Single-family homes",
+          "count": 102,
+          "share": 44,
+          "medianPrice": 757500,
+          "priceSample": 102
+        },
+        {
+          "key": "attached",
+          "label": "Condos, villas and townhomes",
+          "count": 38,
+          "share": 16,
+          "medianPrice": 320000,
+          "priceSample": 38
+        },
+        {
+          "key": "land",
+          "label": "Lots the county lists as empty",
+          "count": 93,
+          "share": 40,
+          "medianPrice": null,
+          "priceSample": 0
+        }
+      ],
+      "bands": {
+        "sample": 140,
+        "bands": [
+          {
+            "key": "under-400k",
+            "from": 0,
+            "to": 400000,
+            "label": "Under $400K",
+            "count": 33,
+            "share": 24
+          },
+          {
+            "key": "400k-750k",
+            "from": 400000,
+            "to": 750000,
+            "label": "$400K to $750K",
+            "count": 50,
+            "share": 36
+          },
+          {
+            "key": "750k-1.5m",
+            "from": 750000,
+            "to": 1500000,
+            "label": "$750K to $1.5M",
+            "count": 45,
+            "share": 32
+          },
+          {
+            "key": "1.5m-up",
+            "from": 1500000,
+            "to": null,
+            "label": "$1.5M and up",
+            "count": 12,
+            "share": 8
+          }
+        ]
+      }
+    },
+    {
+      "market": "sarasota",
+      "stats": {
+        "market": "sarasota",
+        "name": "Sarasota",
+        "count": 502,
+        "medianPrice": 488000,
+        "priceSample": 489,
+        "medianPpsf": 281,
+        "ppsfSample": 489,
+        "newBuild": 71,
+        "newBuildPct": 14,
+        "streets": [
+          {
+            "label": "Midnight Pass Rd",
+            "count": 14
+          },
+          {
+            "label": "Gulf of Mexico Dr, Longboat Key",
+            "count": 12
+          },
+          {
+            "label": "Crystal Isles Cir",
+            "count": 8
+          }
+        ],
+        "zips": [
+          "34228",
+          "34231",
+          "34232",
+          "34233",
+          "34234",
+          "34235",
+          "34236",
+          "34237",
+          "34238",
+          "34239",
+          "34240",
+          "34241",
+          "34242",
+          "34243"
+        ],
+        "typical": 551,
+        "complete": true
+      },
+      "baseline": {
+        "count": 551,
+        "medianPrice": 520250,
+        "medianPpsf": 292,
+        "newBuildPct": 16,
+        "months": 12
+      },
+      "streets": [
+        {
+          "label": "Midnight Pass Rd",
+          "count": 14
+        },
+        {
+          "label": "Gulf of Mexico Dr, Longboat Key",
+          "count": 12
+        },
+        {
+          "label": "Crystal Isles Cir",
+          "count": 8
+        },
+        {
+          "label": "Orbit Ter",
+          "count": 7
+        },
+        {
+          "label": "Eclipse St",
+          "count": 6
+        }
+      ],
+      "series": [
+        {
+          "month": "2025-09",
+          "count": 492,
+          "medianPrice": 500000,
+          "medianPpsf": 277,
+          "newBuildPct": 22
+        },
+        {
+          "month": "2025-10",
+          "count": 490,
+          "medianPrice": 485000,
+          "medianPpsf": 282,
+          "newBuildPct": 16
+        },
+        {
+          "month": "2025-11",
+          "count": 431,
+          "medianPrice": 543500,
+          "medianPpsf": 291,
+          "newBuildPct": 18
+        },
+        {
+          "month": "2025-12",
+          "count": 600,
+          "medianPrice": 557000,
+          "medianPpsf": 293,
+          "newBuildPct": 24
+        },
+        {
+          "month": "2026-01",
+          "count": 472,
+          "medianPrice": 500000,
+          "medianPpsf": 277,
+          "newBuildPct": 7
+        },
+        {
+          "month": "2026-02",
+          "count": 493,
+          "medianPrice": 517700,
+          "medianPpsf": 297,
+          "newBuildPct": 9
+        },
+        {
+          "month": "2026-03",
+          "count": 773,
+          "medianPrice": 559000,
+          "medianPpsf": 297,
+          "newBuildPct": 10
+        },
+        {
+          "month": "2026-04",
+          "count": 727,
+          "medianPrice": 520500,
+          "medianPpsf": 300,
+          "newBuildPct": 9
+        },
+        {
+          "month": "2026-05",
+          "count": 647,
+          "medianPrice": 520000,
+          "medianPpsf": 298,
+          "newBuildPct": 12
+        },
+        {
+          "month": "2026-06",
+          "count": 716,
+          "medianPrice": 549950,
+          "medianPpsf": 289,
+          "newBuildPct": 15
+        },
+        {
+          "month": "2026-07",
+          "count": 587,
+          "medianPrice": 560000,
+          "medianPpsf": 292,
+          "newBuildPct": 16
+        },
+        {
+          "month": "2026-08",
+          "count": 502,
+          "medianPrice": 488000,
+          "medianPpsf": 281,
+          "newBuildPct": 14
+        }
+      ],
+      "lastYear": {
+        "month": "2025-08",
+        "count": 514,
+        "medianPrice": 500000,
+        "medianPpsf": 279,
+        "countPct": -2.3346303501945527,
+        "pricePct": -2.4,
+        "ppsfPct": 0.7168458781362007
+      },
+      "mix": [
+        {
+          "key": "single-family",
+          "label": "Single-family homes",
+          "count": 279,
+          "share": 56,
+          "medianPrice": 600000,
+          "priceSample": 278
+        },
+        {
+          "key": "attached",
+          "label": "Condos, villas and townhomes",
+          "count": 211,
+          "share": 42,
+          "medianPrice": 339000,
+          "priceSample": 211
+        },
+        {
+          "key": "land",
+          "label": "Lots the county lists as empty",
+          "count": 12,
+          "share": 2,
+          "medianPrice": null,
+          "priceSample": 0
+        }
+      ],
+      "bands": {
+        "sample": 489,
+        "bands": [
+          {
+            "key": "under-400k",
+            "from": 0,
+            "to": 400000,
+            "label": "Under $400K",
+            "count": 187,
+            "share": 38
+          },
+          {
+            "key": "400k-750k",
+            "from": 400000,
+            "to": 750000,
+            "label": "$400K to $750K",
+            "count": 177,
+            "share": 36
+          },
+          {
+            "key": "750k-1.5m",
+            "from": 750000,
+            "to": 1500000,
+            "label": "$750K to $1.5M",
+            "count": 75,
+            "share": 16
+          },
+          {
+            "key": "1.5m-up",
+            "from": 1500000,
+            "to": null,
+            "label": "$1.5M and up",
+            "count": 50,
+            "share": 10
+          }
+        ]
+      }
+    },
+    {
+      "market": "bradenton",
+      "stats": {
+        "market": "bradenton",
+        "name": "Bradenton",
+        "count": 849,
+        "medianPrice": 384850,
+        "priceSample": 512,
+        "medianPpsf": 217,
+        "ppsfSample": 512,
+        "newBuild": 337,
+        "newBuildPct": 40,
+        "streets": [
+          {
+            "label": "Violet Jasper Dr, Parrish",
+            "count": 12
+          },
+          {
+            "label": "Gulf Shore Ter, Parrish",
+            "count": 11
+          },
+          {
+            "label": "Morning Meadowlark Trl, Parrish",
+            "count": 10
+          }
+        ],
+        "zips": [
+          "34201",
+          "34203",
+          "34205",
+          "34207",
+          "34208",
+          "34209",
+          "34210",
+          "34212",
+          "34215",
+          "34216",
+          "34217",
+          "34219",
+          "34221",
+          "34222"
+        ],
+        "typical": 733,
+        "complete": true
+      },
+      "baseline": {
+        "count": 733,
+        "medianPrice": 382475,
+        "medianPpsf": 225,
+        "newBuildPct": 36,
+        "months": 12
+      },
+      "streets": [
+        {
+          "label": "Violet Jasper Dr, Parrish",
+          "count": 12
+        },
+        {
+          "label": "Gulf Shore Ter, Parrish",
+          "count": 11
+        },
+        {
+          "label": "Morning Meadowlark Trl, Parrish",
+          "count": 10
+        },
+        {
+          "label": "Noble Garnet Ln, Parrish",
+          "count": 9
+        },
+        {
+          "label": "Parsons Isle Ter, Palmetto",
+          "count": 7
+        }
+      ],
+      "series": [
+        {
+          "month": "2025-09",
+          "count": 692,
+          "medianPrice": 375000,
+          "medianPpsf": 219,
+          "newBuildPct": 37
+        },
+        {
+          "month": "2025-10",
+          "count": 714,
+          "medianPrice": 374150,
+          "medianPpsf": 225,
+          "newBuildPct": 43
+        },
+        {
+          "month": "2025-11",
+          "count": 653,
+          "medianPrice": 395100,
+          "medianPpsf": 232,
+          "newBuildPct": 42
+        },
+        {
+          "month": "2025-12",
+          "count": 675,
+          "medianPrice": 368000,
+          "medianPpsf": 228,
+          "newBuildPct": 33
+        },
+        {
+          "month": "2026-01",
+          "count": 575,
+          "medianPrice": 365000,
+          "medianPpsf": 208,
+          "newBuildPct": 16
+        },
+        {
+          "month": "2026-02",
+          "count": 751,
+          "medianPrice": 388500,
+          "medianPpsf": 222,
+          "newBuildPct": 27
+        },
+        {
+          "month": "2026-03",
+          "count": 968,
+          "medianPrice": 370000,
+          "medianPpsf": 219,
+          "newBuildPct": 30
+        },
+        {
+          "month": "2026-04",
+          "count": 952,
+          "medianPrice": 385000,
+          "medianPpsf": 226,
+          "newBuildPct": 28
+        },
+        {
+          "month": "2026-05",
+          "count": 981,
+          "medianPrice": 385000,
+          "medianPpsf": 222,
+          "newBuildPct": 38
+        },
+        {
+          "month": "2026-06",
+          "count": 1087,
+          "medianPrice": 412000,
+          "medianPpsf": 230,
+          "newBuildPct": 41
+        },
+        {
+          "month": "2026-07",
+          "count": 835,
+          "medianPrice": 397450,
+          "medianPpsf": 225,
+          "newBuildPct": 35
+        },
+        {
+          "month": "2026-08",
+          "count": 849,
+          "medianPrice": 384850,
+          "medianPpsf": 217,
+          "newBuildPct": 40
+        }
+      ],
+      "lastYear": {
+        "month": "2025-08",
+        "count": 697,
+        "medianPrice": 379950,
+        "medianPpsf": 227,
+        "countPct": 21.8077474892396,
+        "pricePct": 1.2896433741281748,
+        "ppsfPct": -4.405286343612334
+      },
+      "mix": [
+        {
+          "key": "single-family",
+          "label": "Single-family homes",
+          "count": 354,
+          "share": 42,
+          "medianPrice": 447000,
+          "priceSample": 354
+        },
+        {
+          "key": "attached",
+          "label": "Condos, villas and townhomes",
+          "count": 158,
+          "share": 18,
+          "medianPrice": 242500,
+          "priceSample": 158
+        },
+        {
+          "key": "land",
+          "label": "Lots the county lists as empty",
+          "count": 337,
+          "share": 40,
+          "medianPrice": null,
+          "priceSample": 0
+        }
+      ],
+      "bands": {
+        "sample": 512,
+        "bands": [
+          {
+            "key": "under-400k",
+            "from": 0,
+            "to": 400000,
+            "label": "Under $400K",
+            "count": 276,
+            "share": 54
+          },
+          {
+            "key": "400k-750k",
+            "from": 400000,
+            "to": 750000,
+            "label": "$400K to $750K",
+            "count": 167,
+            "share": 33
+          },
+          {
+            "key": "750k-1.5m",
+            "from": 750000,
+            "to": 1500000,
+            "label": "$750K to $1.5M",
+            "count": 54,
+            "share": 10
+          },
+          {
+            "key": "1.5m-up",
+            "from": 1500000,
+            "to": null,
+            "label": "$1.5M and up",
+            "count": 15,
+            "share": 3
+          }
+        ]
+      }
+    }
+  ],
+  "combined": {
+    "count": 1584,
+    "typical": 1528,
+    "diff": 56,
+    "pct": 3.6649214659685865,
+    "lastYear": {
+      "month": "2025-08",
+      "count": 1493,
+      "pct": 6.095110515740121
+    },
+    "parts": [
+      {
+        "market": "lakewood-ranch",
+        "name": "Lakewood Ranch",
+        "count": 233,
+        "share": 15
+      },
+      {
+        "market": "sarasota",
+        "name": "Sarasota",
+        "count": 502,
+        "share": 32
+      },
+      {
+        "market": "bradenton",
+        "name": "Bradenton",
+        "count": 849,
+        "share": 53
+      }
+    ]
+  }
+}

@@ -42,7 +42,7 @@ export const TIDE_WEB_COPY = {
   sinceNone: "Nothing posted yet",
   sincePartial: "partial: the county posts sales weeks late",
 
-  storyEyebrow: "The story",
+  storyEyebrow: "Market overview",
   aboutEyebrow: "About this issue",
   contentsFigure: "All three",
   contentsMoves: "What to do",
