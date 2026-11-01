@@ -314,9 +314,9 @@ The sections, always in this order:
    minute for every three figures). From 1024px up the issue's contents run along the foot as anchor
    links.
    The cover rotates through three photos by issue month (`lib/tide/cover.ts`).
-2. **The story.** `opening`, three to five paragraphs at about 66 characters a line, the first with
-   a drop cap, then the line on why this month ("The county posts sales a few weeks late…"). Before
-   the story is written the section is "About this issue" and carries that line alone.
+2. **Market overview.** `opening`, three to five paragraphs at about 66 characters a line, the first
+   with a drop cap, then the line on why this month ("The county posts sales a few weeks late…").
+   Before the overview is written the section is "About this issue" and carries that line alone.
 3. **One big figure.** The three markets' home sales together, very large on the dark harbor band,
    with one computed line under it ("home sales across the three markets in July, 7% more than a
    typical month"), the typical month and the same month a year before, and each market's share as
@@ -421,7 +421,8 @@ should not change, so say why in the commit). The test `lib/tide/narrative.test.
 snapshot's data month matches its entry's pin.
 
 Freeze on the day the issue goes out, after the data refresh it was written from is merged. The
-October 2026 issue is frozen from the October 25 refresh (July figures).
+October 2026 issue is frozen from the October 25 refresh (July figures), and the November 2026 issue
+from the November 1 refresh (August figures).
 
 ### Writing the narrative
 
@@ -436,21 +437,21 @@ checked against the page.
 2. Pick the one or two things that changed most for a buyer or a seller. A month where the median
    price rose but the price per square foot didn't is a story about which homes sold, not about
    prices; say so plainly.
-3. Write the fields. Each is optional, and the page shows what's there. Think of each section as
-   three things: a picture a reader can feel (the elephant), one clear thing to do (the rider), and
-   an easy next step (the path).
-   - `headline`: one sentence, the month's story, 18 words at most. It's set big on the cover and
-     is the email's title.
+3. Write the fields. Each is optional, and the page shows what's there. Each section says what
+   happened, with the figures, in plain words; each move says one clear thing to do, with a link.
+   - `headline`: one sentence on what happened this month, 18 words at most. It's set big on the
+     cover and is the email's title.
    - `dek`: one or two sentences under it.
-   - `opening`: the story, three to five paragraphs of one to five sentences each, told as
-     something a person can picture ("Picture someone house hunting in Bradenton in July. They had
-     lots of company."). An issue without a headline (the first format) opens with one paragraph of
-     two to four sentences.
-   - `markets`: per market (`"lakewood-ranch"`, `sarasota`, `bradenton`), two or three paragraphs,
-     the story of that place this month.
+   - `opening`: the market overview, three to five short paragraphs of one to five sentences each:
+     how many homes sold across the three places, where, and what prices did ("In August, 1,578
+     homes sold in Lakewood Ranch, Sarasota and Bradenton. That's 3% more than in a typical
+     month."). No scene-setting and no story. An issue without a headline (the first format) opens
+     with one paragraph of two to four sentences.
+   - `markets`: per market (`"lakewood-ranch"`, `sarasota`, `bradenton`), two or three paragraphs
+     on what happened in that place this month.
    - `marketMoves`: per market, one sentence: the one thing to do if you're buying or selling there.
    - `buying` and `selling`: three moves each, `{ move, why, link? }`. `move` is one short
-     imperative sentence (14 words at most); `why` is one to three sentences that make it real;
+     imperative sentence (14 words at most); `why` is one to three sentences with the figures behind it;
      `link` is `{ href, label }` to a page on the site: `/sell`, `/sell/home-value`,
      `/sell/net-proceeds`, `/sell/sold`, `/buy`, `/neighborhoods` (with `?market=<slug>` for one
      place), `/neighborhoods/match`, `/relocate`, `/calendar`, `/contact`, a hub, or
@@ -483,8 +484,8 @@ checked against the page.
    percent; the kinds of home, the price bands (and the shares under and over each band's edge, so
    "$400K", "$1.5M" and "64% sold under $750K" pass) and the three markets together. Write figures in
    digits ("12%", "1,080"); a figure spelled out ("twelve percent") fails, since the check can't see
-   it. It also checks the shape (sentence counts above), a reading level of about sixth grade (the
-   Flesch-Kincaid grade of the whole narrative at 6.5 or under) and no sentence over 24 words.
+   it. It also checks the shape (sentence counts above), a reading level of fourth to fifth grade
+   (the Flesch-Kincaid grade of the whole narrative at 5 or under) and no sentence over 24 words.
 6. A data refresh that changes an unfrozen month's figures can fail that test on a figure typed in
    digits. That's on purpose: the words no longer match the record. Write it as a token, or rewrite
    the sentence from the new figures. A frozen issue (above) never moves.
@@ -495,13 +496,15 @@ The October 2026 issue (data month July 2026) is the worked example.
 
 ### The voice
 
-Plain, direct and warm. The owner's words: "Very plain language, very direct, very warm. Use
-storytelling." And: "zero AI tells".
+Plain and direct, like a market report a person wrote. The owner's words (November 2026): keep it
+accessible and simple, at a 4th or 5th grade reading level, "very straightforward and plain", with
+no cute or clever lines and no AI tells. The opening is a market overview, not a story.
 
-- Short sentences, contractions, everyday words, about a sixth-grade reading level. Say "the
-  median price" and "a square foot", not "$/sqft".
-- Tell it as a story a person can picture, then the figure. Second person for advice ("If a home
-  you like is priced well above that for its size, ask why.").
+- Short sentences, about ten words on average, everyday words, a 4th or 5th grade reading level.
+  Say "the median price" and "the price per square foot", not "$/sqft".
+- Say what happened, then the figure. No scene-setting ("Picture…"), no metaphors, no punchy
+  closing lines, no wordplay. Second person for advice ("If a home costs much more than that for
+  its size, ask why.").
 - No questions, no exclamation marks, no superlatives, no adjective a number doesn't back.
 - Places and homes, never people: no "families", "retirees", "young professionals" or any group
   as a target. No license numbers.

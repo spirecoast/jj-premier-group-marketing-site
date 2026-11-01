@@ -447,10 +447,11 @@ describe("the narratives in lib/tide/issues.ts", () => {
       }
     }
   });
-  it("read at about a sixth-grade level, with no sentence over 24 words", () => {
+  it("read at a fourth- to fifth-grade level, with no sentence over 24 words", () => {
     for (const { filled: e } of built) {
       const r = readability(narrativeTexts(e).map((t) => t.text));
-      assert.ok(r.grade <= 6.5, `${e.issue}: grade ${r.grade}`);
+      // The owner asked for a 4th or 5th grade reading level (November 2026).
+      assert.ok(r.grade <= 5, `${e.issue}: grade ${r.grade}`);
       assert.ok(r.longest.words <= 24, `${e.issue}: “${r.longest.text}” is ${r.longest.words} words`);
     }
   });

@@ -1,4 +1,5 @@
 import type { IssueFigures } from "../issue";
+import s2026_11 from "./2026-11.json";
 import s2026_10 from "./2026-10.json";
 
 /**
@@ -11,6 +12,7 @@ import s2026_10 from "./2026-10.json";
  */
 // prettier-ignore
 export const SNAPSHOTS: Readonly<Record<string, IssueFigures>> = {
+  "2026-11": s2026_11 as IssueFigures,
   "2026-10": s2026_10 as IssueFigures,
 };
 
