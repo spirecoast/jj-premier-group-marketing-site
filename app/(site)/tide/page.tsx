@@ -65,6 +65,13 @@ export default async function TideIndexPage() {
               <h3 className="t-h3 text-navy">{W.askHeading}</h3>
               <p className="t-body max-w-measure text-body">{W.askBody}</p>
               <LetterForm />
+              <p className="t-small text-body-muted">
+                Encore, the Monday arts email, is on{" "}
+                <Link href="/newsletters" className="text-navy underline underline-offset-4 transition-colors hover:text-harbor-700">
+                  the newsletters page
+                </Link>{" "}
+                too.
+              </p>
             </div>
           </div>
         </section>

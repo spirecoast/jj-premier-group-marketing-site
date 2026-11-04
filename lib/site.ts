@@ -317,6 +317,7 @@ export const footerNav = {
     { href: "/guides/hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", label: "Hurricane season" },
     { href: "/guides/cdd-fees-in-lakewood-ranch-village-by-village", label: "CDD fees" },
     { href: "/guides", label: "All guides" },
+    { href: "/newsletters", label: "Newsletters" },
   ],
   team: [
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
