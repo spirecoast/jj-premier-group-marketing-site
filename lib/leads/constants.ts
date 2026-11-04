@@ -124,20 +124,27 @@ export const REFERRAL_CONSENT_VERSION = "referral:2026-10-01.1";
 export const REFERRAL_PLANS = ["Buying", "Selling", "Moving here"] as const;
 export type ReferralPlan = (typeof REFERRAL_PLANS)[number];
 
+/** The two questions every enquiry form asks the same way, in the owners' words (November 2026). */
+export const TIMING_QUESTION = "When are you thinking about moving?";
+export const SELL_FIRST_QUESTION = "Do you have a home to sell?";
+
 /**
- * "When are you moving?": the value stored and sent to the CRM, and the
- * shorter label on the chip (the question above it carries the rest).
+ * "When are you thinking about moving?": the owners' answers on the chips.
+ * `value` is what's stored, emailed and sent to the CRM; it stays as it was
+ * before the November 2026 wording, so every lead, old and new, carries the
+ * same four values. `say` is the chip as a screen reader should read a range,
+ * and `echo` is how the thank-you page says it back.
  */
 export const TIMING_OPTIONS = [
-  { value: "Inside three months", chip: "Inside three months" },
-  { value: "Three to six months", chip: "3 to 6", sr: "months" },
-  { value: "Six to twelve months", chip: "6 to 12", sr: "months" },
-  { value: "Just watching the market", chip: "Just watching" },
+  { value: "Inside three months", chip: "Within 3 months", say: undefined, echo: "moving within 3 months" },
+  { value: "Three to six months", chip: "3–6 months", say: "3 to 6 months", echo: "moving in 3 to 6 months" },
+  { value: "Six to twelve months", chip: "6–12 months", say: "6 to 12 months", echo: "moving in 6 to 12 months" },
+  { value: "Just watching the market", chip: "Just exploring", say: undefined, echo: "just exploring" },
 ] as const;
 
-/** The "is there a house to sell first?" answers. */
+/** The "do you have a home to sell?" answers: the stored values, unchanged. */
 export const SELL_FIRST_OPTIONS = ["Yes", "No", "Not sure yet"] as const;
-/** Their chip labels, in the same order. */
+/** Their chip labels, in the same order: the owners' Yes, No and Not sure. */
 export const SELL_FIRST_CHIPS: Record<(typeof SELL_FIRST_OPTIONS)[number], string> = { Yes: "Yes", No: "No", "Not sure yet": "Not sure" };
 
 /** Every field a form can show an error on, keyed by the posted name. */

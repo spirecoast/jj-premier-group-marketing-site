@@ -5,7 +5,7 @@ import { backoffMs, afterFailure, alarmOnFailure, OUTBOX_MAX_ATTEMPTS } from "..
 import { RATE_LIMITS, guardKey, windowStart } from "../lead-guard-keys";
 import { leadSinkProblem, type LeadSinks } from "../lead-sinks";
 import { parsePhone } from "../phone";
-import { LEAD_FORMS } from "./constants";
+import { LEAD_FORMS, SELL_FIRST_CHIPS, SELL_FIRST_OPTIONS, SELL_FIRST_QUESTION, TIMING_OPTIONS, TIMING_QUESTION } from "./constants";
 import { LEAD_FORM_FIELD_NAMES, PIXEL_VISIBLE_FIELDS, fieldName } from "./pixel";
 import { FIELD_ORDER, LEAD_MESSAGES, isEmail, summaryLead, validateLead } from "./rules";
 import { parseLead } from "./schema";
@@ -166,10 +166,47 @@ describe("health: a person has to hear about a lead", () => {
   });
 });
 
+describe("the two questions", () => {
+  it("ask in the owners' words and keep the values every lead has stored", () => {
+    assert.equal(TIMING_QUESTION, "When are you thinking about moving?");
+    assert.equal(SELL_FIRST_QUESTION, "Do you have a home to sell?");
+    assert.deepEqual(
+      TIMING_OPTIONS.map((o) => [o.chip, o.value]),
+      [
+        ["Within 3 months", "Inside three months"],
+        ["3–6 months", "Three to six months"],
+        ["6–12 months", "Six to twelve months"],
+        ["Just exploring", "Just watching the market"],
+      ],
+    );
+    assert.deepEqual(
+      SELL_FIRST_OPTIONS.map((o) => [SELL_FIRST_CHIPS[o], o]),
+      [
+        ["Yes", "Yes"],
+        ["No", "No"],
+        ["Not sure", "Not sure yet"],
+      ],
+    );
+    // A range is read aloud as words.
+    for (const o of TIMING_OPTIONS) if (/–/.test(o.chip)) assert.match(o.say ?? "", /^\d+ to \d+ months$/);
+  });
+  it("still parse on the server with the stored values", () => {
+    const parsed = parseLead({ form: "contact", firstName: "Pat", email: "pat@example.com", timing: "Six to twelve months", sellFirst: "Not sure yet" });
+    assert.ok(parsed.ok);
+    if (parsed.ok) {
+      assert.equal(parsed.data.timing, "Six to twelve months");
+      assert.equal(parsed.data.sellFirst, "Not sure yet");
+    }
+  });
+});
+
 describe("the thank-you page's echo", () => {
   it("says back the address, the timing and a house to sell", () => {
-    assert.equal(echoLine({ form: "valuation", at: 0, address: "9403 9th Ave NW", timing: "Inside three months" }), "For 9403 9th Ave NW, moving inside three months.");
-    assert.equal(echoLine({ form: "buy", at: 0, timing: "Just watching the market", sellFirst: "Yes" }), "Just watching the market, with a house to sell first.");
+    assert.equal(echoLine({ form: "valuation", at: 0, address: "9403 9th Ave NW", timing: "Inside three months" }), "For 9403 9th Ave NW, moving within 3 months.");
+    assert.equal(echoLine({ form: "buy", at: 0, timing: "Just watching the market", sellFirst: "Yes" }), "Just exploring, with a house to sell first.");
+    assert.equal(echoLine({ form: "contact", at: 0, timing: "Three to six months" }), "Moving in 3 to 6 months.");
+    // A value from before the options had their own echo still reads.
+    assert.equal(echoLine({ form: "contact", at: 0, timing: "Next spring" }), "Moving next spring.");
     assert.equal(echoLine({ form: "referral", at: 0, referred: "Sam" }), "For Sam.");
     assert.equal(echoLine({ form: "contact", at: 0 }), null);
   });

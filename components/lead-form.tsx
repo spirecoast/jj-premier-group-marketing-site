@@ -19,7 +19,9 @@ import {
   REVIEW_CONSENT_WORDING,
   SELL_FIRST_CHIPS,
   SELL_FIRST_OPTIONS,
+  SELL_FIRST_QUESTION,
   TIMING_OPTIONS,
+  TIMING_QUESTION,
   initialLeadState,
   type LeadErrorField,
   type LeadForm as LeadFormKind,
@@ -70,8 +72,8 @@ const LABELS: Record<LeadField, string> = {
   name: "Name",
   email: "Email",
   phone: "Phone",
-  timing: "When are you moving?",
-  sellFirst: "Is there a house to sell first?",
+  timing: TIMING_QUESTION,
+  sellFirst: SELL_FIRST_QUESTION,
   address: "Street address",
   referredName: REFER.form.referredName,
   referredLastName: REFER.form.referredLastName,
@@ -83,8 +85,8 @@ const LABELS: Record<LeadField, string> = {
   reviewConsent: REVIEW_CONSENT_WORDING,
 };
 
-/** Under the email and phone pair, where either one will do. */
-const REACH_HINT = "Your email or your phone is enough.";
+/** The heading over name, email and phone on a form laid out in sections (the contact page), in the owners' words. */
+const CONNECT = "Let’s connect";
 
 /** Legends for the two groups on the referral form. */
 const GROUPS = { you: REFER.form.aboutYou, them: REFER.form.aboutThem } as const;
@@ -110,6 +112,13 @@ type Props = {
   messageRequired?: boolean;
   /** Show the email and call/text consent boxes (default). Off where they'd be out of place: a review permission, a referral. */
   marketingConsent?: boolean;
+  /**
+   * The contact page's layout: the two questions as headings over their
+   * chips, then name, email and phone under "Let’s connect", then the
+   * message under its own question (pass it as `labels.message`). The fields,
+   * their names and the checks are the same either way.
+   */
+  sections?: boolean;
 };
 
 /**
@@ -207,6 +216,7 @@ export function LeadForm({
   labels = {},
   messageRequired = false,
   marketingConsent = true,
+  sections = false,
 }: Props) {
   // The server action as the form's own action: it only runs when JavaScript isn't (yet) running.
   const [serverState, formAction] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
@@ -372,15 +382,25 @@ export function LeadForm({
 
   const fieldsToFix = orderedErrorFields(errors);
 
-  const choiceRow = (name: "timing" | "sellFirst", legend: string, options: readonly { value: string; chip: string; sr?: string }[]) => (
-    <fieldset className={cn("field m-0 min-w-0 border-0 p-0", columns && "sm:col-span-2")}>
-      <legend className="field-label choice-legend">{legend}</legend>
+  /** A heading-style legend or label on a form in sections; the small caps label otherwise. */
+  const headingClass = cn("t-h4 p-0", dark ? "text-white" : "text-navy");
+
+  const choiceRow = (name: "timing" | "sellFirst", legend: string, options: readonly { value: string; chip: string; say?: string }[]) => (
+    <fieldset className={cn("field m-0 min-w-0 border-0 p-0", columns && !sections && "sm:col-span-2")}>
+      <legend className={sections ? cn(headingClass, "mb-4") : "field-label choice-legend"}>{legend}</legend>
       <div className="choice-row">
         {options.map((o) => (
           <label key={o.value} className="choice-chip">
             <input type="radio" {...named(name)} value={o.value} defaultChecked={values[name] === o.value} className="sr-only" />
-            {o.chip}
-            {o.sr ? <span className="sr-only"> {o.sr}</span> : null}
+            {/* A range reads as "3 to 6 months", not "3 dash 6". */}
+            {o.say ? (
+              <>
+                <span aria-hidden="true">{o.chip}</span>
+                <span className="sr-only">{o.say}</span>
+              </>
+            ) : (
+              o.chip
+            )}
           </label>
         ))}
       </div>
@@ -389,9 +409,9 @@ export function LeadForm({
 
   const message = has("message") ? (
     <div className={cn("field", columns && "sm:col-span-2")}>
-      <label htmlFor={idFor.message} className="field-label">
+      <label htmlFor={idFor.message} className={sections ? cn(headingClass, "mb-1") : "field-label"}>
         {label("message")}
-        {messageRequired ? null : optional}
+        {messageRequired || sections ? null : optional}
       </label>
       <textarea
         id={idFor.message}
@@ -429,6 +449,119 @@ export function LeadForm({
     </div>
   );
 
+  /** The two questions, timing and a home to sell, as rows of chips. */
+  const questions = (
+    <>
+      {has("timing") ? choiceRow("timing", label("timing"), TIMING_OPTIONS) : null}
+      {has("sellFirst") ? choiceRow("sellFirst", label("sellFirst"), SELL_FIRST_OPTIONS.map((o) => ({ value: o, chip: SELL_FIRST_CHIPS[o] }))) : null}
+    </>
+  );
+
+  /** The visitor's own fields: name, email, phone and the address to value. */
+  const you = (
+    <>
+      {has("name") ? (
+        <>
+          <div className="field">
+            <label htmlFor={idFor.firstName} className="field-label">
+              {labels.name ?? "First name"}
+            </label>
+            <input
+              id={idFor.firstName}
+              {...named("firstName")}
+              autoComplete="given-name"
+              autoCapitalize="words"
+              enterKeyHint="next"
+              aria-required="true"
+              defaultValue={values.firstName}
+              className="field-input"
+              aria-invalid={Boolean(err("firstName"))}
+              aria-describedby={describedBy("firstName")}
+            />
+            <FieldError id={`${uid}-firstName-err`} message={err("firstName")} tone={tone} />
+          </div>
+          <div className="field">
+            <label htmlFor={`${uid}-last`} className="field-label">
+              {labels.lastName ?? "Last name"}
+              {optional}
+            </label>
+            <input id={`${uid}-last`} {...named("lastName")} autoComplete="family-name" autoCapitalize="words" enterKeyHint="next" defaultValue={values.lastName} className="field-input" />
+          </div>
+        </>
+      ) : null}
+      {has("email") ? (
+        <div className="field">
+          <label htmlFor={idFor.email} className="field-label">
+            {label("email")}
+          </label>
+          <input
+            id={idFor.email}
+            type="email"
+            {...named("email")}
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint={enterKey("email")}
+            aria-required={eitherReach ? undefined : "true"}
+            placeholder="you@example.com"
+            defaultValue={values.email}
+            className="field-input"
+            aria-invalid={Boolean(err("email"))}
+            aria-describedby={describedBy("email")}
+          />
+          <FieldError id={`${uid}-email-err`} message={err("email")} tone={tone} />
+        </div>
+      ) : null}
+      {has("phone") ? (
+        <div className="field">
+          <label htmlFor={idFor.phone} className="field-label">
+            {label("phone")}
+            {eitherReach ? null : optional}
+          </label>
+          <input
+            id={idFor.phone}
+            type="tel"
+            {...named("phone")}
+            autoComplete="tel"
+            inputMode="tel"
+            enterKeyHint={enterKey("phone")}
+            placeholder="(941) 555-0100"
+            defaultValue={values.phone}
+            onBlur={(e) => tidyPhone(e.currentTarget)}
+            className="field-input"
+            aria-invalid={Boolean(err("phone"))}
+            aria-describedby={describedBy("phone")}
+          />
+          <FieldError id={`${uid}-phone-err`} message={err("phone")} tone={tone} />
+        </div>
+      ) : null}
+      {has("address") ? (
+        <div className={cn("field", columns && "sm:col-span-2")}>
+          <label htmlFor={idFor.address} className="field-label">
+            {LABELS.address}
+            {form !== "valuation" ? optional : null}
+          </label>
+          <input
+            id={idFor.address}
+            {...named("address")}
+            autoComplete="street-address"
+            autoCapitalize="words"
+            enterKeyHint={enterKey("address")}
+            aria-required={form === "valuation" || undefined}
+            placeholder="Street address, city"
+            defaultValue={values.address ?? defaultAddress}
+            className="field-input"
+            aria-invalid={Boolean(err("address"))}
+            aria-describedby={describedBy("address")}
+          />
+          <FieldError id={`${uid}-address-err`} message={err("address")} tone={tone} />
+        </div>
+      ) : null}
+    </>
+  );
+
   return (
     <form
       ref={formRef}
@@ -456,117 +589,23 @@ export function LeadForm({
         </label>
       </div>
 
-      <Group legend={them ? GROUPS.you : undefined} tone={tone}>
-        <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
-          {has("timing") ? choiceRow("timing", LABELS.timing, TIMING_OPTIONS) : null}
-          {has("sellFirst") ? choiceRow("sellFirst", LABELS.sellFirst, SELL_FIRST_OPTIONS.map((o) => ({ value: o, chip: SELL_FIRST_CHIPS[o] }))) : null}
-          {has("name") ? (
-            <>
-              <div className="field">
-                <label htmlFor={idFor.firstName} className="field-label">
-                  {labels.name ?? "First name"}
-                </label>
-                <input
-                  id={idFor.firstName}
-                  {...named("firstName")}
-                  autoComplete="given-name"
-                  autoCapitalize="words"
-                  enterKeyHint="next"
-                  aria-required="true"
-                  defaultValue={values.firstName}
-                  className="field-input"
-                  aria-invalid={Boolean(err("firstName"))}
-                  aria-describedby={describedBy("firstName")}
-                />
-                <FieldError id={`${uid}-firstName-err`} message={err("firstName")} tone={tone} />
-              </div>
-              <div className="field">
-                <label htmlFor={`${uid}-last`} className="field-label">
-                  {labels.lastName ?? "Last name"}
-                  {optional}
-                </label>
-                <input id={`${uid}-last`} {...named("lastName")} autoComplete="family-name" autoCapitalize="words" enterKeyHint="next" defaultValue={values.lastName} className="field-input" />
-              </div>
-            </>
-          ) : null}
-          {has("email") ? (
-            <div className="field">
-              <label htmlFor={idFor.email} className="field-label">
-                {label("email")}
-              </label>
-              <input
-                id={idFor.email}
-                type="email"
-                {...named("email")}
-                autoComplete="email"
-                inputMode="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                enterKeyHint={enterKey("email")}
-                aria-required={eitherReach ? undefined : "true"}
-                placeholder="you@example.com"
-                defaultValue={values.email}
-                className="field-input"
-                aria-invalid={Boolean(err("email"))}
-                aria-describedby={describedBy("email", eitherReach ? `${uid}-reach` : undefined)}
-              />
-              <FieldError id={`${uid}-email-err`} message={err("email")} tone={tone} />
-            </div>
-          ) : null}
-          {has("phone") ? (
-            <div className="field">
-              <label htmlFor={idFor.phone} className="field-label">
-                {label("phone")}
-                {eitherReach ? null : optional}
-              </label>
-              <input
-                id={idFor.phone}
-                type="tel"
-                {...named("phone")}
-                autoComplete="tel"
-                inputMode="tel"
-                enterKeyHint={enterKey("phone")}
-                placeholder="(941) 555-0100"
-                defaultValue={values.phone}
-                onBlur={(e) => tidyPhone(e.currentTarget)}
-                className="field-input"
-                aria-invalid={Boolean(err("phone"))}
-                aria-describedby={describedBy("phone", eitherReach ? `${uid}-reach` : undefined)}
-              />
-              <FieldError id={`${uid}-phone-err`} message={err("phone")} tone={tone} />
-            </div>
-          ) : null}
-          {eitherReach ? (
-            <p id={`${uid}-reach`} className={cn("t-small -mt-3", dark ? "text-mist" : "text-graphite-500", columns && "sm:col-span-2")}>
-              {REACH_HINT}
-            </p>
-          ) : null}
-          {has("address") ? (
-            <div className={cn("field", columns && "sm:col-span-2")}>
-              <label htmlFor={idFor.address} className="field-label">
-                {LABELS.address}
-                {form !== "valuation" ? optional : null}
-              </label>
-              <input
-                id={idFor.address}
-                {...named("address")}
-                autoComplete="street-address"
-                autoCapitalize="words"
-                enterKeyHint={enterKey("address")}
-                aria-required={form === "valuation" || undefined}
-                placeholder="Street address, city"
-                defaultValue={values.address ?? defaultAddress}
-                className="field-input"
-                aria-invalid={Boolean(err("address"))}
-                aria-describedby={describedBy("address")}
-              />
-              <FieldError id={`${uid}-address-err`} message={err("address")} tone={tone} />
-            </div>
-          ) : null}
-          {them ? null : message}
-        </div>
-      </Group>
+      {sections ? (
+        <>
+          {has("timing") || has("sellFirst") ? <div className="flex flex-col gap-8">{questions}</div> : null}
+          <Group legend={CONNECT} tone={tone}>
+            <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>{you}</div>
+          </Group>
+          {message}
+        </>
+      ) : (
+        <Group legend={them ? GROUPS.you : undefined} tone={tone}>
+          <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
+            {questions}
+            {you}
+            {them ? null : message}
+          </div>
+        </Group>
+      )}
 
       {them ? (
         // The rule sits on a wrapper: on the fieldset itself the legend would cut through it.
@@ -725,7 +764,7 @@ export function LeadForm({
       {/* Phone: the privacy line, then Send at full width under the thumb. From 40rem: the line, then Send beside it. */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <p className={cn("t-small max-w-[420px] sm:flex-1", dark ? "text-linen-200/80" : "text-graphite-500")}>
-          Goes straight to Joelyn and Jessica. We don’t share or sell your details. See the{" "}
+          We don’t share or sell your details. See the{" "}
           <Link href="/privacy" className={cn("underline underline-offset-4", dark ? "hover:text-white" : "hover:text-navy")}>
             privacy policy
           </Link>

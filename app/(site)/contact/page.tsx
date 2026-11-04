@@ -10,9 +10,9 @@ import { pageMetadata } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact · Tell us the timing",
+  title: "Contact · Let us talk about your next move",
   description:
-    "Call, text or write to Joelyn Nauman and Jessica Garza. Two questions first: when do you need to be in, and is there a house to sell?",
+    "Call, text or write to Joelyn Nauman and Jessica Garza at Coldwell Banker Realty in Lakewood Ranch. Tell us a little about your plans, and we’ll reach out.",
   path: "/contact",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -41,13 +41,27 @@ export default async function ContactPage() {
         <SectionHeading
           as="h1"
           size="display"
-          title={<span id="contact-title">Tell us the timing.</span>}
+          title={<span id="contact-title">Let us talk about your next move.</span>}
         />
-        <p className="t-body max-w-measure text-body">
-          Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box, and one of us will write or call back.
-        </p>
+        {/* The owners' own words (November 2026). */}
+        <div className="flex flex-col gap-5">
+          <p className="t-lead max-w-measure text-body">
+            If you’re ready to make a move or just beginning to explore your options, we’d love to hear from you.
+          </p>
+          <p className="t-body max-w-measure text-body">
+            Tell us a little about your plans and what you’re looking for. We will personally reach out to answer your questions, discuss your goals, and help you decide on the next steps.
+          </p>
+        </div>
         <div className="border border-hairline bg-white p-6 sm:p-8">
-          <UrlLeadForm prefill="contact" form="contact" fields={["timing", "sellFirst", "name", "email", "phone", "message"]} submitLabel="Send" />
+          <UrlLeadForm
+            prefill="contact"
+            form="contact"
+            sections
+            fields={["timing", "sellFirst", "name", "email", "phone", "message"]}
+            labels={{ email: "Email address", phone: "Phone number", message: "Anything else you’d like us to know?" }}
+            placeholderMessage="Share a little about what you’re looking for or any questions you may have."
+            submitLabel="Send"
+          />
         </div>
       </div>
 

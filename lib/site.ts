@@ -109,7 +109,7 @@ export const teamMenu = {
   title: "Who you'll work with",
   items: [
     { href: "/about", label: "Joelyn & Jessica", short: "A mother and daughter team" },
-    { href: "/contact", label: "Tell us the timing", short: "When you need to be in a new home" },
+    { href: "/contact", label: "Contact us", short: "Tell us about your next move" },
     { href: "/refer", label: "Refer someone", short: "Send a friend our way" },
     { href: "/reviews", label: "Leave a review", short: "Tell others how it went" },
   ],
