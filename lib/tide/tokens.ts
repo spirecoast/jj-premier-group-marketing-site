@@ -194,10 +194,6 @@ export function fillEntry(entry: TideIssueEntry, tokens: Map<string, string>): {
     out.markets = {};
     for (const k of TIDE_MARKET_KEYS) if (entry.markets[k]) out.markets[k] = many(`markets.${k}`, entry.markets[k]);
   }
-  if (entry.marketMoves) {
-    out.marketMoves = {};
-    for (const k of TIDE_MARKET_KEYS) if (entry.marketMoves[k] !== undefined) out.marketMoves[k] = one(`marketMoves.${k}`, entry.marketMoves[k]);
-  }
   out.buying = moves("buying", entry.buying);
   out.selling = moves("selling", entry.selling);
   return { entry: out, missing };

@@ -498,7 +498,6 @@ describe("the rest of the issue", () => {
       dek: null,
       opening: ["Picture July."],
       markets: {},
-      marketMoves: {},
       buying: [],
       selling: [],
       buyers: ["Buy."],
@@ -515,7 +514,6 @@ describe("the rest of the issue", () => {
         headline: "A headline.",
         dek: "A dek.",
         markets: { sarasota: ["One.", "Two."] },
-        marketMoves: { sarasota: "Do this." },
         buying: [{ move: "Move.", why: "Why.", link: { href: "/buy", label: "Buy" } }, { move: "  ", why: "Dropped." }],
       },
     });
@@ -524,7 +522,7 @@ describe("the rest of the issue", () => {
     assert.deepEqual(letter.markets[1]!.story, { paragraphs: ["One.", "Two."], written: true });
     assert.equal(letter.markets[0]!.story.written, false);
     assert.deepEqual(letter.narrative!.buying, [{ move: "Move.", why: "Why.", link: { href: "/buy", label: "Buy" } }]);
-    assert.ok(letter.commentary!.includes("Do this."));
+    assert.ok(letter.commentary!.includes("Two."));
   });
   it("shows a signed note only when it's written; sample previews show both slots", () => {
     assert.deepEqual(model().notes, []);
