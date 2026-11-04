@@ -256,7 +256,14 @@ server-side PDF would need a headless browser on Vercel. The guides' PDFs stay a
 ## The buyer's and seller's guides as a checklist
 
 `/buy` and `/sell` keep their long editorial form (`components/guide.tsx`); the steps' words are
-the owners' and nothing here changes them. Under each step's words sit two things:
+the owners' and nothing here changes them. Since November 2026 they are Joelyn and Jessica's own
+rewrite, word for word apart from typos and the copy gate (ten buying steps, eight selling). A step
+is its title and its paragraphs (`StepParagraph`): plain, opened by a few words in bold
+(`{ bold, text }`: "Important:", "Timing and presence are key."), or a line they asked to set in
+bold, shown as a navy `t-lead` (`{ lead }`). The steps are written once, in each page's `STEPS`;
+`GUIDE_STEPS` in `lib/room/model.ts` repeats the titles for the client rooms (its test holds them
+to the pages), and `lib/search/copy.ts` summarizes them for search. Under each step's words sit
+two things:
 
 - **The tool for that step**, where one does its work (`tools` on `GuideSteps`, by product id from
   `lib/site.ts`, named with the product's own label and short line). Buy: 1 Atlas Match, 2 the
@@ -549,7 +556,10 @@ here carries `source` = atlas-check.
 - **Plan a visit.** `/calendar/plan` is for someone coming to look at homes: arrival and
   departure (up to 14 days, the coming weekend by default), the markets to see, optional
   category preferences and an evenings-only toggle, all in the URL once the plan is built
-  (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable. Each question is a
+  (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable. Each category chip
+  carries a tick box like the evenings-only box under it (`.chip-box` in
+  `components/encore/encore.css`), so it reads as something to tap on a phone as well as with a
+  pointer or the keyboard. Each question is a
   history entry, so Back returns to the one before. `lib/encore/plan.ts` builds it: each day gets a
   market or two by rotating through the chosen ones and a "Showings with us (10 to 4)" block,
   then up to three timed performances from five o'clock (and one weekend matinee), scored to

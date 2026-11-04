@@ -1596,7 +1596,6 @@ body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="f
   }
   #tide-issue aside,
   #tide-issue figure,
-  #tide-issue .tide-move,
   #tide-issue [data-tide-advice] li {
     break-inside: avoid;
   }
@@ -2049,28 +2048,6 @@ html:has([data-product-bar]) {
     background: var(--color-navy);
     color: var(--color-linen-100);
   }
-}
-
-/* Tide issue: the chapters as a row of numbered tiles on frosted glass. */
-@layer components {
-  .tide-contents {
-    border: 1px solid rgb(255 255 255 / 0.16);
-    background: rgb(13 27 36 / 0.42);
-    -webkit-backdrop-filter: blur(14px) saturate(1.2);
-    backdrop-filter: blur(14px) saturate(1.2);
-  }
-  .tide-contents-item {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    gap: 0.6rem;
-    padding: 1rem 1.1rem 1.1rem;
-    border-left: 1px solid rgb(255 255 255 / 0.12);
-    transition: background-color var(--dur-state) var(--ease-brand);
-  }
-  .tide-contents li:first-child .tide-contents-item { border-left: 0; }
-  .tide-contents-item:hover,
-  .tide-contents-item:focus-visible { background: rgb(255 255 255 / 0.08); }
 }
 
 /* Tide's "Since then" strip: the bars settle over a card's beat; none for reduced motion. */

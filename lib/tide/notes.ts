@@ -15,8 +15,6 @@ export type Narrative = {
   opening: string[];
   /** Per market, its paragraphs; a market with none written is left out. */
   markets: Partial<Record<TideMarketKey, string[]>>;
-  /** Per market, the one thing to do there; a market with none written is left out. */
-  marketMoves: Partial<Record<TideMarketKey, string>>;
   /** The three moves for a buyer and for a seller (the current format). */
   buying: TideMove[];
   selling: TideMove[];
@@ -43,19 +41,15 @@ const moves = (xs?: TideMove[]) =>
  */
 export function narrativeOf(entry: Partial<Pick<TideIssueEntry, NarrativeField>>): Narrative | null {
   const markets: Narrative["markets"] = {};
-  const marketMoves: Narrative["marketMoves"] = {};
   for (const k of TIDE_MARKET_KEYS) {
     const ps = clean(entry.markets?.[k]);
     if (ps.length) markets[k] = ps;
-    const mv = one(entry.marketMoves?.[k]);
-    if (mv) marketMoves[k] = mv;
   }
   const n: Narrative = {
     headline: one(entry.headline),
     dek: one(entry.dek),
     opening: clean(entry.opening),
     markets,
-    marketMoves,
     buying: moves(entry.buying),
     selling: moves(entry.selling),
     buyers: clean(entry.buyers),
@@ -63,7 +57,7 @@ export function narrativeOf(entry: Partial<Pick<TideIssueEntry, NarrativeField>>
     watch: clean(entry.watch),
   };
   const written =
-    n.headline || n.dek || n.opening.length || Object.keys(markets).length || Object.keys(marketMoves).length || n.buying.length || n.selling.length || n.buyers.length || n.sellers.length || n.watch.length;
+    n.headline || n.dek || n.opening.length || Object.keys(markets).length || n.buying.length || n.selling.length || n.buyers.length || n.sellers.length || n.watch.length;
   return written ? n : null;
 }
 
@@ -75,7 +69,7 @@ export function narrativeParagraphs(n: Narrative | null): string[] {
     ...(n.headline ? [n.headline] : []),
     ...(n.dek ? [n.dek] : []),
     ...n.opening,
-    ...TIDE_MARKET_KEYS.flatMap((k) => [...(n.markets[k] ?? []), ...(n.marketMoves[k] ? [n.marketMoves[k]!] : [])]),
+    ...TIDE_MARKET_KEYS.flatMap((k) => n.markets[k] ?? []),
     ...advice(n.buying, n.buyers),
     ...advice(n.selling, n.sellers),
     ...n.watch,

@@ -96,21 +96,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
   const month = model.dataLabel.split(" ")[0]!;
   const c = model.combined;
 
-  let n = 0;
-  const no = () => String((n += 1)).padStart(2, "0");
-  const storyNo = no();
-  const figureNo = no();
-  const chapterNos = model.markets.map(() => no());
-  const movesNo = hasMoves ? no() : null;
-  const chartsNo = no();
-  const contents = [
-    { href: "#what-title", label: told ? W.storyEyebrow : W.aboutEyebrow, n: storyNo },
-    { href: "#figure-title", label: W.contentsFigure, n: figureNo },
-    ...model.markets.map((m, i) => ({ href: `#${m.market}`, label: m.name, n: chapterNos[i]! })),
-    ...(movesNo ? [{ href: "#moves-title", label: W.contentsMoves, n: movesNo }] : []),
-    { href: "#charts-title", label: W.contentsCharts, n: chartsNo },
-  ];
-
   return (
     <>
       <JsonLd
@@ -139,7 +124,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
       <KeepSheet tool="tide-issue" title={model.issueLabel}>
       <article id="tide-issue" className="flex flex-col">
         {/* 1. The cover */}
-        <TideCover model={model} contents={contents} team={team.map((m) => ({ name: m.name, headshot: m.headshot }))} />
+        <TideCover model={model} team={team.map((m) => ({ name: m.name, headshot: m.headshot }))} />
 
         {/* 2. The story. id="what-title": the anchor site search links the story to (lib/search/sources.ts). */}
         <section className="container-site py-section" aria-labelledby="what-title">
@@ -209,12 +194,12 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         </section>
 
         {/* 4. The three market chapters */}
-        {model.markets.map((m, i) => (
-          <MarketChapter key={m.market} m={m} n={chapterNos[i]!} dataLabel={model.dataLabel} move={story?.marketMoves[m.market] ?? null} />
+        {model.markets.map((m) => (
+          <MarketChapter key={m.market} m={m} />
         ))}
 
         {/* 5. If you're buying, if you're selling: once written */}
-        {movesNo ? (
+        {hasMoves ? (
           <section className="bg-linen-100" aria-labelledby="moves-title">
             <div className="container-site flex flex-col gap-12 py-section">
               <SectionHeading title={<span id="moves-title">{W.movesHeading}</span>} className="scroll-mt-24" titleClassName="t-h2" />
@@ -260,7 +245,7 @@ export default async function TideIssuePage({ params }: { params: Params }) {
         ) : null}
 
         {/* 8. The signed notes: each only when written (sample previews show empty ones as placeholders) */}
-        {model.notes.length ? <TeamNotes notes={model.notes} eyebrow={`${no()} · ${W.notesEyebrow}`} /> : null}
+        {model.notes.length ? <TeamNotes notes={model.notes} eyebrow={W.notesEyebrow} /> : null}
 
         {/* 9. Out this month, from the Encore calendar */}
         {events.length ? (

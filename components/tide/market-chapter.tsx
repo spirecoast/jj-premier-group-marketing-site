@@ -42,10 +42,9 @@ function Stat({ label, value, lines }: { label: string; value: string; lines: st
  * figures against a typical month and a year before, the story of the place
  * this month (written, or the computed paragraph until it is), and beside it
  * the twelve-month line, the price bands, the kinds of home and the busiest
- * streets. Then the one move, set apart, and the way on to the market's hub
- * and to Atlas.
+ * streets. Then the way on to the market's hub and to Atlas.
  */
-export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: string; dataLabel: string; move: string | null }) {
+export function MarketChapter({ m }: { m: IssueMarket }) {
   const s = m.stats;
   const b = m.baseline;
   const ly = m.lastYear;
@@ -112,13 +111,6 @@ export function MarketChapter({ m, n, dataLabel, move }: { m: IssueMarket; n: st
           <PriceBands bands={m.bands} market={m.name} />
           <HomeMix mix={m.mix} />
         </div>
-
-        {move ? (
-          <figure className="tide-move flex flex-col gap-3 border-l-2 border-amber py-1 pl-6 md:pl-8" data-tide-market-move={m.market}>
-            <figcaption className="t-eyebrow text-amber">{fill(W.marketMoveLabel, { market: m.name })}</figcaption>
-            <p className="max-w-[34ch] font-display text-[clamp(1.5rem,1.1rem+1.4vw,2.25rem)] leading-[1.18] font-light text-navy">{move}</p>
-          </figure>
-        ) : null}
 
         <div className="flex flex-wrap gap-x-10 gap-y-4">
           <Link href={m.href as Route} className="link-rule">

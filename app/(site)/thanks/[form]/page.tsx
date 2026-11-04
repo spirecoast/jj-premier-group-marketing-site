@@ -35,7 +35,7 @@ const COPY: Record<LeadForm, Next> = {
   buy: {
     eyebrow: "Received",
     title: "Got it.",
-    body: "One of us will call or write back with the two questions that change everything else: your timing, and whether there’s a house to sell first. After that we’ll talk about where.",
+    body: "We will be in touch shortly and we look forward to giving you more information.",
     line: "While you wait, open Atlas. Every neighborhood in Lakewood Ranch, Sarasota and Bradenton is on one map, with the facts behind each one.",
     href: atlas.href,
     label: "Open Atlas",
@@ -174,7 +174,6 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
           </div>
         ) : null}
         <div className={cn("flex flex-col gap-6", bookingUrl && BOOKING_FIRST.includes(form) && "border-t border-hairline pt-5")}>
-          <p className="t-body max-w-[380px] text-body">Call or text either of us directly. We’re usually in a house, so a text gets the quickest answer.</p>
           <ul className="flex flex-col gap-6">
             {team.map((m) => (
               <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">

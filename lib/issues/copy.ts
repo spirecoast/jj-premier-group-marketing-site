@@ -75,7 +75,6 @@ export const TIDE_COPY = {
   marketStreetsNone: "No street had more than one sale.",
   marketZips: "Counted by ZIP code: {zips}.",
   marketLink: "More on {market}",
-  marketMoveLabel: "One move in {market}",
   buyersHeading: "If you’re buying",
   sellersHeading: "If you’re selling",
   limits: "These are closed sales from county records. They don’t show asking prices, how long a home was for sale, or how many homes are for sale now.",

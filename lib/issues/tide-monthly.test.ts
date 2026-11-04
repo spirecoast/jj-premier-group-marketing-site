@@ -194,7 +194,7 @@ describe("buildTideIssue", () => {
     assert.equal(done.placeholder, undefined);
     assert.ok(!done.html.includes("dashed"));
   });
-  it("carries the headline, dek, story, market paragraphs and moves, and the numbered moves", () => {
+  it("carries the headline, dek, story, market paragraphs and the numbered moves", () => {
     const notes = [
       { key: "joelyn" as const, name: "Joelyn Nauman", first: "Joelyn", paragraphs: null },
       { key: "jessica" as const, name: "Jessica Garza", first: "Jessica", paragraphs: null },
@@ -204,7 +204,6 @@ describe("buildTideIssue", () => {
       dek: "Sales ran ahead of a typical month.",
       opening: ["Picture July in Bradenton.", "A second paragraph."],
       markets: { sarasota: ["Sarasota had a steady month.", "Its second paragraph."] },
-      marketMoves: { sarasota: "Price by the square foot." },
       buying: [
         { move: "Compare by the square foot.", why: "Two homes can share a median and differ by size.", link: { href: "/neighborhoods", label: "Look on Atlas" } },
         { move: "Look at last year too.", why: "July a year before tells you more than June." },
@@ -223,10 +222,11 @@ describe("buildTideIssue", () => {
       "2. Look at last year too.",
       "1. Start from the street.",
       "Sarasota had a steady month. Its second paragraph.",
-      "One move in Sarasota: Price by the square foot.",
     ]) {
       assert.ok(text.includes(s), s);
     }
+    // No per-market "One move in" line: the owners took it out (November 2026).
+    assert.ok(!/One move in/i.test(issue.html + issue.text));
     assert.ok(!text.includes("The old paragraph."), "the moves replace the first format's paragraph");
     assert.ok(!text.includes("FACTS TO WRITE FROM"));
     // Markets without written paragraphs keep the computed one.
