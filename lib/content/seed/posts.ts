@@ -40,7 +40,7 @@ export const POSTS: Post[] = [
       ),
       quote("The house is what you fall in love with. The documents are what you live with."),
       p(
-        "Send us the address and we’ll pull the documents and read them with you. It’s the part of buying here that most people wish someone had explained sooner.",
+        "Send us the address and we’ll get the documents and get back to you as soon as we can.",
       ),
     ),
   },

@@ -491,7 +491,7 @@ export const SELLING_FROM_AWAY_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Tell us where you are and where the house is.",
-    body: "We’ll set the timeline around your travel, not the other way around, and we’ll say on the first call what the title company will ask for. If you’d rather start on your own, this guide is the order we’d do it in.",
+    body: "We’ll plan the timeline around your travel and tell you on the first call what the title company will need. If you’d rather start on your own, just follow the steps above.",
     cta: "Tell us about the house",
     tool: "contact",
   },

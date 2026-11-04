@@ -441,7 +441,7 @@ export const HURRICANE_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Send us an address.",
-    body: "We’ll look up both zones and the county’s records for that house and go through them with you. If you’d rather do it yourself, this guide is the order we’d do it in.",
+    body: "We’ll look up both zones and get back to you as soon as we can. If you’d rather do it yourself, just follow the steps above.",
     cta: "Ask about a house",
     tool: "contact",
   },
