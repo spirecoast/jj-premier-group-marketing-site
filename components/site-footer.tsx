@@ -11,6 +11,7 @@ import { CbMark } from "./cb-mark";
 import { EqualHousingMark } from "./equal-housing";
 import { RealtorMark } from "./realtor-mark";
 import { Wordmark } from "./wordmark";
+import { formatAddress } from "@/lib/content/format";
 
 /** "See all nine": counted from the families, so a new tool changes it. */
 const COUNT_WORDS = ["none", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
@@ -98,9 +99,7 @@ export function SiteFooter({ settings, team }: { settings: SiteSettings; team: T
   const year = new Date().getFullYear();
   const social = allSocialLinks(settings.socialLinks);
   // Registered full name beside each confirmed number; an unconfirmed license is omitted, never guessed.
-  const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
-    .filter(Boolean)
-    .join(", ");
+  const office = formatAddress(settings.officeAddress);
 
   return (
     <footer className="bg-linen-200 pb-20 text-navy md:pb-12">

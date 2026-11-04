@@ -25,9 +25,8 @@ export const metadata: Metadata = pageMetadata({
  */
 export default async function ContactPage() {
   const [team, settings] = await Promise.all([getTeam(), getSiteSettings()]);
-  const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
-    .filter(Boolean)
-    .join(", ");
+  // The street on its own line, then the town: the same words and commas as the footer and the JSON-LD.
+  const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()].filter(Boolean);
   // The Google Maps link searches for the office address once it is filled in, else NEXT_PUBLIC_MAP_QUERY, else the brokerage in Lakewood Ranch.
   const query = mapQuery(settings);
   const mapsUrl = mapLinkUrl(query);
@@ -55,6 +54,16 @@ export default async function ContactPage() {
       <div className="flex flex-col gap-10 lg:pt-24">
         <div className="flex flex-col gap-6">
           <p className="t-h4 text-navy">Direct</p>
+          {/* One number for the team (the site settings' main phone); each of us by name and email under it. */}
+          <div className="flex flex-col gap-1 border-t border-hairline pt-5">
+            <p className="t-mono-sm text-graphite-500">Call or text</p>
+            <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "contact" }} className="self-start font-mono text-[15px] text-navy hover:text-harbor-700">
+              {settings.primaryPhoneDisplay}
+            </TrackedLink>
+            <TrackedLink href={`sms:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "contact-text" }} className="t-small self-start text-harbor-700 hover:text-navy">
+              Text us
+            </TrackedLink>
+          </div>
           <ul className="flex flex-col gap-6">
             {team.map((m) => (
               <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">
@@ -62,12 +71,6 @@ export default async function ContactPage() {
                 <p className="t-mono-sm text-graphite-500">
                   {m.title}
                 </p>
-                <TrackedLink href={`tel:${m.phoneE164}`} event="Phone tap" props={{ where: "contact" }} className="font-mono text-[15px] text-navy hover:text-harbor-700">
-                  {m.phone}
-                </TrackedLink>
-                <TrackedLink href={`sms:${m.phoneE164}`} event="Phone tap" props={{ where: "contact-text" }} className="t-small text-harbor-700 hover:text-navy">
-                  Text {m.name.split(" ")[0]}
-                </TrackedLink>
                 <a href={`mailto:${m.email}`} className="t-small break-all text-harbor-700 hover:text-navy">
                   {m.email}
                 </a>
@@ -78,11 +81,12 @@ export default async function ContactPage() {
         <div className="flex flex-col gap-3 border-t border-hairline pt-5">
           <p className="t-h4 text-navy">Office</p>
           <address className="t-body not-italic text-body">
-            {settings.brokerageName}
-            <br />
-            {office}
+            {[settings.brokerageName, ...office].map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
           </address>
-          <p className="t-small text-body-muted">By appointment. We’re usually in a house, so call or text first.</p>
         </div>
         {/* The map, in the brand's own style: one marker, loaded once the frame is near the viewport, with the Google Maps link under it for directions. */}
         <div className="flex flex-col gap-3">

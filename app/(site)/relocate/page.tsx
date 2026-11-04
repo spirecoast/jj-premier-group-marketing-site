@@ -7,7 +7,7 @@ import { MoveHelp } from "@/components/relocate/move-help";
 import { PlanView } from "@/components/relocate/plan-view";
 import { PlannerProvider } from "@/components/relocate/planner-context";
 import { Questions } from "@/components/relocate/questions";
-import { getTeam } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { placesEnabled } from "@/lib/places/google";
 import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { SOURCES } from "@/lib/relocate/sources";
@@ -86,7 +86,7 @@ const PRINT_CSS = `
  * replaces it with the visitor's.
  */
 export default async function RelocatePage() {
-  const team = await getTeam();
+  const settings = await getSiteSettings();
   const today = dayIn(SITE_TIMEZONE);
 
   return (
@@ -117,7 +117,7 @@ export default async function RelocatePage() {
       </IslandBoundary>
       <MoveHelp enabled={placesEnabled()} />
 
-      <Ask team={team.map((m) => ({ slug: m.slug, name: m.name, phone: m.phone, phoneE164: m.phoneE164 }))} />
+      <Ask phone={{ display: settings.primaryPhoneDisplay, e164: settings.primaryPhoneE164 }} />
 
       <section className="container-site grid gap-10 border-t border-hairline py-section print:hidden lg:grid-cols-[1fr_1.6fr] lg:gap-20" aria-labelledby="faq-title">
         <h2 id="faq-title" className="t-h1 text-navy">

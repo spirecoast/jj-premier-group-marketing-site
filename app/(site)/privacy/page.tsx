@@ -3,6 +3,7 @@ import { getSiteSettings } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
 import { MAP_PROVIDER } from "@/lib/neighborhoods/map-style";
 import { site } from "@/lib/site";
+import { formatAddress } from "@/lib/content/format";
 
 export const metadata: Metadata = pageMetadata({
   title: "Privacy policy",
@@ -89,7 +90,7 @@ export default async function PrivacyPage() {
         <p>
           {site.name} · {settings.brokerageName}
           <br />
-          {[settings.officeAddress.street, settings.officeAddress.city, settings.officeAddress.state, settings.officeAddress.zip].filter(Boolean).join(", ")}
+          {formatAddress(settings.officeAddress)}
           <br />
           <a href="mailto:joelyn.nauman@cbrealty.com">joelyn.nauman@cbrealty.com</a> · <a href="mailto:jessica.garza@cbrealty.com">jessica.garza@cbrealty.com</a>
         </p>

@@ -111,14 +111,15 @@ export function KeepSheet({ tool, url, title, className, children }: { tool: Kee
       <div className="keep-print keep-print-foot" aria-hidden="true">
         <div className="keep-print-words">
           <p className="keep-print-source">{t.source}</p>
-          {team.length ? (
+          {team.names.length ? (
             <p className="keep-print-team">
-              {team.map((m, i) => (
-                <span key={m.name}>
-                  {i ? <span className="keep-print-dot"> · </span> : null}
-                  {m.name} {m.phone}
-                </span>
-              ))}
+              {team.names.join(" and ")}
+              {team.phone ? (
+                <>
+                  <span className="keep-print-dot"> · </span>
+                  {team.phone}
+                </>
+              ) : null}
             </p>
           ) : null}
           <p className="keep-print-brand">JJ Premier Group · Coldwell Banker Realty</p>

@@ -7,7 +7,7 @@ import { LeadForm } from "@/components/lead-form";
 import { Photo } from "@/components/photo";
 import { SharedFrame } from "@/components/shared-frame";
 import { SectionHeading } from "@/components/section-heading";
-import { getTeam, getVenues } from "@/lib/content";
+import { getSiteSettings, getVenues } from "@/lib/content";
 import { formatDateLong } from "@/lib/content/format";
 import { getMarket } from "@/lib/content/markets";
 import type { MarketSlug, Post } from "@/lib/content/types";
@@ -102,7 +102,7 @@ function SourceLink({ href, children }: { href: string; children: React.ReactNod
 export async function HubPage({ market }: { market: MarketSlug }) {
   const m = getMarket(market)!;
   const copy = HUBS[market];
-  const [atlas, venues, guides, team] = await Promise.all([hubAtlas(market), getVenues(market), hubGuides(market), getTeam(), loadEncoreSnapshot()]);
+  const [atlas, venues, guides, settings] = await Promise.all([hubAtlas(market), getVenues(market), hubGuides(market), getSiteSettings(), loadEncoreSnapshot()]);
   // hubWeek reads the Encore index synchronously: the snapshot loaded above.
   const week = hubWeek(market);
   const faqs: Faq[] = copy.faqs.map((f) => ({ q: f.q, answer: f.answer, a: <p>{f.answer}</p> }));
@@ -110,7 +110,6 @@ export async function HubPage({ market }: { market: MarketSlug }) {
   const asOf = monthYear(DATASET_VERSION) ?? DATASET_VERSION;
   const calendarHref = encoreHref({ market });
   const explorerLink = explorerHref({ filters: { market } });
-  const lead = team[0];
   const countySplit =
     atlas.counties.length > 1 ? `${atlas.counties.map((c, i) => `${c.areas}${i === 0 ? " areas" : ""} in ${c.name} County`).join(" and ")}.` : null;
 
@@ -159,11 +158,9 @@ export async function HubPage({ market }: { market: MarketSlug }) {
             {copy.orientation[0]} {copy.orientation[1]}
           </p>
           <div className="btn-row gap-3.5 pt-2">
-            {lead ? (
-              <ButtonLink href={`tel:${lead.phoneE164}`} variant="linen" dash>
-                Call {lead.name.split(" ")[0]} · {lead.phone}
-              </ButtonLink>
-            ) : null}
+            <ButtonLink href={`tel:${settings.primaryPhoneE164}`} variant="linen" dash>
+              Call us · {settings.primaryPhoneDisplay}
+            </ButtonLink>
             <ButtonLink href="#timing" variant="outline-light">
               Tell us the timing
             </ButtonLink>
@@ -378,16 +375,12 @@ export async function HubPage({ market }: { market: MarketSlug }) {
           <p className="t-body max-w-[440px] text-body">
             When do you need to be in {m.name}, and is there a house to sell first? Put whatever you know in the box. One of us will call or write back, and we&rsquo;ll start with those two questions.
           </p>
-          <ul className="flex flex-col gap-3 border-t border-hairline pt-6">
-            {team.map((t) => (
-              <li key={t.slug} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                <span className="t-h4 text-navy">{t.name}</span>
-                <a href={`tel:${t.phoneE164}`} className="t-record text-navy transition-colors hover:text-harbor-700">
-                  {t.phone}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <p className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-hairline pt-6">
+            <span className="t-h4 text-navy">Call or text</span>
+            <a href={`tel:${settings.primaryPhoneE164}`} className="t-record text-navy transition-colors hover:text-harbor-700">
+              {settings.primaryPhoneDisplay}
+            </a>
+          </p>
           <p className="t-small text-body-muted">
             Selling first?{" "}
             <Link href="/sell" className="text-harbor-700 underline underline-offset-4 hover:text-navy">

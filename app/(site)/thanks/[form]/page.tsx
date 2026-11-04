@@ -6,7 +6,7 @@ import { ShareButton } from "@/components/share-button";
 import { ThanksBooking, ThanksEcho } from "@/components/thanks-echo";
 import { ThanksGoal } from "@/components/thanks-goal";
 import { TrackedLink } from "@/components/tracked-link";
-import { getTeam } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { LEAD_FORMS, LEAD_GOAL, isLeadForm, type LeadForm } from "@/lib/leads/constants";
 import { newsletterConfig } from "@/lib/newsletter/config";
 import { SIGNUP_COPY } from "@/lib/newsletter/copy";
@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * /thanks/[form] — where every form lands after a successful send. What
- * happens next, in plain words; the two direct numbers; a booking link when
+ * happens next, in plain words; the team's number; a booking link when
  * NEXT_PUBLIC_BOOKING_URL is set; and one useful thing to do in the meantime.
  * The page fires the analytics goal (the form itself does not). Kept out of
  * search engines: there is nothing here for anyone who has not sent a form.
@@ -137,7 +137,7 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
   const copy = COPY[form];
   // The Tide and Encore pages, when the site sends a confirmation email (read at build: the page is static).
   const confirming = (form === "letter" || form === "calendar" || form === "watch") && newsletterConfig().enabled;
-  const team = await getTeam();
+  const settings = await getSiteSettings();
   const bookingUrl = process.env.NEXT_PUBLIC_BOOKING_URL;
 
   return (
@@ -174,20 +174,15 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
           </div>
         ) : null}
         <div className={cn("flex flex-col gap-6", bookingUrl && BOOKING_FIRST.includes(form) && "border-t border-hairline pt-5")}>
-          <p className="t-body max-w-[380px] text-body">Call or text either of us directly. We’re usually in a house, so a text gets the quickest answer.</p>
-          <ul className="flex flex-col gap-6">
-            {team.map((m) => (
-              <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">
-                <p className="t-h4 text-navy">{m.name}</p>
-                <TrackedLink href={`tel:${m.phoneE164}`} event="Phone tap" props={{ where: "thanks" }} className="font-mono text-[15px] text-navy hover:text-harbor-700">
-                  {m.phone}
-                </TrackedLink>
-                <TrackedLink href={`sms:${m.phoneE164}`} event="Phone tap" props={{ where: "thanks-text" }} className="t-small text-harbor-700 hover:text-navy">
-                  Text {m.name.split(" ")[0]}
-                </TrackedLink>
-              </li>
-            ))}
-          </ul>
+          <p className="t-body max-w-[380px] text-body">Call or text us directly. We’re usually in a house, so a text gets the quickest answer.</p>
+          <div className="flex flex-col gap-1 border-t border-hairline pt-5">
+            <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "thanks" }} className="self-start font-mono text-[15px] text-navy hover:text-harbor-700">
+              {settings.primaryPhoneDisplay}
+            </TrackedLink>
+            <TrackedLink href={`sms:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "thanks-text" }} className="t-small self-start text-harbor-700 hover:text-navy">
+              Text us
+            </TrackedLink>
+          </div>
         </div>
         {bookingUrl && !BOOKING_FIRST.includes(form) ? (
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">

@@ -80,7 +80,8 @@ export async function sendKeepEmail(input: { tool: KeepToolId; url: unknown; ema
     siteName: site.name,
     siteHost: new URL(site.url).host,
     brokerage: settings.brokerageName,
-    team: team.map((m) => ({ name: m.name, phone: m.phone })),
+    team: team.map((m) => ({ name: m.name })),
+    phone: settings.primaryPhoneDisplay,
     replyable: replyTo.length > 0,
   });
   const res = await sendEmail({ to: input.email, subject, html, replyTo: replyTo[0], category: "transactional" });

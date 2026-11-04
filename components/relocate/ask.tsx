@@ -15,7 +15,10 @@ import { usePlanner } from "./planner-context";
  * Lakewood Ranch, so it stays blank). While the questions are still open,
  * one line points anyone who would rather talk at the contact page.
  */
-export function Ask({ team }: { team: { slug: string; name: string; phone: string; phoneE164: string }[] }) {
+/** The team's one number (the site settings' main phone). */
+type Phone = { display: string; e164: string };
+
+export function Ask({ phone }: { phone: Phone }) {
   const { mode } = usePlanner();
   if (mode !== "plan") {
     return (
@@ -27,10 +30,10 @@ export function Ask({ team }: { team: { slug: string; name: string; phone: strin
       </p>
     );
   }
-  return <AskForm team={team} />;
+  return <AskForm phone={phone} />;
 }
 
-function AskForm({ team }: { team: { slug: string; name: string; phone: string; phoneE164: string }[] }) {
+function AskForm({ phone }: { phone: Phone }) {
   const { plan, shareUrl } = usePlanner();
   const market = plan.answers.county === "sarasota" ? "sarasota" : undefined;
   const message = `${plan.summary}\n${shareUrl}`;
@@ -48,16 +51,12 @@ function AskForm({ team }: { team: { slug: string; name: string; phone: string; 
               {PLAN.useDates}
             </button>
           ) : null}
-          <ul className="flex flex-col gap-3 border-t border-linen-200/40 pt-6">
-            {team.map((m) => (
-              <li key={m.slug} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                <span className="t-h4 text-white">{m.name}</span>
-                <a href={`tel:${m.phoneE164}`} className="t-record text-linen-200 transition-colors hover:text-white">
-                  {m.phone}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <p className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-linen-200/40 pt-6">
+            <span className="t-h4 text-white">Call or text</span>
+            <a href={`tel:${phone.e164}`} className="t-record text-linen-200 transition-colors hover:text-white">
+              {phone.display}
+            </a>
+          </p>
         </div>
         <div className="border border-linen-200/50 p-6 sm:p-8">
           <LeadForm

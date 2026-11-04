@@ -7,7 +7,7 @@
 
 import { KEEP_TOOLS, type KeepToolId } from "./tools";
 
-export type Signer = { name: string; phone: string };
+export type Signer = { name: string };
 
 const escapeMap: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => escapeMap[c] ?? c);
@@ -17,13 +17,13 @@ const INK = "#2b2d30";
 const MUTED = "#63666a";
 const RULE = "#e3ddd3";
 
-export function keepEmail(opts: { tool: KeepToolId; link: string; siteName: string; siteHost: string; brokerage: string; team: Signer[]; replyable: boolean }): { subject: string; html: string } {
+/** `phone` is the team's one number (the site settings' main phone), signed under both names. */
+export function keepEmail(opts: { tool: KeepToolId; link: string; siteName: string; siteHost: string; brokerage: string; team: Signer[]; phone: string; replyable: boolean }): { subject: string; html: string } {
   const t = KEEP_TOOLS[opts.tool];
   const names = opts.team.map((m) => m.name.split(" ")[0]).join(" & ");
   const font = `font-family:Georgia,'Times New Roman',serif`;
   const sans = `font-family:Helvetica,Arial,sans-serif`;
   const p = (text: string, style = "") => `<p style="margin:0 0 16px;${sans};font-size:15px;line-height:1.6;color:${INK};${style}">${text}</p>`;
-  const phones = opts.team.map((m) => `${esc(m.name)} · ${esc(m.phone)}`).join("<br>");
 
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(t.subject)}</title></head>
@@ -41,7 +41,7 @@ ${opts.replyable ? p(`If anything in it raises a question, reply to this email a
 </td></tr>
 <tr><td style="padding:8px 32px 28px;border-top:1px solid ${RULE};">
 <p style="margin:16px 0 4px;${font};font-size:17px;color:${NAVY};">${esc(names)}</p>
-<p style="margin:0;${sans};font-size:13px;line-height:1.6;color:${INK};">${phones}</p>
+${opts.phone ? `<p style="margin:0;${sans};font-size:13px;line-height:1.6;color:${INK};">Call or text ${esc(opts.phone)}</p>` : ""}
 <p style="margin:8px 0 0;${sans};font-size:12px;line-height:1.6;color:${MUTED};">${t.product ? `${esc(t.product)} · ` : ""}${esc(opts.siteName)} · ${esc(opts.brokerage)} · ${esc(opts.siteHost)}</p>
 </td></tr>
 </table>

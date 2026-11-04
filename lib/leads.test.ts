@@ -107,9 +107,16 @@ describe("channel source", () => {
 });
 
 describe("social links", () => {
-  it("ship empty until the client sends the URLs", () => {
-    assert.equal(socialLinks.length, 0);
-    assert.deepEqual(allSocialLinks([]), []);
+  it("carry the team's Facebook and Instagram profiles, each on its own network", () => {
+    assert.deepEqual(
+      socialLinks.map((l) => [l.network, l.url]),
+      [
+        ["facebook", "https://www.facebook.com/profile.php?id=61594199527037"],
+        ["instagram", "https://www.instagram.com/jjpremiergroup/"],
+      ],
+    );
+    for (const l of socialLinks) assert.equal(socialNetwork(l.url), l.network);
+    assert.deepEqual(allSocialLinks([]), [...socialLinks]);
   });
 
   it("name the network from the host and drop duplicates and blanks", () => {
@@ -123,6 +130,8 @@ describe("social links", () => {
       { label: "Instagram again", url: "https://instagram.com/jj" },
       { label: "Blank", url: " " },
     ]);
-    assert.deepEqual(merged, [{ network: "instagram", label: "Instagram", url: "https://instagram.com/jj" }]);
+    assert.deepEqual(merged, [...socialLinks, { network: "instagram", label: "Instagram", url: "https://instagram.com/jj" }]);
+    // A CMS entry that repeats a code entry's address shows once.
+    assert.equal(allSocialLinks([{ label: "Facebook", url: socialLinks[0]!.url }]).length, socialLinks.length);
   });
 });

@@ -65,19 +65,19 @@ test("the email carries the link, the team and nothing a request could inject", 
     siteName: "JJ Premier Group",
     siteHost: "jjpremiergroup.com",
     brokerage: "Coldwell Banker Realty",
-    team: [
-      { name: "Joelyn Nauman", phone: "(941) 555-0100" },
-      { name: "Jessica Garza", phone: "(941) 555-0101" },
-    ],
+    team: [{ name: "Joelyn Nauman" }, { name: "Jessica Garza" }],
+    phone: "(309) 258-0225",
     replyable: true,
   });
   assert.equal(subject, "Your Atlas Move plan");
   assert.ok(html.includes("Here&rsquo;s your moving plan."));
   assert.ok(html.includes("Joelyn &amp; Jessica"));
+  // One number for the team, once.
+  assert.equal(html.split("(309) 258-0225").length, 2);
   assert.ok(html.includes("Coldwell Banker Realty"));
   assert.ok(html.includes("reply to this email"));
   assert.ok(!html.includes("<script>"));
   assert.ok(html.includes("&quot;&gt;&lt;script&gt;"));
-  const quiet = keepEmail({ tool: "tide-home-value", link: "https://jjpremiergroup.com/sell/home-value", siteName: "JJ Premier Group", siteHost: "jjpremiergroup.com", brokerage: "Coldwell Banker Realty", team: [], replyable: false });
+  const quiet = keepEmail({ tool: "tide-home-value", link: "https://jjpremiergroup.com/sell/home-value", siteName: "JJ Premier Group", siteHost: "jjpremiergroup.com", brokerage: "Coldwell Banker Realty", team: [], phone: "", replyable: false });
   assert.ok(!quiet.html.includes("reply to this email"));
 });
