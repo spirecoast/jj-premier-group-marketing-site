@@ -45,7 +45,6 @@ function AskForm({ phone }: { phone: Phone }) {
       <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
         <div className="flex flex-col gap-6">
           <SectionHeading title={ASK.title} tone="dark" />
-          <p className="t-body max-w-[440px] text-linen-200">{ASK.body}</p>
           {sentMessage !== message ? (
             <button type="button" onClick={() => setSentMessage(message)} className="link-rule self-start text-mist">
               {PLAN.useDates}

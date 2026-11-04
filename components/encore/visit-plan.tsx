@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { ButtonLink, RuleButton } from "@/components/ui/button";
-import { Chip, ChipGroup } from "@/components/ui/chip";
+import { Chip, ChipGroup, ChipTick } from "@/components/ui/chip";
 import { Checkbox, Field, Input } from "@/components/ui/field";
 import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepDirection, useStepFocus } from "@/components/ui/stepper";
 import { LeadForm } from "@/components/lead-form";
@@ -191,7 +191,6 @@ export function VisitPlan({
                 </StepTitle>
                 {q === 1 ? <p className="t-body text-body">Up to {MAX_DAYS} days.</p> : null}
                 {q === 2 ? <p className="t-body text-body">Pick any. Leave them all off and you get all three.</p> : null}
-                {q === 3 ? <p className="t-body text-body">Optional. We lean the picks toward these.</p> : null}
               </div>
 
               {q === 0 ? (
@@ -200,7 +199,7 @@ export function VisitPlan({
                     on={visiting}
                     onClick={() => setDraft((d) => ({ ...d, local: false }))}
                     title="I’m coming to look at homes"
-                    body="We keep ten to four free for showings each day, and fill the evenings."
+                    body="We keep the afternoons for showings, and the evenings for entertainment."
                     icon={<path d="M3 10.5 12 3l9 7.5M5.5 9v11h13V9M10 20v-6h4v6" />}
                   />
                   <WhoCard
@@ -264,8 +263,12 @@ export function VisitPlan({
               {q === 3 ? (
                 <div className="flex flex-col gap-4">
                   <ChipGroup aria-labelledby="plan-inputs-title">
+                    {/* Each category is a tick box, like "Evenings only" under it, so it reads as something to tap before anything is chosen. */}
                     {CATEGORY_ORDER.map((c) => (
                       <Chip key={c} size="lg" tick={false} selected={draft.categories.includes(c)} onClick={() => toggleCat(c)}>
+                        <span className="chip-box" aria-hidden="true">
+                          <ChipTick />
+                        </span>
                         <i className="chip-dot" style={{ background: CATEGORY[c].color }} aria-hidden="true" />
                         {CATEGORY[c].label}
                       </Chip>
@@ -433,10 +436,6 @@ export function VisitPlan({
           <div className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
             <div className="flex flex-col gap-6">
               <h2 className="t-h1 text-navy">Send us your dates and we’ll line up the showings</h2>
-              <p className="t-body max-w-[440px] text-body">
-                The dates and places from your plan are already in the message. Add what you’re looking for and whether there’s a house to sell first, and one of us will call or
-                write back.
-              </p>
               {sentMessage !== askMessage ? (
                 <RuleButton onClick={() => setSentMessage(askMessage)} className="self-start">
                   Use the dates in this plan

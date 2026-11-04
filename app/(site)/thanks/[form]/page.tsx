@@ -13,7 +13,6 @@ import { REVIEWS } from "@/lib/reviews/copy";
 import { WATCH_BUTTON_COPY } from "@/lib/watch/copy";
 import { pageMetadata } from "@/lib/seo";
 import { products } from "@/lib/site";
-import { cn } from "@/lib/utils";
 
 /**
  * /thanks/[form] — where every form lands after a successful send. What
@@ -33,7 +32,7 @@ const COPY: Record<LeadForm, Next> = {
   buy: {
     eyebrow: "Received",
     title: "Got it.",
-    body: "One of us will call or write back with the two questions that change everything else: your timing, and whether there’s a house to sell first. After that we’ll talk about where.",
+    body: "We will be in touch shortly and we look forward to giving you more information.",
     line: "While you wait, open Atlas. Every neighborhood in Lakewood Ranch, Sarasota and Bradenton is on one map, with the facts behind each one.",
     href: atlas.href,
     label: "Open Atlas",
@@ -164,16 +163,15 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
             <ThanksBooking form={form} url={bookingUrl} primary />
           </div>
         ) : null}
-        <div className={cn("flex flex-col gap-6", bookingUrl && BOOKING_FIRST.includes(form) && "border-t border-hairline pt-5")}>
-          <p className="t-body max-w-[380px] text-body">Call or text us directly. We’re usually in a house, so a text gets the quickest answer.</p>
-          <div className="flex flex-col gap-1 border-t border-hairline pt-5">
-            <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "thanks" }} className="self-start font-mono text-[15px] text-navy hover:text-harbor-700">
-              {settings.primaryPhoneDisplay}
-            </TrackedLink>
-            <TrackedLink href={`sms:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "thanks-text" }} className="t-small self-start text-harbor-700 hover:text-navy">
-              Text us
-            </TrackedLink>
-          </div>
+        {/* The team's one number (the site settings' main phone). */}
+        <div className="flex flex-col gap-1 border-t border-hairline pt-5">
+          <p className="t-mono-sm text-graphite-500">Call or text</p>
+          <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "thanks" }} className="self-start font-mono text-[15px] text-navy hover:text-harbor-700">
+            {settings.primaryPhoneDisplay}
+          </TrackedLink>
+          <TrackedLink href={`sms:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "thanks-text" }} className="t-small self-start text-harbor-700 hover:text-navy">
+            Text us
+          </TrackedLink>
         </div>
         {bookingUrl && !BOOKING_FIRST.includes(form) ? (
           <div className="flex flex-col gap-3 border-t border-hairline pt-5">

@@ -58,18 +58,27 @@ export const TOKEN_SHAPE = /^[A-Za-z0-9_-]{16,64}$/;
  */
 export const GUIDE_STEPS: Record<GuideKey, readonly string[]> = {
   buy: [
-    "Make your wish list",
-    "Work out your budget",
+    "Create your home wish list",
+    "Establish your budget",
     "Get prequalified",
-    "Choose your agent",
-    "Find the right home",
-    "Finalize your financing",
-    "Make an offer",
-    "Have the home inspected",
-    "Get the appraisal",
-    "Close and get the keys",
+    "Choose the right real estate agent",
+    "Finding your perfect home",
+    "Securing your financing",
+    "Making an offer",
+    "The home inspection",
+    "The home appraisal",
+    "Closing day—welcome home!",
   ],
-  sell: ["Know why you're selling", "Set the price", "Get the house ready", "Market it", "Review the offers", "Accept an offer", "Get ready to close", "Close"],
+  sell: [
+    "Understand your reasons for selling",
+    "Price your home strategically",
+    "Prepare your home to sell",
+    "Marketing your home",
+    "Reviewing your offers",
+    "Accept an offer",
+    "Preparing for closing",
+    "Closing day",
+  ],
 };
 
 export const GUIDE_PATH: Record<GuideKey, string> = { buy: "/buy#steps", sell: "/sell#steps" };

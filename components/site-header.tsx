@@ -187,8 +187,8 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
         <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-6">
           {primaryNav.map((item) => {
             // Two of the plain pages are small menus in the product menus' style: Buy (the guide, the
-            // listings, the move, the neighborhoods) and the team (About, the timing form, referrals,
-            // reviews, and the two numbers).
+            // listings, the move, the neighborhoods) and the team (About, the contact page, reviews,
+            // and the team's number).
             const menu = item.href === "/buy" ? buy : item.href === "/about" ? team : null;
             if (menu) {
               return (

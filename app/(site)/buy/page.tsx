@@ -11,7 +11,7 @@ import { faqJsonLd, pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "The buyer's guide",
   description:
-    "Buying a home in Lakewood Ranch, Sarasota or Bradenton in ten steps: your wish list, your budget, prequalifying, choosing an agent, the search, financing, the offer, the inspection, the appraisal and closing.",
+    "Buying a home in Lakewood Ranch, Sarasota or Bradenton in ten steps: your home wish list, your budget, getting prequalified, choosing the right agent, finding your home, financing, making an offer, the home inspection, the appraisal and closing day.",
   path: "/buy",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -21,66 +21,104 @@ const FRAMES = {
   hero: img("library/hero-waterfront-palms-dock", "A white house with a red tile roof behind royal palms, with a dock on the water", "50% 55%"),
 };
 
-/** Ten steps, in the order they happen, each with a photograph. */
+/**
+ * Ten steps, in the order they happen, each with a photograph. The words are
+ * Joelyn and Jessica's own; a { lead } or a { bold } opening is what they asked to set in bold.
+ */
 const STEPS: GuideStep[] = [
   {
-    title: "Make your wish list",
-    body:
-      "Start with where and what: the towns you'd consider, the kind of house, and the things you won't give up. Then split the list into must-haves and nice-to-haves. Here the street matters as much as the house, because the HOA, the CDD and the flood zone come with the address. Atlas Match narrows every neighborhood to the ones that fit your list.",
+    title: "Create your home wish list",
+    body: [
+      "Finding your perfect home begins with knowing what matters most to you. Think about your ideal location, preferred neighborhoods, style of home and the features that will make your everyday life more enjoyable.",
+      "Start by identifying your must-haves and nice-to-haves. Consider everything from the home’s layout and amenities to the surrounding community and lifestyle.",
+      "It’s also important to look beyond the home itself. Factors such as HOA fees, CDD assessments, flood zones and neighborhood features can all influence your decision.",
+      { lead: "Our goal is to help you narrow down your options, explore communities that fit your needs and find a home that truly feels right for you." },
+    ],
     image: img("library/lakefront-houses-palms", "Houses with balconies along a lake, under palms", "50% 55%"),
   },
   {
-    title: "Work out your budget",
-    body:
-      "Start from the monthly payment you're comfortable with, not the top price a lender will approve. On this coast the mortgage is only part of it: add property taxes, homeowners and flood insurance, HOA dues, any CDD assessment, and trash and water. We'll get real insurance quotes on the streets you like before you fall for a house.",
+    title: "Establish your budget",
+    body: [
+      "Before beginning your home search, it’s important to determine a monthly payment that fits comfortably within your lifestyle and financial goals. Remember, what you’re approved to borrow isn’t necessarily what you’ll want to spend.",
+      "Beyond your mortgage payment, consider additional expenses such as property taxes, homeowners and flood insurance, HOA fees, CDD assessments, and utilities.",
+      "We’ll help you understand the true cost of homeownership so you can make informed decisions and confidently choose a home that fits both your lifestyle and budget.",
+    ],
     image: img("library/listing-kitchen-4pm-island", "A kitchen island in afternoon light", "50% 50%"),
   },
   {
     title: "Get prequalified",
-    body:
-      "A prequalification is a lender's quick read of your income, debts and credit. It shows roughly what you could borrow, which isn't always what you'd want to pay each month. Talk to two or three lenders to compare rates and fees. A letter from a lender who works here tells a listing agent your offer is real.",
+    body: [
+      "Before beginning your home search, it’s important to understand your purchasing power. Getting prequalified is a simple first step that helps you estimate how much you may be able to borrow based on your income, credit, and financial goals.",
+      "Knowing your price range allows you to focus on homes that fit both your lifestyle and your budget. We recommend speaking with a few lenders to compare interest rates, loan options, and closing costs.",
+      "Having a prequalification letter from a trusted lender also shows sellers that you’re a serious buyer, helping you move forward with greater confidence when you find the perfect home.",
+    ],
     image: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
   },
   {
-    title: "Choose your agent",
-    body:
-      "Since August 2024 you sign a written agreement with a buyer's agent before you tour homes together. It says what the agent will do for you and how they're paid, so read it before you sign. In Florida, agents work as transaction brokers unless you agree otherwise in writing. Choose someone who knows the streets as well as the contract.",
+    title: "Choose the right real estate agent",
+    body: [
+      "Choosing the right real estate agent is an important step in your home-buying journey. You deserve someone who understands the local market, listens to your needs, and provides knowledgeable guidance from your first showing to closing day.",
+      "Before touring homes, you’ll be asked to review and sign a written buyer agreement outlining the services your agent will provide and how compensation will be handled.",
+      { lead: "The right agent does more than help you find a home—they provide the expertise, communication, and support to help you make confident decisions every step of the way." },
+    ],
     image: img("library/interior-living-kitchen-palm", "An open living room and kitchen with a palm outside", "50% 50%"),
   },
   {
-    title: "Find the right home",
-    body:
-      "We'll set up showings that fit your list and your budget, and the search sharpens with every house you see. Drive the street at rush hour and again after dark, and check the flood map, the roof's age and the HOA rules before you fall for the kitchen. Buying from out of town? We'll walk each house with you on a live video call and open the closets.",
+    title: "Finding your perfect home",
+    body: [
+      "This is where the excitement begins! We’ll carefully select homes that align with your wish list, lifestyle, and budget, arranging showings that bring you one step closer to finding the perfect fit.",
+      "As we explore each property, we’ll help you look beyond the beautiful finishes and consider important details, including the neighborhood, roof condition, flood zones, and HOA guidelines. We encourage you to experience the surrounding community at different times of the day to ensure it feels right to you.",
+      "If you’re searching locally or relocating from another area, we’ll be there to guide you through every showing, in person or virtually, helping you make a confident and informed decision.",
+      { lead: "Our goal is simple: to help you find more than a house, a place you’ll love calling home." },
+    ],
     image: img("library/palm-lined-street", "A street lined with royal palms", "50% 50%"),
   },
   {
-    title: "Finalize your financing",
-    body:
-      "Once you've found the house, go back to your lender for full approval. They'll verify your income, assets and credit, and you can lock your rate once you're under contract. Ask which loan fits: conventional, FHA or VA, and whether you qualify for one of Florida Housing's first-time buyer programs. Don't open new credit or change jobs until you've closed.",
+    title: "Securing your financing",
+    body: [
+      "Now that you’ve found the perfect home, it’s time to take the next step toward making it yours! Your lender will guide you through the final mortgage approval process, reviewing your income, credit, and financial information to confirm your loan eligibility.",
+      "This is also the time to review your financing options, explore any available homebuyer assistance programs and discuss locking in an interest rate that works for you.",
+      "During this important stage, it’s best to avoid making large purchases, opening new credit accounts, or making significant employment changes, as these could affect your loan approval.",
+      "We’ll stay connected with you and your lender throughout the process, helping ensure everything stays on track for a smooth and successful closing.",
+    ],
     image: img("library/listing-exterior-canal-golden", "Homes on canals by the water, from above", "50% 50%"),
   },
   {
-    title: "Make an offer",
-    body:
-      "We'll price the offer from what similar homes nearby have closed for, not the asking price. A seller weighs more than the price: the financing, the deposit, the inspection period and the closing date. Expect a counteroffer or two. Once both sides sign, the contract is in effect and your deposit goes to escrow, usually within three days.",
+    title: "Making an offer",
+    body: [
+      "Once you’ve found the perfect home, it’s time to make an offer! We’ll help you determine a competitive offer based on recent sales of comparable homes, current market conditions, and the property’s value.",
+      "A strong offer involves more than just the purchase price. We’ll guide you through important details such as financing, earnest money deposits, inspection timelines, and closing dates to help position your offer for success.",
+      "Negotiations are a normal part of the process, and the seller may respond with a counteroffer. We’ll be by your side every step of the way, advocating for your best interests. Once all parties have signed and the contract becomes effective, your earnest money deposit will be placed in escrow within the timeframe specified in your contract.",
+    ],
     image: img("library/moment-contract", "A pen on the signature line of a contract", "50% 55%"),
   },
   {
-    title: "Have the home inspected",
-    body:
-      "On the standard Florida AS IS contract you have fifteen days to inspect unless we agree on something shorter. A licensed inspector and a termite inspector go through the house, and on older homes we order the four-point and wind mitigation reports your insurer will ask for. If something serious turns up, you can renegotiate, or cancel inside that window and get your deposit back.",
+    title: "The home inspection",
+    body: [
+      "Once your offer is accepted, it’s time to take a closer look at your future home! A professional home inspection is an important step in understanding the property’s overall condition and identifying any potential concerns before moving forward.",
+      "We’ll help coordinate inspections with qualified professionals who will evaluate the home’s major systems, structure, and overall condition.",
+      { lead: "Our priority is to make sure you feel informed, protected, and confident in your investment before taking the next step toward closing." },
+    ],
     image: img("library/screened-pool-lanai", "A pool under a screened cage, with pavers and palms", "50% 55%"),
   },
   {
-    title: "Get the appraisal",
-    body:
-      "Your lender sends an independent appraiser to confirm the home is worth what you're paying. If it comes in low, the lender will only lend against the lower value. You can ask the seller to come down, cover the difference yourself, or ask the lender to reconsider using sales we provide. If your contract has an appraisal contingency, you can also walk away.",
+    title: "The home appraisal",
+    body: [
+      "As part of the financing process, your lender will arrange for an independent appraisal to determine the home’s market value. This helps to ensure the property is worth the amount being financed.",
+      "If the appraised value differs from the purchase price, there are several ways to move forward. From negotiating with the seller to exploring other solutions, we’ll help you understand your choices and determine the best next step toward your new home.",
+    ],
     image: img("library/listing-living-room-terrazzo", "A sunlit living room with terrazzo floors", "50% 50%"),
   },
   {
-    title: "Close and get the keys",
-    body:
-      "The title company and your lender prepare the papers, and your Closing Disclosure shows the final numbers at least three business days before you sign. Plan on two to five percent of the price in closing costs on top of the down payment. Before you wire money, call the title company at a number you already know to confirm the instructions. We'll do the final walk-through with you and hand over the keys.",
+    title: "Closing day—welcome home!",
+    body: [
+      "Here’s what to expect next.",
+      { bold: "Review your final costs:", text: "You will receive a Closing Disclosure outlining your loan terms and final expenses prior to the closing." },
+      { bold: "Complete your final walk-through:", text: "We’ll walk through the home with you to make sure everything is as expected." },
+      { bold: "Sign & celebrate:", text: "Once all documents are signed, funds are received, and closing is complete, it’s time to get your keys!" },
+      "Congratulations! Your next chapter begins!",
+      { bold: "Important:", text: "Always confirm wiring instructions directly with your title company before sending funds." },
+    ],
     image: img("library/moment-key-handoff", "A key in a front door, on a house-shaped key ring", "50% 40%"),
   },
 ];
@@ -227,10 +265,10 @@ export default async function BuyPage() {
 
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
 
-      {/* The questions people are embarrassed to ask. */}
+      {/* The questions buyers ask us first. */}
       <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <h2 className="t-h1 text-navy">The questions nobody is born knowing.</h2>
+          <h2 className="t-h1 text-navy">Questions buyers ask us.</h2>
           <p className="t-body max-w-[420px] text-body">
             Florida contracts and county custom decide most of this, and we&rsquo;ll say which is which. If your question
             isn&rsquo;t here, it goes in the box at the bottom of the page.

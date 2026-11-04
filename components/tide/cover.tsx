@@ -1,4 +1,3 @@
-import type { Route } from "next";
 import Link from "next/link";
 import { TideWordmark } from "@/components/brand/marks";
 import { Byline } from "@/components/byline";
@@ -13,9 +12,8 @@ import "@/components/guides/guides.css";
  * face, the dek, the data month on its own line above the title ("October
  * issue · July figures"), how far each county's record reached, and the
  * byline with the reading time.
- * Along the foot, from lg up, the issue's contents as anchor links.
  */
-export function TideCover({ model, contents, team }: { model: IssueModel; contents: { href: string; label: string; n: string }[]; team: Pick<TeamMember, "name" | "headshot">[] }) {
+export function TideCover({ model, team }: { model: IssueModel; team: Pick<TeamMember, "name" | "headshot">[] }) {
   return (
     <header data-header-overlay className="tide-cover guide-cover-ground relative -mt-header overflow-hidden text-white">
       <Photo image={model.cover} priority sizes="100vw" className="guide-cover-photo" />
@@ -38,20 +36,6 @@ export function TideCover({ model, contents, team }: { model: IssueModel; conten
           {model.throughLine ? <p className="rise d3 t-note max-w-none text-linen-200 text-shadow-soft">{model.throughLine}</p> : null}
           <Byline people={team} extras={["JJ Premier Group", `${model.minutes} min read`]} tone="dark" className="rise d3 mt-2" />
         </div>
-        {contents.length ? (
-          <nav aria-label="In this issue" className="tide-contents mt-12 hidden lg:block print:hidden">
-            <ol className="grid" style={{ gridTemplateColumns: `repeat(${contents.length}, minmax(0, 1fr))` }}>
-              {contents.map((c) => (
-                <li key={c.href} className="flex">
-                  <Link href={c.href as Route} className="tide-contents-item">
-                    <span className="font-display text-[1.75rem] font-extralight leading-none text-tide">{c.n}</span>
-                    <span className="text-[14px] leading-snug text-linen-100">{c.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        ) : null}
       </div>
     </header>
   );

@@ -420,16 +420,12 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
     ];
     return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px 0;"><tr>${cells[0]}${cells[1]}</tr><tr>${cells[2]}${cells[3]}</tr></table>`;
   };
-  // A market's words: the hand-written paragraphs when written, else the computed one; then its one move, set apart.
+  // A market's words: the hand-written paragraphs when written, else the computed one.
   const marketWords = (m: TideMarket) => story?.markets[m.market] ?? [marketParagraph(m, month)];
-  const marketMove = (m: TideMarket) => story?.marketMoves[m.market] ?? null;
-  const moveLine = (market: string, text: string) =>
-    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 16px 0;"><tr><td style="padding:2px 0 2px 16px;border-left:3px solid ${C.amber};"><p style="margin:0 0 4px 0;font-family:${SANS};font-size:12px;line-height:1.4;letter-spacing:0.5px;text-transform:uppercase;color:${C.muted};">${esc(fill(TIDE_COPY.marketMoveLabel, { market }))}</p><p style="margin:0;font-family:${SERIF};font-size:19px;line-height:1.4;color:${C.navy};">${esc(text)}</p></td></tr></table>`;
   const marketHtml = (m: TideMarket) =>
     heading(m.name) +
     figures(m) +
     marketWords(m).map((p) => para(esc(p))).join("") +
-    (marketMove(m) ? moveLine(m.name, marketMove(m)!) : "") +
     small(esc(fill(TIDE_COPY.marketZips, { zips: list(m.zips) }))) +
     para(link(url(HUB[m.market]), fill(TIDE_COPY.marketLink, { market: m.name })), "font-size:15px;");
 
@@ -517,7 +513,6 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
         `${m.complete ? TIDE_COPY.figureSales : TIDE_COPY.figureSalesPartial}: ${num(m.count)} · ${TIDE_COPY.figureMedian}: ${m.medianPrice !== null ? usd(m.medianPrice) : "–"} · ${TIDE_COPY.figurePpsf}: ${m.medianPpsf !== null ? usd(m.medianPpsf) : "–"} · ${TIDE_COPY.figureNew}: ${m.newBuildPct !== null ? `${m.newBuildPct}%` : "–"}`,
         "",
         ...marketWords(m).flatMap((p, i) => (i ? ["", p] : [p])),
-        ...(marketMove(m) ? ["", `${fill(TIDE_COPY.marketMoveLabel, { market: m.name })}: ${marketMove(m)}`] : []),
         "",
         fill(TIDE_COPY.marketZips, { zips: list(m.zips) }),
         `${fill(TIDE_COPY.marketLink, { market: m.name })}: ${url(HUB[m.market])}`,

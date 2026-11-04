@@ -155,7 +155,6 @@ export const FAQS: FaqCopy[] = [
 
 export const ASK = {
   title: "Send us your plan",
-  body: "We'll look at your dates and tell you what we'd change. One of us will call or write back.",
   submit: "Send my plan",
   placeholder: "Anything else we should know?",
   /** Shown instead of the form while the questions are still open: there is no plan to send yet. */

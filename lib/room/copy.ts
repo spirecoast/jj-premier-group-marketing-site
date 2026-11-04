@@ -126,7 +126,7 @@ export function roomStrings(): { where: string; text: string }[] {
   add("TEAM_COPY.made", TEAM_COPY.made("Sam"));
   add("TEAM_COPY.updatedAgo", TEAM_COPY.updatedAgo("3 days ago"));
   add("TEAM_COPY.roomOf", TEAM_COPY.roomOf("Sam"));
-  add("TEAM_COPY.stepOption", TEAM_COPY.stepOption(2, "Set the price", "sell"));
+  add("TEAM_COPY.stepOption", TEAM_COPY.stepOption(2, "Price your home strategically", "sell"));
   add("TEAM_COPY.placesFull", TEAM_COPY.placesFull(24));
   for (const v of Object.values(GUIDE_NAME)) add("GUIDE_NAME", v);
   for (const v of Object.values(COUNTY_NAME)) add("COUNTY_NAME", v);
