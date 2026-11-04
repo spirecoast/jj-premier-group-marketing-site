@@ -80,7 +80,7 @@ export default async function AboutPage() {
         </section>
       ) : null}
 
-      <CtaBand image={FRAMES.coast} title="Let us talk about your next move." minHeight="min-h-[440px]">
+      <CtaBand image={FRAMES.coast} title="Let’s talk about your next move." minHeight="min-h-[440px]">
         <ButtonLink href="/contact" variant="linen" dash>
           Start the conversation
         </ButtonLink>

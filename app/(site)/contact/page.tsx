@@ -10,7 +10,7 @@ import { pageMetadata } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact · Let us talk about your next move",
+  title: "Contact · Let’s talk about your next move",
   description:
     "Call, text or write to Joelyn Nauman and Jessica Garza at Coldwell Banker Realty in Lakewood Ranch. Tell us a little about your plans, and we’ll reach out.",
   path: "/contact",
@@ -41,7 +41,7 @@ export default async function ContactPage() {
         <SectionHeading
           as="h1"
           size="display"
-          title={<span id="contact-title">Let us talk about your next move.</span>}
+          title={<span id="contact-title">Let’s talk about your next move.</span>}
         />
         {/* The owners' own words (November 2026). */}
         <div className="flex flex-col gap-5">

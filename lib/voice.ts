@@ -32,7 +32,8 @@ export const AI_TELLS: readonly VoiceRule[] = [
   { pattern: new RegExp(`\\bit${A}?s worth (?:noting|mentioning|remembering)\\b|\\bit is worth (?:noting|mentioning)\\b`, "i"), reason: "“it’s worth noting”" },
   { pattern: new RegExp(`\\bin today${A}s (?:market|world|economy|climate)\\b`, "i"), reason: "“in today’s market”" },
   { pattern: new RegExp(`\\bhere${A}s the thing\\b`, "i"), reason: "“here’s the thing”" },
-  { pattern: new RegExp(`\\blet${A}s\\b`, "i"), reason: "“let’s”" },
+  // One exception: the owners' own heading on /contact and /about, "Let's talk about your next move."
+  { pattern: new RegExp(`\\blet${A}s\\b(?! talk about your next move)`, "i"), reason: "“let’s”" },
   { pattern: /\bgame[- ]?changer/i, reason: "“game-changer”" },
   { pattern: /\bunlock(?:s|ed|ing)?\b(?! (?:the|a|your) (?:door|gate|lockbox|box|house|home)(?![’'\w]))/i, reason: "“unlock”" },
   { pattern: /\brobust\b/i, reason: "“robust”" },

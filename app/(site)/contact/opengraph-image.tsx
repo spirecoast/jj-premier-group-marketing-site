@@ -9,7 +9,7 @@ export default async function Image() {
   const settings = await getSiteSettings();
   return brandOgImage({
     eyebrow: "Joelyn & Jessica",
-    title: "Let us talk about your next move.",
+    title: "Let’s talk about your next move.",
     meta: `Call or text ${settings.primaryPhoneDisplay}`,
     photo: "/images/photos/duo-whitenavy-wide.jpg",
   });
