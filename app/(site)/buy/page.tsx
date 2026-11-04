@@ -265,10 +265,10 @@ export default async function BuyPage() {
 
       <WorkWith phoneDisplay={settings.primaryPhoneDisplay} phoneE164={settings.primaryPhoneE164} where="buy-work-with" />
 
-      {/* The questions people are embarrassed to ask. */}
+      {/* The questions buyers ask us first. */}
       <section className="container-site grid gap-10 py-section lg:grid-cols-[1fr_1.6fr] lg:gap-20">
         <div className="flex flex-col gap-6 lg:sticky lg:top-header lg:self-start">
-          <h2 className="t-h1 text-navy">The questions nobody is born knowing.</h2>
+          <h2 className="t-h1 text-navy">Questions buyers ask us.</h2>
           <p className="t-body max-w-[420px] text-body">
             Florida contracts and county custom decide most of this, and we&rsquo;ll say which is which. If your question
             isn&rsquo;t here, it goes in the box at the bottom of the page.
