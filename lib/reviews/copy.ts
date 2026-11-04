@@ -13,9 +13,6 @@ export const REVIEWS = {
     "If you bought or sold with Joelyn and Jessica, tell us how it went: a review on Google, or your own words on this site, with your permission.",
   eyebrow: "Reviews",
   heading: "If you bought or sold with us, tell us how it went.",
-  lead: "There are two ways to do it, and both are up to you. We don’t put anything about you on the site without asking first.",
-  /** While the Google review link is still to come: one way, not two. */
-  leadOne: "It’s up to you what you say. We don’t put anything about you on the site without asking first.",
   google: {
     title: "A review on Google",
     body: "It’s the one people read before they call. A few sentences about what we did and how it went is plenty.",
@@ -24,7 +21,7 @@ export const REVIEWS = {
   },
   permission: {
     title: "Your words on this site",
-    body: "Send us what you’d like to say. If you tick the box, we can use it here with your first name and the place you bought or sold, and nothing else. We’ll check the wording with you before anything goes up, and we’ll take it down whenever you ask.",
+    body: "Send us what you’d like to say. If you tick the box, we can use it here with your first name and the place you bought or sold, and nothing else.",
   },
   form: {
     message: "The words you’d like to share",
@@ -52,8 +49,6 @@ export function reviewsStrings(): { where: string; text: string }[] {
   add("description", REVIEWS.description);
   add("eyebrow", REVIEWS.eyebrow);
   add("heading", REVIEWS.heading);
-  add("lead", REVIEWS.lead);
-  add("lead one", REVIEWS.leadOne);
   for (const [k, v] of Object.entries(REVIEWS.google)) add(`google ${k}`, v);
   add("refer", `${REVIEWS.refer.line} ${REVIEWS.refer.label}`);
   for (const [k, v] of Object.entries(REVIEWS.permission)) add(`permission ${k}`, v);
