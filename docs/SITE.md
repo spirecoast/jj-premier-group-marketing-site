@@ -548,7 +548,10 @@ here carries `source` = atlas-check.
 - **Plan a visit.** `/calendar/plan` is for someone coming to look at homes: arrival and
   departure (up to 14 days, the coming weekend by default), the markets to see, optional
   category preferences and an evenings-only toggle, all in the URL once the plan is built
-  (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable. Each question is a
+  (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable. Each category chip
+  carries a tick box like the evenings-only box under it (`.chip-box` in
+  `components/encore/encore.css`), so it reads as something to tap on a phone as well as with a
+  pointer or the keyboard. Each question is a
   history entry, so Back returns to the one before. `lib/encore/plan.ts` builds it: each day gets a
   market or two by rotating through the chosen ones and a "Showings with us (10 to 4)" block,
   then up to three timed performances from five o'clock (and one weekend matinee), scored to
