@@ -22,12 +22,12 @@ export const TYPE_LABEL: Record<NeighborhoodType, string> = {
   subdivision: "Subdivision",
 };
 
-/** "Sep 2026" from an ISO date. */
-export function monthYear(iso: string | undefined): string | undefined {
+/** "Sep 2026" from an ISO date ("September 2026" with `month: "long"`). */
+export function monthYear(iso: string | undefined, month: "short" | "long" = "short"): string | undefined {
   if (!iso) return undefined;
   const d = new Date(`${iso}T12:00:00Z`);
   if (Number.isNaN(d.getTime())) return undefined;
-  return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" }).format(d);
+  return new Intl.DateTimeFormat("en-US", { month, year: "numeric", timeZone: "UTC" }).format(d);
 }
 
 export function titleCase(s: string): string {

@@ -29,10 +29,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MatchPage() {
   const count = (await getIndexEntries()).length;
   const asOf = monthYear(DATASET_VERSION) ?? DATASET_VERSION;
+  // The month the catalogue was generated (neighborhood-data/data/manifest.json), spelled out: "September 2026".
+  const updated = monthYear(DATASET_VERSION, "long") ?? asOf;
   const how = [
-    `Each answer checks one fact about each neighborhood: its county, its homes, whether it’s gated, whether it has an HOA or a CDD, its water and its evacuation zone. Those facts come from the county, the district, the association or the builder. The catalog was last updated ${asOf}.`,
+    "For every neighborhood, we cover the county and the types of homes. We tell you if it’s gated and whether there’s an HOA or a CDD. We also note the water service and evacuation zone.",
+    `All of this comes straight from the county or the community. The catalogue was last updated in ${updated}.`,
+    "Fees and zones can change, so we always suggest double-checking before you buy.",
     "When we don’t have a fact for a place, it shows as “not known yet”, and you decide whether those places stay in. The list isn’t ranked, so a place near the bottom fits as well as one at the top.",
-    "The questions are about homes and places only. Nothing here asks about, or describes, who lives anywhere.",
+    "The questions are about homes and places only.",
   ].join("\n\n");
 
   return (
