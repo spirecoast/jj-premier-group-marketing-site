@@ -134,13 +134,13 @@ export async function RoomView({ room }: { room: Room }) {
 
       <footer className="mt-14 border-t border-hairline pt-8">
         <p className="t-body text-navy">{C.contact}</p>
-        <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+        <a href={`tel:${settings.primaryPhoneE164}`} className="t-record mt-2 inline-block text-navy underline-offset-4 hover:underline">
+          {settings.primaryPhoneDisplay}
+        </a>
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
           {team.map((m) => (
             <li key={m.slug} className="flex flex-col gap-0.5">
               <span className="font-display text-[1.25rem] font-light leading-tight text-navy">{m.name}</span>
-              <a href={`tel:${m.phoneE164}`} className="t-small text-body underline-offset-4 hover:underline">
-                {m.phone}
-              </a>
               <a href={`mailto:${m.email}`} className="t-small break-all text-body underline-offset-4 hover:underline">
                 {m.email}
               </a>
@@ -148,7 +148,7 @@ export async function RoomView({ room }: { room: Room }) {
           ))}
         </ul>
         <p className="t-mono-sm mt-8 text-graphite-500">
-          {settings.primaryPhoneDisplay} · {C.updated(updatedLabel(room.updatedAt))}
+          {C.updated(updatedLabel(room.updatedAt))}
         </p>
       </footer>
     </article>

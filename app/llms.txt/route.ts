@@ -6,6 +6,7 @@ import { TYPE_LABEL } from "@/lib/neighborhoods/format";
 import { absoluteUrl } from "@/lib/seo";
 import { productFamilies, site } from "@/lib/site";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
+import { formatAddress } from "@/lib/content/format";
 import { encoreLetterWeeks } from "@/lib/newsletters/encore";
 import { encoreLetterPath, rangeWithYear } from "@/lib/newsletters/weeks";
 import { addDays } from "@/lib/issues/render";
@@ -20,6 +21,8 @@ export const revalidate = 86400;
  */
 export async function GET() {
   const [settings, team, records, letters] = await Promise.all([getSiteSettings(), getTeam(), getAllRecords(), encoreLetterWeeks()]);
+  // The office as the footer and the JSON-LD write it: "8334 Market St, Lakewood Ranch, FL 34202".
+  const office = settings.officeAddress.street ? formatAddress(settings.officeAddress) : "";
   // Every place researched in full (the ones in the sitemap), by market, areas first, then A to Z.
   const researched = records.filter((r) => r.research === "full");
   const placeLine = (r: (typeof researched)[number]) =>
@@ -28,7 +31,7 @@ export async function GET() {
   const lines = [
     `# ${site.name}`,
     "",
-    `> ${site.name} is a real estate team in ${MARKETS.map((m) => m.name).join(", ").replace(/, ([^,]*)$/, " and $1")}, Florida: ${team.map((m) => m.name).join(" and ")}, licensed agents with ${settings.brokerageName}. They help people buy and sell homes on Florida's Gulf Coast. Phone ${settings.primaryPhoneDisplay}.`,
+    `> ${site.name} is a real estate team in ${MARKETS.map((m) => m.name).join(", ").replace(/, ([^,]*)$/, " and $1")}, Florida: ${team.map((m) => m.name).join(" and ")}, licensed agents with ${settings.brokerageName}. They help people buy and sell homes on Florida's Gulf Coast. Phone ${settings.primaryPhoneDisplay}.${office ? ` Office: ${settings.brokerageName}, ${office}.` : ""}`,
     "",
     "The site's figures come from public records (the Manatee and Sarasota County property appraisers, FEMA, the State of Florida) and say where each comes from. The tools give estimates for planning, not quotes or appraisals.",
     "",

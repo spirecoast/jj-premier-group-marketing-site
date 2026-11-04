@@ -2,7 +2,13 @@ import Link from "next/link";
 import { FaqAccordion, type Faq } from "@/components/faq-accordion";
 import { JsonLd } from "@/components/json-ld";
 import { SectionHeading } from "@/components/section-heading";
+import { ZoneKey, ZoneText } from "@/components/zone-note";
 import { faqJsonLd } from "@/lib/seo";
+import { withZoneRisk } from "@/lib/zones";
+
+/** The flood insurance answer, with FEMA's zone codes in it. */
+const FLOOD_ANSWER =
+  "If the home is in FEMA flood zone AE or VE and you have a mortgage, your lender will require it. In zone X it's usually optional. Quotes there are usually low, so we often recommend it. We check the flood map before you see the house.";
 
 /**
  * The questions people ask first, the last section before the footer: plain
@@ -44,15 +50,14 @@ export const HOME_FAQS: Faq[] = [
   },
   {
     q: "Do I need flood insurance in Lakewood Ranch, Sarasota or Bradenton?",
-    answer:
-      "If the home is in FEMA flood zone AE or VE and you have a mortgage, your lender will require it. In zone X it's optional. Quotes there are usually low, so we often recommend it. We check the flood map before you see the house.",
+    // Each zone's risk follows its first mention, and what it means sits under the answer (lib/zones.ts).
+    answer: withZoneRisk(FLOOD_ANSWER),
     a: (
       <>
         <p>
-          If the home is in FEMA flood zone AE or VE and you have a mortgage, your lender will require it. In zone X
-          it&rsquo;s optional. Quotes there are usually low, so we often recommend it. We check the flood map before
-          you see the house.
+          <ZoneText text={FLOOD_ANSWER} />
         </p>
+        <ZoneKey texts={[FLOOD_ANSWER]} evacuation={false} className="mt-4" />
         <p className="mt-3">
           <Link href="/buy" className="link-rule">Read the buyer&rsquo;s guide</Link>
         </p>

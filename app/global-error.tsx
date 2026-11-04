@@ -4,13 +4,13 @@ import { useEffect } from "react";
 import { reportClientError } from "@/lib/sentry/client";
 import "./globals.css";
 import { Wordmark } from "@/components/wordmark";
-import { TEAM } from "@/lib/content/seed/team";
+import { SITE_SETTINGS } from "@/lib/content/seed/settings";
 import { site } from "@/lib/site";
 
 /**
  * The last resort: shown when the root layout itself fails, so it supplies
  * its own <html> and <body>. Nothing here reads from Sanity or the database;
- * the phone numbers come from the seed so a dead data layer cannot take the
+ * the team's number comes from the seed so a dead data layer cannot take the
  * page down with it. The fonts load through the root layout, so this page
  * sets in the CSS fallback stacks.
  */
@@ -48,16 +48,12 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
                 Back to the start
               </a>
             </div>
-            <ul className="flex flex-wrap gap-x-8 gap-y-2">
-              {TEAM.map((m) => (
-                <li key={m._id} className="t-record text-navy">
-                  {m.name.split(" ")[0]}{" "}
-                  <a href={`tel:${m.phoneE164}`} className="underline decoration-harbor-500 underline-offset-4">
-                    {m.phone}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <p className="t-record text-navy">
+              Call or text{" "}
+              <a href={`tel:${SITE_SETTINGS.primaryPhoneE164}`} className="underline decoration-harbor-500 underline-offset-4">
+                {SITE_SETTINGS.primaryPhoneDisplay}
+              </a>
+            </p>
           </section>
 
           <p className="t-record text-graphite-500">

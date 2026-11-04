@@ -27,7 +27,7 @@ export const PEOPLE_RULES = [
  */
 const HONEST_USES = [
   /\b(?:single|multi)-family\b|\bfont-family\b|\bfamily members\b/gi, // a kind of home, a CSS property, transfers between relatives in the sales data
-  /\bfor our own family\b/gi, // the team, a mother and daughter, speaking of itself
+  /\b(?:for|give) our own family\b|\bmore than a family connection\b/gi, // the team, a mother and daughter, speaking of itself (the owners' words on /about and the home page)
   /\bMy Safe Florida Home\b/g, // the state program's name
   /\bschool[- ](?:tax(?:es)?|district(?:['’]s)?)\b/gi, // the tax bill
   /\bchildren under (?:thirteen|sixteen|13|16)\b/gi, // the privacy policy's line on children's data

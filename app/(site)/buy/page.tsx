@@ -5,7 +5,7 @@ import { WorkWith } from "@/components/home/work-with";
 import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
 import { ZoneKey } from "@/components/zone-note";
-import { getSiteSettings, getTeam } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { faqJsonLd, pageMetadata } from "@/lib/seo";
 
@@ -254,7 +254,7 @@ const FAQS: Faq[] = [
 ];
 
 export default async function BuyPage() {
-  const [team, settings] = await Promise.all([getTeam(), getSiteSettings()]);
+  const settings = await getSiteSettings();
 
   return (
     <>
@@ -291,16 +291,12 @@ export default async function BuyPage() {
             When do you need to be in, and is there a house to sell first? Put whatever you know in the box. One of us
             will call or write back, and we&rsquo;ll start with those two questions.
           </p>
-          <ul className="flex flex-col gap-3 border-t border-hairline pt-6">
-            {team.map((m) => (
-              <li key={m.slug} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                <span className="t-h4 text-navy">{m.name}</span>
-                <a href={`tel:${m.phoneE164}`} className="t-record text-navy transition-colors hover:text-harbor-700">
-                  {m.phone}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <p className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-hairline pt-6">
+            <span className="t-h4 text-navy">Call or text</span>
+            <a href={`tel:${settings.primaryPhoneE164}`} className="t-record text-navy transition-colors hover:text-harbor-700">
+              {settings.primaryPhoneDisplay}
+            </a>
+          </p>
         </div>
         <div className="border border-hairline bg-white p-6 sm:p-8">
           <LeadForm

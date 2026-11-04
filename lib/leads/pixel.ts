@@ -4,8 +4,8 @@
  * The pixel reads every named field of a form as it's typed and sends it to
  * the CRM. It should only ever get what identifies the visitor: their own
  * name, email and phone, plus the two questions (no one's personal details).
- * Everything else, the message, the address and every field about a person
- * being referred, keeps its `name` only until the page is live; after that
+ * Everything else, the message and the address, keeps its `name` only until
+ * the page is live; after that
  * the name moves to `data-private-name` and the form adds the value to the
  * request itself when it's sent (components/lead-form.tsx). Without
  * JavaScript there's no pixel, and every field posts as usual.
@@ -23,11 +23,6 @@ export const LEAD_FORM_FIELD_NAMES = [
   "sellFirst",
   "address",
   "message",
-  "referredName",
-  "referredLastName",
-  "referredEmail",
-  "referredPhone",
-  "referredPlan",
 ] as const;
 
 const visible = new Set<string>(PIXEL_VISIBLE_FIELDS);

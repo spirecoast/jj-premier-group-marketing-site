@@ -109,8 +109,7 @@ export const teamMenu = {
   title: "Who you'll work with",
   items: [
     { href: "/about", label: "Joelyn & Jessica", short: "A mother and daughter team" },
-    { href: "/contact", label: "Tell us the timing", short: "When you need to be in a new home" },
-    { href: "/refer", label: "Refer someone", short: "Send a friend our way" },
+    { href: "/contact", label: "Contact us", short: "Tell us about your next move" },
     { href: "/reviews", label: "Leave a review", short: "Tell others how it went" },
   ],
 } as const;
@@ -323,7 +322,6 @@ export const footerNav = {
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
     { href: "/about#jessica-garza", label: "Jessica Garza" },
     { href: "/contact", label: "Contact" },
-    { href: "/refer", label: "Refer someone" },
     { href: "/reviews", label: "Leave a review" },
   ],
   legal: [
@@ -344,14 +342,17 @@ export type SocialLink = {
 
 /**
  * The team's social profiles: the footer row and `sameAs` in the
- * RealEstateAgent JSON-LD. Empty until the client sends the live URLs
- * (docs/LAUNCH.md 1.11 and 1.12); nothing renders while it is empty. The
- * `socialLinks` field in Sanity's site settings adds to this list once
- * Sanity is live.
+ * RealEstateAgent JSON-LD. Facebook and Instagram are the profiles the owners
+ * posted on October 29, 2026; add the others (docs/LAUNCH.md 1.11 and 1.12)
+ * the same way when they're live. The `socialLinks` field in Sanity's site
+ * settings adds to this list once Sanity is live.
  *
  *   { network: "youtube", label: "YouTube", url: "https://www.youtube.com/@…" },
  */
-export const socialLinks: readonly SocialLink[] = [];
+export const socialLinks: readonly SocialLink[] = [
+  { network: "facebook", label: "Facebook", url: "https://www.facebook.com/profile.php?id=61594199527037" },
+  { network: "instagram", label: "Instagram", url: "https://www.instagram.com/jjpremiergroup/" },
+];
 
 const NETWORK_HOSTS: [RegExp, SocialNetwork][] = [
   [/(^|\.)youtube\.com$|(^|\.)youtu\.be$/, "youtube"],

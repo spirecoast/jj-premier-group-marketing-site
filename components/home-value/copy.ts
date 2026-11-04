@@ -110,7 +110,8 @@ export const HOME_VALUE_COPY = {
   },
   ask: {
     eyebrow: "04 · The ask",
-    title: "That's the public record. The number that matters is the one after we walk it.",
+    /** The owners' words (November 2026), over the form that was the old /valuation page. */
+    title: "Get a real number from real people.",
     body:
       "Give us the address and the timing, and Joelyn or Jessica will pull the four comparable sales, drive the street, and call you with the number and the reason for it. You get a range in writing with the addresses behind it, within a day. No listing agreement attached; the number is yours either way.",
     submit: "Get the number",
@@ -125,7 +126,7 @@ export const HOME_VALUE_COPY = {
   },
   results: {
     notLoaded: "The county record isn't loaded on this site yet.",
-    notLoadedHelp: "Until it is, send the address below and we'll pull the record by hand from the appraiser's file.",
+    notLoadedHelp: "Until it is, send us the address below and we'll look it up and get back to you as soon as we can.",
     error: "The record didn't answer. Try once more in a moment.",
   },
   /** "Source: Manatee County Property Appraiser, public record. Manatee records through Sep 24, 2026." */

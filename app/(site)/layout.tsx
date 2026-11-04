@@ -37,19 +37,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <UtmTracker />
       <Motion />
       <SiteHeader
-        contacts={team.map((m) => ({
-          name: m.name,
-          phone: m.phone,
-          phoneE164: m.phoneE164,
-          email: m.email,
-        }))}
-        phoneE164={settings.primaryPhoneE164}
+        contacts={team.map((m) => ({ name: m.name, email: m.email }))}
+        phone={{ e164: settings.primaryPhoneE164, display: settings.primaryPhoneDisplay }}
       />
       <ProductBar />
       <main id="main">
         {/* A route change cross-fades the old page into the new one. The header,
             footer and action bar sit outside the boundary and stay put. */}
-        <SiteContactProvider phoneE164={settings.primaryPhoneE164} team={team.map((m) => ({ name: m.name, phone: m.phone }))}>
+        <SiteContactProvider phoneE164={settings.primaryPhoneE164} phoneDisplay={settings.primaryPhoneDisplay} names={team.map((m) => m.name)}>
           <PageTransition>{children}</PageTransition>
         </SiteContactProvider>
       </main>

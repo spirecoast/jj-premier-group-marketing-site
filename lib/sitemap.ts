@@ -72,7 +72,6 @@ async function pages(): Promise<Entry[]> {
     s("/newsletters", 0.6, "weekly", latest([lastIssue, letters.listed[0]])),
     s("/contact", 0.5, "yearly"),
     // /from/* are bio and post links: noindex and left out on purpose.
-    s("/refer", 0.4, "yearly"),
     s("/reviews", 0.4, "yearly"),
     s("/privacy", 0.2, "yearly"),
     s("/terms", 0.2, "yearly"),

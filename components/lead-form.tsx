@@ -14,12 +14,12 @@ import {
   CONSENT_WORDING,
   EMAIL_REQUIRED_FORMS,
   LEAD_FAILURE_MESSAGE,
-  REFERRAL_CONSENT_WORDING,
-  REFERRAL_PLANS,
   REVIEW_CONSENT_WORDING,
   SELL_FIRST_CHIPS,
   SELL_FIRST_OPTIONS,
+  SELL_FIRST_QUESTION,
   TIMING_OPTIONS,
+  TIMING_QUESTION,
   initialLeadState,
   type LeadErrorField,
   type LeadForm as LeadFormKind,
@@ -28,7 +28,6 @@ import {
 import { fieldName } from "@/lib/leads/pixel";
 import { FIELD_SHORT_NAMES, orderedErrorFields, summaryLead, validateLead } from "@/lib/leads/rules";
 import { parsePhone } from "@/lib/phone";
-import { REFER } from "@/lib/refer/copy";
 import { WATCH_BUTTON_COPY } from "@/lib/watch/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -41,17 +40,8 @@ export type LeadField =
   | "timing"
   | "sellFirst"
   | "address"
-  | "referredName"
-  | "referredLastName"
-  | "referredEmail"
-  | "referredPhone"
-  | "referredPlan"
-  | "referralConsent"
   | "message"
   | "reviewConsent";
-
-/** The fields that describe the person being referred; any of them puts the form into its two groups. */
-const REFERRED_FIELDS: readonly LeadField[] = ["referredName", "referredLastName", "referredEmail", "referredPhone", "referredPlan", "referralConsent"];
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
@@ -61,7 +51,6 @@ const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
   letter: { title: "You’re on the list.", body: "Tide goes out once a month. It’s one page, written for you." },
   calendar: { title: "You’re on the list.", body: "The full calendar comes every Monday." },
-  referral: REFER.success,
   "review-permission": REVIEWS.success,
   watch: { title: "Street Watch is set.", body: WATCH_BUTTON_COPY.done },
 };
@@ -70,24 +59,15 @@ const LABELS: Record<LeadField, string> = {
   name: "Name",
   email: "Email",
   phone: "Phone",
-  timing: "When are you moving?",
-  sellFirst: "Is there a house to sell first?",
+  timing: TIMING_QUESTION,
+  sellFirst: SELL_FIRST_QUESTION,
   address: "Street address",
-  referredName: REFER.form.referredName,
-  referredLastName: REFER.form.referredLastName,
-  referredEmail: REFER.form.referredEmail,
-  referredPhone: REFER.form.referredPhone,
-  referredPlan: REFER.form.referredPlan,
-  referralConsent: REFERRAL_CONSENT_WORDING,
   message: "Message",
   reviewConsent: REVIEW_CONSENT_WORDING,
 };
 
-/** Under the email and phone pair, where either one will do. */
-const REACH_HINT = "Your email or your phone is enough.";
-
-/** Legends for the two groups on the referral form. */
-const GROUPS = { you: REFER.form.aboutYou, them: REFER.form.aboutThem } as const;
+/** The heading over name, email and phone on a form laid out in sections (the contact page), in the owners' words. */
+const CONNECT = "Let’s connect";
 
 type Props = {
   form: LeadFormKind;
@@ -104,17 +84,24 @@ type Props = {
   defaultMessage?: string;
   /** Pre-filled street address, e.g. the street carried over from the sold search. */
   defaultAddress?: string;
-  /** Label overrides, e.g. "Your first name" on the referral form. `name` relabels the first-name box, `lastName` the last-name box. */
+  /** Label overrides, e.g. "Email address" on the contact page. `name` relabels the first-name box, `lastName` the last-name box. */
   labels?: Partial<Record<LeadField | "lastName", string>>;
   /** The message box is required (the review-permission form, where it holds the words). */
   messageRequired?: boolean;
-  /** Show the email and call/text consent boxes (default). Off where they'd be out of place: a review permission, a referral. */
+  /** Show the email and call/text consent boxes (default). Off where they'd be out of place: a review permission. */
   marketingConsent?: boolean;
+  /**
+   * The contact page's layout: the two questions as headings over their
+   * chips, then name, email and phone under "Let’s connect", then the
+   * message under its own question (pass it as `labels.message`). The fields,
+   * their names and the checks are the same either way.
+   */
+  sections?: boolean;
 };
 
 /**
- * A labelled group of fields: a fieldset with its legend (the referral form's
- * "About you" and "About them"). With no legend the children render as they are.
+ * A labelled group of fields: a fieldset with its legend ("Let’s connect" on
+ * a form in sections). With no legend the children render as they are.
  */
 function Group({ legend, tone, className, children }: { legend?: string; tone: "light" | "dark"; className?: string; children: ReactNode }) {
   if (!legend) return <>{children}</>;
@@ -190,8 +177,8 @@ function focusField(el: HTMLElement | null, reduced: boolean) {
  * Home Platform's pixel sends a form's named fields to the CRM as they're
  * typed (lib/home-platform.ts). Once the page is live, every field but the
  * visitor's own name, email and phone and the two questions loses its name
- * (and is added to the request by hand on send), so the friend on a referral,
- * the message and the address never reach it.
+ * (and is added to the request by hand on send), so the message and the
+ * address never reach it.
  */
 export function LeadForm({
   form,
@@ -207,6 +194,7 @@ export function LeadForm({
   labels = {},
   messageRequired = false,
   marketingConsent = true,
+  sections = false,
 }: Props) {
   // The server action as the form's own action: it only runs when JavaScript isn't (yet) running.
   const [serverState, formAction] = useActionState<LeadFormState, FormData>(submitLead, initialLeadState);
@@ -257,9 +245,7 @@ export function LeadForm({
   /* "(optional)" in Graphite 500 on the light form (5.4:1), Mist on the dark one; never faded with opacity. */
   const optionalClass = cn("normal-case tracking-normal", dark ? "text-mist" : "text-graphite-500");
   const optional = <span className={optionalClass}> (optional)</span>;
-  /* The referral form: "About you" and "About them", each a fieldset with its legend, the note in the second. */
-  const them = fields.some((f) => REFERRED_FIELDS.includes(f));
-  const showsConsent = marketingConsent && !them;
+  const showsConsent = marketingConsent;
   const eitherReach = has("email") && has("phone") && !EMAIL_REQUIRED_FORMS.includes(form);
   /** The visitor's own fields keep their name for the pixel; everything else carries it only until the page is live (lib/leads/pixel.ts). */
   const named = (name: string) => fieldName(name, live);
@@ -274,10 +260,6 @@ export function LeadForm({
     phone: `${uid}-phone`,
     address: `${uid}-address`,
     message: `${uid}-message`,
-    referredName: `${uid}-referredName`,
-    referredEmail: `${uid}-referredEmail`,
-    referredPhone: `${uid}-referredPhone`,
-    referralConsent: `${uid}-referralConsent`,
     reviewConsent: `${uid}-reviewConsent`,
   };
 
@@ -317,7 +299,6 @@ export function LeadForm({
           timing: v.timing,
           sellFirst: v.sellFirst,
           link: linkIn(v.message, window.location.origin),
-          referred: v.referredName,
         });
       }
       startSending(() => {
@@ -372,15 +353,25 @@ export function LeadForm({
 
   const fieldsToFix = orderedErrorFields(errors);
 
-  const choiceRow = (name: "timing" | "sellFirst", legend: string, options: readonly { value: string; chip: string; sr?: string }[]) => (
-    <fieldset className={cn("field m-0 min-w-0 border-0 p-0", columns && "sm:col-span-2")}>
-      <legend className="field-label choice-legend">{legend}</legend>
+  /** A heading-style legend or label on a form in sections; the small caps label otherwise. */
+  const headingClass = cn("t-h4 p-0", dark ? "text-white" : "text-navy");
+
+  const choiceRow = (name: "timing" | "sellFirst", legend: string, options: readonly { value: string; chip: string; say?: string }[]) => (
+    <fieldset className={cn("field m-0 min-w-0 border-0 p-0", columns && !sections && "sm:col-span-2")}>
+      <legend className={sections ? cn(headingClass, "mb-4") : "field-label choice-legend"}>{legend}</legend>
       <div className="choice-row">
         {options.map((o) => (
           <label key={o.value} className="choice-chip">
             <input type="radio" {...named(name)} value={o.value} defaultChecked={values[name] === o.value} className="sr-only" />
-            {o.chip}
-            {o.sr ? <span className="sr-only"> {o.sr}</span> : null}
+            {/* A range reads as "3 to 6 months", not "3 dash 6". */}
+            {o.say ? (
+              <>
+                <span aria-hidden="true">{o.chip}</span>
+                <span className="sr-only">{o.say}</span>
+              </>
+            ) : (
+              o.chip
+            )}
           </label>
         ))}
       </div>
@@ -389,9 +380,9 @@ export function LeadForm({
 
   const message = has("message") ? (
     <div className={cn("field", columns && "sm:col-span-2")}>
-      <label htmlFor={idFor.message} className="field-label">
+      <label htmlFor={idFor.message} className={sections ? cn(headingClass, "mb-1") : "field-label"}>
         {label("message")}
-        {messageRequired ? null : optional}
+        {messageRequired || sections ? null : optional}
       </label>
       <textarea
         id={idFor.message}
@@ -409,7 +400,7 @@ export function LeadForm({
     </div>
   ) : null;
 
-  const requiredBox = (name: "referralConsent" | "reviewConsent", text: string) => (
+  const requiredBox = (name: "reviewConsent", text: string) => (
     <div className="consent-line flex flex-col gap-2">
       <label className={cn("flex cursor-pointer items-start gap-3 t-small", textColor)}>
         <ConsentBox
@@ -427,6 +418,119 @@ export function LeadForm({
       </label>
       <FieldError id={`${uid}-${name}-err`} message={err(name)} tone={tone} />
     </div>
+  );
+
+  /** The two questions, timing and a home to sell, as rows of chips. */
+  const questions = (
+    <>
+      {has("timing") ? choiceRow("timing", label("timing"), TIMING_OPTIONS) : null}
+      {has("sellFirst") ? choiceRow("sellFirst", label("sellFirst"), SELL_FIRST_OPTIONS.map((o) => ({ value: o, chip: SELL_FIRST_CHIPS[o] }))) : null}
+    </>
+  );
+
+  /** The visitor's own fields: name, email, phone and the address to value. */
+  const you = (
+    <>
+      {has("name") ? (
+        <>
+          <div className="field">
+            <label htmlFor={idFor.firstName} className="field-label">
+              {labels.name ?? "First name"}
+            </label>
+            <input
+              id={idFor.firstName}
+              {...named("firstName")}
+              autoComplete="given-name"
+              autoCapitalize="words"
+              enterKeyHint="next"
+              aria-required="true"
+              defaultValue={values.firstName}
+              className="field-input"
+              aria-invalid={Boolean(err("firstName"))}
+              aria-describedby={describedBy("firstName")}
+            />
+            <FieldError id={`${uid}-firstName-err`} message={err("firstName")} tone={tone} />
+          </div>
+          <div className="field">
+            <label htmlFor={`${uid}-last`} className="field-label">
+              {labels.lastName ?? "Last name"}
+              {optional}
+            </label>
+            <input id={`${uid}-last`} {...named("lastName")} autoComplete="family-name" autoCapitalize="words" enterKeyHint="next" defaultValue={values.lastName} className="field-input" />
+          </div>
+        </>
+      ) : null}
+      {has("email") ? (
+        <div className="field">
+          <label htmlFor={idFor.email} className="field-label">
+            {label("email")}
+          </label>
+          <input
+            id={idFor.email}
+            type="email"
+            {...named("email")}
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint={enterKey("email")}
+            aria-required={eitherReach ? undefined : "true"}
+            placeholder="you@example.com"
+            defaultValue={values.email}
+            className="field-input"
+            aria-invalid={Boolean(err("email"))}
+            aria-describedby={describedBy("email")}
+          />
+          <FieldError id={`${uid}-email-err`} message={err("email")} tone={tone} />
+        </div>
+      ) : null}
+      {has("phone") ? (
+        <div className="field">
+          <label htmlFor={idFor.phone} className="field-label">
+            {label("phone")}
+            {eitherReach ? null : optional}
+          </label>
+          <input
+            id={idFor.phone}
+            type="tel"
+            {...named("phone")}
+            autoComplete="tel"
+            inputMode="tel"
+            enterKeyHint={enterKey("phone")}
+            placeholder="(941) 555-0100"
+            defaultValue={values.phone}
+            onBlur={(e) => tidyPhone(e.currentTarget)}
+            className="field-input"
+            aria-invalid={Boolean(err("phone"))}
+            aria-describedby={describedBy("phone")}
+          />
+          <FieldError id={`${uid}-phone-err`} message={err("phone")} tone={tone} />
+        </div>
+      ) : null}
+      {has("address") ? (
+        <div className={cn("field", columns && "sm:col-span-2")}>
+          <label htmlFor={idFor.address} className="field-label">
+            {LABELS.address}
+            {form !== "valuation" ? optional : null}
+          </label>
+          <input
+            id={idFor.address}
+            {...named("address")}
+            autoComplete="street-address"
+            autoCapitalize="words"
+            enterKeyHint={enterKey("address")}
+            aria-required={form === "valuation" || undefined}
+            placeholder="Street address, city"
+            defaultValue={values.address ?? defaultAddress}
+            className="field-input"
+            aria-invalid={Boolean(err("address"))}
+            aria-describedby={describedBy("address")}
+          />
+          <FieldError id={`${uid}-address-err`} message={err("address")} tone={tone} />
+        </div>
+      ) : null}
+    </>
   );
 
   return (
@@ -456,232 +560,22 @@ export function LeadForm({
         </label>
       </div>
 
-      <Group legend={them ? GROUPS.you : undefined} tone={tone}>
-        <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
-          {has("timing") ? choiceRow("timing", LABELS.timing, TIMING_OPTIONS) : null}
-          {has("sellFirst") ? choiceRow("sellFirst", LABELS.sellFirst, SELL_FIRST_OPTIONS.map((o) => ({ value: o, chip: SELL_FIRST_CHIPS[o] }))) : null}
-          {has("name") ? (
-            <>
-              <div className="field">
-                <label htmlFor={idFor.firstName} className="field-label">
-                  {labels.name ?? "First name"}
-                </label>
-                <input
-                  id={idFor.firstName}
-                  {...named("firstName")}
-                  autoComplete="given-name"
-                  autoCapitalize="words"
-                  enterKeyHint="next"
-                  aria-required="true"
-                  defaultValue={values.firstName}
-                  className="field-input"
-                  aria-invalid={Boolean(err("firstName"))}
-                  aria-describedby={describedBy("firstName")}
-                />
-                <FieldError id={`${uid}-firstName-err`} message={err("firstName")} tone={tone} />
-              </div>
-              <div className="field">
-                <label htmlFor={`${uid}-last`} className="field-label">
-                  {labels.lastName ?? "Last name"}
-                  {optional}
-                </label>
-                <input id={`${uid}-last`} {...named("lastName")} autoComplete="family-name" autoCapitalize="words" enterKeyHint="next" defaultValue={values.lastName} className="field-input" />
-              </div>
-            </>
-          ) : null}
-          {has("email") ? (
-            <div className="field">
-              <label htmlFor={idFor.email} className="field-label">
-                {label("email")}
-              </label>
-              <input
-                id={idFor.email}
-                type="email"
-                {...named("email")}
-                autoComplete="email"
-                inputMode="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                enterKeyHint={enterKey("email")}
-                aria-required={eitherReach ? undefined : "true"}
-                placeholder="you@example.com"
-                defaultValue={values.email}
-                className="field-input"
-                aria-invalid={Boolean(err("email"))}
-                aria-describedby={describedBy("email", eitherReach ? `${uid}-reach` : undefined)}
-              />
-              <FieldError id={`${uid}-email-err`} message={err("email")} tone={tone} />
-            </div>
-          ) : null}
-          {has("phone") ? (
-            <div className="field">
-              <label htmlFor={idFor.phone} className="field-label">
-                {label("phone")}
-                {eitherReach ? null : optional}
-              </label>
-              <input
-                id={idFor.phone}
-                type="tel"
-                {...named("phone")}
-                autoComplete="tel"
-                inputMode="tel"
-                enterKeyHint={enterKey("phone")}
-                placeholder="(941) 555-0100"
-                defaultValue={values.phone}
-                onBlur={(e) => tidyPhone(e.currentTarget)}
-                className="field-input"
-                aria-invalid={Boolean(err("phone"))}
-                aria-describedby={describedBy("phone", eitherReach ? `${uid}-reach` : undefined)}
-              />
-              <FieldError id={`${uid}-phone-err`} message={err("phone")} tone={tone} />
-            </div>
-          ) : null}
-          {eitherReach ? (
-            <p id={`${uid}-reach`} className={cn("t-small -mt-3", dark ? "text-mist" : "text-graphite-500", columns && "sm:col-span-2")}>
-              {REACH_HINT}
-            </p>
-          ) : null}
-          {has("address") ? (
-            <div className={cn("field", columns && "sm:col-span-2")}>
-              <label htmlFor={idFor.address} className="field-label">
-                {LABELS.address}
-                {form !== "valuation" ? optional : null}
-              </label>
-              <input
-                id={idFor.address}
-                {...named("address")}
-                autoComplete="street-address"
-                autoCapitalize="words"
-                enterKeyHint={enterKey("address")}
-                aria-required={form === "valuation" || undefined}
-                placeholder="Street address, city"
-                defaultValue={values.address ?? defaultAddress}
-                className="field-input"
-                aria-invalid={Boolean(err("address"))}
-                aria-describedby={describedBy("address")}
-              />
-              <FieldError id={`${uid}-address-err`} message={err("address")} tone={tone} />
-            </div>
-          ) : null}
-          {them ? null : message}
-        </div>
-      </Group>
-
-      {them ? (
-        // The rule sits on a wrapper: on the fieldset itself the legend would cut through it.
-        <div className={cn("border-t pt-7", dark ? "border-linen-200/30" : "border-hairline")}>
-          <Group legend={GROUPS.them} tone={tone}>
-            <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
-              {has("referredName") ? (
-                <div className="field">
-                  <label htmlFor={idFor.referredName} className="field-label">
-                    {label("referredName")}
-                  </label>
-                  <input
-                    id={idFor.referredName}
-                    {...named("referredName")}
-                    autoComplete="off"
-                    autoCapitalize="words"
-                    enterKeyHint="next"
-                    aria-required="true"
-                    defaultValue={values.referredName}
-                    className="field-input"
-                    aria-invalid={Boolean(err("referredName"))}
-                    aria-describedby={describedBy("referredName")}
-                  />
-                  <FieldError id={`${uid}-referredName-err`} message={err("referredName")} tone={tone} />
-                </div>
-              ) : null}
-              {has("referredLastName") ? (
-                <div className="field">
-                  <label htmlFor={`${uid}-referred-last`} className="field-label">
-                    {label("referredLastName")}
-                    {optional}
-                  </label>
-                  <input
-                    id={`${uid}-referred-last`}
-                    {...named("referredLastName")}
-                    autoComplete="off"
-                    autoCapitalize="words"
-                    enterKeyHint="next"
-                    defaultValue={values.referredLastName}
-                    className="field-input"
-                  />
-                </div>
-              ) : null}
-              {has("referredEmail") ? (
-                <div className="field">
-                  <label htmlFor={idFor.referredEmail} className="field-label">
-                    {label("referredEmail")}
-                  </label>
-                  <input
-                    id={idFor.referredEmail}
-                    type="email"
-                    {...named("referredEmail")}
-                    autoComplete="off"
-                    inputMode="email"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    enterKeyHint="next"
-                    placeholder="them@example.com"
-                    defaultValue={values.referredEmail}
-                    className="field-input"
-                    aria-invalid={Boolean(err("referredEmail"))}
-                    aria-describedby={describedBy("referredEmail", `${uid}-their-reach`)}
-                  />
-                  <FieldError id={`${uid}-referredEmail-err`} message={err("referredEmail")} tone={tone} />
-                </div>
-              ) : null}
-              {has("referredPhone") ? (
-                <div className="field">
-                  <label htmlFor={idFor.referredPhone} className="field-label">
-                    {label("referredPhone")}
-                  </label>
-                  <input
-                    id={idFor.referredPhone}
-                    type="tel"
-                    {...named("referredPhone")}
-                    autoComplete="off"
-                    inputMode="tel"
-                    enterKeyHint="next"
-                    placeholder="(941) 555-0100"
-                    defaultValue={values.referredPhone}
-                    onBlur={(e) => tidyPhone(e.currentTarget)}
-                    className="field-input"
-                    aria-invalid={Boolean(err("referredPhone"))}
-                    aria-describedby={describedBy("referredPhone", `${uid}-their-reach`)}
-                  />
-                  <FieldError id={`${uid}-referredPhone-err`} message={err("referredPhone")} tone={tone} />
-                </div>
-              ) : null}
-              {has("referredEmail") || has("referredPhone") ? (
-                <p id={`${uid}-their-reach`} className={cn("t-small -mt-3", dark ? "text-mist" : "text-graphite-500", columns && "sm:col-span-2")}>
-                  {REFER.form.reach}
-                </p>
-              ) : null}
-              {has("referredPlan") ? (
-                <div className={cn("field", columns && "sm:col-span-2")}>
-                  <label htmlFor={`${uid}-referred-plan`} className="field-label">
-                    {label("referredPlan")}
-                    {optional}
-                  </label>
-                  <select id={`${uid}-referred-plan`} {...named("referredPlan")} defaultValue={values.referredPlan ?? ""} className="field-input">
-                    <option value="">{REFER.form.planPrompt}</option>
-                    {REFERRAL_PLANS.map((o) => (
-                      <option key={o}>{o}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : null}
-              {message}
-              {/* The required box closes the group it's about. */}
-              {has("referralConsent") ? <div className={cn(columns && "sm:col-span-2")}>{requiredBox("referralConsent", label("referralConsent"))}</div> : null}
-            </div>
+      {sections ? (
+        <>
+          {has("timing") || has("sellFirst") ? <div className="flex flex-col gap-8">{questions}</div> : null}
+          <Group legend={CONNECT} tone={tone}>
+            <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>{you}</div>
           </Group>
+          {message}
+        </>
+      ) : (
+        <div className={cn("grid gap-6", columns && "sm:grid-cols-2")}>
+          {questions}
+          {you}
+          {message}
         </div>
-      ) : null}
+      )}
+
 
       {has("reviewConsent") || (showsConsent && (has("email") || has("phone"))) ? (
         <div className="flex flex-col gap-4">
@@ -725,7 +619,7 @@ export function LeadForm({
       {/* Phone: the privacy line, then Send at full width under the thumb. From 40rem: the line, then Send beside it. */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <p className={cn("t-small max-w-[420px] sm:flex-1", dark ? "text-linen-200/80" : "text-graphite-500")}>
-          Goes straight to Joelyn and Jessica. We don’t share or sell your details. See the{" "}
+          We don’t share or sell your details. See the{" "}
           <Link href="/privacy" className={cn("underline underline-offset-4", dark ? "hover:text-white" : "hover:text-navy")}>
             privacy policy
           </Link>

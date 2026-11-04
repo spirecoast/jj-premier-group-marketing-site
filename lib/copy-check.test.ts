@@ -54,6 +54,8 @@ describe("places, never people, over the site's source", () => {
 
   it("flags people words outside their honest uses", () => {
     assert.ok(reasons("components/x.tsx", "A great street for families.").length > 0);
+    // The team's own set-aside covers the team, not a household: "a family connection" alone still flags.
+    assert.ok(reasons("components/x.tsx", "A street with a real family connection.").length > 0);
     assert.ok(reasons("components/x.tsx", "Close to the best schools.").length > 0);
     assert.ok(reasons("components/x.tsx", "A safe, quiet street.").length > 0);
   });
@@ -68,6 +70,8 @@ describe("places, never people, over the site's source", () => {
       "Exempt from every tax but school taxes.",
       "This website is not directed at children under sixteen.",
       "We do it the way we’d want it done for our own family.",
+      "Every client deserves the same care, honesty and attention we would give our own family.",
+      "As a mother-daughter real estate team, we share more than a family connection.",
     ]) {
       assert.deepEqual(reasons("components/x.tsx", s), [], s);
     }

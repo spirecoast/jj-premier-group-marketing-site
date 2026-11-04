@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { FubEventType } from "@/lib/fub";
 import { parsePhone } from "@/lib/phone";
-import { LEAD_CHANNELS, LEAD_FORMS, REFERRAL_PLANS, type LeadErrorField, type LeadForm } from "./constants";
+import { LEAD_CHANNELS, LEAD_FORMS, type LeadErrorField, type LeadForm } from "./constants";
 import { validateLead } from "./rules";
 import { placeTarget, streetTarget, type WatchTarget } from "../watch/target";
 
@@ -29,7 +29,6 @@ export const FUB_TYPE: Record<LeadForm, FubEventType> = {
   valuation: "Seller Inquiry",
   letter: "Registration",
   calendar: "Registration",
-  referral: "General Inquiry",
   "review-permission": "General Inquiry",
   watch: "Registration",
 };
@@ -72,15 +71,6 @@ const fields = z.object({
   pageTitle: optionalText(300),
   /** The /from/<channel> the visitor came through; anything else is dropped, never an error. */
   source: z.enum(LEAD_CHANNELS).optional().catch(undefined),
-  /** Referral form: the person moving. Their first name, an email or a phone, and what they're planning. */
-  referredName: optionalText(100),
-  referredLastName: optionalText(100),
-  referredEmail: optionalText(320),
-  referredPhone: optionalText(40),
-  /** One of REFERRAL_PLANS; anything else is dropped, never an error. */
-  referredPlan: z.enum(REFERRAL_PLANS).optional().catch(undefined),
-  /** Referral form: the box saying they know their details are being passed along. */
-  referralConsent: checkbox,
   /** Review-permission form: the box under the words. */
   reviewConsent: checkbox,
   /** Street Watch (the Watch buttons): a street as the county spells it with its ZIP, or an Atlas place's slug and name. */
@@ -113,10 +103,6 @@ export const leadSchema = fields
       ...(d.phone === undefined ? {} : { phone: d.phone }),
       address: d.address,
       message: d.message,
-      referredName: d.referredName,
-      referredEmail: d.referredEmail,
-      referredPhone: d.referredPhone,
-      referralConsent: d.referralConsent ? "on" : "",
       reviewConsent: d.reviewConsent ? "on" : "",
     });
     for (const [path, message] of Object.entries(errors)) ctx.addIssue({ code: "custom", path: [path], message });
@@ -126,21 +112,17 @@ export const leadSchema = fields
   .transform((d) => {
     // Phones leave here tidy: "(941) 555-0100" for a US number, with the E.164 form beside it.
     const phone = parsePhone(d.phone);
-    const referredPhone = parsePhone(d.referredPhone);
     return {
       ...d,
       email: d.email.toLowerCase(),
       phone: phone?.display,
       phoneE164: phone?.e164,
-      referredEmail: d.referredEmail?.toLowerCase(),
-      referredPhone: referredPhone?.display,
-      referredPhoneE164: referredPhone?.e164,
     };
   });
 
 export type LeadInput = z.output<typeof leadSchema>;
 
-const RENDERED = new Set<string>(["firstName", "email", "phone", "address", "message", "referredName", "referredEmail", "referredPhone", "referralConsent", "reviewConsent"]);
+const RENDERED = new Set<string>(["firstName", "email", "phone", "address", "message", "reviewConsent"]);
 
 export type LeadParse =
   | { ok: true; data: LeadInput }

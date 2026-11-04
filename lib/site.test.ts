@@ -36,7 +36,7 @@ test("a guide's next step is its PDF, at the path the guides serve it from", () 
 test("the team menu's items are real routes and keep the two-word rule for the bar", () => {
   assert.deepEqual(
     teamMenu.items.map((i) => i.href),
-    ["/about", "/contact", "/refer", "/reviews"],
+    ["/about", "/contact", "/reviews"],
   );
 });
 

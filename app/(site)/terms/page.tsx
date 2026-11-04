@@ -3,6 +3,7 @@ import { getSiteSettings } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { ExternalLink } from "@/components/ui/external-link";
+import { formatAddress } from "@/lib/content/format";
 
 export const metadata: Metadata = pageMetadata({
   title: "Terms of use",
@@ -122,7 +123,7 @@ export default async function TermsPage() {
 
         <h2>Contact</h2>
         <p>
-          {site.name} · {settings.brokerageName} · {[settings.officeAddress.street, settings.officeAddress.city, settings.officeAddress.state, settings.officeAddress.zip].filter(Boolean).join(", ")}
+          {site.name} · {settings.brokerageName} · {formatAddress(settings.officeAddress)}
         </p>
       </div>
     </section>

@@ -6,7 +6,7 @@
  * Read once, within half an hour, for the form that wrote it.
  */
 
-import type { LeadForm } from "./leads/constants";
+import { TIMING_OPTIONS, type LeadForm } from "./leads/constants";
 
 export const LAST_LEAD_KEY = "jj-last-lead";
 const TTL_MS = 30 * 60 * 1000;
@@ -22,8 +22,6 @@ export type LastLead = {
   sellFirst?: string;
   /** The plan, match or list link a tool put in the message. */
   link?: string;
-  /** The person referred, by first name. */
-  referred?: string;
 };
 
 export function writeLastLead(lead: Omit<LastLead, "at">): void {
@@ -61,14 +59,14 @@ export function linkIn(message: string | undefined, origin: string): string | un
 }
 
 /**
- * The line the thank-you page shows: "For 9403 9th Ave NW, moving inside
- * three months." Plain text, made only of what the visitor typed or chose.
+ * The line the thank-you page shows: "For 9403 9th Ave NW, moving within
+ * 3 months." Plain text, made only of what the visitor typed or chose, in the
+ * words of the chip they tapped.
  */
 export function echoLine(lead: LastLead): string | null {
   const parts: string[] = [];
-  if (lead.referred) parts.push(`For ${lead.referred}`);
-  else if (lead.address) parts.push(`For ${lead.address}`);
-  if (lead.timing) parts.push(lead.timing === "Just watching the market" ? "just watching the market" : `moving ${lead.timing.charAt(0).toLowerCase()}${lead.timing.slice(1)}`);
+  if (lead.address) parts.push(`For ${lead.address}`);
+  if (lead.timing) parts.push(TIMING_OPTIONS.find((o) => o.value === lead.timing)?.echo ?? `moving ${lead.timing.charAt(0).toLowerCase()}${lead.timing.slice(1)}`);
   if (lead.sellFirst === "Yes") parts.push("with a house to sell first");
   if (!parts.length) return null;
   const line = parts.join(", ");

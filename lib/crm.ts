@@ -67,8 +67,8 @@ export type LeadSource = {
   /**
    * True when Home Platform's lead pixel was running on the page, so the form
    * already reached the CRM from the browser (lib/home-platform.ts). A
-   * server-side path into Home Platform skips these, except referrals: the
-   * pixel sends the referrer, not the person who is moving.
+   * server-side path into Home Platform skips these, except a stored referral
+   * (LeadReferral): the pixel sent the referrer, not the person who is moving.
    */
   homePlatformPixel: boolean;
 };
@@ -86,18 +86,21 @@ export type LeadProperty = {
 };
 
 /**
- * Referral form only: the person who is moving, as the referrer gave them.
- * The lead's own firstName/lastName/email/phone are the referrer's; these are
- * the person to create in the CRM, with `note` as the contact's note. The
- * referrer ticked REFERRAL_CONSENT_WORDING (lib/leads/constants.ts), so `told` is
- * always true here, with the time and the wording version it was ticked under.
+ * Leads stored from the referral form (/refer, retired in November 2026; the
+ * address now redirects to /contact). Nothing new writes this, but a stored
+ * lead still carries it: the lead's own firstName/lastName/email/phone are
+ * the referrer's, and these are the person who was moving, with `note` as
+ * the contact's note. The outbox can still redeliver such a lead, so the team
+ * email (lib/lead-alert.ts), the CRM note and Home Platform's note keep
+ * reading it, and scripts/forget.ts still erases it. `told` was always true:
+ * the referrer ticked the box, at `toldAt`, under `toldWordingVersion`.
  */
 export type LeadReferral = {
   firstName: string;
   lastName: string | null;
   email: string | null;
   phone: string | null;
-  /** Buying, Selling or Moving here (REFERRAL_PLANS), when the referrer said. */
+  /** Buying, Selling or Moving here, when the referrer said. */
   plan: string | null;
   told: true;
   toldAt: string;
@@ -151,8 +154,8 @@ export type CrmLead = {
   sellFirst: string | null;
   /** Listing inquiries only. */
   property: LeadProperty | null;
-  /** Referral form only: the person who's moving and the note for the CRM (LeadReferral). */
-  referral: LeadReferral | null;
+  /** Only on a lead stored from the retired referral form: the person who was moving and the note for the CRM (LeadReferral). */
+  referral?: LeadReferral | null;
   /** Street Watch form only: the street or place they asked to watch. */
   watch?: LeadWatch | null;
   consent: LeadConsent;

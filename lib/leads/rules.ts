@@ -20,11 +20,6 @@ export const LEAD_MESSAGES = {
   reach: "Your email or your phone, so we can reach you",
   phone: "A full phone number with the area code, please",
   address: "The street address to value",
-  referredName: "Their first name, please",
-  referredReach: "Their email or their phone, so we can reach them",
-  referredEmail: "A working email address, or leave it blank and give their phone",
-  referredPhone: "Their full phone number with the area code, please",
-  referralConsent: "Tick the box once they know you’re passing their details along",
   reviewWords: "The words you’d like to share",
   reviewConsent: "Tick the box so we can use your words",
 } as const;
@@ -36,10 +31,6 @@ export const FIELD_SHORT_NAMES: Record<LeadErrorField, string> = {
   phone: "phone",
   address: "address",
   message: "your words",
-  referredName: "their name",
-  referredEmail: "their email",
-  referredPhone: "their phone",
-  referralConsent: "the box",
   reviewConsent: "the box",
 };
 
@@ -49,11 +40,7 @@ export const FIELD_ORDER: readonly LeadErrorField[] = [
   "email",
   "phone",
   "address",
-  "referredName",
-  "referredEmail",
-  "referredPhone",
   "message",
-  "referralConsent",
   "reviewConsent",
 ];
 
@@ -88,16 +75,6 @@ export function validateLead(form: LeadForm, values: LeadValues): Partial<Record
   if (phone && !parsePhone(phone)) errors.phone = LEAD_MESSAGES.phone;
 
   if (form === "valuation" && !text(values.address)) errors.address = LEAD_MESSAGES.address;
-
-  if (form === "referral") {
-    const theirEmail = text(values.referredEmail);
-    const theirPhone = text(values.referredPhone);
-    if (!text(values.referredName)) errors.referredName = LEAD_MESSAGES.referredName;
-    if (theirEmail && !isEmail(theirEmail)) errors.referredEmail = LEAD_MESSAGES.referredEmail;
-    else if (!theirEmail && !theirPhone) errors.referredEmail = LEAD_MESSAGES.referredReach;
-    if (theirPhone && !parsePhone(theirPhone)) errors.referredPhone = LEAD_MESSAGES.referredPhone;
-    if (!ticked(values.referralConsent)) errors.referralConsent = LEAD_MESSAGES.referralConsent;
-  }
 
   if (form === "review-permission") {
     if (!text(values.message)) errors.message = LEAD_MESSAGES.reviewWords;

@@ -10,9 +10,9 @@ import { pageMetadata } from "@/lib/seo";
 import { ExternalLink } from "@/components/ui/external-link";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact · Tell us the timing",
+  title: "Contact · Let’s talk about your next move",
   description:
-    "Call, text or write to Joelyn Nauman and Jessica Garza. Two questions first: when do you need to be in, and is there a house to sell?",
+    "Call, text or write to Joelyn Nauman and Jessica Garza at Coldwell Banker Realty in Lakewood Ranch. Tell us a little about your plans, and we’ll reach out.",
   path: "/contact",
   fileImage: true, // opengraph-image.tsx beside this page
 });
@@ -25,9 +25,8 @@ export const metadata: Metadata = pageMetadata({
  */
 export default async function ContactPage() {
   const [team, settings] = await Promise.all([getTeam(), getSiteSettings()]);
-  const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()]
-    .filter(Boolean)
-    .join(", ");
+  // The street on its own line, then the town: the same words and commas as the footer and the JSON-LD.
+  const office = [settings.officeAddress.street, `${settings.officeAddress.city}, ${settings.officeAddress.state} ${settings.officeAddress.zip}`.trim()].filter(Boolean);
   // The Google Maps link searches for the office address once it is filled in, else NEXT_PUBLIC_MAP_QUERY, else the brokerage in Lakewood Ranch.
   const query = mapQuery(settings);
   const mapsUrl = mapLinkUrl(query);
@@ -42,19 +41,43 @@ export default async function ContactPage() {
         <SectionHeading
           as="h1"
           size="display"
-          title={<span id="contact-title">Tell us the timing.</span>}
+          title={<span id="contact-title">Let’s talk about your next move.</span>}
         />
-        <p className="t-body max-w-measure text-body">
-          Two questions before we look at anything: when do you need to be in, and is there a house to sell first? Those two answers change everything else. Put whatever you know in the box, and one of us will write or call back.
-        </p>
+        {/* The owners' own words (November 2026). */}
+        <div className="flex flex-col gap-5">
+          <p className="t-lead max-w-measure text-body">
+            If you’re ready to make a move or just beginning to explore your options, we’d love to hear from you.
+          </p>
+          <p className="t-body max-w-measure text-body">
+            Tell us a little about your plans and what you’re looking for. We will personally reach out to answer your questions, discuss your goals, and help you decide on the next steps.
+          </p>
+        </div>
         <div className="border border-hairline bg-white p-6 sm:p-8">
-          <UrlLeadForm prefill="contact" form="contact" fields={["timing", "sellFirst", "name", "email", "phone", "message"]} submitLabel="Send" />
+          <UrlLeadForm
+            prefill="contact"
+            form="contact"
+            sections
+            fields={["timing", "sellFirst", "name", "email", "phone", "message"]}
+            labels={{ email: "Email address", phone: "Phone number", message: "Anything else you’d like us to know?" }}
+            placeholderMessage="Share a little about what you’re looking for or any questions you may have."
+            submitLabel="Send"
+          />
         </div>
       </div>
 
       <div className="flex flex-col gap-10 lg:pt-24">
         <div className="flex flex-col gap-6">
           <p className="t-h4 text-navy">Direct</p>
+          {/* One number for the team (the site settings' main phone); each of us by name and email under it. */}
+          <div className="flex flex-col gap-1 border-t border-hairline pt-5">
+            <p className="t-mono-sm text-graphite-500">Call or text</p>
+            <TrackedLink href={`tel:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "contact" }} className="self-start font-mono text-[15px] text-navy hover:text-harbor-700">
+              {settings.primaryPhoneDisplay}
+            </TrackedLink>
+            <TrackedLink href={`sms:${settings.primaryPhoneE164}`} event="Phone tap" props={{ where: "contact-text" }} className="t-small self-start text-harbor-700 hover:text-navy">
+              Text us
+            </TrackedLink>
+          </div>
           <ul className="flex flex-col gap-6">
             {team.map((m) => (
               <li key={m.slug} className="flex flex-col gap-1 border-t border-hairline pt-5">
@@ -62,12 +85,6 @@ export default async function ContactPage() {
                 <p className="t-mono-sm text-graphite-500">
                   {m.title}
                 </p>
-                <TrackedLink href={`tel:${m.phoneE164}`} event="Phone tap" props={{ where: "contact" }} className="font-mono text-[15px] text-navy hover:text-harbor-700">
-                  {m.phone}
-                </TrackedLink>
-                <TrackedLink href={`sms:${m.phoneE164}`} event="Phone tap" props={{ where: "contact-text" }} className="t-small text-harbor-700 hover:text-navy">
-                  Text {m.name.split(" ")[0]}
-                </TrackedLink>
                 <a href={`mailto:${m.email}`} className="t-small break-all text-harbor-700 hover:text-navy">
                   {m.email}
                 </a>
@@ -78,11 +95,12 @@ export default async function ContactPage() {
         <div className="flex flex-col gap-3 border-t border-hairline pt-5">
           <p className="t-h4 text-navy">Office</p>
           <address className="t-body not-italic text-body">
-            {settings.brokerageName}
-            <br />
-            {office}
+            {[settings.brokerageName, ...office].map((line) => (
+              <span key={line} className="block">
+                {line}
+              </span>
+            ))}
           </address>
-          <p className="t-small text-body-muted">By appointment. We’re usually in a house, so call or text first.</p>
         </div>
         {/* The map, in the brand's own style: one marker, loaded once the frame is near the viewport, with the Google Maps link under it for directions. */}
         <div className="flex flex-col gap-3">

@@ -10,8 +10,8 @@
  * so it can gate a build.
  *
  * Sources: the market hubs (lib/hubs/copy.ts), the channel landing pages
- * (lib/channels/copy.ts), /refer (lib/refer/copy.ts, plus the referral box
- * and the plans from lib/leads/constants.ts) and /reviews (lib/reviews/copy.ts). A new
+ * (lib/channels/copy.ts) and /reviews (lib/reviews/copy.ts, plus its box
+ * from lib/leads/constants.ts). A new
  * page with hand-written copy adds its own `<page>Strings()` here.
  *
  * The newsletter templates (lib/issues/copy.ts) get the same checker with
@@ -52,10 +52,9 @@ import { issueStrings } from "../lib/issues/copy.ts";
 import { newsletterStrings } from "../lib/newsletter/copy.ts";
 import { newslettersStrings } from "../lib/newsletters/copy.ts";
 import { watchStrings } from "../lib/watch/copy.ts";
-import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads/constants.ts";
+import { REVIEW_CONSENT_WORDING } from "../lib/leads/constants.ts";
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
 import { roomStrings } from "../lib/room/copy.ts";
-import { referStrings } from "../lib/refer/copy.ts";
 import { reviewsStrings } from "../lib/reviews/copy.ts";
 import { searchStrings } from "../lib/search/copy.ts";
 import { tideWebStrings } from "../lib/tide/copy.ts";
@@ -69,11 +68,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCES = [
   ...hubStrings(),
   ...channelStrings(),
-  ...referStrings(),
   ...reviewsStrings(),
   { where: "lib/leads/constants.ts: REVIEW_CONSENT_WORDING", text: REVIEW_CONSENT_WORDING },
-  { where: "lib/leads/constants.ts: REFERRAL_CONSENT_WORDING", text: REFERRAL_CONSENT_WORDING },
-  ...REFERRAL_PLANS.map((p) => ({ where: `lib/leads/constants.ts: REFERRAL_PLANS ${p}`, text: p })),
 ];
 
 /** Hub-specific rules on top of the brokerage list. Places, never people; no figures. */

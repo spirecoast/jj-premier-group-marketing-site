@@ -14,11 +14,9 @@
  *
  * The lead is tagged "test" everywhere it lands (leads.is_test, the CRM tags,
  * the team email subject) so the Zap can filter it and nobody calls it back.
- * Forms: contact, buy, sell, listing, valuation, letter, calendar, referral
- * (/refer) and review-permission (/reviews). Each payload carries only the
- * fields its form can send: no marketing boxes on review-permission, no
- * timing or market on either of the last two, and the referred person's
- * details plus the ticked box on the referral.
+ * Forms: contact, buy, sell, listing, valuation, letter, calendar and
+ * review-permission (/reviews). Each payload carries only the fields its form
+ * can send: no marketing boxes, timing or market on review-permission.
  */
 
 const args = process.argv.slice(2);
@@ -46,13 +44,12 @@ if (!hookMode && live && !secret) {
 const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
 const emailOnly = form === "letter" || form === "calendar";
 const review = form === "review-permission";
-const referral = form === "referral";
 /** The email and call/text boxes: every form with a name field except the review permission. */
 const marketing = !emailOnly && !review;
 /** A phone field: not on the subscribe bars or the review permission. */
 const withPhone = !emailOnly && !review;
 /** Timing select and a market (hidden, from a hub, the planner or Atlas match): the original enquiry forms only. */
-const withTiming = !emailOnly && !review && !referral;
+const withTiming = !emailOnly && !review;
 const withMarket = withTiming;
 const lead = {
   form,
@@ -65,13 +62,7 @@ const lead = {
   sellFirst: form === "buy" ? "Not sure yet" : "",
   market: withMarket ? "sarasota" : "",
   address: form === "valuation" || form === "sell" ? "1 Test Street, Sarasota, FL" : "",
-  pageUrl: `${base}/${form === "letter" ? "blog" : form === "calendar" ? "calendar" : form === "referral" ? "refer" : form === "review-permission" ? "reviews" : form}`,
-  referredName: referral ? "Sam" : "",
-  referredLastName: referral ? "Referred" : "",
-  referredEmail: referral ? `test+referred-${stamp}@jjpremiergroup.com` : "",
-  referredPhone: referral ? "(941) 555-0198" : "",
-  referredPlan: referral ? "Moving here" : "",
-  referralConsent: referral ? "on" : "",
+  pageUrl: `${base}/${form === "letter" ? "blog" : form === "calendar" ? "calendar" : form === "review-permission" ? "reviews" : form}`,
   reviewConsent: review ? "on" : "",
   consent: marketing ? "on" : "",
   consentEmail: marketing ? "on" : "",
@@ -106,22 +97,6 @@ function samplePayload() {
       form === "listing"
         ? { slug: "sample-listing", title: "Sample listing", street: "1 Test Street", city: "Sarasota", state: "FL", zip: "34236", price: 1, mls: "TEST", url: `${base}/listings/sample-listing` }
         : null,
-    referral: referral
-      ? {
-          firstName: lead.referredName,
-          lastName: lead.referredLastName,
-          email: lead.referredEmail,
-          phone: lead.referredPhone,
-          plan: lead.referredPlan,
-          told: true,
-          toldAt: now,
-          toldWordingVersion: "referral:2026-10-01.1",
-          referredBy: `${lead.firstName} ${lead.lastName}`,
-          referredByEmail: lead.email,
-          referredByPhone: lead.phone,
-          note: `Came via a referral from ${lead.firstName} ${lead.lastName} (${lead.email}, ${lead.phone}). ${lead.firstName} ${lead.lastName} says ${lead.referredName} ${lead.referredLastName} knows their details were passed along and expects to hear from Joelyn and Jessica. Planning: moving here. Reach them at ${lead.referredEmail}, ${lead.referredPhone}. Note from ${lead.firstName}: ${lead.message}`,
-        }
-      : null,
     consent: {
       email: consentEmail,
       sms: consentSms,

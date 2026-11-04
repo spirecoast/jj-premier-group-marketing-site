@@ -17,7 +17,9 @@ import { TrackedLink } from "./tracked-link";
 import { Wordmark } from "./wordmark";
 import { IntentLink } from "@/components/intent-link";
 
-type Contact = { name: string; phone: string; phoneE164: string; email: string };
+type Contact = { name: string; email: string };
+/** The team's one number (the site settings' main phone). */
+type Phone = { e164: string; display: string };
 
 /** How far the page must move before the header tucks away on a phone, and the dead band a trackpad's tremor stays inside. */
 const TUCK_AFTER = 160;
@@ -34,7 +36,7 @@ const DEAD_BAND = 6;
  * (html[data-scroll], which the action bar reads too). The wordmark always
  * returns to the very top of the home page.
  */
-export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phoneE164: string }) {
+export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Phone }) {
   const pathname = usePathname();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
@@ -135,22 +137,18 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
   const team: MenuSpec = {
     ...teamMenu,
     foot: (
-      <ul className="flex flex-col gap-1 border-t border-white/10 px-5 py-3">
-        {contacts.map((c) => (
-          <li key={c.name} className="flex items-baseline justify-between gap-4 text-[13px]">
-            <span className="text-linen-200/75">{c.name.split(" ")[0]}</span>
-            <TrackedLink
-              event="Phone tap"
-              props={{ where: "header" }}
-              href={`tel:${c.phoneE164}`}
-              tabIndex={row.menu === "team" ? undefined : -1}
-              className="font-mono text-linen-200 transition-colors hover:text-white"
-            >
-              {c.phone}
-            </TrackedLink>
-          </li>
-        ))}
-      </ul>
+      <p className="flex items-baseline justify-between gap-4 border-t border-white/10 px-5 py-3 text-[13px]">
+        <span className="text-linen-200/75">Call or text</span>
+        <TrackedLink
+          event="Phone tap"
+          props={{ where: "header" }}
+          href={`tel:${phone.e164}`}
+          tabIndex={row.menu === "team" ? undefined : -1}
+          className="font-mono text-linen-200 transition-colors hover:text-white"
+        >
+          {phone.display}
+        </TrackedLink>
+      </p>
     ),
   };
 
@@ -189,8 +187,8 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
         <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-6">
           {primaryNav.map((item) => {
             // Two of the plain pages are small menus in the product menus' style: Buy (the guide, the
-            // listings, the move, the neighborhoods) and the team (About, the timing form, referrals,
-            // reviews, and the two numbers).
+            // listings, the move, the neighborhoods) and the team (About, the contact page, reviews,
+            // and the team's number).
             const menu = item.href === "/buy" ? buy : item.href === "/about" ? team : null;
             if (menu) {
               return (
@@ -332,18 +330,16 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
             ))}
           </nav>
           <div className="site-menu-item flex flex-col gap-6" style={{ ["--i" as string]: primaryNav.length + productFamilies.length }}>
+            <div className="flex flex-col gap-1">
+              <p className="text-[14px] font-medium text-white">Call or text</p>
+              <TrackedLink event="Phone tap" props={{ where: "header" }} href={`tel:${phone.e164}`} className="self-start font-mono text-base text-linen-200 hover:text-white">
+                {phone.display}
+              </TrackedLink>
+            </div>
             <div className="grid gap-5 sm:grid-cols-2">
               {contacts.map((c) => (
                 <div key={c.name} className="flex flex-col gap-1">
                   <p className="text-[14px] font-medium text-white">{c.name}</p>
-                  <TrackedLink
-                    event="Phone tap"
-                    props={{ where: "header" }}
-                    href={`tel:${c.phoneE164}`}
-                    className="font-mono text-base text-linen-200 hover:text-white"
-                  >
-                    {c.phone}
-                  </TrackedLink>
                   <a href={`mailto:${c.email}`} className="t-small break-all text-linen-200 hover:text-white">
                     {c.email}
                   </a>
@@ -357,10 +353,10 @@ export function SiteHeader({ contacts, phoneE164 }: { contacts: Contact[]; phone
           </div>
           {/* Pinned to the foot of the panel whatever the screen's height: the warmest part of the menu, always in reach. */}
           <div className="site-menu-foot">
-            <TrackedLink event="Phone tap" props={{ where: "header" }} href={`tel:${phoneE164}`} className="btn btn-outline-light">
+            <TrackedLink event="Phone tap" props={{ where: "header" }} href={`tel:${phone.e164}`} className="btn btn-outline-light">
               Call
             </TrackedLink>
-            <TrackedLink event="Phone tap" props={{ where: "header-text" }} href={`sms:${phoneE164}`} className="btn btn-outline-light">
+            <TrackedLink event="Phone tap" props={{ where: "header-text" }} href={`sms:${phone.e164}`} className="btn btn-outline-light">
               Text
             </TrackedLink>
             <Link href="/contact" className="btn btn-linen">

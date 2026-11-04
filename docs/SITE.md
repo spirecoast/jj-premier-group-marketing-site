@@ -121,7 +121,7 @@ search index; Resend sends only team-facing email.
   the hero's paper frame while the hero is under it (`data-cover`), so the bar and the photograph
   share one edge. `SiteHeader` only measures (`data-scrolled`, `data-open`, `data-home`, `data-cover`).
 - "Joelyn & Jessica" in the desktop header is a small menu in the product menus' style (`teamMenu` in
-  `lib/site.ts`): About, the timing form, referrals, reviews, and the two numbers in its foot, so the
+  `lib/site.ts`): About, the contact page, reviews, and the team's number in its foot, so the
   team is one click away on every page. The menus open on hover intent (120 ms), switch at once once
   one is open, close 200 ms after the pointer leaves the row, and close when focus leaves them; ArrowDown
   opens one and the arrow keys walk its panel (`components/product-menu.tsx`).
@@ -145,6 +145,18 @@ search index; Resend sends only team-facing email.
   without a source.
 - Testimonials are empty in the seed. Reviews go live only through the Sanity `testimonial`
   document, with `permissionOnFile` checked.
+- One number for the team: Joelyn's, (309) 258-0225, the site settings' main phone
+  (`primaryPhoneE164`/`primaryPhoneDisplay` in `lib/content/seed/settings.ts`), at the owners'
+  direction in November 2026. The header, footer, phone action bar, `/contact`, the thank-you pages,
+  the market hubs, the buy page, Atlas Move, client rooms, printed results, "Email me this", the guide
+  PDFs' back page, the error page, `llms.txt` and the RealEstateAgent JSON-LD all read it. Jessica's
+  own number, (941) 306-8699, shows only on her card on `/about` (and in her Person JSON-LD). The
+  brokerage's office line isn't shown.
+- The office: Coldwell Banker Realty, 8334 Market St, Lakewood Ranch, FL 34202 (`officeAddress`).
+  The footer, `/contact`, privacy, terms, `llms.txt`, the newsletters' footer and the JSON-LD write
+  it the same way (`formatAddress` in `lib/content/format.ts`), because Google compares it with the
+  Business Profile. A filled street and ZIP is also what lets the newsletters send (CAN-SPAM; see
+  `docs/ISSUES.md`).
 
 ## Motion
 
@@ -239,7 +251,7 @@ Calculator's sheet and a Tide issue. The result sits in `KeepSheet`, which on sc
 in print is the whole page (`components/keep/keep.css` hides everything that neither holds the sheet
 nor sits inside it): headed with the product's lockup, the day it was made and the site, footed with
 the tool's own source line (`KEEP_TOOLS` in `lib/keep/tools.ts`, sentences the tools already say),
-the two of us by name and number, and a QR code of the link that opens the same result. A fold
+the two of us by name with the team's number, and a QR code of the link that opens the same result. A fold
 marked `data-keep-open` (Tide Street's table) prints open. "Save as PDF" is the browser's print
 dialog, so the PDF is exactly the screen's result, on US Letter. Each tool keeps its own buttons and
 gains Print where it had none (`KeepPrintButton`, `KeepRow`) and "Email me this" (`KeepEmail`),
@@ -412,9 +424,10 @@ builder source with its checked date).
 - **The map on /contact** is the same stack in a small frame (`components/office-map-island.tsx`,
   `office-map.tsx`): one navy marker with the brokerage's name, zoom 12, plus and minus only, no wheel
   zoom, loaded when the frame nears the viewport over a still poster, the map-unavailable note when it
-  can't draw. The marker is the office point in the site settings (`officeGeo`) or, until that is set,
-  the middle of Lakewood Ranch from `hubAtlas` (the mean of the catalog's areas there). The "Open in
-  Google Maps" link under it is `lib/map-embed.ts`. No Google embed, no key.
+  can't draw. The marker is the office point in the site settings (`officeGeo`: 8334 Market St from
+  the U.S. Census geocoder, read November 4, 2026, which places a number along its street) or, if it's
+  ever unset, the middle of Lakewood Ranch from `hubAtlas` (the mean of the catalog's areas there).
+  The "Open in Google Maps" link under it is `lib/map-embed.ts`. No Google embed, no key.
 - **The detail-page map** is an island: the page carries a still SVG of the place's points
   (`components/place-poster.tsx`) and `components/place-map-island.tsx` asks for MapLibre's chunk only
   when the frame comes within 200 px of the viewport. One finger scrolls the page over it; two move the map.
@@ -1092,9 +1105,20 @@ so the steps run before the answer and decide it. Migration `0015_lead_guard_and
 holds the outbox and the guard's tables; until it's applied each sink is tried once, as before,
 and one log line names the file.
 
-The form itself (`components/lead-form.tsx`, Figma "01 Lead form"): the two questions (timing,
-then a house to sell) come first as rows of chips (radios underneath), then name, email and
-phone. With JavaScript it never resets: a failed check focuses the first field to fix, under the
+The form itself (`components/lead-form.tsx`, Figma "01 Lead form"): the two questions, in the
+owners' words (`TIMING_QUESTION`, `SELL_FIRST_QUESTION` in `lib/leads/constants.ts`), are rows of
+chips (radios underneath). "When are you thinking about moving?": Within 3 months, 3–6 months,
+6–12 months, Just exploring. "Do you have a home to sell?": Yes, No, Not sure. Every form that asks
+them (contact, buy, the market hubs, Atlas Match and Compare, Atlas Move, the Encore Planner, home
+value) uses these lists. The chips changed wording in November 2026 and the stored values didn't:
+`timing` is still Inside three months, Three to six months, Six to twelve months or Just watching
+the market, and `sellFirst` Yes, No or Not sure yet, in the database, the lead email and the CRM
+note; the thank-you echo says the chip's words back. A range chip reads "3 to 6 months" to a screen
+reader. On `/contact` the form is laid out in sections (`sections`): the two questions as headings
+over their chips, then first name, last name, email address and phone number under "Let’s
+connect", then "Anything else you’d like us to know?" over the message. Elsewhere the questions
+come first (or after the name, email and phone on the buy forms) with small caps labels. Either an
+email or a phone is enough on every enquiry form; the form no longer says so in a hint. With JavaScript it never resets: a failed check focuses the first field to fix, under the
 header, and lists them by Send ("Two things to fix above: name, email"); the Send label and width
 hold while it's sending and the dash runs; a failed or dropped request shows the call-or-text
 line, never the error page. Without JavaScript it posts as a plain form and the page comes back
@@ -1104,7 +1128,7 @@ live only the visitor's own name, email and phone and the two questions keep a `
 to the request by the form itself. `scripts/check-client-bundle.mjs` (postbuild) fails the build if
 zod reaches a browser chunk.
 
-Then a `LeadForm` sends the visitor to `/thanks/<form>` (what happens next, both direct numbers,
+Then a `LeadForm` sends the visitor to `/thanks/<form>` (what happens next, the team's number,
 "Book 15 minutes" when `NEXT_PUBLIC_BOOKING_URL` is set, one next step; `noindex`; fires the `Lead`
 goal). The `LetterForm` bars stay inline: the success line shows where the bar was and `Subscribe`
 fires there. With JavaScript off the inline success state shows for every form. The visitor sees an error only
@@ -1123,13 +1147,13 @@ issue (`docs/ISSUES.md`). Replies to an enquiry come from the agents' own Coldwe
 
 Consent: every enquiry form with an email field shows an unchecked **email** box; forms with a phone
 also show the unchecked **calls/texts** box (`CONSENT_EMAIL_WORDING`, `CONSENT_WORDING` in
-`lib/leads/constants.ts`). Neither is required, and the referral and review-permission forms show
+`lib/leads/constants.ts`). Neither is required, and the review-permission form shows
 neither. Call/text consent is recorded only with a valid phone number. State, timestamp and `CONSENT_WORDING_VERSION` are stored on
 the lead and travel as `consent:email` / `consent:sms` tags. The Tide and Encore boxes imply email
 consent and record `IMPLIED_CONSENT_VERSION` (`implied:subscribe`) instead, since the visitor saw
 the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTEGRATIONS.md`.
 
-## Growth pages: channels, referrals and reviews
+## Growth pages: channels and reviews
 
 - **Channel landings** `/from/youtube`, `/from/instagram`, `/from/facebook`, `/from/nextdoor`: the
   links for bios and posts. One component (`components/growth/channel-landing.tsx`) and one copy file
@@ -1139,30 +1163,24 @@ the band copy, not a checkbox. The payload field map for Zapier is in `docs/INTE
   visit's channel is kept for the session and every form sends it as `source`, so the lead is tagged
   `source:<channel>`; a first visit with no `utm_*` also gets `utm_source=<channel>`,
   `utm_medium=social` in the first-touch record (`docs/MEASUREMENT.md` §4).
-- **`/refer`**: "Know someone moving here?" The `referral` form is two labelled groups: "About you"
-  (the referrer's first name, last name, email and phone) and "About them" (the person moving: first
-  name, last name, email and/or phone, what they're planning, a note), closed by a required box
-  marked "(required)": "They know I'm passing their details along and expect to hear from Joelyn
-  and Jessica." No marketing boxes for the referrer. Under the form, "Rather send them a link"
-  shares Atlas instead, and the referral thank-you page has the same share. The referred person
-  travels under `referral` in the payload with a CRM note naming the referrer (`lib/crm.ts`,
-  `docs/INTEGRATIONS.md`). The copy says we write back to the referrer first and reach out to the
-  person at their pace. No gifts or rewards are mentioned (anything like that is cleared with the
-  brokerage first). Tags `form:referral`; a `General Inquiry` like `contact`.
 - **`/reviews`**: the Google review link from `NEXT_PUBLIC_GOOGLE_REVIEW_URL` (an `https` URL; when
-  it's empty the page says the link is coming soon), and the `review-permission` form: name, email,
+  it's empty the Google column doesn't show and the form takes the page), and the `review-permission` form: name, email,
   the words, and a required box ("You can use these words on the site with my first name and the
   place we bought or sold", `REVIEW_CONSENT_WORDING`, versioned `REVIEW_CONSENT_VERSION`). Stored
   like every lead, tagged `consent:review`. **Nothing from it is displayed anywhere on the site**; a
   quote goes up only when someone enters it as a Sanity `testimonial` with `permissionOnFile`.
-- **Where they're linked.** `/refer` and `/reviews` sit at the end of the footer's "The team"
-  column and in the sitemap; the `/from/*` pages are linked only from the profiles themselves.
-- **Copy check.** Each page's strings live in a `copy.ts` (`lib/channels`, `lib/refer`,
+- **Where they're linked.** `/reviews` sits at the end of the footer's "The team" column, in the
+  team menu and in the sitemap; the `/from/*` pages are linked only from the profiles themselves.
+- **`/refer` is gone.** The referral page came down at the owners' request in November 2026 and
+  `/refer` answers a 308 to `/contact` (`next.config.ts`). The `referral` form kind went with it.
+  Leads stored from it keep their `referral` block (the person who was moving), which the outbox's
+  redelivery, the team email and `scripts/forget.ts` still read; nothing new writes one.
+- **Copy check.** Each page's strings live in a `copy.ts` (`lib/channels`,
   `lib/reviews`) and `scripts/check-copy.mjs` (prebuild) runs the Fair Housing list and the stricter
   hub rules over them alongside the hubs.
-- **Social links.** `socialLinks` in `lib/site.ts` (empty until the client sends the URLs) plus any
-  in the Sanity site settings feed the footer's icon row and `sameAs` on the RealEstateAgent
-  JSON-LD; both render nothing while the list is empty.
+- **Social links.** `socialLinks` in `lib/site.ts` (the team's Facebook and Instagram, from the
+  owners on October 29, 2026) plus any in the Sanity site settings feed the footer's icon row and
+  `sameAs` on the RealEstateAgent JSON-LD. The `/from/*` landings don't read the list.
 
 ## The questionnaire: private links for Joelyn, Jessica and the owner
 
@@ -1295,7 +1313,7 @@ Useful switches:
 
   | Goal | Fired from | Props |
   | --- | --- | --- |
-  | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing, referral · `market` · `source` (the `/from/<channel>`, or none) |
+  | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing · `market` · `source` (the `/from/<channel>`, or none) |
   | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row, `/from/*`, `/newsletters`, the Encore web issue) inline on success | `form`: letter or calendar · `source` when there is a channel |
   | `Review permission` | `/thanks/review-permission` after the `/reviews` form | `form` · `market` · `source` |
   | `Lead server` | `lib/plausible-server.ts`, from the server action, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script; never add it to `Lead` |
@@ -1388,7 +1406,7 @@ Deliberate keeps from the review passes:
   Zapier to the brokerage's CRM (the Home Platform), Resend for team notifications only, MapTiler
   for tiles. Production needs `NEXT_PUBLIC_MAPTILER_KEY` set for the map paragraph to be exact;
   without it the explorer falls back to OpenFreeMap.
-- `app/global-error.tsx` is the last-resort page (own `<html>`, seed phone numbers, fallback font
+- `app/global-error.tsx` is the last-resort page (own `<html>`, the seed's team number, fallback font
   stacks); `app/(site)/error.tsx` handles errors inside the site layout; both `not-found.tsx`
   files share `components/not-found-content.tsx`.
 
@@ -1396,7 +1414,8 @@ Deliberate keeps from the review passes:
 
 Phase 0 blockers from `docs/handoff/BUILD-PLAN.md`:
 
-1. Office street address and zip for the footer, JSON-LD and the privacy page.
+1. Done in November 2026: the office street address and ZIP (Coldwell Banker Realty, 8334 Market St,
+   Lakewood Ranch, FL 34202) are in the site settings, so the footer, JSON-LD and privacy page carry them.
 2. Joelyn's Florida licence number (Jessica's is in; the footer hides a name until its number exists).
 3. The Zapier Catch Hook URL (`CRM_WEBHOOK_URL`) and the Zap into the Home Platform. Until it is
    set, leads are mirrored to the database and emailed only, and production logs an alert.

@@ -145,10 +145,14 @@ export default async function GuidePrint({ params }: { params: Params }) {
             {team.map((m) => (
               <div key={m.slug}>
                 <p className="pdf-back-name">{m.name}</p>
-                <p>{m.phone}</p>
                 <p>{m.email}</p>
               </div>
             ))}
+            {/* The team's one number, under both names. */}
+            <div style={{ gridColumn: "1 / -1" }}>
+              <p className="pdf-back-name">Call or text</p>
+              <p>{settings.primaryPhoneDisplay}</p>
+            </div>
           </div>
           <p className="pdf-back-web">{site.url.replace(/^https?:\/\//, "")}/guides/{guide.slug}</p>
           <p className="pdf-fine pdf-back-fine">

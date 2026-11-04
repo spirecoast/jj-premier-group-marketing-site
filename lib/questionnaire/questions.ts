@@ -115,7 +115,7 @@ export const SECTIONS: Section[] = [
       { id: "team.split-sell", type: "long", q: "On a listing, which parts does Joelyn usually handle, and which does Jessica?" },
       { id: "team.two-agents", type: "long", q: "The site says “two agents on every file.” What does that look like for a client in a normal week?", hint: "Who goes to showings, who reads the contract, who sends the updates." },
       { id: "team.either", type: "long", q: "The About page says “Call either of us and you’ll get an answer, not a call back later.” Is that how it works?" },
-      { id: "team.phone", type: "short", q: "When someone calls (941) 907-1033, the main number on the site, whose phone rings first?" },
+      { id: "team.phone", type: "short", q: "The main number on the site is (309) 258-0225, Joelyn’s cell. When she can’t pick up, who should the caller try next?" },
       { id: "team.voicemail", type: "short", q: "If nobody picks up, who calls back, and how soon?" },
       { id: "team.response", type: "long", q: "How fast will you reply to a new inquiry on a weekday? And in the evening or on a weekend?", hint: "This becomes a promise on the contact page, so pick what you can keep." },
       { id: "team.hours", type: "short", q: "Which days and hours are you available for calls and showings?" },

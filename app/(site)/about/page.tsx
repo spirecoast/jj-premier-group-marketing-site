@@ -9,7 +9,6 @@ import { TestimonialSlider } from "@/components/testimonial-slider";
 import { getSiteSettings, getTeam, getTestimonials } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { pageMetadata, personJsonLd } from "@/lib/seo";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Meet Joelyn and Jessica",
@@ -23,22 +22,6 @@ const FRAMES = {
   duo: img("photos/duo-whitenavy-square", "Joelyn Nauman and Jessica Garza", "50% 50%"),
   coast: img("library/place-sea-oats-dusk", "Dunes and sea oats at sunrise on a Florida beach", "50% 60%"),
 };
-
-/** From the brand voice document: how the writing, and the work, sounds. */
-const VALUES = [
-  {
-    title: "We're specific",
-    body: "We tell you the flood zone, the age of the roof and which end of the street floods first. You make decisions with details, so that's what we give you.",
-  },
-  {
-    title: "We tell you what we think",
-    body: "If a house isn't right for you, we'll say so, and why. If it is, we'll say that too.",
-  },
-  {
-    title: "We're both on it",
-    body: "Joelyn and Jessica both know your file. Call either of us and you'll get an answer, not a call back later.",
-  },
-];
 
 export default async function AboutPage() {
   const [team, settings, testimonials] = await Promise.all([getTeam(), getSiteSettings(), getTestimonials()]);
@@ -58,20 +41,22 @@ export default async function AboutPage() {
               size="display"
               title={
                 <span id="about-title">
-                  A mother and daughter,
+                  Two generations.
                   <br />
-                  in your corner
-                  <br />
-                  for the whole move.
+                  One shared commitment to you.
                 </span>
               }
             />
+            {/* The owners' own words (November 2026). */}
             <div className="flex flex-col gap-6">
               <p className="t-lead max-w-measure text-body">
-                We&rsquo;re Joelyn and Jessica, a mother and daughter team with {settings.brokerageName}. We help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton, and we do it the way we&rsquo;d want it done for our own family.
+                We are Joelyn and Jessica, a mother-daughter real estate team with {settings.brokerageName}. Together, we bring a personal approach to real estate, helping buyers, sellers, and investors throughout Lakewood Ranch, Sarasota and Bradenton.
               </p>
               <p className="t-body max-w-measure text-body">
-                If you&rsquo;re buying your first home, selling for the best price, or building a portfolio, you get local knowledge, honest guidance, and a clear answer every time you ask. You&rsquo;ll always know where things stand, because we&rsquo;ll have told you.
+                For us, real estate is about more than buying or selling a home. It&rsquo;s about building relationships, understanding your goals, and making sure you feel confident in every decision. We believe every client deserves the same care, honesty and attention we would give our own family.
+              </p>
+              <p className="t-body max-w-measure text-body">
+                If you&rsquo;re searching for your dream home, preparing to sell, or exploring investment opportunities, you&rsquo;ll have both of us by your side. Our approach is built on trust, attention to detail and a commitment to delivering exceptional results.
               </p>
             </div>
           </div>
@@ -88,23 +73,6 @@ export default async function AboutPage() {
         ))}
       </section>
 
-      <section className="bg-parchment">
-        <div className="container-site flex flex-col gap-12 py-section">
-          <SectionHeading title="What working with us is like." />
-          <ol className="grid gap-px border border-hairline bg-hairline md:grid-cols-3">
-            {VALUES.map((v, i) => (
-              <li key={v.title} className="flex flex-col gap-4 bg-white p-7">
-                <span className="t-stat text-navy" aria-hidden="true">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="t-h3 text-navy">{v.title}</h3>
-                <p className="t-body text-body">{v.body}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
       {testimonials.length ? (
         <section className="container-site grid gap-12 py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20">
           <SectionHeading title="What clients say after the closing." />
@@ -112,7 +80,7 @@ export default async function AboutPage() {
         </section>
       ) : null}
 
-      <CtaBand image={FRAMES.coast} title="Tell us the timing." body="When do you need to be in, and is there a house to sell first? Those two answers change everything else." minHeight="min-h-[440px]">
+      <CtaBand image={FRAMES.coast} title="Let’s talk about your next move." minHeight="min-h-[440px]">
         <ButtonLink href="/contact" variant="linen" dash>
           Start the conversation
         </ButtonLink>
