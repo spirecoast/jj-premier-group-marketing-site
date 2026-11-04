@@ -19,6 +19,7 @@ export function Cell({ c }: { c: CompareCell }) {
   return (
     <span className="compare-cell">
       <span className="t-small text-body">{c.href ? <ExternalLink href={c.href}>{c.value}</ExternalLink> : c.value}</span>
+      {c.note ? <span className="t-small text-body-muted">{c.note}</span> : null}
       {c.source ? (
         <span className="t-note">
           {c.source.host} · checked {checkedLabel(c.source.checked)}

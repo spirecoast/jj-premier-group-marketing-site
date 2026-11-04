@@ -6,6 +6,7 @@ import type { IssueModel } from "@/lib/tide/issue";
 import type { PageSummary } from "./copy";
 import { clean, portableTextSections, toChunks } from "./text";
 import type { Chunk } from "./types";
+import { evacZoneMeaning } from "../zones";
 
 /**
  * The site's content, turned into search chunks. Pure functions over the
@@ -120,7 +121,7 @@ export function placeFacts(r: NeighborhoodRecord, parentName?: string): string[]
     r.cdd?.name ? `Community development district: ${r.cdd.name}.` : "",
     r.amenities.length ? `Amenities: ${list(r.amenities)}.` : "",
     r.waterAccess ? `${WATER[r.waterAccess] ?? r.waterAccess}.` : "",
-    r.evacuationZone === "none" ? "Outside every evacuation zone." : r.evacuationZone ? `Evacuation zone ${r.evacuationZone}.` : "",
+    r.evacuationZone === "none" ? "Outside every evacuation zone." : r.evacuationZone ? `Evacuation zone ${r.evacuationZone}: ${evacZoneMeaning(r.evacuationZone).short}` : "",
   ];
   return facts.map(clean).filter(Boolean);
 }

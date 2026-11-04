@@ -111,6 +111,10 @@ describe("one sourced fact about one place", () => {
     const a = ask("belleisle evacuation level") as Exclude<Answer, { kind: "decline" }>;
     assert.equal(a.kind, "fact");
     assert.match(a.text, /address point we checked/);
+    // That it isn't the flood zone, and for a letter what the letter means, in the words of lib/zones.ts.
+    assert.match(a.text, /about storm surge, not the same as the flood zone/);
+    const lettered = factLine({ ...placeFactsOf(records.find((r) => r.research === "full")!), name: "Somewhere", county: "Sarasota", evacuation: "A" }, "evacuation");
+    assert.match(lettered!.text, /in evacuation zone A, at the address point we checked\. Called to leave first\. The most exposed to storm surge\./);
     assert.equal(a.next?.url, "/check");
   });
   test("a fact about the place named beats a general answer from its market's page", () => {

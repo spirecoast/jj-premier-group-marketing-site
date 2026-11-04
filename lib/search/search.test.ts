@@ -205,7 +205,7 @@ describe("chunk sources", () => {
     assert.equal(c.url, "/neighborhoods/x");
     assert.equal(c.sectionTitle, "Gated community in Palmer Ranch");
     assert.match(c.body, /Palm Grove is a gated community in Palmer Ranch, Sarasota, Sarasota County\./);
-    assert.match(c.body, /Evacuation zone B\./);
+    assert.match(c.body, /Evacuation zone B: Next in line after zone A\. Zone A is the most exposed to storm surge\./);
     assert.match(c.body, /About 1,200 homes\./);
     assert.doesNotMatch(c.body, /Elementary|INTERNAL|age|55/i);
   });
