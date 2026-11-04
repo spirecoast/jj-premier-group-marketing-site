@@ -126,7 +126,7 @@ export const HOME_VALUE_COPY = {
   },
   results: {
     notLoaded: "The county record isn't loaded on this site yet.",
-    notLoadedHelp: "Until it is, send the address below and we'll pull the record by hand from the appraiser's file.",
+    notLoadedHelp: "Until it is, send us the address below and we'll look it up and get back to you as soon as we can.",
     error: "The record didn't answer. Try once more in a moment.",
   },
   /** "Source: Manatee County Property Appraiser, public record. Manatee records through Sep 24, 2026." */

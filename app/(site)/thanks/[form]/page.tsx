@@ -48,7 +48,7 @@ const COPY: Record<LeadForm, Next> = {
   sell: {
     eyebrow: "Received",
     title: "Got it.",
-    body: "We’ll pull the comparable sales, drive the street, and come back with a number and the reason for it. No listing agreement attached; the number is yours either way.",
+    body: "We’ll look at what’s sold nearby, drive by the house, and get back to you with a number and how we got there. No listing agreement attached; the number is yours either way.",
     line: "If you want to see how we think about pricing before the call, the Tide archive is the place: it says what the three markets did each month, in plain language.",
     href: tide.href,
     label: "Read Tide",
