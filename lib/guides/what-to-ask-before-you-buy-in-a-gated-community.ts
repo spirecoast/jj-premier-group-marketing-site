@@ -442,7 +442,7 @@ export const GATED_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Send us an address.",
-    body: "We’ll pull the documents, the bill and the rules for that house and go through them with you. If you’d rather do it yourself, this guide is the order we’d do it in.",
+    body: "We’ll get the community’s papers and get back to you as soon as we can. If you’d rather do it yourself, just follow the steps in this guide.",
     cta: "Ask about a house",
     tool: "contact",
   },

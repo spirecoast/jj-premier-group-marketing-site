@@ -80,7 +80,7 @@ export const SOLD_COPY = {
     empty: (months: number) => `No qualified sales on that street in the county's record for the last ${months} months.`,
     emptyHelp: "Try the street without “Dr” or “Ave”, or add the ZIP. Foreclosures and transfers between family members aren’t counted.",
     notLoaded: "The county record isn't loaded on this site yet.",
-    notLoadedHelp: "Until it is, tell us the street and we'll pull the sales by hand from the appraiser's file.",
+    notLoadedHelp: "Until it is, tell us the street and we'll look up the sales and get back to you.",
     error: "The record didn't answer. Try once more in a moment.",
     /** "Source: Manatee County Property Appraiser, public record. Manatee records through Sep 24, 2026." */
     source: (counties: string, through: string) => `Source: ${counties}, public record. ${through}.`,
@@ -137,7 +137,7 @@ export const SOLD_COPY = {
   },
   ask: {
     title: "Get a price for your home",
-    body: "Give us the address. We’ll walk the house, compare it with the sales that match it, and call you with a number and the reason for it. No listing agreement needed.",
+    body: "Send us the address. We’ll come see the house and get back to you with a number and how we got it. No listing agreement needed.",
     /** The link to the ask on /sell/home-value, with the street searched when there is one. */
     link: "Get the number",
     linkFor: (street: string) => `Ask for the number for ${street}`,

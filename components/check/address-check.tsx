@@ -6,12 +6,14 @@ import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type R
 import { fmtDate, int, titleCase, usd } from "@/components/sales/format";
 import { ExternalLink } from "@/components/ui/external-link";
 import { WatchButton } from "@/components/watch/watch-button";
+import { EvacZoneNote, FloodZoneNote } from "@/components/zone-note";
 import { track } from "@/lib/analytics";
 import type { CheckResult } from "@/lib/check/check";
 import { CHECK_COPY as C } from "@/lib/check/copy";
 import type { EvacGuidePiece, FloodGuidePiece } from "@/lib/check/guide";
 import { isShadedX, parseAddress, type County, type EvacZone, type FloodZone } from "@/lib/check/parse";
 import { useUrlInitial } from "@/lib/url-state";
+import { floodZoneMeaning } from "@/lib/zones";
 
 type Ok = {
   ok: true;
@@ -223,11 +225,13 @@ function Unanswered({ href, cta }: { href: string; cta: string }) {
 
 const evacText = (county: County, z: EvacZone) => (z === "none" ? C.evacuation.none[county] : fill(C.evacuation.value[county], { z }));
 
-function floodLines(z: FloodZone): string[] {
-  const out: string[] = [z.sfha ? C.flood.sfha : C.flood.notSfha];
-  if (isShadedX(z)) out.push(C.flood.shaded);
-  if (z.bfe !== null) out.push(fill(C.flood.bfe, { ft: String(z.bfe), datum: z.datum ?? "NAVD88" }));
-  return out;
+/** Shaded X (the 0.2% area) or unshaded X (minimal hazard), when the map says which; nothing for any other zone. */
+const shadedOf = (z: FloodZone): boolean | undefined => (z.zone !== "X" ? undefined : isShadedX(z) ? true : /MINIMAL/i.test(z.subtype ?? "") ? false : undefined);
+
+/** "X (lower risk)": a zone the lot also touches, with its risk in words from lib/zones. */
+function withRisk(z: FloodZone): string {
+  const m = floodZoneMeaning(z.zone, { shaded: shadedOf(z) });
+  return m ? `${z.zone} (${m.label.toLowerCase()})` : z.zone;
 }
 
 function Result({ data }: { data: Ok }) {
@@ -271,6 +275,7 @@ function Result({ data }: { data: Ok }) {
           value={evac ? evacText(county, evac.zone) : "—"}
           source={<SourceLine label={E.source[county]} date={r.checked} href={r.sources.evacuation.page} cta={E.page} />}
         >
+          {evac ? <EvacZoneNote zone={evac.zone} word={county === "manatee" ? "level" : "zone"} about /> : null}
           {evac?.others.length ? <p>{fill(evac.zone === "none" ? E.outsideOthers[county] : E.others[county], { z: evac.others.join(", ") })}</p> : null}
           {!evac ? <Unanswered href={r.sources.evacuation.page} cta={E.page} /> : null}
         </Fact>
@@ -279,8 +284,9 @@ function Result({ data }: { data: Ok }) {
           value={flood ? fill(F.value, { z: flood.zone.zone }) : r.flood.status === "ok" ? F.none : "—"}
           source={<SourceLine label={F.source} date={r.checked} href={r.sources.flood.page} cta={F.page} />}
         >
-          {flood ? floodLines(flood.zone).map((l) => <p key={l}>{l}</p>) : null}
-          {flood?.others.length ? <p>{fill(F.others, { z: flood.others.map((o) => o.zone).join(", ") })}</p> : null}
+          {flood ? <FloodZoneNote code={flood.zone.zone} shaded={shadedOf(flood.zone)} className="t-small" /> : null}
+          {flood && flood.zone.bfe !== null ? <p>{fill(F.bfe, { ft: String(flood.zone.bfe), datum: flood.zone.datum ?? "NAVD88" })}</p> : null}
+          {flood?.others.length ? <p>{fill(F.others, { z: flood.others.map(withRisk).join(", ") })}</p> : null}
           {flood?.panel ? <p>{fill(F.panel, { id: flood.panel.id, date: flood.panel.effective ? fmtDate(flood.panel.effective) : "—" })}</p> : null}
           {r.flood.status === "ok" && !flood ? <p>{F.noneHelp}</p> : null}
           {r.flood.status === "error" ? <Unanswered href={r.sources.flood.page} cta={F.page} /> : null}
@@ -329,7 +335,9 @@ function Result({ data }: { data: Ok }) {
               {fg.card ? (
                 <>
                   <p className="t-body max-w-measure text-body">
-                    <span className="text-navy">{fg.card.name}.</span> {fg.card.means}
+                    {/* The card's risk name only when it's the one the fact above gives (shaded X is moderate, the card says lower). */}
+                    {floodZoneMeaning(flood?.zone.zone ?? "", { shaded: flood ? shadedOf(flood.zone) : undefined })?.label === fg.card.name ? <span className="text-navy">{fg.card.name}. </span> : null}
+                    {fg.card.means}
                   </p>
                   <dl className="grid gap-3 sm:grid-cols-2">
                     <div className="flex flex-col gap-1">

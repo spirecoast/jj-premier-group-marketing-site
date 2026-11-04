@@ -10,13 +10,15 @@ import "./guide-card.css";
  * pane of frosted glass across the foot, the same glass as the guide's own
  * cover. Every pane is the same height whatever the title's length, so a row
  * of covers lines up. Under the title: the author's photograph and name, the
- * length, and JJ Premier Group. Type is sized to the card's width.
+ * length, and JJ Premier Group. Type is sized to the card's width. Nothing
+ * sits under the tile: the owners asked for the line describing each guide to
+ * go (the guide's promise stays on its own page and in its metadata).
  */
 export function GuideCard({ guide, author, priority }: { guide: Guide; author?: { name: string; headshot: ImageRef }; priority?: boolean }) {
   const minutes = guideReadingMinutes(guide);
   const first = (author?.name ?? guide.author.name).split(" ")[0];
   return (
-    <Link href={guideHref(guide.slug)} className="card group flex w-full flex-col gap-4">
+    <Link href={guideHref(guide.slug)} className="card group flex w-full flex-col">
       <div className="@container relative aspect-[4/5] overflow-hidden bg-navy">
         <Photo image={guide.cover} priority={priority} sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw" className="card-img" />
         <div className="absolute inset-0 bg-linear-to-b from-harbor-950/15 via-transparent to-harbor-950/55" aria-hidden="true" />
@@ -40,7 +42,6 @@ export function GuideCard({ guide, author, priority }: { guide: Guide; author?: 
           </div>
         </div>
       </div>
-      <p className="t-small max-w-[44ch] text-body-muted">{guide.promise}</p>
     </Link>
   );
 }

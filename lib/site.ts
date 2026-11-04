@@ -312,7 +312,7 @@ export const footerNav = {
   ],
   guides: [
     { href: "/guides/flood-zones-and-elevation-certificates-on-the-suncoast", label: "Flood zones" },
-    { href: "/guides/homeowners-wind-and-flood-insurance-on-this-coast", label: "Home insurance" },
+    { href: "/guides/inspections-on-the-suncoast-what-a-good-one-covers", label: "Inspections" },
     { href: "/guides/homestead-save-our-homes-and-portability", label: "Homestead" },
     { href: "/guides/hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", label: "Hurricane season" },
     { href: "/guides/cdd-fees-in-lakewood-ranch-village-by-village", label: "CDD fees" },

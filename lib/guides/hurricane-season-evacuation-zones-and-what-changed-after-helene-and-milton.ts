@@ -27,6 +27,7 @@ const SARASOTA_311 = "https://sarasotacountyfl.qscend.com/311/knowledgebase/arti
 const SARASOTA_LAYER = "https://services3.arcgis.com/icrWMv7eBkctFu1f/arcgis/rest/services/StormEvacuationZoneWM/FeatureServer/0";
 const SARASOTA_GUIDE = "https://www.sarasotafl.gov/I-Want-to/View-County-Hurricane-Preparedness-Guide";
 const FEMA_ZONES = "https://www.fema.gov/glossary/flood-zones";
+const FEMA_COASTAL = "https://www.fema.gov/flood-maps/coastal/insurance-rate-maps";
 const FEMA_MSC = "https://msc.fema.gov/portal/search";
 const FEMA_FLOOD_INSURANCE = "https://www.fema.gov/flood-insurance";
 const FEMA_DR_4828 = "https://www.fema.gov/disaster/4828";
@@ -56,6 +57,7 @@ const S = {
   sarasotaGuide: src("Sarasota County, Emergency preparedness guide (PDF, on the City of Sarasota’s site)", SARASOTA_GUIDE),
   sarasotaLookup: src("Sarasota County, Know Your Zone lookup map (ags2.scgov.net)", undefined, "returned a server error when we checked, so the guide points to the county’s 311 page, which links it"),
   zones: src("FEMA, Flood zones (glossary)", FEMA_ZONES),
+  coastal: src("FEMA, Features of flood insurance rate maps in coastal areas", FEMA_COASTAL, "checked November 4, 2026"),
   msc: src("FEMA Flood Map Service Center", FEMA_MSC),
   femaFlood: src("FEMA, Flood insurance", FEMA_FLOOD_INSURANCE),
   dr4828: src("FEMA, Florida Hurricane Helene, DR-4828-FL, declared September 28, 2024", FEMA_DR_4828),
@@ -88,7 +90,7 @@ export const HURRICANE_GUIDE: Guide = {
   cover: img("guides/hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "Storm clouds and rain moving over open water", "50% 55%"),
   author: { name: "Joelyn Nauman", slug: "joelyn-nauman" },
   publishedAt: "2026-10-01",
-  updatedAt: "2026-10-02",
+  updatedAt: "2026-11-04",
   checked: CHECKED,
 
   sections: [
@@ -151,6 +153,11 @@ export const HURRICANE_GUIDE: Guide = {
           "A flood zone is FEMA’s map for flood insurance. It covers flooding from any source.",
           "It’s the map your lender and your builder follow.",
         ),
+        def(
+          "VE, AE and X",
+          "The flood zones you’ll see most on this coast. VE is the highest risk: the beach and the open bay, where storm waves can be 3 feet or more. AE is high risk: land the big flood is expected to cover. That flood has a 1 in 100 chance each year. X is lower risk: land above it.",
+          S.coastal,
+        ),
         p(
           "Manatee County says it plainly. Evacuation levels are not the same as flood zones, and they don’t match a storm’s category.",
           "The zones are about the water, not the wind.",
@@ -179,7 +186,7 @@ export const HURRICANE_GUIDE: Guide = {
           source: { label: "Manatee County, Know your evacuation level; Florida Division of Emergency Management, Know Your Zone; FEMA, Flood zones; FEMA, Flood insurance", href: MANATEE_EVAC },
         },
       ],
-      sources: [S.manateeEvac, S.fdem, S.sarasotaLayer, S.zones, S.femaFlood],
+      sources: [S.manateeEvac, S.fdem, S.sarasotaLayer, S.zones, S.coastal, S.femaFlood],
     },
 
     /* ---- 03 ---------------------------------------------------------------- */
@@ -434,7 +441,7 @@ export const HURRICANE_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Send us an address.",
-    body: "We’ll look up both zones and the county’s records for that house and go through them with you. If you’d rather do it yourself, this guide is the order we’d do it in.",
+    body: "We’ll look up both zones and get back to you as soon as we can. If you’d rather do it yourself, just follow the steps in this guide.",
     cta: "Ask about a house",
     tool: "contact",
   },

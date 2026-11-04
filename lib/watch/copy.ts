@@ -59,7 +59,7 @@ export const WATCH_DIGEST_COPY = {
   stop: "Stop watching {label}",
   through: "{county} records through {date}.",
   lag: "The county records a sale a few weeks after it closes.",
-  homeValue: "For a number on your own home, ask us. We’ll walk it and call you with the reason for it.",
+  homeValue: "For a number on your own home, ask us. We’ll come see it and get back to you with what we think it’s worth.",
   homeValueButton: "Ask for your home’s value",
   why: "You’re getting this because you asked us to watch {labels} at {domain}.",
   stopAll: "Stop every Street Watch",

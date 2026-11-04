@@ -1,6 +1,7 @@
 import { STATUS_LABEL, TYPE_LABEL, hostOf, titleCase } from "./format";
 import { WATER_LABEL } from "./match";
 import type { NeighborhoodRecord, NeighborhoodSource } from "./types";
+import { evacZoneMeaning } from "../zones";
 
 /**
  * The compare page's rows: one per fact the schema holds, read from the
@@ -15,6 +16,8 @@ export type CompareCell = {
   value?: string;
   /** A link to put on the value (an association's site, a CDD's page, the official site). */
   href?: string;
+  /** What the value means, in plain words (an evacuation zone's letter, from lib/zones.ts). */
+  note?: string;
   /** Where the fact came from and when it was checked. */
   source?: { host: string; url: string; checked: string };
 };
@@ -57,7 +60,14 @@ export const COMPARE_FACTS: { id: string; label: string; read: (r: NeighborhoodR
   { id: "hoa", label: "HOA on record", read: (r) => cell(r, "hoa", r.hoa?.name ?? null, r.hoa?.website ?? undefined) },
   { id: "cdd", label: "CDD on record", read: (r) => (r.cdd ? { value: r.cdd.name, href: r.cdd.source, source: cite(r, "cdd") ?? { host: hostOf(r.cdd.source), url: r.cdd.source, checked: latestChecked(r) } } : {}) },
   { id: "water", label: "Water access", read: (r) => cell(r, "waterAccess", r.waterAccess ? WATER_LABEL[r.waterAccess] : null) },
-  { id: "evac", label: "Evacuation zone", read: (r) => cell(r, "evacuationZone", r.evacuationZone === null ? null : r.evacuationZone === "none" ? "Outside every zone" : `Zone ${r.evacuationZone}`) },
+  {
+    id: "evac",
+    label: "Evacuation zone",
+    read: (r) => {
+      const c = cell(r, "evacuationZone", r.evacuationZone === null ? null : r.evacuationZone === "none" ? "Outside every zone" : `Zone ${r.evacuationZone}`);
+      return c.value && r.evacuationZone ? { ...c, note: evacZoneMeaning(r.evacuationZone).short } : c;
+    },
+  },
   { id: "amenities", label: "Amenities per the association or builder", read: (r) => cell(r, "amenities", r.amenities.length ? r.amenities.join(" · ") : null) },
   { id: "site", label: "Official site", read: (r) => cell(r, "officialUrl", r.officialUrl ? hostOf(r.officialUrl) : null, r.officialUrl ?? undefined) },
 ];

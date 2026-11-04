@@ -1,4 +1,5 @@
 import { tokenize } from "../search/fallback";
+import { evacZoneMeaning } from "../zones";
 import { ANSWER_COPY as C } from "./copy";
 import type { Answer, AnswerBank, DeclineTopic, DefinitionEntry, FactField, FaqEntry, PlaceFacts, PlaceRef } from "./types";
 
@@ -324,10 +325,16 @@ export function factLine(p: PlaceFacts, field: FactField): { question: string; t
       if (!p.evacuation) return null;
       const word = evacWord(p.county);
       const county = p.county ? `${p.county} County’s` : "The county’s";
-      const at = "at the address point we checked. Zones follow property lines, so check the exact address before you count on it.";
+      const at = "at the address point we checked.";
+      // What the letter means and that it isn't the flood zone, in the words every page uses (lib/zones.ts).
+      const means = `${p.evacuation === "none" ? "" : `${evacZoneMeaning(p.evacuation, word).short} `}Evacuation ${word}s are about storm surge, not the same as the flood zone.`;
+      const check = "Zones follow property lines, so check the exact address before you count on it.";
       return {
         question: `What evacuation ${word} is ${n} in?`,
-        text: p.evacuation === "none" ? `${county} map puts ${n} outside every evacuation ${word}, ${at}` : `${county} map puts ${n} in evacuation ${word} ${p.evacuation}, ${at}`,
+        text:
+          p.evacuation === "none"
+            ? `${county} map puts ${n} outside every evacuation ${word}, ${at} ${means} ${check}`
+            : `${county} map puts ${n} in evacuation ${word} ${p.evacuation}, ${at} ${means} ${check}`,
       };
     }
     case "zips":

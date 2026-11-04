@@ -1,5 +1,6 @@
 import { DESCRIPTION_MAX, DESCRIPTION_MIN, clampDescription } from "@/lib/seo";
 import type { NeighborhoodRecord } from "./types";
+import { evacZoneMeaning } from "../zones";
 
 type Facts = Pick<NeighborhoodRecord, "jurisdiction" | "county" | "gated" | "hoa" | "cdd" | "evacuationZone" | "zips">;
 
@@ -23,9 +24,10 @@ function governanceLine(r: Facts): string | undefined {
   return record ? `${record[0]!.toUpperCase()}${record.slice(1)}.` : undefined;
 }
 
+/** "Evacuation zone A, first called to leave." The letter with what it means (lib/zones.ts). */
 function evacuationLine(r: Facts): string | undefined {
   if (!r.evacuationZone) return undefined;
-  return r.evacuationZone === "none" ? "Outside every evacuation zone." : `Evacuation zone ${r.evacuationZone}.`;
+  return r.evacuationZone === "none" ? "Outside every evacuation zone." : `Evacuation zone ${r.evacuationZone}, ${evacZoneMeaning(r.evacuationZone).tag}.`;
 }
 
 function zipLine(r: Facts): string | undefined {

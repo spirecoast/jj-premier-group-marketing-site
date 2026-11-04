@@ -29,6 +29,7 @@ import type { NeighborhoodRecord } from "@/lib/neighborhoods/types";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/seo";
 import { ExternalLink as NewTabLink } from "@/components/ui/external-link";
+import { EvacZoneNote, ZoneKey, ZoneText } from "@/components/zone-note";
 
 /** Hourly ISR: the calendar row is relative to the request, and Sanity content is also expired by webhook. */
 export const revalidate = 3600;
@@ -134,7 +135,11 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
   const events = editorial?.events ?? (await getUpcomingEvents({ market, limit: 4, distinctVenues: true, datedFirst: true }));
   const eventEnds = events.map(cardEndsAt);
   const eventArt = varyStock(events.map((e) => ({ category: e.category, subcategory: e.subcategory, seed: e.slug })));
-  const faqs = (n?.faqs ?? []).map((f) => ({ q: f.q, a: f.answer, answer: f.answer }));
+  const faqs = (n?.faqs ?? []).map((f) => ({ q: f.q, a: <ZoneText text={f.answer} />, answer: f.answer }));
+  // The flood zones the editorial words name, explained once under the overview (lib/zones.ts).
+  const zoneTexts = n
+    ? [...n.overview.flatMap((b) => ((b.children ?? []) as { text?: string }[]).map((c) => c.text ?? "")), ...(n.highlights ?? []).map((h) => h.description), ...(n.faqs ?? []).map((f) => f.answer)]
+    : [];
   const evacUrl = record ? evacuationSource(record) : undefined;
   const factRows = record ? facts(record) : [];
   const communities = children.filter((c) => c.level !== "enclave");
@@ -203,6 +208,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
       <section className="container-site grid gap-12 py-section lg:grid-cols-[1.4fr_1fr] lg:gap-20">
         <div className="flex flex-col gap-6">
           {n ? <RichText value={n.overview} /> : null}
+          {n ? <ZoneKey texts={zoneTexts} evacuation={false} guide /> : null}
           {record?.description && (!n || record.research === "full") ? <p className="t-lead max-w-measure text-body">{record.description}</p> : null}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             {record ? <SavePlaceButton slug={slug} name={name} word /> : null}
@@ -277,6 +283,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             <div className="flex flex-col gap-4 border border-hairline bg-white p-7">
               <h2 className="t-h3 text-navy">Storm evacuation</h2>
               <p className="t-h2 text-navy">{record.evacuationZone === "none" ? "Outside every evacuation zone" : `Evacuation zone ${record.evacuationZone}`}</p>
+              <EvacZoneNote zone={record.evacuationZone} word={record.county === "Manatee" ? "level" : "zone"} about />
               <p className="t-small text-body-muted">
                 {record.county === "Manatee" ? "Manatee County evacuation level" : "Sarasota County evacuation zone"} at the address point we checked. Zones follow property lines, so
                 confirm a specific address with the county before you count on it.
@@ -330,7 +337,9 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
             {n.highlights.map((h) => (
               <div key={h.label} className="flex flex-col gap-2 bg-white p-6">
                 <dt className="t-label text-navy">{h.label}</dt>
-                <dd className="t-body text-body">{h.description}</dd>
+                <dd className="t-body text-body">
+                  <ZoneText text={h.description} />
+                </dd>
               </div>
             ))}
           </dl>

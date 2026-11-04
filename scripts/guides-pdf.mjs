@@ -24,7 +24,9 @@ try {
 }
 
 const src = await readFile(path.join(process.cwd(), "lib/guides/slugs.ts"), "utf8");
-const slugs = [...src.matchAll(/"([a-z0-9-]+)"/g)].map((m) => m[1]);
+// Only the guides that are up: REBUILT_GUIDE_SLUGS, not the moved, folded or removed ones the file also names.
+const list = /REBUILT_GUIDE_SLUGS = \[([^\]]*)\]/.exec(src)?.[1] ?? "";
+const slugs = [...list.matchAll(/"([a-z0-9-]+)"/g)].map((m) => m[1]);
 if (!slugs.length) throw new Error("No guide slugs found in lib/guides/slugs.ts");
 const only = process.argv.slice(2);
 const todo = only.length ? slugs.filter((s) => only.includes(s)) : slugs;

@@ -236,7 +236,7 @@ export const WAVE2_GUIDES_A: Post[] = [
       ),
       quote("The zone comes first, the certificate second and the quote third. Then we can talk about the kitchen."),
       p(
-        "Send us the address and we’ll pull the zone, the certificate and the disclosure before you write an offer. If the three don’t agree, that’s the conversation to have first.",
+        "Send us the address and we’ll look it up and get back to you before you write an offer.",
       ),
       sources(
         { label: "FEMA, Flood zones (glossary)", href: FEMA_ZONES },
@@ -387,7 +387,7 @@ export const WAVE2_GUIDES_A: Post[] = [
       ),
       quote("The district built the lake you’re looking at. The bill is how the lake gets paid for. Read it before you fall for the view."),
       p(
-        "We don’t print dollar amounts because they differ by neighborhood and year, and a figure without a parcel attached would be wrong for most readers. Send us the address and we’ll pull the bill, the district and the August notice and read them with you.",
+        "We don’t print dollar amounts because they differ by neighborhood and year, and a figure without a parcel attached would be wrong for most readers. Send us the address and we’ll look it up and get back to you as soon as we can.",
       ),
       sources(
         { label: "Lakewood Ranch Town Hall, CDD and HOA frequently asked questions (PDF)", href: LWR_FAQ },
@@ -622,7 +622,7 @@ export const WAVE2_GUIDES_A: Post[] = [
       quote("The listing’s tax line belongs to the seller. Yours starts the January after you close."),
       p(
         a("Our relocation planner", "/relocate"),
-        " lays those dates out around your closing, including the March filing. Send us the address and we’ll pull the appraiser’s record and walk through yours.",
+        " lays those dates out around your closing, including the March filing. Send us the address and we’ll look it up and get back to you.",
       ),
       sources(
         { label: "Florida Department of Revenue, PT-113, property tax information for homestead exemption (PDF)", href: DOR_PT113 },
