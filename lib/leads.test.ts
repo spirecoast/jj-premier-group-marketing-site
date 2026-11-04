@@ -2,70 +2,22 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { channelFromPath } from "../components/utm-tracker";
 import { CHANNELS } from "./channels/copy";
-import { checkFairHousing } from "./fair-housing";
-import { LEAD_CHANNELS, LEAD_FORMS, LEAD_GOAL, REFERRAL_CONSENT_WORDING, REFERRAL_PLANS } from "./leads/constants";
+import { LEAD_CHANNELS, LEAD_FORMS, LEAD_GOAL } from "./leads/constants";
 import { leadSchema } from "./leads/schema";
-import { REFER, referStrings } from "./refer/copy";
 import { allSocialLinks, socialLinks, socialNetwork } from "./site";
 
 const base = { email: "pat@example.com" };
 
-describe("lead forms: referral and review-permission", () => {
-  it("both are form kinds with a goal", () => {
-    assert.ok(LEAD_FORMS.includes("referral"));
+describe("lead forms: review-permission, and the retired referral", () => {
+  it("the review permission is a form kind with its own goal; the referral form is gone", () => {
     assert.ok(LEAD_FORMS.includes("review-permission"));
-    assert.equal(LEAD_GOAL.referral, "Lead");
     assert.equal(LEAD_GOAL["review-permission"], "Review permission");
+    assert.ok(!(LEAD_FORMS as readonly string[]).includes("referral"));
   });
 
-  it("a referral needs the referrer's name, the person's first name, a way to reach them and the ticked box", () => {
-    const missing = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat" });
-    assert.equal(missing.success, false);
-    const errors = !missing.success ? missing.error.flatten().fieldErrors : {};
-    assert.ok(errors.referredName);
-    assert.ok(errors.referredEmail);
-    assert.ok(errors.referralConsent);
-
-    const noReach = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referralConsent: "on" });
-    assert.ok(!noReach.success && noReach.error.flatten().fieldErrors.referredEmail);
-
-    const badEmail = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredEmail: "not-an-email", referralConsent: "on" });
-    assert.ok(!badEmail.success && badEmail.error.flatten().fieldErrors.referredEmail);
-
-    const phoneOnly = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredPhone: "(941) 555-0100", referralConsent: "on" });
-    assert.ok(phoneOnly.success);
-
-    const ok = leadSchema.safeParse({
-      ...base,
-      form: "referral",
-      firstName: "Pat",
-      lastName: "Example",
-      referredName: "Sam",
-      referredLastName: "Referred",
-      referredEmail: "Sam@Example.com",
-      referredPlan: "Moving here",
-      referralConsent: "on",
-      message: "Moving in spring",
-    });
-    assert.ok(ok.success);
-    assert.equal(ok.success && ok.data.referredName, "Sam");
-    assert.equal(ok.success && ok.data.referredPlan, "Moving here");
-    assert.equal(ok.success && ok.data.referralConsent, true);
-
-    const junkPlan = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referredPhone: "941 555 0100", referredPlan: "Renting", referralConsent: "on" });
-    assert.ok(junkPlan.success);
-    assert.equal(junkPlan.success && junkPlan.data.referredPlan, undefined);
-  });
-
-  it("the referral form's labels, the box and the plans pass the Fair Housing check", () => {
-    for (const { where, text } of referStrings()) {
-      const result = checkFairHousing(text);
-      assert.ok(result.passed, `${where}: ${JSON.stringify(result)}`);
-    }
-    for (const text of [REFERRAL_CONSENT_WORDING, ...REFERRAL_PLANS, ...Object.values(REFER.form)]) {
-      assert.ok(checkFairHousing(text).passed, text);
-    }
-    assert.deepEqual([...REFERRAL_PLANS], ["Buying", "Selling", "Moving here"]);
+  it("a post from an old /refer page is refused, not stored as something else", () => {
+    const old = leadSchema.safeParse({ ...base, form: "referral", firstName: "Pat", referredName: "Sam", referralConsent: "on" });
+    assert.equal(old.success, false);
   });
 
   it("a review permission needs the words and the ticked box", () => {

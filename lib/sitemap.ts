@@ -68,7 +68,6 @@ async function pages(): Promise<Entry[]> {
     s("/guides", 0.7, "monthly", guidesDate),
     s("/contact", 0.5, "yearly"),
     // /from/* are bio and post links: noindex and left out on purpose.
-    s("/refer", 0.4, "yearly"),
     s("/reviews", 0.4, "yearly"),
     s("/privacy", 0.2, "yearly"),
     s("/terms", 0.2, "yearly"),

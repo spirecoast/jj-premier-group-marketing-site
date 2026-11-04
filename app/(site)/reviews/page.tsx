@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { LeadForm } from "@/components/lead-form";
 import { SectionHeading } from "@/components/section-heading";
 import { pageMetadata } from "@/lib/seo";
@@ -67,13 +66,6 @@ export default function ReviewsPage() {
             />
           </div>
           <p className="t-small text-graphite-500">{REVIEWS.note}</p>
-          {/* The other past-client page, one quiet line under the form. */}
-          <p className="t-body border-t border-hairline pt-6 text-body">
-            {REVIEWS.refer.line}{" "}
-            <Link href="/refer" className="link-rule">
-              {REVIEWS.refer.label}
-            </Link>
-          </p>
         </div>
       </div>
     </section>

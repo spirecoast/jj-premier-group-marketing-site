@@ -22,8 +22,6 @@ export type LastLead = {
   sellFirst?: string;
   /** The plan, match or list link a tool put in the message. */
   link?: string;
-  /** The person referred, by first name. */
-  referred?: string;
 };
 
 export function writeLastLead(lead: Omit<LastLead, "at">): void {
@@ -67,8 +65,7 @@ export function linkIn(message: string | undefined, origin: string): string | un
  */
 export function echoLine(lead: LastLead): string | null {
   const parts: string[] = [];
-  if (lead.referred) parts.push(`For ${lead.referred}`);
-  else if (lead.address) parts.push(`For ${lead.address}`);
+  if (lead.address) parts.push(`For ${lead.address}`);
   if (lead.timing) parts.push(TIMING_OPTIONS.find((o) => o.value === lead.timing)?.echo ?? `moving ${lead.timing.charAt(0).toLowerCase()}${lead.timing.slice(1)}`);
   if (lead.sellFirst === "Yes") parts.push("with a house to sell first");
   if (!parts.length) return null;

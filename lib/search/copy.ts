@@ -199,13 +199,6 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     ],
   },
   {
-    url: "/refer",
-    title: "Refer someone",
-    summary: [
-      "Know someone moving to Lakewood Ranch, Sarasota or Bradenton? Let them know you're passing their details along, then tell us the timing and we'll take it from there. We write back to you first and reach out to them at their pace.",
-    ],
-  },
-  {
     url: "/reviews",
     title: "Reviews",
     summary: [

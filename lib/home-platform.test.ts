@@ -54,7 +54,8 @@ describe("homePlatformNote", () => {
     assert.equal(note.addByHand, true);
     assert.match(note.line, /^Not in Home Platform/);
   });
-  it("names the person who's moving on a referral, whom the Pixel never sends", () => {
+  // The referral form is retired, but the outbox can still redeliver a stored referral.
+  it("names the person who's moving on a stored referral, whom the Pixel never sends", () => {
     const caught = homePlatformNote({ ...lead, referral }, live);
     assert.equal(caught.addByHand, true);
     assert.match(caught.line, /should have Pat Example .* but not Sam Moving/);

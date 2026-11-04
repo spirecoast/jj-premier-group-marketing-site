@@ -29,8 +29,6 @@ export const REVIEWS = {
     submit: "Send",
   },
   note: "Nothing from this form appears on the site by itself.",
-  /** The quiet link to the other past-client page. */
-  refer: { line: "If you know someone moving here,", label: "refer them" },
   success: {
     title: "Thank you.",
     body: "Your words are with Joelyn and Jessica. Nothing goes on the site until one of us has checked it with you.",
@@ -50,7 +48,6 @@ export function reviewsStrings(): { where: string; text: string }[] {
   add("eyebrow", REVIEWS.eyebrow);
   add("heading", REVIEWS.heading);
   for (const [k, v] of Object.entries(REVIEWS.google)) add(`google ${k}`, v);
-  add("refer", `${REVIEWS.refer.line} ${REVIEWS.refer.label}`);
   for (const [k, v] of Object.entries(REVIEWS.permission)) add(`permission ${k}`, v);
   for (const [k, v] of Object.entries(REVIEWS.form)) add(`form ${k}`, v);
   add("note", REVIEWS.note);

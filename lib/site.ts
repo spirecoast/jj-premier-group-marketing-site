@@ -110,7 +110,6 @@ export const teamMenu = {
   items: [
     { href: "/about", label: "Joelyn & Jessica", short: "A mother and daughter team" },
     { href: "/contact", label: "Contact us", short: "Tell us about your next move" },
-    { href: "/refer", label: "Refer someone", short: "Send a friend our way" },
     { href: "/reviews", label: "Leave a review", short: "Tell others how it went" },
   ],
 } as const;
@@ -322,7 +321,6 @@ export const footerNav = {
     { href: "/about#joelyn-nauman", label: "Joelyn Nauman" },
     { href: "/about#jessica-garza", label: "Jessica Garza" },
     { href: "/contact", label: "Contact" },
-    { href: "/refer", label: "Refer someone" },
     { href: "/reviews", label: "Leave a review" },
   ],
   legal: [

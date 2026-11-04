@@ -14,7 +14,6 @@ export const LEAD_FORMS = [
   "valuation",
   "letter",
   "calendar",
-  "referral",
   "review-permission",
   "watch",
 ] as const;
@@ -52,8 +51,8 @@ export const EMAIL_ONLY_FORMS: readonly LeadForm[] = ["letter", "calendar", "wat
 export const EMAIL_REQUIRED_FORMS: readonly LeadForm[] = ["letter", "calendar", "watch", "review-permission"];
 
 /**
- * The Plausible goal each form counts toward. A referral is a lead (the
- * `form` prop tells it apart); a review permission is not, so it has its own.
+ * The Plausible goal each form counts toward. A review permission is not a
+ * lead, so it has its own.
  */
 export const LEAD_GOAL: Record<LeadForm, "Lead" | "Subscribe" | "Review permission"> = {
   contact: "Lead",
@@ -63,7 +62,6 @@ export const LEAD_GOAL: Record<LeadForm, "Lead" | "Subscribe" | "Review permissi
   valuation: "Lead",
   letter: "Subscribe",
   calendar: "Subscribe",
-  referral: "Lead",
   "review-permission": "Review permission",
   watch: "Subscribe",
 };
@@ -86,12 +84,11 @@ export const IMPLIED_CONSENT_VERSION = "implied:subscribe";
 
 /**
  * Forms that show neither the email nor the call/text box (the review
- * permission on /reviews, the referral on /refer, where the person filling
- * it in is doing the team a favour). Their leads never carry marketing
- * consent, whatever was posted, and record this version instead of the
- * checkbox wording's.
+ * permission on /reviews, where the person filling it in is doing the team a
+ * favour). Their leads never carry marketing consent, whatever was posted,
+ * and record this version instead of the checkbox wording's.
  */
-export const NO_MARKETING_CONSENT_FORMS: readonly LeadForm[] = ["review-permission", "referral"];
+export const NO_MARKETING_CONSENT_FORMS: readonly LeadForm[] = ["review-permission"];
 export const NOT_SHOWN_CONSENT_VERSION = "none:not-shown";
 
 /** Email: plain, two sentences, no marketing-speak. */
@@ -110,19 +107,6 @@ export const CONSENT_WORDING =
 export const REVIEW_CONSENT_WORDING =
   "You can use these words on the site with my first name and the place we bought or sold.";
 export const REVIEW_CONSENT_VERSION = "review:2026-10-01.1";
-
-/**
- * The referral box (/refer). Required on that form: the referrer confirms the
- * person knows their details are being passed along and expects to hear from
- * the team. Stored with its own version on the lead's `referral` so the
- * words the referrer ticked can be matched later.
- */
-export const REFERRAL_CONSENT_WORDING = "They know I’m passing their details along and expect to hear from Joelyn and Jessica.";
-export const REFERRAL_CONSENT_VERSION = "referral:2026-10-01.1";
-
-/** What the person being referred is planning: the options in the select on /refer, in this order. */
-export const REFERRAL_PLANS = ["Buying", "Selling", "Moving here"] as const;
-export type ReferralPlan = (typeof REFERRAL_PLANS)[number];
 
 /** The two questions every enquiry form asks the same way, in the owners' words (November 2026). */
 export const TIMING_QUESTION = "When are you thinking about moving?";
@@ -154,10 +138,6 @@ export type LeadErrorField =
   | "phone"
   | "address"
   | "message"
-  | "referredName"
-  | "referredEmail"
-  | "referredPhone"
-  | "referralConsent"
   | "reviewConsent";
 
 export type LeadFormState = {

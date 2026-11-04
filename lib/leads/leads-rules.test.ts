@@ -97,7 +97,7 @@ describe("what Home Platform's pixel can see", () => {
   it("once the page is live, only the visitor's own name, email and phone and the two questions keep a name", () => {
     const named = LEAD_FORM_FIELD_NAMES.filter((n) => "name" in fieldName(n, true));
     assert.deepEqual(named.sort(), [...PIXEL_VISIBLE_FIELDS].sort());
-    for (const n of ["message", "address", "referredName", "referredLastName", "referredEmail", "referredPhone", "referredPlan"]) {
+    for (const n of ["message", "address"]) {
       assert.deepEqual(fieldName(n, true), { "data-private-name": n });
     }
   });
@@ -207,7 +207,6 @@ describe("the thank-you page's echo", () => {
     assert.equal(echoLine({ form: "contact", at: 0, timing: "Three to six months" }), "Moving in 3 to 6 months.");
     // A value from before the options had their own echo still reads.
     assert.equal(echoLine({ form: "contact", at: 0, timing: "Next spring" }), "Moving next spring.");
-    assert.equal(echoLine({ form: "referral", at: 0, referred: "Sam" }), "For Sam.");
     assert.equal(echoLine({ form: "contact", at: 0 }), null);
   });
   it("finds the plan link a tool put in the message, on this site only", () => {

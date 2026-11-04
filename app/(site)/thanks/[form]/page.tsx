@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ButtonLink, RuleLink } from "@/components/buttons";
-import { ShareButton } from "@/components/share-button";
 import { ThanksBooking, ThanksEcho } from "@/components/thanks-echo";
 import { ThanksGoal } from "@/components/thanks-goal";
 import { TrackedLink } from "@/components/tracked-link";
@@ -10,7 +9,6 @@ import { getSiteSettings } from "@/lib/content";
 import { LEAD_FORMS, LEAD_GOAL, isLeadForm, type LeadForm } from "@/lib/leads/constants";
 import { newsletterConfig } from "@/lib/newsletter/config";
 import { SIGNUP_COPY } from "@/lib/newsletter/copy";
-import { REFER } from "@/lib/refer/copy";
 import { REVIEWS } from "@/lib/reviews/copy";
 import { WATCH_BUTTON_COPY } from "@/lib/watch/copy";
 import { pageMetadata } from "@/lib/seo";
@@ -79,12 +77,6 @@ const COPY: Record<LeadForm, Next> = {
     line: "In the meantime, Encore has the shows, concerts and openings tonight, this weekend and all season, at every stage, hall and gallery near you.",
     href: encore.href,
     label: "Open the Encore calendar",
-  },
-  referral: {
-    eyebrow: "Received",
-    ...REFER.thanks,
-    href: atlas.href,
-    label: "Open Atlas",
   },
   "review-permission": {
     eyebrow: "Received",
@@ -160,7 +152,6 @@ export default async function ThanksPage({ params }: { params: Promise<{ form: s
             <ButtonLink href={copy.href} dash>
               {copy.label}
             </ButtonLink>
-            {form === "referral" ? <ShareButton title={atlas.name} url={atlas.href} label="Send them the link" what="thanks-referral" /> : null}
             <RuleLink href="/">Back to the front page</RuleLink>
           </div>
         </div>
