@@ -174,7 +174,9 @@ the Fair Housing checker.
   rest re-scored, pushing away hardest from a market already picked, then from the same venue,
   category and day, with a slight lean to evenings. Each shows the day, time, category, market,
   title (linked to `/calendar/<slug>`), venue, the dataset's one-line summary, presenter and
-  price note. The first pick's picture sits under the intro: `/api/issues/encore/image/<slug>`, a
+  price note. A listing with no published time says it the calendar's way (`pickTime`,
+  `lib/encore/when.ts`): "All day" for an exhibition, a festival or a market, "Time not listed" for
+  a play, a concert or a screening. The first pick's picture sits under the intro: `/api/issues/encore/image/<slug>`, a
   JPEG (under 300 KB, like every share card) with the same composition as the event's share image (the venue's photo or the Encore key
   art, the title and the date). Email clients don't render SVG, and the share image's own URL
   carries a build hash, so the issue uses this stable, public route instead. It is static
@@ -277,6 +279,41 @@ While `officeAddress.street` and `zip` are empty in `lib/content/seed/settings.t
 (docs/LAUNCH.md 1.1) the footer shows only "Lakewood Ranch, FL" and every hand-off carries a
 warning: **CAN-SPAM needs a valid postal address in every send.** The site won't send an issue to
 subscribers until it's filled in: the send is held, and the team email says why.
+
+## The newsletters page
+
+`/newsletters` puts both letters on one page, in the family of `/guides`
+(`app/(site)/newsletters/page.tsx`): for each, its lockup and how often it comes, what it is, a
+link (Tide's newest issue, Encore's calendar), its issues as covers, newest first, the date of the
+next one, and its sign-up (`LetterForm`, `letter` for Tide and `calendar` for Encore, so the
+`Subscribe` goal and the lists are the same as everywhere else). Tide's covers are its issues'
+own (`components/tide/issue-card.tsx`). Encore's are drawn in code
+(`components/newsletters/encore-cover.tsx`): the wordmark on the family's deep ground, then the
+week as seven columns with one stroke for every dated performance the issue counted, the picks lit
+in their category's light. The footer links it from the Guides column, and `/guides`, `/tide` and
+`/calendar` each carry one line that points to it. It's in the sitemap, site search
+(`lib/search/copy.ts`), `/llms.txt` and has its own share image. It isn't in the header.
+
+### Encore on the web
+
+Each Monday issue has a page, `/calendar/letters/<monday>` (`/calendar/letters/2026-11-02`),
+read-only, with its own share image. It is built by the email's builder, `buildEncoreIssue`, for
+the same week from the same calendar (`loadEncoreLetter` in `lib/newsletters/encore.ts`), so the
+page carries the email's picks in its order and its words: the title, the intro, "This week" (as
+the Planner's day cards), "On view" and the link to the rest. The index it's built from reaches
+back to the day before the Monday, so the days already past keep their picks; the cron's own build
+on Monday morning reads the same performances. What can differ is only what the calendar learns
+after the send: a show that sells out or is called off drops out (and the picks are chosen again),
+and a show added during the week can come in. The page is rebuilt hourly.
+
+Which Mondays have a page (`lib/newsletters/weeks.ts`, tested): the weeks `issue_sends` has as
+sent (`status = 'sent'`, or a send with at least one delivered), the last four; when nothing is on
+record (subscriber email off, no database, an unreadable table) only this week's, which the cron
+builds every Monday either way. An issue counts as out from its send time, Monday 12:00 UTC; before
+that, last week's is the newest. An address for a Monday no longer listed redirects (307) to
+`/newsletters#encore`; a future Monday or another day is a 404; `/calendar/letters` alone
+redirects to `/newsletters#encore`. The listed weeks are in the sitemap's calendar file, in site
+search (`encore-letter:<monday>`) and in `/llms.txt`.
 
 ## The web issue
 
@@ -759,6 +796,12 @@ Don't do both: with subscriber email on, an issue sent by hand as well reaches p
 | `app/api/issues/encore/image/[slug]/route.ts` | The lead pick's PNG for the Monday issue. |
 | `scripts/issue-preview.mjs` | Local render to files. |
 | `docs/screenshots/issues/` | The two previews at 600px. |
+| `app/(site)/newsletters/` | `/newsletters`, both letters and their issues, and its share image. |
+| `app/(site)/calendar/letters/` | Encore's Monday issue on the web, its share image, and the redirect from `/calendar/letters`. |
+| `lib/newsletters/weeks.ts`, `weeks.test.ts` | Which Mondays have a page, what an address answers, the cover's week drawing (pure). |
+| `lib/newsletters/encore.ts` | Server: the sends on record, and each Monday issue built with the email's builder. |
+| `lib/newsletters/copy.ts` | The words around the issues on those pages; checked by `npm run check:copy`. |
+| `components/newsletters/encore-cover.tsx` | Encore's issue cover and tile. |
 | `lib/tide/issue.ts` | The web issue's model (pure): data month, figures, typical months, chart data, streets, guides, the through-dates and the "Since then" months; `computeFigures` is what a snapshot freezes. |
 | `lib/tide/tokens.ts` | The narrative's tokens (`{bradenton.sales}`), filled from the figures. |
 | `lib/tide/snapshots/` | One JSON of frozen figures per published issue, written by `scripts/tide-freeze.mjs` (`npm run tide:freeze`). |

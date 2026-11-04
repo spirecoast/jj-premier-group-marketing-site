@@ -17,6 +17,7 @@ import type { Chunk } from "./types";
  *   post:<slug>, post:<slug>#<n>         (Tide posts at /blog)
  *   tide:<issue>, tide:<issue>#what       (Tide issues at /tide)
  *   event:<slug>, venue:<slug>
+ *   encore-letter:<monday>              (Encore's Monday issues at /calendar/letters)
  *   page:<path>, page:<path>#<part>
  *
  * A chunk that runs long is split, and the later parts get "~2", "~3".
@@ -238,6 +239,15 @@ export function venueChunk(v: Venue, events: Event[]): Chunk {
     v.website ? `Website: ${v.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}.` : "",
   ];
   return { id: `venue:${v.slug}`, kind: "venue", title: v.name, sectionTitle: `Venue in ${marketName(v.market)}`, url: `/venues/${v.slug}`, body: body.filter(Boolean).join(" ") };
+}
+
+/**
+ * An Encore Monday issue on the web: its intro, then each pick with its day,
+ * venue and place, in the issue's own words (lib/issues/encore-weekly.ts).
+ */
+export function encoreLetterChunks(input: { url: string; title: string; intro: string; picks: { title: string; day: string; venue: string; market: string }[] }): Chunk[] {
+  const picks = input.picks.map((p) => sentence(`${p.title}, ${p.day}, at ${p.venue}, ${marketName(p.market)}`));
+  return toChunks({ id: `encore-letter:${input.url.split("/").pop()}`, kind: "event", title: `Encore, ${input.title.charAt(0).toLowerCase()}${input.title.slice(1)}`, sectionTitle: "The Monday issue", url: input.url }, [input.intro, ...picks]);
 }
 
 /* ---- Pages ---------------------------------------------------------------------- */

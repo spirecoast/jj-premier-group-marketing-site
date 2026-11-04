@@ -24,11 +24,16 @@ let cached: { at: number; snap: EncoreSnapshot; index: EncoreIndex } | null = nu
  * Built from the database snapshot (lib/encore/live.ts). Async callers use
  * loadEncoreIndex(); this synchronous form uses the snapshot this instance
  * last loaded (or the bundled JSON), for callers that can't await.
+ *
+ * `since` (ms) reaches further back than yesterday: the web copy of a Monday
+ * issue (lib/newsletters/encore.ts) rebuilds its whole week, the days already
+ * past included. Such an index isn't cached.
  */
-export function getEncoreIndex(snap: EncoreSnapshot = currentEncoreSnapshot()): EncoreIndex {
+export function getEncoreIndex(snap: EncoreSnapshot = currentEncoreSnapshot(), opts: { since?: number } = {}): EncoreIndex {
   const now = Date.now();
-  if (cached && cached.snap === snap && now - cached.at < 10 * 60_000) return cached.index;
-  const since = now - 24 * 3600_000;
+  const anchored = opts.since !== undefined;
+  if (!anchored && cached && cached.snap === snap && now - cached.at < 10 * 60_000) return cached.index;
+  const since = opts.since ?? now - 24 * 3600_000;
   const events: EncoreEvent[] = [];
   const perfs: EncorePerf[] = [];
   for (const e of encoreEvents(new Date(since), snap)) {
@@ -67,7 +72,7 @@ export function getEncoreIndex(snap: EncoreSnapshot = currentEncoreSnapshot()): 
   perfs.sort((a, b) => a[3] - b[3] || events[a[0]]!.t.localeCompare(events[b[0]]!.t));
   const venues = encoreVenues(snap).map((v) => ({ s: v.slug, n: v.name, m: v.market }));
   const index: EncoreIndex = { generated: new Date(now).toISOString(), events, perfs, venues };
-  cached = { at: now, snap, index };
+  if (!anchored) cached = { at: now, snap, index };
   return index;
 }
 

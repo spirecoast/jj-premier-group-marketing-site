@@ -26,6 +26,7 @@ jj-premier-brand-system.vercel.app).
 | SEO | `lib/seo.ts` (metadata + JSON-LD helpers), `components/json-ld.tsx` |
 | Analytics | `components/analytics.tsx` (Plausible, env-gated), `lib/analytics.ts` (custom events), `lib/plausible-server.ts` (server-side Lead/Subscribe) |
 | Encore dataset | `lib/content/encore/encore-calendar.json` (the source), `lib/content/encore.ts` (the converter) |
+| Newsletters | `/newsletters` (`app/(site)/newsletters`): Tide and Encore, each with its issues as covers and its sign-up; Encore's Monday issue on the web at `/calendar/letters/<monday>`, built by the email's builder (`lib/newsletters/*`, `components/newsletters/*`; docs/ISSUES.md, "The newsletters page") |
 | Neighborhood explorer | `components/explorer/*` (map, panel, card), `components/place-map.tsx`, `lib/neighborhoods/*` (data access, search, URL state, brand map style) |
 | Neighborhood dataset | `neighborhood-data/` (the catalog, its schema, scripts and docs; see its `CLAUDE-CODE-HANDOFF.md`) |
 
@@ -935,7 +936,7 @@ only a bucket of the result count.
 
 **The index** (`search_documents`, migration `0010_search.sql`): one row per chunk, id readable
 and stable (`guide:<slug>#<section>`, `place:<slug>`, `post:<slug>`, `tide:<issue>#what`,
-`event:<slug>`, `venue:<slug>`, `page:<path>#<part>`; later parts of a long chunk end `~2`,
+`event:<slug>`, `venue:<slug>`, `encore-letter:<monday>`, `page:<path>#<part>`; later parts of a long chunk end `~2`,
 `~3`), the url with the section's anchor, the body, a `content_hash`, the `embedding` and a
 generated `fts` (title A, section B, body C). RLS on with no policies and execute on
 `search_scored` (and the retired `search_hybrid`) revoked from `anon` and `authenticated`: only
@@ -1005,7 +1006,8 @@ commented `DROP` for it, to run once the new function has been live for a while.
   `faqs` field). Every FAQ carries a plain-text `answer` beside its JSX `a`; keep both in step.
 - Open Graph images are generated per page (`opengraph-image.tsx` beside home, buy, sell, about,
   listings, events, venues, neighborhoods, the market hubs, the tools, and since October 2026
-  `/calendar`, `/guides`, `/tools`, `/contact`, `/reviews` and `/listings`) from the page's photograph
+  `/calendar`, `/guides`, `/tools`, `/contact`, `/reviews` and `/listings`, and since November 2026
+  `/newsletters` and each Encore issue at `/calendar/letters/<monday>`) from the page's photograph
   and the brand lockup (`lib/og.tsx`). Every card leaves as a JPEG under 300 KB (`OG_BUDGET`,
   checked by `lib/og-budget.test.ts`; WhatsApp skips larger previews), and the photograph is cut to
   its 520x630 box before it's drawn, so a cold render never decodes a full-size original. Pages
@@ -1294,7 +1296,7 @@ Useful switches:
   | Goal | Fired from | Props |
   | --- | --- | --- |
   | `Lead` | `/thanks/<form>` after a `LeadForm` send | `form`: contact, buy, sell, valuation, listing, referral · `market` · `source` (the `/from/<channel>`, or none) |
-  | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row, `/from/*`) inline on success | `form`: letter or calendar · `source` when there is a channel |
+  | `Subscribe` | the `LetterForm` bars (Tide band, blog, calendar, Encore row, `/from/*`, `/newsletters`, the Encore web issue) inline on success | `form`: letter or calendar · `source` when there is a channel |
   | `Review permission` | `/thanks/review-permission` after the `/reviews` form | `form` · `market` · `source` |
   | `Lead server` | `lib/plausible-server.ts`, from the server action, for every form | `form` · `channel`: server. A backstop for visitors whose ad blocker stops the script; never add it to `Lead` |
   | `Calendar feed` | ICS links: the calendar page feed, Encore's filtered subscribe, the event page, the visit plan | `kind`: feed, event, performance, list, plan · `filter`: `all`, the feed query, or the event slug |

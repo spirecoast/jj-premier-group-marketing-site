@@ -18,7 +18,8 @@
  * rules of their own: no superlatives and no license numbers. The subscriber
  * emails and pages (lib/newsletter/copy.ts: the confirmation, the welcome,
  * the unsubscribe line, the confirm and unsubscribe pages, the team's hold
- * and send page) get those rules and the places-not-people rules. They carry
+ * and send page) get those rules and the places-not-people rules, and so do
+ * /newsletters and Encore's web issue (lib/newsletters/copy.ts). They carry
  * figures, filled in from the data, so the no-figures rule doesn't apply.
  * The Tide web issue's templates and its "facts to write from" lines
  * (lib/tide/copy.ts) get the same rules, and so does the wording around the
@@ -49,6 +50,7 @@ import { channelStrings } from "../lib/channels/copy.ts";
 import { hubStrings } from "../lib/hubs/copy.ts";
 import { issueStrings } from "../lib/issues/copy.ts";
 import { newsletterStrings } from "../lib/newsletter/copy.ts";
+import { newslettersStrings } from "../lib/newsletters/copy.ts";
 import { watchStrings } from "../lib/watch/copy.ts";
 import { REFERRAL_CONSENT_WORDING, REFERRAL_PLANS, REVIEW_CONSENT_WORDING } from "../lib/leads/constants.ts";
 import { questionnaireStrings } from "../lib/questionnaire/copy.ts";
@@ -106,6 +108,8 @@ const all = [
   // The subscriber emails and their pages: the issue rules and places, never people.
   ...newsletterStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...watchStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
+  // /newsletters and Encore's web issue (lib/newsletters/copy.ts): the same.
+  ...newslettersStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...PEOPLE_RULES, ...VOICE] })),
   ...tideWebStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),
   ...tideNarrativeStrings().map((s) => ({ ...s, rules: [...NARRATIVE_RULES, ...VOICE] })),
   ...questionnaireStrings().map((s) => ({ ...s, rules: [...ISSUE_RULES, ...VOICE] })),

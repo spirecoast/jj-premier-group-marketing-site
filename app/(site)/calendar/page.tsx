@@ -73,6 +73,13 @@ export default async function CalendarPage() {
               <div className="flex flex-col gap-3">
                 <h2 className="t-h1 text-navy">Get Encore in your inbox.</h2>
                 <p className="t-body max-w-measure text-body">The week&rsquo;s shows, concerts and openings come in one email every Monday.</p>
+                <p className="t-small text-linen-700">
+                  You can read this week&rsquo;s issue on{" "}
+                  <Link href="/newsletters#encore" className="text-navy underline underline-offset-4 hover:text-harbor-700">
+                    the newsletters page
+                  </Link>
+                  .
+                </p>
               </div>
               <div className="flex flex-col gap-4">
                 <LetterForm form="calendar" label="Subscribe" />
