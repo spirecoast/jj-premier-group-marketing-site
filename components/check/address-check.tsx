@@ -335,7 +335,9 @@ function Result({ data }: { data: Ok }) {
               {fg.card ? (
                 <>
                   <p className="t-body max-w-measure text-body">
-                    <span className="text-navy">{fg.card.name}.</span> {fg.card.means}
+                    {/* The card's risk name only when it's the one the fact above gives (shaded X is moderate, the card says lower). */}
+                    {floodZoneMeaning(flood?.zone.zone ?? "", { shaded: flood ? shadedOf(flood.zone) : undefined })?.label === fg.card.name ? <span className="text-navy">{fg.card.name}. </span> : null}
+                    {fg.card.means}
                   </p>
                   <dl className="grid gap-3 sm:grid-cols-2">
                     <div className="flex flex-col gap-1">

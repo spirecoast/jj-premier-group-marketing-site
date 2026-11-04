@@ -67,7 +67,7 @@ describe("evacuation zones", () => {
     assert.match(evacZoneMeaning("A").line, /first called to leave.*most exposed to storm surge/);
     assert.match(evacZoneMeaning("E").line, /last of the five.*least exposed/);
     assert.equal(evacZoneMeaning("C", "level").line, "Next in line after levels A and B.");
-    assert.equal(evacZoneMeaning("none").short, "Outside every zone on the county’s storm surge map.");
+    assert.equal(evacZoneMeaning("none").short, "Outside zones A to E, the areas the county calls to leave for storm surge.");
     assert.equal(evacZoneMeaning("C").short, "Next in line after zones A and B. Zone A is the most exposed to storm surge.");
     assert.equal(evacZoneMeaning("B", "level").tag, "next after level A");
     for (const z of EVAC) assert.ok(evacZoneMeaning(z).sources.some((s) => /mymanatee\.org/.test(s.href)));

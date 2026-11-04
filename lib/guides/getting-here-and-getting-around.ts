@@ -419,7 +419,7 @@ export const GETTING_HERE_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Tell us where you’ll be driving to.",
-    body: "We’ll plan the showings so you can try the drive at the time you’d really make it. If you’d rather do it yourself, just follow the steps above.",
+    body: "We’ll plan the showings so you can try the drive at the time you’d really make it. If you’d rather do it yourself, just follow the steps in this guide.",
     cta: "Plan a visit",
     tool: "contact",
   },

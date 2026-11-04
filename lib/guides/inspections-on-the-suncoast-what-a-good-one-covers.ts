@@ -452,7 +452,7 @@ export const INSPECTIONS_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Send us an address.",
-    body: "We’ll tell you which inspections it needs and help you get them done in time. If you’d rather do it yourself, just follow the steps above.",
+    body: "We’ll tell you which inspections it needs and help you get them done in time. If you’d rather do it yourself, just follow the steps in this guide.",
     cta: "Ask about a house",
     tool: "contact",
   },

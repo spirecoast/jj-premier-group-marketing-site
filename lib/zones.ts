@@ -128,7 +128,7 @@ const EVAC_LINE: Record<EvacZone, (w: EvacWord) => string> = {
   C: (w) => `Next in line after ${w}s A and B.`,
   D: (w) => `Next in line after ${w}s A, B and C.`,
   E: () => "The last of the five called to leave, and the least exposed to storm surge.",
-  none: (w) => `Outside all five ${w}s on the county’s storm surge map.`,
+  none: (w) => `Outside ${w}s A to E, the areas the county calls to leave for storm surge.`,
 };
 
 const MOST_EXPOSED = (w: EvacWord) => `${w === "level" ? "Level" : "Zone"} A is the most exposed to storm surge.`;
@@ -139,7 +139,7 @@ const EVAC_SHORT: Record<EvacZone, (w: EvacWord) => string> = {
   C: (w) => `Next in line after ${w}s A and B. ${MOST_EXPOSED(w)}`,
   D: (w) => `Next in line after ${w}s A to C. ${MOST_EXPOSED(w)}`,
   E: () => "Called to leave last of the five. The least exposed to storm surge.",
-  none: (w) => `Outside every ${w} on the county’s storm surge map.`,
+  none: (w) => `Outside ${w}s A to E, the areas the county calls to leave for storm surge.`,
 };
 
 const EVAC_TAG: Record<EvacZone, (w: EvacWord) => string> = {
