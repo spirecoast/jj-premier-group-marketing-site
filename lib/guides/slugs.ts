@@ -6,15 +6,12 @@
 export const REBUILT_GUIDE_SLUGS = [
   "flood-zones-and-elevation-certificates-on-the-suncoast",
   "homestead-save-our-homes-and-portability",
-  "homeowners-wind-and-flood-insurance-on-this-coast",
   "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton",
   "selling-a-home-you-dont-live-in",
   "getting-your-house-ready-to-sell",
   "cdd-fees-in-lakewood-ranch-village-by-village",
-  "condo-and-hoa-documents-after-the-2022-law",
   "what-to-ask-before-you-buy-in-a-gated-community",
   "inspections-on-the-suncoast-what-a-good-one-covers",
-  "barrier-island-rules-island-by-island",
   "getting-here-and-getting-around",
 ] as const;
 
@@ -36,13 +33,36 @@ export const MOVED_GUIDES: Readonly<Record<string, (typeof REBUILT_GUIDE_SLUGS)[
   "thinking-about-spring-start-in-october": "getting-your-house-ready-to-sell",
 };
 
+/**
+ * Guides taken down at the owners' direction (their October 2026 review). Each one's page, its old
+ * /blog link and its PDF answer with a permanent redirect to the closest guide still up, or to
+ * /guides when no guide covers the topic now. next.config.ts reads this list.
+ */
+export const REMOVED_GUIDES: Readonly<Record<string, (typeof REBUILT_GUIDE_SLUGS)[number] | null>> = {
+  // It repeated the flood guide's zones, certificate and flood policy; the flood guide is the one page for them now.
+  "homeowners-wind-and-flood-insurance-on-this-coast": "flood-zones-and-elevation-certificates-on-the-suncoast",
+  // The association's documents, budget and reserves are in the gated-community guide.
+  "condo-and-hoa-documents-after-the-2022-law": "what-to-ask-before-you-buy-in-a-gated-community",
+  // No guide covers the island-by-island rules now.
+  "barrier-island-rules-island-by-island": null,
+};
+
+/** Where a removed guide's old address goes: the guide that carries the topic now, or the guides page. */
+export function removedGuideTarget(slug: string): `/guides/${string}` | "/guides" | undefined {
+  if (!Object.hasOwn(REMOVED_GUIDES, slug)) return undefined;
+  const to = REMOVED_GUIDES[slug];
+  return to ? `/guides/${to}` : "/guides";
+}
+
 export function isRebuiltGuide(slug: string): boolean {
   return (REBUILT_GUIDE_SLUGS as readonly string[]).includes(slug);
 }
 
-/** Where a guide lives now: /guides for a rebuilt one (or the one a post folded into), /blog for the rest. */
-export function guideHref(slug: string): `/guides/${string}` | `/blog/${string}` {
+/** Where a guide lives now: /guides for a rebuilt one (or the one a post folded into, or the one a removed guide points at), /blog for the rest. */
+export function guideHref(slug: string): `/guides/${string}` | "/guides" | `/blog/${string}` {
   const folded = FOLDED_POSTS[slug];
   if (folded) return `/guides/${folded}`;
+  const removed = removedGuideTarget(slug);
+  if (removed) return removed;
   return isRebuiltGuide(slug) ? `/guides/${slug}` : `/blog/${slug}`;
 }

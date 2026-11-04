@@ -29,7 +29,7 @@ and called it "nonsensical" and "too clever". The brief now:
 | The types | `lib/guides/types.ts` |
 | The registry, counts, text extraction | `lib/guides/index.ts` (`GUIDES`, `getGuide`, `guideStrings`, `guideProse`, `guideWordCount`, `guideReadingMinutes`, `guideSources`, `guideFigures`, `TOOLS`) |
 | The reading-level measure | `lib/guides/readability.ts` (Flesch-Kincaid grade, sentences, syllables) |
-| The slugs the old `/blog` paths redirect from | `lib/guides/slugs.ts` (`REBUILT_GUIDE_SLUGS`, `guideHref`); imported by `next.config.ts` for the 308s and by every card that links a guide |
+| The slugs the old `/blog` paths redirect from, and the guides taken down | `lib/guides/slugs.ts` (`REBUILT_GUIDE_SLUGS`, `REMOVED_GUIDES`, `guideHref`); imported by `next.config.ts` for the 308s and by every card that links a guide |
 | The page | `app/(site)/guides/[slug]/page.tsx`, its OG image beside it, the index at `app/(site)/guides/page.tsx` |
 | Components | `components/guides/`: `cover` (the typographic cover with contour lines), `contents` (sticky beside the text from lg, with the active section highlighted), `companion` (the reading companion: on a phone a bar under the header with the reader's place, the contents as a bottom sheet and a 2px line that fills as the guide is read; from lg the line alone; the same component gives `/buy` and `/sell` their step index), `section-header`, `blocks`, `figure` (the frame) and `figures/*` (one component per figure kind), `one-page`, `sources`, `guide-card` |
 | Styles | `app/globals.css`, the "Guides" block: `.guide-cover-ground`, `.guide-text`, `.guide-drop`, `.guide-ghost`, the `.series-N` fills, and the `@media print` rules scoped to `#guide-article` |
@@ -154,3 +154,21 @@ list, and in "Where this comes from" at the foot.
    `npm run check:copy` and `npm run build`.
 4. Screenshot at 1440 and 390 and read it on the phone width. If a figure's text wraps
    badly at 390, fix the figure.
+
+## Taking a guide down
+
+1. Delete `lib/guides/<slug>.ts`, take it out of `GUIDES` and `REBUILT_GUIDE_SLUGS`, and add it to
+   `REMOVED_GUIDES` in `lib/guides/slugs.ts` with the guide that carries the topic now (or `null`
+   for `/guides`). `next.config.ts` then answers its page, its old `/blog` path and its PDF with a
+   308, and `guideHref` sends any card that still names it to the same place.
+2. Delete its PDF from `public/guides/pdf`, its seed `Post` from `lib/content/seed/*`, and every
+   link to it: the hubs' `guides` lists (`lib/hubs/copy.ts`), the footer (`lib/site.ts`), the
+   search eval labels (`lib/search/eval/queries.json`) and any other page. The sitemap, llms.txt,
+   llms-full.txt and the search chunks read `GUIDES`, so they follow on their own; the daily
+   reindex drops the guide from the search index.
+3. Move a fact only the old guide carried into the guide that replaces it, with its source.
+
+In November 2026, at the owners' direction, three came down: *Wind and flood insurance on this
+coast* (it repeated the flood guide; its hurricane deductible, Citizens and private flood facts
+moved into the flood guide), *Barrier island rules, island by island* and *Condo documents after
+the 2022 law*.

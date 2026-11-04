@@ -13,6 +13,7 @@ import { dayIn } from "@/lib/time";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
 import { loadIssueModel } from "@/lib/tide/load";
 import { CARDS_COPY as C, type CardKind } from "./copy";
+import { evacZoneMeaning } from "@/lib/zones";
 
 export type CardChannel = "instagram" | "facebook" | "youtube" | "nextdoor";
 export const CARD_CHANNELS: { slug: CardChannel; name: string }[] = [
@@ -98,7 +99,8 @@ async function placeCard(channel: CardChannel, q: string): Promise<CardModel | n
     r.gated === true ? "Gated" : r.gated === false ? "Not gated" : null,
     r.hoa?.name ? "HOA on record" : null,
     r.cdd ? "CDD on record" : null,
-    r.evacuationZone ? (r.evacuationZone === "none" ? "Outside every evacuation zone" : `Evacuation zone ${r.evacuationZone}`) : null,
+    // The letter with what it means (lib/zones.ts): "Evacuation zone A, first called to leave".
+    r.evacuationZone ? (r.evacuationZone === "none" ? "Outside every evacuation zone" : `Evacuation zone ${r.evacuationZone}, ${evacZoneMeaning(r.evacuationZone).tag}`) : null,
     r.zips.length ? `ZIP ${r.zips.join(", ")}` : null,
   ].filter((l): l is string => Boolean(l));
   return finish({

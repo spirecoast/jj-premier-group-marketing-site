@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { getListingSlugs, getNeighborhoods, getPostSlugs, getSitemapEvents, getVenues } from "@/lib/content";
 import { MARKETS } from "@/lib/content/markets";
 import { GUIDES } from "@/lib/guides";
-import { FOLDED_POSTS, isRebuiltGuide } from "@/lib/guides/slugs";
+import { FOLDED_POSTS, isRebuiltGuide, removedGuideTarget } from "@/lib/guides/slugs";
 import { DATASET_VERSION, getAllRecords } from "@/lib/neighborhoods/data";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { getSalesManifest } from "@/lib/sales";
@@ -78,7 +78,7 @@ async function pages(): Promise<Entry[]> {
     // The search page itself; result pages (?q=) are noindex and never listed.
     s("/search", 0.3, "monthly"),
     ...listings.map((slug) => s(`/listings/${slug}`, 0.8, "weekly")),
-    ...posts.filter((slug) => !isRebuiltGuide(slug) && !FOLDED_POSTS[slug]).map((slug) => s(`/blog/${slug}`, 0.5, "monthly")),
+    ...posts.filter((slug) => !isRebuiltGuide(slug) && !FOLDED_POSTS[slug] && !removedGuideTarget(slug)).map((slug) => s(`/blog/${slug}`, 0.5, "monthly")),
     ...GUIDES.map((g) => entry(`/guides/${g.slug}`, 0.7, "monthly", g.updatedAt, [g.cover.src])),
     ...TIDE_ISSUES.map((e) => s(`/tide/${e.issue}`, 0.6, "monthly", `${e.issue}-01`)),
   ];

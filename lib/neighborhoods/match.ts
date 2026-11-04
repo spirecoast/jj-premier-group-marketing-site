@@ -4,6 +4,7 @@ import { STATUS_LABEL, titleCase } from "./format";
 import type { IndexEntry } from "./index-format";
 import type { EvacuationZone, HomeType, WaterAccess } from "./types";
 import { LIST_MAX, explorerHref } from "./url";
+import { evacAbout } from "../zones";
 
 /**
  * Atlas Match: up to ten questions about the place and the home, each read
@@ -116,7 +117,8 @@ export const QUESTIONS: readonly Question[] = [
     id: "evac",
     field: "evacuationZone",
     title: "How far from the storm surge?",
-    help: "Evacuation zones run from A, nearest the water, to E. They decide when you’d be asked to leave before a storm.",
+    // What the letters mean, in the words every page uses (lib/zones.ts).
+    help: evacAbout(),
     any: "Any zone",
     noun: "evacuation zone",
   },

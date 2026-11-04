@@ -10,6 +10,7 @@ import type { IndexEntry } from "@/lib/neighborhoods/index-format";
 import { WATER_LABEL } from "@/lib/neighborhoods/match";
 import { explorerHref } from "@/lib/neighborhoods/url";
 import { cn } from "@/lib/utils";
+import { evacZoneMeaning } from "@/lib/zones";
 import "./explorer.css";
 
 /** What the card says when the record has no checked source for a fact yet. */
@@ -18,11 +19,12 @@ export const NOT_KNOWN = "Not known yet";
 /**
  * The four facts the index carries that the card used to leave off. Always
  * present, so a reader sees "Not known yet" rather than nothing and the
- * cards of two places line up.
+ * cards of two places line up. The evacuation zone carries what its letter
+ * means (lib/zones.ts) on a line under it.
  */
-export function indexFacts(e: IndexEntry): [string, string | null][] {
+export function indexFacts(e: IndexEntry): [string, string | null, string?][] {
   return [
-    ["Evacuation zone", e.ev === null ? null : e.ev === "none" ? "Outside every zone" : `Zone ${e.ev}`],
+    ["Evacuation zone", e.ev === null ? null : e.ev === "none" ? "Outside every zone" : `Zone ${e.ev}`, e.ev === null ? undefined : evacZoneMeaning(e.ev).short],
     ["HOA on record", e.ho ? "Yes" : null],
     ["CDD on record", e.cd ? "Yes" : null],
     ["Water access", e.w === null ? null : WATER_LABEL[e.w]],
@@ -48,7 +50,7 @@ export function PlaceCard({
   onSelect: (slug: string) => void;
   onClose: () => void;
 }) {
-  const facts: [string, string | null][] = [];
+  const facts: [string, string | null, string?][] = [];
   if (e.t) facts.push(["Type", TYPE_LABEL[e.t]]);
   if (e.st) facts.push([`Status · as of ${asOf}`, STATUS_LABEL[e.st]]);
   if (e.j) facts.push(["Jurisdiction", e.j]);
@@ -90,10 +92,13 @@ export function PlaceCard({
       </p>
       {facts.length ? (
         <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
-          {facts.map(([k, v]) => (
+          {facts.map(([k, v, note]) => (
             <div key={k} className="contents">
               <dt className="t-mono-sm text-graphite-500">{k}</dt>
-              <dd className={cn("t-small", v === null ? "text-graphite-500" : "text-body")}>{v ?? NOT_KNOWN}</dd>
+              <dd className={cn("t-small", v === null ? "text-graphite-500" : "text-body")}>
+                {v ?? NOT_KNOWN}
+                {note ? <span className="block t-note">{note}</span> : null}
+              </dd>
             </div>
           ))}
         </dl>

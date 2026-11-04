@@ -66,7 +66,7 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     title: "JJ Premier Group",
     summary: [
       "Joelyn Nauman and Jessica Garza, a mother and daughter team with Coldwell Banker Realty, helping people buy, sell and invest in Lakewood Ranch, Sarasota and Bradenton.",
-      "The site has three tools: Atlas, the neighborhood explorer; Encore, the arts calendar; and Tide, the monthly newsletter on what the three markets did. There are plain-language guides to flood zones, insurance, homestead, CDDs, condo documents and selling.",
+      "The site has three tools: Atlas, the neighborhood explorer; Encore, the arts calendar; and Tide, the monthly newsletter on what the three markets did. There are plain-language guides to flood zones and flood insurance, hurricane season, homestead, CDDs, gated communities, inspections and selling.",
     ],
   },
   {

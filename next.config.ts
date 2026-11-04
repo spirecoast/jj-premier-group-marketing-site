@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { FOLDED_POSTS, MOVED_GUIDES, REBUILT_GUIDE_SLUGS } from "./lib/guides/slugs";
+import { FOLDED_POSTS, MOVED_GUIDES, REBUILT_GUIDE_SLUGS, REMOVED_GUIDES } from "./lib/guides/slugs";
 import { HOME_PLATFORM_ORIGIN, homePlatformPixelId } from "./lib/home-platform";
 import { canonicalHostRedirects } from "./lib/site-url";
 
@@ -253,6 +253,12 @@ const nextConfig: NextConfig = {
         { source: `/guides/${from}`, destination: `/guides/${to}`, permanent: true },
         { source: `/blog/${from}`, destination: `/guides/${to}`, permanent: true },
         { source: `/guides/pdf/${from}.pdf`, destination: `/guides/pdf/${to}.pdf`, permanent: true },
+      ]),
+      // A guide the owners took down: its page, its old /blog link and its PDF go to the closest guide still up, or to /guides.
+      ...Object.entries(REMOVED_GUIDES).flatMap(([from, to]) => [
+        { source: `/guides/${from}`, destination: to ? `/guides/${to}` : "/guides", permanent: true },
+        { source: `/blog/${from}`, destination: to ? `/guides/${to}` : "/guides", permanent: true },
+        { source: `/guides/pdf/${from}.pdf`, destination: to ? `/guides/pdf/${to}.pdf` : "/guides", permanent: true },
       ]),
       // A post folded into a guide follows the guide.
       ...Object.entries(FOLDED_POSTS).map(([slug, guide]) => ({ source: `/blog/${slug}`, destination: `/guides/${guide}`, permanent: true })),

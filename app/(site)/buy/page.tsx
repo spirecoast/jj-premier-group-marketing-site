@@ -4,6 +4,7 @@ import { GuideHero, GuideNext, GuideSteps, type GuideLink, type GuideStep } from
 import { WorkWith } from "@/components/home/work-with";
 import { JsonLd } from "@/components/json-ld";
 import { LeadForm } from "@/components/lead-form";
+import { ZoneKey } from "@/components/zone-note";
 import { getSiteSettings } from "@/lib/content";
 import { img } from "@/lib/content/seed/helpers";
 import { faqJsonLd, pageMetadata } from "@/lib/seo";
@@ -181,6 +182,8 @@ const FAQS: Faq[] = [
           your lender will require it. In zone X it is optional, and on the canal streets of West Bradenton we still
           recommend it because the quotes tend to come in low.
         </p>
+        {/* What the three codes mean, in the words every page uses (lib/zones.ts). */}
+        <ZoneKey texts={["AE", "VE", "X"]} evacuation={false} guide className="mt-4" />
         <p className="mt-4">
           Two things to know. An NFIP policy bought for a closing starts at closing, but one bought at any other time
           takes thirty days to begin. And since October 1, 2024, Florida sellers must disclose in writing whether they

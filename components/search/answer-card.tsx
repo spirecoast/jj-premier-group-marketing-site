@@ -1,6 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { ExternalLink } from "@/components/ui/external-link";
+import { ZoneKey, ZoneText } from "@/components/zone-note";
 import { ANSWER_COPY as C } from "@/lib/answers/copy";
 import type { Answer } from "@/lib/answers/types";
 import { checkedOn } from "@/lib/neighborhoods/sources";
@@ -9,7 +10,9 @@ import { checkedOn } from "@/lib/neighborhoods/sources";
  * The answer card above the results on /search: one answer the site already
  * gives, set as the question and its answer, with the page it comes from and,
  * for a fact, the public source and the day it was checked. Or, for a
- * question we don't answer, a plain line saying so and where to look.
+ * question we don't answer, a plain line saying so and where to look. A flood
+ * zone the answer names gets its risk beside it and its meaning under it
+ * (lib/zones.ts); a fact about an evacuation level says what it means itself.
  * Server-rendered; nothing on it is written for the query.
  */
 export function AnswerCard({ answer }: { answer: Answer }) {
@@ -44,7 +47,10 @@ export function AnswerCard({ answer }: { answer: Answer }) {
       <h2 id="answer-title" className="t-h3 text-navy">
         {answer.question}
       </h2>
-      <p className="t-body max-w-measure text-body">{answer.text}</p>
+      <p className="t-body max-w-measure text-body">
+        <ZoneText text={answer.text} />
+      </p>
+      <ZoneKey texts={[answer.text]} evacuation={answer.kind !== "fact"} />
       {answer.source ? (
         <p className="t-note">
           {C.sourceLead}{" "}

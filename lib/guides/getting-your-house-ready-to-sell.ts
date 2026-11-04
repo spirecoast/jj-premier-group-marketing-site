@@ -503,7 +503,7 @@ export const READY_TO_SELL_GUIDE: Guide = {
   next: {
     eyebrow: "The next step",
     title: "Tell us when you’d like to list.",
-    body: "We’ll count back eight weeks, walk the house with you and make the list. If you’d rather start on your own, this guide is the order we’d do it in.",
+    body: "We’ll walk through the house with you and plan back from that date. If you’d rather start on your own, just follow the steps in this guide.",
     cta: "Set a date",
     tool: "contact",
   },

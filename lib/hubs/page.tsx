@@ -24,6 +24,7 @@ import { absoluteUrl, breadcrumbJsonLd, faqJsonLd, pageMetadata } from "@/lib/se
 import { guideHref } from "@/lib/guides/slugs";
 import { site } from "@/lib/site";
 import { ExternalLink } from "@/components/ui/external-link";
+import { ZoneKey, ZoneText } from "@/components/zone-note";
 
 /**
  * The market hub, shared by the three explicit routes (app/(site)/lakewood-ranch,
@@ -105,7 +106,20 @@ export async function HubPage({ market }: { market: MarketSlug }) {
   const [atlas, venues, guides, settings] = await Promise.all([hubAtlas(market), getVenues(market), hubGuides(market), getSiteSettings(), loadEncoreSnapshot()]);
   // hubWeek reads the Encore index synchronously: the snapshot loaded above.
   const week = hubWeek(market);
-  const faqs: Faq[] = copy.faqs.map((f) => ({ q: f.q, answer: f.answer, a: <p>{f.answer}</p> }));
+  // A flood zone or an evacuation level the words name gets its meaning beside it (lib/zones.ts), in the county's own word.
+  const evacWord = market === "sarasota" ? "zone" : "level";
+  const faqs: Faq[] = copy.faqs.map((f) => ({
+    q: f.q,
+    answer: f.answer,
+    a: (
+      <>
+        <p>
+          <ZoneText text={f.answer} />
+        </p>
+        <ZoneKey texts={[f.answer]} word={evacWord} className="mt-4" />
+      </>
+    ),
+  }));
   const path = `/${market}`;
   const asOf = monthYear(DATASET_VERSION) ?? DATASET_VERSION;
   const calendarHref = encoreHref({ market });
@@ -293,9 +307,12 @@ export async function HubPage({ market }: { market: MarketSlug }) {
           <div className="flex flex-col gap-5 bg-white p-7 lg:p-9">
             <h3 className="t-h3 text-navy">Buying here</h3>
             {copy.buying.map((para) => (
-              <p key={para.slice(0, 40)} className="t-body max-w-measure text-body">
-                {para}
-              </p>
+              <div key={para.slice(0, 40)} className="flex flex-col gap-3">
+                <p className="t-body max-w-measure text-body">
+                  <ZoneText text={para} />
+                </p>
+                <ZoneKey texts={[para]} word={evacWord} guide />
+              </div>
             ))}
             <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
               <RuleLink href="/buy">How buying with us goes</RuleLink>
