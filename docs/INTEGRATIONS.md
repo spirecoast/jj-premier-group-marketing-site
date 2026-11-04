@@ -57,13 +57,11 @@ Compass's help pages need a login):
   The CRM never sees an unticked call/text box as `on`.
 - Stays off under Global Privacy Control, sends nothing under Do Not Track or
   without Web Crypto, and can be blocked like any third-party script.
-- Takes the first email and phone in a form. On the referral form that's the
-  referrer; the person who is moving reaches the CRM only through the webhook.
+- Takes the first email and phone in a form.
 
 Each lead records whether the pixel was running on the page:
 `source.homePlatformPixel` (`HomePlatformPixelFlag`, the same conditions the
-script checks). The Zap below skips those, except referrals, so a lead isn't
-created twice.
+script checks). The Zap below skips those, so a lead isn't created twice.
 
 **What arrives in Home Platform** (three test enquiries, 2026-10-09). Each
 became a contact in the account that issued the pixel (Jessica Garza's): first
@@ -115,7 +113,8 @@ through a Zapier step if the team wants a templated first reply.
    Home Platform keeps only the contact details. Its first line says whether
    Home Platform should already have the contact (`homePlatformNote` in
    `lib/home-platform.ts`), and the subject ends "· add to Home Platform" when
-   it doesn't: the Pixel didn't run, or it's the person a referral names. It's
+   it doesn't: the Pixel didn't run (or, on a lead stored from the retired
+   referral form and redelivered, it's the person that referral names). It's
    also the safety net when Zapier is down. Retried through the outbox like the
    CRM; with `CRM_PROVIDER=none` a failed team email raises the `[lead-alarm]`
    at once, since nothing else would tell a person.
@@ -168,7 +167,6 @@ leads where nobody looks, so health answers 503 until `TEAM_NOTIFY_EMAIL` (with 
   "message": "…", "market": "sarasota", "propertyAddress": null,
   "timing": "Inside three months", "sellFirst": "Yes",
   "property": null,
-  "referral": null,
   "consent": { "email": true, "sms": false, "timestamp": "2026-10-01T15:04:05.000Z", "wordingVersion": "2026-10-01.2",
                "review": false, "reviewAt": null, "reviewWordingVersion": null },
   "source": { "channel": null, "page": "https://jjpremiergroup.com/buy", "referrer": "…", "utm_source": "google", "utm_medium": "cpc",
@@ -192,8 +190,14 @@ beside it; anything that isn't a full number is refused on the form.
 without a database), and the team email's subject starts "Returning lead" when
 it isn't 0. A ticked call/text box with no phone number records no consent and
 is tagged `consent:sms-no-phone`.
+`timing` is one of `Inside three months`, `Three to six months`, `Six to twelve
+months` or `Just watching the market`, and `sellFirst` one of `Yes`, `No` or
+`Not sure yet`. Those are the stored values; since November 2026 the chips the
+visitor taps read Within 3 months, 3–6 months, 6–12 months and Just exploring,
+and Yes, No and Not sure, under "When are you thinking about moving?" and "Do
+you have a home to sell?". Map on the values; they haven't changed.
 `form` is one of `contact`, `buy`, `sell`, `listing`, `valuation`, `letter`,
-`calendar`, `referral` (`/refer`), `review-permission` (`/reviews`) and `watch`
+`calendar`, `review-permission` (`/reviews`) and `watch`
 (Street Watch, the "Watch this street" and "Watch this place" buttons; email
 only, like the Tide bar). A `watch` lead carries `watch`: `kind` (`street` or
 `place`), `label` ("Lilac Sky Ter · 34211" or the place's name), `street` and
@@ -201,20 +205,16 @@ only, like the Tide bar). A `watch` lead carries `watch`: `kind` (`street` or
 `url` (Tide Street on it). It's a warm signal: the person is following sales
 there. The field is absent on every other form. Tag a Zap's contact with it if
 the CRM allows (docs/ISSUES.md, "Street Watch").
-`referral` is set on a referral from `/refer` and `null` otherwise. The lead's
-own `firstName`, `lastName`, `email` and `phone` are the **referrer's**; the
-person who is moving is under `referral`: `firstName`, `lastName`, `email`,
-`phone` (at least one of email and phone), `plan` (`Buying`, `Selling`,
-`Moving here` or null), `told: true` with `toldAt` and `toldWordingVersion`
-(the referrer ticked "They know I'm passing their details along and expect to
-hear from Joelyn and Jessica."), `referredBy` (the referrer's name),
-`referredByEmail`, `referredByPhone`, and `note`: one paragraph saying the
-contact came via a referral, who referred them, what they're planning, how to
-reach them and the referrer's note. Create the CRM contact from `referral.*`
-and put `referral.note` on it; the lead is tagged `form:referral`.
+The referral form (`/refer`) was retired in November 2026 and `/refer` now
+redirects to `/contact`; new leads have no `referral` field. A lead stored from
+it before then has `form: "referral"` and a `referral` block (the person who
+was moving: `firstName`, `lastName`, `email`, `phone`, `plan`, `told`,
+`toldAt`, `toldWordingVersion`, `referredBy`, `referredByEmail`,
+`referredByPhone` and a `note`), and the lead's own name, email and phone are
+the referrer's. Only a redelivery from the outbox can still send one.
 `consent.timestamp` and `consent.wordingVersion` describe the email and
-call/text boxes only. A referral and a review permission show neither box
-(the referrer is doing the team a favour), so they carry
+call/text boxes only. A review permission shows neither box (the person is
+doing the team a favour), so it carries
 `email: false`, `sms: false`, `timestamp: null` and `wordingVersion:
 "none:not-shown"` (any marketing consent posted with them is ignored). A review
 permission's own permission is `consent.review: true` with `reviewAt` and
@@ -234,9 +234,9 @@ and when it was recorded, plus the page the form was on. `test: true` (and a
 Trigger: **Webhooks by Zapier → Catch Hook**. Copy its URL into
 `CRM_WEBHOOK_URL`. Then:
 
-1. **Filter**: continue only if `test` is not `true`, and either
-   `source.homePlatformPixel` is not `true` or `form` is `referral`. The pixel
-   already sent the rest to Lead Flows from the browser.
+1. **Filter**: continue only if `test` is not `true` and
+   `source.homePlatformPixel` is not `true`. The pixel already sent the rest
+   to Lead Flows from the browser.
 2. **Compass → Create a New Lead**. Field map:
 
    | Compass field | From the payload |
@@ -249,11 +249,7 @@ Trigger: **Webhooks by Zapier → Catch Hook**. Copy its URL into
 
    Nothing else fits a Compass field. Put `message`, `timing`, `sellFirst`,
    `market`, `propertyAddress` and `source.utm_*` into the Zap's note or
-   email step so the agent sees them. For `form:referral`, a Filter or Path
-   on `referral` not empty creates the contact from `referral.firstName`,
-   `referral.lastName`, `referral.email` and `referral.phone` with
-   `referral.note` as the contact's note (it names the referrer and says the
-   contact came via a referral); the referrer's thank-you goes to `email`.
+   email step so the agent sees them.
 3. *(Optional)* **Gmail/Outlook → Send email** from the agent's own
    Coldwell Banker mailbox, to `email`, as the first reply. This is the only
    place a visitor ever receives email, and it comes from a person.
@@ -278,8 +274,8 @@ the Plausible goal.
 
 ### Consent
 
-Every enquiry form that asks for an email (all but the referral and the review
-permission) shows an unchecked **email** box
+Every enquiry form that asks for an email (all but the review permission)
+shows an unchecked **email** box
 ("Yes, you can email me about the market and my search. I can stop any time by
 replying 'stop' to any email.");
 forms that ask for a phone also show the unchecked **calls/texts** box. Neither
