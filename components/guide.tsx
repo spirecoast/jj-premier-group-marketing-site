@@ -16,9 +16,16 @@ import { cn } from "@/lib/utils";
  * layout for both pages, so the two guides read as a pair.
  */
 
+/**
+ * One paragraph of a step, in the owners' words: plain; opened by a few words
+ * in bold ("Important:"); or a line they asked to stand out, set as a lead.
+ */
+export type StepParagraph = string | { bold: string; text: string } | { lead: string };
+
 export type GuideStep = {
   title: string;
-  body: string;
+  /** The step's paragraphs, in order. */
+  body: StepParagraph[];
   image: ImageRef;
 };
 
@@ -114,7 +121,7 @@ export function GuideSteps({
                     Step {i + 1}
                   </p>
                   <h2 className="t-h1 text-balance text-navy">{s.title}</h2>
-                  <p className="t-body text-body lg:text-[18px] lg:leading-[1.75]">{s.body}</p>
+                  <StepWords body={s.body} />
                   <StepToolLink id={tools[i + 1]} />
                   {checklist ? <StepCheck guide={checklist} step={i + 1} title={s.title} /> : null}
                 </div>
@@ -125,6 +132,31 @@ export function GuideSteps({
       </ol>
       {checklist ? <ChecklistSummary guide={checklist} titles={steps.map((s) => s.title)} /> : null}
     </section>
+  );
+}
+
+const STEP_BODY = "t-body text-body lg:text-[18px] lg:leading-[1.75]";
+
+/** A step's paragraphs. A bold opening is navy in the body face's medium weight; a lead line is the site's t-lead. */
+function StepWords({ body }: { body: StepParagraph[] }) {
+  return (
+    <div className="flex flex-col gap-4">
+      {body.map((p, i) =>
+        typeof p === "string" ? (
+          <p key={i} className={STEP_BODY}>
+            {p}
+          </p>
+        ) : "lead" in p ? (
+          <p key={i} className="t-lead text-navy">
+            {p.lead}
+          </p>
+        ) : (
+          <p key={i} className={STEP_BODY}>
+            <strong className="font-medium text-navy">{p.bold}</strong> {p.text}
+          </p>
+        ),
+      )}
+    </div>
   );
 }
 
