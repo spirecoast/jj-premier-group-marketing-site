@@ -459,7 +459,7 @@ describe("fallback keyword search", () => {
   test("finds the flood guide for flood insurance, with the words marked", () => {
     const hits = keywordSearch(chunks, "flood insurance");
     assert.ok(hits.length > 0);
-    assert.ok(hits.slice(0, 3).some((h) => h.url.startsWith("/guides/flood-zones") || h.url.startsWith("/guides/homeowners-wind-and-flood")), hits.map((h) => h.url).join(", "));
+    assert.ok(hits.slice(0, 3).some((h) => h.url.startsWith("/guides/flood-zones")), hits.map((h) => h.url).join(", "));
     assert.ok(hits[0]!.snippet.includes(`${S}`));
     assert.ok(hits.length <= 10);
   });
