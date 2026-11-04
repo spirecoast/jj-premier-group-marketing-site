@@ -7,8 +7,11 @@ import { getAllRecords } from "@/lib/neighborhoods/data";
 import { FAQS, FAQ_SECTION, HERO } from "@/lib/relocate/copy";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
 import { loadIssueModel } from "@/lib/tide/load";
+import { encoreLetterWeeks, loadEncoreLetter } from "@/lib/newsletters/encore";
+import { encoreLetterPath } from "@/lib/newsletters/weeks";
+import { dayLong } from "@/lib/issues/render";
 import { PAGE_SUMMARIES } from "./copy";
-import { assertUniqueIds, eventChunk, guideChunks, hubChunks, pageChunks, placeChunks, postChunks, relocateChunks, tideChunks, venueChunk } from "./sources";
+import { assertUniqueIds, encoreLetterChunks, eventChunk, guideChunks, hubChunks, pageChunks, placeChunks, postChunks, relocateChunks, tideChunks, venueChunk } from "./sources";
 import type { Chunk } from "./types";
 
 /**
@@ -28,7 +31,7 @@ export async function loadAllChunks(): Promise<{ chunks: Chunk[]; errors: string
     }
   };
 
-  const [guides, places, posts, tide, encore, pages] = await Promise.all([
+  const [guides, places, posts, tide, encore, letters, pages] = await Promise.all([
     safe("guides", () => GUIDES.flatMap(guideChunks)),
     safe("neighborhoods", async () => {
       const [records, editorial] = await Promise.all([getAllRecords(), getNeighborhoods()]);
@@ -50,6 +53,18 @@ export async function loadAllChunks(): Promise<{ chunks: Chunk[]; errors: string
       const [events, venues] = await Promise.all([getUpcomingEvents(), getVenues()]);
       return [...events.map(eventChunk), ...venues.map((v) => venueChunk(v, events))];
     }),
+    safe("encore-letters", async () => {
+      const { listed } = await encoreLetterWeeks();
+      const letters = await Promise.all(listed.map((m) => loadEncoreLetter(m)));
+      return letters.flatMap(({ issue, card }) =>
+        encoreLetterChunks({
+          url: encoreLetterPath(card.monday),
+          title: issue.title,
+          intro: issue.intro,
+          picks: issue.picks.map((o) => ({ title: o.e.t, day: dayLong(o.day), venue: o.e.vn, market: o.e.m })),
+        }),
+      );
+    }),
     safe("pages", () => [
       ...pageChunks(PAGE_SUMMARIES),
       ...Object.values(HUBS).flatMap(hubChunks),
@@ -57,7 +72,7 @@ export async function loadAllChunks(): Promise<{ chunks: Chunk[]; errors: string
     ]),
   ]);
 
-  const chunks = [...pages, ...guides, ...places, ...posts, ...tide, ...encore];
+  const chunks = [...pages, ...guides, ...places, ...posts, ...tide, ...encore, ...letters];
   assertUniqueIds(chunks);
   return { chunks, errors };
 }
