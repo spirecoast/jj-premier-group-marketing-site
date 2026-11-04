@@ -529,10 +529,7 @@ export function NetProceedsCalculator() {
 
         <fieldset className="flex flex-col gap-6">
           <Legend number="03">Commission, as negotiated</Legend>
-          <p className="t-small max-w-[460px] text-graphite-500">
-            Both are set in writing before the house goes live, and neither has a suggested number here. What you
-            offer a buyer&rsquo;s broker, if anything, is a separate line and a separate decision.
-          </p>
+          <p className="t-small max-w-[460px] text-graphite-500">Both are set in writing before the house goes live, and neither has a suggested number here.</p>
           <div className="grid gap-6 sm:grid-cols-2">
             <Field id={id("listingPct")} label="Listing commission, % of price">
               <input id={id("listingPct")} type="text" inputMode="decimal" value={f.listingPct} onChange={(e) => set("listingPct", e.target.value)} placeholder="as negotiated" className="field-input tabular-nums" />

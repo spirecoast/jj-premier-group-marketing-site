@@ -196,12 +196,11 @@ describe("the narrative check", () => {
       ["“812” isn’t a figure this issue computes", "“23%” isn’t a figure this issue computes", "“$450,000” isn’t a figure this issue computes"],
     );
   });
-  it("checks every field: the cover, the markets, their moves, and buying and selling", () => {
+  it("checks every field: the cover, the markets, and buying and selling", () => {
     const good = entry({
       headline: "There were 1,620 home sales in July.",
       dek: "That's 7% more than a typical month.",
-      markets: { sarasota: ["Sarasota had 586 sales, up from 540 in July 2025.", "A second paragraph."] },
-      marketMoves: { bradenton: "Look under $400K, where 300 of the homes sold." },
+      markets: { sarasota: ["Sarasota had 586 sales, up from 540 in July 2025.", "A second paragraph."], bradenton: ["Look under $400K, where 300 of the homes sold."] },
       buying: [{ move: "Compare by the square foot.", why: "Single-family homes had a median of $700,000.", link: { href: "/neighborhoods?market=sarasota", label: "Sarasota on Atlas" } }],
       selling: [{ move: "Price from the $1.5M line.", why: "Only 5% sold for $1.5M and up." }],
     });
@@ -209,14 +208,13 @@ describe("the narrative check", () => {
     const bad = entry({
       headline: "Sales rose 77% in July.",
       dek: "The median hit $123,456.",
-      markets: { sarasota: ["Sarasota had 4,321 sales."] },
-      marketMoves: { bradenton: "Look under $1.7M." },
+      markets: { sarasota: ["Sarasota had 4,321 sales."], bradenton: ["Look under $1.7M."] },
       buying: [{ move: "Offer 83% of the price.", why: "It works.", link: { href: "/buy", label: "8,888 homes" } }],
       selling: [{ move: "Sell now.", why: "There were 6,543 sales." }],
     });
     assert.deepEqual(
       checkNarrative(bad, MONTH).map((p) => p.field),
-      ["headline", "dek", "markets.sarasota[0]", "marketMoves.bradenton", "buying[0].move", "buying[0].link.label", "selling[0].why"],
+      ["headline", "dek", "markets.sarasota[0]", "markets.bradenton[0]", "buying[0].move", "buying[0].link.label", "selling[0].why"],
     );
   });
   it("fails a figure spelled out in words, which the check can't see", () => {
@@ -268,8 +266,7 @@ describe("the narrative's tokens", () => {
       coverTitle: "{all.sales} sales",
       dek: "{all.vsTypicalPct} more.",
       opening: ["Bradenton had {bradenton.sales}.", "Plain."],
-      markets: { sarasota: ["{sarasota.medianPrice} median."] },
-      marketMoves: { bradenton: "Under $400K, where {bradenton.band.under400k} sold." },
+      markets: { sarasota: ["{sarasota.medianPrice} median."], bradenton: ["Under $400K, where {bradenton.band.under400k} sold."] },
       buying: [{ move: "Compare {all.month}.", why: "{missing.one} here.", link: { href: "/sell/sold", label: "Sales in {all.monthYear}" } }],
       watch: ["{bradenton.typical} typical."],
       commentary: { joelyn: ["Joelyn wrote {all.sales} herself."] },
@@ -279,7 +276,7 @@ describe("the narrative's tokens", () => {
     assert.equal(out.dek, "7% more.");
     assert.deepEqual(out.opening, ["Bradenton had 793.", "Plain."]);
     assert.deepEqual(out.markets?.sarasota, ["$530,000 median."]);
-    assert.equal(out.marketMoves?.bradenton, "Under $400K, where 50% sold.");
+    assert.deepEqual(out.markets?.bradenton, ["Under $400K, where 50% sold."]);
     assert.equal(out.buying?.[0]?.move, "Compare July.");
     assert.equal(out.buying?.[0]?.link?.label, "Sales in July 2026");
     assert.deepEqual(out.watch, ["706 typical."]);
@@ -419,8 +416,6 @@ describe("the narratives in lib/tide/issues.ts", () => {
       for (const k of TIDE_MARKET_KEYS) {
         const ps = n.markets[k];
         if (ps) assert.ok(ps.length >= 2 && ps.length <= 3, `${e.issue} markets.${k}: ${ps.length} paragraphs`);
-        const mv: string | undefined = n.marketMoves[k];
-        if (mv) assert.equal(count([mv]), 1, `${e.issue} marketMoves.${k}: one sentence`);
       }
       for (const f of ["buying", "selling"] as const) {
         if (!n[f].length) continue;

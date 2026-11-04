@@ -469,6 +469,6 @@ export function summaryText(sheet: Sheet): string {
   out.push(`= Estimated net  ${formatUsd(sheet.net)}`);
   for (const n of sheet.notes) out.push(`  ${n}`);
   out.push("");
-  out.push(`This is an estimate, not a closing statement. The title company's figures govern; commissions are negotiated. Sources checked ${CHECKED} at jjpremiergroup.com/sell/net-proceeds.`);
+  out.push(`This is an estimate, not a closing statement. The title company's figures govern; commissions are negotiated. Rates checked ${CHECKED}.`);
   return out.join("\n");
 }

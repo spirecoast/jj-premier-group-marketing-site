@@ -44,9 +44,6 @@ export const TIDE_WEB_COPY = {
 
   storyEyebrow: "Market overview",
   aboutEyebrow: "About this issue",
-  contentsFigure: "All three",
-  contentsMoves: "What to do",
-  contentsCharts: "Twelve months",
 
   combinedEyebrow: "{data} · All three markets",
   combinedMore: "home sales across the three markets in {month}, {pct}% more than a typical month",
@@ -79,7 +76,6 @@ export const TIDE_WEB_COPY = {
   mixMedian: "median {price}",
   mixShare: "{share}%",
   streetsLine: "Busiest streets",
-  marketMoveLabel: "One move in {market}",
   atlasLink: "{market} neighborhoods on Atlas",
 
   movesEyebrow: "{data} · Three moves each",

@@ -202,10 +202,4 @@
   [data-keep-sheet="encore-planner"] .plan-block {
     break-inside: avoid;
   }
-
-  /* ---- A Tide issue: the cover keeps its photograph; the web-only
-     contents rail goes. */
-  [data-keep-sheet="tide-issue"] .tide-contents {
-    display: none !important;
-  }
 }

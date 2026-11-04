@@ -250,11 +250,9 @@ export function MatchResults({ answers, onAnswers, matches, by, asOf, bars, more
       <section className="grid gap-10 border-t border-hairline pt-12 lg:grid-cols-[1fr_1.4fr] lg:gap-20 print:hidden" aria-labelledby="match-ask-title">
         <div className="flex flex-col gap-3.5">
           <h2 id="match-ask-title" className="t-h1 text-navy">
-            Want us to walk you through three of these?
+            Want to see the areas with your own eyes?
           </h2>
-          <p className="t-body max-w-[440px] text-body">
-            Your answers are already in the message. Tell us your timing, and one of us will pick three neighborhoods from this list and tell you why each one fits.
-          </p>
+          <p className="t-body max-w-[440px] text-body">Tell us your timing and we will explore the neighborhoods with you.</p>
           {sentMessage !== message ? (
             <button type="button" onClick={() => setSentMessage(message)} className="link-rule self-start">
               Use my latest answers
