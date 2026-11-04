@@ -11,6 +11,7 @@ import { Photo } from "@/components/photo";
 import { RichText } from "@/components/rich-text";
 import { SectionHeading } from "@/components/section-heading";
 import { StatBand } from "@/components/stat-band";
+import { FloodZoneNote } from "@/components/zone-note";
 import {
   getListing,
   getListingSlugs,
@@ -354,6 +355,7 @@ export default async function ListingPage({ params }: { params: Params }) {
               The numbers
             </h2>
             <StatBand stats={stats} className="border-t border-rule pt-6" />
+            {listing.floodZone ? <FloodZoneNote code={listing.floodZone} named /> : null}
           </section>
 
           <section aria-labelledby="map-title" className="flex flex-col gap-5">
