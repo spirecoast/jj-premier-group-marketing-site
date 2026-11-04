@@ -203,9 +203,9 @@ export const KNOWS_ABOUT = [
   "Hurricane evacuation zones",
   "Community development districts (CDDs)",
   "Florida homestead exemption and Save Our Homes portability",
-  "Condominium and HOA documents under Florida's 2022 condo law",
+  "HOA documents in master-planned communities",
+  "Home inspections on the Gulf Coast",
   "Lakewood Ranch villages",
-  "Barrier island building rules",
   "Selling a Florida home from out of state",
 ];
 

@@ -47,6 +47,10 @@ const SARASOTA_CITY_MAPS = "https://www.sarasotafl.gov/Department-Pages/Developm
 const SARASOTA_CITY_EC = "https://www.sarasotafl.gov/Department-Pages/Development-Services/Flood-Information/Elevation-Certificates-and-Forms";
 const SARASOTA_CITY_FLOOD = "https://www.sarasotafl.gov/Department-Pages/Development-Services/Flood-Information";
 const CITIZENS_FLOOD = "https://www.citizensfla.com/flood";
+const CITIZENS_DEPOP_PL = "https://www.citizensfla.com/depoppl";
+const CFO_DEDUCTIBLE = "https://www.myfloridacfo.com/division/consumers/consumerprotections/floridashurricanedeductible";
+const FS_627_701 = "https://www.flsenate.gov/Laws/Statutes/2026/627.701";
+const FS_627_715 = "https://www.flsenate.gov/Laws/Statutes/2026/627.715";
 
 /* ---- Sources, named once --------------------------------------------------- */
 
@@ -81,6 +85,11 @@ const S = {
   cityFlood: src("City of Sarasota, Flood information", SARASOTA_CITY_FLOOD),
   citizens: src("Citizens Property Insurance Corporation, Flood insurance requirement", CITIZENS_FLOOD, "checked October 2, 2026"),
   countyMaps: src("Sarasota County, Flood maps (scgov.net)", undefined, "returned an access error when we checked, so the guide points to the city’s page, which links the county’s map"),
+  // From the wind and flood insurance guide, which this one replaced in November 2026; checked there on October 2, 2026.
+  privateFlood: src("Florida Statutes 627.715 (2026), Flood insurance (private flood policies)", FS_627_715, "checked October 2, 2026"),
+  deductibleLaw: src("Florida Statutes 627.701(3) and (5) (2026), Deductibles; hurricane deductibles", FS_627_701, "checked October 2, 2026"),
+  cfoDeductible: src("Florida Chief Financial Officer, Florida’s hurricane deductible", CFO_DEDUCTIBLE, "checked October 2, 2026"),
+  citizensDepop: src("Citizens Property Insurance Corporation, Personal lines depopulation", CITIZENS_DEPOP_PL, "checked October 2, 2026"),
 };
 
 /* ---- Block helpers --------------------------------------------------------- */
@@ -103,7 +112,7 @@ export const FLOOD_GUIDE: Guide = {
   cover: img("guides/flood-zones-and-elevation-certificates-on-the-suncoast", "Waterfront homes on seawalls just above the water at dusk", "50% 58%"),
   author: { name: "Jessica Garza", slug: "jessica-garza" },
   publishedAt: "2026-10-01",
-  updatedAt: "2026-10-02",
+  updatedAt: "2026-11-04",
   checked: CHECKED,
 
   sections: [
@@ -220,7 +229,7 @@ export const FLOOD_GUIDE: Guide = {
               },
             ],
           },
-          note: "Some maps show other zones too, like A, AH or AO. If the house is in one of those, ask us what it means. Shaded X is still X, just a little closer to the big flood.",
+          note: "Some maps show other zones too. A, AH and AO are high risk like AE, and the same lender rule applies. Shaded X is still X, just a little closer to the big flood.",
           source: {
             label: "FEMA, Flood zones (glossary); FEMA, Features of flood insurance rate maps in coastal areas; FEMA, Flood insurance; FloodSmart for agents, Flood insurance 101; Citizens Property Insurance, Flood insurance requirement; Florida Building Code flood provisions, 6th and 8th editions",
             href: FEMA_COASTAL,
@@ -364,6 +373,10 @@ export const FLOOD_GUIDE: Guide = {
           "You can get one from the National Flood Insurance Program, which FEMA runs, or from a private insurance company.",
         ),
         p(
+          "Florida law sets out the kinds of private flood policy a company can sell. A private policy can say whether it meets your lender’s rule.",
+          "So get a quote from each.",
+        ),
+        p(
           "FEMA changed how it prices its flood policies. It no longer uses the flood zone to set the price.",
           "Instead, it looks at the house and its land. How often does it flood there, and from what? How high does the house sit? How close is it to water? What would it cost to rebuild?",
         ),
@@ -398,8 +411,17 @@ export const FLOOD_GUIDE: Guide = {
           },
           source: { label: "FEMA, NFIP’s pricing approach (Risk Rating 2.0); FEMA, Flood insurance; Citizens Property Insurance, Flood insurance requirement", href: FEMA_RR2 },
         },
+        sub("Two things about the homeowners policy"),
+        p(
+          "Your homeowners policy covers wind. For hurricane damage, it has a second, bigger deductible. That’s the part of a claim you pay first.",
+          "It’s a percent of what the house is insured for, often 2, 5 or 10 percent. You pay it once a calendar year, however many storms hit.",
+        ),
+        p(
+          "If the house has a Citizens policy, expect a letter. A private company may offer to take it for no more than 20 percent above Citizens’ price.",
+          "Then the policy has to move.",
+        ),
       ],
-      sources: [S.cfo, S.statute, S.rr2, S.rr2Faq, S.uec, S.cityFlood, S.crs, S.femaFlood, S.citizens],
+      sources: [S.cfo, S.statute, S.rr2, S.rr2Faq, S.uec, S.cityFlood, S.crs, S.femaFlood, S.citizens, S.privateFlood, S.deductibleLaw, S.cfoDeductible, S.citizensDepop],
     },
 
     /* ---- 06 ---------------------------------------------------------------- */
@@ -505,7 +527,7 @@ export const FLOOD_GUIDE: Guide = {
               { text: "Compare the floor with the flood height", detail: "Is the lowest floor above or below the big flood? By how much?" },
               { text: "If the seller says it’s out of the flood zone, ask for FEMA’s letter", detail: "Ask for a LOMA or LOMR-F. Only that letter changes what your lender has to require." },
               { text: "Read the seller’s flood form", detail: "Read it next to the elevation certificate." },
-              { text: "Get a flood insurance quote", detail: "Give the agent the elevation certificate. It can lower the price." },
+              { text: "Get flood insurance quotes", detail: "One from FEMA’s program and one private. Give each the elevation certificate. It can lower the price." },
               { text: "Plan when the policy will start", detail: "Buy it with your mortgage, applied for and paid by closing. Paying cash? Buy it at least 30 days before closing." },
             ],
           },

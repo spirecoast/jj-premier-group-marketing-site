@@ -144,7 +144,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
           "Sarasota County publishes storm evacuation zones by address. Every researched place on the Atlas carries the zone we checked at one address point, with the county’s lookup linked; zones follow property lines, so confirm the exact address.",
       },
     ],
-    guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "homeowners-wind-and-flood-insurance-on-this-coast", "barrier-island-rules-island-by-island"],
+    guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "inspections-on-the-suncoast-what-a-good-one-covers", "getting-here-and-getting-around"],
     sources: [
       { label: "The buyer's guide · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
@@ -206,7 +206,7 @@ export const HUBS: Record<MarketSlug, HubCopy> = {
           "Ask about the building’s insurance and reserves, which matter as much as the flood zone, plus the milestone inspection report Florida requires for condominium and cooperative buildings three stories or higher and, for a condominium, the structural integrity reserve study. The zone is AE along the Manatee River and X south of 6th Avenue.",
       },
     ],
-    guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "barrier-island-rules-island-by-island", "condo-and-hoa-documents-after-the-2022-law"],
+    guides: ["flood-zones-and-elevation-certificates-on-the-suncoast", "hurricane-season-evacuation-zones-and-what-changed-after-helene-and-milton", "inspections-on-the-suncoast-what-a-good-one-covers", "getting-here-and-getting-around"],
     sources: [
       { label: "The buyer's guide · closing costs and timing", href: "/buy", supports: "title custom by county, flood zones, hurricane season" },
       { label: "Selling with us · what it costs and when to list", href: "/sell", supports: "documentary stamp tax, title custom, commission, timing, prep" },
