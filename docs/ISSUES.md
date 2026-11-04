@@ -234,8 +234,8 @@ the Fair Housing checker.
   preheader and the first lines; then the story (`opening`) in place of the plain intro; "If you're
   buying" and "If you're selling" as three numbered moves each (the move, why, and its link, tagged
   like every other link), or the first format's single paragraph, with the line on what county
-  records can't show; each market's written paragraphs in place of its computed one, and its one
-  move under them, set off with an amber rule; and "What to watch next month". A field that isn't
+  records can't show; each market's written paragraphs in place of its computed one; and "What to
+  watch next month". A field that isn't
   written falls back to the computed line or is left out. The loader (`lib/issues/load.ts`) takes
   the entry pinned to the month the email covers, or the unpinned entry for this month's issue.
   **Until the story (`opening`) is written**, the draft opens with a dashed box, "Facts to write
@@ -311,8 +311,8 @@ The sections, always in this order:
    line that says how far each county's record reached when the figures were computed ("Manatee
    records through Sep 24, 2026 · Sarasota through Oct 20, 2026", from the manifest's `counties[c].to`),
    and the byline with the reading time, computed from the words on the page (200 a minute, plus a
-   minute for every three figures). From 1024px up the issue's contents run along the foot as anchor
-   links.
+   minute for every three figures). The owners asked for the numbered contents boxes along the
+   cover's foot to come off (November 2026), so the cover ends on the byline.
    The cover rotates through three photos by issue month (`lib/tide/cover.ts`).
 2. **Market overview.** `opening`, three to five paragraphs at about 66 characters a line, the first
    with a drop cap, then the line on why this month ("The county posts sales a few weeks late…").
@@ -332,9 +332,10 @@ The sections, always in this order:
    typical month and its year-before figure; the market's `markets[slug]` paragraphs, or the
    computed paragraph the email uses until they're written; the twelve-month sales sparkline with
    the typical month dashed; the busiest streets as one line; the price bands as a stacked bar
-   (`components/tide/price-bands.tsx`); the kinds of home (`components/tide/home-mix.tsx`); the
-   `marketMoves[slug]` line, set apart with an amber rule (only once written); and links to the hub
-   and to Atlas filtered to that market (`/neighborhoods?market=<slug>`).
+   (`components/tide/price-bands.tsx`); the kinds of home (`components/tide/home-mix.tsx`); and
+   links to the hub and to Atlas filtered to that market (`/neighborhoods?market=<slug>`). There is
+   no per-market "One move in …" line: the owners asked for it to come off every issue in November
+   2026 (the removed lines are kept in `docs/NEWSLETTER-IDEAS.md`).
 5. **If you're buying, if you're selling** (only once written): three numbered moves each (the move
    in the display face, why in body text, one quiet link), or the first format's paragraph, then the
    line "These are closed sales from county records. They don't show asking prices, how long a home
@@ -449,7 +450,6 @@ checked against the page.
      with one paragraph of two to four sentences.
    - `markets`: per market (`"lakewood-ranch"`, `sarasota`, `bradenton`), two or three paragraphs
      on what happened in that place this month.
-   - `marketMoves`: per market, one sentence: the one thing to do if you're buying or selling there.
    - `buying` and `selling`: three moves each, `{ move, why, link? }`. `move` is one short
      imperative sentence (14 words at most); `why` is one to three sentences with the figures behind it;
      `link` is `{ href, label }` to a page on the site: `/sell`, `/sell/home-value`,

@@ -21,7 +21,6 @@
  *   happened across the three places, in plain words;
  * - `markets`: per market, two or three paragraphs on what happened there
  *   this month;
- * - `marketMoves`: per market, one sentence, the one thing to do there;
  * - `buying`, `selling`: three moves each. `move` is one short imperative
  *   sentence (what to do), `why` one to three sentences with the figures
  *   behind it, and `link` an optional quiet link to a tool or guide on the site;
@@ -68,7 +67,6 @@ export type TideIssueEntry = {
   dek?: string;
   opening?: string[];
   markets?: Partial<Record<TideMarketKey, string[]>>;
-  marketMoves?: Partial<Record<TideMarketKey, string>>;
   buying?: TideMove[];
   selling?: TideMove[];
   /** The first format: one paragraph, read when `buying` isn't written. */
@@ -115,11 +113,6 @@ export const TIDE_ISSUES: readonly TideIssueEntry[] = [
         "The median price was {bradenton.medianPrice}, about the same as usual. A square foot sold for {bradenton.ppsf}. That’s {bradenton.ppsfVsTypicalPct} lower than in a typical month and {bradenton.ppsfVsLastYearPct} lower than a year ago.",
         "Prices are lower here than in the other two places. Here, {bradenton.band.under400k} of homes sold for under $400K. Many sales were in Parrish, on streets like {bradenton.streets.1.street} and {bradenton.streets.2.street}.",
       ],
-    },
-    marketMoves: {
-      "lakewood-ranch": "If you’re selling here, set your price from what sold near you in the last few months.",
-      sarasota: "If you’re buying here and a house is out of reach, look at condos, villas and townhomes.",
-      bradenton: "If you’re buying here, compare homes by the price per square foot, which is lower than a year ago.",
     },
     buying: [
       {
@@ -191,11 +184,6 @@ export const TIDE_ISSUES: readonly TideIssueEntry[] = [
         "A square foot sold for {bradenton.ppsf}, about the same as a typical month. That’s {bradenton.ppsfVsLastYearPct} less than a year earlier. Many sales were in Parrish, on streets like {bradenton.streets.1.street} and {bradenton.streets.2.street}.",
       ],
     },
-    marketMoves: {
-      "lakewood-ranch": "If you’re selling a resale home here, compare your price with the new homes nearby.",
-      sarasota: "If you’re buying here, compare prices with last year, because a square foot costs more now.",
-      bradenton: "If you’re buying here, start your search under $400K, where half of July’s homes sold.",
-    },
     buying: [
       {
         move: "Use the price per square foot to compare homes.",
@@ -245,7 +233,7 @@ export function getIssueEntry(issue: string): TideIssueEntry | undefined {
 export const isIssueMonth = (s: string) => /^\d{4}-(0[1-9]|1[0-2])$/.test(s);
 
 /** The narrative fields, in the order they appear. */
-export const NARRATIVE_FIELDS = ["coverTitle", "coverKicker", "headline", "dek", "opening", "markets", "marketMoves", "buying", "selling", "buyers", "sellers", "watch"] as const;
+export const NARRATIVE_FIELDS = ["coverTitle", "coverKicker", "headline", "dek", "opening", "markets", "buying", "selling", "buyers", "sellers", "watch"] as const;
 export type NarrativeField = (typeof NARRATIVE_FIELDS)[number];
 
 /**
@@ -265,7 +253,6 @@ export function narrativeTexts(e: Partial<Pick<TideIssueEntry, NarrativeField>>)
   (e.opening ?? []).forEach((t, i) => add(`opening[${i}]`, t));
   for (const k of TIDE_MARKET_KEYS) {
     (e.markets?.[k] ?? []).forEach((t, i) => add(`markets.${k}[${i}]`, t));
-    add(`marketMoves.${k}`, e.marketMoves?.[k]);
   }
   for (const f of ["buying", "selling"] as const) {
     (e[f] ?? []).forEach((m, i) => {

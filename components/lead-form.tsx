@@ -55,7 +55,7 @@ const REFERRED_FIELDS: readonly LeadField[] = ["referredName", "referredLastName
 
 const SUCCESS: Record<LeadFormKind, { title: string; body: string }> = {
   contact: { title: "Got it.", body: "One of us will call or write back. Two questions first: when do you need to be in, and is there a house to sell?" },
-  buy: { title: "Got it.", body: "We’ll be in touch with the two questions that change everything else: your timing, and whether there’s a house to sell first." },
+  buy: { title: "Got it.", body: "We will be in touch shortly and we look forward to giving you more information." },
   sell: { title: "Got it.", body: "We’ll come back with a plan and a number, and the reason for the number." },
   listing: { title: "Got it.", body: "We’ll confirm the showing with you. Tell us if the timing changes." },
   valuation: { title: "Got it.", body: "A real comp-based answer from Joelyn or Jessica within a day. No algorithm guess." },
