@@ -7,6 +7,8 @@ import { FOLDED_POSTS, isRebuiltGuide } from "@/lib/guides/slugs";
 import { DATASET_VERSION, getAllRecords } from "@/lib/neighborhoods/data";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { getSalesManifest } from "@/lib/sales";
+import { encoreLetterWeeks } from "@/lib/newsletters/encore";
+import { encoreLetterPath } from "@/lib/newsletters/weeks";
 import { absoluteUrl } from "@/lib/seo";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
 
@@ -40,7 +42,7 @@ export function latest(dates: (string | null | undefined)[]): string | undefined
 }
 
 async function pages(): Promise<Entry[]> {
-  const [listings, posts, sales] = await Promise.all([getListingSlugs(), getPostSlugs(), getSalesManifest()]);
+  const [listings, posts, sales, letters] = await Promise.all([getListingSlugs(), getPostSlugs(), getSalesManifest(), encoreLetterWeeks()]);
   const salesDate = sales?.generatedAt || undefined;
   const lastIssue = TIDE_ISSUES.map((e) => `${e.issue}-01`).sort().at(-1);
   const guidesDate = latest(GUIDES.map((g) => g.updatedAt));
@@ -66,6 +68,8 @@ async function pages(): Promise<Entry[]> {
     s("/about", 0.6, "monthly"),
     s("/tide", 0.6, "monthly", latest([salesDate, lastIssue])),
     s("/guides", 0.7, "monthly", guidesDate),
+    // Both newsletters' issues: it changes when either has a new one.
+    s("/newsletters", 0.6, "weekly", latest([lastIssue, letters.listed[0]])),
     s("/contact", 0.5, "yearly"),
     // /from/* are bio and post links: noindex and left out on purpose.
     s("/reviews", 0.4, "yearly"),
@@ -97,7 +101,7 @@ async function neighborhoods(): Promise<Entry[]> {
 
 async function calendar(): Promise<Entry[]> {
   // Nothing that closes in the next day: by the time a crawler comes, it would be gone.
-  const [events, venues, snap] = await Promise.all([getSitemapEvents({ endingAfter: new Date(Date.now() + 24 * 3600_000) }), getVenues(), loadEncoreSnapshot()]);
+  const [events, venues, snap, letters] = await Promise.all([getSitemapEvents({ endingAfter: new Date(Date.now() + 24 * 3600_000) }), getVenues(), loadEncoreSnapshot(), encoreLetterWeeks()]);
   // An event the collector hasn't read carries the bundled dataset's date; a database snapshot's own
   // date is the time it was read, which says nothing about the event, so it isn't used.
   const fallback = snap.origin === "db" ? undefined : snap.generatedAt || undefined;
@@ -109,6 +113,8 @@ async function calendar(): Promise<Entry[]> {
   return [
     ...events.map((e) => entry(`/calendar/${e.slug}`, 0.6, "weekly", e.live?.checkedAt ?? fallback, [e.image?.src])),
     ...venues.map((v) => entry(`/venues/${v.slug}`, 0.5, "monthly", venueRead.get(v.slug), [v.image?.src])),
+    // Encore's Monday issues on the web, dated by their Monday.
+    ...letters.listed.map((m) => entry(encoreLetterPath(m), 0.5, "weekly", m)),
   ];
 }
 

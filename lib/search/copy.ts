@@ -199,6 +199,13 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     ],
   },
   {
+    url: "/newsletters",
+    title: "Newsletters: Tide and Encore",
+    summary: [
+      "The two newsletters on one page. Tide, the monthly market report: what homes sold for in Lakewood Ranch, Sarasota and Bradenton, from the county record. Encore, every Monday: the week's shows, concerts and openings from the arts calendar. Read the issues here, or sign up for either by email.",
+    ],
+  },
+  {
     url: "/reviews",
     title: "Reviews",
     summary: [

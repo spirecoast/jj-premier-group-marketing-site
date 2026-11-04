@@ -1,6 +1,7 @@
 import { CATEGORY } from "../encore/categories";
 import type { EncoreEvent, EncoreIndex } from "../encore/index-format";
 import { occurrences, type Occ } from "../encore/select";
+import { untimedLabel } from "../encore/when";
 import { ENCORE_COPY, fill } from "./copy";
 import {
   C,
@@ -59,8 +60,14 @@ export type EncoreIssueInput = {
 
 export type EncoreIssue = Issue & {
   kind: "encore";
+  /** "The week of November 2 to 8": the line under the wordmark. */
+  title: string;
+  /** The opening sentence, as the issue says it. */
+  intro: string;
   picks: Occ[];
   onView: EncoreEvent[];
+  /** Every exhibition open in the week; `onView` is the first MAX_ON_VIEW of them. */
+  onViewTotal: number;
   /** Dated performances on the calendar in the week. */
   performances: number;
 };
@@ -110,6 +117,17 @@ export function onViewInWeek(index: EncoreIndex, from: string, to: string): Enco
 
 const number = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
+/**
+ * A pick's time: "7:30 PM", or for a listing with no published time the
+ * calendar's own words (lib/encore/when.ts): "All day" for an exhibition, a
+ * festival or a market, "Time not listed" for a play, a concert or a
+ * screening, so nobody turns up hours early. Encore's web issue
+ * (app/(site)/calendar/letters) uses it too.
+ */
+export function pickTime(o: Pick<Occ, "time" | "e">): string {
+  return o.time ? clock(o.time) : untimedLabel(o.e.c, o.e.sc);
+}
+
 export function buildEncoreIssue(input: EncoreIssueInput): EncoreIssue {
   const { index, today } = input;
   const { from, to } = encoreWeek(today);
@@ -138,7 +156,7 @@ export function buildEncoreIssue(input: EncoreIssueInput): EncoreIssue {
     warnings.push(`No picks in ${missing.join(" or ")} this week: the calendar has nothing there that isn't sold out.`);
   }
 
-  const when = (o: Occ) => `${dayLong(o.day)} · ${o.time ? clock(o.time) : ENCORE_COPY.allDay}`;
+  const when = (o: Occ) => `${dayLong(o.day)} · ${pickTime(o)}`;
   const pickHtml = (o: Occ) => {
     const cat = CATEGORY[o.e.c];
     const meta = [when(o), o.e.vn].map(esc).join(" &middot; ");
@@ -201,7 +219,7 @@ ${extra ? `<p style="margin:0;font-family:${SANS};font-size:13px;line-height:1.4
             "",
             ...picks.flatMap((o) => [
               // The title line wraps under itself, indented like the lines that follow it.
-              wrapLine(`${dayShort(o.day)} ${dateShort(o.day)}, ${o.time ? clock(o.time) : ENCORE_COPY.allDay} · ${o.e.t}`, 72, "  "),
+              wrapLine(`${dayShort(o.day)} ${dateShort(o.day)}, ${pickTime(o)} · ${o.e.t}`, 72, "  "),
               `  ${[o.e.vn, MARKET_NAMES[o.e.m], CATEGORY[o.e.c].label].join(" · ")}`,
               ...(o.e.sum ? [`  ${o.e.sum}`] : []),
               `  ${eventUrl(o.e.s)}`,
@@ -239,8 +257,11 @@ ${extra ? `<p style="margin:0;font-family:${SANS};font-size:13px;line-height:1.4
     text,
     needsEdit: false,
     warnings,
+    title,
+    intro,
     picks,
     onView,
+    onViewTotal: allOnView.length,
     performances,
   };
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { CtaBand } from "@/components/cta-band";
 import { GuideCard } from "@/components/guides/guide-card";
 import { LetterForm } from "@/components/letter-form";
@@ -28,6 +29,13 @@ export default async function GuidesIndex() {
             Guides for life on the Gulf Coast
           </h1>
           <p className="t-lead max-w-[600px] text-body">It’s a beautiful place to live. A few things work differently here, and each guide walks you through one of them.</p>
+          <p className="t-small text-body-muted">
+            Tide and Encore, the two newsletters, have{" "}
+            <Link href="/newsletters" className="text-navy underline underline-offset-4 transition-colors hover:text-harbor-700">
+              a page of their own
+            </Link>
+            .
+          </p>
         </div>
         <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {GUIDES.map((g, i) => (

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { checkFairHousing } from "../fair-housing";
 import { ENCORE_COPY, FOOTER_COPY, issueStrings } from "./copy";
-import { MAX_PICKS, buildEncoreIssue, encoreTeamSubject, encoreWeek, onViewInWeek, pickWeek } from "./encore-weekly";
+import { MAX_PICKS, buildEncoreIssue, encoreTeamSubject, encoreWeek, onViewInWeek, pickTime, pickWeek } from "./encore-weekly";
 import { FOOTER, FOOTER_NO_STREET, LICENSE, SITE, SUPERLATIVES, encoreFixture } from "./fixtures";
 import { wrapLine } from "./render";
 
@@ -113,6 +113,14 @@ describe("buildEncoreIssue", () => {
     const thin = buildEncoreIssue({ index: encoreFixture(), today: "2026-10-01", footer: FOOTER_NO_STREET });
     assert.ok(thin.warnings.some((w) => w.includes("CAN-SPAM")));
     assert.ok(thin.text.includes("\nLakewood Ranch, FL\n"));
+  });
+  it("says a pick's time as the calendar does: never \"All day\" for a screening with no published time", () => {
+    const e = { s: "x", t: "X", v: "v", vn: "V", m: "sarasota" as const };
+    assert.equal(pickTime({ time: "19:30", e: { ...e, c: "film" } }), "7:30 PM");
+    assert.equal(pickTime({ time: "", e: { ...e, c: "film" } }), "Time not listed");
+    assert.equal(pickTime({ time: "", e: { ...e, c: "music" } }), "Time not listed");
+    assert.equal(pickTime({ time: "", e: { ...e, c: "market" } }), "All day");
+    assert.equal(pickTime({ time: "", e: { ...e, c: "music", sc: "festival" } }), "All day");
   });
   it("leaves no token unfilled", () => {
     assert.ok(!/\{\w+\}/.test(issue.html));
