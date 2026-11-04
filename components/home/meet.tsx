@@ -5,8 +5,8 @@ import type { ImageRef } from "@/lib/content/types";
 import { site } from "@/lib/site";
 
 /**
- * Meet Joelyn and Jessica, directly under the hero. The portrait, the paragraph the team wrote
- * about what they do, and two buttons. No figures and no proof slot: what
+ * Meet Joelyn and Jessica, directly under the hero. The portrait, the three paragraphs the team
+ * wrote about working together, and two buttons. No figures and no proof slot: what
  * the team does for a client is section 04.
  */
 export function Meet({ duo }: { duo: ImageRef }) {
@@ -22,16 +22,22 @@ export function Meet({ duo }: { duo: ImageRef }) {
             size="display"
             title={<span id="meet-title">Two agents. One team. Fully focused on you.</span>}
           />
+          {/* The owners' own words (November 2026). */}
           <div className="flex flex-col gap-5">
             <p className="t-lead max-w-[560px] text-body">
-              We&rsquo;re Joelyn and Jessica, a mother and daughter team with {site.brokerage}, and we help
-              people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton.
+              As a mother-daughter real estate team with {site.brokerage}, we share more than a family connection.
+              We share a genuine passion for helping people and a commitment to providing excellent service built on
+              trust and integrity.
             </p>
             <p className="t-body max-w-[560px] text-body">
-              If you&rsquo;re buying your first home, selling for the best price, or building a portfolio,
-              you get the same thing from us: local knowledge, honest guidance, and a strategy tailored to
-              your goals. Wherever your move takes you, we know the market, negotiate with purpose, and keep
-              you informed every step of the way.
+              We believe every real estate journey is personal. When you&rsquo;re finding a place to call home, moving
+              on to your next chapter, or making a smart investment, we take the time to listen, understand what matters
+              most to you, and create a plan that fits your needs.
+            </p>
+            <p className="t-body max-w-[560px] text-body">
+              With two dedicated agents by your side, you&rsquo;ll benefit from local market knowledge, personalized
+              attention, and honest guidance. We work together to provide thoughtful strategies, strong negotiation, and
+              clear communication throughout the entire process.
             </p>
           </div>
           <div className="btn-row gap-3.5">

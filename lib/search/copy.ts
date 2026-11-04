@@ -98,15 +98,15 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     url: "/about",
     title: "Meet Joelyn and Jessica",
     summary: [
-      "Joelyn Nauman and Jessica Garza are a mother and daughter team with Coldwell Banker Realty. They help people buy, sell and invest across Lakewood Ranch, Sarasota and Bradenton.",
-      "How they work: they're specific (the flood zone, the age of the roof, which end of the street), they tell you what they think, and they're both on your file, so you can call either one.",
+      "Joelyn Nauman and Jessica Garza are a mother-daughter real estate team with Coldwell Banker Realty, helping buyers, sellers and investors throughout Lakewood Ranch, Sarasota and Bradenton.",
+      "Joelyn has called Florida home for 14 years and came to real estate from customer service and administrative work. Jessica grew up in Illinois, has lived on the Gulf Coast for 14 years, came from hospitality, and helps clients with long-distance moves.",
     ],
   },
   {
     url: "/contact",
     title: "Contact",
     summary: [
-      "Call, text or write to Joelyn Nauman and Jessica Garza. Two questions first: when do you need to be in, and is there a house to sell? Put whatever you know in the box, and one of them will write or call back.",
+      "Call, text or write to Joelyn Nauman and Jessica Garza. Tell them when you're thinking about moving and whether you have a home to sell, and they'll reach out. Their office is Coldwell Banker Realty, 8334 Market St, Lakewood Ranch.",
     ],
   },
   {
@@ -209,7 +209,7 @@ export const PAGE_SUMMARIES: PageSummary[] = [
     url: "/reviews",
     title: "Reviews",
     summary: [
-      "Bought or sold with Joelyn and Jessica? Tell us how it went: a review on Google, or your own words on this site, with your permission. Nothing about you goes on the site without asking first.",
+      "If you bought or sold with Joelyn and Jessica, tell us how it went: a review on Google, or your own words on this site, with your permission.",
     ],
   },
   {
