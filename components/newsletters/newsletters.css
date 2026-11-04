@@ -1,0 +1,12 @@
+/* /newsletters and Encore's web issue (components/newsletters/*).
+   Loaded only by the routes that render them. */
+
+@layer components {
+  /* An Encore issue's cover: the family's deep ground, a little darker at the
+     foot, under a soft gold light from above, as on a stage. */
+  .encore-cover-ground {
+    background:
+      radial-gradient(95% 55% at 50% -6%, rgb(233 196 106 / 0.16) 0%, rgb(233 196 106 / 0) 100%),
+      linear-gradient(180deg, var(--color-encore-deep) 0%, color-mix(in srgb, var(--color-encore-deep) 78%, #000) 100%);
+  }
+}
