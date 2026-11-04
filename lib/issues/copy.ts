@@ -40,7 +40,6 @@ export const ENCORE_COPY = {
   onViewIntro: "Exhibitions open this week, closing soonest first.",
   onViewMore: "{more} more on view: see them all on the calendar.",
   through: "Through {date}",
-  allDay: "All day",
   presentedBy: "Presented by {presenter}",
   calendarCta: "See the whole week on the calendar",
 } as const;
