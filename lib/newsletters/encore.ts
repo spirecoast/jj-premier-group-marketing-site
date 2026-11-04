@@ -31,6 +31,7 @@ export async function sentEncoreWeeks(oldest: string): Promise<string[] | null> 
   if (!process.env.DATABASE_URL) return null;
   if (sentMemo && sentMemo.oldest === oldest && Date.now() - sentMemo.at < MEMO_MS) return sentMemo.weeks;
   let weeks: string[] | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const [{ getDb }, { issueSends }] = await Promise.all([import("@/lib/db"), import("@/lib/db/schema")]);
     const rows = await Promise.race([
@@ -38,11 +39,15 @@ export async function sentEncoreWeeks(oldest: string): Promise<string[] | null> 
         .select({ period: issueSends.period })
         .from(issueSends)
         .where(and(eq(issueSends.kind, "encore"), gte(issueSends.period, oldest), or(eq(issueSends.status, "sent"), gt(issueSends.sentCount, 0)))),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timed out after 4000ms")), 4000)),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("timed out after 4000ms")), 4000);
+      }),
     ]);
     weeks = rows.map((r) => r.period);
   } catch (err) {
     console.warn(`[newsletters] couldn't read the Encore sends, listing this week's issue: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    clearTimeout(timer);
   }
   sentMemo = { at: Date.now(), oldest, weeks };
   return weeks;
