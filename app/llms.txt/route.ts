@@ -6,6 +6,9 @@ import { TYPE_LABEL } from "@/lib/neighborhoods/format";
 import { absoluteUrl } from "@/lib/seo";
 import { productFamilies, site } from "@/lib/site";
 import { TIDE_ISSUES } from "@/lib/tide/issues";
+import { encoreLetterWeeks } from "@/lib/newsletters/encore";
+import { encoreLetterPath, rangeWithYear } from "@/lib/newsletters/weeks";
+import { addDays } from "@/lib/issues/render";
 
 export const revalidate = 86400;
 
@@ -16,7 +19,7 @@ export const revalidate = 86400;
  * drifts from them.
  */
 export async function GET() {
-  const [settings, team, records] = await Promise.all([getSiteSettings(), getTeam(), getAllRecords()]);
+  const [settings, team, records, letters] = await Promise.all([getSiteSettings(), getTeam(), getAllRecords(), encoreLetterWeeks()]);
   // Every place researched in full (the ones in the sitemap), by market, areas first, then A to Z.
   const researched = records.filter((r) => r.research === "full");
   const placeLine = (r: (typeof researched)[number]) =>
@@ -49,8 +52,14 @@ export async function GET() {
     "## Guides",
     ...GUIDES.map((g) => link(g.title, guideHref(g.slug), g.promise)),
     "",
-    "## Market reports",
+    "## Newsletters",
+    link("Newsletters", "/newsletters", "Tide, the monthly market report, and Encore, the Monday email from the arts calendar, with their issues and how to get them by email"),
+    "",
+    "### Tide",
     ...TIDE_ISSUES.map((e) => link(`Tide Market Report, ${e.issue}`, `/tide/${e.issue}`)),
+    "",
+    "### Encore",
+    ...letters.listed.map((m) => link(`Encore, the week of ${rangeWithYear(m, addDays(m, 6))}`, encoreLetterPath(m))),
     "",
     "## The team",
     link(`About ${team.map((m) => m.name).join(" and ")}`, "/about"),
