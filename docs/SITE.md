@@ -255,7 +255,14 @@ server-side PDF would need a headless browser on Vercel. The guides' PDFs stay a
 ## The buyer's and seller's guides as a checklist
 
 `/buy` and `/sell` keep their long editorial form (`components/guide.tsx`); the steps' words are
-the owners' and nothing here changes them. Under each step's words sit two things:
+the owners' and nothing here changes them. Since November 2026 they are Joelyn and Jessica's own
+rewrite, word for word apart from typos and the copy gate (ten buying steps, eight selling). A step
+is its title and its paragraphs (`StepParagraph`): plain, opened by a few words in bold
+(`{ bold, text }`: "Important:", "Timing and presence are key."), or a line they asked to set in
+bold, shown as a navy `t-lead` (`{ lead }`). The steps are written once, in each page's `STEPS`;
+`GUIDE_STEPS` in `lib/room/model.ts` repeats the titles for the client rooms (its test holds them
+to the pages), and `lib/search/copy.ts` summarizes them for search. Under each step's words sit
+two things:
 
 - **The tool for that step**, where one does its work (`tools` on `GuideSteps`, by product id from
   `lib/site.ts`, named with the product's own label and short line). Buy: 1 Atlas Match, 2 the
