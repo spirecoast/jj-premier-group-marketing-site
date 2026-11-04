@@ -70,7 +70,7 @@ test("formatDay reads the calendar day, adding the year only when it differs", (
 });
 
 test("checklistIcs writes one all-day event per dated step not yet done", () => {
-  const titles = ["Make your wish list", "Work out your budget", "Get prequalified, with a comma"];
+  const titles = ["Create your home wish list", "Establish your budget", "Get prequalified, with a comma"];
   const ics = checklistIcs({
     guide: "buy",
     list: { 1: { done: "2026-10-20", due: "2026-10-25" }, 3: { due: "2026-11-30" } },

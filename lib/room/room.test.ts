@@ -23,7 +23,7 @@ describe("client rooms", () => {
 
   it("reads a step back and refuses one the guide doesn't have", () => {
     assert.deepEqual(parseStep("buy:4"), { guide: "buy", n: 4 });
-    assert.equal(stepTitle(parseStep("buy:4")), "Choose your agent");
+    assert.equal(stepTitle(parseStep("buy:4")), "Choose the right real estate agent");
     assert.equal(parseStep("sell:9"), null);
     assert.equal(parseStep("buy:0"), null);
     assert.equal(parseStep("rent:1"), null);
