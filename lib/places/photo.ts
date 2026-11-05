@@ -86,8 +86,9 @@ export function grantPhotos<T extends { photo?: PlacePhoto }>(places: T[], room:
   if (!wanted || room >= wanted) return places;
   return places.map((p) => {
     if (!p.photo) return p;
-    const { photo: _photo, ...rest } = p;
-    return rest as T;
+    const rest = { ...p };
+    delete rest.photo;
+    return rest;
   });
 }
 

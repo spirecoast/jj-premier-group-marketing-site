@@ -696,21 +696,44 @@
   .encore-agenda-save {
     flex: none;
   }
-  /* Nearby on a Planner pick: the pin and its word, so dinner, drinks and hotels are easy to find. */
+  /* Nearby on a Planner pick: the pin and what it opens, "Dinner, drinks and
+     hotels nearby". From 1280px it sits in the row beside Save. Below that it
+     takes a line of its own under the pick, so the title keeps the row's
+     width: a break (the row's ::after) pushes it past Save, and the category
+     rule runs down both lines. A phone says it in fewer words. */
   .encore-near {
+    flex: none;
     min-height: 2.75rem;
   }
   .encore-near.is-open {
     border-color: var(--color-navy);
     background: var(--color-linen-100);
   }
-  @media (max-width: 640px) {
-    .encore-near {
-      width: 2.75rem;
-      padding: 0;
+  .encore-near-short {
+    display: none;
+  }
+  @media (max-width: 79.99rem) {
+    .encore-agenda-row.has-near {
+      flex-wrap: wrap;
+      row-gap: 0;
+      box-shadow: inset 3px 0 0 var(--cat, var(--color-navy));
     }
-    .encore-near-label {
+    .encore-agenda-row.has-near::after {
+      content: "";
+      order: 2;
+      flex-basis: 100%;
+    }
+    .encore-agenda-row.has-near .encore-near {
+      order: 3;
+      margin: 0 0 0.75rem 0.875rem;
+    }
+  }
+  @media (max-width: 30rem) {
+    .encore-near-long {
       display: none;
+    }
+    .encore-near-short {
+      display: inline;
     }
   }
   @media (max-width: 640px) {
@@ -1270,6 +1293,161 @@
     .plan-jump-bar {
       transform: none;
     }
+  }
+
+  /* The Planner's days: a calendar to tap one day or a range on
+     (components/encore/range-calendar.tsx). Square cells with no gaps, so a
+     range reads as one band: the first and last days navy like a chosen
+     chip, the days between on Harbor 100, the range a pointer would make on
+     Harbor 50. Today carries a small Encore dot; the days before it are
+     dimmed. Cells are 44px or more: on a phone the calendar takes back 12px
+     of the card's padding on each side to get there. One month to 1024px,
+     two side by side from there. */
+  .plan-cal {
+    position: relative;
+    width: auto;
+    max-width: 24rem;
+    margin-inline: -0.75rem;
+  }
+  @media (min-width: 40rem) {
+    .plan-cal {
+      margin-inline: 0;
+    }
+  }
+  @media (min-width: 64rem) {
+    .plan-cal {
+      max-width: 50rem;
+    }
+  }
+  .plan-cal-nav.btn-quiet {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+  }
+  .plan-cal-nav.is-prev {
+    left: 0;
+  }
+  .plan-cal-nav.is-next {
+    right: 0;
+  }
+  .plan-cal-nav[aria-disabled="true"] {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .plan-cal-nav[aria-disabled="true"]:hover {
+    border-color: var(--color-hairline);
+    background: var(--color-paper);
+  }
+  .plan-cal-months {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+  }
+  .plan-cal-month.is-second {
+    display: none;
+  }
+  @media (min-width: 64rem) {
+    .plan-cal-months {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .plan-cal-month.is-second {
+      display: block;
+    }
+  }
+  .plan-cal-grid {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  .plan-cal-title {
+    height: 2.75rem;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 2.75rem;
+    color: var(--color-navy);
+    text-align: center;
+  }
+  .plan-cal-wd {
+    height: 2rem;
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-graphite-500);
+    text-align: center;
+  }
+  .plan-cal-cell {
+    height: 2.75rem;
+    padding: 0;
+    transition: background-color var(--dur-micro) var(--ease-brand);
+  }
+  @media (min-width: 64rem) {
+    .plan-cal-cell {
+      height: 3rem;
+    }
+  }
+  .plan-cal-cell.is-in {
+    background: var(--color-harbor-100);
+  }
+  .plan-cal-cell.is-preview {
+    background: var(--color-harbor-50);
+  }
+  .plan-cal-day {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    color: var(--color-navy);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-micro) var(--ease-brand),
+      color var(--dur-micro) var(--ease-brand),
+      box-shadow var(--dur-micro) var(--ease-brand);
+  }
+  @media (hover: hover) {
+    .plan-cal-day:not([aria-disabled="true"]):hover {
+      box-shadow: inset 0 0 0 1px var(--color-harbor-900);
+    }
+  }
+  .plan-cal-day:focus-visible {
+    outline: 2px solid var(--color-sky-700);
+    outline-offset: -2px;
+  }
+  .plan-cal-day[aria-current="date"] {
+    font-weight: 600;
+  }
+  .plan-cal-day[aria-current="date"]::after {
+    content: "";
+    position: absolute;
+    bottom: 0.4375rem;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--color-encore-ink);
+  }
+  .plan-cal-day.is-edge {
+    background: var(--color-navy);
+    color: var(--color-linen-200);
+  }
+  .plan-cal-day.is-edge::after {
+    background: var(--color-linen-200);
+  }
+  .plan-cal-day.is-edge:focus-visible {
+    outline-color: var(--color-sky-300);
+  }
+  .plan-cal-day.is-preview-end {
+    box-shadow: inset 0 0 0 1px var(--color-navy);
+  }
+  .plan-cal-day[aria-disabled="true"] {
+    color: var(--color-graphite-300);
+    cursor: default;
   }
 
   /* The plan's summary on Encore's plum, lit from above like a stage. */
