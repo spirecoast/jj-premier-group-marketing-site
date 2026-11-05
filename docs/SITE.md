@@ -124,31 +124,39 @@ search index; Resend sends only team-facing email.
   November 5, 2026 under the standard license, so no credit is shown on the page and none is
   flagged as generated. In order: 607527878 (waterfront homes and docks on Sarasota Bay, the
   downtown towers behind, also the still), 665979382 (Sarasota canal homes at golden hour),
-  501273404 (a modern beach-house dining room open to the water, mirrored; it's a 3D-rendered
-  interior, the closest match in the free collection to a bright coastal room), 1542602241 (a marble and white-oak kitchen, mirrored), 640505703 (a boat leaving the
+  80476052 (a glass-walled modern house, the camera moving past the kitchen island toward the
+  pool), 1542602241 (a marble and white-oak kitchen, mirrored), 640505703 (a boat leaving the
   Venice inlet), 621529647 (a palm-lined golf course), 563623949 (pickleball, hands and
   silhouettes), 514783510 (a garden dinner with friends), 506301840 (violin and piano in a
   concert hall) and 621995290 (the Venice fishing pier at sunset). Music: "Shine", 495722710.
   Before launch, check the model releases for 514783510 and 506301840 on their Adobe Stock pages;
   the licensing tool doesn't show them.
 
-  **The files.** `public/video/life-here-2-1080.mp4` (1920x1080, 13.8 MB) and `life-here-2-720.mp4`
-  (1280x720, 5.9 MB): H.264 High at about 2.15 and 0.85 Mb/s, index at the front (faststart),
-  with the music as AAC at 128 kb/s stereo. The still is `public/images/library/life-here-2-poster.jpg`
-  (21 KB as AVIF at 1280px). Phones held upright get a portrait cut, `life-here-3-portrait.mp4`
-  (720x1200, 3:5, the same 48.43-second loop and music), with its own first frame as the still,
-  `public/images/library/life-here-3-poster-portrait.jpg` (1080x1800). The two in the repo now are
-  stand-ins, center-cropped from the 1080 file and its still (the video is 14.7 MB at CRF 23, so
-  heavier than the real cut should be); the real cut replaces them under the same names before
-  this ships. Smaller 1080 encodes were tried from the master and dropped: at
-  1.5 Mb/s (4 MB less) the golf grass and palms smeared at full screen, and at 1.7 and 1.9 Mb/s
-  with slower x264 settings (2.7 and 1.5 MB less) the golf course, the boat dissolve and the
-  water stayed a little softer than the delivered file. The delivered encode stays.
+  **The files.** `public/video/life-here-3-1080.mp4` (1920x1080, 13.8 MB), `life-here-3-720.mp4`
+  (1280x720, 5.9 MB) and `life-here-3-portrait.mp4` (720x1200, 3:5, 7.4 MB, for phones held
+  upright): H.264 High, two-pass at about 2.15, 0.85 and 1.1 Mb/s, index at the front (faststart),
+  x264's dark-scene bit allocation (`aq-mode=3`) so the concert hall and the pickleball sunset
+  don't block up, and the music as AAC at 128 kb/s stereo. The stills are each cut's first frame:
+  `public/images/library/life-here-3-poster.jpg` (1920x1080) and `life-here-3-poster-portrait.jpg`
+  (1080x1800). Smaller 1080 encodes were tried and dropped: at 1.5 Mb/s the golf grass and palms
+  smeared at full screen, and at 1.7 and 1.9 Mb/s the golf course, the boat dissolve and the water
+  stayed a little softer.
 
-  The same day the team swapped two shots: the opener (Anna Maria at sunset) became the Sarasota
-  Bay homes, and the infinity pool became the beach-house room. Same length, cuts, grade and
-  music, so the sound still lines up. A recut ships under a new file name (`life-here-2-*`):
-  `/video` and `/images` are cached for a week, so the same name would keep showing returning
+  **How it's built.** Every shot is conformed from Adobe Stock's 4K file where there is one and
+  scaled down (sharper and less grainy than the HD files); the kitchen, the pickleball and the
+  glass house are HD only. The desktop cut scales the whole frame; the portrait cut takes a
+  full-height 3:5 window per shot, placed on its subject (the house and boats, the pool through the
+  glass, the boat's wake, the golf carts, the toast, the musicians, the sun under the pier). Both
+  cuts share the cuts, dissolves, grade and length, so one music track serves all three files. The
+  concert hall, lifted from a dark source, gets a light denoise. No shot has a digital push-in: on
+  the opener it grew the picture in whole-pixel steps, which read as a shake.
+
+  The montage has been recut twice since it first shipped. The first time, the opener (Anna Maria at
+  sunset) became the Sarasota Bay homes and the infinity pool became a beach-house room. Then the
+  team found the beach-house room (a 3D render) didn't look real and the opener shook, so the room
+  became the glass house, the push-in came out, and the whole montage was rebuilt from the 4K
+  sources with the portrait cut for phones. Each recut ships under a new file name (`life-here-3-*`
+  now): `/video` and `/images` are cached for a week, so the same name would keep showing returning
   visitors the old cut.
 
   The music has no gain change and no normaliser (-17.1 LUFS integrated, true peak -2.4 dBTP,
@@ -213,8 +221,11 @@ search index; Resend sends only team-facing email.
     - headline, second line: 7.8 / 5.4, 7.5 / 5.6, 7.0 / 5.5, 9.7 / 7.5, 8.6 / 6.6;
     - cameo names: 6.3 / 5.9, 6.2 / 5.7, 6.4 / 5.7, 7.7 / 5.7, 8.6 / 6.1;
     - cameo small line: 4.8 / 4.5, 4.5 / 4.1, 4.6 / 4.1, 5.6 / 4.2, 5.3 / 3.9.
-    The weak frames are the dining room (12 s) and the opener's white house (1 s) behind the
-    headline, and the pickleball sunset (32 s) behind the cameo. Over the beach photo every line
+    Remeasured over the real portrait cut (rebuilt from the 4K sources), the headline's worst frame
+    is 7.0 average and 4.6 against its brightest 5% (430x932, the opener's white house at 1 s), and
+    the cameo's small line 5.0 / 4.0; at 1440 the headline's worst is 7.8 / 4.3 and the small line
+    5.5 / 4.3. The weak frames are the glass house (12 s) and the opener's white house (1 s) behind
+    the headline, and the pickleball sunset (32 s) behind the cameo. Over the beach photo every line
     averages at least 5.4:1 (the small line, held sideways) and the headline holds 5.0:1 against
     its brightest 5%.
 

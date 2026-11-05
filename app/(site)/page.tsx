@@ -39,10 +39,10 @@ const FRAMES = {
    `site.homeHero` chooses between it and the photograph above. Phones held
    upright get the portrait cut and its own first frame (lib/hero-video.ts). */
 const HERO_VIDEO = {
-  desktop: "/video/life-here-2-1080.mp4",
-  phone: "/video/life-here-2-720.mp4",
+  desktop: "/video/life-here-3-1080.mp4",
+  phone: "/video/life-here-3-720.mp4",
   portrait: "/video/life-here-3-portrait.mp4",
-  poster: img("library/life-here-2-poster", "Waterfront homes and boat docks on Sarasota Bay, with the downtown towers behind", "50% 50%"),
+  poster: img("library/life-here-3-poster", "Waterfront homes and boat docks on Sarasota Bay, with the downtown towers behind", "50% 50%"),
   posterPortrait: img("library/life-here-3-poster-portrait", "Waterfront homes and boat docks on Sarasota Bay, with the downtown towers behind"),
 };
 
