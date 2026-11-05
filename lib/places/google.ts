@@ -1,6 +1,7 @@
 import "server-only";
 import { sideEffectsAllowed } from "@/lib/deploy-env";
-import { PlacesCapError, takeCall } from "./budget";
+import { PlacesCapError, takeCall, takeVisitorCall } from "./budget";
+import { fetchPhotoUri, firstPhoto, type GooglePhoto, type PhotoResult } from "./photo";
 import { rank, type Period, type Place, type RawPlace } from "./rank";
 import venueGeo from "./venue-geo.json";
 
@@ -11,9 +12,13 @@ import venueGeo from "./venue-geo.json";
  *
  * Asking for rating, review count, price, website, phone and hours puts
  * every call on the Enterprise SKU of Nearby Search or Text Search: 1,000
- * free calls a month on each, then about $35 per 1,000. Every call is
- * counted first and refused past the cap in ./budget.ts, which keeps both
- * inside the free tier.
+ * free calls a month on each, then about $35 per 1,000. Nearby Search also
+ * asks for `photos`, a Pro field, which leaves it on the Enterprise SKU (a
+ * call is billed at the highest SKU of the fields it asks for). Fetching a
+ * photo is billed on its own SKU, Place Details Photos: 1,000 free a month,
+ * then about $7 per 1,000 (./photo.ts). Every call is counted first and
+ * refused past the cap in ./budget.ts, which keeps all three inside the
+ * free tier.
  *
  * Without GOOGLE_MAPS_API_KEY, or without DATABASE_URL to keep the count,
  * both lists are hidden and the routes 404. The same on a preview
@@ -24,7 +29,7 @@ import venueGeo from "./venue-geo.json";
 export const placesEnabled = (): boolean => Boolean(process.env.GOOGLE_MAPS_API_KEY && process.env.DATABASE_URL) && sideEffectsAllowed();
 
 const BASE = "https://places.googleapis.com/v1/places";
-const FIELDS = [
+const FIELD_NAMES = [
   "id",
   "displayName",
   "rating",
@@ -37,9 +42,10 @@ const FIELDS = [
   "nationalPhoneNumber",
   "regularOpeningHours",
   "businessStatus",
-]
-  .map((f) => `places.${f}`)
-  .join(",");
+];
+const mask = (names: string[]) => names.map((f) => `places.${f}`).join(",");
+/** The field mask per search. Only the Planner's Nearby lists show a photo, so only Nearby Search asks for them. */
+const FIELDS = { searchNearby: mask([...FIELD_NAMES, "photos"]), searchText: mask(FIELD_NAMES) } as const;
 
 /** Coordinates for Encore's venues, from the Census geocoder and OpenStreetMap. */
 const GEO = venueGeo as Record<string, number[]> as Record<string, [number, number]>;
@@ -90,6 +96,7 @@ type GooglePlace = {
   nationalPhoneNumber?: string;
   regularOpeningHours?: { periods?: Period[] };
   businessStatus?: string;
+  photos?: GooglePhoto[];
 };
 
 async function call(path: "searchNearby" | "searchText", body: object): Promise<RawPlace[]> {
@@ -99,7 +106,7 @@ async function call(path: "searchNearby" | "searchText", body: object): Promise<
   if (!take.ok) throw new PlacesCapError(take.reason);
   const res = await fetch(`${BASE}:${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": FIELDS },
+    headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": FIELDS[path] },
     body: JSON.stringify({ languageCode: "en", regionCode: "us", ...body }),
     cache: "no-store",
     signal: AbortSignal.timeout(8000),
@@ -120,6 +127,7 @@ async function call(path: "searchNearby" | "searchText", body: object): Promise<
     phone: p.nationalPhoneNumber,
     status: p.businessStatus,
     periods: p.regularOpeningHours?.periods,
+    photo: firstPhoto(p.photos),
   }));
 }
 
@@ -147,4 +155,19 @@ export async function inCounty(county: CountyKey, kind: ProKind): Promise<Place[
     locationRestriction: { rectangle: COUNTY_BOX[county] },
   });
   return rank(raw);
+}
+
+/**
+ * Where the browser can load one place photo: Google's own image address,
+ * fetched with the key here so the key never reaches the page. Counted for
+ * this visitor and on the photo SKU first, both failing closed
+ * (fetchPhotoUri in ./photo.ts).
+ */
+export function placePhoto(name: string, ip: string): Promise<PhotoResult> {
+  return fetchPhotoUri(name, {
+    key: process.env.GOOGLE_MAPS_API_KEY,
+    takeVisitor: () => takeVisitorCall(ip, new Date(), "photo"),
+    takeCall: () => takeCall("photo"),
+    fetch: (url, init) => fetch(url, init),
+  });
 }

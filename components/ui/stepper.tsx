@@ -136,7 +136,8 @@ export function StepNumber({ n, state }: { n: number; state: "current" | "done" 
   );
 }
 
-type Action = { label: ReactNode; onClick?: () => void };
+/** `disabled` holds Next until the question has an answer it can go on with; `describedBy` names the line that says why. */
+type Action = { label: ReactNode; onClick?: () => void; disabled?: boolean; describedBy?: string };
 
 /** Back on the left; on the right anything extra, Skip, then Next or the finishing action (a submit when `submit`). */
 export function StepFooter({ back, skip, next, submit = false, aside, children, className }: { back?: Action; skip?: Action; next: Action; submit?: boolean; aside?: ReactNode; children?: ReactNode; className?: string }) {
@@ -148,7 +149,7 @@ export function StepFooter({ back, skip, next, submit = false, aside, children, 
         {aside}
         {children && back ? <RuleButton onClick={back.onClick} className="self-start sm:self-auto">{back.label}</RuleButton> : null}
         {skip ? <RuleButton onClick={skip.onClick} className="self-start sm:self-auto">{skip.label}</RuleButton> : null}
-        <Button type={submit ? "submit" : "button"} dash onClick={next.onClick} className="w-full sm:w-auto">
+        <Button type={submit ? "submit" : "button"} dash onClick={next.onClick} disabled={next.disabled} aria-describedby={next.describedBy} className="w-full sm:w-auto">
           {next.label}
         </Button>
       </div>

@@ -86,7 +86,8 @@ function basePolicy(): Directives {
     "frame-ancestors": ["'self'"],
     "script-src": ["'self'", "'unsafe-inline'", ...(IS_DEV ? ["'unsafe-eval'"] : []), PLAUSIBLE_HOST, ...HOME_PLATFORM, ...VERCEL_PREVIEW],
     "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io", `https://${SUPABASE_HOST}`],
+    // Google's image host: the Planner's Nearby thumbnails, which /api/places/photo redirects to.
+    "img-src": ["'self'", "data:", "blob:", "https://cdn.sanity.io", `https://${SUPABASE_HOST}`, "https://*.googleusercontent.com"],
     "font-src": ["'self'", "data:"],
     "connect-src": ["'self'", PLAUSIBLE_HOST, ...MAP_HOSTS, ...SANITY_API, ...HOME_PLATFORM, ...SENTRY_INGEST, ...VERCEL_PREVIEW],
     "worker-src": ["'self'", "blob:"],
