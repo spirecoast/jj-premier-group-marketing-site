@@ -360,7 +360,7 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
               Text
             </TrackedLink>
             <Link href="/contact" className="btn btn-linen">
-              Tell us the timing
+              Let’s talk
             </Link>
           </div>
         </div>

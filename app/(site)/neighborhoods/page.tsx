@@ -153,7 +153,7 @@ export default async function NeighborhoodsPage() {
           </div>
           <div className="flex lg:justify-end">
             <Link href={"/contact" as Route} className="btn btn-navy">
-              Tell us the timing
+              Let’s talk
               <span className="btn-dash" aria-hidden="true" />
             </Link>
           </div>

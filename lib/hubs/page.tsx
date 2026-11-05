@@ -176,7 +176,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
               Call us · {settings.primaryPhoneDisplay}
             </ButtonLink>
             <ButtonLink href="#timing" variant="outline-light">
-              Tell us the timing
+              Let’s talk
             </ButtonLink>
           </div>
         </div>
@@ -410,7 +410,7 @@ export async function HubPage({ market }: { market: MarketSlug }) {
           <LeadForm
             form="buy"
             fields={["name", "email", "phone", "timing", "sellFirst", "message"]}
-            submitLabel="Tell us the timing"
+            submitLabel="Let’s talk"
             hidden={{ market }}
             placeholderMessage={`Tell us where in ${m.name} you’re looking, what you need, and whether there’s a house to sell first.`}
           />
