@@ -181,14 +181,16 @@ export function HeroVideo() {
 
 /**
  * Sound, and pause or play, in the corner the type leaves free. The pause
- * button takes the motion toggle's place on the home hero: the same labels,
- * and the same remembered choice (lib/motion-pref.ts), which also pauses the
- * page's other loops. The sound button appears once there's a video to hear.
+ * button takes the motion toggle's place on the home hero, with the same
+ * remembered choice (lib/motion-pref.ts), which also pauses the page's other
+ * loops. The sound button appears once there's a video to hear. Both labels
+ * say what a press does, so neither carries aria-pressed as well: "Play the
+ * video, pressed" would read as a contradiction.
  */
 export function HeroVideoControls({ className }: { className?: string }) {
   const s = useStage();
   const what = s.failed ? "the motion" : "the video";
-  const pressed = s.failed ? s.paused : !s.moving;
+  const stopped = s.failed ? s.paused : !s.moving;
   return (
     <div className={cn("flex items-center justify-end gap-2", className)}>
       {s.show ? (
@@ -196,8 +198,8 @@ export function HeroVideoControls({ className }: { className?: string }) {
           {s.sound ? <Volume2 aria-hidden="true" size={18} strokeWidth={1.5} /> : <VolumeX aria-hidden="true" size={18} strokeWidth={1.5} />}
         </button>
       ) : null}
-      <button type="button" className="hero-control" aria-pressed={pressed} aria-label={pressed ? `Play ${what}` : `Pause ${what}`} title={pressed ? "Play" : "Pause"} onClick={s.togglePlay}>
-        {pressed ? <Play aria-hidden="true" size={16} strokeWidth={1.5} /> : <Pause aria-hidden="true" size={16} strokeWidth={1.5} />}
+      <button type="button" className="hero-control" aria-label={stopped ? `Play ${what}` : `Pause ${what}`} title={stopped ? "Play" : "Pause"} onClick={s.togglePlay}>
+        {stopped ? <Play aria-hidden="true" size={16} strokeWidth={1.5} /> : <Pause aria-hidden="true" size={16} strokeWidth={1.5} />}
       </button>
     </div>
   );
