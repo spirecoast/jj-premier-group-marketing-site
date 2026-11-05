@@ -12,15 +12,24 @@
  * from the figures the page computes (docs/ISSUES.md, "Writing the narrative").
  * Every field is optional: the page and the email show what's written and
  * fall back to computed figures and fixed lines for the rest.
+ *
+ * An issue is about its own month: what a buyer or seller here should know
+ * this November, told from the newest complete county figures and the trend
+ * behind them (the last three months, the year so far, against a year
+ * before). The cover, the headline and the dek never lead with the data
+ * month; the page says the timing once, under the market overview ("sales
+ * through August").
  * - `coverTitle`: the cover line, two to six words set as large as the cover
- *   allows; plain and true, never a pun or a play on words;
+ *   allows; plain and true, about now, never a pun or a play on words;
  * - `coverKicker`: one sentence under the cover line, with the figure behind it;
- * - `headline`: one sentence, what happened this month, set big on the issue page;
- * - `dek`: one or two sentences under it;
- * - `opening`: the market overview, three to five short paragraphs on what
- *   happened across the three places, in plain words;
- * - `markets`: per market, two or three paragraphs on what happened there
- *   this month;
+ * - `headline`: one sentence, the issue's news for a reader this month, set
+ *   big on the issue page and the email's title;
+ * - `dek`: one or two sentences under it, the email's preheader;
+ * - `opening`: the market overview, three to five short paragraphs that tell
+ *   the story: open on what matters to a reader here this month, give the
+ *   figures behind it, say what they mean for buying or selling now;
+ * - `markets`: per market, two or three paragraphs on what's happening there,
+ *   naming its streets and places;
  * - `buying`, `selling`: three moves each. `move` is one short imperative
  *   sentence (what to do), `why` one to three sentences with the figures
  *   behind it, and `link` an optional quiet link to a tool or guide on the site;
@@ -87,140 +96,142 @@ export const TIDE_ISSUES: readonly TideIssueEntry[] = [
   {
     issue: "2026-11",
     data: "2026-08",
-    coverTitle: "A busy August in Bradenton",
-    coverKicker: "Bradenton had {bradenton.vsTypicalPct} more home sales than usual, and the other two places had fewer.",
-    headline: "Bradenton sold more homes than usual in August, and Lakewood Ranch and Sarasota sold fewer.",
-    dek: "In all, {all.sales} homes sold in the three places. The price per square foot was a little lower than usual in each one.",
+    coverTitle: "A busy year heads into winter",
+    coverKicker: "Home sales here are running {all.ytd.vsLastYearPct} ahead of last year as the slow season starts.",
+    headline: "More homes are selling this year than last, and a square foot costs about the same.",
+    dek: "Lakewood Ranch, Sarasota and Bradenton have each sold more homes this year than last. Winter is the slow season, which makes the next few months the time to plan a move.",
     opening: [
-      "In August, {all.sales} homes sold in Lakewood Ranch, Sarasota and Bradenton. That’s {all.vsTypicalPct} more than in a typical month. It’s also {all.vsLastYearPct} more than in {all.lastYearMonth}.",
-      "More than half of these sales were in Bradenton. It had {bradenton.sales} home sales, {bradenton.vsTypicalPct} more than usual. Lakewood Ranch and Sarasota both had fewer sales than in a typical month.",
-      "Prices did not change much. In each place, the price per square foot was a little below a typical month. It was {lakewood-ranch.ppsf} in Lakewood Ranch, {sarasota.ppsf} in Sarasota and {bradenton.ppsf} in Bradenton.",
-      "Compared with a year ago, the price per square foot was the same in Lakewood Ranch. It was up {sarasota.ppsfVsLastYearPct} in Sarasota. In Bradenton, it was down {bradenton.ppsfVsLastYearPct}.",
+      "This has been a busy year to buy or sell a home here. From January through the summer, {all.ytd.sales} homes sold in Lakewood Ranch, Sarasota and Bradenton. That’s {all.ytd.vsLastYearSales} more than at the same point last year.",
+      "Prices didn’t climb with the sales. Over the summer, a square foot sold for a median of {all.last3.ppsf} across the three places. A year before, it was {all.last3.lastYearPpsf}.",
+      "For a seller, that means buyers are out there, but they aren’t paying more for a square foot than they did last year. For a buyer, it means the same home costs about what it did a year ago.",
+      "Most of the growth was in Bradenton. Of the {all.last3.vsLastYearSales} extra sales this summer, {bradenton.last3.vsLastYearSales} were there. In Lakewood Ranch, fewer new homes sold and more resales did. In Sarasota, a square foot cost a little more than last summer.",
+      "Now comes the slow season. Last January, just {all.lowSales} homes sold here, the fewest of any month in the past year. By March, the number was {all.sales.2026-03}. If a move is in your plans, the next few months are the time to get ready.",
     ],
     markets: {
       "lakewood-ranch": [
-        "Lakewood Ranch had {lakewood-ranch.sales} home sales in August. That’s {lakewood-ranch.vsTypicalPct} fewer than in a typical month. It’s also {lakewood-ranch.vsLastYearPct} fewer than in {lakewood-ranch.lastYearMonth}, when {lakewood-ranch.lastYearSales} homes sold.",
-        "Prices held steady. The median price was {lakewood-ranch.medianPrice}, close to a typical month. A square foot sold for {lakewood-ranch.ppsf}, the same as a year ago.",
-        "New homes and lots were {lakewood-ranch.newBuildPct} of sales. In a typical month, they are {lakewood-ranch.typicalNewBuildPct}. {lakewood-ranch.streets.1.name} and {lakewood-ranch.streets.2.name} had the most sales of any street, with {lakewood-ranch.streets.1.sales} each.",
+        "Lakewood Ranch sold about as many homes this summer as last. It had {lakewood-ranch.last3.sales} sales from June to August, against {lakewood-ranch.last3.lastYearSales} a year before. The change was in what sold.",
+        "Sales of new homes and lots fell {lakewood-ranch.last3.newBuildVsLastYearPct}, to {lakewood-ranch.last3.newBuild}. Resales rose {lakewood-ranch.last3.existingVsLastYearPct}, to {lakewood-ranch.last3.existing}. A square foot sold for {lakewood-ranch.last3.ppsf}, about the same as last summer.",
+        "August was quiet, with {lakewood-ranch.sales} sales. That’s {lakewood-ranch.vsTypicalPct} fewer than in a typical month. {lakewood-ranch.streets.1.name} and {lakewood-ranch.streets.2.name} had the most, with {lakewood-ranch.streets.1.sales} each.",
       ],
       sarasota: [
-        "Sarasota had {sarasota.sales} home sales in August. That’s {sarasota.vsTypicalPct} fewer than in a typical month. It had {sarasota.prevSales} sales in July.",
-        "The median price was {sarasota.medianPrice}, which is {sarasota.medianPriceVsTypicalPct} lower than in a typical month. A square foot sold for {sarasota.ppsf}. That’s {sarasota.ppsfVsTypicalPct} lower than usual, but {sarasota.ppsfVsLastYearPct} higher than a year ago.",
-        "Condos, villas and townhomes were {sarasota.attached.share} of Sarasota’s home sales. They sold for a median of {sarasota.attached.median}. Houses sold for a median of {sarasota.houses.median}.",
+        "Sarasota had a strong summer. From June to August, {sarasota.last3.sales} homes sold there, {sarasota.last3.vsLastYearPct} more than a year before. A square foot sold for {sarasota.last3.ppsf}, up from {sarasota.last3.lastYearPpsf}.",
+        "As in Lakewood Ranch, the growth came from resales. They rose {sarasota.last3.existingVsLastYearPct}, while sales of new homes and lots fell {sarasota.last3.newBuildVsLastYearPct}.",
+        "August was slower, with {sarasota.sales} sales and a median price of {sarasota.medianPrice}. {sarasota.streets.1.name} had {sarasota.streets.1.sales} sales, more than any other street in the three places. {sarasota.streets.2.street} on {sarasota.streets.2.place} had {sarasota.streets.2.sales}.",
       ],
       bradenton: [
-        "Bradenton had {bradenton.sales} home sales in August. That’s {bradenton.vsTypicalPct} more than in a typical month and {bradenton.vsLastYearPct} more than in {bradenton.lastYearMonth}. It was close to July, when {bradenton.prevSales} homes sold.",
-        "The median price was {bradenton.medianPrice}, about the same as usual. A square foot sold for {bradenton.ppsf}. That’s {bradenton.ppsfVsTypicalPct} lower than in a typical month and {bradenton.ppsfVsLastYearPct} lower than a year ago.",
-        "Prices are lower here than in the other two places. Here, {bradenton.band.under400k} of homes sold for under $400K. Many sales were in Parrish, on streets like {bradenton.streets.1.street} and {bradenton.streets.2.street}.",
+        "Bradenton is where the market grew. It had {bradenton.last3.sales} home sales from June to August, {bradenton.last3.vsLastYearPct} more than a year before.",
+        "Both kinds of sale rose. Sales of new homes and lots were up {bradenton.last3.newBuildVsLastYearPct}, and resales were up {bradenton.last3.existingVsLastYearPct}. In August, four of its five busiest streets were in Parrish, led by {bradenton.streets.1.street} with {bradenton.streets.1.sales} sales.",
+        "Prices went the other way. A square foot sold for {bradenton.ppsf} in August, {bradenton.ppsfVsLastYearPct} less than a year before. This year, only January was lower, at {bradenton.ppsf.2026-01}.",
       ],
     },
     buying: [
       {
-        move: "Compare what a square foot costs in each place.",
-        why: "In August, a square foot sold for {lakewood-ranch.ppsf} in Lakewood Ranch and {sarasota.ppsf} in Sarasota. In Bradenton, it sold for {bradenton.ppsf}. So a home of the same size costs less in Bradenton.",
+        move: "Know what a square foot costs where you’re looking.",
+        why: "This summer, it was {bradenton.last3.ppsf} in Bradenton, {lakewood-ranch.last3.ppsf} in Lakewood Ranch and {sarasota.last3.ppsf} in Sarasota. If a home costs much more than that for its size, ask why.",
         link: { href: "/neighborhoods", label: "Compare places on Atlas" },
       },
       {
-        move: "Look at condos, villas and townhomes, too.",
-        why: "They cost much less than houses. In Lakewood Ranch, they sold for a median of {lakewood-ranch.attached.median} in August. Houses there sold for a median of {lakewood-ranch.houses.median}.",
-        link: { href: "/neighborhoods?market=lakewood-ranch", label: "Lakewood Ranch on Atlas" },
+        move: "In Bradenton, check the street before you make an offer.",
+        why: "Sales there were up {bradenton.last3.vsLastYearPct} this summer, but a square foot sold for less than a year before. Tide Street shows what each home on a street sold for.",
+        link: { href: "/sell/sold", label: "Look up a street" },
       },
       {
-        move: "Look up what sold on a street before you make an offer.",
-        why: "Tide Street shows each home sale on a street, with the date, the price and the size. Use it to see what homes near the one you like sold for.",
-        link: { href: "/sell/sold", label: "Look up a street" },
+        move: "In Lakewood Ranch, look at resales too.",
+        why: "More of them are selling: {lakewood-ranch.last3.existing} this summer, up from {lakewood-ranch.last3.lastYearExisting}. A resale may carry a different CDD fee than a new home nearby, and that changes what you pay each year.",
+        link: { href: "/guides/cdd-fees-in-lakewood-ranch-village-by-village", label: "CDD fees, village by village" },
       },
     ],
     selling: [
       {
-        move: "Set your price from recent sales near you.",
-        why: "Lakewood Ranch had {lakewood-ranch.vsTypicalPct} fewer sales than usual in August, and Sarasota had {sarasota.vsTypicalPct} fewer. Start with what homes like yours sold for this summer.",
+        move: "Price from what sold near you this summer.",
+        why: "Sales here were up {all.last3.vsLastYearPct} from June to August. But a square foot sold for about what it did a year ago. A price well above recent sales has little to back it up.",
         link: { href: "/sell/home-value", label: "See what your home is worth" },
       },
       {
-        move: "Compare your home with homes of the same kind.",
-        why: "A median price mixes all kinds of homes. In Sarasota, houses sold for a median of {sarasota.houses.median} in August, and condos, villas and townhomes for {sarasota.attached.median}. Your home’s value depends on homes like yours.",
-        link: { href: "/sell/sold", label: "See what sold near you" },
+        move: "If you want to sell in the spring, get ready this winter.",
+        why: "Last January, {all.lowSales} homes sold here. By March, {all.sales.2026-03} did. A home that’s ready by then is there when sales pick up.",
+        link: { href: "/guides/getting-your-house-ready-to-sell", label: "Getting your house ready to sell" },
       },
       {
-        move: "In Bradenton, know the price per square foot before you list.",
-        why: "Bradenton had {bradenton.vsTypicalPct} more sales than usual in August. Even so, a square foot sold for {bradenton.ppsf}, which is {bradenton.ppsfVsTypicalPct} lower than usual.",
-        link: { href: "/sell/net-proceeds", label: "Work out what you would take home" },
+        move: "In Lakewood Ranch, compare your home with other resales first.",
+        why: "Resales were {lakewood-ranch.last3.existing} of the {lakewood-ranch.last3.sales} sales there this summer. Those are the homes a buyer will set yours beside.",
+        link: { href: "/sell/sold", label: "See what sold near you" },
       },
     ],
     watch: [
-      "See if sales in Lakewood Ranch pick up in September. There were {lakewood-ranch.sales} in August, compared with {lakewood-ranch.lastYearSales} a year earlier.",
-      "See if the price per square foot in Bradenton keeps going down. It was {bradenton.prevPpsf} in July and {bradenton.ppsf} in August.",
+      "See if Lakewood Ranch picks up in September. August had {lakewood-ranch.sales} sales, {lakewood-ranch.vsTypicalPct} fewer than a typical month.",
+      "See if Bradenton’s price per square foot keeps slipping. It went from {bradenton.prevPpsf} in July to {bradenton.ppsf} in August.",
     ],
     commentary: {},
   },
   {
     issue: "2026-10",
     data: "2026-07",
-    coverTitle: "A busy July for home sales",
-    coverKicker: "Across the three places, {all.sales} homes sold, {all.vsTypicalPct} more than in a typical month.",
-    headline: "More homes sold than usual in July, and the price per square foot stayed about the same.",
-    dek: "In all, {all.sales} homes sold in Lakewood Ranch, Sarasota and Bradenton. Median prices went up because more of the homes that sold were large.",
+    coverTitle: "After a busy summer",
+    coverKicker: "June had {all.sales.2026-06} home sales across Lakewood Ranch, Sarasota and Bradenton, more than any other month in the past year.",
+    headline: "This year’s busy season beat last year’s, and the price of a square foot held steady.",
+    dek: "Last year, the slowest months for sales came in late fall and winter. Here’s where Lakewood Ranch, Sarasota and Bradenton stand going in, and what that means for a move.",
     opening: [
-      "In July, {all.sales} homes sold in Lakewood Ranch, Sarasota and Bradenton. That’s {all.vsTypicalPct} more than in a typical month and {all.vsLastYearPct} more than in {all.lastYearMonth}. Half of these sales were in Bradenton.",
-      "The median price went up in all three places. The price per square foot stayed about the same. This means more of the homes that sold were large. It does not mean the same home now costs more.",
-      "Over the past year, prices changed in different ways. A square foot cost {sarasota.ppsfVsLastYearPct} more in Sarasota than in {sarasota.lastYearMonth}. It cost about the same in Lakewood Ranch and {bradenton.ppsfVsLastYearPct} less in Bradenton.",
-      "When you compare homes, start with the price per square foot. It tells you more about value than the median price does.",
+      "This year’s spring and summer rush was a big one. From May to July, {all.last3.sales} homes sold in Lakewood Ranch, Sarasota and Bradenton. That’s {all.last3.vsLastYearPct} more than in the same months last year.",
+      "June was the peak. That month, {all.sales.2026-06} homes sold, more than in any other month of the past year.",
+      "Prices didn’t rise to match. From May to July, a square foot sold for a median of {all.last3.ppsf}, the same as a year before. The median price rose {all.last3.medianPriceVsLastYearPct}, which means a different mix of homes sold. The same home didn’t cost more.",
+      "For a seller, more homes sold, but buyers paid about what they did last year for each square foot. For a buyer, prices haven’t climbed, even in a busy year.",
+      "The months ahead were slow last year. Sales went from {all.sales.2025-08} in August to {all.sales.2025-11} in November, and January had just {all.lowSales}. That makes the fall a good time to plan, whichever side of a sale you’re on.",
     ],
     markets: {
       "lakewood-ranch": [
-        "Lakewood Ranch had {lakewood-ranch.sales} home sales in July. That’s {lakewood-ranch.vsTypicalPct} fewer than in a typical month but {lakewood-ranch.vsLastYearPct} more than in {lakewood-ranch.lastYearMonth}.",
-        "New homes and lots were {lakewood-ranch.newBuildPct} of sales, close to the usual {lakewood-ranch.typicalNewBuildPct}. Many of these are new homes that the county still lists as empty lots.",
-        "Houses sold for a median of {lakewood-ranch.houses.median}. Condos, villas and townhomes sold for a median of {lakewood-ranch.attached.median}. The street with the most sales was {lakewood-ranch.streets.1.name}, with {lakewood-ranch.streets.1.sales} sales.",
+        "Lakewood Ranch had {lakewood-ranch.last3.sales} home sales from May to July. That’s {lakewood-ranch.last3.vsLastYearPct} more than a year before.",
+        "The growth came from resales. They rose {lakewood-ranch.last3.existingVsLastYearPct}, to {lakewood-ranch.last3.existing}. Sales of new homes and lots dipped {lakewood-ranch.last3.newBuildVsLastYearPct}, to {lakewood-ranch.last3.newBuild}.",
+        "July had {lakewood-ranch.sales} sales, {lakewood-ranch.vsLastYearPct} more than last July. {lakewood-ranch.streets.1.name} had the most, with {lakewood-ranch.streets.1.sales}. A square foot sold for {lakewood-ranch.ppsf}, about the same as a year ago.",
       ],
       sarasota: [
-        "Sarasota had {sarasota.sales} home sales in July. That’s {sarasota.vsTypicalPct} more than in a typical month and {sarasota.vsLastYearPct} more than in {sarasota.lastYearMonth}. The median price was {sarasota.medianPrice}.",
-        "A square foot sold for {sarasota.ppsf}, about the same as a typical month. A year earlier, it was {sarasota.lastYearPpsf}. That’s a rise of {sarasota.ppsfVsLastYearPct} over the year.",
-        "Sarasota had a wide range of prices. Of its homes, {sarasota.band.under400k} sold for under $400K and {sarasota.band.1.5mUp} sold for $1.5M or more. {sarasota.streets.1.street} on {sarasota.streets.1.place} had {sarasota.streets.1.sales} sales, more than any other street in the three places.",
+        "Sarasota had {sarasota.last3.sales} home sales from May to July, {sarasota.last3.vsLastYearPct} more than a year before. A square foot cost {sarasota.last3.ppsfVsLastYearPct} more than it did then, at {sarasota.last3.ppsf}.",
+        "July’s median price was {sarasota.medianPrice}, up from {sarasota.lastYearMedianPrice} a year before. The price per square foot rose less, {sarasota.ppsfVsLastYearPct}, so part of that jump is in which homes sold.",
+        "{sarasota.streets.1.street} on {sarasota.streets.1.place} had {sarasota.streets.1.sales} sales in July, more than any other street in the three places. Condos, villas and townhomes were {sarasota.attached.share} of Sarasota’s sales.",
       ],
       bradenton: [
-        "Bradenton had {bradenton.sales} home sales in July. That’s {bradenton.vsTypicalPct} more than in a typical month and {bradenton.vsLastYearPct} more than in {bradenton.lastYearMonth}. June had even more, with {bradenton.sales.2026-06}.",
-        "Prices are lower here than in the other two places. Half of Bradenton’s homes sold for under $400K. The median price was {bradenton.medianPrice}.",
-        "A square foot sold for {bradenton.ppsf}, about the same as a typical month. That’s {bradenton.ppsfVsLastYearPct} less than a year earlier. Many sales were in Parrish, on streets like {bradenton.streets.1.street} and {bradenton.streets.2.street}.",
+        "Bradenton is where sales grew most. It had {bradenton.last3.sales} home sales from May to July, {bradenton.last3.vsLastYearPct} more than a year before. June alone had {bradenton.sales.2026-06}.",
+        "In July, three of its five busiest streets were in Parrish, led by {bradenton.streets.1.street} with {bradenton.streets.1.sales} sales. Of its homes, {bradenton.band.under400k} sold for under $400K.",
+        "Prices slipped a little. A square foot sold for {bradenton.last3.ppsf} from May to July, against {bradenton.last3.lastYearPpsf} a year before.",
       ],
     },
     buying: [
       {
-        move: "Use the price per square foot to compare homes.",
-        why: "In July, a square foot sold for {lakewood-ranch.ppsf} in Lakewood Ranch, {sarasota.ppsf} in Sarasota and {bradenton.ppsf} in Bradenton. If a home costs much more than that for its size, ask why.",
+        move: "Compare homes by what a square foot costs.",
+        why: "From May to July, it was {bradenton.last3.ppsf} in Bradenton, {lakewood-ranch.last3.ppsf} in Lakewood Ranch and {sarasota.last3.ppsf} in Sarasota. If a home costs much more than that for its size, ask why.",
         link: { href: "/neighborhoods", label: "Compare places on Atlas" },
       },
       {
-        move: "Compare prices with the same month last year.",
-        why: "Sales can change a lot from one month to the next. Bradenton went from {bradenton.prevSales} sales in June to {bradenton.sales} in July. A year back gives you a steadier comparison.",
+        move: "Look past the median price.",
+        why: "In Sarasota, July’s median price rose {sarasota.medianPriceVsLastYearPct} from a year before. The price per square foot rose {sarasota.ppsfVsLastYearPct}. A median moves with the mix of homes that sold.",
         link: { href: "/sell/sold", label: "See what sold on a street" },
       },
       {
-        move: "In Lakewood Ranch, compare new homes with resale homes.",
-        why: "New homes and lots were {lakewood-ranch.newBuildPct} of July’s sales there. A new home may have a different CDD fee than a resale. That changes what you pay each year.",
+        move: "In Lakewood Ranch, weigh a new home against a resale.",
+        why: "New homes and lots were {lakewood-ranch.newBuildPct} of July’s sales there. A new home may carry a different CDD fee than a resale, and that changes what you pay each year.",
         link: { href: "/guides/cdd-fees-in-lakewood-ranch-village-by-village", label: "CDD fees, village by village" },
       },
     ],
     selling: [
       {
-        move: "Base your price on what a square foot sells for nearby.",
-        why: "Buyers compare homes by the price per square foot. In July, it was {lakewood-ranch.ppsf} in Lakewood Ranch, {sarasota.ppsf} in Sarasota and {bradenton.ppsf} in Bradenton. None of these moved much from a typical month.",
+        move: "Set your price from what a square foot sells for nearby.",
+        why: "Sales from May to July were up {all.last3.vsLastYearPct} on a year before. A square foot still sold for {all.last3.ppsf}, the same as then.",
         link: { href: "/sell/home-value", label: "See what your home is worth" },
       },
       {
-        move: "In Lakewood Ranch, price your home with the new homes in mind.",
-        why: "Buyers there can choose a new home. New homes and lots were {lakewood-ranch.newBuildPct} of July’s sales. A resale home needs a better price, finish or location to compete.",
-        link: { href: "/sell/sold", label: "See what sold near you" },
+        move: "Use the fall to get ready for spring.",
+        why: "Last year, sales hit their low in January, at {all.lowSales}. By March, {all.sales.2026-03} homes sold across the three places.",
+        link: { href: "/guides/getting-your-house-ready-to-sell", label: "Getting your house ready to sell" },
       },
       {
-        move: "Get your home ready to sell in the fall.",
-        why: "Sales here are slow in winter and higher in spring. Bradenton had {bradenton.sales.2026-01} sales in January 2026 and {bradenton.sales.2026-06} in June. A home that’s ready in the fall is on the market before sales pick up in spring.",
-        link: { href: "/guides/getting-your-house-ready-to-sell", label: "Getting your house ready to sell" },
+        move: "In Lakewood Ranch, price a resale with the new homes in mind.",
+        why: "New homes and lots were {lakewood-ranch.newBuildPct} of July’s sales there. Buyers have new homes to choose from, so a resale needs a better price, finish or spot.",
+        link: { href: "/sell/sold", label: "See what sold near you" },
       },
     ],
     watch: [
-      "See if Bradenton stays busy and Lakewood Ranch picks up. In July, Bradenton had {bradenton.sales} sales and Lakewood Ranch had {lakewood-ranch.sales}.",
-      "Also watch the price per square foot in Sarasota. It was {sarasota.ppsf} in July, up {sarasota.ppsfVsLastYearPct} from a year earlier.",
+      "See how August compares with last August, when {all.sales.2025-08} homes sold across the three places.",
+      "See if Sarasota’s price per square foot holds. It was {sarasota.ppsf} in July, up {sarasota.ppsfVsLastYearPct} from a year before.",
     ],
     commentary: {},
   },
