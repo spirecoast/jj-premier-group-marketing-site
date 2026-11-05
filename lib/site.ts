@@ -5,6 +5,9 @@
  */
 import { resolveSiteUrl } from "./site-url";
 
+/** What fills the home page's hero (docs/SITE.md, "The home hero"). */
+export type HomeHero = "video" | "photo";
+
 export const site = {
   name: "JJ Premier Group",
   brokerage: "Coldwell Banker Realty",
@@ -24,6 +27,12 @@ export const site = {
   region: "Lakewood Ranch · Sarasota · Bradenton",
   /** Where "see our current listings" points until an MLS feed is wired in. */
   listingsUrl: process.env.NEXT_PUBLIC_LISTINGS_URL || "",
+  /**
+   * The home hero: "video" is the Life Here montage over its first frame
+   * (components/home/hero-video.tsx); "photo" brings back the Gulf beach
+   * photograph with its slow drift, exactly as it was before November 2026.
+   */
+  homeHero: "video" as HomeHero,
   /**
    * The three products, named once. Atlas is the map, Encore the nights out,
    * Tide the market: one word each, all from the coast, all a place to go back to.

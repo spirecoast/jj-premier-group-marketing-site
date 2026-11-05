@@ -1,21 +1,11 @@
-import { deployEnv } from "./deploy-env";
-
 /**
  * The home hero's video (components/home/hero-video.tsx): which file plays,
- * when none does, and the preview-only switch between two clips. Pure, so
- * the rules have tests.
+ * when it may start by itself, and when it's moving. Pure, so the rules have
+ * tests.
  */
 
 /** One loop: the 1080p file, the 720p file for phones, and the still that stands in for both. */
 export type HeroClip<Poster> = { desktop: string; phone: string; poster: Poster };
-
-/**
- * The still's image quality. A busy aerial frame at the site's 75 came out a
- * third heavier than the photograph it replaced (100 KB against 75 KB as AVIF
- * at 1280px) and slowed the largest paint; at 65 it's 73 KB and looks the same.
- * Allowed in next.config.ts `images.qualities`.
- */
-export const HERO_STILL_QUALITY = 65;
 
 /**
  * Phones get the 720p file: a narrow screen (below `sm`, where the hero is
@@ -33,16 +23,19 @@ export function savingData(c: Connection): boolean {
 }
 
 /**
- * Whether the page offers the clip switch (`?hero=lake`): on every deployment
- * except production (a preview, `vercel dev`, a local build). Production never
- * passes the alternates, so it has nothing to switch to.
+ * Whether the video should be moving. A pause (the corner button, remembered
+ * across visits) always wins. Otherwise it starts by itself unless the
+ * visitor asked for reduced motion, the browser asks to save data, or the
+ * browser refused to autoplay it (Low Power Mode); in those cases it waits
+ * for the visitor to press Play.
  */
-export function heroCompareAllowed(env: Record<string, string | undefined> = process.env): boolean {
-  return deployEnv(env) !== "production";
-}
-
-/** The clip `?hero=<name>` asks for, when it names one on offer; otherwise null. */
-export function requestedClip(search: string, names: readonly string[]): string | null {
-  const name = new URLSearchParams(search).get("hero");
-  return name && names.includes(name) ? name : null;
+export function videoWanted(s: {
+  paused: boolean;
+  reducedMotion: boolean;
+  savingData: boolean;
+  autoplayRefused: boolean;
+  pressedPlay: boolean;
+}): boolean {
+  if (s.paused) return false;
+  return s.pressedPlay || (!s.reducedMotion && !s.savingData && !s.autoplayRefused);
 }

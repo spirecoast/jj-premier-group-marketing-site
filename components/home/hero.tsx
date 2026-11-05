@@ -1,76 +1,89 @@
 import Link from "next/link";
-import { HeroMotionToggle, HeroVideo } from "@/components/home/hero-video";
+import { HeroVideo, HeroVideoControls, HeroVideoStage } from "@/components/home/hero-video";
+import { MotionToggle } from "@/components/motion-toggle";
 import { Photo } from "@/components/photo";
 import type { ImageRef, TeamMember } from "@/lib/content/types";
-import { HERO_STILL_QUALITY, type HeroClip } from "@/lib/hero-video";
+import type { HeroClip } from "@/lib/hero-video";
 import { site } from "@/lib/site";
 import { HOME_HERO_SIZES } from "@/lib/image-sizes";
+import { cn } from "@/lib/utils";
+
+/** What fills the hero, chosen by `site.homeHero` (lib/site.ts). */
+export type HeroPicture = { kind: "photo"; image: ImageRef } | { kind: "video"; clip: HeroClip<ImageRef> };
 
 /**
  * The hero. The picture is the layout: type sits in the calm third of the
  * frame. Rise, draw and fade are each used once here and nowhere else on the
- * page. The picture is a slow aerial video loop over its own first frame (the
- * still, which the server renders and which is the page's largest paint); the
- * video moves on its own, so the still doesn't drift. Below `lg` the picture
- * sits above the headline, 3:2 on phones so the eyebrow, the headline, the
- * orientation line and both buttons land inside the first screen. Nothing
- * here is a figure: the listing card and the ticker return with a data feed.
- * `alternates` is the preview-only clip switch (lib/hero-video.ts).
+ * page. Below `lg` the picture sits above the headline, 3:2 on phones so the
+ * eyebrow, the headline, the orientation line and both buttons land inside the
+ * first screen. Nothing here is a figure: the listing card and the ticker
+ * return with a data feed.
+ *
+ * Two pictures, one switch. The photograph has one motion, the slow drift; the
+ * veil and the glow came off at the design director's note. The video is the
+ * Life Here montage over its own first frame (the still, which is the page's
+ * largest paint), with sound and pause in the corner; it moves on its own, so
+ * the still doesn't drift, and its shade is a little deeper.
  */
-export function Hero({
-  clip,
-  alternates,
-  cameo,
-  team,
-}: {
-  clip: HeroClip<ImageRef>;
-  alternates?: Record<string, HeroClip<ImageRef>>;
-  cameo: ImageRef;
-  team: TeamMember[];
-}) {
+export function Hero({ picture, cameo, team }: { picture: HeroPicture; cameo: ImageRef; team: TeamMember[] }) {
   const names = team.map((m) => m.name).join(" & ");
   // The visible names come first, so a voice user can say what they see.
   const meetLabel = team.length ? `${names}, meet the team` : "Meet the team";
+  const video = picture.kind === "video";
+
+  const frame = (
+    <div className="relative aspect-[3/2] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
+      {picture.kind === "video" ? (
+        <>
+          <Photo image={picture.clip.poster} priority sizes={HOME_HERO_SIZES} />
+          <HeroVideo />
+        </>
+      ) : (
+        <Photo image={picture.image} priority sizes={HOME_HERO_SIZES} className="hero-img" />
+      )}
+      <div className={video ? "hero-shade hero-shade-video" : "hero-shade"} aria-hidden="true" />
+
+      {/* Cameo: the photograph and the names are one link to the team page. The
+          focus ring is the site's own, Sky 300 on this photographic ground. */}
+      <div className="rise d2 absolute left-6 top-header pt-4 sm:pt-6 lg:left-14 lg:pt-7">
+        <Link href="/about" aria-label={meetLabel} className="flex items-center gap-4">
+          <div className="cameo-orbit relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20 lg:h-[88px] lg:w-[88px]" aria-hidden="true">
+            <div className="relative h-[52px] w-[52px] overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] sm:h-16 sm:w-16 lg:h-[72px] lg:w-[72px]">
+              <Photo image={cameo} sizes="72px" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <p className="text-[14px] font-medium text-white text-shadow-photo">{names}</p>
+            {/* Over the moving picture the small line carries the names' shadow too. */}
+            <p className={cn("font-mono text-[10px] tracking-[0.12em] text-mist", video && "text-shadow-photo")}>
+              REALTORS® · {site.brokerage.toUpperCase().replace(" REALTY", "")}
+            </p>
+          </div>
+        </Link>
+      </div>
+
+      {/* The corner the type leaves free: the photograph's one control for its drift, or the video's sound and pause. */}
+      {video ? (
+        <HeroVideoControls className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
+      ) : (
+        <MotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
+      )}
+
+      {/* Scroll cue: desktop furniture */}
+      <div
+        className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 text-shadow-photo lg:flex"
+        aria-hidden="true"
+      >
+        <span>SCROLL</span>
+        <span className="h-[26px] w-px bg-sky-300" />
+      </div>
+    </div>
+  );
 
   return (
     <section data-header-overlay className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">
       <div className="relative overflow-hidden bg-paper lg:h-[780px] lg:bg-navy">
-        {/* The still, and the video over it */}
-        <div className="relative aspect-[3/2] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
-          <Photo image={clip.poster} priority quality={HERO_STILL_QUALITY} sizes={HOME_HERO_SIZES} />
-          <HeroVideo clip={clip} alternates={alternates} sizes={HOME_HERO_SIZES} />
-          <div className="hero-shade hero-shade-video" aria-hidden="true" />
-
-          {/* Cameo: the photograph and the names are one link to the team page. The
-              focus ring is the site's own, Sky 300 on this photographic ground. */}
-          <div className="rise d2 absolute left-6 top-header pt-4 sm:pt-6 lg:left-14 lg:pt-7">
-            <Link href="/about" aria-label={meetLabel} className="flex items-center gap-4">
-              <div className="cameo-orbit relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20 lg:h-[88px] lg:w-[88px]" aria-hidden="true">
-                <div className="relative h-[52px] w-[52px] overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] sm:h-16 sm:w-16 lg:h-[72px] lg:w-[72px]">
-                  <Photo image={cameo} sizes="72px" />
-                </div>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <p className="text-[14px] font-medium text-white text-shadow-photo">{names}</p>
-                <p className="font-mono text-[10px] tracking-[0.12em] text-mist">
-                  REALTORS® · {site.brokerage.toUpperCase().replace(" REALTY", "")}
-                </p>
-              </div>
-            </Link>
-          </div>
-
-          {/* The one control for the video, in the corner the type leaves free. */}
-          <HeroMotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
-
-          {/* Scroll cue: desktop furniture */}
-          <div
-            className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 text-shadow-photo lg:flex"
-            aria-hidden="true"
-          >
-            <span>SCROLL</span>
-            <span className="h-[26px] w-px bg-sky-300" />
-          </div>
-        </div>
+        {picture.kind === "video" ? <HeroVideoStage clip={picture.clip}>{frame}</HeroVideoStage> : frame}
 
         {/* Headline block */}
         <div className="relative flex flex-col gap-5 px-6 pb-10 pt-7 text-navy sm:gap-6 sm:px-10 sm:pb-12 sm:pt-8 lg:absolute lg:bottom-16 lg:left-14 lg:w-[760px] lg:p-0 lg:text-white">

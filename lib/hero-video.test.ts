@@ -1,17 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import nextConfig from "../next.config";
-import { HERO_STILL_QUALITY, heroCompareAllowed, PHONE_VIDEO_QUERY, requestedClip, savingData } from "./hero-video";
-
-describe("HERO_STILL_QUALITY", () => {
-  it("is a quality the image optimizer allows, and 75 stays the default for every other photo", () => {
-    const allowed = nextConfig.images?.qualities ?? [];
-    assert.ok(allowed.includes(HERO_STILL_QUALITY));
-    assert.ok(allowed.includes(75));
-    // A quality prop rounds to the nearest allowed value, so nothing else may sit below 75 unasked.
-    assert.deepEqual([...allowed].sort((a, b) => a - b), [HERO_STILL_QUALITY, 75]);
-  });
-});
+import { PHONE_VIDEO_QUERY, savingData, videoWanted } from "./hero-video";
+import { site } from "./site";
 
 describe("savingData", () => {
   it("is on for Save-Data and for 2G connections", () => {
@@ -28,28 +18,22 @@ describe("savingData", () => {
   });
 });
 
-describe("heroCompareAllowed", () => {
-  it("offers the clip switch on previews and local builds, never on production", () => {
-    assert.equal(heroCompareAllowed({ VERCEL_ENV: "preview" }), true);
-    assert.equal(heroCompareAllowed({ VERCEL_ENV: "development" }), true);
-    assert.equal(heroCompareAllowed({}), true);
-    assert.equal(heroCompareAllowed({ VERCEL_ENV: "production" }), false);
-    assert.equal(heroCompareAllowed({ NEXT_PUBLIC_VERCEL_ENV: "production" }), false);
+describe("videoWanted", () => {
+  const base = { paused: false, reducedMotion: false, savingData: false, autoplayRefused: false, pressedPlay: false };
+  it("starts by itself when nothing holds it back", () => {
+    assert.equal(videoWanted(base), true);
   });
-});
-
-describe("requestedClip", () => {
-  const names = ["lake"];
-  it("returns the clip the address names, when it's on offer", () => {
-    assert.equal(requestedClip("?hero=lake", names), "lake");
-    assert.equal(requestedClip("?utm_source=x&hero=lake", names), "lake");
+  it("waits for Play under reduced motion, data saving or a refused autoplay", () => {
+    assert.equal(videoWanted({ ...base, reducedMotion: true }), false);
+    assert.equal(videoWanted({ ...base, savingData: true }), false);
+    assert.equal(videoWanted({ ...base, autoplayRefused: true }), false);
+    assert.equal(videoWanted({ ...base, reducedMotion: true, pressedPlay: true }), true);
+    assert.equal(videoWanted({ ...base, savingData: true, pressedPlay: true }), true);
+    assert.equal(videoWanted({ ...base, autoplayRefused: true, pressedPlay: true }), true);
   });
-  it("ignores anything else", () => {
-    assert.equal(requestedClip("", names), null);
-    assert.equal(requestedClip("?hero=canal", names), null);
-    assert.equal(requestedClip("?hero=LAKE", names), null);
-    assert.equal(requestedClip("?hero=constructor", names), null);
-    assert.equal(requestedClip("?hero=lake", []), null);
+  it("stays still once paused, whatever else is true", () => {
+    assert.equal(videoWanted({ ...base, paused: true }), false);
+    assert.equal(videoWanted({ ...base, paused: true, pressedPlay: true }), false);
   });
 });
 
@@ -57,5 +41,11 @@ describe("PHONE_VIDEO_QUERY", () => {
   it("covers a narrow screen and a phone held sideways", () => {
     assert.match(PHONE_VIDEO_QUERY, /\(max-width: 39\.99rem\)/);
     assert.match(PHONE_VIDEO_QUERY, /\(max-height: 31\.25rem\)/);
+  });
+});
+
+describe("site.homeHero", () => {
+  it("is one of the two heroes the home page knows", () => {
+    assert.ok(site.homeHero === "video" || site.homeHero === "photo");
   });
 });

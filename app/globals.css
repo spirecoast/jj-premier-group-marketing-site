@@ -992,6 +992,16 @@
       linear-gradient(90deg, rgb(20 37 48 / 0.62) 0%, rgb(20 37 48 / 0.44) 38%, rgb(20 37 48 / 0.14) 68%, rgb(20 37 48 / 0.02) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.42) 0%, transparent 42%);
   }
+  /* The home hero's video moves under the type and its aerials are busier
+     than a still: the same shade, a little deeper, so the nav, the cameo and
+     the outline button hold their contrast on its brightest frames. */
+  .hero-shade-video {
+    background:
+      linear-gradient(180deg, rgb(13 27 36 / 0.66) 0%, transparent 7.5rem),
+      linear-gradient(180deg, rgb(20 37 48 / 0.48) 0%, transparent 22%),
+      linear-gradient(90deg, rgb(20 37 48 / 0.7) 0%, rgb(20 37 48 / 0.54) 38%, rgb(20 37 48 / 0.18) 68%, rgb(20 37 48 / 0.04) 100%),
+      linear-gradient(0deg, rgb(20 37 48 / 0.52) 0%, transparent 42%);
+  }
   .hero-line {
     display: block;
     overflow: hidden;
@@ -1158,6 +1168,17 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-img { animation: none; }
+}
+
+/* The home hero's video (components/home/hero-video.tsx) comes in over its
+   still once it plays. The still is its first frame, so the fade reads as the
+   picture starting to move. It doesn't drift: the footage moves on its own. */
+.hero-video {
+  opacity: 0;
+  transition: opacity var(--dur-img) var(--ease-reveal);
+}
+.hero-video[data-ready] {
+  opacity: 1;
 }
 
 /* The page mastheads (components/masthead.tsx): the same drift, slower, and a
@@ -1704,6 +1725,27 @@ html[data-motion="paused"] .encore-marquee-bulb {
     .motion-toggle {
       display: none;
     }
+  }
+  /* The home video's sound and pause (components/home/hero-video.tsx): the
+     same glass square at a 44px target. It stays under reduced motion, where
+     the video waits for Play. */
+  .hero-control {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-linen-200);
+    background: rgb(20 37 48 / 0.38);
+    border: 1px solid rgb(230 221 209 / 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    opacity: 0.8;
+    transition: opacity var(--dur-micro) var(--ease-brand), border-color var(--dur-micro) var(--ease-brand);
+  }
+  .hero-control:hover,
+  .hero-control:focus-visible {
+    opacity: 1;
+    border-color: var(--color-linen-200);
   }
 }
 
