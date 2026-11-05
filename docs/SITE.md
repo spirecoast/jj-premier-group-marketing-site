@@ -94,6 +94,48 @@ search index; Resend sends only team-facing email.
   kind of scene with alt text that describes the photo, not the place; Waterside uses the client's lake
   aerial (`lakes-aerial-sunset`). The team photos in `public/images/photos` are
   the team's own. `lib/content/image-dims.ts` groups the files the same way.
+- The home hero's video (November 2026, a preview for Josh to compare two clips). Two free
+  Adobe Stock videos, both licensed November 5, 2026 under the standard license from Adobe
+  Stock's free collection (commercial use, no attribution), so no credit is shown on the page,
+  and neither is flagged as generated:
+  - the canal (the hero): Adobe Stock 665979382, waterfront homes along the canals in Sarasota
+    from the air, late afternoon. `public/video/hero-canal-desktop.mp4` (1920x1080, about 6.6 MB),
+    `hero-canal-phone.mp4` (1280x720, about 3 MB), still `public/images/library/hero-canal-poster.jpg`;
+  - the lake (preview only, `/?hero=lake`): Adobe Stock 557289179, tile-roofed homes along a
+    street and a lake in Florida, overcast; the stock title names no town, so the alt text doesn't
+    either. `public/video/hero-lake-desktop.mp4`, `hero-lake-phone.mp4`, still
+    `public/images/library/hero-lake-poster.jpg`.
+
+  Each file is a seamless 15-second loop, H.264 with no audio track, its index at the front
+  (faststart). The still is the loop's first frame, rendered by `Photo` with `priority`, so the
+  page's largest paint is still an optimized image. It's served at quality 65
+  (`HERO_STILL_QUALITY`, allowed in `next.config.ts` `images.qualities` beside the default 75):
+  a busy aerial frame at 75 was a third heavier than the beach photo it replaced and slowed the
+  largest paint, and at 65 it weighs the same and looks the same. The video (`components/home/hero-video.tsx`)
+  renders only in the browser, over the still, after the page's load event (so it never takes
+  bandwidth from the still), and fades in over `--dur-img` once it plays. It's
+  muted, inline, looping and autoplaying, with no controls, and hidden from assistive technology
+  (the still's alt text describes the picture). Phones get the 720p file: below 640px wide, or
+  under 500px tall (a phone held sideways), chosen once on load (`PHONE_VIDEO_QUERY` in
+  `lib/hero-video.ts`). There's no video at all, only the still, for anyone who asked for reduced
+  motion, anyone who paused the motion with the corner control (and nothing is downloaded until
+  they press Play), and when the browser asks to save data (Save-Data, or a 2G connection). It
+  pauses while the hero is off the screen or the tab is hidden. The corner control pauses and plays
+  it and reads "Pause the video" / "Play the video" (or "the motion" when the visit has no video,
+  since it still pauses the cameo's orbit). The home hero no longer drifts; the mastheads still do.
+  The aerial footage is busier than the old photograph, so the home hero's shade is the same
+  `.hero-shade` a little deeper (`.hero-shade-video`, the same layers with higher alphas), measured
+  every half second across both loops against the type over it. The cameo's small mono line
+  ("REALTORS® · COLDWELL BANKER") is the weak spot, as it was over the beach photo: on a phone it
+  sits over the middle of the picture and dips under 4.5:1 on the brightest frames.
+  `/video` has the photos' Cache-Control, and the CSP's `media-src 'self'` already covers it.
+
+  The comparison: `/?hero=lake` swaps in the lake's still and video in the browser, so the page
+  stays static. It works only off production: the page passes the lake as an alternate only when
+  `heroCompareAllowed()` (`VERCEL_ENV` isn't production), and the component compiles the switch
+  out when `NEXT_PUBLIC_VERCEL_ENV` is production. Once Josh has picked, delete the other clip's
+  three files, its `IMAGE_DIMS` lines, `HERO_CLIPS`' second entry and the `alternates` prop, and
+  this paragraph.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
   **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
   `/calendar`) and **Tide** (the newsletter and its archive, `/blog`). The desktop nav is two
@@ -1424,8 +1466,9 @@ Deliberate keeps from the review passes:
   `CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, and `?deep=1` with the same secret
   adds what the database knows ("Scheduled jobs and alerts" below). Bearer checks go through
   `lib/bearer.ts` (constant-time).
-- Caching: photos under `/images` are `max-age=604800, stale-while-revalidate=2592000` (names are
-  reused when a file is replaced, so not immutable); optimized images keep 31 days
+- Caching: photos under `/images` and the home hero's video under `/video` are
+  `max-age=604800, stale-while-revalidate=2592000` (names are reused when a file is replaced, so
+  not immutable); optimized images keep 31 days
   (`images.minimumCacheTTL`); the MapLibre worker lives in `/vendor/maplibre-gl/<version>/`
   (immutable) behind a one-line `/vendor/maplibre-gl-worker.mjs` that imports it.
 - The privacy policy names the stack as deployed: Plausible (cookieless), Vercel, Supabase,
