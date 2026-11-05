@@ -38,9 +38,9 @@ const FRAMES = {
 /* The hero's video: the Life Here montage, over its first frame (docs/SITE.md, "The home hero").
    `site.homeHero` chooses between it and the photograph above. */
 const HERO_VIDEO = {
-  desktop: "/video/life-here-1080.mp4",
-  phone: "/video/life-here-720.mp4",
-  poster: img("library/life-here-poster", "Anna Maria Island from the air at sunset, the Gulf calm under a pink sky", "50% 50%"),
+  desktop: "/video/life-here-2-1080.mp4",
+  phone: "/video/life-here-2-720.mp4",
+  poster: img("library/life-here-2-poster", "Waterfront homes and boat docks on Sarasota Bay, with the downtown towers behind", "50% 50%"),
 };
 
 export default async function HomePage() {

@@ -2,7 +2,7 @@
 // Used so next/image can reserve layout space without a network round trip.
 export const IMAGE_DIMS: Record<string, { width: number; height: number }> = {
   // The home hero video's still: the first frame of the Life Here montage (free Adobe Stock footage; docs/SITE.md).
-  "/images/library/life-here-poster.jpg": { width: 1920, height: 1080 },
+  "/images/library/life-here-2-poster.jpg": { width: 1920, height: 1080 },
   // Free Adobe Stock photographs for the guides, licensed through the Adobe connector on October 12, 2026 (stock IDs in docs/SITE.md).
   "/images/library/community-gate.jpg": { width: 2360, height: 1568 },
   "/images/library/condo-towers-beach.jpg": { width: 2400, height: 1349 },
