@@ -32,7 +32,7 @@ export function TideCover({ model, team }: { model: IssueModel; team: Pick<TeamM
           </div>
           <p className="rise d2 t-record text-tide text-shadow-soft">{model.dateline}</p>
           <h1 className="rise d2 t-hero text-white text-shadow-photo">{model.coverTitle ?? model.headline}</h1>
-          <p className="rise d3 max-w-[640px] text-[1.1875rem] leading-[1.6] text-linen-100 text-shadow-soft sm:text-[1.3125rem]">{model.coverKicker ?? model.dek}</p>
+          <p className="rise d3 max-w-[640px] text-pretty text-[1.1875rem] leading-[1.6] text-linen-100 text-shadow-soft sm:text-[1.3125rem]">{model.coverKicker ?? model.dek}</p>
           <Byline people={team} extras={["JJ Premier Group", `${model.minutes} min read`]} tone="dark" className="rise d3 mt-2" />
         </div>
       </div>
