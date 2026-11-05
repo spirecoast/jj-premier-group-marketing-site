@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { readMotionPref } from "@/lib/motion-pref";
 
 /** Motion that runs on a loop: paused while its element is off the screen. */
-const LOOPS = ".hero-img, .masthead-img, .cameo-orbit, .scroll-cue, .encore-marquee, .art-drift, .art-breathe";
+const LOOPS = ".masthead-img, .cameo-orbit, .scroll-cue, .encore-marquee, .art-drift, .art-breathe";
 /** Elements that rise into place once, the first time they come into view. */
 const REVEALS = ".sr, .sr-img";
 
@@ -18,9 +18,10 @@ const REVEALS = ".sr, .sr-img";
  * never flashes, and without JavaScript everything is simply in place.
  * New elements (the next page, a filtered list) are picked up as they arrive.
  *
- * Loops: the photographs' slow drift, the cameo's orbit, Encore's bulbs and
+ * Loops: the mastheads' slow drift, the cameo's orbit, Encore's bulbs and
  * the Tide art are paused while they are off the screen, and altogether
  * when the visitor asks (lib/motion-pref.ts). Reduced motion runs none of it.
+ * The home hero's video does the same for itself (components/home/hero-video.tsx).
  */
 export function Motion() {
   useEffect(() => {

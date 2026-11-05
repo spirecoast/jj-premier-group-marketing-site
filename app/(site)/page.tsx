@@ -11,6 +11,7 @@ import { WorkWith } from "@/components/home/work-with";
 import { getFeaturedListings, getSiteSettings, getTeam, getUpcomingEvents } from "@/lib/content";
 import { loadEncoreSnapshot } from "@/lib/encore/live";
 import { img } from "@/lib/content/seed/helpers";
+import { heroCompareAllowed } from "@/lib/hero-video";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
@@ -28,11 +29,26 @@ export const metadata: Metadata = pageMetadata({
 /* Photography for the composed sections. Event photographs come from the
    content layer; these frames are the layout. */
 const FRAMES = {
-  hero: img("library/gulf-beach-aerial", "A Gulf beach from the air, the water in three shades of green", "58% 45%"),
   cameo: img("photos/duo-whitenavy-cameo", "Joelyn Nauman and Jessica Garza", "50% 50%"),
   duo: img("photos/duo-square", "Joelyn Nauman and Jessica Garza", "50% 14%"),
   kitchen: img("library/kitchen-white-palms", "A white kitchen with the palms outside the window"),
   island: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
+};
+
+/* The hero's video loops, each over its own first frame (docs/SITE.md, "The home hero's video").
+   The canal is the hero. Off production the lake is offered too, at /?hero=lake, so the two can
+   be compared in place; production passes no alternates. */
+const HERO_CLIPS = {
+  canal: {
+    desktop: "/video/hero-canal-desktop.mp4",
+    phone: "/video/hero-canal-phone.mp4",
+    poster: img("library/hero-canal-poster", "Waterfront homes along the canals in Sarasota, seen from the air in the late afternoon sun", "50% 50%"),
+  },
+  lake: {
+    desktop: "/video/hero-lake-desktop.mp4",
+    phone: "/video/hero-lake-phone.mp4",
+    poster: img("library/hero-lake-poster", "Tile-roofed homes along a street and a lake in Florida, seen from the air", "50% 50%"),
+  },
 };
 
 export default async function HomePage() {
@@ -52,7 +68,7 @@ export default async function HomePage() {
      photograph says what it is. */
   return (
     <>
-      <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
+      <Hero clip={HERO_CLIPS.canal} alternates={heroCompareAllowed() ? { lake: HERO_CLIPS.lake } : undefined} cameo={FRAMES.cameo} team={team} />
       <Meet duo={FRAMES.duo} />
       <Doors />
       <Places />

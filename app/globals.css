@@ -962,7 +962,7 @@
     font-size: 0.75rem;
   }
 
-  /* Hero photograph: one motion (the drift, defined below) and the shade. */
+  /* Hero picture: the shade (and on the home page the video's fade, defined below). */
   /* The one scrim for type over a card or panel photograph: a faint harbor
      cast across the whole picture, deepening toward the foot where the words
      sit. Heroes keep .hero-shade, which also shades the top for the header. */
@@ -1142,22 +1142,21 @@
   }
 }
 
-/* Phone crop of the hero photograph keeps the sunrise in frame. */
-@media (max-width: 639px) {
-  .hero-img { object-position: 30% 60% !important; }
+/* The home hero's video (components/home/hero-video.tsx) comes in over its
+   still once it plays. The still is its first frame, so the fade reads as the
+   picture starting to move. Reduced motion never renders it. */
+.hero-video {
+  opacity: 0;
+  transition: opacity var(--dur-img) var(--ease-reveal);
+}
+.hero-video[data-ready] {
+  opacity: 1;
 }
 
-/* The hero photograph breathes: one slow drift, and nothing else moving on the frame. */
+/* A photograph breathes: one slow drift, and nothing else moving on the frame. */
 @keyframes hero-drift {
   from { transform: scale(1) translate3d(0, 0, 0); }
   to { transform: scale(1.16) translate3d(-2.6%, -2%, 0); }
-}
-.hero-img {
-  animation: hero-drift 24s ease-in-out infinite alternate;
-  will-change: transform;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-img { animation: none; }
 }
 
 /* The page mastheads (components/masthead.tsx): the same drift, slower, and a
@@ -1653,14 +1652,13 @@ body:has([data-header-overlay]) .site-header[data-scrolled="false"][data-open="f
    pause while off the screen, and altogether once the visitor presses the
    pause in a hero's corner (html[data-motion="paused"]). A paused photograph
    also gives up its compositing layer. The bulbs' first lighting still runs,
-   only the twinkle after it pauses. */
-.hero-img[data-offscreen],
+   only the twinkle after it pauses. The home hero's video is paused from its
+   own component on the same signals. */
 .masthead-img[data-offscreen],
 .scroll-cue[data-offscreen],
 .art-drift[data-offscreen],
 .art-breathe[data-offscreen],
 .cameo-orbit[data-offscreen]::after,
-html[data-motion="paused"] .hero-img,
 html[data-motion="paused"] .masthead-img,
 html[data-motion="paused"] .scroll-cue,
 html[data-motion="paused"] .art-drift,
@@ -1668,10 +1666,8 @@ html[data-motion="paused"] .art-breathe,
 html[data-motion="paused"] .cameo-orbit::after {
   animation-play-state: paused;
 }
-.hero-img[data-offscreen],
 .masthead-img[data-offscreen],
 .art-drift[data-offscreen],
-html[data-motion="paused"] .hero-img,
 html[data-motion="paused"] .masthead-img,
 html[data-motion="paused"] .art-drift {
   will-change: auto;

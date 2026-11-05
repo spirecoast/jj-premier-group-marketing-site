@@ -3,8 +3,8 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Whether the visitor paused the site's looping motion (the hero and
- * masthead photographs' drift, the cameo's orbit, Encore's bulbs). Set from
+ * Whether the visitor paused the site's looping motion (the home hero's
+ * video, the masthead photographs' drift, the cameo's orbit, Encore's bulbs). Set from
  * the small control in a hero's corner (components/motion-toggle.tsx), kept
  * in localStorage, and read on every page by components/motion.tsx, which
  * puts it on <html data-motion> for the stylesheet. Anyone who asked the

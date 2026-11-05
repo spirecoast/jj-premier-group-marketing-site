@@ -1,20 +1,33 @@
 import Link from "next/link";
-import { MotionToggle } from "@/components/motion-toggle";
+import { HeroMotionToggle, HeroVideo } from "@/components/home/hero-video";
 import { Photo } from "@/components/photo";
 import type { ImageRef, TeamMember } from "@/lib/content/types";
+import type { HeroClip } from "@/lib/hero-video";
 import { site } from "@/lib/site";
 import { HOME_HERO_SIZES } from "@/lib/image-sizes";
 
 /**
- * The hero. The photograph is the layout: type sits in the calm third of
- * the frame. Rise, draw and fade are each used once here and nowhere else on
- * the page. One motion on the photograph, the slow drift; the veil and the
- * glow came off at the design director's note. Below `lg` the photograph
+ * The hero. The picture is the layout: type sits in the calm third of the
+ * frame. Rise, draw and fade are each used once here and nowhere else on the
+ * page. The picture is a slow aerial video loop over its own first frame (the
+ * still, which the server renders and which is the page's largest paint); the
+ * video moves on its own, so the still doesn't drift. Below `lg` the picture
  * sits above the headline, 3:2 on phones so the eyebrow, the headline, the
  * orientation line and both buttons land inside the first screen. Nothing
  * here is a figure: the listing card and the ticker return with a data feed.
+ * `alternates` is the preview-only clip switch (lib/hero-video.ts).
  */
-export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef; team: TeamMember[] }) {
+export function Hero({
+  clip,
+  alternates,
+  cameo,
+  team,
+}: {
+  clip: HeroClip<ImageRef>;
+  alternates?: Record<string, HeroClip<ImageRef>>;
+  cameo: ImageRef;
+  team: TeamMember[];
+}) {
   const names = team.map((m) => m.name).join(" & ");
   // The visible names come first, so a voice user can say what they see.
   const meetLabel = team.length ? `${names}, meet the team` : "Meet the team";
@@ -22,9 +35,10 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
   return (
     <section data-header-overlay className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">
       <div className="relative overflow-hidden bg-paper lg:h-[780px] lg:bg-navy">
-        {/* Photograph */}
+        {/* The still, and the video over it */}
         <div className="relative aspect-[3/2] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
-          <Photo image={image} priority sizes={HOME_HERO_SIZES} className="hero-img" />
+          <Photo image={clip.poster} priority sizes={HOME_HERO_SIZES} />
+          <HeroVideo clip={clip} alternates={alternates} sizes={HOME_HERO_SIZES} />
           <div className="hero-shade" aria-hidden="true" />
 
           {/* Cameo: the photograph and the names are one link to the team page. The
@@ -45,8 +59,8 @@ export function Hero({ image, cameo, team }: { image: ImageRef; cameo: ImageRef;
             </Link>
           </div>
 
-          {/* The one control for the photograph's drift, in the corner the type leaves free. */}
-          <MotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
+          {/* The one control for the video, in the corner the type leaves free. */}
+          <HeroMotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
 
           {/* Scroll cue: desktop furniture */}
           <div
