@@ -9,8 +9,15 @@
 /** A box the width of `.container-site`'s content. */
 export const CONTAINER_SIZES = "(min-width: 1440px) 1248px, (min-width: 1024px) calc(100vw - 12rem), (min-width: 768px) calc(100vw - 6rem), calc(100vw - 3rem)";
 
-/** The home hero: full bleed below 1024px, then inset by the gutter on each side with no maximum. */
-export const HOME_HERO_SIZES = "(min-width: 1024px) calc(100vw - 12rem), 100vw";
+/**
+ * The home hero: from 1024px, inset by the gutter on each side with no maximum.
+ * Below that it's full bleed, and on a screen held upright the frame is taller
+ * than it is wide, so a landscape picture covering it runs past both sides:
+ * about 1.9 times the width at 768x1024 (the video's 16:9 still in a 78svh
+ * frame; phones held upright get the portrait still instead, so there this only
+ * sizes the photograph in photo mode).
+ */
+export const HOME_HERO_SIZES = "(min-width: 1024px) calc(100vw - 12rem), (orientation: portrait) 190vw, 100vw";
 
 /**
  * A guide section's photograph: the 860px reading column beside the contents
