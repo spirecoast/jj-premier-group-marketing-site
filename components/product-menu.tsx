@@ -12,9 +12,10 @@ export type MenuSpec = {
   key: string;
   /** The button's text. */
   name: string;
-  /** The panel's first line, what the menu is for. */
-  title: string;
-  items: readonly { href: string; label: string; short: string }[];
+  /** The panel's first line, what the menu is for. The product families have one; Buy and the team menu don't. */
+  title?: string;
+  /** `short` is the quiet line under an item, for the product families only. */
+  items: readonly { href: string; label: string; short?: string }[];
   /** The pages the Sky rule marks under this name. Default: any item's page. A page that belongs to a product family is marked under that family instead. */
   activeWhen?: readonly string[];
   /** A product family: its emblem on the panel and its name set in the display serif. */
@@ -232,11 +233,13 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
         onKeyDown={onPanelKey}
       >
         <div className="product-menu-panel">
-          <p className="flex items-center gap-2.5 px-5 pb-2 pt-4 text-[12px] tracking-[0.02em] text-linen-200/70">
-            {menu.family ? <Emblem family={menu.family} className="size-5" /> : null}
-            {menu.title}
-          </p>
-          <ul className="flex flex-col pb-2">
+          {menu.title ? (
+            <p className="flex items-center gap-2.5 px-5 pb-2 pt-4 text-[12px] tracking-[0.02em] text-linen-200/70">
+              {menu.family ? <Emblem family={menu.family} className="size-5" /> : null}
+              {menu.title}
+            </p>
+          ) : null}
+          <ul className={menu.title ? "flex flex-col pb-2" : "flex flex-col py-2"}>
             {menu.items.map((i) => {
               const here = pathname === i.href;
               return (
@@ -249,7 +252,7 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
                     className="product-menu-item"
                   >
                     <span className="font-display text-[19px] font-light leading-tight text-white">{i.label}</span>
-                    <span className="text-[13px] leading-snug text-linen-200/75">{i.short}</span>
+                    {i.short ? <span className="text-[13px] leading-snug text-linen-200/75">{i.short}</span> : null}
                   </IntentLink>
                 </li>
               );
