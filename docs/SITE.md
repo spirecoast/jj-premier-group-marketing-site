@@ -94,48 +94,69 @@ search index; Resend sends only team-facing email.
   kind of scene with alt text that describes the photo, not the place; Waterside uses the client's lake
   aerial (`lakes-aerial-sunset`). The team photos in `public/images/photos` are
   the team's own. `lib/content/image-dims.ts` groups the files the same way.
-- The home hero's video (November 2026, a preview for Josh to compare two clips). Two free
-  Adobe Stock videos, both licensed November 5, 2026 under the standard license from Adobe
-  Stock's free collection (commercial use, no attribution), so no credit is shown on the page,
-  and neither is flagged as generated:
-  - the canal (the hero): Adobe Stock 665979382, waterfront homes along the canals in Sarasota
-    from the air, late afternoon. `public/video/hero-canal-desktop.mp4` (1920x1080, about 6.6 MB),
-    `hero-canal-phone.mp4` (1280x720, about 3 MB), still `public/images/library/hero-canal-poster.jpg`;
-  - the lake (preview only, `/?hero=lake`): Adobe Stock 557289179, tile-roofed homes along a
-    street and a lake in Florida, overcast; the stock title names no town, so the alt text doesn't
-    either. `public/video/hero-lake-desktop.mp4`, `hero-lake-phone.mp4`, still
-    `public/images/library/hero-lake-poster.jpg`.
+- The home hero (November 2026). One switch, `homeHero` in `lib/site.ts`, chooses what fills it:
+  - `"video"` (now): the Life Here montage over its first frame, with sound and pause in the
+    corner (`components/home/hero-video.tsx`);
+  - `"photo"`: the Gulf beach photograph (`gulf-beach-aerial`, `FRAMES.hero` in
+    `app/(site)/page.tsx`) with its slow drift and the motion toggle, exactly as the hero was
+    before. The markup is the same, byte for byte. Change the one word to switch; both pictures
+    stay in the repo.
 
-  Each file is a seamless 15-second loop, H.264 with no audio track, its index at the front
-  (faststart). The still is the loop's first frame, rendered by `Photo` with `priority`, so the
-  page's largest paint is still an optimized image. It's served at quality 65
-  (`HERO_STILL_QUALITY`, allowed in `next.config.ts` `images.qualities` beside the default 75):
-  a busy aerial frame at 75 was a third heavier than the beach photo it replaced and slowed the
-  largest paint, and at 65 it weighs the same and looks the same. The video (`components/home/hero-video.tsx`)
-  renders only in the browser, over the still, after the page's load event (so it never takes
-  bandwidth from the still), and fades in over `--dur-img` once it plays. It's
-  muted, inline, looping and autoplaying, with no controls, and hidden from assistive technology
-  (the still's alt text describes the picture). Phones get the 720p file: below 640px wide, or
-  under 500px tall (a phone held sideways), chosen once on load (`PHONE_VIDEO_QUERY` in
-  `lib/hero-video.ts`). There's no video at all, only the still, for anyone who asked for reduced
-  motion, anyone who paused the motion with the corner control (and nothing is downloaded until
-  they press Play), and when the browser asks to save data (Save-Data, or a 2G connection). It
-  pauses while the hero is off the screen or the tab is hidden. The corner control pauses and plays
-  it and reads "Pause the video" / "Play the video" (or "the motion" when the visit has no video,
-  since it still pauses the cameo's orbit). The home hero no longer drifts; the mastheads still do.
-  The aerial footage is busier than the old photograph, so the home hero's shade is the same
-  `.hero-shade` a little deeper (`.hero-shade-video`, the same layers with higher alphas), measured
-  every half second across both loops against the type over it. The cameo's small mono line
-  ("REALTORS® · COLDWELL BANKER") is the weak spot, as it was over the beach photo: on a phone it
-  sits over the middle of the picture and dips under 4.5:1 on the brightest frames.
+  **The montage.** "Life Here", a seamless 48.4-second loop of ten shots, cut for the team in
+  November 2026. Every clip and the music are from Adobe Stock's free collection, licensed
+  November 5, 2026 under the standard license, so no credit is shown on the page and none is
+  flagged as generated. In order: 549765787 (Anna Maria Island from the air at sunset, also the
+  still), 665979382 (Sarasota canal homes at golden hour), 385776704 (an infinity pool over the
+  water), 1542602241 (a marble and white-oak kitchen, mirrored), 640505703 (a boat leaving the
+  Venice inlet), 621529647 (a palm-lined golf course), 563623949 (pickleball, hands and
+  silhouettes), 514783510 (a garden dinner with friends), 506301840 (violin and piano in a
+  concert hall) and 621995290 (the Venice fishing pier at sunset). Music: "Shine", 495722710.
+  Before launch, check the model releases for 514783510 and 506301840 on their Adobe Stock pages;
+  the licensing tool doesn't show them.
+
+  **The files.** `public/video/life-here-1080.mp4` (1920x1080, 13.9 MB) and `life-here-720.mp4`
+  (1280x720, 6.0 MB): H.264 High at about 2.15 and 0.85 Mb/s, index at the front (faststart),
+  with the music as AAC at 128 kb/s stereo. The still is `public/images/library/life-here-poster.jpg`
+  (21 KB as AVIF at 1280px). A 1.5 Mb/s 1080 encode would have saved 4 MB, but the golf grass
+  and palms smeared at full screen, so the delivered encode stays. The music has no gain change
+  and no normaliser (-17.1 LUFS integrated, true peak -2.4 dBTP, the build intact). It fades in
+  softly on the song's own intro, and a 4-second fade ends on the song's 46.92-second phrase
+  exactly at the loop point, so each loop opens on about three quiet seconds before the song
+  builds again.
+
+  **How it behaves.** The still is rendered by `Photo` with `priority`, so the largest paint is
+  an optimized image. The video is rendered only in the browser, requested after the page's
+  load event, and fades in over `--dur-img` once it plays.
+  - It's muted, inline, looping and autoplaying, with no controls, and hidden from assistive
+    technology (the still's alt text describes the picture).
+  - Phones get the 720p file: below 640px wide, or under 500px tall (a phone held sideways),
+    chosen once on load (`PHONE_VIDEO_QUERY` in `lib/hero-video.ts`).
+  - It never starts by itself for anyone who asked for reduced motion, when the browser asks to
+    save data (Save-Data, or a 2G connection), when a pause was stored from an earlier visit, or
+    when the browser refuses to autoplay (Low Power Mode). They get the still and a Play button,
+    and nothing is downloaded until they press it (`videoWanted` in `lib/hero-video.ts`).
+  - It pauses while the hero is off the screen or the tab is hidden.
+  - If the file can't play, the still stays and the button pauses the page's other loops
+    ("Pause the motion").
+
+  **The controls.** Two 44px glass squares (`.hero-control`) in the corner the motion toggle uses
+  in photo mode, with the site's Sky 300 focus ring.
+  - Sound reads "Turn sound on" / "Turn sound off" and shows a crossed or open speaker. The video
+    always starts muted, since browsers only autoplay muted video. It appears once there's a
+    video to hear.
+  - Pause/play takes the motion toggle's role on the home hero. It reads "Pause the video" /
+    "Play the video" with `aria-pressed`, remembers the choice (`jj:motion`,
+    `lib/motion-pref.ts`), and pauses the page's other loops too.
+
+  **Readability.** The shade is the same `.hero-shade` a little deeper (`.hero-shade-video`,
+  deepest under the header), and the cameo's small line ("REALTORS® · COLDWELL BANKER") carries
+  the names' text shadow. Swept every half second across the loop against the type over it:
+  - At 1440 the nav, headline, buttons and cameo names hold their ratios.
+  - The small line is the weak spot, as it was over the beach photo. Before its shadow it measures
+    about 4.2:1 at 1440 on its worst frames, and lower on a phone, where it sits over the middle of
+    the picture.
+
   `/video` has the photos' Cache-Control, and the CSP's `media-src 'self'` already covers it.
-
-  The comparison: `/?hero=lake` swaps in the lake's still and video in the browser, so the page
-  stays static. It works only off production: the page passes the lake as an alternate only when
-  `heroCompareAllowed()` (`VERCEL_ENV` isn't production), and the component compiles the switch
-  out when `NEXT_PUBLIC_VERCEL_ENV` is production. Once Josh has picked, delete the other clip's
-  three files, its `IMAGE_DIMS` lines, `HERO_CLIPS`' second entry and the `alternates` prop, and
-  this paragraph.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
   **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
   `/calendar`) and **Tide** (the newsletter and its archive, `/blog`). The desktop nav is two

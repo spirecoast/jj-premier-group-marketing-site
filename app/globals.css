@@ -992,13 +992,14 @@
       linear-gradient(90deg, rgb(20 37 48 / 0.62) 0%, rgb(20 37 48 / 0.44) 38%, rgb(20 37 48 / 0.14) 68%, rgb(20 37 48 / 0.02) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.42) 0%, transparent 42%);
   }
-  /* The home hero's video moves under the type and its aerials are busier
-     than a still: the same shade, a little deeper, so the nav, the cameo and
-     the outline button hold their contrast on its brightest frames. */
+  /* The home hero's video moves under the type, and its skies, kitchen and
+     pool run brighter than the photograph: the same shade, a little deeper
+     (most of all under the header), so the nav, the cameo and the outline
+     button hold their contrast on its brightest frames. */
   .hero-shade-video {
     background:
-      linear-gradient(180deg, rgb(13 27 36 / 0.66) 0%, transparent 7.5rem),
-      linear-gradient(180deg, rgb(20 37 48 / 0.48) 0%, transparent 22%),
+      linear-gradient(180deg, rgb(13 27 36 / 0.76) 0%, transparent 7.5rem),
+      linear-gradient(180deg, rgb(20 37 48 / 0.52) 0%, transparent 22%),
       linear-gradient(90deg, rgb(20 37 48 / 0.7) 0%, rgb(20 37 48 / 0.54) 38%, rgb(20 37 48 / 0.18) 68%, rgb(20 37 48 / 0.04) 100%),
       linear-gradient(0deg, rgb(20 37 48 / 0.52) 0%, transparent 42%);
   }
