@@ -159,7 +159,8 @@ export const TIDE_WEB_COPY = {
   cardEyebrow: "Tide · Monthly issue",
   /** {month} is the issue's own month: an issue is about now, and its labels never lead with the data month. */
   cardExcerpt: "What to know this {month} if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, from the county’s public record.",
-  ogMeta: "Lakewood Ranch · Sarasota · Bradenton · From the county record",
+  /** The share card's small line: the three places, short enough for one line under the cover line. */
+  ogMeta: "Lakewood Ranch · Sarasota · Bradenton",
   description: "Tide, {issue}: what to know this {month} if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.",
 
   everyIssue: "Every issue of Tide",
