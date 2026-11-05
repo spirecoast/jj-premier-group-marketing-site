@@ -171,7 +171,11 @@ export function postChunks(p: Post): Chunk[] {
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
-/** A Tide issue: the cover note with each market's figures (computed, as on the page) and "What it means". */
+/**
+ * A Tide issue: what it says now (the headline and the dek), the line on the
+ * data's timing, each market's figures (computed, as on the page), and "What
+ * it means". Like the page, it leads with the issue, not the data month.
+ */
 export function tideChunks(m: IssueModel): Chunk[] {
   const url = `/tide/${m.issue}`;
   const markets = m.markets.map((x) => {
@@ -184,7 +188,7 @@ export function tideChunks(m: IssueModel): Chunk[] {
     ].filter(Boolean);
     return `${x.name} in ${m.dataLabel}: ${list(parts)}.`;
   });
-  const out = toChunks({ id: `tide:${m.issue}`, kind: "post", title: m.title, sectionTitle: m.eyebrow, url }, [m.description, m.note, m.intro, ...markets]);
+  const out = toChunks({ id: `tide:${m.issue}`, kind: "post", title: m.title, sectionTitle: m.eyebrow, url }, [m.headline, m.dek, m.note, m.intro, ...markets]);
   if (m.commentary?.length) {
     out.push(...toChunks({ id: `tide:${m.issue}#what`, kind: "post", title: m.title, sectionTitle: "What it means", url: `${url}#what-title` }, m.commentary));
   }

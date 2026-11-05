@@ -121,14 +121,23 @@ describe("helpers", () => {
 describe("buildTideIssue", () => {
   // August 2026 is short in Sarasota and Bradenton, so the default is July.
   const issue = buildTideIssue({ sales: salesFixture(), manifest: MANIFEST_COMPLETE, today: "2026-09-15", footer: FOOTER });
-  const coverage = "The county posts sales a few weeks late, so this issue looks back at July 2026. That’s the newest month that’s complete for all three places.";
+  const coverage = "The county posts each sale about two months after it closes, so these are the newest complete numbers: sales through July.";
 
   it("defaults to the latest month complete in all three markets, never a partial one", () => {
     assert.equal(issue.month, "2026-07");
     assert.equal(issue.latestComplete, "2026-07");
     assert.ok(issue.markets.every((m) => m.complete && m.count === 4));
-    assert.equal(issue.subject, "Tide · July 2026");
-    assert.equal(tideTeamSubject(issue), "Tide, July 2026: ready to send");
+    // The issue is named for its own month (today's, without one named), never the data month.
+    assert.equal(issue.subject, "Tide · September 2026");
+    assert.equal(issue.issueLabel, "September 2026");
+    assert.equal(tideTeamSubject(issue), "Tide, September 2026: ready to send");
+    assert.equal(issue.preheader, "What to know this September if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, from the county’s public record.");
+    assert.ok(flat(issue.text).startsWith("TIDE · WHAT THE COUNTY RECORD SAYS THIS SEPTEMBER"));
+    const named = buildTideIssue({ sales: salesFixture(), manifest: MANIFEST_COMPLETE, today: "2026-09-15", issue: "2026-10", footer: FOOTER });
+    assert.equal(named.subject, "Tide · October 2026");
+    assert.equal(tideTeamSubject(named), "Tide, October 2026: ready to send");
+    for (const line of [issue.subject, issue.preheader, tideTeamSubject(issue)]) assert.doesNotMatch(line, /July/, line);
+    // The period is still the data month: it keys the send on record.
     assert.deepEqual(issue.period, { from: "2026-07-01", to: "2026-07-31", label: "July 2026" });
     assert.equal(issue.hold, undefined);
   });
@@ -136,7 +145,7 @@ describe("buildTideIssue", () => {
     assert.ok(issue.html.includes(coverage));
     const text = flat(issue.text);
     assert.ok(text.includes(coverage));
-    assert.ok(text.indexOf("Here’s how home sales went in July 2026") < text.indexOf(coverage));
+    assert.ok(text.indexOf("Here’s how home sales are going in Lakewood Ranch, Sarasota and Bradenton this September.") < text.indexOf(coverage));
     assert.ok(text.indexOf(coverage) < text.indexOf("Lakewood Ranch -"));
   });
   it("carries the source line with the manifest date", () => {
@@ -151,7 +160,8 @@ describe("buildTideIssue", () => {
       assert.ok(flat(issue.html).includes(box.replace(/[“”]/g, (q) => (q === "“" ? "&ldquo;" : "&rdquo;"))) || flat(issue.html).includes(box), box);
       assert.ok(flat(issue.text).includes(box), box);
     }
-    assert.ok(!issue.text.includes(TIDE_COPY.buyersHeading));
+    // No advice section until it's written (the placeholder names it in quotes, so look for the heading itself).
+    assert.ok(!issue.text.includes(`${TIDE_COPY.buyersHeading}\n---`));
   });
   it("carries the facts to write from until the story is written, and the story once it is", () => {
     const facts = ["Largest change against a typical month: home sales in Bradenton went up 12% to 793, from 706."];
@@ -175,7 +185,7 @@ describe("buildTideIssue", () => {
     const text = flat(written.text);
     assert.ok(!text.includes("FACTS TO WRITE FROM"), "the facts box goes once the story is written");
     assert.ok(!text.includes(TIDE_COPY.storyPlaceholder));
-    assert.ok(!text.includes("Here’s how home sales went in July 2026"), "the opening replaces the plain intro");
+    assert.ok(!text.includes("Here’s how home sales are going"), "the opening replaces the plain intro");
     for (const s of ["Picture July in Bradenton.", "If you’re buying -", "Buy by the square foot.", "If you’re selling -", "Sell by the square foot.", TIDE_COPY.limits, "What to watch next month -", "- Watch August.", "From Joelyn and Jessica -", "My words. Joelyn Nauman"]) {
       assert.ok(text.includes(s), s);
     }

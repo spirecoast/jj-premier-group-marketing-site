@@ -93,7 +93,6 @@ export default async function TideIssuePage({ params }: { params: Params }) {
   const selling = story?.selling ?? [];
   const hasMoves = Boolean(buying.length || selling.length || story?.buyers.length || story?.sellers.length);
   const events = await outThisMonth(model.issue);
-  const month = model.dataLabel.split(" ")[0]!;
   const c = model.combined;
 
   return (
@@ -142,13 +141,17 @@ export default async function TideIssuePage({ params }: { params: Params }) {
                 </div>
               ) : null}
               <div className="tide-prose tide-story flex max-w-measure flex-col gap-6" data-tide-opening="">
-                {(told ? story!.opening : [model.note, model.intro]).map((p, i) => (
+                {(told ? story!.opening : [model.framing, model.note, model.intro]).map((p, i) => (
                   <p key={p.slice(0, 40)} className={i === 0 ? "guide-drop" : undefined}>
                     {p}
                   </p>
                 ))}
               </div>
-              {told ? <p className="t-small max-w-measure border-t border-hairline pt-5 text-body-muted">{`${model.note} ${model.intro}`}</p> : null}
+              {/* The data's timing, said once: which month the numbers run through, and how far each county's record reached. */}
+              <div className="flex max-w-measure flex-col gap-2 border-t border-hairline pt-5" data-tide-timing="">
+                {told ? <p className="t-small text-body-muted">{`${model.note} ${model.intro}`}</p> : null}
+                {model.throughLine ? <p className="t-record text-graphite-600">{model.throughLine}</p> : null}
+              </div>
             </div>
           </div>
         </section>

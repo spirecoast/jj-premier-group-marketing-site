@@ -7,7 +7,8 @@ export type TideCard = {
   href: string;
   title: string;
   excerpt: string;
-  data: string;
+  /** One line under the title: what the issue says now (its headline). Never the data month. */
+  line: string;
   issue?: string;
   issueLabel?: string;
   cover?: ImageRef;
@@ -16,7 +17,7 @@ export type TideCard = {
   coverKicker?: string;
 };
 
-/** One past issue on /tide: its cover, then the month and what it covered. */
+/** One issue on /tide and /newsletters: its cover, then its month and what it says. */
 export function TideIssueCard({ card, priority }: { card: TideCard; priority?: boolean }) {
   return (
     <Link
@@ -27,7 +28,7 @@ export function TideIssueCard({ card, priority }: { card: TideCard; priority?: b
       <TideCover card={card} priority={priority} sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw" />
       <div className="flex flex-col gap-1">
         <h3 className="t-h3 text-navy transition-colors group-hover:text-harbor-700">{card.title}</h3>
-        <p className="t-small text-body-muted">{card.data}</p>
+        <p className="t-small text-body-muted">{card.line}</p>
       </div>
     </Link>
   );

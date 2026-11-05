@@ -79,7 +79,7 @@ export type TideIssueInput = {
    * today (never a partial month: the appraisers publish weeks late).
    */
   month?: string;
-  /** The issue month (YYYY-MM) the site files this under, e.g. October 2026 for July's figures. Names the subject line. */
+  /** The issue month (YYYY-MM) the site files this under, e.g. October 2026 for July's figures; today's month when left out. Names the subject line, the preheader and the title. */
   issue?: string;
   footer: Omit<FooterInput, "product">;
   /** The story, the notes and the facts. Without it the draft has a dashed box for each. */
@@ -128,7 +128,10 @@ export const COMPLETE_RATIO = 0.75;
 
 export type TideIssue = Issue & {
   kind: "tide";
+  /** The data month: the newest month complete in all three markets, or the one named. */
   month: string;
+  /** The issue's own month, "November 2026": what the subject and the team email name it by. */
+  issueLabel: string;
   markets: TideMarket[];
   /** Qualified home sales in the two counties that month, and how many fell outside the three markets' ZIPs. */
   counties: { total: number; outside: number };
@@ -399,11 +402,14 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
   }
   if (markets.every((m) => !m.count)) warnings.push(`No qualified home sales in ${monthName} in any of the three markets: the sales data may not cover that month.`);
 
-  const subject = fill(TIDE_COPY.subject, { month: input.issue ? monthLabel(input.issue) : monthName });
-  const preheader = story?.dek ?? fill(TIDE_COPY.preheader, { month: monthName });
-  const title = story?.headline ?? fill(TIDE_COPY.title, { month: monthName });
-  const intro = fill(TIDE_COPY.intro, { month: monthName });
-  const coverage = month === latestComplete ? fill(TIDE_COPY.coverage, { month: monthName }) : null;
+  // The issue is named for its own month and written about now; the data month is said once, in the coverage line.
+  const issueLabel = monthLabel(input.issue ?? input.today.slice(0, 7));
+  const issueMonth = issueLabel.split(" ")[0]!;
+  const subject = fill(TIDE_COPY.subject, { month: issueLabel });
+  const preheader = story?.dek ?? fill(TIDE_COPY.preheader, { month: issueMonth });
+  const title = story?.headline ?? fill(TIDE_COPY.title, { month: issueMonth });
+  const intro = fill(TIDE_COPY.intro, { month: issueMonth });
+  const coverage = month === latestComplete ? fill(TIDE_COPY.coverage, { month: monthName.split(" ")[0]! }) : null;
   const counties = countyTotals(input.sales, month);
   const outside = counties.outside ? fill(TIDE_COPY.outside, { outside: num(counties.outside), total: num(counties.total), month: monthName }) : null;
   const lag = through ? fill(TIDE_COPY.lag, { through }) : null;
@@ -548,6 +554,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
     warnings,
     ...(partial ? { hold: `${monthName} isn't complete on the county record in all three markets` } : {}),
     month,
+    issueLabel,
     markets,
     asOf,
     through,
@@ -556,7 +563,7 @@ export function buildTideIssue(input: TideIssueInput): TideIssue {
   };
 }
 
-/** The subject of the internal email that carries the issue to the team. */
-export function tideTeamSubject(issue: Pick<Issue, "period">): string {
-  return `Tide, ${issue.period.label}: ready to send`;
+/** The subject of the internal email that carries the issue to the team: the issue by its own month, as subscribers will see it. */
+export function tideTeamSubject(issue: Pick<TideIssue, "issueLabel">): string {
+  return `Tide, ${issue.issueLabel}: ready to send`;
 }

@@ -83,7 +83,7 @@ describe("the subscriber copy of an issue", () => {
     assert.ok(!t.includes("A fact for the writer."));
     assert.ok(!t.includes("Jessica: a few sentences"));
     assert.ok(t.includes("My words. Joelyn Nauman"), "a written note goes out");
-    assert.ok(t.includes("Here’s how home sales went in July 2026"), "the plain intro stands in for the story");
+    assert.ok(t.includes("Here’s how home sales are going in Lakewood Ranch, Sarasota and Bradenton this September."), "the plain intro stands in for the story");
   });
 });
 

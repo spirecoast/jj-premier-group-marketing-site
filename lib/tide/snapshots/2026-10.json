@@ -738,5 +738,159 @@
         "share": 50
       }
     ]
+  },
+  "trend": {
+    "last3": {
+      "markets": {
+        "lakewood-ranch": {
+          "now": {
+            "from": "2026-05",
+            "to": "2026-07",
+            "count": 882,
+            "newBuild": 381,
+            "medianPrice": 650000,
+            "medianPpsf": 285
+          },
+          "lastYear": {
+            "from": "2025-05",
+            "to": "2025-07",
+            "count": 794,
+            "newBuild": 403,
+            "medianPrice": 612000,
+            "medianPpsf": 281
+          }
+        },
+        "sarasota": {
+          "now": {
+            "from": "2026-05",
+            "to": "2026-07",
+            "count": 1952,
+            "newBuild": 279,
+            "medianPrice": 536750,
+            "medianPpsf": 293
+          },
+          "lastYear": {
+            "from": "2025-05",
+            "to": "2025-07",
+            "count": 1742,
+            "newBuild": 340,
+            "medianPrice": 493700,
+            "medianPpsf": 285
+          }
+        },
+        "bradenton": {
+          "now": {
+            "from": "2026-05",
+            "to": "2026-07",
+            "count": 2904,
+            "newBuild": 1110,
+            "medianPrice": 399000,
+            "medianPpsf": 226
+          },
+          "lastYear": {
+            "from": "2025-05",
+            "to": "2025-07",
+            "count": 2239,
+            "newBuild": 803,
+            "medianPrice": 385000,
+            "medianPpsf": 233
+          }
+        }
+      },
+      "all": {
+        "now": {
+          "from": "2026-05",
+          "to": "2026-07",
+          "count": 5738,
+          "newBuild": 1770,
+          "medianPrice": 470000,
+          "medianPpsf": 262
+        },
+        "lastYear": {
+          "from": "2025-05",
+          "to": "2025-07",
+          "count": 4775,
+          "newBuild": 1546,
+          "medianPrice": 450000,
+          "medianPpsf": 262
+        }
+      }
+    },
+    "ytd": {
+      "markets": {
+        "lakewood-ranch": {
+          "now": {
+            "from": "2026-01",
+            "to": "2026-07",
+            "count": 2003,
+            "newBuild": 771,
+            "medianPrice": 615000,
+            "medianPpsf": 285
+          },
+          "lastYear": {
+            "from": "2025-01",
+            "to": "2025-07",
+            "count": 1789,
+            "newBuild": 798,
+            "medianPrice": 600000,
+            "medianPpsf": 287
+          }
+        },
+        "sarasota": {
+          "now": {
+            "from": "2026-01",
+            "to": "2026-07",
+            "count": 4417,
+            "newBuild": 497,
+            "medianPrice": 530000,
+            "medianPpsf": 294
+          },
+          "lastYear": {
+            "from": "2025-01",
+            "to": "2025-07",
+            "count": 4103,
+            "newBuild": 703,
+            "medianPrice": 501000,
+            "medianPpsf": 290
+          }
+        },
+        "bradenton": {
+          "now": {
+            "from": "2026-01",
+            "to": "2026-07",
+            "count": 6150,
+            "newBuild": 1952,
+            "medianPrice": 385000,
+            "medianPpsf": 222
+          },
+          "lastYear": {
+            "from": "2025-01",
+            "to": "2025-07",
+            "count": 4939,
+            "newBuild": 1486,
+            "medianPrice": 385000,
+            "medianPpsf": 231
+          }
+        }
+      },
+      "all": {
+        "now": {
+          "from": "2026-01",
+          "to": "2026-07",
+          "count": 12570,
+          "newBuild": 3220,
+          "medianPrice": 460000,
+          "medianPpsf": 259
+        },
+        "lastYear": {
+          "from": "2025-01",
+          "to": "2025-07",
+          "count": 10831,
+          "newBuild": 2987,
+          "medianPrice": 450000,
+          "medianPpsf": 263
+        }
+      }
+    }
   }
 }

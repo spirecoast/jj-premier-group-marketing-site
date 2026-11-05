@@ -180,8 +180,10 @@ export function subscriberLines(issue: Pick<Issue, "kind">, info: TeamSendInfo):
 
 /** The note above the issue in the team email: what this is, what to do, and the warnings. */
 function teamNote(issue: Issue, webhook: StepResult, send?: TeamSendInfo | null): string[] {
+  // Tide is named for its own month, as its subject is; the data month follows in words.
+  const name = issue.kind === "tide" && "issueLabel" in issue && typeof issue.issueLabel === "string" ? `${issue.issueLabel} (sales through ${issue.period.label})` : issue.period.label;
   const lines = [
-    `<strong>This is the ${issue.kind === "encore" ? "Encore" : "Tide"} issue for ${esc(issue.period.label)}, built by the website. Nothing has been sent to subscribers.</strong>`,
+    `<strong>This is the ${issue.kind === "encore" ? "Encore" : "Tide"} issue for ${esc(name)}, built by the website. Nothing has been sent to subscribers.</strong>`,
     `Subject line for subscribers: <strong>${esc(issue.subject)}</strong>`,
     ...(send ? subscriberLines(issue, send) : []),
   ];

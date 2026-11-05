@@ -1,6 +1,6 @@
 import { monthLabel } from "../issues/render";
 import { NARRATIVE_FIELDS, TIDE_MARKET_KEYS, type NarrativeField, type TideIssueEntry, type TideMove } from "./issues";
-import { num, pctChange, usd, type Combined, type IssueMarket } from "./issue";
+import { num, pctChange, usd, type Combined, type IssueMarket, type StretchPair, type Trend } from "./issue";
 
 /**
  * The figures a Tide narrative may quote, as tokens. A writer puts
@@ -28,11 +28,28 @@ import { num, pctChange, usd, type Combined, type IssueMarket } from "./issue";
  *   {m.under750k} {m.under1.5m} {m.over400k} {m.over750k}    cumulative shares
  *   {m.streets.1.name} {m.streets.1.street} {m.streets.1.place} {m.streets.1.sales}  … up to 5
  *
+ * The trend behind the month, per market and for `all`: `last3` is the three
+ * months ending with the data month ("June to August"), `ytd` is January
+ * through it, each against the same months a year before:
+ *
+ *   {m.last3.sales} {m.last3.lastYearSales} {m.last3.vsLastYearPct} {m.last3.vsLastYearWord} {m.last3.vsLastYearSales}
+ *   {m.last3.ppsf} {m.last3.lastYearPpsf} {m.last3.ppsfVsLastYearPct} {m.last3.ppsfVsLastYearDir}
+ *   {m.last3.medianPrice} {m.last3.lastYearMedianPrice} {m.last3.medianPriceVsLastYearPct} {m.last3.medianPriceVsLastYearDir}
+ *   {m.last3.newBuild} {m.last3.lastYearNewBuild} {m.last3.newBuildVsLastYearPct} {m.last3.newBuildVsLastYearWord}
+ *   {m.last3.existing} {m.last3.lastYearExisting} {m.last3.existingVsLastYearPct} {m.last3.existingVsLastYearWord}
+ *                                                    existing = every sale that wasn't a new build or a lot
+ *   {m.last3.span} {m.last3.lastYearSpan}            "June to August", "June to August 2025"
+ *   … and the same with `ytd` in place of `last3` ("January to August").
+ *
+ * For `all` only, the three markets together on the twelve-month chart:
+ *
+ *   {all.sales.2026-01} {all.highSales} {all.highMonth} {all.lowSales} {all.lowMonth}
+ *
  * Counts carry commas, dollars a sign, percents a sign and no decimals; every
  * percent is the size of the change, so the sentence says which way.
  */
 
-export type TokenInput = { dataMonth: string; markets: IssueMarket[]; combined: Combined };
+export type TokenInput = { dataMonth: string; markets: IssueMarket[]; combined: Combined; trend?: Trend | null };
 
 const TOKEN = /\{([a-z][a-z0-9-]*(?:\.[a-zA-Z0-9-]+)+)\}/g;
 
@@ -40,6 +57,13 @@ const pct = (v: number | null | undefined) => (v === null || v === undefined || 
 const word = (v: number | null | undefined, more: string, fewer: string, same: string) =>
   v === null || v === undefined || Number.isNaN(v) ? null : Math.round(v) > 0 ? more : Math.round(v) < 0 ? fewer : same;
 const monthName = (m: string) => monthLabel(m).split(" ")[0]!;
+
+/** "June to August" for a run inside one year ("June to August 2025" with the year), "November 2026 to January 2027" across two, "January" for one month. */
+export function spanLabel(from: string, to: string, withYear = false): string {
+  if (from === to) return withYear ? monthLabel(to) : monthName(to);
+  if (from.slice(0, 4) !== to.slice(0, 4)) return `${monthLabel(from)} to ${monthLabel(to)}`;
+  return `${monthName(from)} to ${withYear ? monthLabel(to) : monthName(to)}`;
+}
 
 /** Every token and its value for an issue's figures. */
 export function figureTokens(f: TokenInput): Map<string, string> {
@@ -143,6 +167,54 @@ export function figureTokens(f: TokenInput): Map<string, string> {
   }
   set("all.month", monthName(f.dataMonth));
   set("all.monthYear", monthLabel(f.dataMonth));
+
+  // The three markets together on the twelve-month chart.
+  const months = f.markets[0]?.series.map((p) => p.month) ?? [];
+  const totals = months.map((month, i) => ({ month, count: f.markets.reduce((a, m) => a + (m.series[i]?.count ?? 0), 0) }));
+  for (const p of totals) set(`all.sales.${p.month}`, count(p.count));
+  const byCount = [...totals].sort((a, c) => c.count - a.count || a.month.localeCompare(c.month));
+  if (byCount.length) {
+    set("all.highSales", count(byCount[0]!.count));
+    set("all.highMonth", monthLabel(byCount[0]!.month));
+    set("all.lowSales", count(byCount[byCount.length - 1]!.count));
+    set("all.lowMonth", monthLabel(byCount[byCount.length - 1]!.month));
+  }
+
+  // The trend: the last three complete months and the year to date, against a year before.
+  const stretch = (key: string, p: StretchPair) => {
+    const n = p.now;
+    const ly = p.lastYear;
+    set(`${key}.span`, spanLabel(n.from, n.to));
+    set(`${key}.sales`, count(n.count));
+    set(`${key}.newBuild`, count(n.newBuild));
+    set(`${key}.existing`, count(n.count - n.newBuild));
+    set(`${key}.medianPrice`, money(n.medianPrice));
+    set(`${key}.ppsf`, money(n.medianPpsf));
+    if (!ly) return;
+    set(`${key}.lastYearSpan`, spanLabel(ly.from, ly.to, true));
+    set(`${key}.lastYearSales`, count(ly.count));
+    set(`${key}.vsLastYearSales`, count(Math.abs(n.count - ly.count)));
+    set(`${key}.vsLastYearPct`, pct(pctChange(n.count, ly.count)));
+    set(`${key}.vsLastYearWord`, word(pctChange(n.count, ly.count), "more", "fewer", "about the same"));
+    set(`${key}.lastYearNewBuild`, count(ly.newBuild));
+    set(`${key}.newBuildVsLastYearPct`, pct(pctChange(n.newBuild, ly.newBuild)));
+    set(`${key}.newBuildVsLastYearWord`, word(pctChange(n.newBuild, ly.newBuild), "more", "fewer", "about the same"));
+    set(`${key}.lastYearExisting`, count(ly.count - ly.newBuild));
+    set(`${key}.existingVsLastYearPct`, pct(pctChange(n.count - n.newBuild, ly.count - ly.newBuild)));
+    set(`${key}.existingVsLastYearWord`, word(pctChange(n.count - n.newBuild, ly.count - ly.newBuild), "more", "fewer", "about the same"));
+    set(`${key}.lastYearMedianPrice`, money(ly.medianPrice));
+    set(`${key}.medianPriceVsLastYearPct`, pct(pctChange(n.medianPrice, ly.medianPrice)));
+    set(`${key}.medianPriceVsLastYearDir`, word(pctChange(n.medianPrice, ly.medianPrice), "up", "down", "flat"));
+    set(`${key}.lastYearPpsf`, money(ly.medianPpsf));
+    set(`${key}.ppsfVsLastYearPct`, pct(pctChange(n.medianPpsf, ly.medianPpsf)));
+    set(`${key}.ppsfVsLastYearDir`, word(pctChange(n.medianPpsf, ly.medianPpsf), "up", "down", "flat"));
+  };
+  if (f.trend) {
+    for (const w of ["last3", "ytd"] as const) {
+      for (const m of f.markets) stretch(`${m.market}.${w}`, f.trend[w].markets[m.market]);
+      stretch(`all.${w}`, f.trend[w].all);
+    }
+  }
   return t;
 }
 
