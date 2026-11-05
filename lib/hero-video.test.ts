@@ -1,6 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { heroCompareAllowed, PHONE_VIDEO_QUERY, requestedClip, savingData } from "./hero-video";
+import nextConfig from "../next.config";
+import { HERO_STILL_QUALITY, heroCompareAllowed, PHONE_VIDEO_QUERY, requestedClip, savingData } from "./hero-video";
+
+describe("HERO_STILL_QUALITY", () => {
+  it("is a quality the image optimizer allows, and 75 stays the default for every other photo", () => {
+    const allowed = nextConfig.images?.qualities ?? [];
+    assert.ok(allowed.includes(HERO_STILL_QUALITY));
+    assert.ok(allowed.includes(75));
+    // A quality prop rounds to the nearest allowed value, so nothing else may sit below 75 unasked.
+    assert.deepEqual([...allowed].sort((a, b) => a - b), [HERO_STILL_QUALITY, 75]);
+  });
+});
 
 describe("savingData", () => {
   it("is on for Save-Data and for 2G connections", () => {

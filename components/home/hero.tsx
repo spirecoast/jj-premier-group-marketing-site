@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HeroMotionToggle, HeroVideo } from "@/components/home/hero-video";
 import { Photo } from "@/components/photo";
 import type { ImageRef, TeamMember } from "@/lib/content/types";
-import type { HeroClip } from "@/lib/hero-video";
+import { HERO_STILL_QUALITY, type HeroClip } from "@/lib/hero-video";
 import { site } from "@/lib/site";
 import { HOME_HERO_SIZES } from "@/lib/image-sizes";
 
@@ -37,9 +37,9 @@ export function Hero({
       <div className="relative overflow-hidden bg-paper lg:h-[780px] lg:bg-navy">
         {/* The still, and the video over it */}
         <div className="relative aspect-[3/2] bg-navy sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto">
-          <Photo image={clip.poster} priority sizes={HOME_HERO_SIZES} />
+          <Photo image={clip.poster} priority quality={HERO_STILL_QUALITY} sizes={HOME_HERO_SIZES} />
           <HeroVideo clip={clip} alternates={alternates} sizes={HOME_HERO_SIZES} />
-          <div className="hero-shade" aria-hidden="true" />
+          <div className="hero-shade hero-shade-video" aria-hidden="true" />
 
           {/* Cameo: the photograph and the names are one link to the team page. The
               focus ring is the site's own, Sky 300 on this photographic ground. */}

@@ -10,6 +10,14 @@ import { deployEnv } from "./deploy-env";
 export type HeroClip<Poster> = { desktop: string; phone: string; poster: Poster };
 
 /**
+ * The still's image quality. A busy aerial frame at the site's 75 came out a
+ * third heavier than the photograph it replaced (100 KB against 75 KB as AVIF
+ * at 1280px) and slowed the largest paint; at 65 it's 73 KB and looks the same.
+ * Allowed in next.config.ts `images.qualities`.
+ */
+export const HERO_STILL_QUALITY = 65;
+
+/**
  * Phones get the 720p file: a narrow screen (below `sm`, where the hero is
  * 3:2) or a short one (a phone held sideways; 500px is where the header and
  * the action bar already step down).

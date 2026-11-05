@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MotionToggle } from "@/components/motion-toggle";
 import { Photo } from "@/components/photo";
 import type { ImageRef } from "@/lib/content/types";
-import { PHONE_VIDEO_QUERY, requestedClip, savingData, type HeroClip } from "@/lib/hero-video";
+import { HERO_STILL_QUALITY, PHONE_VIDEO_QUERY, requestedClip, savingData, type HeroClip } from "@/lib/hero-video";
 import { useMotionPaused } from "@/lib/motion-pref";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 
@@ -28,6 +28,10 @@ function onVisibility(cb: () => void) {
   document.addEventListener("visibilitychange", cb);
   return () => document.removeEventListener("visibilitychange", cb);
 }
+function onLoad(cb: () => void) {
+  window.addEventListener("load", cb);
+  return () => window.removeEventListener("load", cb);
+}
 const never = () => () => {};
 
 /* Whether this visit can have the video at all, so the corner control can say what it pauses. */
@@ -48,16 +52,18 @@ function onAvailable(cb: () => void) {
 /**
  * The home hero's moving picture, laid over its still. The still is the
  * poster, which the server renders through the image pipeline and which stays
- * the page's largest paint; nothing here renders before hydration. No video
- * at all for anyone who asked for reduced motion, who paused the site's
- * motion, or whose browser asks to save data (Save-Data, 2G). Phones get the
- * 720p file. Muted, inline, looping, no controls and hidden from assistive
- * technology (the poster's alt text says what the picture shows). It fades in
- * once it plays, pauses while the hero is off the screen or the tab is hidden,
- * and the corner control pauses and plays it.
+ * the page's largest paint: the video isn't requested until the page has
+ * loaded, so it never takes bandwidth from the still. No video at all for
+ * anyone who asked for reduced motion, who paused the site's motion, or whose
+ * browser asks to save data (Save-Data, 2G). Phones get the 720p file. Muted,
+ * inline, looping, no controls and hidden from assistive technology (the
+ * poster's alt text says what the picture shows). It fades in once it plays,
+ * pauses while the hero is off the screen or the tab is hidden, and the
+ * corner control pauses and plays it.
  */
 export function HeroVideo({ clip, alternates, sizes }: { clip: Clip; alternates?: Record<string, Clip>; sizes: string }) {
   const hydrated = useSyncExternalStore(never, () => true, () => false);
+  const loaded = useSyncExternalStore(onLoad, () => document.readyState === "complete", () => false);
   const reduced = useReducedMotion();
   const paused = useMotionPaused();
   const saving = useSyncExternalStore(onConnection, () => savingData(connection()), () => false);
@@ -77,7 +83,7 @@ export function HeroVideo({ clip, alternates, sizes }: { clip: Clip; alternates?
   const active = swapped ?? clip;
   const src = pick?.phone ? active.phone : active.desktop;
   // Once it has played, a pause holds the frame; a visitor who arrives paused gets the still.
-  const show = hydrated && !reduced && !saving && !failed && (!paused || ready);
+  const show = loaded && !reduced && !saving && !failed && (!paused || ready);
 
   useEffect(() => setAvailable(!saving && !failed), [saving, failed]);
 
@@ -96,6 +102,8 @@ export function HeroVideo({ clip, alternates, sizes }: { clip: Clip; alternates?
       v.pause();
       return;
     }
+    // React sets muted as a property only; defaultMuted also writes the attribute iOS checks for autoplay.
+    v.defaultMuted = true;
     v.muted = true;
     v.play().catch((e: unknown) => {
       // A pause before playback began aborts play(); a refusal (Low Power Mode, autoplay off) leaves the still.
@@ -105,7 +113,7 @@ export function HeroVideo({ clip, alternates, sizes }: { clip: Clip; alternates?
 
   return (
     <>
-      {hydrated && swapped ? <Photo image={swapped.poster} sizes={sizes} /> : null}
+      {hydrated && swapped ? <Photo image={swapped.poster} quality={HERO_STILL_QUALITY} sizes={sizes} /> : null}
       {show ? (
         <video
           ref={ref}

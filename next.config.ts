@@ -178,6 +178,11 @@ const nextConfig: NextConfig = {
     // is ever sharper, and the steps between 1080 and 1920 fit the real hero slots
     // (lib/image-sizes.ts).
     deviceSizes: [640, 750, 828, 1080, 1280, 1440, 1600, 1920, 2560],
+    // 75 for every photo; 65 only for the home hero's still (components/home/hero.tsx), a
+    // busy aerial frame that at 75 weighed a third more than the photo it replaced and
+    // slowed the largest paint. A quality prop rounds to the nearest value here, so no
+    // other image asks for one below 75.
+    qualities: [65, 75],
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: SUPABASE_HOST, pathname: "/storage/v1/object/public/encore-images/**" },
