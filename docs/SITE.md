@@ -105,22 +105,29 @@ search index; Resend sends only team-facing email.
   **The montage.** "Life Here", a seamless 48.4-second loop of ten shots, cut for the team in
   November 2026. Every clip and the music are from Adobe Stock's free collection, licensed
   November 5, 2026 under the standard license, so no credit is shown on the page and none is
-  flagged as generated. In order: 549765787 (Anna Maria Island from the air at sunset, also the
-  still), 665979382 (Sarasota canal homes at golden hour), 385776704 (an infinity pool over the
-  water), 1542602241 (a marble and white-oak kitchen, mirrored), 640505703 (a boat leaving the
+  flagged as generated. In order: 607527878 (waterfront homes and docks on Sarasota Bay, the
+  downtown towers behind, also the still), 665979382 (Sarasota canal homes at golden hour),
+  501273404 (a modern beach-house dining room open to the water, mirrored; it's a 3D-rendered
+  interior, the closest match in the free collection to a bright coastal room), 1542602241 (a marble and white-oak kitchen, mirrored), 640505703 (a boat leaving the
   Venice inlet), 621529647 (a palm-lined golf course), 563623949 (pickleball, hands and
   silhouettes), 514783510 (a garden dinner with friends), 506301840 (violin and piano in a
   concert hall) and 621995290 (the Venice fishing pier at sunset). Music: "Shine", 495722710.
   Before launch, check the model releases for 514783510 and 506301840 on their Adobe Stock pages;
   the licensing tool doesn't show them.
 
-  **The files.** `public/video/life-here-1080.mp4` (1920x1080, 13.9 MB) and `life-here-720.mp4`
-  (1280x720, 6.0 MB): H.264 High at about 2.15 and 0.85 Mb/s, index at the front (faststart),
-  with the music as AAC at 128 kb/s stereo. The still is `public/images/library/life-here-poster.jpg`
+  **The files.** `public/video/life-here-2-1080.mp4` (1920x1080, 13.8 MB) and `life-here-2-720.mp4`
+  (1280x720, 5.9 MB): H.264 High at about 2.15 and 0.85 Mb/s, index at the front (faststart),
+  with the music as AAC at 128 kb/s stereo. The still is `public/images/library/life-here-2-poster.jpg`
   (21 KB as AVIF at 1280px). Smaller 1080 encodes were tried from the master and dropped: at
   1.5 Mb/s (4 MB less) the golf grass and palms smeared at full screen, and at 1.7 and 1.9 Mb/s
   with slower x264 settings (2.7 and 1.5 MB less) the golf course, the boat dissolve and the
   water stayed a little softer than the delivered file. The delivered encode stays.
+
+  The same day the team swapped two shots: the opener (Anna Maria at sunset) became the Sarasota
+  Bay homes, and the infinity pool became the beach-house room. Same length, cuts, grade and
+  music, so the sound still lines up. A recut ships under a new file name (`life-here-2-*`):
+  `/video` and `/images` are cached for a week, so the same name would keep showing returning
+  visitors the old cut.
 
   The music has no gain change and no normaliser (-17.1 LUFS integrated, true peak -2.4 dBTP,
   the build intact). It fades in softly on the song's own intro, and a 4-second fade ends on the
