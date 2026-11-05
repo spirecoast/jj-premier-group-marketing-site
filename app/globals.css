@@ -1829,6 +1829,10 @@ html[data-motion="paused"] .encore-marquee-bulb {
     transform: translateY(-6px);
     transition: opacity var(--dur-panel) var(--ease-reveal), transform var(--dur-panel) var(--ease-reveal), visibility 0s linear var(--dur-panel);
   }
+  .product-menu[data-align="end"] {
+    left: auto;
+    right: -1.25rem;
+  }
   .product-menu[data-open="true"] {
     opacity: 1;
     visibility: visible;

@@ -20,6 +20,8 @@ export type MenuSpec = {
   activeWhen?: readonly string[];
   /** A product family: its emblem on the panel and its name set in the display serif. */
   family?: ProductFamily["key"];
+  /** "end" opens the panel from the button's right edge: the last menu in the row, so a closed panel never reaches past the window. */
+  align?: "start" | "end";
   /** The panel's last row. */
   foot?: ReactNode;
 };
@@ -227,6 +229,7 @@ export function ProductMenu({ menu, pathname, open, switching, row, solid, reduc
         id={id}
         ref={panel}
         className="product-menu"
+        data-align={menu.align === "end" ? "end" : undefined}
         data-open={open ? "true" : undefined}
         data-switch={switching ? "true" : undefined}
         hidden={!open && reducedMotion}

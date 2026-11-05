@@ -130,6 +130,8 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
     title: f.title,
     items: f.items,
     family: f.key,
+    // The last menu in the row (Tide) opens from its right edge, so its panel stays inside the window at 1024px.
+    align: f.key === productFamilies[productFamilies.length - 1]!.key ? "end" : "start",
     foot: <ProductMenuFoot open={row.menu === f.key} onClose={() => row.close()} />,
   }));
   // "Buy" is a small menu too: the guide, the listings, the move, the neighborhoods (lib/site.ts, buyMenu).
@@ -165,8 +167,9 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
     >
       <div
         className={cn(
-          "container-site flex h-full items-center justify-between gap-8",
-          home && "lg:gap-6 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
+          // Between lg and xl the row is tight (at 1024 it ran 50px past the window), so the gaps close up there.
+          "container-site flex h-full items-center justify-between gap-8 lg:gap-4 xl:gap-8",
+          home && "lg:gap-3 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
         )}
       >
         <Link
@@ -184,7 +187,7 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
           <Wordmark variant="one-line" tone="light" />
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex xl:gap-6">
+        <nav aria-label="Primary" className="hidden items-center gap-5 lg:flex lg:gap-3.5 xl:gap-6">
           {primaryNav.map((item) => {
             // Two of the plain pages are small menus in the product menus' style: Buy (the guide, the
             // listings, the move, the neighborhoods) and the team (About, the contact page, reviews,
