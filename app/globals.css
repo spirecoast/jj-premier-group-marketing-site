@@ -1283,11 +1283,14 @@
 }
 
 /* The home hero's video (components/home/hero-video.tsx) comes in over its
-   still once it plays. The still is its first frame, so the fade reads as the
-   picture starting to move. It doesn't drift: the footage moves on its own. */
+   still the moment it draws its first frame, which is the still's own frame,
+   so the still simply starts moving. The fade is only long enough to hide the
+   image codec's color from the video's: any longer and the moving picture
+   would show doubled over the still. It doesn't drift: the footage moves on
+   its own. */
 .hero-video {
   opacity: 0;
-  transition: opacity var(--dur-img) var(--ease-reveal);
+  transition: opacity 160ms linear;
 }
 .hero-video[data-ready] {
   opacity: 1;

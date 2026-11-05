@@ -175,8 +175,15 @@ search index; Resend sends only team-facing email.
   `<source>` and would fetch the landscape still on phones too. On a tablet held upright the frame
   is taller than wide, so the landscape still (and the photograph in photo mode) is fetched at
   about 1.9 times the screen's width (`HOME_HERO_SIZES` in `lib/image-sizes.ts`). The video is
-  rendered only in the browser, requested after the page's load event, and fades in over
-  `--dur-img` once it plays.
+  rendered only in the browser and requested after the page's load event. Its first start waits
+  until it can run smoothly: `play()` gets it loading (iOS Safari fetches nothing until then), it's
+  held on its first frame until 2.5 seconds are buffered (`START_BUFFER_S`, or 6 seconds at most,
+  `START_WAIT_MS`), put back on frame 0, played, and brought in over the still as soon as it draws a
+  frame, with a 160 ms fade. The still is that same frame, so the picture simply starts moving.
+  Before, it came in on its first `playing` event with a long fade, so a thin buffer could hitch it
+  and the moving picture showed doubled over the still for the length of the fade. Measured in
+  Chrome on a 12 Mb/s connection at 1440: 45 of 45 frames drawn in its first 1.5 s, no gap over
+  one frame, no stall, against 39 frames and a 67 ms hitch before.
   - It's muted, inline, looping and autoplaying, with no controls, and hidden from assistive
     technology (the still's alt text describes the picture).
   - The file is chosen once on load, with the still's queries (`heroVideoFile` in

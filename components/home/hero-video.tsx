@@ -3,7 +3,7 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { ImageRef } from "@/lib/content/types";
-import { heroVideoFile, PHONE_VIDEO_QUERY, PORTRAIT_QUERY, savingData, videoWanted, type HeroClip } from "@/lib/hero-video";
+import { bufferedAhead, heroVideoFile, PHONE_VIDEO_QUERY, PORTRAIT_QUERY, savingData, START_BUFFER_S, START_WAIT_MS, videoWanted, type HeroClip } from "@/lib/hero-video";
 import { setMotionPaused, useMotionPaused } from "@/lib/motion-pref";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -25,6 +25,47 @@ function onLoad(cb: () => void) {
   return () => window.removeEventListener("load", cb);
 }
 
+/** Resolves once `v` has START_BUFFER_S seconds buffered ahead of its playhead (or all that's left), or after START_WAIT_MS. */
+function whenBuffered(v: HTMLVideoElement, cancelled: () => boolean): Promise<void> {
+  return new Promise((resolve) => {
+    const enough = () => bufferedAhead(v.buffered, v.currentTime) >= Math.min(START_BUFFER_S, (v.duration || Infinity) - v.currentTime - 0.05);
+    if (enough()) return resolve();
+    const check = () => {
+      if (enough() || cancelled()) finish();
+    };
+    const finish = () => {
+      clearTimeout(timer);
+      v.removeEventListener("progress", check);
+      v.removeEventListener("canplaythrough", check);
+      resolve();
+    };
+    const timer = setTimeout(finish, START_WAIT_MS);
+    v.addEventListener("progress", check);
+    v.addEventListener("canplaythrough", check);
+  });
+}
+
+/** Puts `v` back on its first frame (the still's frame), resolving once it's there. */
+function rewind(v: HTMLVideoElement): Promise<void> {
+  if (v.currentTime < 0.001) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      v.removeEventListener("seeked", done);
+      resolve();
+    };
+    const timer = setTimeout(done, 1000);
+    v.addEventListener("seeked", done);
+    v.currentTime = 0;
+  });
+}
+
+/** Calls back once `v` has drawn its next frame (two animation frames where the browser can't say). */
+function onNextFrame(v: HTMLVideoElement, cb: () => void) {
+  if (typeof v.requestVideoFrameCallback === "function") v.requestVideoFrameCallback(() => cb());
+  else requestAnimationFrame(() => requestAnimationFrame(cb));
+}
+
 type Stage = {
   /** The callback ref for the <video>. */
   attach: (el: HTMLVideoElement | null) => void;
@@ -32,7 +73,7 @@ type Stage = {
   position?: string;
   /** The <video> is in the page. */
   show: boolean;
-  /** It has played, so it's in front of the still. */
+  /** It's playing and has drawn a frame, so it's in front of the still. */
   ready: boolean;
   /** The visitor wants it moving (lib/hero-video.ts, videoWanted). */
   moving: boolean;
@@ -40,7 +81,6 @@ type Stage = {
   /** The file can't play here; the corner button falls back to pausing the page's other loops. */
   failed: boolean;
   paused: boolean;
-  onPlaying: () => void;
   onError: () => void;
   togglePlay: () => void;
   toggleSound: () => void;
@@ -64,6 +104,12 @@ function useStage(): Stage {
  * reduced motion, whose browser asks to save data (Save-Data, 2G), or who
  * paused it before; they get the still and a Play button. It pauses while the
  * hero is off the screen or the tab is hidden.
+ *
+ * The first start doesn't show the video until it can run smoothly: it loads
+ * held on its first frame (the still's frame) until a few seconds are
+ * buffered, then plays from that frame and comes in over the still as soon as
+ * it draws, with a fade too short to double the moving picture. So the still
+ * simply starts moving, with no hitch from a thin buffer and no ghosting.
  *
  * The stage holds the state; HeroVideo (the picture) and HeroVideoControls
  * (sound, and pause or play) sit where they belong in the hero's markup.
@@ -115,14 +161,45 @@ export function HeroVideoStage({ clip, children }: { clip: HeroClip<ImageRef>; c
     // React sets muted as a property only; defaultMuted also writes the attribute iOS checks for autoplay.
     v.defaultMuted = true;
     v.muted = !sound;
-    v.play().catch((e: unknown) => {
+    let cancelled = false;
+    const refused = (e: unknown) => {
       if (!(e instanceof DOMException) || e.name === "AbortError") return; // a pause before playback began
       if (e.name !== "NotAllowedError") return setFailed(true);
       // Refused: sound without a fresh tap, or no autoplay at all (Low Power Mode).
       if (!v.muted) setSound(false);
       else setAutoplayRefused(true);
-    });
-  }, [show, src, moving, inView, visible, sound]);
+    };
+    const start = () =>
+      v
+        .play()
+        .then(() => {
+          if (!ready) onNextFrame(v, () => !cancelled && setReady(true));
+        })
+        .catch(refused);
+    // In front of the still already, or the visitor just pressed Play: at once.
+    if (ready || pressedPlay) {
+      start();
+      return () => {
+        cancelled = true;
+      };
+    }
+    // The first start. play() gets it loading (iOS Safari fetches nothing until it's called), then it
+    // waits on its first frame for the buffer, and plays from there.
+    v.play()
+      .then(() => {
+        if (cancelled) return;
+        v.pause();
+        return whenBuffered(v, () => cancelled);
+      })
+      .then(() => (cancelled ? undefined : rewind(v)))
+      .then(() => {
+        if (!cancelled) start();
+      })
+      .catch(refused);
+    return () => {
+      cancelled = true;
+    };
+  }, [show, src, moving, inView, visible, sound, ready, pressedPlay]);
 
   const stage: Stage = {
     attach,
@@ -134,7 +211,6 @@ export function HeroVideoStage({ clip, children }: { clip: HeroClip<ImageRef>; c
     sound,
     failed,
     paused,
-    onPlaying: () => setReady(true),
     onError: () => setFailed(true),
     togglePlay: () => {
       if (failed) return setMotionPaused(!paused);
@@ -161,7 +237,7 @@ export function HeroVideoStage({ clip, children }: { clip: HeroClip<ImageRef>; c
 
 /** The moving picture, over the still. Hidden from assistive technology: the still's alt text says what it shows. */
 export function HeroVideo() {
-  const { attach, show, src, sound, ready, position, onPlaying, onError } = useStage();
+  const { attach, show, src, sound, ready, position, onError } = useStage();
   if (!show) return null;
   return (
     <video
@@ -170,13 +246,11 @@ export function HeroVideo() {
       muted={!sound}
       playsInline
       loop
-      autoPlay
       preload="auto"
       disablePictureInPicture
       disableRemotePlayback
       aria-hidden="true"
       data-ready={ready ? "" : undefined}
-      onPlaying={onPlaying}
       onError={onError}
       className="hero-video absolute inset-0 h-full w-full object-cover"
       style={position ? { objectPosition: position } : undefined}

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { heroVideoFile, LANDSCAPE_QUERY, PHONE_VIDEO_QUERY, PORTRAIT_QUERY, savingData, videoWanted } from "./hero-video";
+import { bufferedAhead, heroVideoFile, LANDSCAPE_QUERY, PHONE_VIDEO_QUERY, PORTRAIT_QUERY, savingData, videoWanted } from "./hero-video";
 import { site } from "./site";
 
 describe("savingData", () => {
@@ -114,5 +114,22 @@ describe("the stills' queries", () => {
 describe("site.homeHero", () => {
   it("is one of the two heroes the home page knows", () => {
     assert.ok(site.homeHero === "video" || site.homeHero === "photo");
+  });
+});
+
+describe("bufferedAhead", () => {
+  const ranges = (...r: [number, number][]) => ({ length: r.length, start: (i: number) => r[i]![0], end: (i: number) => r[i]![1] });
+  it("counts from the playhead to the end of the range that holds it", () => {
+    assert.equal(bufferedAhead(ranges([0, 3.5]), 0), 3.5);
+    assert.equal(bufferedAhead(ranges([0, 3.5]), 1), 2.5);
+    assert.equal(bufferedAhead(ranges([0, 1], [2, 9]), 4), 5);
+  });
+  it("allows a tenth of a second where the first range starts just after the playhead", () => {
+    assert.equal(bufferedAhead(ranges([0.04, 3]), 0), 3);
+  });
+  it("is 0 when nothing at the playhead is buffered", () => {
+    assert.equal(bufferedAhead(ranges(), 0), 0);
+    assert.equal(bufferedAhead(ranges([5, 9]), 1), 0);
+    assert.equal(bufferedAhead(ranges([0, 2]), 2), 0);
   });
 });

@@ -35,6 +35,26 @@ export function heroVideoFile(clip: Pick<HeroClip<unknown>, "desktop" | "phone" 
   return screen.phone ? clip.phone : clip.desktop;
 }
 
+/** Seconds of video buffered ahead of the playhead before the loop first starts (components/home/hero-video.tsx). */
+export const START_BUFFER_S = 2.5;
+
+/** The longest the still waits for that buffer before the loop starts anyway. */
+export const START_WAIT_MS = 6000;
+
+type Ranges = { length: number; start(i: number): number; end(i: number): number };
+
+/**
+ * How many seconds are buffered ahead of `t`: the end of the range that holds
+ * `t` (a tenth of a second of slack for the decoder's rounding), or 0 when `t`
+ * isn't buffered.
+ */
+export function bufferedAhead(ranges: Ranges, t: number): number {
+  for (let i = 0; i < ranges.length; i++) {
+    if (ranges.start(i) <= t + 0.1 && ranges.end(i) > t) return ranges.end(i) - t;
+  }
+  return 0;
+}
+
 type Connection = { saveData?: boolean; effectiveType?: string } | null | undefined;
 
 /** The browser asked to go easy on data: Save-Data is on, or the connection is 2G. */
