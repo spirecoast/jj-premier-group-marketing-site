@@ -92,7 +92,7 @@ export type NavItem = {
  * until there are live listings to search.
  */
 export const primaryNav: readonly NavItem[] = [
-  { href: "/buy", label: "Buy", secondary: { href: "/relocate", label: "Moving here: plan it with Atlas Move" } },
+  { href: "/buy", label: "Buy" },
   { href: "/sell", label: "Sell" },
   { href: "/about", label: "Joelyn & Jessica" },
   { href: "/guides", label: "Guides" },
@@ -106,11 +106,10 @@ export const primaryNav: readonly NavItem[] = [
 export const teamMenu = {
   key: "team",
   name: "Joelyn & Jessica",
-  title: "Who you'll work with",
   items: [
-    { href: "/about", label: "Joelyn & Jessica", short: "A mother and daughter team" },
-    { href: "/contact", label: "Contact us", short: "Tell us about your next move" },
-    { href: "/reviews", label: "Leave a review", short: "Tell others how it went" },
+    { href: "/about", label: "Joelyn & Jessica" },
+    { href: "/contact", label: "Contact us" },
+    { href: "/reviews", label: "Leave a review" },
   ],
 } as const;
 
@@ -124,12 +123,11 @@ export const teamMenu = {
 export const buyMenu = {
   key: "buy",
   name: "Buy",
-  title: "Where to start",
   items: [
-    { href: "/buy", label: "Buyer’s guide", short: "Buying here, step by step" },
-    { href: "/listings", label: "Find your home", short: "Our listings, and your search" },
-    { href: "/relocate", label: "Moving here", short: "Every date for the move, with Atlas Move" },
-    { href: "/neighborhoods/match", label: "Pick a neighborhood", short: "The places that fit, with Atlas Match" },
+    { href: "/buy", label: "Buyer’s guide" },
+    { href: "/listings", label: "Find your home" },
+    { href: "/relocate", label: "Moving here" },
+    { href: "/neighborhoods/match", label: "Pick a neighborhood" },
   ],
   activeWhen: ["/buy", "/listings"],
 } as const;
@@ -214,7 +212,7 @@ export const productFamilies: readonly ProductFamily[] = [
         id: "atlas",
         href: "/neighborhoods",
         label: "Atlas Neighborhoods",
-        short: "Every neighborhood on one map",
+        short: "Explore the local neighborhoods",
         line: "Every neighborhood on one map. Open one to see its HOA, CDD, water and evacuation zone.",
       },
       {
@@ -228,8 +226,8 @@ export const productFamilies: readonly ProductFamily[] = [
         id: "atlas-move",
         href: "/relocate",
         label: "Atlas Move",
-        short: "Every date and deadline for your move",
-        line: "Every date and deadline for your move on one page, from the contract to homestead.",
+        short: "Help coordinate your move",
+        line: "Help coordinating your move, from the contract to homestead, on one page.",
         plain: "Moving here",
       },
       {
@@ -267,7 +265,7 @@ export const productFamilies: readonly ProductFamily[] = [
   {
     key: "tide",
     name: "Tide",
-    title: "Know the market",
+    title: "Local market information",
     line: "What homes sold for, street by street, and what you’d keep if you sold yours.",
     items: [
       {
