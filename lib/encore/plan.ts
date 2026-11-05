@@ -16,6 +16,8 @@ import { addDays, daysInRange, occurrences, weekday, weekendOf, type Occ } from 
 
 /** A plan runs up to a month. */
 export const MAX_DAYS = 31;
+/** A plan can start up to a year ahead. */
+export const PLAN_AHEAD_DAYS = 365;
 /** Evening picks start at five. */
 export const EVENING_FROM = "17:00";
 /** A weekend matinee is anything from late morning up to the evening cut. */
@@ -24,11 +26,22 @@ export const PICKS_PER_EVENING = 3;
 /** The showing block, as wall-clock times in the site timezone. */
 export const SHOWINGS = { from: "10:00", to: "16:00", label: "Showings with us (10 to 4)", description: "Showings with Joelyn and Jessica" } as const;
 
+/** Every market, in the order the form shows them and a plan rotates through them. */
+export const ALL_MARKETS: readonly MarketSlug[] = MARKETS.map((m) => m.slug);
+
+/** True when the list is every market in the form's order: the plan's link then leaves `market` out, as it always has. */
+const isAllMarkets = (m: readonly MarketSlug[]) => m.length === ALL_MARKETS.length && m.every((x, i) => x === ALL_MARKETS[i]);
+
 export type PlanState = {
-  /** YYYY-MM-DD, inclusive. */
+  /** YYYY-MM-DD, inclusive. One day is from = to. */
   from: string;
   to: string;
-  /** Empty means every market, rotated. */
+  /**
+   * The markets to plan for, in rotation order. All three unless the visitor
+   * turned some off. A link without `market` (or with none we know) means all
+   * three, as it always has; the form can be left with none, which it won't
+   * build (and which comes back as all three from a saved draft).
+   */
   markets: MarketSlug[];
   /** Empty means no preference. */
   categories: EventCategory[];
@@ -81,7 +94,7 @@ export function normalizeDates(from: string, to: string, today: string): { from:
   const last = addDays(f, MAX_DAYS - 1);
   const trimmed = t > last;
   if (trimmed) t = last;
-  if (f > addDays(today, 365)) f = t = addDays(today, 365);
+  if (f > addDays(today, PLAN_AHEAD_DAYS)) f = t = addDays(today, PLAN_AHEAD_DAYS);
   return { from: f, to: t, trimmed };
 }
 
@@ -97,7 +110,8 @@ export function parsePlanState(p: Params, today: string): { state: PlanState; tr
   const from = isDay(fromParam) ? fromParam : wFrom;
   const to = isDay(toParam) ? toParam : isDay(fromParam) ? from : wTo;
   const dates = normalizeDates(from, to, today);
-  const markets = [...new Set((one(p, "market") ?? "").split(",").filter(isMarketSlug))];
+  const named = [...new Set((one(p, "market") ?? "").split(",").filter(isMarketSlug))];
+  const markets = named.length ? named : [...ALL_MARKETS];
   const categories = [...new Set((one(p, "cat") ?? "").split(",").filter(isEventCategory))];
   const eveningsOnly = one(p, "evenings") === "1";
   const local = one(p, "who") === "local";
@@ -126,7 +140,7 @@ export function planSearch(s: PlanState): string {
   const sp = new URLSearchParams();
   sp.set("from", s.from);
   sp.set("to", s.to);
-  if (s.markets.length) sp.set("market", s.markets.join(","));
+  if (s.markets.length && !isAllMarkets(s.markets)) sp.set("market", s.markets.join(","));
   if (s.categories.length) sp.set("cat", s.categories.join(","));
   if (s.eveningsOnly) sp.set("evenings", "1");
   if (s.local) sp.set("who", "local");
@@ -146,7 +160,7 @@ export function planIcsHref(s: PlanState, plan: Plan): string {
 /** The days of the plan with their market or two, rotating through the chosen ones. */
 export function stayDays(s: PlanState): Pick<PlanDay, "day" | "weekend" | "markets">[] {
   const days = daysInRange(s.from, s.to).slice(0, MAX_DAYS);
-  const rotation: MarketSlug[] = s.markets.length ? s.markets : MARKETS.map((m) => m.slug);
+  const rotation: readonly MarketSlug[] = s.markets.length ? s.markets : ALL_MARKETS;
   const perDay = days.length >= rotation.length ? 1 : Math.min(2, rotation.length);
   return days.map((day, i) => {
     const wd = weekday(day);

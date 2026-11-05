@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { ButtonLink, RuleButton } from "@/components/ui/button";
 import { Chip, ChipGroup, ChipTick } from "@/components/ui/chip";
-import { Checkbox, Field, Input } from "@/components/ui/field";
+import { Checkbox } from "@/components/ui/field";
 import { StepBody, StepCard, StepFooter, StepProgress, StepTitle, useStepDirection, useStepFocus } from "@/components/ui/stepper";
 import { LeadForm } from "@/components/lead-form";
 import { KeepEmail, KeepPrintButton } from "@/components/keep/keep-row";
@@ -16,8 +16,9 @@ import type { EventCategory, MarketSlug } from "@/lib/content/types";
 import { CATEGORY, CATEGORY_ORDER } from "@/lib/encore/categories";
 import type { EncoreIndex } from "@/lib/encore/index-format";
 import { localDay } from "@/lib/encore/day";
-import { MAX_DAYS, PLAN_DRAFT, PLAN_KEYS, PRESETS, SHOWINGS, buildPlan, marketList, normalizeDates, parsePlanState, planHref, planIcsHref, planSearch, presetDates, readPlanDraft, type PlanDay, type PlanDraft, type PlanState } from "@/lib/encore/plan";
-import { addDays, longDay, timeLabel, weekdayShort, type Occ } from "@/lib/encore/select";
+import { ALL_MARKETS, MAX_DAYS, PLAN_DRAFT, PLAN_KEYS, PRESETS, SHOWINGS, buildPlan, marketList, normalizeDates, parsePlanState, planHref, planIcsHref, planSearch, presetDates, readPlanDraft, type PlanDay, type PlanDraft, type PlanState } from "@/lib/encore/plan";
+import { rangeWords, spanDays } from "@/lib/encore/range";
+import { longDay, timeLabel, weekdayShort, type Occ } from "@/lib/encore/select";
 import { encoreHref } from "@/lib/encore/url";
 import { scrollToTop } from "@/lib/scroll";
 import { SEASON_URL } from "@/lib/encore/index-format";
@@ -26,6 +27,7 @@ import { draft as store, hasAny, useStepHistory, useUrlInitial } from "@/lib/url
 import { cn } from "@/lib/utils";
 import { Pin } from "./glyphs";
 import { NightOut } from "./night-out";
+import { RangeCalendar } from "./range-calendar";
 import { SaveButton } from "./tile";
 import { useMyList } from "./use-my-list";
 import "./encore.css";
@@ -131,13 +133,17 @@ export function VisitPlan({
   const picked = all.length;
   const venues = new Set(all.map((o) => o.e.v)).size;
   const mix = CATEGORY_ORDER.map((c) => ({ c, n: all.filter((o) => o.e.c === c).length })).filter((x) => x.n);
-  const stayMarkets = applied.markets.length ? applied.markets : MARKETS.map((m) => m.slug);
+  const stayMarkets = applied.markets.length ? applied.markets : [...ALL_MARKETS];
   const visiting = !draft.local;
+  // All three places start on; with every one turned off there's nothing to plan, so Next waits and says why.
+  const noPlace = draft.markets.length === 0;
 
   function build(e: FormEvent) {
     e.preventDefault();
-    // Enter on an earlier question moves on; the plan builds from the last one.
+    // Enter on an earlier question moves on; the plan builds from the last one. No place, no plan: back to that question.
+    if (q === 2 && noPlace) return;
     if (q < QUESTION_COUNT - 1) return go(q + 1);
+    if (noPlace) return go(2);
     const dates = normalizeDates(draft.from, draft.to, today);
     const next: PlanState = { ...draft, from: dates.from, to: dates.to };
     setDraft(next);
@@ -146,7 +152,8 @@ export function VisitPlan({
     setApplied(next);
     requestAnimationFrame(() => scrollToTop(document.getElementById("plan")));
   }
-  const toggleMarket = (m: MarketSlug) => setDraft((d) => ({ ...d, markets: d.markets.includes(m) ? d.markets.filter((x) => x !== m) : [...d.markets, m] }));
+  // Kept in the form's order, so the days rotate through the places the way they're listed.
+  const toggleMarket = (m: MarketSlug) => setDraft((d) => ({ ...d, markets: d.markets.includes(m) ? d.markets.filter((x) => x !== m) : ALL_MARKETS.filter((x) => x === m || d.markets.includes(x)) }));
   const toggleCat = (c: EventCategory) => setDraft((d) => ({ ...d, categories: d.categories.includes(c) ? d.categories.filter((x) => x !== c) : [...d.categories, c] }));
   const preset = PRESETS.find((p) => {
     const [f, t] = presetDates(p.id, today);
@@ -187,10 +194,13 @@ export function VisitPlan({
             <StepBody stepKey={q} dir={dir} className="min-h-[260px] gap-7">
               <div className="flex flex-col gap-3">
                 <StepTitle id="plan-inputs-title" ref={qTitle}>
-                  {q === 0 ? "Who’s it for?" : q === 1 ? (visiting ? "When are you visiting?" : "Which days?") : q === 2 ? (visiting ? "Where do you want to look?" : "Where would you go?") : "What do you like?"}
+                  {q === 0 ? "Who’s it for?" : q === 1 ? (visiting ? "When are you visiting?" : "Which days?") : q === 2 ? (visiting ? "Where do you want to look?" : "Where do you want to go out?") : "What do you like?"}
                 </StepTitle>
-                {q === 1 ? <p className="t-body text-body">Up to {MAX_DAYS} days.</p> : null}
-                {q === 2 ? <p className="t-body text-body">Pick any. Leave them all off and you get all three.</p> : null}
+                {q === 1 ? (
+                  <p id="plan-days-hint" className="t-body text-body">
+                    {visiting ? "Pick the day you arrive, then the day you leave." : "Pick one day, or a first and last day."} Up to {MAX_DAYS} days.
+                  </p>
+                ) : null}
               </div>
 
               {q === 0 ? (
@@ -206,7 +216,7 @@ export function VisitPlan({
                     on={!visiting}
                     onClick={() => setDraft((d) => ({ ...d, local: true }))}
                     title="I live here"
-                    body="Afternoon and evening picks for every day, with no showings."
+                    body="Afternoons and evenings out, on the days you choose."
                     icon={<path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z" />}
                   />
                 </div>
@@ -229,35 +239,32 @@ export function VisitPlan({
                       </Chip>
                     ))}
                   </ChipGroup>
-                  <div className="grid gap-5 sm:grid-cols-2 lg:max-w-[560px]">
-                    <Field id="plan-from" label={visiting ? "Arriving" : "From"}>
-                      <Input
-                        type="date"
-                        value={draft.from}
-                        min={today}
-                        max={addDays(today, 365)}
-                        required
-                        onChange={(e) => {
-                          const from = e.target.value || today;
-                          setDraft((d) => ({ ...d, from, to: d.to < from ? from : d.to > addDays(from, MAX_DAYS - 1) ? addDays(from, MAX_DAYS - 1) : d.to }));
-                        }}
-                      />
-                    </Field>
-                    <Field id="plan-to" label={visiting ? "Leaving" : "To"}>
-                      <Input type="date" value={draft.to} min={draft.from} max={addDays(draft.from, MAX_DAYS - 1)} required onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value || d.from }))} />
-                    </Field>
-                  </div>
+                  <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1" aria-live="polite">
+                    <span className="t-h3 text-navy">{rangeWords(draft.from, draft.to, today)}</span>
+                    {draft.from !== draft.to ? (
+                      <span className="t-small text-graphite-500">
+                        <span className="sr-only">, </span>
+                        {spanDays(draft.from, draft.to)} days
+                      </span>
+                    ) : null}
+                  </p>
+                  <RangeCalendar from={draft.from} to={draft.to} today={today} labelledBy="plan-inputs-title" describedBy="plan-days-hint" onChange={(from, to) => setDraft((d) => ({ ...d, from, to }))} />
                 </div>
               ) : null}
 
               {q === 2 ? (
-                <ChipGroup aria-labelledby="plan-inputs-title">
-                  {MARKETS.map((m) => (
-                    <Chip key={m.slug} size="lg" selected={draft.markets.includes(m.slug)} onClick={() => toggleMarket(m.slug)}>
-                      {m.name}
-                    </Chip>
-                  ))}
-                </ChipGroup>
+                <div className="flex flex-col gap-4">
+                  <ChipGroup aria-labelledby="plan-inputs-title" aria-describedby="plan-where-hint">
+                    {MARKETS.map((m) => (
+                      <Chip key={m.slug} size="lg" selected={draft.markets.includes(m.slug)} onClick={() => toggleMarket(m.slug)}>
+                        {m.name}
+                      </Chip>
+                    ))}
+                  </ChipGroup>
+                  <p id="plan-where-hint" className="t-small min-h-[1.5em] text-body" aria-live="polite">
+                    {noPlace ? "Pick at least one place." : ""}
+                  </p>
+                </div>
               ) : null}
 
               {q === 3 ? (
@@ -283,7 +290,11 @@ export function VisitPlan({
 
             <StepFooter
               back={q > 0 ? { label: "Back", onClick: goBack } : undefined}
-              next={q < QUESTION_COUNT - 1 ? { label: "Next", onClick: () => go(q + 1) } : { label: "Build my plan" }}
+              next={
+                q < QUESTION_COUNT - 1
+                  ? { label: "Next", onClick: () => go(q + 1), ...(q === 2 ? { disabled: noPlace, describedBy: "plan-where-hint" } : {}) }
+                  : { label: "Build my plan" }
+              }
               submit={q === QUESTION_COUNT - 1}
               aside={
                 trimmed ? (
@@ -316,8 +327,8 @@ export function VisitPlan({
                   </h2>
                   <p className="t-body text-white/75">
                     {picked
-                      ? `At ${venues} ${venues === 1 ? "venue" : "venues"}, with no show twice.${applied.local ? "" : " Ten to four is held for showings."}`
-                      : "Encore has nothing timed on these dates yet. Venues add dates through the season, so check back closer to the day."}
+                      ? `At ${venues} ${venues === 1 ? "venue" : "venues"}${picked > 1 ? ", never the same show twice" : ""}.${applied.local ? "" : " We keep ten to four free for showings."}`
+                      : "Nothing’s listed with a set time on these dates yet. Venues add dates all season, so check back closer to the day."}
                   </p>
                 </div>
                 {mix.length ? (
@@ -402,8 +413,8 @@ export function VisitPlan({
             </h2>
             <p className="t-small max-w-[520px] text-body">
               {applied.local
-                ? "The calendar file has every pick with its venue. The link rebuilds the plan for whoever opens it."
-                : "The calendar file has the showing hours and every pick with its venue. The link rebuilds the plan for whoever opens it."}
+                ? "The calendar file has every pick and where it is. Anyone who opens the link gets the same plan."
+                : "The calendar file has the showing hours, and every pick and where it is. Anyone who opens the link gets the same plan."}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -569,7 +580,7 @@ function DayCard({ d, n, today, local, has, toggle, near }: { d: PlanDay; n: num
           {d.picks.length ? (
             <ul className="flex flex-col">{d.picks.map(row)}</ul>
           ) : (
-            <p className="t-body text-body">Nothing timed after five yet. Venues add dates through the season.</p>
+            <p className="t-body text-body">Nothing with a set time after five yet. Venues add dates all season.</p>
           )}
           <Link href={everything} className="link-rule self-start">
             Everything on this day
@@ -584,7 +595,7 @@ function DayCard({ d, n, today, local, has, toggle, near }: { d: PlanDay; n: num
 function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave: () => void; nearby?: { open: boolean; controls: string; onToggle: () => void } }) {
   const e = o.e;
   return (
-    <li className="encore-agenda-row" style={{ "--cat": CATEGORY[e.c].color } as CSSProperties}>
+    <li className={cn("encore-agenda-row", nearby && "has-near")} style={{ "--cat": CATEGORY[e.c].color } as CSSProperties}>
       <Link href={`/calendar/${e.s}`} className="encore-agenda-link">
         <span className="encore-agenda-time">{timeLabel(o)}</span>
         <span className="min-w-0 flex-1">
@@ -608,11 +619,13 @@ function PickRow({ o, saved, onSave, nearby }: { o: Occ; saved: boolean; onSave:
           onClick={nearby.onToggle}
           aria-expanded={nearby.open}
           aria-controls={nearby.open ? nearby.controls : undefined}
-          aria-label={`Nearby: dinner, drinks and hotels near ${e.vn}`}
-          className={cn("btn-quiet encore-agenda-save encore-near", nearby.open && "is-open")}
+          className={cn("btn-quiet encore-near", nearby.open && "is-open")}
         >
           <Pin />
-          <span className="encore-near-label">Nearby</span>
+          {/* Says what it opens; a phone gets the shorter words (the name is whichever is shown, plus the venue). */}
+          <span className="encore-near-long">Dinner, drinks and hotels nearby</span>
+          <span className="encore-near-short">Dinner, drinks, hotels</span>
+          <span className="sr-only">, {e.vn}</span>
         </button>
       ) : null}
       <SaveButton saved={saved} onToggle={onSave} title={e.t} className="encore-agenda-save" />

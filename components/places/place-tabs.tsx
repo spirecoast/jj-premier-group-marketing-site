@@ -2,7 +2,7 @@
 
 import type { Route } from "next";
 import Link from "next/link";
-import { useEffect, useId, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useState, type ReactNode } from "react";
 import { loadSentry } from "@/lib/sentry/client";
 import type { Place } from "@/lib/places/rank";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,10 @@ class PlacesAnswer extends Error {
 /**
  * A few lists from Google, one per tab, each fetched the first time its tab
  * opens and kept only while the page is open. Every list carries the
- * "Google Maps" attribution Google asks for when there's no map.
+ * "Google Maps" attribution Google asks for when there's no map. A place
+ * the list sent with a photo (the Planner's Nearby lists, when the photo
+ * caps allow the whole list) gets a 64px thumbnail that opens the photo on
+ * Google Maps, with its author credited under the address.
  */
 export function PlaceTabs({ tabs, label, note, askHref = "/contact", className }: { tabs: PlaceTab[]; label: string; note?: ReactNode; askHref?: string; className?: string }) {
   const uid = useId();
@@ -151,40 +154,81 @@ const count = (n: number) => n.toLocaleString("en-US");
 
 function PlaceRow({ p }: { p: Place }) {
   const facts = [p.price, p.miles != null ? `${p.miles.toFixed(1)} mi` : undefined, p.hours].filter(Boolean);
+  // A photo that doesn't come (a cap reached since the list, Google not answering) takes its frame and credit with it.
+  const [photo, setPhoto] = useState<"loading" | "shown" | "gone">("loading");
+  const source = p.photo?.mapsUri ?? p.mapsUri;
+  const thumb = p.photo && source && photo !== "gone" ? p.photo : undefined;
   return (
-    <li className="flex flex-col gap-1 border-b border-hairline py-3.5 last:border-b-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <ExternalLink href={p.mapsUri} className="font-display text-[1.125rem] leading-snug text-navy underline-offset-4 hover:underline">
-          {p.name}
+    <li className="flex items-start gap-4 border-b border-hairline py-3.5 last:border-b-0">
+      {thumb ? (
+        // The photo opens its own page on Google Maps, where it's shown large with its full credit.
+        <ExternalLink href={source} className="block size-16 shrink-0 bg-linen-100">
+          {/* eslint-disable-next-line @next/next/no-img-element -- Google's image, through /api/places/photo; never stored or optimized here */}
+          <img
+            src={`/api/places/photo?${new URLSearchParams({ name: thumb.name }).toString()}`}
+            alt={`Photo of ${p.name}`}
+            width={64}
+            height={64}
+            loading="lazy"
+            decoding="async"
+            data-shown={photo === "shown" || undefined}
+            onLoad={() => setPhoto("shown")}
+            onError={() => setPhoto("gone")}
+            className="size-16 object-cover opacity-0 transition-opacity duration-(--dur-state) ease-brand data-shown:opacity-100"
+          />
         </ExternalLink>
-        <p className="t-small text-graphite-600">
-          <span className="text-navy">
-            {p.rating.toFixed(1)}
-            <span aria-hidden="true" className="text-amber">
-              {" "}
-              ★
-            </span>
-          </span>{" "}
-          <span className="sr-only">stars, from </span>
-          <span className="tabular-nums">({count(p.count)}</span>
-          <span className="sr-only"> reviews</span>
-          <span aria-hidden="true">)</span>
-          {facts.length ? <> · {facts.join(" · ")}</> : null}
-        </p>
-        {p.address ? <p className="t-small text-graphite-500">{p.address}</p> : null}
-      </div>
-      <p className="t-small flex shrink-0 flex-wrap gap-x-4 gap-y-1">
-        {p.website ? (
-          <ExternalLink href={p.website} className="text-navy underline underline-offset-4 hover:text-sky-700">
-            Website
+      ) : null}
+      <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <ExternalLink href={p.mapsUri} className="font-display text-[1.125rem] leading-snug text-navy underline-offset-4 hover:underline">
+            {p.name}
           </ExternalLink>
-        ) : null}
-        {p.phone ? (
-          <a href={`tel:${p.phone.replace(/[^\d+]/g, "")}`} className="text-navy tabular-nums underline underline-offset-4 hover:text-sky-700">
-            {p.phone}
-          </a>
-        ) : null}
-      </p>
+          <p className="t-small text-graphite-600">
+            <span className="text-navy">
+              {p.rating.toFixed(1)}
+              <span aria-hidden="true" className="text-amber">
+                {" "}
+                ★
+              </span>
+            </span>{" "}
+            <span className="sr-only">stars, from </span>
+            <span className="tabular-nums">({count(p.count)}</span>
+            <span className="sr-only"> reviews</span>
+            <span aria-hidden="true">)</span>
+            {facts.length ? <> · {facts.join(" · ")}</> : null}
+          </p>
+          {p.address ? <p className="t-small text-graphite-500">{p.address}</p> : null}
+          {thumb?.authors.length ? (
+            <p className="t-small text-graphite-500">
+              Photo:{" "}
+              {thumb.authors.map((a, i) => (
+                <Fragment key={`${a.name}-${i}`}>
+                  {i ? ", " : null}
+                  {a.uri ? (
+                    <ExternalLink href={a.uri} className="underline underline-offset-4 hover:text-sky-700">
+                      {a.name}
+                    </ExternalLink>
+                  ) : (
+                    a.name
+                  )}
+                </Fragment>
+              ))}
+            </p>
+          ) : null}
+        </div>
+        <p className="t-small flex shrink-0 flex-wrap gap-x-4 gap-y-1">
+          {p.website ? (
+            <ExternalLink href={p.website} className="text-navy underline underline-offset-4 hover:text-sky-700">
+              Website
+            </ExternalLink>
+          ) : null}
+          {p.phone ? (
+            <a href={`tel:${p.phone.replace(/[^\d+]/g, "")}`} className="text-navy tabular-nums underline underline-offset-4 hover:text-sky-700">
+              {p.phone}
+            </a>
+          ) : null}
+        </p>
+      </div>
     </li>
   );
 }
