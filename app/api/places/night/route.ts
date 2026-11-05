@@ -1,5 +1,7 @@
 import type { NextRequest } from "next/server";
+import { photosLeft } from "@/lib/places/budget";
 import { isNightKind, nearVenue, placesEnabled, venueLatLng } from "@/lib/places/google";
+import { grantPhotos } from "@/lib/places/photo";
 import { intParam, placesFailure, placesJson, placesLimiter, takeVisitorList } from "@/lib/places/route-helpers";
 import { clientIp } from "@/lib/search/query";
 
@@ -17,6 +19,11 @@ export const runtime = "nodejs";
  * else. 404 when Places is off (no key, or no database for the cap); 429
  * once today's or this month's cap is used, or this visitor's share of
  * today's (lib/places/budget.ts), with `capped: true`.
+ *
+ * Each place may carry `photo` (a name for /api/places/photo, its author
+ * and its page on Google Maps), but only when every photo in the list fits
+ * in what's left of today's photo allowance and this visitor's; otherwise
+ * none does, and the list is the same as it was before photos.
  */
 export async function GET(request: NextRequest) {
   if (!placesEnabled()) return placesJson({ error: "Not available" }, 404);
@@ -34,7 +41,7 @@ export async function GET(request: NextRequest) {
     // This visitor's share of the day first, then the site-wide cap (lib/places/budget.ts).
     await takeVisitorList(ip);
     const places = await nearVenue(venue, kind, day != null && minutes != null ? { day, minutes } : undefined);
-    return placesJson({ places });
+    return placesJson({ places: places.some((p) => p.photo) ? grantPhotos(places, await photosLeft(ip)) : places });
   } catch (err) {
     return placesFailure(err, "places/night");
   }

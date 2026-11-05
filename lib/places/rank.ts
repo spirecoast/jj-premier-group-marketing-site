@@ -1,3 +1,5 @@
+import type { PlacePhoto } from "./photo";
+
 /**
  * The pure side of the Google Places lists: which places are good enough to
  * show, in what order, how far away, and whether they're open at the hour
@@ -20,6 +22,8 @@ export type RawPlace = {
   phone?: string;
   status?: string;
   periods?: Period[];
+  /** The place's first photo, on the Planner's Nearby lists only. */
+  photo?: PlacePhoto;
 };
 
 /** Google's opening-hours period. day is 0 for Sunday. No close means open around the clock. */
@@ -41,6 +45,8 @@ export type Place = {
   phone?: string;
   /** "Open until 11 PM" on the day asked about, when hours were asked about. */
   hours?: string;
+  /** A thumbnail to show beside it (lib/places/photo.ts), when the list's photos fit the caps. */
+  photo?: PlacePhoto;
 };
 
 export const RANK = {
@@ -155,6 +161,7 @@ export function rank(raw: RawPlace[], o: RankOptions = {}): Place[] {
       website: r.website,
       phone: r.phone,
       hours,
+      ...(r.photo ? { photo: r.photo } : {}),
       s: score(rating, count),
     });
   }
