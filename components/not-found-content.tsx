@@ -25,7 +25,7 @@ export function NotFoundContent() {
           Encore Arts Calendar
         </ButtonLink>
         <ButtonLink href="/contact" variant="outline">
-          Tell us the timing
+          Let’s talk
         </ButtonLink>
       </div>
     </section>

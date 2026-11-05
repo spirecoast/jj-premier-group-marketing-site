@@ -280,7 +280,7 @@ export default async function BuyPage() {
         <FaqAccordion items={FAQS} />
       </section>
 
-      {/* Tell us the timing. */}
+      {/* Let’s talk. */}
       <section
         id="contact"
         className="container-site grid scroll-mt-header gap-10 border-t border-hairline py-section lg:grid-cols-[1fr_1.4fr] lg:gap-20"
@@ -302,7 +302,7 @@ export default async function BuyPage() {
           <LeadForm
             form="buy"
             fields={["name", "email", "phone", "timing", "sellFirst", "message"]}
-            submitLabel="Tell us the timing"
+            submitLabel="Let’s talk"
             placeholderMessage="Tell us where you’re looking, what you need, and whether there’s a house to sell first."
           />
         </div>

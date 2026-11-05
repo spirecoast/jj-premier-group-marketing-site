@@ -126,7 +126,7 @@ search index; Resend sends only team-facing email.
   one is open, close 200 ms after the pointer leaves the row, and close when focus leaves them; ArrowDown
   opens one and the arrow keys walk its panel (`components/product-menu.tsx`).
 - The phone menu keeps `hidden` for assistive technology and opens with a discrete display transition
-  and a starting style, the rows 40 ms apart; Call, Text and "Tell us the timing" are pinned to its foot.
+  and a starting style, the rows 40 ms apart; Call, Text and "Let’s talk" are pinned to its foot.
   The phone action bar's middle cell is each page's own next step (`nextSteps` in `lib/site.ts`); on a
   scroll down the bar steps aside into a Call · Text chip in the corner, and it hides while a text field
   has focus and on very short screens.
