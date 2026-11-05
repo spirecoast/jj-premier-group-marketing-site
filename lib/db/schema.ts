@@ -387,7 +387,7 @@ export * from "./encore-schema";
 
 /**
  * places_usage — calls made to Google Places, per Pacific-time day and billing
- * SKU ('nearby' | 'text'). lib/places/budget.ts counts each call before it's
+ * SKU ('nearby' | 'text' | 'photo'). lib/places/budget.ts counts each call before it's
  * made and refuses it past the daily and monthly caps (migration 0014).
  */
 export const placesUsage = pgTable(

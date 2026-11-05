@@ -3,36 +3,27 @@ import { createHash } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { isMissingTable, warnMissingTable } from "@/lib/db/missing-table";
+import { PLACES_CAP, PLACES_VISITOR_CAP, type CapReason, type Sku, type Take } from "./caps";
+import { photoRoom } from "./photo";
+
+export { PLACES_CAP, PLACES_VISITOR_CAP, type CapReason, type Sku, type Take };
 
 /**
  * The cap on calls to Google Places, kept in Postgres (table places_usage,
  * migration 0014) because Google Cloud offers no per-day quota for Places
  * API (New) and a budget only alerts, it never stops spending.
  *
- * Each call is billed on its SKU (Nearby Search or Text Search), and each SKU
- * has 1,000 free calls a month. A call is counted before it's made, and
- * refused once its SKU has had PLACES_CAP.day calls today or
- * PLACES_CAP.month this month, so the site stays inside the free tier with
- * room to spare. Days and months are Pacific time, as Google bills.
+ * Each call is billed on its SKU (Nearby Search, Text Search, or Place
+ * Photos for the Planner's thumbnails), and each SKU has 1,000 free calls a
+ * month. A call is counted before it's made, and refused once its SKU has
+ * had PLACES_CAP.day calls today or PLACES_CAP.month this month (./caps.ts),
+ * so the site stays inside the free tier with room to spare. Days and months
+ * are Pacific time, as Google bills.
  *
  * If the count can't be read, the call isn't made: the lists go quiet before
  * anything can be billed. That includes a database where migration 0014
  * hasn't been applied: the table is never created from a request.
  */
-
-export const PLACES_CAP = { day: 30, month: 900 } as const;
-
-/**
- * Lists one visitor can open in a Pacific-time day, across both SKUs, inside
- * the site-wide cap: a Planner evening with two shows (dinner, drinks and a
- * hotel near each) is six, and a few more for a change of mind. At most a
- * quarter of a day's calls go to any one visitor.
- */
-export const PLACES_VISITOR_CAP = 8;
-
-export type Sku = "nearby" | "text";
-export type Take = { ok: true } | { ok: false; reason: "day" | "month" | "error" };
-export type CapReason = "day" | "month" | "error" | "visitor";
 
 /** "2026-10-12", the calendar day in Pacific time. */
 export function pacificDay(now: Date): string {
@@ -69,27 +60,35 @@ export async function takeCall(sku: Sku, now: Date = new Date()): Promise<Take> 
   }
 }
 
+/** What a visitor's daily count is of: the lists they open, or the photos in them. Each has PLACES_VISITOR_CAP. */
+export type VisitorCount = "list" | "photo";
+
 /** A visitor, for the per-visitor count: a hash of the day and their address, so the address is never stored. */
-export function visitorKey(ip: string, day: string): string {
-  return createHash("sha256").update(`places|${day}|${ip}`).digest("hex").slice(0, 32);
+export function visitorKey(ip: string, day: string, count: VisitorCount = "list"): string {
+  return createHash("sha256")
+    .update(`${count === "photo" ? "places-photo" : "places"}|${day}|${ip}`)
+    .digest("hex")
+    .slice(0, 32);
 }
 
 let swept = "";
 
 /**
- * Count one list for this visitor today, if they have room
- * (PLACES_VISITOR_CAP). Fails open: without the table (migration 0017 not
- * applied) or a database that won't answer, there's no per-visitor count
- * and the site-wide cap in takeCall still stops the spending.
+ * Count one list (or one photo) for this visitor today, if they have room
+ * (PLACES_VISITOR_CAP each). A list fails open: without the table (migration
+ * 0017 not applied) or a database that won't answer, there's no per-visitor
+ * count and the site-wide cap in takeCall still stops the spending. A photo
+ * fails closed: it's only ever an extra, so without a count there's no photo.
  */
-export async function takeVisitorCall(ip: string, now: Date = new Date()): Promise<{ ok: boolean }> {
-  if (!process.env.DATABASE_URL) return { ok: true };
+export async function takeVisitorCall(ip: string, now: Date = new Date(), count: VisitorCount = "list"): Promise<{ ok: boolean }> {
+  const unknown = { ok: count === "list" };
+  if (!process.env.DATABASE_URL) return unknown;
   const day = pacificDay(now);
   try {
     const database = getDb();
     const rows = await database.execute(sql`
       INSERT INTO places_visitors (day, visitor, calls)
-      VALUES (${day}::date, ${visitorKey(ip, day)}, 1)
+      VALUES (${day}::date, ${visitorKey(ip, day, count)}, 1)
       ON CONFLICT (day, visitor) DO UPDATE SET calls = places_visitors.calls + 1
         WHERE places_visitors.calls < ${PLACES_VISITOR_CAP}
       RETURNING calls
@@ -103,7 +102,37 @@ export async function takeVisitorCall(ip: string, now: Date = new Date()): Promi
   } catch (err) {
     if (isMissingTable(err)) warnMissingTable("places_visitors", "0017_places_visitors.sql");
     else console.error("[places/budget] visitor count", err instanceof Error ? err.message : err);
-    return { ok: true };
+    return unknown;
+  }
+}
+
+/**
+ * How many photos could be fetched for this visitor right now, read without
+ * counting anything: the least of what's left of the photo SKU today and
+ * this month, and of the visitor's own photos today (photoRoom in
+ * ./photo.ts). A list only carries photos when all of them fit. Zero when
+ * the database, either table or the answer is missing: no room, no photos.
+ */
+export async function photosLeft(ip: string, now: Date = new Date()): Promise<number> {
+  if (!process.env.DATABASE_URL) return 0;
+  const day = pacificDay(now);
+  const monthStart = `${day.slice(0, 7)}-01`;
+  const sku: Sku = "photo";
+  try {
+    const [used] = await getDb().execute<{ day: number; month: number; visitor: number }>(sql`
+      SELECT
+        coalesce((SELECT calls FROM places_usage WHERE day = ${day}::date AND sku = ${sku}), 0)::int AS day,
+        coalesce((SELECT sum(calls) FROM places_usage WHERE sku = ${sku} AND day >= ${monthStart}::date), 0)::int AS month,
+        coalesce((SELECT calls FROM places_visitors WHERE day = ${day}::date AND visitor = ${visitorKey(ip, day, "photo")}), 0)::int AS visitor
+    `);
+    return used ? photoRoom({ day: Number(used.day), month: Number(used.month), visitor: Number(used.visitor) }) : 0;
+  } catch (err) {
+    // Either table may be the missing one; each is named once in the log.
+    if (isMissingTable(err)) {
+      warnMissingTable("places_usage", "0014_places_usage.sql");
+      warnMissingTable("places_visitors", "0017_places_visitors.sql");
+    } else console.error("[places/budget] photo room", err instanceof Error ? err.message : err);
+    return 0;
   }
 }
 

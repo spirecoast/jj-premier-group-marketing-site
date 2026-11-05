@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { EncoreIndex } from "./index-format";
-import { MAX_DAYS, buildPlan, normalizeDates, parsePlanState, planSearch, presetDates } from "./plan";
+import { ALL_MARKETS, MAX_DAYS, buildPlan, normalizeDates, parsePlanState, planHref, planSearch, presetDates, stayDays } from "./plan";
 
 // 2026-10-14 is a Wednesday; the 17th and 18th are the weekend.
 const TODAY = "2026-10-14";
@@ -60,5 +60,43 @@ describe("Encore Planner", () => {
     const slugs = plan.days.flatMap((d) => [...(d.matinee ? [d.matinee] : []), ...d.picks]).map((o) => o.e.s);
     assert.equal(slugs.length, 20); // five days, an afternoon and three evening picks each
     assert.equal(new Set(slugs).size, slugs.length);
+  });
+
+  test("all three places are on unless a link names some, and old links mean what they meant", () => {
+    const none = parsePlanState({ from: "2026-10-16", to: "2026-10-18" }, TODAY).state;
+    assert.deepEqual(none.markets, ["lakewood-ranch", "sarasota", "bradenton"]);
+    assert.deepEqual(none.markets, [...ALL_MARKETS]);
+    // An empty or unknown market reads as all three, as it always has.
+    assert.deepEqual(parsePlanState({ from: "2026-10-16", market: "" }, TODAY).state.markets, [...ALL_MARKETS]);
+    assert.deepEqual(parsePlanState({ from: "2026-10-16", market: "tampa" }, TODAY).state.markets, [...ALL_MARKETS]);
+    // A link that names places keeps them, in its order.
+    assert.deepEqual(parsePlanState({ from: "2026-10-16", market: "bradenton,sarasota" }, TODAY).state.markets, ["bradenton", "sarasota"]);
+  });
+
+  test("a plan with all three writes the same link as before, without market", () => {
+    const { state } = parsePlanState({ from: "2026-10-16", to: "2026-10-18" }, TODAY);
+    assert.equal(planHref(state), "/calendar/plan?from=2026-10-16&to=2026-10-18");
+    assert.equal(planSearch({ ...state, markets: ["sarasota"] }), "?from=2026-10-16&to=2026-10-18&market=sarasota");
+    // Every place in another order still says which order to visit them in.
+    assert.match(planSearch({ ...state, markets: ["bradenton", "sarasota", "lakewood-ranch"] }), /market=bradenton%2Csarasota%2Clakewood-ranch/);
+    // A form left with none comes back with all three.
+    assert.deepEqual(parsePlanState(new URLSearchParams(planSearch({ ...state, markets: [] })), TODAY).state.markets, [...ALL_MARKETS]);
+  });
+
+  test("an old link with no market rotates through the places as it did", () => {
+    const { state } = parsePlanState({ from: "2026-10-14", to: "2026-10-16" }, TODAY);
+    assert.deepEqual(
+      stayDays(state).map((d) => d.markets),
+      [["lakewood-ranch"], ["sarasota"], ["bradenton"]],
+    );
+    assert.deepEqual(stayDays({ ...state, markets: [] }), stayDays(state));
+  });
+
+  test("one day is a plan: from and to the same day", () => {
+    const { state } = parsePlanState({ from: "2026-10-17", to: "2026-10-17", who: "local" }, TODAY);
+    assert.equal(planSearch(state), "?from=2026-10-17&to=2026-10-17&who=local");
+    assert.equal(buildPlan(INDEX, state, TODAY).days.length, 1);
+    // A link with only from is that one day.
+    assert.equal(parsePlanState({ from: "2026-10-17" }, TODAY).state.to, "2026-10-17");
   });
 });
