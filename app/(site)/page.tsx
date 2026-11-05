@@ -35,6 +35,14 @@ const FRAMES = {
   island: img("library/kitchen-navy-island", "A navy kitchen island with woven stools", "40% 50%"),
 };
 
+/* The hero's video: the Life Here montage, over its first frame (docs/SITE.md, "The home hero").
+   `site.homeHero` chooses between it and the photograph above. */
+const HERO_VIDEO = {
+  desktop: "/video/life-here-1080.mp4",
+  phone: "/video/life-here-720.mp4",
+  poster: img("library/life-here-poster", "Anna Maria Island from the air at sunset, the Gulf calm under a pink sky", "50% 50%"),
+};
+
 export default async function HomePage() {
   // The Encore pieces below (the season ring, tonight's count) read the snapshot loaded here.
   const [team, events, settings, featured] = await Promise.all([
@@ -52,7 +60,11 @@ export default async function HomePage() {
      photograph says what it is. */
   return (
     <>
-      <Hero image={FRAMES.hero} cameo={FRAMES.cameo} team={team} />
+      <Hero
+        picture={site.homeHero === "video" ? { kind: "video", clip: HERO_VIDEO } : { kind: "photo", image: FRAMES.hero }}
+        cameo={FRAMES.cameo}
+        team={team}
+      />
       <Meet duo={FRAMES.duo} />
       <Doors />
       <Places />

@@ -94,6 +94,79 @@ search index; Resend sends only team-facing email.
   kind of scene with alt text that describes the photo, not the place; Waterside uses the client's lake
   aerial (`lakes-aerial-sunset`). The team photos in `public/images/photos` are
   the team's own. `lib/content/image-dims.ts` groups the files the same way.
+- The home hero (November 2026). One switch, `homeHero` in `lib/site.ts`, chooses what fills it:
+  - `"video"` (now): the Life Here montage over its first frame, with sound and pause in the
+    corner (`components/home/hero-video.tsx`);
+  - `"photo"`: the Gulf beach photograph (`gulf-beach-aerial`, `FRAMES.hero` in
+    `app/(site)/page.tsx`) with its slow drift and the motion toggle, exactly as the hero was
+    before. The markup is the same, byte for byte. Change the one word to switch; both pictures
+    stay in the repo.
+
+  **The montage.** "Life Here", a seamless 48.4-second loop of ten shots, cut for the team in
+  November 2026. Every clip and the music are from Adobe Stock's free collection, licensed
+  November 5, 2026 under the standard license, so no credit is shown on the page and none is
+  flagged as generated. In order: 549765787 (Anna Maria Island from the air at sunset, also the
+  still), 665979382 (Sarasota canal homes at golden hour), 385776704 (an infinity pool over the
+  water), 1542602241 (a marble and white-oak kitchen, mirrored), 640505703 (a boat leaving the
+  Venice inlet), 621529647 (a palm-lined golf course), 563623949 (pickleball, hands and
+  silhouettes), 514783510 (a garden dinner with friends), 506301840 (violin and piano in a
+  concert hall) and 621995290 (the Venice fishing pier at sunset). Music: "Shine", 495722710.
+  Before launch, check the model releases for 514783510 and 506301840 on their Adobe Stock pages;
+  the licensing tool doesn't show them.
+
+  **The files.** `public/video/life-here-1080.mp4` (1920x1080, 13.9 MB) and `life-here-720.mp4`
+  (1280x720, 6.0 MB): H.264 High at about 2.15 and 0.85 Mb/s, index at the front (faststart),
+  with the music as AAC at 128 kb/s stereo. The still is `public/images/library/life-here-poster.jpg`
+  (21 KB as AVIF at 1280px). Smaller 1080 encodes were tried from the master and dropped: at
+  1.5 Mb/s (4 MB less) the golf grass and palms smeared at full screen, and at 1.7 and 1.9 Mb/s
+  with slower x264 settings (2.7 and 1.5 MB less) the golf course, the boat dissolve and the
+  water stayed a little softer than the delivered file. The delivered encode stays.
+
+  The music has no gain change and no normaliser (-17.1 LUFS integrated, true peak -2.4 dBTP,
+  the build intact). It fades in softly on the song's own intro, and a 4-second fade ends on the
+  song's 46.92-second phrase exactly at the loop point, so each loop opens on about three quiet
+  seconds before the song builds again. The audio and picture are the same length to a third of
+  a millisecond, so the loop wraps from silence into silence.
+
+  **How it behaves.** The still is rendered by `Photo` with `priority`, so the largest paint is
+  an optimized image. The video is rendered only in the browser, requested after the page's
+  load event, and fades in over `--dur-img` once it plays.
+  - It's muted, inline, looping and autoplaying, with no controls, and hidden from assistive
+    technology (the still's alt text describes the picture).
+  - Phones get the 720p file: below 640px wide, or under 500px tall (a phone held sideways),
+    chosen once on load (`PHONE_VIDEO_QUERY` in `lib/hero-video.ts`).
+  - It never starts by itself for anyone who asked for reduced motion, when the browser asks to
+    save data (Save-Data, or a 2G connection), when a pause was stored from an earlier visit, or
+    when the browser refuses to autoplay (Low Power Mode). They get the still and a Play button,
+    and nothing is downloaded until they press it (`videoWanted` in `lib/hero-video.ts`).
+  - It pauses while the hero is off the screen or the tab is hidden.
+  - If the file can't play, the still stays and the button pauses the page's other loops
+    ("Pause the motion").
+
+  **The controls.** Two 44px glass squares (`.hero-control`) in the corner the motion toggle uses
+  in photo mode, with the site's Sky 300 focus ring.
+  - Sound reads "Turn sound on" / "Turn sound off" and shows a crossed or open speaker. It appears
+    once there's a video to hear. The video starts muted on every visit, since browsers only
+    autoplay muted video; within a visit, sound stays on through a pause, scrolling away and a
+    hidden tab.
+  - Pause/play takes the motion toggle's role on the home hero. It reads "Pause the video" /
+    "Play the video", remembers the choice (`jj:motion`, `lib/motion-pref.ts`), and pauses the
+    page's other loops too.
+  - Each label says what a press does, so neither button carries `aria-pressed` as well.
+
+  **Readability.** The shade is the same `.hero-shade` a little deeper (`.hero-shade-video`,
+  deepest under the header), and the cameo's small line ("REALTORS® · COLDWELL BANKER") carries
+  the names' text shadow. Swept every half second across the loop against the picture under each
+  line of type, and set against the beach photo measured the same way:
+  - At 1440 every line holds 4.5:1 (3:1 for the headline) on every frame. The weakest are the
+    cameo's small line at 4.5 and the headline's first line at 4.2; over the beach photo those
+    measured 3.3 and 2.5.
+  - On a phone the cameo sits over the middle of the picture and stays the weak spot, as it was
+    over the beach photo: on the brightest frames the small line drops to about 1.6:1 (1.6 over the
+    photo) and the names to 2.5 (2.4). "Menu" dips to 3.6 on the pool shot (4.2 over the photo).
+    By eye all of it reads; a deeper shade there would darken most of a 260px-tall picture.
+
+  `/video` has the photos' Cache-Control, and the CSP's `media-src 'self'` already covers it.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
   **Atlas** (the neighborhood explorer, `/neighborhoods`), **Encore** (the arts calendar,
   `/calendar`) and **Tide** (the newsletter and its archive, `/blog`). The desktop nav is two
@@ -1424,8 +1497,9 @@ Deliberate keeps from the review passes:
   `CRON_SECRET`, `ENCORE_COLLECT_SECRET` or `LEAD_TEST_SECRET`, and `?deep=1` with the same secret
   adds what the database knows ("Scheduled jobs and alerts" below). Bearer checks go through
   `lib/bearer.ts` (constant-time).
-- Caching: photos under `/images` are `max-age=604800, stale-while-revalidate=2592000` (names are
-  reused when a file is replaced, so not immutable); optimized images keep 31 days
+- Caching: photos under `/images` and the home hero's video under `/video` are
+  `max-age=604800, stale-while-revalidate=2592000` (names are reused when a file is replaced, so
+  not immutable); optimized images keep 31 days
   (`images.minimumCacheTTL`); the MapLibre worker lives in `/vendor/maplibre-gl/<version>/`
   (immutable) behind a one-line `/vendor/maplibre-gl-worker.mjs` that imports it.
 - The privacy policy names the stack as deployed: Plausible (cookieless), Vercel, Supabase,
