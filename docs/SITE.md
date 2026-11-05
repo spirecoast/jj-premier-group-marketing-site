@@ -514,7 +514,8 @@ here carries `source` = atlas-check.
 - **Controls, exactly three.** `.btn` (52px) for a primary action, `.chip` (44px) for the view
   switcher (a tablist with arrow keys; the body is its tabpanel), the filter chip and the
   categories, and `.btn-quiet` (36px; a 44px square with a glyph) for Today, Prev/Next, Clear,
-  Close, Save (a bookmark, filled amber when saved) and the Planner's Nearby (a pin). The glyphs
+  Close, Save (a bookmark, filled amber when saved) and the Planner's "Dinner, drinks and hotels
+  nearby" (a pin and those words). The glyphs
   are `components/encore/glyphs.tsx`. The filter chip ("Everywhere · Any venue") opens the sheet
   "Where and what" (`components/encore/filter-sheet.tsx`, a native dialog: market chips, the
   venue select grouped by town, category chips with the window's counts; a bottom sheet on a
@@ -566,10 +567,24 @@ here carries `source` = atlas-check.
   `event=<slug>` one production, and `event=<slug>&at=<iso>` a single performance (the "+ Cal"
   links on event pages). The "Subscribe" links on `/calendar` point at the 90-day feed; a
   subscriber's calendar rolls forward on every refresh, so nothing has to change on their side.
-- **Plan a visit.** `/calendar/plan` is for someone coming to look at homes: arrival and
-  departure (up to 14 days, the coming weekend by default), the markets to see, optional
-  category preferences and an evenings-only toggle, all in the URL once the plan is built
-  (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable. Each category chip
+- **Plan a visit.** `/calendar/plan` is for someone coming to look at homes or someone who
+  lives here: the days (one day, or up to 31, the coming weekend by default), the places,
+  optional category preferences and an evenings-only toggle, all in the URL once the plan is
+  built (`from`, `to`, `market`, `cat`, `evenings`, `who`) so a plan is shareable; one day is
+  `from` and `to` the same. The days are picked on a calendar
+  (`components/encore/range-calendar.tsx`, the rules in `lib/encore/range.ts` with their tests):
+  a tap is one day and that's a plan; a second tap on a later day makes a range; the next tap
+  starts again (so does an earlier day, or one past 31 days). The quick dates sit above it and the
+  choice is said in words ("Saturday, November 14", "November 14 to 17"). Today has an Encore dot,
+  the days before it are dimmed, and the months run a year ahead, the Planner's own limits. One
+  month on a phone (the calendar takes 12px of the card's padding back each side so the days are
+  44px), two side by side from 1024px. It's a WAI-ARIA grid with one tab stop: the arrows a day
+  or a week, Home and End the week's ends, Page Up and Page Down a month, Enter or Space picks;
+  the chosen days are `aria-selected`, today `aria-current="date"`, the month a polite live
+  region. All three places start on; with every one turned off Next waits and says "Pick at least
+  one place." A link without `market` (or with none the site knows) still means all three, and a
+  plan with all three in the form's order leaves `market` out, so links made before and after
+  this match. Each category chip
   carries a tick box like the evenings-only box under it (`.chip-box` in
   `components/encore/encore.css`), so it reads as something to tap on a phone as well as with a
   pointer or the keyboard. Each question is a
@@ -585,6 +600,17 @@ here carries `source` = atlas-check.
   strip has scrolled away, a compact row of the days slides down under the header (on a phone, to
   the top while the header is tucked away), marks the day being read, and jumps to any day; it is
   one tab stop (← → Home End). The day heads stick under it.
+  Each pick at a venue with coordinates on file says "Dinner, drinks and hotels nearby" ("Dinner,
+  drinks, hotels" below 480px; from 1280px beside Save, below that on a line of its own under the
+  pick), and opens Google's best-rated restaurants, bars and hotels near the venue
+  (`components/encore/night-out.tsx`, `lib/places/*`). When today's photo allowance and the
+  visitor's own have room for the whole list, each place has a 64px photo beside it: the list
+  carries Google's photo names, `/api/places/photo` counts each one (`photo` in `places_usage`, 30
+  a day, 900 a month, 8 a visitor, failing closed) and sends the browser to Google's own copy, so
+  the key stays on the server and nothing is stored. The photo opens itself on Google Maps and its
+  author is credited under the address. A list without room, a missing table or key, or a photo
+  that fails shows exactly as it did before photos, with no empty frame (docs/LAUNCH.md,
+  `GOOGLE_MAPS_API_KEY`).
 
 `lib/content/encore.ts` turns the dataset's productions and venues into the site's `Event` and
 `Venue` shapes:
