@@ -200,6 +200,8 @@ const nextConfig: NextConfig = {
         ],
       },
       { source: "/images/:path*", headers: [{ key: "Cache-Control", value: PHOTO_CACHE }] },
+      // The home hero's video loops: the same as the photos, so a return visit doesn't fetch 3 to 7 MB again.
+      { source: "/video/:path*", headers: [{ key: "Cache-Control", value: PHOTO_CACHE }] },
       { source: "/vendor/maplibre-gl/:version/:file", headers: [{ key: "Cache-Control", value: IMMUTABLE }] },
       // The guide PDFs repeat the guide pages; the pages are the ones to index.
       { source: "/guides/pdf/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] },
