@@ -3,7 +3,7 @@
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { ImageRef } from "@/lib/content/types";
-import { PHONE_VIDEO_QUERY, savingData, videoWanted, type HeroClip } from "@/lib/hero-video";
+import { heroVideoFile, PHONE_VIDEO_QUERY, PORTRAIT_QUERY, savingData, videoWanted, type HeroClip } from "@/lib/hero-video";
 import { setMotionPaused, useMotionPaused } from "@/lib/motion-pref";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,8 @@ function useStage(): Stage {
  * The home hero's video, laid over its still. The still is rendered by the
  * server through the image pipeline and stays the page's largest paint; the
  * video isn't requested until the page's load event, so it never takes
- * bandwidth from it. Phones get the 720p file. It starts muted (browsers only
+ * bandwidth from it. Phones held upright get the portrait cut, other small
+ * screens the 720p file (lib/hero-video.ts). It starts muted (browsers only
  * autoplay muted video), and not by itself at all for anyone who asked for
  * reduced motion, whose browser asks to save data (Save-Data, 2G), or who
  * paused it before; they get the still and a Play button. It pauses while the
@@ -73,8 +74,12 @@ export function HeroVideoStage({ clip, children }: { clip: HeroClip<ImageRef>; c
   const paused = useMotionPaused();
   const saving = useSyncExternalStore(onConnection, () => savingData(connection()), () => false);
   const visible = useSyncExternalStore(onVisibility, () => document.visibilityState !== "hidden", () => true);
-  // Chosen once, in the browser.
-  const [phone] = useState(() => typeof window !== "undefined" && window.matchMedia(PHONE_VIDEO_QUERY).matches);
+  // Chosen once, in the browser, with the queries the still's <picture> reads (lib/hero-video.ts).
+  const [screen] = useState(() =>
+    typeof window === "undefined"
+      ? { portrait: false, phone: false }
+      : { portrait: window.matchMedia(PORTRAIT_QUERY).matches, phone: window.matchMedia(PHONE_VIDEO_QUERY).matches },
+  );
   const [pressedPlay, setPressedPlay] = useState(false);
   const [autoplayRefused, setAutoplayRefused] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -90,7 +95,7 @@ export function HeroVideoStage({ clip, children }: { clip: HeroClip<ImageRef>; c
   // After the load event, or at once when the visitor presses Play. Once it has played (or the
   // browser refused to start it), a pause keeps it in place, so Play can resume it in the same tap.
   const show = (loaded || pressedPlay) && !failed && (moving || ready || autoplayRefused);
-  const src = phone ? clip.phone : clip.desktop;
+  const src = heroVideoFile(clip, screen);
 
   useEffect(() => {
     const v = ref.current;
