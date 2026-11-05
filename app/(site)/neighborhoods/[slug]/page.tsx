@@ -436,7 +436,7 @@ export default async function NeighborhoodPage({ params }: { params: Params }) {
 
       <CtaBand
         image={n?.hero ?? marketInfo!.image}
-        title="Tell us the timing."
+        title="Let’s talk."
         body="When do you need to be in, and is there a house to sell first? Those two answers change everything else."
         minHeight="min-h-[440px]"
       >

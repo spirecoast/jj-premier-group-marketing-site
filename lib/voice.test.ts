@@ -45,6 +45,7 @@ describe("the voice rules", () => {
   it("leave honest uses alone", () => {
     for (const s of [
       "Let’s talk about your next move.",
+      "Let’s talk",
       "The market was busy in July.",
       "Mark the date on your calendar.",
       "The parts are listed with a numbered mark on each.",

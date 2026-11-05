@@ -158,8 +158,8 @@ export const ASK = {
   submit: "Send my plan",
   placeholder: "Anything else we should know?",
   /** Shown instead of the form while the questions are still open: there is no plan to send yet. */
-  beforePlan: "Rather just talk?",
-  beforePlanLink: "Tell us the timing",
+  beforePlan: "Rather skip the questions?",
+  beforePlanLink: "Let’s talk",
 };
 
 export const FAQ_SECTION = { title: "Common questions about moving here" };
