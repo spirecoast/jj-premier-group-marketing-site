@@ -95,12 +95,29 @@ search index; Resend sends only team-facing email.
   aerial (`lakes-aerial-sunset`). The team photos in `public/images/photos` are
   the team's own. `lib/content/image-dims.ts` groups the files the same way.
 - The home hero (November 2026). One switch, `homeHero` in `lib/site.ts`, chooses what fills it:
-  - `"video"` (now): the Life Here montage over its first frame, with sound and pause in the
-    corner (`components/home/hero-video.tsx`);
+  - `"video"` (now): the Life Here montage over its first frame, with sound and pause
+    (`components/home/hero-video.tsx`);
   - `"photo"`: the Gulf beach photograph (`gulf-beach-aerial`, `FRAMES.hero` in
-    `app/(site)/page.tsx`) with its slow drift and the motion toggle, exactly as the hero was
-    before. The markup is the same, byte for byte. Change the one word to switch; both pictures
-    stay in the repo.
+    `app/(site)/page.tsx`) with its slow drift and the motion toggle. Change the one word to
+    switch; both pictures stay in the repo, and both take the layout below.
+
+  **The layout.** On every screen the picture fills the frame and the type sits over it: the
+  cameo at the top under the see-through header, and the headline, its short rule and both
+  buttons at the foot, white and linen over a shade (`components/home/hero.tsx`).
+  - From 1024px (`lg`) the frame is 780px tall, the type sits on the left at the logo's edge
+    (96px at 1440, 336px at 1920), and the sound and pause sit in the far bottom corner.
+  - Below 1024px the frame is at least 78% of the small viewport (`78svh`) and never shorter
+    than what it holds: its top padding keeps the header's and the cameo's room, so a short
+    screen grows the frame instead of letting the cameo and the headline meet (`.hero-stage` in
+    `app/globals.css`, one grid). On a phone held upright the buttons run the full width, stacked
+    at 52px, and the sound and pause sit at the end of the rule's row, under the headline's short
+    second line, where they move no text; the row keeps its height while the sound button waits
+    for the video. Wider than 640px the buttons sit side by side and the controls take the end of
+    their row, as on desktop. At 390x844 the frame is 658px and the last button ends about 170px
+    above the Call/Text bar (155px at 360x780).
+  - A phone held sideways (under 500px tall) sets the headline at the phone's 44px and trims the
+    padding, so the whole hero fits the screen (371px at 844x390), and takes the desktop's side
+    shade, since its type sits on the left of a wide frame.
 
   **The montage.** "Life Here", a seamless 48.4-second loop of ten shots, cut for the team in
   November 2026. Every clip and the music are from Adobe Stock's free collection, licensed
@@ -118,7 +135,12 @@ search index; Resend sends only team-facing email.
   **The files.** `public/video/life-here-2-1080.mp4` (1920x1080, 13.8 MB) and `life-here-2-720.mp4`
   (1280x720, 5.9 MB): H.264 High at about 2.15 and 0.85 Mb/s, index at the front (faststart),
   with the music as AAC at 128 kb/s stereo. The still is `public/images/library/life-here-2-poster.jpg`
-  (21 KB as AVIF at 1280px). Smaller 1080 encodes were tried from the master and dropped: at
+  (21 KB as AVIF at 1280px). Phones held upright get a portrait cut, `life-here-3-portrait.mp4`
+  (720x1200, 3:5, the same 48.43-second loop and music), with its own first frame as the still,
+  `public/images/library/life-here-3-poster-portrait.jpg` (1080x1800). The two in the repo now are
+  stand-ins, center-cropped from the 1080 file and its still (the video is 14.7 MB at CRF 23, so
+  heavier than the real cut should be); the real cut replaces them under the same names before
+  this ships. Smaller 1080 encodes were tried from the master and dropped: at
   1.5 Mb/s (4 MB less) the golf grass and palms smeared at full screen, and at 1.7 and 1.9 Mb/s
   with slower x264 settings (2.7 and 1.5 MB less) the golf course, the boat dissolve and the
   water stayed a little softer than the delivered file. The delivered encode stays.
@@ -135,13 +157,25 @@ search index; Resend sends only team-facing email.
   seconds before the song builds again. The audio and picture are the same length to a third of
   a millisecond, so the loop wraps from silence into silence.
 
-  **How it behaves.** The still is rendered by `Photo` with `priority`, so the largest paint is
-  an optimized image. The video is rendered only in the browser, requested after the page's
-  load event, and fades in over `--dur-img` once it plays.
+  **How it behaves.** The still is the largest paint, an optimized image preloaded at high
+  priority, and it matches the file that will play: one `<picture>` (`HeroStill` in
+  `components/home/hero.tsx`, built from next/image's `getImageProps`) whose `<source>` gives the
+  portrait still to a phone held upright (`PORTRAIT_QUERY`: below 640px wide and taller than wide)
+  and whose `<img>` gives the landscape still to everything else. Each still has its own preload
+  (React's `preload` with `media`), behind opposite queries (`LANDSCAPE_QUERY` is `not all and` the
+  portrait query), so every screen downloads exactly one; next/image's own preload can't follow a
+  `<source>` and would fetch the landscape still on phones too. On a tablet held upright the frame
+  is taller than wide, so the landscape still (and the photograph in photo mode) is fetched at
+  about 1.9 times the screen's width (`HOME_HERO_SIZES` in `lib/image-sizes.ts`). The video is
+  rendered only in the browser, requested after the page's load event, and fades in over
+  `--dur-img` once it plays.
   - It's muted, inline, looping and autoplaying, with no controls, and hidden from assistive
     technology (the still's alt text describes the picture).
-  - Phones get the 720p file: below 640px wide, or under 500px tall (a phone held sideways),
-    chosen once on load (`PHONE_VIDEO_QUERY` in `lib/hero-video.ts`).
+  - The file is chosen once on load, with the still's queries (`heroVideoFile` in
+    `lib/hero-video.ts`): the portrait cut on a phone held upright; the 720p file on other small
+    screens, below 640px wide or under 500px tall (`PHONE_VIDEO_QUERY`); the 1080p file everywhere
+    else. Both cuts and both stills take one framing, `poster.position`, so the video always fades
+    in exactly over its still.
   - It never starts by itself for anyone who asked for reduced motion, when the browser asks to
     save data (Save-Data, or a 2G connection), when a pause was stored from an earlier visit, or
     when the browser refuses to autoplay (Low Power Mode). They get the still and a Play button,
@@ -150,8 +184,8 @@ search index; Resend sends only team-facing email.
   - If the file can't play, the still stays and the button pauses the page's other loops
     ("Pause the motion").
 
-  **The controls.** Two 44px glass squares (`.hero-control`) in the corner the motion toggle uses
-  in photo mode, with the site's Sky 300 focus ring.
+  **The controls.** Two 44px glass squares (`.hero-control`) in the corner the type leaves free
+  (see the layout), where the motion toggle sits in photo mode, with the site's Sky 300 focus ring.
   - Sound reads "Turn sound on" / "Turn sound off" and shows a crossed or open speaker. It appears
     once there's a video to hear. The video starts muted on every visit, since browsers only
     autoplay muted video; within a visit, sound stays on through a pause, scrolling away and a
@@ -161,17 +195,28 @@ search index; Resend sends only team-facing email.
     page's other loops too.
   - Each label says what a press does, so neither button carries `aria-pressed` as well.
 
-  **Readability.** The shade is the same `.hero-shade` a little deeper (`.hero-shade-video`,
-  deepest under the header), and the cameo's small line ("REALTORS® · COLDWELL BANKER") carries
-  the names' text shadow. Swept every half second across the loop against the picture under each
-  line of type, and set against the beach photo measured the same way:
-  - At 1440 every line holds 4.5:1 (3:1 for the headline) on every frame. The weakest are the
-    cameo's small line at 4.5 and the headline's first line at 4.2; over the beach photo those
-    measured 3.3 and 2.5.
-  - On a phone the cameo sits over the middle of the picture and stays the weak spot, as it was
-    over the beach photo: on the brightest frames the small line drops to about 1.6:1 (1.6 over the
-    photo) and the names to 2.5 (2.4). "Menu" dips to 3.6 on the pool shot (4.2 over the photo).
-    By eye all of it reads; a deeper shade there would darken most of a 260px-tall picture.
+  **Readability.** From 1024px the shade is the same `.hero-shade` a little deeper
+  (`.hero-shade-video`, deepest under the header), and the cameo's small line ("REALTORS® ·
+  COLDWELL BANKER") carries the names' text shadow. Below 1024px the type runs the full width, so
+  the shade (one for the photo and the video) comes from the foot and the top instead of the
+  side, set in rem from each edge so it follows the type rather than the frame's height: deepest
+  under the buttons and the headline, a band under the header and the cameo, the middle of the
+  picture left clear. A phone held sideways keeps the desktop's side shade. Each line was measured
+  against the picture and shade behind it, with the type and its shadows hidden:
+  - At 1440, swept every half second across the loop: every line holds 4.5:1 (3:1 for the
+    headline) on every frame. The weakest are the cameo's small line at 4.5 and the headline's
+    first line at 4.2; over the beach photo those measured 3.3 and 2.5.
+  - Below 1024px, on the frames at 1, 7, 12, 17, 22, 27, 32, 37 and 42 seconds, each line's
+    weakest frame, as the average behind the line and then against its brightest 5% of pixels:
+    - headline, first line: 6.2 / 5.0 at 360x780, 6.6 / 5.4 at 390x844, 6.9 / 4.7 at 430x932,
+      8.0 / 5.4 at 768x1024, 7.8 / 5.6 at 844x390;
+    - headline, second line: 7.8 / 5.4, 7.5 / 5.6, 7.0 / 5.5, 9.7 / 7.5, 8.6 / 6.6;
+    - cameo names: 6.3 / 5.9, 6.2 / 5.7, 6.4 / 5.7, 7.7 / 5.7, 8.6 / 6.1;
+    - cameo small line: 4.8 / 4.5, 4.5 / 4.1, 4.6 / 4.1, 5.6 / 4.2, 5.3 / 3.9.
+    The weak frames are the dining room (12 s) and the opener's white house (1 s) behind the
+    headline, and the pickleball sunset (32 s) behind the cameo. Over the beach photo every line
+    averages at least 5.4:1 (the small line, held sideways) and the headline holds 5.0:1 against
+    its brightest 5%.
 
   `/video` has the photos' Cache-Control, and the CSP's `media-src 'self'` already covers it.
 - The three products are a family, named once in `lib/site.ts` (`products`, `primaryNav`):
