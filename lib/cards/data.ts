@@ -58,9 +58,9 @@ async function tideCard(channel: CardChannel): Promise<CardModel | null> {
     eyebrow: C.tide.eyebrow(model.issueLabel),
     title: C.tide.title,
     rows,
-    note: C.tide.rowNote(model.dataLabel),
+    note: C.tide.rowNote(model.dataLabel.split(" ")[0]!),
     photo: model.cover.src,
-    caption: C.tide.caption(model.issueLabel, model.dataLabel, shortUrl(channel)),
+    caption: C.tide.caption(model.issueLabel, model.dataLabel.split(" ")[0]!, shortUrl(channel)),
   });
 }
 

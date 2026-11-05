@@ -16,19 +16,25 @@ export const TIDE_WEB_COPY = {
   wordmark: "Tide",
   eyebrow: "Tide · Once a month",
   title: "Tide, {issue}",
-  /** The page's opening line until the month's story is written. */
-  framing: "Here’s how home sales went in {data} in Lakewood Ranch, Sarasota and Bradenton, straight from the county’s public record.",
-  note: "The county posts sales a few weeks late, so this issue looks back at {data}. That’s the newest month that’s complete for all three places.",
-  noteLatest: "The county posts sales a few weeks late, so this issue looks back at {data}.",
+  /** The page's opening line until the month's story is written. {month} is the issue's own month. */
+  framing: "Here’s what the county record says about buying and selling in Lakewood Ranch, Sarasota and Bradenton this {month}.",
+  /**
+   * The data's timing, said once, plainly, under the market overview. {data}
+   * is the newest month complete in all three places ("August"). Never on the
+   * cover, a tile, a share card or a subject line: the issue is about now.
+   */
+  note: "The county posts each sale about two months after it closes, so these are the newest complete numbers: sales through {data}.",
+  /** The same, for an issue whose numbers stop before the newest complete month (a published issue after a later refresh). */
+  noteLatest: "The county posts each sale about two months after it closes, so this issue’s numbers are for sales through {data}.",
   intro: "Every number here comes from the home sales in the county’s public record.",
 
   coverEyebrow: "Tide · {issue}",
-  /** The cover's headline and dek until the month's are written. */
-  headlineFallback: "Home sales in {data}",
-  dekFallback: "Here’s how Lakewood Ranch, Sarasota and Bradenton did, with every number from the county’s public record.",
-  coverLine: "Figures for {data} from the county record · {minutes} min read",
-  /** "October issue · July figures": the cover says which month the numbers are. */
-  issueLine: "{issue} issue · {data} figures",
+  /** The cover's headline and dek until the month's are written. {month} is the issue's own month. */
+  headlineFallback: "What the county record says this {month}",
+  dekFallback: "How home sales are going in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.",
+  coverLine: "From the county record · {minutes} min read",
+  /** The line above the cover's headline: the three places, never the data month. */
+  dateline: "Lakewood Ranch · Sarasota · Bradenton",
   /** Each county file's reach when the figures were computed. */
   throughRecords: "{county} records through {date}",
   throughShort: "{county} through {date}",
@@ -151,10 +157,10 @@ export const TIDE_WEB_COPY = {
   source: "County property appraisers, public record, qualified sales, as of {asOf}.",
 
   cardEyebrow: "Tide · Monthly issue",
-  cardExcerpt: "How home sales went in {data} in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
-  cardData: "Numbers for {data}",
-  ogMeta: "Numbers for {data} · County records",
-  description: "Tide for {issue}: how home sales went in {data} in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.",
+  /** {month} is the issue's own month: an issue is about now, and its labels never lead with the data month. */
+  cardExcerpt: "What to know this {month} if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, from the county’s public record.",
+  ogMeta: "Lakewood Ranch · Sarasota · Bradenton · From the county record",
+  description: "Tide, {issue}: what to know this {month} if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.",
 
   everyIssue: "Every issue of Tide",
   /** On /tide while only one issue is out: the archive opens with the next one. */
@@ -172,7 +178,7 @@ export const TIDE_WEB_COPY = {
  */
 export const TIDE_FACTS_COPY = {
   heading: "Facts to write from",
-  note: "For whoever writes this month’s story, not for readers. Every number below is on the issue page. Delete this box before sending.",
+  note: "For whoever writes this month’s story, not for readers. Write the headline and the dek about what a buyer or seller here should know this month, and lean on the trend lines as much as the month. The page says once, lower down, that the numbers run through the data month. Every number below is on the issue page. Delete this box before sending.",
   up: "up {pct}%",
   down: "down {pct}%",
   same: "about the same",
@@ -190,6 +196,12 @@ export const TIDE_FACTS_COPY = {
   combinedYear: "All three markets a year before, in {month}: {count} home sales. This month is {move} on that.",
   lastYear: "{market} a year before, in {month}: {count} sales ({countMove} since). Median price {price} ({priceMove}). Per square foot {ppsf} ({ppsfMove}).",
   lastYearNone: "The county record doesn’t reach {month}, so there’s no comparison with a year before.",
+  last3: "The last three complete months together, {span}: {count} home sales across the three markets, {move} on {lyCount} in {lySpan}. Per square foot {ppsf}, against {lyPpsf} ({ppsfMove}).",
+  ytd: "The year so far, {span}: {count} home sales across the three markets, {move} on {lyCount} in {lySpan}. Per square foot {ppsf}, against {lyPpsf} ({ppsfMove}).",
+  last3Market: "{market}, {span}: {count} sales ({move} on {lyCount} a year before). New builds or lots {newBuild} ({newBuildMove}); every other sale {existing} ({existingMove}). Median price {price} ({priceMove}). Per square foot {ppsf} ({ppsfMove}).",
+  ytdMarket: "{market}, the year so far, {span}: {count} sales ({move} on {lyCount} a year before). Per square foot {ppsf} ({ppsfMove}).",
+  trendNone: "The county record doesn’t reach {span}, so there’s no trend against a year before.",
+  season: "The three markets together on the 12-month chart: most sales in {high} ({highCount}), fewest in {low} ({lowCount}).",
   mix: "{market} by kind of home: single-family {sf} ({sfShare} of sales, median {sfPrice}). Condos, villas and townhomes {att} ({attShare}, median {attPrice}). Lots the county lists as empty {land} ({landShare}).",
   bands: "{market} by price, over the {n} homes in the median: under $400K {a}, $400K to $750K {b}, $750K to $1.5M {c}, $1.5M and up {d}.",
 } as const;

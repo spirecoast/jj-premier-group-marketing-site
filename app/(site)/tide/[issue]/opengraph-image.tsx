@@ -7,15 +7,15 @@ import { loadIssueModel } from "@/lib/tide/load";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
-/** The issue's share card: the issue month as the headline, the data month under it. */
+/** The issue's share card: the issue by its own month, its cover line (or headline), and the three places. The data month isn't on it. */
 export default async function Image({ params }: { params: Promise<{ issue: string }> }) {
   const { issue } = await params;
   const model = isIssueMonth(issue) ? await loadIssueModel(issue) : null;
   if (!model) return brandOgImage({ eyebrow: W.cardEyebrow, title: "Issue not found." });
   return brandOgImage({
-    eyebrow: W.cardEyebrow,
-    title: model.title,
-    meta: fill(W.ogMeta, { data: model.dataLabel }),
+    eyebrow: fill(W.coverEyebrow, { issue: model.issueLabel }),
+    title: model.coverTitle ?? model.headline,
+    meta: W.ogMeta,
     photo: model.cover.src,
   });
 }

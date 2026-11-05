@@ -46,11 +46,13 @@ export const ENCORE_COPY = {
 
 export const TIDE_COPY = {
   subject: "Tide · {month}",
-  preheader: "How home sales went in {month} in Lakewood Ranch, Sarasota and Bradenton, and what it means if you’re buying or selling.",
+  /** {month} is the issue's own month ("November"): an issue is about now, and never leads with the data month. */
+  preheader: "What to know this {month} if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, from the county’s public record.",
   eyebrow: "Tide · The monthly market letter",
-  title: "How home sales went in {month}",
-  coverage: "The county posts sales a few weeks late, so this issue looks back at {month}. That’s the newest month that’s complete for all three places.",
-  intro: "Here’s how home sales went in {month} in Lakewood Ranch, Sarasota and Bradenton. Every number comes from the county’s public record of home sales.",
+  title: "What the county record says this {month}",
+  /** The data's timing, said once, plainly. {month} is the newest month complete in all three places ("August"). */
+  coverage: "The county posts each sale about two months after it closes, so these are the newest complete numbers: sales through {month}.",
+  intro: "Here’s how home sales are going in Lakewood Ranch, Sarasota and Bradenton this {month}. Every number comes from the county’s public record of home sales.",
   outside:
     "Sales outside these three places’ ZIP codes, in places such as Venice, Nokomis, Osprey, North Port, Englewood and Myakka City, aren’t counted here. That’s {outside} of the {total} home sales the two counties recorded in {month}.",
   lag: "The county files run through {through}, so sales recorded after that aren’t counted yet.",
@@ -80,7 +82,7 @@ export const TIDE_COPY = {
   limits: "These are closed sales from county records. They don’t show asking prices, how long a home was for sale, or how many homes are for sale now.",
   watchHeading: "What to watch next month",
   storyPlaceholder:
-    "This month’s story goes here: an opening a reader can picture, then “If you’re buying”, “If you’re selling” and what to watch next month. Write it in plain words from the numbers below, or delete this box.",
+    "This month’s story goes here: what a buyer or seller here should know this month, told from the numbers below, then “If you’re buying”, “If you’re selling” and what to watch next month. Write it in plain words, or delete this box.",
   notesHeading: "From Joelyn and Jessica",
   notePlaceholder: "{first}: a few sentences here in your own words, if you’d like. Or delete this box and nothing is said for you.",
   noteSign: "{name}",

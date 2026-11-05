@@ -33,9 +33,10 @@ export const CARDS_COPY = {
   tide: {
     eyebrow: (issue: string) => `Tide · ${issue}`,
     title: "What homes sold for on the coast",
-    rowNote: (data: string) => `Median sale price, ${data}, from the county property appraisers’ records`,
+    // The issue is named for its own month; the month the medians are for is said in words, in the small line under them.
+    rowNote: (data: string) => `Median sale price in ${data}, from the county property appraisers’ records`,
     caption: (issue: string, data: string, url: string) =>
-      `Tide for ${issue}: what homes sold for in Lakewood Ranch, Sarasota and Bradenton in ${data}, from the county property appraisers’ records. The full report is at ${url}`,
+      `Tide for ${issue}: what homes are selling for in Lakewood Ranch, Sarasota and Bradenton, from the county property appraisers’ records, with sales through ${data}. The full report is at ${url}`,
     missing: "The latest Tide issue has no figures yet.",
   },
   week: {

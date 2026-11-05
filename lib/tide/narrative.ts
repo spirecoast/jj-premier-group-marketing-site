@@ -1,7 +1,8 @@
 import { fill } from "../issues/copy";
 import { monthLabel } from "../issues/render";
 import { TIDE_FACTS_COPY as F } from "./copy";
-import { CHART_MONTHS, PRICE_BANDS, STREETS_PER_MARKET, num, pctChange, usd, type Combined, type IssueMarket } from "./issue";
+import { CHART_MONTHS, PRICE_BANDS, STREETS_PER_MARKET, num, pctChange, usd, type Combined, type IssueMarket, type StretchPair, type Trend } from "./issue";
+import { spanLabel } from "./tokens";
 import { narrativeTexts, type TideIssueEntry } from "./issues";
 
 /**
@@ -30,8 +31,8 @@ import { narrativeTexts, type TideIssueEntry } from "./issues";
 export type FigureKind = "count" | "usd" | "pct" | "other";
 export type Figure = { value: number; kind: FigureKind; label: string };
 
-/** What the figures are computed from: the issue's markets, and the three markets together when known. */
-export type FigureInput = { issue: string; dataMonth: string; markets: IssueMarket[]; combined?: Combined };
+/** What the figures are computed from: the issue's markets, the three markets together and the trend, when known. */
+export type FigureInput = { issue: string; dataMonth: string; markets: IssueMarket[]; combined?: Combined; trend?: Trend | null };
 
 const diff = (a: number | null | undefined, b: number | null | undefined) => (a === null || a === undefined || b === null || b === undefined ? null : a - b);
 
@@ -138,6 +139,50 @@ export function issueFigures(m: FigureInput): Figure[] {
     }
     for (const p of c.parts) add(p.share, "pct", `${p.name} share of the three markets' sales`);
   }
+
+  // The three markets together, each month on the chart.
+  const months = m.markets[0]?.series.map((p) => p.month) ?? [];
+  months.forEach((month, i) => add(m.markets.reduce((a, x) => a + (x.series[i]?.count ?? 0), 0), "count", `all three markets, sales, ${monthLabel(month)}`));
+
+  // The trend: the last three complete months and the year to date, each against a year before.
+  const stretch = (label: string, p: StretchPair) => {
+    const n = p.now;
+    const ly = p.lastYear;
+    const span = spanLabel(n.from, n.to, true);
+    const existing = n.count - n.newBuild;
+    add(n.count, "count", `${label}, sales, ${span}`);
+    add(n.newBuild, "count", `${label}, new builds or lots, ${span}`);
+    add(existing, "count", `${label}, every other sale, ${span}`);
+    add(n.count ? (100 * n.newBuild) / n.count : null, "pct", `${label}, new-build share, ${span}`);
+    add(n.medianPrice, "usd", `${label}, median price, ${span}`);
+    add(n.medianPpsf, "usd", `${label}, $/sq ft, ${span}`);
+    if (!ly) return;
+    const lySpan = spanLabel(ly.from, ly.to, true);
+    const lyExisting = ly.count - ly.newBuild;
+    add(ly.count, "count", `${label}, sales, ${lySpan}`);
+    add(ly.newBuild, "count", `${label}, new builds or lots, ${lySpan}`);
+    add(lyExisting, "count", `${label}, every other sale, ${lySpan}`);
+    add(ly.count ? (100 * ly.newBuild) / ly.count : null, "pct", `${label}, new-build share, ${lySpan}`);
+    add(ly.medianPrice, "usd", `${label}, median price, ${lySpan}`);
+    add(ly.medianPpsf, "usd", `${label}, $/sq ft, ${lySpan}`);
+    add(n.count - ly.count, "count", `${label}, sales against ${lySpan}`);
+    add(n.newBuild - ly.newBuild, "count", `${label}, new builds or lots against ${lySpan}`);
+    add(existing - lyExisting, "count", `${label}, every other sale against ${lySpan}`);
+    add(diff(n.medianPrice, ly.medianPrice), "usd", `${label}, median price against ${lySpan}`);
+    add(diff(n.medianPpsf, ly.medianPpsf), "usd", `${label}, $/sq ft against ${lySpan}`);
+    add(pctChange(n.count, ly.count), "pct", `${label}, sales against ${lySpan}, %`);
+    add(pctChange(n.newBuild, ly.newBuild), "pct", `${label}, new builds or lots against ${lySpan}, %`);
+    add(pctChange(existing, lyExisting), "pct", `${label}, every other sale against ${lySpan}, %`);
+    add(pctChange(n.medianPrice, ly.medianPrice), "pct", `${label}, median price against ${lySpan}, %`);
+    add(pctChange(n.medianPpsf, ly.medianPpsf), "pct", `${label}, $/sq ft against ${lySpan}, %`);
+    add(Number(ly.to.slice(0, 4)), "other", "last year");
+  };
+  if (m.trend) {
+    for (const w of ["last3", "ytd"] as const) {
+      for (const x of m.markets) stretch(x.name, m.trend[w].markets[x.market]);
+      stretch("all three markets", m.trend[w].all);
+    }
+  }
   for (const b of PRICE_BANDS) if (b.from) add(b.from, "usd", `the price band at ${usd(b.from)}`);
   for (const [v, label] of [
     [Number(m.issue.slice(0, 4)), "issue year"],
@@ -201,6 +246,9 @@ export function checkNarrative(entry: TideIssueEntry, m: FigureInput): Narrative
 // ---------------------------------------------------------------------------
 // The facts to write from
 
+/** The same month `n` years on: "2026-06" and -1 is "2025-06". */
+const addYear = (month: string, n: number) => `${Number(month.slice(0, 4)) + n}${month.slice(4)}`;
+
 const moveWord = (p: number | null) => {
   if (p === null) return null;
   const r = Math.round(Math.abs(p));
@@ -215,7 +263,7 @@ type Move = { market: string; what: string; value: string; typical: string; pct:
  * new-build share, a typical home's price, the busiest street, and the busiest
  * and quietest months on the chart. Every number is from the model.
  */
-export function writingFacts(m: { dataMonth: string; markets: IssueMarket[]; combined?: Combined }): string[] {
+export function writingFacts(m: { dataMonth: string; markets: IssueMarket[]; combined?: Combined; trend?: Trend | null }): string[] {
   const lines: string[] = [];
   const data = monthLabel(m.dataMonth);
   const money = (n: number | null) => (n === null ? "–" : usd(n));
@@ -240,6 +288,32 @@ export function writingFacts(m: { dataMonth: string; markets: IssueMarket[]; com
   if (m.markets.length && m.markets.every((x) => !x.lastYear)) {
     const [y, mo] = m.dataMonth.split("-");
     lines.push(fill(F.lastYearNone, { month: monthLabel(`${Number(y) - 1}-${mo}`) }));
+  }
+
+  // The trend: what the issue can say about the season and the year, not just the month.
+  const t = m.trend;
+  const together = (template: string, p: StretchPair) => {
+    const ly = p.lastYear;
+    if (!ly) return fill(F.trendNone, { span: spanLabel(addYear(p.now.from, -1), addYear(p.now.to, -1), true) });
+    return fill(template, {
+      span: spanLabel(p.now.from, p.now.to, true),
+      count: num(p.now.count),
+      move: moveWord(pctChange(p.now.count, ly.count)) ?? "–",
+      lyCount: num(ly.count),
+      lySpan: spanLabel(ly.from, ly.to, true),
+      ppsf: money(p.now.medianPpsf),
+      lyPpsf: money(ly.medianPpsf),
+      ppsfMove: moveWord(pctChange(p.now.medianPpsf, ly.medianPpsf)) ?? "–",
+    });
+  };
+  if (t) {
+    lines.push(together(F.last3, t.last3.all), together(F.ytd, t.ytd.all));
+  }
+  const totals = (m.markets[0]?.series ?? []).map((p, i) => ({ month: p.month, count: m.markets.reduce((a, x) => a + (x.series[i]?.count ?? 0), 0) }));
+  if (totals.length >= 3) {
+    const hi = totals.reduce((a, p) => (p.count > a.count ? p : a));
+    const lo = totals.reduce((a, p) => (p.count < a.count ? p : a));
+    lines.push(fill(F.season, { high: monthLabel(hi.month), highCount: num(hi.count), low: monthLabel(lo.month), lowCount: num(lo.count) }));
   }
 
   for (const x of m.markets) {
@@ -272,6 +346,42 @@ export function writingFacts(m: { dataMonth: string; markets: IssueMarket[]; com
           priceMove: moveWord(ly.pricePct) ?? "–",
           ppsf: money(ly.medianPpsf),
           ppsfMove: moveWord(ly.ppsfPct) ?? "–",
+        }),
+      );
+    }
+    const recent = t?.last3.markets[x.market];
+    if (recent?.lastYear) {
+      const n = recent.now;
+      const ly = recent.lastYear;
+      lines.push(
+        fill(F.last3Market, {
+          market: x.name,
+          span: spanLabel(n.from, n.to, true),
+          count: num(n.count),
+          move: moveWord(pctChange(n.count, ly.count)) ?? "–",
+          lyCount: num(ly.count),
+          newBuild: num(n.newBuild),
+          newBuildMove: moveWord(pctChange(n.newBuild, ly.newBuild)) ?? "–",
+          existing: num(n.count - n.newBuild),
+          existingMove: moveWord(pctChange(n.count - n.newBuild, ly.count - ly.newBuild)) ?? "–",
+          price: money(n.medianPrice),
+          priceMove: moveWord(pctChange(n.medianPrice, ly.medianPrice)) ?? "–",
+          ppsf: money(n.medianPpsf),
+          ppsfMove: moveWord(pctChange(n.medianPpsf, ly.medianPpsf)) ?? "–",
+        }),
+      );
+    }
+    const year = t?.ytd.markets[x.market];
+    if (year?.lastYear) {
+      lines.push(
+        fill(F.ytdMarket, {
+          market: x.name,
+          span: spanLabel(year.now.from, year.now.to, true),
+          count: num(year.now.count),
+          move: moveWord(pctChange(year.now.count, year.lastYear.count)) ?? "–",
+          lyCount: num(year.lastYear.count),
+          ppsf: money(year.now.medianPpsf),
+          ppsfMove: moveWord(pctChange(year.now.medianPpsf, year.lastYear.medianPpsf)) ?? "–",
         }),
       );
     }

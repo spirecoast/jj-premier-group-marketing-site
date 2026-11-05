@@ -8,10 +8,11 @@ import "@/components/guides/guides.css";
 
 /**
  * The issue's cover: the month's photograph full-bleed under the harbor wash,
- * Tide's nameplate with the month beside it, the headline in the display
- * face, the dek, the data month on its own line above the title ("October
- * issue · July figures"), how far each county's record reached, and the
- * byline with the reading time.
+ * Tide's nameplate with the issue month beside it, the three places as a
+ * dateline, the headline in the display face, the dek, and the byline with
+ * the reading time. The cover is about now: the month the figures run
+ * through, and how far each county's record reached, are said once under the
+ * market overview, never here.
  */
 export function TideCover({ model, team }: { model: IssueModel; team: Pick<TeamMember, "name" | "headshot">[] }) {
   return (
@@ -29,11 +30,9 @@ export function TideCover({ model, team }: { model: IssueModel; team: Pick<TeamM
               <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-linen-100">JJ Premier Group</span>
             </span>
           </div>
-          {/* Which month the figures are, in mono sentence case: the issue is named for the month it goes out, the numbers for the month the county has complete. */}
-          <p className="rise d2 t-record text-tide text-shadow-soft">{model.issueLine}</p>
+          <p className="rise d2 t-record text-tide text-shadow-soft">{model.dateline}</p>
           <h1 className="rise d2 t-hero text-white text-shadow-photo">{model.coverTitle ?? model.headline}</h1>
           <p className="rise d3 max-w-[640px] text-[1.1875rem] leading-[1.6] text-linen-100 text-shadow-soft sm:text-[1.3125rem]">{model.coverKicker ?? model.dek}</p>
-          {model.throughLine ? <p className="rise d3 t-note max-w-none text-linen-200 text-shadow-soft">{model.throughLine}</p> : null}
           <Byline people={team} extras={["JJ Premier Group", `${model.minutes} min read`]} tone="dark" className="rise d3 mt-2" />
         </div>
       </div>

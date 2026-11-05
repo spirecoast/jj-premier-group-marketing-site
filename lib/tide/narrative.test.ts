@@ -18,7 +18,8 @@ import { TIDE_ISSUES, TIDE_MARKET_KEYS, narrativeTexts, tideNarrativeStrings, ty
 import { checkNarrative, closeEnough, issueFigures, matchFigure, writingFacts, writtenNumbers } from "./narrative";
 import { narrativeOf, noteSlots } from "./notes";
 import { snapshotFor } from "./snapshots";
-import { figureTokens, fillEntry, fillTokens, tokensIn } from "./tokens";
+import { figureTokens, fillEntry, fillTokens, spanLabel, tokensIn } from "./tokens";
+import type { Stretch, StretchPair, Trend } from "./issue";
 
 /**
  * The narrative layer: the numbers in the hand-written story must be ones the
@@ -118,6 +119,32 @@ const MONTH = {
 };
 const entry = (over: Partial<TideIssueEntry>): TideIssueEntry => ({ issue: "2026-10", data: "2026-07", ...over });
 
+// The trend behind the month: May to July and January to July 2026, each against a year before.
+const st = (from: string, to: string, count: number, newBuild: number, medianPrice: number, medianPpsf: number): Stretch => ({ from, to, count, newBuild, medianPrice, medianPpsf });
+const pair = (from: string, now: [number, number, number, number], ly: [number, number, number, number]): StretchPair => ({
+  now: st(from, "2026-07", ...now),
+  lastYear: st(`2025${from.slice(4)}`, "2025-07", ...ly),
+});
+const TREND: Trend = {
+  last3: {
+    markets: {
+      "lakewood-ranch": pair("2026-05", [780, 300, 650_000, 284], [800, 400, 620_000, 280]),
+      sarasota: pair("2026-05", [1_800, 270, 530_000, 287], [1_650, 330, 500_000, 282]),
+      bradenton: pair("2026-05", [2_770, 1_080, 400_000, 225], [2_110, 810, 380_000, 230]),
+    },
+    all: pair("2026-05", [5_350, 1_650, 470_000, 260], [4_560, 1_540, 450_000, 259]),
+  },
+  ytd: {
+    markets: {
+      "lakewood-ranch": pair("2026-01", [2_230, 860, 617_000, 283], [2_070, 950, 600_000, 287]),
+      sarasota: pair("2026-01", [4_910, 560, 525_000, 292], [4_610, 800, 501_000, 289]),
+      bradenton: pair("2026-01", [6_990, 2_290, 385_000, 222], [5_630, 1_790, 385_000, 231]),
+    },
+    all: pair("2026-01", [14_130, 3_710, 460_000, 259], [12_310, 3_540, 450_000, 263]),
+  },
+};
+const WITH_TREND = { ...MONTH, trend: TREND };
+
 describe("numbers written in prose", () => {
   it("reads dollars, percents, counts and thousands as written", () => {
     assert.deepEqual(
@@ -176,6 +203,86 @@ describe("the new figures", () => {
   });
   it("read $1.5M as a million and a half", () => {
     assert.deepEqual(writtenNumbers("Homes at $1.5M and up.").map((w) => [w.value, w.kind]), [[1_500_000, "usd"]]);
+  });
+});
+
+describe("the trend", () => {
+  const tokens = figureTokens(WITH_TREND);
+  it("names the last three complete months and the year to date against a year before", () => {
+    assert.equal(tokens.get("all.last3.span"), "May to July");
+    assert.equal(tokens.get("all.last3.lastYearSpan"), "May to July 2025");
+    assert.equal(tokens.get("all.last3.sales"), "5,350");
+    assert.equal(tokens.get("all.last3.lastYearSales"), "4,560");
+    assert.equal(tokens.get("all.last3.vsLastYearPct"), "17%");
+    assert.equal(tokens.get("all.last3.vsLastYearWord"), "more");
+    assert.equal(tokens.get("all.last3.vsLastYearSales"), "790");
+    assert.equal(tokens.get("all.last3.ppsf"), "$260");
+    assert.equal(tokens.get("all.last3.ppsfVsLastYearDir"), "flat");
+    assert.equal(tokens.get("lakewood-ranch.last3.existing"), "480");
+    assert.equal(tokens.get("lakewood-ranch.last3.lastYearExisting"), "400");
+    assert.equal(tokens.get("lakewood-ranch.last3.existingVsLastYearPct"), "20%");
+    assert.equal(tokens.get("lakewood-ranch.last3.existingVsLastYearWord"), "more");
+    assert.equal(tokens.get("lakewood-ranch.last3.newBuildVsLastYearPct"), "25%");
+    assert.equal(tokens.get("lakewood-ranch.last3.newBuildVsLastYearWord"), "fewer");
+    assert.equal(tokens.get("bradenton.last3.ppsfVsLastYearPct"), "2%");
+    assert.equal(tokens.get("bradenton.last3.ppsfVsLastYearDir"), "down");
+    assert.equal(tokens.get("sarasota.last3.medianPriceVsLastYearDir"), "up");
+    assert.equal(tokens.get("all.ytd.span"), "January to July");
+    assert.equal(tokens.get("all.ytd.sales"), "14,130");
+    assert.equal(tokens.get("bradenton.ytd.vsLastYearPct"), "24%");
+  });
+  it("names the three markets together on the chart", () => {
+    assert.equal(tokens.get("all.sales.2026-06"), "2,071");
+    assert.equal(tokens.get("all.highMonth"), "June 2026");
+    assert.equal(tokens.get("all.highSales"), "2,071");
+    assert.equal(tokens.get("all.lowMonth"), "July 2026");
+    assert.equal(tokens.get("all.lowSales"), "1,620");
+  });
+  it("says a span the way a reader would", () => {
+    assert.equal(spanLabel("2026-06", "2026-08"), "June to August");
+    assert.equal(spanLabel("2026-06", "2026-08", true), "June to August 2026");
+    assert.equal(spanLabel("2026-11", "2027-01"), "November 2026 to January 2027");
+    assert.equal(spanLabel("2027-01", "2027-01"), "January");
+    assert.equal(spanLabel("2027-01", "2027-01", true), "January 2027");
+  });
+  it("leaves the trend tokens out when the issue has none, so a narrative that uses them fails the build", () => {
+    assert.equal(figureTokens(MONTH).get("all.last3.sales"), undefined);
+    const noYear: Trend = { ...TREND, ytd: { ...TREND.ytd, all: { now: TREND.ytd.all.now, lastYear: null } } };
+    const t = figureTokens({ ...MONTH, trend: noYear });
+    assert.equal(t.get("all.ytd.sales"), "14,130");
+    assert.equal(t.get("all.ytd.vsLastYearPct"), undefined);
+  });
+  it("are figures the number check knows, typed or filled", () => {
+    const labels = (v: number, kind: "count" | "usd" | "pct") => issueFigures(WITH_TREND).filter((f) => f.kind === kind && closeEnough(v, f.value, kind)).map((f) => f.label);
+    assert.ok(labels(5_350, "count").includes("all three markets, sales, May to July 2026"));
+    assert.ok(labels(17, "pct").includes("all three markets, sales against May to July 2025, %"));
+    assert.ok(labels(80, "count").includes("Lakewood Ranch, every other sale against May to July 2025"));
+    assert.ok(labels(2_071, "count").includes("all three markets, sales, June 2026"));
+    assert.ok(labels(24, "pct").includes("Bradenton, sales against January to July 2025, %"));
+    const told = entry({
+      headline: "This year, 14,130 homes sold here, 15% more than last year.",
+      opening: ["From {all.last3.span}, {all.last3.sales} homes sold, {all.last3.vsLastYearPct} {all.last3.vsLastYearWord} than a year before.", "In June, 2,071 homes sold."],
+    });
+    assert.deepEqual(checkNarrative(fillEntry(told, tokens).entry, WITH_TREND), []);
+    assert.equal(checkNarrative(entry({ opening: ["From May to July, 5,900 homes sold."] }), WITH_TREND).length, 1);
+  });
+  it("go into the facts to write from, every number one the issue computes", () => {
+    const facts = writingFacts(WITH_TREND);
+    for (const line of [
+      "The last three complete months together, May to July 2026: 5,350 home sales across the three markets, up 17% on 4,560 in May to July 2025. Per square foot $260, against $259 (about the same).",
+      "The year so far, January to July 2026: 14,130 home sales across the three markets, up 15% on 12,310 in January to July 2025. Per square foot $259, against $263 (down 2%).",
+      "The three markets together on the 12-month chart: most sales in June 2026 (2,071), fewest in July 2026 (1,620).",
+      "Lakewood Ranch, May to July 2026: 780 sales (down 3% on 800 a year before). New builds or lots 300 (down 25%); every other sale 480 (up 20%). Median price $650,000 (up 5%). Per square foot $284 (up 1%).",
+      "Bradenton, the year so far, January to July 2026: 6,990 sales (up 24% on 5,630 a year before). Per square foot $222 (down 4%).",
+    ]) {
+      assert.ok(facts.includes(line), `${line}\n---\n${facts.join("\n")}`);
+    }
+    const figures = issueFigures(WITH_TREND);
+    for (const f of facts) {
+      for (const w of writtenNumbers(f.replace(/\b(January|February|March|April|May|June|July|August|September|October|November|December) \d{4}\b/g, ""))) {
+        assert.ok(matchFigure(w, figures), `${w.raw} in “${f}”`);
+      }
+    }
   });
 });
 

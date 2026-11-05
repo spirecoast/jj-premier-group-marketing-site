@@ -4,6 +4,7 @@ import { MARKET_NAMES, MARKET_ORDER, dateLong, dateShort, easternDay, monthLabel
 import {
   addMonths,
   counted,
+  isNewBuildOrVacant,
   latestCompleteMonth,
   marketOf,
   marketParagraph,
@@ -16,7 +17,7 @@ import {
   type TideStreet,
 } from "../issues/tide-monthly";
 import type { ImageRef } from "../content/types";
-import { median, rollChanged } from "../sales/stats";
+import { median, rollChanged, summarize } from "../sales/stats";
 import type { County, Sale } from "../sales/types";
 import { TIDE_WEB_COPY as W } from "./copy";
 import { tideCover } from "./cover";
@@ -153,6 +154,28 @@ export type IssueGuide = { slug: string; title: string; excerpt: string; publish
 export type MarketFigures = Pick<IssueMarket, "market" | "stats" | "baseline" | "streets" | "series" | "lastYear" | "mix" | "bands">;
 
 /**
+ * A run of whole months (`from` to `to`, YYYY-MM) taken together: the home
+ * sales in them, how many were new builds or lots, and the median price and
+ * price per square foot over all of those months' homes at once, taken the
+ * way a month's are.
+ */
+export type Stretch = { from: string; to: string; count: number; newBuild: number; medianPrice: number | null; medianPpsf: number | null };
+
+/** A stretch now and the same months a year before; `lastYear` is null when the record doesn't reach all of them. */
+export type StretchPair = { now: Stretch; lastYear: Stretch | null };
+
+/** One stretch for each market and for the three together. */
+export type TrendWindow = { markets: Record<MarketSlug, StretchPair>; all: StretchPair };
+
+/**
+ * The trend behind the data month, so an issue can tell the story of the
+ * season and the year, not one month: the three months ending with the data
+ * month (`last3`) and January through the data month (`ytd`), each against
+ * the same months a year before.
+ */
+export type Trend = { last3: TrendWindow; ytd: TrendWindow };
+
+/**
  * Every figure an issue is drawn from, computed once from the county sales.
  * Frozen to lib/tide/snapshots/<issue>.json when the issue goes out
  * (`npm run tide:freeze`), so a later data refresh never changes a published
@@ -168,6 +191,13 @@ export type IssueFigures = {
   manifest: TideManifest;
   markets: MarketFigures[];
   combined: Combined;
+  /**
+   * The last three complete months and the year to date, each against a year
+   * before. Optional so a snapshot frozen before it existed still reads; one
+   * is added to such a snapshot from the same data refresh it was frozen from
+   * (`npm run tide:freeze -- <issue> --add-missing`).
+   */
+  trend?: Trend;
 };
 
 /** One county file's reach: "Manatee records through Sep 24, 2026". */
@@ -199,6 +229,8 @@ export type IssueModel = {
   description: string;
   markets: IssueMarket[];
   combined: Combined;
+  /** The last three complete months and the year to date against a year before; null for a snapshot frozen without it. */
+  trend: Trend | null;
   /** The cover photograph, rotated by issue month. */
   cover: ImageRef;
   /** About how long the page takes to read, in whole minutes. */
@@ -215,10 +247,14 @@ export type IssueModel = {
   /** The cover's headline and dek: the written ones, or computed lines until they're written. */
   headline: string;
   dek: string;
-  /** "Figures for July 2026 from the county record · 9 min read". */
+  /** "From the county record · 9 min read". */
   coverLine: string;
-  /** "October issue · July figures". */
-  issueLine: string;
+  /**
+   * The line above the cover's headline: the three places. The issue is named
+   * for its own month and written about now, so no data month goes on the
+   * cover; the timing is said once, lower down (`note`).
+   */
+  dateline: string;
   /** Each county file's reach when the figures were computed, and the one line that says it. */
   through: Through[];
   throughLine: string | null;
@@ -452,6 +488,54 @@ export function combinedFor(sales: Sale[], month: string, markets: Pick<IssueMar
   };
 }
 
+/** The months from `from` to `to` (YYYY-MM), both included, oldest first. */
+function monthsFrom(from: string, to: string): string[] {
+  const out: string[] = [];
+  for (let m = from; m <= to; m = addMonths(m, 1)) out.push(m);
+  return out;
+}
+
+/**
+ * A run of whole months taken together, computed the way one month is: every
+ * home sale counted (lots included), the new builds or lots as the tile counts
+ * them, and the medians over the homes the county lists as built and
+ * unchanged since the sale. `market` null is the three markets together.
+ */
+export function stretchOf(sales: Sale[], from: string, to: string, market: MarketSlug | null): Stretch {
+  const start = monthBounds(from).from;
+  const end = monthBounds(to).to;
+  const rows = sales.filter((s) => counted(s) && s.saleDate >= start && s.saleDate <= end && (market ? marketOf(s) === market : marketOf(s) !== null));
+  const homes = rows.filter((s) => s.propertyUse !== "vacant" && !rollChanged(s)).map((s) => s.salePrice);
+  return {
+    from,
+    to,
+    count: rows.length,
+    newBuild: rows.filter(isNewBuildOrVacant).length,
+    medianPrice: homes.length >= 2 ? Math.round(median(homes) as number) : null,
+    medianPpsf: summarize(rows).medianPricePerSqft,
+  };
+}
+
+/**
+ * The trend behind the data month: the three months ending with it, and
+ * January through it, for each market and the three together, each against
+ * the same months a year before. The year before is left out (null) unless
+ * the record covers every one of its months.
+ */
+export function trendFor(sales: Sale[], dataMonth: string, manifest?: TideManifest): Trend {
+  const window = (from: string): TrendWindow => {
+    const lyFrom = addMonths(from, -12);
+    const lyTo = addMonths(dataMonth, -12);
+    const reached = monthsFrom(lyFrom, lyTo).every((m) => monthCovered(sales, m, manifest));
+    const pair = (market: MarketSlug | null): StretchPair => ({
+      now: stretchOf(sales, from, dataMonth, market),
+      lastYear: reached ? stretchOf(sales, lyFrom, lyTo, market) : null,
+    });
+    return { markets: Object.fromEntries(MARKET_ORDER.map((m) => [m, pair(m)])) as Record<MarketSlug, StretchPair>, all: pair(null) };
+  };
+  return { last3: window(addMonths(dataMonth, -2)), ytd: window(`${dataMonth.slice(0, 4)}-01`) };
+}
+
 /** A tick step of 1, 2, 2.5 or 5 times a power of ten giving about `target` intervals. */
 export function niceStep(span: number, target = 4): number {
   if (span <= 0) return 1;
@@ -535,7 +619,7 @@ export function issueText(m: Omit<IssueModel, "fairHousing">): string[] {
     m.headline,
     m.dek,
     m.coverLine,
-    m.issueLine,
+    m.dateline,
     m.throughLine ?? "",
     ...(m.sinceThen ? [m.sinceThen.asOf, ...m.sinceThen.months.map((x) => x.label)] : []),
     m.combinedLine,
@@ -598,6 +682,7 @@ export function computeFigures({ entry, sales, manifest }: Pick<IssueInput, "ent
     manifest: { generatedAt: manifest.generatedAt, counties: manifest.counties },
     markets,
     combined: combinedFor(sales, dataMonth, named),
+    trend: trendFor(sales, dataMonth, manifest),
   };
 }
 
@@ -656,7 +741,7 @@ export function buildIssueModel(input: IssueInput): IssueModel {
   const months = monthsEnding(dataMonth, CHART_MONTHS);
 
   // The words, with every token filled from the same figures the page draws.
-  const tokens = figureTokens({ dataMonth, markets: figures.markets.map((m) => ({ ...m, name: MARKET_NAMES[m.market], href: HUB[m.market], story: { paragraphs: [], written: false } })), combined: figures.combined });
+  const tokens = figureTokens({ dataMonth, markets: figures.markets.map((m) => ({ ...m, name: MARKET_NAMES[m.market], href: HUB[m.market], story: { paragraphs: [], written: false } })), combined: figures.combined, trend: figures.trend ?? null });
   const filled = fillEntry(entry, tokens);
   const words = filled.entry;
   const narrative = narrativeOf(words);
@@ -680,9 +765,10 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     ...(narrative?.opening.length ? [] : [W.note, W.intro]),
     ...markets.flatMap((m) => (m.story.written ? [] : m.story.paragraphs)),
   ]);
-  const headline = narrative?.headline ?? fill(W.headlineFallback, { data: dataLabel });
-  const dek = narrative?.dek ?? W.dekFallback;
+  // The issue is named for its own month and written about now: the fallbacks name the issue month, never the data month.
   const monthWord = (m: string) => monthLabel(m).split(" ")[0]!;
+  const headline = narrative?.headline ?? fill(W.headlineFallback, { month: monthWord(entry.issue) });
+  const dek = narrative?.dek ?? W.dekFallback;
 
   const model: Omit<IssueModel, "fairHousing"> = {
     issue: entry.issue,
@@ -693,19 +779,21 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     pinned: Boolean(entry.data),
     title: fill(W.title, { issue: issueLabel }),
     eyebrow: W.eyebrow,
-    note: fill(dataMonth === latestComplete ? W.note : W.noteLatest, { data: dataLabel }),
+    // The data's timing, said once and plainly, under the market overview: "sales through August".
+    note: fill(dataMonth === latestComplete ? W.note : W.noteLatest, { data: monthWord(dataMonth) }),
     intro: W.intro,
-    description: fill(W.description, { issue: issueLabel, data: dataLabel }),
+    description: fill(W.description, { issue: issueLabel, month: monthWord(entry.issue) }),
     markets,
     combined,
+    trend: figures.trend ?? null,
     cover: tideCover(entry.issue),
     minutes,
     coverTitle: words.coverTitle?.trim() || null,
     coverKicker: words.coverKicker?.trim() || null,
     headline,
     dek,
-    coverLine: fill(W.coverLine, { data: dataLabel, minutes: String(minutes) }),
-    issueLine: fill(W.issueLine, { issue: monthWord(entry.issue), data: monthWord(dataMonth) }),
+    coverLine: fill(W.coverLine, { minutes: String(minutes) }),
+    dateline: W.dateline,
     through: through.through,
     throughLine: through.line,
     sinceThen: sales.length ? sinceThenFor(sales, dataMonth, manifest) : null,
@@ -728,7 +816,7 @@ export function buildIssueModel(input: IssueInput): IssueModel {
     guides: guidesForMonth(input.posts, entry.issue),
     narrative,
     commentary: narrative ? narrativeParagraphs(narrative) : null,
-    framing: fill(W.framing, { data: dataLabel }),
+    framing: fill(W.framing, { month: monthWord(entry.issue) }),
     notes: noteSlots(entry.commentary, input.showSamples ? "draft" : "public"),
     asOf,
     source: fill(W.source, { asOf: asOf ?? "the last refresh" }),
@@ -738,15 +826,20 @@ export function buildIssueModel(input: IssueInput): IssueModel {
   return { ...model, fairHousing: flags.length ? { passed: false, flags } : { passed: true } };
 }
 
-/** The archive card: computed from the model, so the card and the page agree. */
-export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel" | "dataLabel"> & Partial<Pick<IssueModel, "cover" | "headline" | "dek" | "coverTitle" | "coverKicker">>) {
+/**
+ * The archive card: computed from the model, so the card and the page agree.
+ * Like the cover, it names the issue by its own month and says what the issue
+ * is about now (`line`, the headline); the data month is never its label.
+ */
+export function issueCard(m: Pick<IssueModel, "issue" | "issueLabel"> & Partial<Pick<IssueModel, "cover" | "headline" | "dek" | "coverTitle" | "coverKicker">>) {
+  const month = m.issueLabel.split(" ")[0]!;
   return {
     href: `/tide/${m.issue}`,
     eyebrow: W.cardEyebrow,
     title: fill(W.title, { issue: m.issueLabel }),
     issueLabel: m.issueLabel,
-    excerpt: m.dek ?? fill(W.cardExcerpt, { data: m.dataLabel }),
-    data: fill(W.cardData, { data: m.dataLabel }),
+    excerpt: m.dek ?? fill(W.cardExcerpt, { month }),
+    line: m.headline ?? fill(W.headlineFallback, { month }),
     cover: m.cover,
     headline: m.headline,
     ...(m.coverTitle ? { coverTitle: m.coverTitle } : {}),

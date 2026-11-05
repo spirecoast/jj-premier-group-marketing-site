@@ -24,7 +24,9 @@ import {
   shares,
   shortMonth,
   sinceThenFor,
+  stretchOf,
   throughFor,
+  trendFor,
   yAxis,
 } from "./issue";
 import { tideCover } from "./cover";
@@ -117,9 +119,9 @@ describe("the data month", () => {
     assert.equal(pinned.dataMonth, "2026-06");
     assert.equal(pinned.latestComplete, "2026-07");
     assert.equal(pinned.pinned, true);
-    assert.equal(pinned.note, "The county posts sales a few weeks late, so this issue looks back at June 2026.");
+    assert.equal(pinned.note, "The county posts each sale about two months after it closes, so this issue’s numbers are for sales through June.");
     const m = model();
-    assert.equal(m.note, "The county posts sales a few weeks late, so this issue looks back at July 2026. That’s the newest month that’s complete for all three places.");
+    assert.equal(m.note, "The county posts each sale about two months after it closes, so these are the newest complete numbers: sales through July.");
     assert.equal(m.issueLabel, "October 2026");
     assert.equal(m.dataLabel, "July 2026");
     assert.equal(m.title, "Tide, October 2026");
@@ -237,6 +239,33 @@ describe("the new figures", () => {
     const late = { ...MANIFEST_COMPLETE, counties: { ...MANIFEST_COMPLETE.counties, sarasota: { ...MANIFEST_COMPLETE.counties.sarasota, from: "2025-07-15" } } };
     assert.equal(monthCovered([...SALES, ...extra], "2025-07", late), false);
     assert.equal(monthCovered([...SALES, ...extra], "2025-07", MANIFEST_COMPLETE), true);
+  });
+  it("take the last three complete months and the year to date together, each against a year before", () => {
+    const lwr = m.trend!.last3.markets["lakewood-ranch"];
+    // May to July 2026: 13, 14 and 15 sales, one new build each month, at $309,000, $310,000 and $311,000 over 1,000 sq ft.
+    assert.deepEqual(lwr.now, { from: "2026-05", to: "2026-07", count: 42, newBuild: 3, medianPrice: 310_000, medianPpsf: 310 });
+    assert.deepEqual(stretchOf(SALES, "2026-05", "2026-07", "lakewood-ranch"), lwr.now);
+    // January to July 2026: months k = 5 to 11.
+    assert.equal(m.trend!.ytd.markets["lakewood-ranch"].now.count, [5, 6, 7, 8, 9, 10, 11].reduce((a, k) => a + count(0, k), 0));
+    // All three together, never the sales outside them (Venice) or the ones that don't count.
+    assert.equal(m.trend!.last3.all.now.count, [0, 1, 2].reduce((a, i) => a + count(i, 9) + count(i, 10) + count(i, 11), 0));
+    // The fixture starts in August 2025: no year before for either stretch.
+    assert.equal(lwr.lastYear, null);
+    assert.equal(m.trend!.ytd.all.lastYear, null);
+  });
+  it("compare a stretch with the same months a year before only when the record covers every one of them", () => {
+    const extra = (month: string) => [
+      sale({ city: "LAKEWOOD RANCH", zip: "34202", saleDate: `${month}-10`, salePrice: 250_000, livingArea: 1_000 }),
+      sale({ city: "LAKEWOOD RANCH", zip: "34202", saleDate: `${month}-11`, salePrice: 350_000, livingArea: 1_000, yearBuilt: 2025 }),
+    ];
+    const full = trendFor([...SALES, ...extra("2025-05"), ...extra("2025-06"), ...extra("2025-07")], "2026-07", MANIFEST_COMPLETE);
+    assert.deepEqual(full.last3.markets["lakewood-ranch"].lastYear, { from: "2025-05", to: "2025-07", count: 6, newBuild: 3, medianPrice: 300_000, medianPpsf: 300 });
+    assert.equal(full.last3.markets.sarasota.lastYear!.count, 0);
+    assert.equal(full.last3.all.lastYear!.count, 6);
+    // January to July 2025 isn't all on the record: the year to date has no year before.
+    assert.equal(full.ytd.all.lastYear, null);
+    // One month of the three missing: none of it is compared.
+    assert.equal(trendFor([...SALES, ...extra("2025-06"), ...extra("2025-07")], "2026-07", MANIFEST_COMPLETE).last3.all.lastYear, null);
   });
   it("split the month by kind of home, with land out of the medians", () => {
     const rows = [
@@ -357,11 +386,13 @@ describe("the frozen figures and the months since", () => {
     assert.equal(sinceThenFor(SALES.filter((s) => s.saleDate < "2026-08"), "2026-07", MANIFEST_COMPLETE), null);
     assert.equal(sinceThenFor(SALES, "2026-07", { generatedAt: "", counties: {} }), null);
   });
-  it("carry the issue line and the through-dates on the model", () => {
+  it("carry the dateline and the through-dates on the model, and name no data month on the cover", () => {
     const m = model();
-    assert.equal(m.issueLine, "October issue · July figures");
+    assert.equal(m.dateline, "Lakewood Ranch · Sarasota · Bradenton");
     assert.equal(m.throughLine, "Manatee records through Sep 12, 2026 · Sarasota through Sep 12, 2026");
-    assert.ok(issueText(m).includes(m.issueLine));
+    assert.ok(issueText(m).includes(m.dateline));
+    // The cover, the tile and the share card name the issue by its own month; the data month (July) is said lower down.
+    for (const line of [m.dateline, m.headline, m.dek, m.coverLine, m.description, issueCard(m).line, issueCard(m).excerpt]) assert.doesNotMatch(line, /\bJuly\b/, line);
   });
 });
 
@@ -485,10 +516,11 @@ describe("the rest of the issue", () => {
   it("opens with computed lines until the words are written, then with the words", () => {
     const bare = model();
     assert.equal(bare.narrative, null);
-    assert.equal(bare.framing, "Here’s how home sales went in July 2026 in Lakewood Ranch, Sarasota and Bradenton, straight from the county’s public record.");
-    assert.equal(bare.headline, "Home sales in July 2026");
-    assert.equal(bare.dek, "Here’s how Lakewood Ranch, Sarasota and Bradenton did, with every number from the county’s public record.");
-    assert.match(bare.coverLine, /^Figures for July 2026 from the county record · \d+ min read$/);
+    assert.equal(bare.framing, "Here’s what the county record says about buying and selling in Lakewood Ranch, Sarasota and Bradenton this October.");
+    assert.equal(bare.headline, "What the county record says this October");
+    assert.equal(bare.dek, "How home sales are going in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.");
+    assert.match(bare.coverLine, /^From the county record · \d+ min read$/);
+    assert.equal(bare.description, "Tide, October 2026: what to know this October if you’re buying or selling in Lakewood Ranch, Sarasota and Bradenton, with every number from the county’s public record.");
     // Each market falls back to the paragraph the email computes.
     assert.deepEqual(bare.markets[0]!.story, { paragraphs: [marketParagraph(bare.markets[0]!.stats, "2026-07")], written: false });
 
@@ -553,10 +585,12 @@ describe("the rest of the issue", () => {
       title: "Tide, October 2026",
       issueLabel: "October 2026",
       excerpt: m.dek,
-      data: "Numbers for July 2026",
+      line: "What the county record says this October",
       cover: undefined,
       headline: m.headline,
     });
+    // Once written, the tile's line is the issue's headline.
+    assert.equal(issueCard(model({ entry: { issue: "2026-10", headline: "More homes sold this summer." } })).line, "More homes sold this summer.");
     assert.equal(card.cover?.src, "/images/tide/tide-2.jpg");
   });
   it("flags commentary that fails the Fair Housing check", () => {
