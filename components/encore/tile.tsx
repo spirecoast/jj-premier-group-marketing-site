@@ -70,7 +70,7 @@ function TileImage({ e, art }: { e: EncoreEvent; art?: number }) {
     <SharedFrame name={`evt-${e.s}`} role="source" className="encore-tile-img">
       {e.img ? (
         <>
-          {whole ? <Image src={e.img} alt="" aria-hidden="true" fill sizes="64px" className="photo-fill" /> : null}
+          {whole ? <Image src={e.img} alt="" aria-hidden="true" fill sizes="64px" quality={30} className="photo-fill" /> : null}
           <Image
             src={e.img}
             alt=""

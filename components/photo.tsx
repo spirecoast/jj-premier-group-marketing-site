@@ -61,7 +61,7 @@ export function Photo(props: FillProps | FixedProps) {
   if (whole) {
     return (
       <>
-        <Image src={image.src} alt="" aria-hidden="true" fill sizes="64px" className="photo-fill" />
+        <Image src={image.src} alt="" aria-hidden="true" fill sizes="64px" quality={30} className="photo-fill" />
         <Image
           src={image.src}
           alt={image.alt}

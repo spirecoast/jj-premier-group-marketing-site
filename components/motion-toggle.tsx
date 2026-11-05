@@ -5,18 +5,17 @@ import { cn } from "@/lib/utils";
 
 /**
  * The one control for the site's looping motion: a small glass square in a
- * hero's corner that pauses what moves there, a masthead photograph's drift
- * or the home page's video (and every other loop, on every page, until it is
- * played again). `what` names that thing in the label. Hidden for anyone
- * whose system already asks for reduced motion, since nothing loops for them.
+ * hero's corner that pauses the photograph's drift (and every other loop,
+ * on every page, until it is played again). Hidden for anyone whose system
+ * already asks for reduced motion, since nothing loops for them.
  */
-export function MotionToggle({ className, what = "the photograph" }: { className?: string; what?: string }) {
+export function MotionToggle({ className }: { className?: string }) {
   const paused = useMotionPaused();
   return (
     <button
       type="button"
       aria-pressed={paused}
-      aria-label={paused ? `Play ${what}` : `Pause ${what}`}
+      aria-label={paused ? "Play the photograph" : "Pause the photograph"}
       title={paused ? "Play" : "Pause"}
       onClick={() => setMotionPaused(!paused)}
       className={cn("motion-toggle", className)}
