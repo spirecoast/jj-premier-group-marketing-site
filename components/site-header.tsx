@@ -40,7 +40,7 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
   const pathname = usePathname();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
-  // On the home page the hero photograph sits inside a paper frame; while it is under the header the glass follows the frame.
+  // Whether the header is over the home hero (the hero now runs edge to edge, so the glass does too).
   const [cover, setCover] = useState(false);
   const [open, setOpen] = useState(false);
   const row = useMenuRow(pathname);
@@ -117,10 +117,8 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
 
   // The menus' labels get a faint shadow while the header is see-through over a photograph.
   const solid = scrolled || open;
-  // On the home page the hero content is inset 56px inside the framed
-  // photograph, and from xl the header follows; between lg and xl the full
-  // inset would push the brokerage mark past the frame, so the home header is
-  // inset 16px there.
+  // The home hero runs edge to edge and its type sits on the container's
+  // edge, so the home header uses the same container as every other page.
   const home = pathname === "/";
   // One underline at a time: a page that belongs to a product (Tide Street under /sell) underlines its family, not the plain page.
   const inFamily = productFamilies.some((f) => f.items.some((i) => pathname === i.href || pathname.startsWith(`${i.href}/`)));
@@ -169,7 +167,6 @@ export function SiteHeader({ contacts, phone }: { contacts: Contact[]; phone: Ph
         className={cn(
           // Between lg and xl the row is tight (at 1024 it ran 50px past the window), so the gaps close up there.
           "container-site flex h-full items-center justify-between gap-8 lg:gap-4 xl:gap-8",
-          home && "lg:gap-3 lg:px-[calc(var(--gutter)+1rem)] xl:gap-8 xl:px-[calc(var(--gutter)+3.5rem)]",
         )}
       >
         <Link

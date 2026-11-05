@@ -45,7 +45,7 @@ export function Hero({ picture, cameo, team }: { picture: HeroPicture; cameo: Im
 
       {/* Cameo: the photograph and the names are one link to the team page. The
           focus ring is the site's own, Sky 300 on this photographic ground. */}
-      <div className="rise d2 absolute left-6 top-header pt-4 sm:pt-6 lg:left-14 lg:pt-7">
+      <div className="rise d2 absolute left-6 top-header pt-4 sm:pt-6 lg:left-[var(--hero-inset)] lg:pt-7">
         <Link href="/about" aria-label={meetLabel} className="flex items-center gap-4">
           <div className="cameo-orbit relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20 lg:h-[88px] lg:w-[88px]" aria-hidden="true">
             <div className="relative h-[52px] w-[52px] overflow-hidden rounded-full shadow-[0_0_0_2px_rgb(230_221_209/0.9),0_10px_30px_rgb(20_37_48/0.45)] sm:h-16 sm:w-16 lg:h-[72px] lg:w-[72px]">
@@ -64,14 +64,14 @@ export function Hero({ picture, cameo, team }: { picture: HeroPicture; cameo: Im
 
       {/* The corner the type leaves free: the photograph's one control for its drift, or the video's sound and pause. */}
       {video ? (
-        <HeroVideoControls className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
+        <HeroVideoControls className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-[var(--hero-inset)]" />
       ) : (
-        <MotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-14" />
+        <MotionToggle className="absolute bottom-4 right-4 z-10 lg:bottom-[22px] lg:right-[var(--hero-inset)]" />
       )}
 
       {/* Scroll cue: desktop furniture */}
       <div
-        className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 text-shadow-photo lg:flex"
+        className="scroll-cue absolute bottom-[22px] left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 font-mono text-[9px] tracking-[0.18em] text-linen-200 text-shadow-photo xl:flex"
         aria-hidden="true"
       >
         <span>SCROLL</span>
@@ -81,12 +81,12 @@ export function Hero({ picture, cameo, team }: { picture: HeroPicture; cameo: Im
   );
 
   return (
-    <section data-header-overlay className="-mt-header bg-paper lg:px-gutter" aria-labelledby="hero-title">
+    <section data-header-overlay className="hero-bleed -mt-header bg-paper" aria-labelledby="hero-title">
       <div className="relative overflow-hidden bg-paper lg:h-[780px] lg:bg-navy">
         {picture.kind === "video" ? <HeroVideoStage clip={picture.clip}>{frame}</HeroVideoStage> : frame}
 
         {/* Headline block */}
-        <div className="relative flex flex-col gap-5 px-6 pb-10 pt-7 text-navy sm:gap-6 sm:px-10 sm:pb-12 sm:pt-8 lg:absolute lg:bottom-16 lg:left-14 lg:w-[760px] lg:p-0 lg:text-white">
+        <div className="relative flex flex-col gap-5 px-6 pb-10 pt-7 text-navy sm:gap-6 sm:px-10 sm:pb-12 sm:pt-8 lg:absolute lg:bottom-16 lg:left-[var(--hero-inset)] lg:w-[760px] lg:p-0 lg:text-white">
           <h1 id="hero-title" className="t-hero lg:text-shadow-photo">
             <span className="hero-line l1">
               <span>Your next home</span>
