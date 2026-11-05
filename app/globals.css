@@ -1020,6 +1020,95 @@
         linear-gradient(0deg, rgb(20 37 48 / 0.52) 0%, transparent 42%);
     }
   }
+  /* Below lg the home hero is an overlay as well (components/home/hero.tsx).
+     The picture fills the frame, the cameo sits at its top under the header,
+     and one grid at its foot holds the type: the headline, the rule, the
+     buttons. The sound and pause take the corner the type leaves free, where
+     they move no text: on a phone, the end of the rule's row (the buttons run
+     the full width below it); once the buttons sit side by side, the end of
+     their row, as on desktop. The frame is at least 78% of the small viewport,
+     and the top padding keeps the header's and the cameo's room, so it grows
+     to fit what it holds rather than let the cameo and the headline meet. */
+  @media (max-width: 63.99rem) {
+    .hero-stage {
+      display: grid;
+      grid-template:
+        "title title" auto
+        "rule corner" auto
+        "actions actions" auto / minmax(0, 1fr) auto;
+      align-content: end;
+      row-gap: 0.75rem;
+      min-height: 78vh;
+      min-height: 78svh;
+      padding: calc(var(--header-h) + 7rem) var(--hero-inset) 2rem;
+    }
+    .hero-copy {
+      display: contents;
+    }
+    .hero-copy > *,
+    .hero-corner {
+      position: relative;
+    }
+    .hero-stage #hero-title {
+      grid-area: title;
+    }
+    .hero-rule {
+      grid-area: rule;
+      align-self: center;
+    }
+    .hero-corner {
+      grid-area: corner;
+      align-self: center;
+    }
+    .hero-actions {
+      grid-area: actions;
+    }
+    /* The type runs the full width here, so the shade comes from the foot
+       and the top instead of the side, measured in rem from each edge so it
+       follows the type, not the frame's height: deepest under the buttons and
+       the headline, a band under the header and the cameo, and the middle of
+       the picture left clear. Measured over the video's frames, the headline
+       holds 4.5:1 or better against 95% of the pixels behind it on its weakest
+       frame from 360 to 430px wide (docs/SITE.md, "Readability"). */
+    .hero-bleed .hero-shade,
+    .hero-bleed .hero-shade-video {
+      background:
+        linear-gradient(180deg, rgb(13 27 36 / 0.8) 0%, rgb(13 27 36 / 0.66) 6rem, rgb(20 37 48 / 0.64) 9.5rem, rgb(20 37 48 / 0.28) 13.5rem, transparent 18rem),
+        linear-gradient(0deg, rgb(20 37 48 / 0.84) 0%, rgb(20 37 48 / 0.68) 12rem, rgb(20 37 48 / 0.58) 19.5rem, rgb(20 37 48 / 0.28) 25rem, transparent 32rem);
+    }
+  }
+  /* Wider than 40rem the buttons sit side by side (.btn-row), with room after them. */
+  @media (width > 40rem) and (max-width: 63.99rem) {
+    .hero-stage {
+      grid-template:
+        "title title" auto
+        "rule rule" auto
+        "actions corner" auto / minmax(0, 1fr) auto;
+      gap: 1.5rem;
+      padding-top: calc(var(--header-h) + 8.5rem);
+      padding-bottom: 3rem;
+    }
+  }
+  /* A phone held sideways: less room above and below the type (and the
+     phone's headline size, further down), so the whole frame fits the screen.
+     The type sits on the left of a wide, short frame, as on desktop, so it
+     takes the desktop shade from the side; the phone's two bands would meet
+     there and darken all of it. */
+  @media (max-width: 63.99rem) and (max-height: 31.25rem) and (orientation: landscape) {
+    .hero-stage {
+      row-gap: 1rem;
+      padding-top: calc(var(--header-h) + 7.5rem);
+      padding-bottom: 1.75rem;
+    }
+    .hero-bleed .hero-shade,
+    .hero-bleed .hero-shade-video {
+      background:
+        linear-gradient(180deg, rgb(13 27 36 / 0.76) 0%, transparent 7.5rem),
+        linear-gradient(180deg, rgb(20 37 48 / 0.52) 0%, transparent 22%),
+        linear-gradient(90deg, rgb(20 37 48 / 0.7) 0%, rgb(20 37 48 / 0.54) calc(var(--hero-inset) + 32rem), rgb(20 37 48 / 0.18) calc(var(--hero-inset) + 52rem), rgb(20 37 48 / 0.04) 100%),
+        linear-gradient(0deg, rgb(20 37 48 / 0.52) 0%, transparent 42%);
+    }
+  }
   .hero-line {
     display: block;
     overflow: hidden;
@@ -1174,6 +1263,11 @@
 @media (max-width: 639px) {
   .hero-img { object-position: 30% 60% !important; }
 }
+/* On a phone held sideways the home headline keeps the phone's size, so the
+   hero's type fits the short screen (.hero-stage). Unlayered, to outrank t-hero. */
+@media (max-width: 63.99rem) and (max-height: 31.25rem) and (orientation: landscape) {
+  .hero-stage #hero-title { font-size: 2.75rem; }
+}
 
 /* The hero photograph breathes: one slow drift, and nothing else moving on the frame. */
 @keyframes hero-drift {
@@ -1189,11 +1283,14 @@
 }
 
 /* The home hero's video (components/home/hero-video.tsx) comes in over its
-   still once it plays. The still is its first frame, so the fade reads as the
-   picture starting to move. It doesn't drift: the footage moves on its own. */
+   still the moment it draws its first frame, which is the still's own frame,
+   so the still simply starts moving. The fade is only long enough to hide the
+   image codec's color from the video's: any longer and the moving picture
+   would show doubled over the still. It doesn't drift: the footage moves on
+   its own. */
 .hero-video {
   opacity: 0;
-  transition: opacity var(--dur-img) var(--ease-reveal);
+  transition: opacity 160ms linear;
 }
 .hero-video[data-ready] {
   opacity: 1;
