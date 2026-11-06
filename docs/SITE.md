@@ -132,12 +132,12 @@ search index; Resend sends only team-facing email.
   Before launch, check the model releases for 514783510 and 506301840 on their Adobe Stock pages;
   the licensing tool doesn't show them.
 
-  **The files.** `public/video/life-here-3-1080.mp4` (1920x1080, 13.8 MB), `life-here-3-720.mp4`
-  (1280x720, 5.9 MB) and `life-here-3-portrait.mp4` (720x1200, 3:5, 7.4 MB, for phones held
+  **The files.** `public/video/life-here-4-1080.mp4` (1920x1080, 13.7 MB), `life-here-4-720.mp4`
+  (1280x720, 5.9 MB) and `life-here-4-portrait.mp4` (720x1200, 3:5, 7.5 MB, for phones held
   upright): H.264 High, two-pass at about 2.15, 0.85 and 1.1 Mb/s, index at the front (faststart),
   x264's dark-scene bit allocation (`aq-mode=3`) so the concert hall and the pickleball sunset
   don't block up, and the music as AAC at 128 kb/s stereo. The stills are each cut's first frame:
-  `public/images/library/life-here-3-poster.jpg` (1920x1080) and `life-here-3-poster-portrait.jpg`
+  `public/images/library/life-here-4-poster.jpg` (1920x1080) and `life-here-4-poster-portrait.jpg`
   (1080x1800). Smaller 1080 encodes were tried and dropped: at 1.5 Mb/s the golf grass and palms
   smeared at full screen, and at 1.7 and 1.9 Mb/s the golf course, the boat dissolve and the water
   stayed a little softer.
@@ -151,12 +151,22 @@ search index; Resend sends only team-facing email.
   concert hall, lifted from a dark source, gets a light denoise. No shot has a digital push-in: on
   the opener it grew the picture in whole-pixel steps, which read as a shake.
 
+  **The grade** (November 6, 2026): golden hour. Blacks sit at true black and whites
+  reach almost full white, with a gentle S-curve between, so nothing looks faded. Highlights and
+  midtones lean gold, shadows keep a little navy for depth, and color comes up through vibrance
+  (it lifts the quieter colors more than the loud ones) and a touch of saturation. Per shot: the
+  canal's and the opener's yellows are held back so the trees stay green-gold; the golf greens are
+  held back so they don't go neon; the glass house, shot in flat midday light, is warmed to late
+  afternoon and its cyan cast taken out; the concert hall keeps its lift. The first grade lifted
+  the blacks, capped the whites below full and cut saturation (to 0.72 on the golf course), which
+  read as washed out.
+
   The montage has been recut twice since it first shipped. The first time, the opener (Anna Maria at
   sunset) became the Sarasota Bay homes and the infinity pool became a beach-house room. Then the
   team found the beach-house room (a 3D render) didn't look real and the opener shook, so the room
   became the glass house, the push-in came out, and the whole montage was rebuilt from the 4K
-  sources with the portrait cut for phones. Each recut ships under a new file name (`life-here-3-*`
-  now): `/video` and `/images` are cached for a week, so the same name would keep showing returning
+  sources with the portrait cut for phones. Then the grade was redone for golden hour. Each recut
+  ships under a new file name (`life-here-4-*` now): `/video` and `/images` are cached for a week, so the same name would keep showing returning
   visitors the old cut.
 
   The music has no gain change and no normaliser (-17.1 LUFS integrated, true peak -2.4 dBTP,
